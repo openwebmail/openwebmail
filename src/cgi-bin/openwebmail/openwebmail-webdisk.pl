@@ -30,33 +30,39 @@ $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
-use IPC::Open3;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 
 require "ow-shared.pl";
 require "filelock.pl";
+require "execute.pl";
+require "htmltext.pl";
 
+# common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
+use vars qw($quotausage $quotalimit);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
-use vars qw($webdiskusage $webdiskrootdir);
 
+# extern vars
+use vars qw(%lang_folders %lang_sizes %lang_wdbutton %lang_text %lang_err);	# defined in lang/xy
+
+# local globals
+use vars qw($messageid $escapedmessageid);
+use vars qw($webdiskrootdir);
+
+########################## MAIN ##############################
+clearvars();
 openwebmail_init();
 
 # openwebmail_init() will set umask to 0077 to protect mail folder data.
 # set umask back to 0022 here dir & files are created as world readable
 umask(0022);
 
-# extern vars
-use vars qw(%lang_folders %lang_sizes %lang_wdbutton %lang_text %lang_err);	# defined in lang/xy
-use vars qw($messageid $escapedmessageid);
-
-########################## MAIN ##############################
 $messageid = param("message_id");
 $escapedmessageid = escapeURL($messageid);
 
@@ -64,17 +70,10 @@ $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
 ($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint ...
 if (! -d $webdiskrootdir) {
    mkdir($webdiskrootdir, 0755) or
-      openwebmailerror("lang_text{'cant_create_dir'} ($webdiskrootdir)");
-}
-
-$webdiskusage=0;
-if ($config{'webdisk_quota'}>0) {
-   my ($stdout, $stderr, $exit, $sig)=execute('/usr/bin/du', '-sk', $webdiskrootdir);
-   $webdiskusage=$1 if ($stdout=~/(\d+)/);
+      openwebmailerror("lang_text{'cant_create_dir'} $webdiskrootdir ($!)");
 }
 
 my $action = param("action");
-
 my $currentdir;
 if (defined(param('currentdir')) && param('currentdir') ne "") {
    $currentdir = param('currentdir');
@@ -95,93 +94,121 @@ my $msg=verify_vpath($webdiskrootdir, $currentdir);
 openwebmailerror($msg) if ($msg);
 ($currentdir =~ /^(.+)$/) && ($currentdir = $1);  # untaint ...
 
-if (! $config{'enable_webdisk'}) {
+if (!$config{'enable_webdisk'}) {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
 
 if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
-   if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+   if ($config{'webdisk_readonly'}) {
+      $msg=$lang_err{'webdisk_readonly'};
+   } elsif (is_quota_available(0)) {
       $msg=createdir($currentdir, $destname) if ($destname);
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
 } elsif ($action eq "newfile" || defined(param('newfilebutton'))) {
-   if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
       $msg=createfile($currentdir, $destname) if ($destname);
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
 } elsif ($action eq "delete" || defined(param('deletebutton'))) {
-   $msg=deletedirfiles($currentdir, @selitems) if ($#selitems>=0);
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } else {
+      $msg=deletedirfiles($currentdir, @selitems) if  ($#selitems>=0);
+   }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
 } elsif ($action eq "copy" || defined(param('copybutton'))) {
-   if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
       $msg=copymovedirfiles("copy", $currentdir, $destname, @selitems) if ($#selitems>=0);
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
 } elsif ($action eq "move" || defined(param('movebutton'))) {
-   if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
       $msg=copymovedirfiles("move", $currentdir, $destname, @selitems) if ($#selitems>=0);
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
 } elsif ($action eq "editfile" || defined(param('editbutton'))) {
    if ($config{'webdisk_readonly'}) {
       autoclosewindow($lang_wdbutton{'edit'}, $lang_err{'webdisk_readonly'});
-   } elsif (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'}) {
+   } elsif (is_quota_available(0)) {
       if ($#selitems==0) {
          editfile($currentdir, $selitems[0]);
       } else {
          autoclosewindow($lang_wdbutton{'edit'}, $lang_err{'onefileonly'});
       }
    } else {
-      autoclosewindow($lang_text{'quota_hit'}, $lang_err{'webdisk_hitquota'});
+      autoclosewindow($lang_text{'quotahit'}, $lang_err{'quotahit_alert'});
    }
 
 } elsif ($action eq "savefile" || defined(param('savebutton'))) {
    if ($config{'webdisk_readonly'}) {
       autoclosewindow($lang_wdbutton{'edit'}, $lang_err{'webdisk_readonly'});
-   } elsif (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'}) {
+   } elsif (is_quota_available(0)) {
       savefile($currentdir, $destname, param('filecontent')) if ($destname);
    } else {
-      autoclosewindow($lang_text{'quota_hit'}, $lang_err{'webdisk_hitquota'});
+      autoclosewindow($lang_text{'quotahit'}, $lang_err{'quotahit_alert'});
    }
 
 } elsif ($action eq "gzip" || defined(param('gzipbutton'))) {
-   if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
       $msg=compressfiles("gzip", $currentdir, '', @selitems) if ($#selitems>=0);
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
 } elsif ($action eq "mkzip" || defined(param('mkzipbutton'))) {
-   if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
       $msg=compressfiles("mkzip", $currentdir, $destname, @selitems) if ($#selitems>=0);
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
 } elsif ($action eq "mktgz" || defined(param('mktgzbutton'))) {
-   if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
       $msg=compressfiles("mktgz", $currentdir, $destname, @selitems) if ($#selitems>=0);
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
 } elsif ($action eq "decompress" || defined(param('decompressbutton'))) {
-   if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
       if ($#selitems==0) {
          $msg=decompressfile($currentdir, $selitems[0]);
       } else {
          $msg="$lang_wdbutton{'decompress'} - $lang_err{'onefileonly'}";
       }
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
@@ -193,9 +220,12 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
    }
 
 } elsif ($action eq "mkthumbnail" || defined(param('mkthumbnailbutton'))) {
-   if ($config{'webdisk_allow_thumbnail'} && !$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
       $msg=makethumbnail($currentdir, @selitems) if ($#selitems>=0);
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
@@ -226,15 +256,18 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
          $msg=downloadfile($currentdir, $selitems[0]);
       }
    } else {
-      $msg=$lang_err{'no_file_todownload'};
+      $msg="$lang_err{'no_file_todownload'}\n";
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg) if ($msg);
 
 } elsif ($action eq "upload" || defined(param('uploadbutton'))) {
-   if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+   if ($config{'webdisk_readonly'}) {
+      $msg="$lang_err{'webdisk_readonly'}\n";
+   } elsif (is_quota_available(0)) {
       my $upload=param('upload');	# name and handle of the upload file
       $msg=uploadfile($currentdir, $upload) if ($upload);
+   } else {
+      $msg="$lang_err{'quotahit_alert'}\n";
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
@@ -245,14 +278,20 @@ if ($action eq "mkdir" || defined(param('mkdirbutton')) ) {
          $action eq "sel_saveattachment") {	# used in readmsg to save attachment
    if ($config{'webdisk_readonly'}) {
       autoclosewindow($lang_wdbutton{'edit'}, $lang_err{'webdisk_readonly'});
-   } elsif (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'}) {
+   } elsif (is_quota_available(0)) {
       dirfilesel($action, $currentdir, $gotodir, $filesort, $page);
    } else {
-      autoclosewindow($lang_text{'quota_hit'}, $lang_err{'webdisk_hitquota'});
+      autoclosewindow($lang_text{'quotahit'}, $lang_err{'quotahit_alert'});
    }
 
+} elsif ($action eq "userrefresh")  {
+   if ($config{'quota_module'} ne 'none') {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+   }
+   showdir($currentdir, $gotodir, $filesort, $page, $msg);
+
 } elsif ($action eq "showdir" || $action eq "" || defined(param('chdirbutton')))  {
-# put chdir in last or user will be matched by ($action eq "") when clicking button
+   # put chdir in last or user will be matched by ($action eq "") when clicking button
    if ($destname) {	# chdir
       $destname = absolute_vpath($currentdir, $destname);
       showdir($currentdir, $destname, $filesort, $page, $msg);
@@ -282,8 +321,8 @@ sub createdir {
       return("$lang_text{'file'} $vpath $lang_err{'already_exists'}\n");
    } else {
       if (mkdir("$webdiskrootdir/$vpath", 0755)) {
-         writelog("webdisk - mkdir $vpath");
-         writehistory("webdisk - mkdir $vpath");
+         writelog("webdisk mkdir - $vpath");
+         writehistory("webdisk mkdir - $vpath");
          return("$lang_wdbutton{'mkdir'} $vpath\n");
       } else {
          return("$lang_err{'couldnt_open'} $vpath ($!)\n");
@@ -308,8 +347,8 @@ sub createfile {
       if (open(F, ">$webdiskrootdir/$vpath")) {
          print F "";
          close(F);
-         writelog("webdisk - createfile $vpath");
-         writehistory("webdisk - createfile $vpath");
+         writelog("webdisk createfile - $vpath");
+         writehistory("webdisk createfile - $vpath");
          return("$lang_wdbutton{'newfile'} $vpath\n");
       } else {
          return("$lang_err{'couldnt_open'} $vpath ($!)\n");
@@ -332,7 +371,7 @@ sub deletedirfiles {
          $msg.="$err\n"; next;
       }
       if (!-e "$webdiskrootdir/$vpath") {
-         $msg.="$vpath $lang_text{'doesnt_exist'}\n"; next;
+         $msg.="$vpath $lang_err{'doesnt_exist'}\n"; next;
       }
       if (-f _ && $vpath=~/\.(jpe?g|gif|png|bmp|tif)$/i) {
          my $thumbnail=path2thumbnail("$webdiskrootdir/$vpath");
@@ -356,7 +395,9 @@ sub deletedirfiles {
       $msg2=webdisk_execute($lang_wdbutton{'delete'}, @cmd, @filelist);
    }
    $msg.=$msg2;
-
+   if ($quotalimit>0 && $quotausage>$quotalimit) {	# get uptodate quotausage
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+   }
    return($msg);
 }
 ########################## END DELETEDIRFILES #######################
@@ -388,7 +429,7 @@ sub copymovedirfiles {
          $msg.="$err\n"; next;
       }
       if (! -e "$webdiskrootdir/$vpath1") {
-         $msg.="$vpath1 $lang_text{'doesnt_exist'}\n"; next;
+         $msg.="$vpath1 $lang_err{'doesnt_exist'}\n"; next;
       }
       next if ($vpath1 eq $vpath2);
       push(@filelist, "$webdiskrootdir/$vpath1");
@@ -544,8 +585,8 @@ sub savefile {
    close(F);
    filelock("$webdiskrootdir/$vpath", LOCK_UN);
 
-   writelog("webdisk - save file $vpath");
-   writehistory("webdisk - save file $vpath");
+   writelog("webdisk savefile - $vpath");
+   writehistory("webdisk savefile - $vpath");
 
    my $jscode=qq|window.opener.document.dirform.submit();|;
    autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'succeeded'} ($vpath)", 8, $jscode);
@@ -760,7 +801,7 @@ sub listarchive {
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'decomp_notsupported'} ($vpath)\n");
    }
 
-   my ($stdout, $stderr, $exit, $sig)=execute(@cmd, "$webdiskrootdir/$vpath");
+   my ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd, "$webdiskrootdir/$vpath");
    # try to conv realpath in stdout/stderr back to vpath
    $stdout=~s!($webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stdout=~s!/+!/!g;
    $stderr=~s!($webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stderr=~s!/+!/!g;
@@ -924,13 +965,15 @@ sub downloadfiles {	# through zip or tgz
    print qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
          qq|Content-Type: $contenttype; name="$dlname"\n|;
-   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
+   if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition: attachment
+      print qq|Content-Disposition: filename="$dlname"\n|;
+   } else {
       print qq|Content-Disposition: attachment; filename="$dlname"\n|;
    }
    print qq|\n|;
 
-   writehistory("webdisk - download ".join(' ', @filelist));
-   writelog("webdisk - download ".join(' ', @filelist));
+   writelog("webdisk download - ".join(' ', @filelist));
+   writehistory("webdisk download - ".join(' ', @filelist));
 
    # set enviro's for cmd
    $ENV{'USER'}=$ENV{'LOGNAME'}=$user;
@@ -960,10 +1003,11 @@ sub downloadfile {
          qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
          qq|Content-Type: $contenttype; name="$dlname"\n|;
-   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
-      if ($contenttype=~/^text/ ||
-          $dlname=~/\.(jpe?g|gif|png|bmp)$/i) {
-         print qq|Content-Disposition: inline; filename="$dlname"\n|;
+   if ($contenttype=~/^text/ || $dlname=~/\.(jpe?g|gif|png|bmp)$/i) {
+      print qq|Content-Disposition: inline; filename="$dlname"\n|;
+   } else {
+      if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) { # ie5.5 is broken with content-disposition: attachment
+         print qq|Content-Disposition: filename="$dlname"\n|;
       } else {
          print qq|Content-Disposition: attachment; filename="$dlname"\n|;
       }
@@ -976,8 +1020,8 @@ sub downloadfile {
    }
    close(F);
 
-   writehistory("webdisk - download $vpath ");
-   writelog("webdisk - download $vpath");
+   writelog("webdisk download - $vpath");
+   writehistory("webdisk download - $vpath ");
 }
 ########################## END DOWNLOADFILE ##########################
 
@@ -1017,11 +1061,9 @@ sub previewfile {
    print qq|Content-Length: $length\n|,
          qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
-         qq|Content-Type: $contenttype; name="$dlname"\n|;
-   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
-      print qq|Content-Disposition: inline; filename="$dlname"\n|;
-   }
-   print qq|\n|, $filecontent;
+         qq|Content-Type: $contenttype; name="$dlname"\n|,
+         qq|Content-Disposition: inline; filename="$dlname"\n\n|,
+         $filecontent;
    return;
 }
 
@@ -1058,11 +1100,14 @@ sub uploadfile {
    my ($currentdir, $upload)=@_;
    my $size=(-s $upload);
 
-   if ( $config{'webdisk_uploadlimit'} &&
-        $size > ($config{'webdisk_uploadlimit'}*1024) ) {
+   if (!is_quota_available($size/1024)) {
+      return("$lang_err{'quotahit_alert'}\n");
+   }   
+   if ($config{'webdisk_uploadlimit'} &&
+       $size/1024>$config{'webdisk_uploadlimit'} ) {
       return ("$lang_err{'upload_overlimit'} $config{'webdisk_uploadlimit'} $lang_sizes{'kb'}\n");
    }
-   if ( $size ==0 ) {
+   if ($size ==0) {
       return("$lang_wdbutton{'upload'} $lang_text{'failed'} (filesize is zero)\n");
    }
 
@@ -1224,7 +1269,8 @@ sub dirfilesel {
    foreach ( split(/\//, $currentdir) ) {
       next if ($_ eq "");
       $p.="$_/";
-      $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.escapeURL($p).qq|">$_/</a>\n|;
+      $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=$action&amp;gotodir=|.escapeURL($p).qq|">|.
+                 str2html("$_/").qq|</a>\n|;
    }
    $html =~ s/\@\@\@CURRENTDIR\@\@\@/$temphtml/g;
 
@@ -1292,8 +1338,8 @@ sub dirfilesel {
 
    $temphtml='';
    if ($#sortedlist>=0) {
-      my $bgcolor;
       my $os=$^O||'generic';
+      my $bgcolor;
       my ($i_first, $i_last)=(0, $#sortedlist);
       if (!$singlepage) {
          $i_first=($page-1)*10; # use 10 instead of $prefs{'webdisk_dirnumitems'} for shorter page
@@ -1311,7 +1357,7 @@ sub dirfilesel {
          }
 
          my ($imgstr, $namestr, $opstr);
-         $namestr=$fname;
+         $namestr=str2html($fname);
          $namestr.=qq| -&gt; $flink{$fname}| if (defined($flink{$fname}));
          if ($ftype{$fname} eq "d") {
             if ($prefs{'iconset'}!~/^Text\./) {
@@ -1342,9 +1388,7 @@ sub dirfilesel {
 
          my $datestr;
          if (defined($fdate{$fname})) {
-            my @t =gmtime($fdate{$fname});
-            my $dateserial=sprintf("%4d%02d%02d%02d%02d%02d", $t[5]+1900,$t[4]+1,$t[3], $t[2],$t[1],$t[0]);
-            $datestr=dateserial2str(add_dateserial_timeoffset($dateserial, $prefs{'timeoffset'}), $prefs{'dateformat'});
+            $datestr=dateserial2str(gmtime2dateserial($fdate{$fname}), $prefs{'timeoffset'}, $prefs{'dateformat'});
          }
 
          $bgcolor = ($style{'tablerow_dark'},$style{'tablerow_light'})[$i%2];
@@ -1510,6 +1554,18 @@ sub showdir {
    my $keyword=param('keyword'); $keyword=~s/[`;\|]//g;
    my $escapedkeyword=escapeURL($keyword);
 
+   my $quotahit_deltype='';
+   if ($quotalimit>0 && $quotausage>$quotalimit &&
+       $config{'delfile_ifquotahit'} && 
+       (!$config{'delmail_ifquotahit'}||$folderusage<=$quotausage*0.5) ) {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+      if ($quotausage>$quotalimit) {
+         $quotahit_deltype='quotahit_delfile';
+         cutdirfiles(($quotausage-$quotalimit*0.9)*1024, $webdiskrootdir);
+         $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+      }
+   }
+
    my ($currentdir, $escapedcurrentdir, @list);
    if ($keyword) {	# olddir = newdir if keyword is supplied for searching
       my $err=filelist_of_search($searchtype, $keyword, $olddir, "$folderdir/.webdisk.cache", \@list);
@@ -1600,7 +1656,7 @@ sub showdir {
       @sortedlist= sort { $ftype{$a} cmp $ftype{$b} || $ftype{$a} cmp $ftype{$b} || $a cmp $b } keys(%ftype)
    }
 
-   my $totalpage= int(($#sortedlist+1)/$prefs{'webdisk_dirnumitems'}+0.999999);
+   my $totalpage= int(($#sortedlist+1)/($prefs{'webdisk_dirnumitems'}||10)+0.999999);
    $totalpage=1 if ($totalpage==0);
    if ($currentdir ne $olddir) {
       $page=1;	# reset page number if change to new dir
@@ -1617,7 +1673,7 @@ sub showdir {
    my $wd_url_sort_page=qq|$wd_url&amp;filesort=$filesort&amp;page=$page|;
 
    $temphtml .= iconlink("home.gif" ,"$lang_text{'backto'} $lang_text{'homedir'}", qq|accesskey="G" href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.escapeURL('/').qq|"|);
-   $temphtml .= iconlink("refresh.gif" ,"$lang_wdbutton{'refresh'} ", qq|accesskey="R" href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=$escapedcurrentdir"|);
+   $temphtml .= iconlink("refresh.gif" ,"$lang_wdbutton{'refresh'} ", qq|accesskey="R" href="$wd_url_sort_page&amp;action=userrefresh&amp;gotodir=$escapedcurrentdir"|);
 
    $temphtml .= "&nbsp\n";
 
@@ -1637,13 +1693,19 @@ sub showdir {
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
-   if ($config{'webdisk_quota'}>0) {
-      my $percent=int($webdiskusage*1000/$config{'webdisk_quota'})/10;
-      my $quotastr=qq|$lang_text{'usage'} $webdiskusage|.qq|k/$config{'webdisk_quota'}k ($percent\%)|;
-      $html =~ s/\@\@\@INFOQUOTA\@\@\@/$quotastr/g;
+   if ($config{'quota_module'} ne "none") {
+      $temphtml='';
+      my $overthreshold=($quotalimit>0 && $quotausage/$quotalimit>$config{'quota_threshold'}/100);
+      if ($config{'quota_threshold'}==0 || $overthreshold) {
+         $temphtml = "$lang_text{'quotausage'}: ".lenstr($quotausage*1024,1);
+      }
+      if ($overthreshold) {
+         $temphtml.=" (".(int($quotausage*1000/$quotalimit)/10)."%) ";
+      }
    } else {
-      $html =~ s/\@\@\@INFOQUOTA\@\@\@//g;
+      $temphtml="&nbsp;";
    }
+   $html =~ s/\@\@\@QUOTAUSAGE\@\@\@/$temphtml/;
 
    $temphtml = start_multipart_form(-name=>"dirform",
 				    -action=>"$config{'ow_cgiurl'}/openwebmail-webdisk.pl") .
@@ -1681,7 +1743,8 @@ sub showdir {
    foreach ( split(/\//, $currentdir) ) {
       next if ($_ eq "");
       $p.="$_/";
-      $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.escapeURL($p).qq|">$_/</a>\n|;
+      $temphtml.=qq|<a href="$wd_url_sort_page&amp;action=showdir&amp;gotodir=|.escapeURL($p).qq|">|.
+                 str2html("$_/").qq|</a>\n|;
    }
    $html =~ s/\@\@\@CURRENTDIR\@\@\@/$temphtml/g;
 
@@ -1775,8 +1838,8 @@ sub showdir {
 
    $temphtml='';
    if ($#sortedlist>=0) {
-      my $bgcolor;
       my $os=$^O||'generic';
+      my $bgcolor;
       my ($i_first, $i_last)=(0, $#sortedlist);
       if (!$singlepage) {
          $i_first=($page-1)*$prefs{'webdisk_dirnumitems'};
@@ -1793,7 +1856,7 @@ sub showdir {
          }
 
          my ($imgstr, $namestr, $opstr);
-         $namestr=$p;
+         $namestr=str2html($p);
          $namestr.=qq| -&gt; $flink{$p}| if (defined($flink{$p}));
          if ($ftype{$p} eq "d") {
             if ($prefs{'iconset'}!~/^Text\./) {
@@ -1827,7 +1890,7 @@ sub showdir {
                          qq|">[$lang_wdbutton{'preview'}]</a>|;
                }
                if (!$config{'webdisk_readonly'} &&
-                   (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+                   (!$quotalimit||$quotausage<$quotalimit) ) {
                   $opstr.=qq|<a href=# onClick="window.open('|.
                           qq|$wd_url&amp;action=editfile&amp;selitems=|.escapeURL($p).
                           qq|','_editfile','width=720,height=550,scrollbars=yes,resizable=yes,location=no');|.
@@ -1839,7 +1902,7 @@ sub showdir {
                       qq|','_editfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');|.
                       qq|">[$lang_wdbutton{'listarchive'}]</a>|;
                if (!$config{'webdisk_readonly'} &&
-                   (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+                   (!$quotalimit||$quotausage<$quotalimit) ) {
                   my $onclickstr;
                   if ($prefs{'webdisk_confirmcompress'}) {
                      my $pstr=$p; $pstr=~s/'/\\'/g;	# escape for javascript
@@ -1850,7 +1913,7 @@ sub showdir {
                }
             } elsif ($p=~/\.(g?z|bz2?)$/i ) {
                if (!$config{'webdisk_readonly'} &&
-                   (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+                   (!$quotalimit||$quotausage<$quotalimit) ) {
                   my $onclickstr;
                   if ($prefs{'webdisk_confirmcompress'}) {
                      my $pstr=$p; $pstr=~s/'/\\'/g;	# escape for javascript
@@ -1880,9 +1943,7 @@ sub showdir {
 
          my $datestr;
          if (defined($fdate{$p})) {
-            my @t =gmtime($fdate{$p});
-            my $dateserial=sprintf("%4d%02d%02d%02d%02d%02d", $t[5]+1900,$t[4]+1,$t[3], $t[2],$t[1],$t[0]);
-            $datestr=dateserial2str(add_dateserial_timeoffset($dateserial, $prefs{'timeoffset'}), $prefs{'dateformat'});
+            $datestr=dateserial2str(gmtime2dateserial($fdate{$p}), $prefs{'timeoffset'}, $prefs{'dateformat'});
          }
 
          $fperm{$p}=~/^(.)(.)(.)$/;
@@ -1987,7 +2048,7 @@ sub showdir {
 
    $temphtml='';
    if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+       (!$quotalimit||$quotausage<$quotalimit) ) {
       $temphtml.=submit(-name=>"mkdirbutton",
                         -accesskey=>"M",
                         -onClick=>"return destnamefilled('$lang_text{name_of_newdir}');",
@@ -2004,7 +2065,7 @@ sub showdir {
                         -accesskey=>"Y",
                         -onClick=>"return (anyfileselected() && opconfirm('$lang_wdbutton{delete}', $prefs{webdisk_confirmdel}));",
                         -value=>$lang_wdbutton{'delete'});
-      if (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'}) {
+      if (!$quotalimit||$quotausage<$quotalimit) {
          $temphtml.=submit(-name=>"copybutton",
                            -accesskey=>"C",
                            -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_thecopy}') && opconfirm('$lang_wdbutton{copy}', $prefs{webdisk_confirmmovecopy}));",
@@ -2018,7 +2079,7 @@ sub showdir {
    }
 
    if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+       (!$quotalimit||$quotausage<$quotalimit) ) {
       $temphtml.=submit(-name=>"gzipbutton",
                         -accesskey=>"Z",
                         -onClick=>"return(anyfileselected() && opconfirm('$lang_wdbutton{gzip}', $prefs{webdisk_confirmcompress}));",
@@ -2063,7 +2124,7 @@ sub showdir {
    $html =~ s/\@\@\@SEARCHFILEFIELD\@\@\@/$temphtml/g;
 
    if (!$config{'webdisk_readonly'} &&
-       (!$config{'webdisk_quota'} || $webdiskusage < $config{'webdisk_quota'})) {
+       (!$quotalimit||$quotausage<$quotalimit) ) {
       $temphtml = filefield(-name=>'upload',
                             -default=>"",
                             -size=>'20',
@@ -2079,9 +2140,9 @@ sub showdir {
       $html =~ s/\@\@\@UPLOADSTART\@\@\@/<!--/g;
       $html =~ s/\@\@\@UPLOADEND\@\@\@/-->/g;
    }
-
-   if ($config{'webdisk_quota'} && $webdiskusage==$config{'webdisk_quota'}) {
-      $msg.="$lang_err{'webdisk_hitquota'}\n";
+   
+   if ($quotalimit>0 && $quotausage>=$quotalimit) {
+      $msg.="$lang_err{'quotahit_alert'}\n";
    }
    $temphtml = textarea(-name=>'msg',
                         -default=>$msg,
@@ -2094,6 +2155,16 @@ sub showdir {
    $temphtml=end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
+   # show quotahit del warning
+   if ($quotahit_deltype) {
+      $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
+      my $msg=qq|<font size="-1" color="#cc0000">$lang_err{$quotahit_deltype}</font>|;
+      $msg=~s/\@\@\@QUOTALIMIT\@\@\@/$config{'quota_limit'}$lang_sizes{'kb'}/;
+      $html.=qq|<script language="JavaScript">\n<!--\n|.
+             qq|showmsg('$prefs{"charset"}', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_del', 400, 100, 60);\n|.
+             qq|//-->\n</script>\n|;
+   }
+
    # since some browser always treat refresh directive as realtive url.
    # we use relative path for refresh
    my $refreshinterval=$prefs{'refreshinterval'}*60;
@@ -2104,7 +2175,9 @@ sub showdir {
                         -path  => '/');
    print htmlheader(-cookie=>[$cookie],
                     -Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&folder=escapedfolder&message_id=$escapedmessageid&action=showdir&currentdir=$escapedcurrentdir&gotodir=$escapedcurrentdir&showthumbnail=$showthumbnail&showhidden=$showhidden&singlepage=$singlepage&filesort=$filesort&page=$page&searchtype=$searchtype&keyword=$escapedkeyword&session_noupdate=1"),
+         htmlplugin($config{'header_pluginfile'}),
          $html,
+         htmlplugin($config{'footer_pluginfile'}),
          htmlfooter(2);
 }
 
@@ -2133,17 +2206,17 @@ sub filelist_of_search {
          my $findbin=findbin('find');
          return("$lang_text{'program'} find $lang_err{'doesnt_exist'}\n") if (!$findbin);
          @cmd=($findbin, ".", '-iname', "*$keyword*", '-print');
-         ($stdout, $stderr, $exit, $sig)=execute(@cmd);
+         ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
 
          if ($stderr) {	# old find doesn't support -iname, use -name instead
             @cmd=($findbin, ".", '-name', "*$keyword*", '-print');
-            ($stdout, $stderr, $exit, $sig)=execute(@cmd);
+            ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
          }
       } else {				# grep -ilsr -- keyword .
          my $grepbin=findbin('grep');
          return("$lang_text{'program'} grep $lang_err{'doesnt_exist'}\n") if (!$grepbin);
          @cmd=($grepbin, "-ilsr", '--', $keyword, '.');
-         ($stdout, $stderr, $exit, $sig)=execute(@cmd);
+         ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
 
          if ($stderr) {	# old grep doesn't support -r, do no-recursive search instead
             if (!opendir(D, "$webdiskrootdir/$vpath")) {
@@ -2152,7 +2225,7 @@ sub filelist_of_search {
             my @f=readdir(D);
             close(D);
             @cmd=($grepbin, "-ils", '--', $keyword, @f);
-            ($stdout, $stderr, $exit, $sig)=execute(@cmd);
+            ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
          }
       }
 
@@ -2191,7 +2264,7 @@ sub filelist_of_search {
 # a wrapper for execute() to handle the dirty work
 sub webdisk_execute {
    my ($opstr, @cmd)=@_;
-   my ($stdout, $stderr, $exit, $sig)=execute(@cmd);
+   my ($stdout, $stderr, $exit, $sig)=openwebmail::execute::execute(@cmd);
 
    # try to conv realpath in stdout/stderr back to vpath
    $stdout=~s!($webdiskrootdir//|\s$webdiskrootdir/)! /!g; $stdout=~s!/+!/!g;
@@ -2202,8 +2275,8 @@ sub webdisk_execute {
       $opresult=$lang_text{'failed'};
    } else {
       $opresult=$lang_text{'succeeded'};
-      writehistory("webdisk - ".join(' ', @cmd));
-      writelog("webdisk - ".join(' ', @cmd));
+      writelog("webdisk execute - ".join(' ', @cmd));
+      writehistory("webdisk execute - ".join(' ', @cmd));
    }
    if ($sig) {
       return "$opstr $opresult (exit status $exit, terminated by signal $sig)\n$stdout$stderr";
@@ -2268,3 +2341,14 @@ sub findicon {
    }
 }
 ########################## END FINDICON ##############################
+
+########################## IS_QUOTA_AVAILABLE ##########################
+sub is_quota_available {
+   my $writesize=$_[0];
+   if ($quotalimit>0 && $quotausage+$writesize>$quotalimit) {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+      return 0 if ($quotausage+$writesize>$quotalimit);
+   }
+   return 1;
+}
+######################## END IS_QUOTA_AVAILABLE ########################

@@ -26,6 +26,13 @@ package openwebmail::zh_TW_Big5;
    size_rev    => '大小 (小優先)'
    );
 
+%lang_onofflabels =
+   (
+   auto => '自動切換',
+   on   => '開',
+   off  => '關',
+   );
+
 %lang_prioritylabels =
    (
    normal      => '普通',
@@ -223,6 +230,7 @@ package openwebmail::zh_TW_Big5;
    replyall   => '回信給所有人',
    forward    => '轉寄',
    forwardasatt=>'以附件方式轉寄',
+   forwardasorig=>'原信轉寄',
    printfriendly=> '友善列印',
    from       => '寄件者',
    replyto    => '回給',
@@ -253,7 +261,6 @@ package openwebmail::zh_TW_Big5;
    continue   => '繼續',
    loginagain => '重新登入',
    exit       => '離開',
-   for        => 'for',
    yourname   => '您的姓名',
    save       => '儲存',
    add        => '增加',
@@ -283,8 +290,9 @@ package openwebmail::zh_TW_Big5;
    note       => '附註',
    max        => '最大值',
    group      => '群組',
-   quota_hit  => '儲存空間已滿',
-   usage      => '使用空間',
+   quotausage => '空間用量',
+   quotalimit => '空間上限',
+   quotahit   => '儲存空間已滿',
    tzmap      => '世界時區地圖',
    testsound  => '試聽',
    editfroms  => '編輯個人郵件地址',
@@ -350,7 +358,7 @@ package openwebmail::zh_TW_Big5;
    every_evenmonth_thisyear => '本年所有偶數月份',
    every_month_thisyear     => '本年所有月份',
    webdisk      => '網路硬碟',
-   sshterm      => 'SSH Terminal',
+   sshterm      => 'SSH 終端機',
    dir          => '目錄',
    dirs         => '目錄',
    file         => '檔案',
@@ -410,8 +418,6 @@ package openwebmail::zh_TW_Big5;
    tryagain          => '再試一次.',
    abook_toobig      => '通訊錄超過容量限制. 請',
    cant_create_dir   => '無法建立使用者目錄!',
-   folder_hitquota   => '抱歉！您的容量已經超過限制，請先將不要的信件刪除和清空垃圾匣，否則您將無法正常使用.',
-   folder_cutdone    => '注意！由於信件匣容量超出限制(@@@FOLDERQUOTA@@@), 各信件匣中過舊的訊息已經被自動移除.',
    att_overlimit     => '附件大小超過限制',
    inv_msg_op        => '不認得的信件操作',
    sess_cookieerr    => 'Sessionid cookie 不正確，拒絕存取. 請檢查是否瀏覽器 cookie 功能未開或是重複登入.',
@@ -440,8 +446,12 @@ package openwebmail::zh_TW_Big5;
    no_file_todownload=> '尚未選擇要下載的目錄或檔案',
    upload_overlimit  => '上傳檔案的大小超出限制',
    decomp_notsupported=>'系統不支援這種檔案的解壓縮.',
-   webdisk_hitquota   => '抱歉, 你的網路硬碟大小已經超出限制, 請先試著刪除一些檔案.',
-   webdisk_readonly   => '抱歉, 你的網路硬碟是唯讀的.',
+   webdisk_readonly  => '抱歉, 你的網路硬碟是唯讀的.',
+   quota_syserr      => 'Quota 系統內部錯誤',
+   quotahit_alert    => '很抱歉, 由於您的使用空間已經超過上限, 請先刪除信件匣中的信件, 或是網路硬碟中的檔案以便釋出一些可用空間.',
+   quotahit_delmail  => '注意, 由於使空間已經超過上限(@@@QUOTALIMIT@@@), 信件匣中最舊的一些信件已經被自動刪除了.',
+   quotahit_delfile  => '注意, 由於使空間已經超過上限(@@@QUOTALIMIT@@@), 網路硬碟中的一些檔案已經被自動刪除了.',
+   spool_overlimit   => '很抱歉, 您的新信匣已經超出其容量上限(@@@SPOOLLIMIT@@@). 請將部份信件由新信匣搬到其他信件匣.',
    vdomain_toomanyuser=> '抱歉, 這個網域的使用者數目已經到達上限'
    );
 

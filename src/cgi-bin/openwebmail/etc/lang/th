@@ -26,6 +26,13 @@ package openwebmail::th;
    size_rev    => 'ขนาด (เล็กสุดก่อน)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'ปกติ',
@@ -223,6 +230,7 @@ package openwebmail::th;
    replyall   => 'ตอบถึงทุกคน',
    forward    => 'ส่งต่อ',
    forwardasatt=>'ส่งต่อเป็นแฟ้มแนบ',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'เหมาะสำหรับพิมพ์',
    from       => 'ผู้ส่ง',
    replyto    => 'ตอบกลับที่',
@@ -253,7 +261,6 @@ package openwebmail::th;
    continue   => 'ทำต่อ',
    loginagain => 'เข้าระบบอีกครั้ง',
    exit       => 'ออก',
-   for        => 'สำหรับ',
    yourname   => 'ชื่อของคุณ',
    save       => 'บันทึก',
    add        => 'เพิ่ม',
@@ -283,8 +290,9 @@ package openwebmail::th;
    note       => 'หมายเหตุ',
    max        => 'Maximum',
    group      => 'กลุ่ม',
-   quota_hit  => 'จดหมายเต็ม',
-   usage      => 'ใช้งาน',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'จดหมายเต็ม',
    tzmap      => 'แผนที่แสดงเวลามาตรฐานโลก',
    testsound  => 'ทดสอบเสียง',
    editfroms  => 'แก้ไขสมุดรายชื่อ',
@@ -410,8 +418,6 @@ package openwebmail::th;
    tryagain          => 'ลองใหม่อีกครั้ง',
    abook_toobig      => 'การกระทำนี้จะทำให้สมุดรายชื่อของคุณใหญ่กว่าที่กำหนดไว้',
    cant_create_dir   => 'ไม่สามารถสร้างไดเรกทอรีส่วนตัวของคุณได้!',
-   folder_hitquota   => 'จดหมายของคุณเต็มพื้นที่แล้ว คุณไม่สามารถย้ายจดหมายเข้าโฟลเดอร์ได้ คุณสามารถย้ายจดหมายไปยังถังขยะเพื่อลบได้เท่านั้น กรุณากลับไปลบจดหมาย หรือล้างถังขยะ แล้วลองใหม่อีกครั้ง',
-   folder_cutdone    => 'คำเตือน ปริมาณของจดหมายถึงโควต้าแล้ว (@@@FOLDERQUOTA@@@) จดหมายฉบับที่เก่าที่สุดในโฟลเดอร์ จะถูกลบโดยอัตโนมัติ',
    att_overlimit     => 'แฟ้มที่แนบของคุณใหญ่กว่าขนาดที่กำหนดไว้',
    inv_msg_op        => 'คำสั่งผิดพลาดในจดหมาย',
    sess_cookieerr    => 'การใช้งานของคุณไม่มีรายละเอียด cookie ที่ถูกต้อง คุณไม่สามารถใช้งานได้!',
@@ -440,8 +446,12 @@ package openwebmail::th;
    no_file_todownload=> 'No file is specified for download',
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

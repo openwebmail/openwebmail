@@ -26,6 +26,13 @@ package openwebmail::tr;
    size_rev    => 'Boyut (En Küçük Önce)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normal',
@@ -223,6 +230,7 @@ package openwebmail::tr;
    replyall   => 'Herkese Cevap Ver',
    forward    => 'Aktar',
    forwardasatt=>'Ek Dosyasý Olarak Aktar',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Yazýcý Dostu',
    from       => 'Kimden',
    replyto    => 'Cevap-Ver',
@@ -253,7 +261,6 @@ package openwebmail::tr;
    continue   => 'Devam',
    loginagain => 'Yeniden Gir',
    exit       => 'Çýkýþ',
-   for        => 'için',
    yourname   => 'Ýsminiz',
    save       => 'Kaydet',
    add        => 'Ekle',
@@ -283,8 +290,9 @@ package openwebmail::tr;
    note       => 'Not',
    max        => 'Maximum',
    group      => 'Grup',
-   quota_hit  => 'KOTA SINIRINA ULAÞILDI',
-   usage      => 'Kullaným',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'KOTA SINIRINA ULAÞILDI',
    tzmap      => 'Dünya zaman dilimleri haritasý',
    testsound  => 'Test sesi',
    editfroms  => 'Kiþisel eposta adreslerini düzenle',
@@ -410,8 +418,6 @@ package openwebmail::tr;
    tryagain          => 've tekrar deneyiniz.',
    abook_toobig      => 'Adres defterinizin sýnýrda olduðu için bu deðer girilemiyor',
    cant_create_dir   => 'Kullanýcý klasörünüz oluþturulamýyor!',
-   folder_hitquota   => 'Kota sýnýrýný doldurnuz ve bu yüzden yeni iletiler kaydedilemiyor.Lütfen "Çöp Kutusu"nu boþaltýn veya iletilerinizin bir kýsmýný siliniz.',
-   folder_cutdone    => 'Uyarý, kota limitine ulaþtýðýnýz için (@@@KLASORKOTA@@@) , eski mesajlarýnýz otomatik olarak silinecektir.',
    att_overlimit     => 'Ek dosyasý sýnýrýný aþtýnýz,dosyanýzýn boyutu',
    inv_msg_op        => 'Ýleti için geçersiz iþlem',
    sess_cookieerr    => 'Ýsteðiniz geçerli bir sezon numrasý veya tanýmlama bilgisi içermemektedir.--erþim engellendi!',
@@ -440,8 +446,12 @@ package openwebmail::tr;
    no_file_todownload=> 'Ýndirilecek dosya seçilmedi',
    upload_overlimit  => 'Yüklenecek dosya boyutu limiti aþýyor',
    decomp_notsupported=>'Bu dosya için sýkýþtýrmayý açma desteði yoktur',
-   webdisk_hitquota   => 'Malesef, SanalDisk kotasýný doldurdunuz,önce dosya silmeniz gerekiyor.',
-   webdisk_readonly   => 'Malesef, SanalDiskiniz saltokunur.',
+   webdisk_readonly  => 'Malesef, SanalDiskiniz saltokunur.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

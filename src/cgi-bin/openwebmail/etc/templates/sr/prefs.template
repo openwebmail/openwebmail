@@ -1,9 +1,17 @@
 @@@STARTPREFSFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
+<tr>
+<td nowrap bgcolor=@@@TITLEBAR@@@ width="30%">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Korisnièka pode&#154;avanja @@@REALNAME@@@</B></font>
-<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+<B>Korisnièka pode¹avanja</B></font>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="center">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@QUOTAUSAGE@@@</B></font>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="right" width="30%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@REALNAME@@@&nbsp;</B></font>
+</tr>
+<tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
 </table>
@@ -21,6 +29,11 @@
 @@@TIMEOFFSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Prilagoðavanje èasovnika:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DAYLIGHTSAVINGMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>©alje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FROMEMAILMENU@@@
@@ -32,7 +45,7 @@
 </td></tr>
 @@@FORWARDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Prosledi po&#154;tu na:</B>
+<B>Prosledi po¹tu na:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FORWARDADDRESS@@@
  
@@ -50,18 +63,18 @@ Tema:
 @@@AUTOREPLYSUBJECT@@@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Tekst automatskog odgovora (500 znakova najvi&#154;e)</B><BR>
+<B>Tekst automatskog odgovora (500 znakova najvi¹e)</B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr>
 @@@AUTOREPLYEND@@@
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Potpis (500 znakova najvi&#154;e)</B><BR>
+<B>Potpis (500 znakova najvi¹e)</B><BR>
 @@@SIGAREA@@@
 <br> 
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanje prikaza</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode¹avanje prikaza</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Stil:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -99,9 +112,9 @@ Tema:
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pregled foldera</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pregled omotnica</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pozicija kontrola pri pregledu foldera:</B>
+<B>Pozicija kontrola pri pregledu omotnice:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -129,12 +142,12 @@ Tema:
 @@@CONFIRMMSGMOVECOPY@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Podrazumevano odredi&#154;te:</B>
+<B>Podrazumevano odredi¹te:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>"Pametno" odredi&#154;te:</B>
+<B>"Pametno" odredi¹te:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SMARTDESTINATION@@@
 </td></tr>
@@ -145,7 +158,7 @@ Tema:
 </td></tr>
 @@@AUTOPOP3START@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Automatski dobavi POP3 po&#154;tu po prijavi:</B>
+<B>Automatski dobavi POP3 po¹tu po prijavi:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOPOP3CHECKBOX@@@
 </td></tr>
@@ -159,7 +172,7 @@ Tema:
 @@@MOVEOLDEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanja za èitanje poruka</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode¹avanja za èitanje poruka</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Pozicija kontrola prilikom èitanja poruke:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -171,22 +184,22 @@ Tema:
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Koristi font fiksne &#154;irine prilikom èitanja:</B>
+<B>Koristi font fiksne ¹irine prilikom èitanja:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Koristi slièice sme&#154;ka prilikom èitanja:</B>
+<B>Koristi slièice sme¹ka prilikom èitanja:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Onemoguæi izvr&#154;avanje JavaScript-a unutar poruka:</B>
+<B>Onemoguæi izvr¹avanje JavaScript-a unutar poruka:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Onemoguæi izvr&#154;avanje ugraðenog CGI-a unutar poruka:</B>
+<B>Onemoguæi izvr¹avanje ugraðenog CGI-a unutar poruka:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCGI@@@
 </td></tr>
@@ -202,7 +215,7 @@ Tema:
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanja odgovaranja na poruke</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode¹avanja odgovaranja na poruke</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Velièina prostora za ureðivanje poruka:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -224,7 +237,7 @@ Tema:
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Saèuvaj odlazeæu poruku u folder POSLATE:</B>
+<B>Saèuvaj odlazeæu poruku u omotnicu POSLATE:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
@@ -236,7 +249,7 @@ Tema:
 
 @@@FILTERSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanje filtera za poruke</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode¹avanje filtera za poruke</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Ogranièenje za poruke koje se ponavljaju:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -253,14 +266,14 @@ Tema:
 @@@FILTERFAKEDFROM@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filteriranje poruka sa la¾nim izvr&#154;nim (.exe) sadr¾ajem:</B>
+<B>Filteriranje poruka sa la¾nim izvr¹nim (.exe) sadr¾ajem:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
 @@@FILTEREND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanje adresara</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode¹avanje adresara</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Velièina prozora za adresar:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -279,7 +292,7 @@ Tema:
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanje kalendara</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode¹avanje kalendara</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Broj zapisa u meseènom pregledu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -296,7 +309,7 @@ Tema:
 @@@STARTHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Èas zavr&#154;etka:</B>
+<B>Èas zavr¹etka:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
 </td></tr>
@@ -316,7 +329,7 @@ Tema:
 @@@REMINDERDAYSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Podsetnik za op&#154;te dogaðaje kalendara:</B>
+<B>Podsetnik za op¹te dogaðaje kalendara:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
@@ -324,43 +337,43 @@ Tema:
 
 @@@WEBDISKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode&#154;avanje mre¾nog diska - WebDisk-a</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pode¹avanje mre¾nog diska - WebDisk-a</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Broj stavki pri prikazu direktorijuma:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DIRNUMITEMSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Potvrda pre pomeranja / kopiranja direktorijuma / fajla:</B>
+<B>Potvrda pre pomeranja / kopiranja direktorijuma / datoteke:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEMOVECOPY@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Potvrda pre brisana direktorijuma / fajla:</B>
+<B>Potvrda pre brisana direktorijuma / datoteke:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEDEL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Potvrda pre kompresovanja direktorijuma / fajla:</B>
+<B>Potvrda pre kompresovanja direktorijuma / datoteke:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILECOMPRESS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Velièina prozora za ureðivanje fajla:</B>
+<B>Velièina prozora za ureðivanje datoteke:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 ©irina @@@FILEEDITCOLUMNSMENU@@@ Visina @@@FILEEDITROWSMENU@@@
 </td></tr>
 @@@WEBDISKEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Razna pode&#154;avanja</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Razna pode¹avanja</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Koristi Regex pri pretrazi i filtriranju:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REGEXMATCH@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Sakrij interne podatke foldera:</B>
+<B>Sakrij unutra¹nje podatke omotnice:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HIDEINTERNAL@@@
 </td></tr>
@@ -370,14 +383,14 @@ Tema:
 @@@REFRESHINTERVALMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Zvuk za obave&#154;tavanje novopristigle po&#154;te:</B>
+<B>Zvuk za obave¹tavanje novopristigle po¹te:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Prozor za obave&#154;tavanje novopristigle po&#154;te:</B>
+<B>Prozor za obave¹tavanje novopristigle po¹te:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-preostalo @@@NEWMAILWINDOWTIMEMENU@@@ sekundi  ( 0 znaèi da nema obave&#154;tavanja )
+preostalo @@@NEWMAILWINDOWTIMEMENU@@@ sekundi  ( 0 znaèi da nema obave¹tavanja )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Reènik za pravopisnu proveru :</B>

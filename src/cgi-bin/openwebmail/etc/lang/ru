@@ -26,6 +26,13 @@ package openwebmail::ru;
    size_rev    => 'по размеру (обратный порядок)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Обычное',
@@ -223,6 +230,7 @@ package openwebmail::ru;
    replyall   => 'Ответить всем',
    forward    => 'Переслать',
    forwardasatt=>'Переслать как файл',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Версия для печати',
    from       => 'От',
    replyto    => 'Обратный адрес',
@@ -253,7 +261,6 @@ package openwebmail::ru;
    continue   => 'Продолжить',
    loginagain => 'Зайти снова',
    exit       => 'Выход',
-   for        => 'ДЛЯ',
    yourname   => 'Ваше Имя',
    save       => 'Сохранить',
    add        => 'Добавить',
@@ -283,8 +290,9 @@ package openwebmail::ru;
    note       => 'Пометка',
    max        => 'Maximum',
    group      => 'Группа',
-   quota_hit  => 'Превышение Квоты',
-   usage      => 'Использование',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'Превышение Квоты',
    tzmap      => 'World timezone map',
    testsound  => 'Test sound',
    editfroms  => 'Редактировать почтовые адреса',
@@ -410,8 +418,6 @@ package openwebmail::ru;
    tryagain          => 'и попробуйте еще раз.',
    abook_toobig      => 'Извините, превышение размера адресной книги.',
    cant_create_dir   => 'Не могу создать вашу пользовательскую директорию!',
-   folder_hitquota   => 'Извините, вы израсходовали доступный вам объем, и больше письма не смогут сохраняться в ваших папках. Вы не можете переместить сообщения в папку ,кроме как в КОРЗИНУ, где их можно удалить.  Вернитесь назад, удалите некоторые сообщения или очистите вашу КОРЗИНУ, и попробуйте еще раз.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Извините, ваше вложение превышает разрешенный размер, в',
    inv_msg_op        => 'Некорректная операция',
    sess_cookieerr    => 'Ваш запрос не содержит верного идентификатора -- вход запрещен!',
@@ -440,8 +446,12 @@ package openwebmail::ru;
    no_file_todownload=> 'No file is specified for download',
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

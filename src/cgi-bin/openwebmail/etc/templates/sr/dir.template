@@ -1,11 +1,13 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@>
+<tr><td bgcolor=@@@TITLEBAR@@@ width="20%">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Mre&#158;ni disk - WebDisk</b></font>
-</td><td bgcolor=@@@TITLEBAR@@@ align="right">
+<b>Mre¾ni disk - WebDisk</b></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="center">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>@@@INFOQUOTA@@@</b></font>
-</td></tr><tr><td bgcolor=@@@MENUBAR@@@ colspan="2">
+<b>@@@QUOTAUSAGE@@@</b></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="right" width="20%">
+&nbsp;
+</td></tr><tr><td bgcolor=@@@MENUBAR@@@ colspan="3">
 @@@MENUBARLINKS@@@
 </td></tr></table>
 
@@ -54,7 +56,7 @@
 <B>Operacije</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 <table border="0" cellpadding="1" cellspacing="1">
-<tr><td width="10%">Odredi&#154;ni naziv:</td><td width="90%">@@@DESTNAMEFIELD@@@</td></tr>
+<tr><td width="10%">Odredi¹ni naziv:</td><td width="90%">@@@DESTNAMEFIELD@@@</td></tr>
 <tr><td nowrap colspan="2">@@@BUTTONS@@@</td></tr>
 </table>
 </td></tr>
@@ -74,7 +76,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Upload</B></td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Prebacivanje na server</B></td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>
@@ -122,7 +124,7 @@
             return true;
          }
       }
-      alert("Nije odabran direktorijum niti fajl.");
+      alert("Nije odabran direktorijum niti datoteka.");
       return false;
    }
    function selectedstr()
@@ -156,15 +158,16 @@
    }
    function uploadfilled() {
       if (document.dirform.upload.value == '') {
-         alert("Molim da prvo odaberete fajl.");
+         alert("Molim da prvo odaberete datoteku.");
          return false;
       } else {
+         document.dirform.msg.value = 'Prebacujem datoteku '+document.dirform.upload.value+' na server, molim saèekajte...';
          return true;
       }
    }
    function opconfirm(op, conf) {
       if (conf) {
-         return(confirm('Da li ste sigurni da želite da '+op+' odabrane fajlove? ( '+selectedstr()+' )'));
+         return(confirm('Da li ste sigurni da želite da '+op+' odabrane datoteke? ( '+selectedstr()+' )'));
       } else {
          return true;
       }

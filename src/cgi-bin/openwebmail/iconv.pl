@@ -120,9 +120,7 @@ sub iconv_open {
    my $converter;
    foreach my $localfrom (@{$charset_localname{$from}}) {
       foreach my $localto (@{$charset_localname{$to}}) {
-         eval {
-            $converter = Text::Iconv->new($localfrom, $localto);
-         };
+         eval { $converter = Text::Iconv->new($localfrom, $localto); };
          next if ($@);
          $localname_cache{$from}=$localfrom;
          $localname_cache{$to}=$localto;

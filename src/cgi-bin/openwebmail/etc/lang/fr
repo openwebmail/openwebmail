@@ -26,6 +26,13 @@ package openwebmail::fr;
    size_rev    => 'Taille (Le plus petit d\'abord)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normal',
@@ -223,6 +230,7 @@ package openwebmail::fr;
    replyall   => 'Répondre à tous',
    forward    => 'Faire suivre',
    forwardasatt=>'Faire suivre en tant qu\'attachement',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Impression amicale',
    from       => 'Expéditeur',
    replyto    => 'Répondre à',
@@ -253,7 +261,6 @@ package openwebmail::fr;
    continue   => ' OK ',
    loginagain => 'Se reconnecter',
    exit       => 'Quitter',
-   for        => 'pour',
    yourname   => 'Votre nom',
    save       => 'Enregistrer',
    add        => 'Ajouter',
@@ -283,8 +290,9 @@ package openwebmail::fr;
    note       => 'Commentaire',
    max        => 'Maximum',
    group      => 'Groupe',
-   quota_hit  => 'QUOTA ATTEINT',
-   usage      => 'Utilisation',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'QUOTA ATTEINT',
    tzmap      => 'Fuseaux horaires',
    testsound  => 'Test audio',
    editfroms  => 'Editer vos adresses mails personnelles',
@@ -410,8 +418,6 @@ package openwebmail::fr;
    tryagain          => 'réessayez.',
    abook_toobig      => 'Désolé, la taille limite de votre carnet d\'adresses serait dépassée.',
    cant_create_dir   => 'Impossible de créer votre répertoire utilisateur !',
-   folder_hitquota   => 'Désolé, vous avez atteint votre quota, aucun courrier supplémentaire ne peut plus être stocké dans vos dossiers. Vous ne pouvez plus déplacer de message, sauf vers la CORBEILLE où ils seront détruits.  Effacez quelques messages, videz votre corbeille, et réessayez.',
-   folder_cutdone    => 'Attention, comme la limite de quotas (@@@FOLDERQUOTA@@@) a été atteinte, de vieux messages dans des dossiers ont été automatiquement effacés.',
    att_overlimit     => 'Désolé, vous avez atteint la taille maximale d\'attachements, à savoir',
    inv_msg_op        => 'Opération non valide pour le message',
    sess_cookieerr    => 'Votre requête ne contient pas un numéro de session valide - Accès refusé !',
@@ -440,8 +446,12 @@ package openwebmail::fr;
    no_file_todownload=> 'Aucun fichier n\'ets spécifier pour le téléchargement',
    upload_overlimit  => 'La taille du fichier d\'upload dépasse la taille limite',
    decomp_notsupported=>'La décompression n\'est pas disponible pour ce fichier.',
-   webdisk_hitquota   => 'Désolé, vous avez atteind le QUOTA. Effacer d\'abord des fichiers.',
-   webdisk_readonly   => 'Désolé, votre webdisk est en lecture seule.',
+   webdisk_readonly  => 'Désolé, votre webdisk est en lecture seule.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

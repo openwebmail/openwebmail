@@ -7,21 +7,21 @@
 <BR>
 <table align=center border=0 cellspacing=1 cellpadding=1 width=80%>
 <tr>
-<td align=right>E-MAIL Adresse:</td><td>@@@VUSER@@@ @ @@@DOMAINNAME@@@</td>
+<td align="right">E-MAIL Adresse:</td><td>@@@VUSER@@@ @ @@@DOMAINNAME@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>
 
-<td align=right>Neues Passwort: </td><td>@@@NEWPASSWORDFIELD@@@</td>
+<td align="right">Neues Passwort: </td><td>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>Password Bestaetigung: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align="right">Password Bestaetigung: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>
-  <td align=right>Benutzer Typ:</td>
+  <td align="right">Benutzer Typ:</td>
   <td>@@@USERTYPEFIELD@@@</td>
 </tr><tr>
-<td align=right>E-Mail Weiterleitung: </td><td>@@@REDIRECTFIELD@@@</td>
+<td align="right">E-Mail Weiterleitung: </td><td>@@@REDIRECTFIELD@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>

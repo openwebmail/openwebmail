@@ -7,21 +7,21 @@
 <BR>
 <table align=center border=0 cellspacing=1 cellpadding=1 width=80%>
 <tr>
-<td align=right>E-mail adresa:</td><td>@@@VUSER@@@ @ @@@DOMAINNAME@@@</td>
+<td align="right">E-mail adresa:</td><td>@@@VUSER@@@ @ @@@DOMAINNAME@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>
 
-<td align=right>Poèetna lozinka: </td><td>@@@NEWPASSWORDFIELD@@@</td>
+<td align="right">Poèetna lozinka: </td><td>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>Potvrda nove lozinke: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align="right">Potvrda nove lozinke: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>
-  <td align=right>Tip korisnika:</td>
+  <td align="right">Tip korisnika:</td>
   <td>@@@USERTYPEFIELD@@@</td>
 </tr><tr>
-<td align=right>Preusmeravanje: </td><td>@@@REDIRECTFIELD@@@</td>
+<td align="right">Preusmeravanje: </td><td>@@@REDIRECTFIELD@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>

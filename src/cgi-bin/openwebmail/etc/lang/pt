@@ -26,6 +26,13 @@ package openwebmail::pt;
    size_rev    => 'Tamanho (Menor)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normal',
@@ -223,6 +230,7 @@ package openwebmail::pt;
    replyall   => 'Responder a Todos',
    forward    => 'Encaminhar',
    forwardasatt=>'Encaminhar como anexo',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Impressão amigável',
    from       => 'De',
    replyto    => 'Responder a',
@@ -253,7 +261,6 @@ package openwebmail::pt;
    continue   => 'Continuar',
    loginagain => 'Novo acesso',
    exit       => 'Sair',
-   for        => '',
    yourname   => 'O Seu Nome',
    save       => 'Guardar',
    add        => 'Adicionar',
@@ -283,8 +290,9 @@ package openwebmail::pt;
    note       => 'Nota',
    max        => 'Máximo',
    group      => 'Grupo',
-   quota_hit  => 'LIMITE DE ESPAÇO PERMITIDO',
-   usage      => 'Uso',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'LIMITE DE ESPAÇO PERMITIDO',
    tzmap      => 'Fuso horário',
    testsound  => 'Testar o som',
    editfroms  => 'Editar endereços pessoais',
@@ -410,8 +418,6 @@ package openwebmail::pt;
    tryagain          => 'e tente de novo.',
    abook_toobig      => 'Lamento, excedeu o limite permitido para o livro de endereços.',
    cant_create_dir   => 'Não foi possível criar a directoria do utilizador!',
-   folder_hitquota   => 'Lamento, chegou ao limite de espaço da sua pasta, mais nenhum e-mail será guardado. Por favor envie as mensagens antigas para o LIXO e depois apague as mesmas definitivamente.',
-   folder_cutdone    => 'Atenção, o limite de espaço da sua pasta(@@@FOLDERQUOTA@@@) foi excedido, as mensagens antigas foram removidas automáticamente',
    att_overlimit     => 'Lamento, o tamanho do ficheiro anexado ultrapassou o limite permitido.',
    inv_msg_op        => 'Operação inválida para a mensagem',
    sess_cookieerr    => 'O pedido não tem o ID correcto -- acesso negado!',
@@ -440,8 +446,12 @@ package openwebmail::pt;
    no_file_todownload=> 'Não foi indicado qualquer ficheiro para download',
    upload_overlimit  => 'O tamanho do ficheiro para upload foi excedido',
    decomp_notsupported=>'Não existe descompactador para este ficheiro.',
-   webdisk_hitquota   => 'As nossas desculpas, o espaço permitido no seu Disco Web foi atingido, tem de apagar alguns ficheiros.',
-   webdisk_readonly   => 'As nossas desculpas, o seu Disco Web é só para leitura.',
+   webdisk_readonly  => 'As nossas desculpas, o seu Disco Web é só para leitura.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

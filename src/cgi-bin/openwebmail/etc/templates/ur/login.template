@@ -1,0 +1,61 @@
+<p align="center">
+<a href="@@@LOGO_LINK@@@">
+<img border="0" src="@@@LOGO_URL@@@"></a></p>
+<table border="0" align="center" width="260" cellpadding="0" cellspacing="0">
+<tr><td bgcolor="#3161bd" background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif">
+&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>ﺩﺍﺧﻞ ﻫﻮﮞ</B></FONT>
+</td></tr><tr><td align="center" bgcolor="#3161bd">
+
+<table width="100%" cellpadding="0" cellspacing="1" border="0">
+<tr>
+<td bgcolor=#ffffff>
+@@@STARTFORM@@@
+<BR>
+<table align=center border=0 cellspacing=2 cellpadding=0>
+<tr>
+<td align="left" nowrap>ﻳﻮﺯﺭ ﺁﻯ ﮈﻯ : </td><td>@@@LOGINNAMEFIELD@@@</td>
+</tr><tr>
+<td align="left" nowrap>ﭘﺎﺱ ﻭﺭﮈ : </td><td>@@@PASSWORDFIELD@@@</td>
+@@@DOMAINSTART@@@
+</tr><tr>
+<td align="left" nowrap>ﮈﻭﻣﻴﻦ : </td><td>@@@DOMAINMENU@@@</td>
+@@@DOMAINEND@@@
+</tr><tr>
+<td align=center>
+<table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
+</td>
+<td align=center>
+<table><tr><td><font size=1>ﻣﻴﺮﻯ ﻳﻮﺯﺭ ﺁﻯ ﮈﻯ<br>ﻳﺎﺩ ﺭﻛﻬﻳﮟ</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
+</td>
+</tr>
+</table>
+<BR>
+</td>
+@@@ENDFORM@@@
+</tr></table>
+
+</td></tr></table>
+
+<script language="JavaScript">
+<!--
+
+   if (document.login.loginname.value == "") {
+      document.login.loginname.focus()
+   } else {
+      document.login.password.focus()
+   }
+
+   function focuspwd()
+   {
+      document.login.password.focus();
+      return(true);
+   }
+
+   function focusloginbutton()
+   {
+      document.login.loginbutton.focus();
+      return (true);
+   }
+
+//-->
+</script>

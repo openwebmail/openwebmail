@@ -48,8 +48,8 @@ use strict;
 # 3. put the alias mapping in /etc/postfix/aliases
 #    to redirect mails for the virtual user to related mailbox
 #
-#    sysadm.sample1.com		/var/spool/virtual/sample1.com/sysadm
-#    sysadm.sample2.com		/var/spool/virtual/sample2.com/sysadm
+#    sysadm.sample1.com:	/var/spool/virtual/sample1.com/sysadm
+#    sysadm.sample2.com:	/var/spool/virtual/sample2.com/sysadm
 #
 #    then run 'cd /etc/postfix/; postalias aliases'
 #
@@ -185,16 +185,17 @@ sub get_userinfo {
    my ($user, $domain)=($1, $2);
 
    my ($uid, $gid, $realname, $homedir) = (getpwuid($local_uid))[2,3,6,7];
-   return(-4, "User $user doesn't exist") if ($uid eq "");
+   return(-4, "User $user_domain doesn't exist") if ($uid eq "");
 
    my $domainhome="$homedir/$domain";
    if ( ${$r_config}{'use_syshomedir'} && -d $homedir) {	
       # mkdir domainhome so openwebmail.pl can create user homedir under this domainhome
       if (! -d $domainhome) {
+         my $mailgid=getgrnam('mail');
          ($domainhome =~ /^(.+)$/) && ($domainhome = $1);	# untaint...
          mkdir($domainhome, 0750);
          return(-3, "Couldn't create domain homedir $domainhome") if (! -d $domainhome);
-         chown($uid, $gid, $domainhome);
+         chown($uid, $mailgid, $domainhome);
       }
    }
    return(0, '', $user, $uid, $gid, "$domainhome/$user");
@@ -219,7 +220,8 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
          return (-3, "Couldn't get open $pwdfile");
       }
       while (defined($line=<PASSWD>)) {
-         next if ($line=~/^#/|| $line!~/:/);
+         next if ($line=~/^#/);
+         chomp($line);
          push(@userlist, (split(/:/, $line))[0]."\@$domain");
       }
       close(PASSWD);
@@ -257,8 +259,8 @@ sub check_userpassword {
    close (PASSWD);
    filelock($pwdfile, LOCK_UN);
 
-   return(-4, "User $user doesn't exist") if ($u ne $user);
-   return(-4, "Passowrd incorrect") if (crypt($password,$p) ne $p);
+   return(-4, "User $user_domain doesn't exist") if ($u ne $user);
+   return(-4, "Password incorrect") if (crypt($password,$p) ne $p);
    return (0, '');
 }
 
@@ -289,16 +291,14 @@ sub change_userpassword {
    }
    while (defined($line=<PASSWD>)) {
       $content .= $line;
-      if ($u ne $user) {
-         chomp($line);
-         ($u, $p) = split(/:/, $line);
-      }
+      chomp($line);
+      ($u, $p) = split(/:/, $line) if ($u ne $user);
    }
    close (PASSWD);
 
    if ($u ne $user) {
       filelock("$pwdfile", LOCK_UN);
-      return (-4, "User $user doesn't exist");
+      return (-4, "User $user_domain doesn't exist");
    }
    if (crypt($oldpassword,$p) ne $p) {
       filelock("$pwdfile", LOCK_UN);

@@ -27,6 +27,13 @@ package openwebmail::sk;
    size_rev    => 'Veµkos» (Najmen¹ie prvé)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normálna',
@@ -224,6 +231,7 @@ package openwebmail::sk;
    replyall   => 'Odpoveda» v¹etkým',
    forward    => 'Posla» ïalej',
    forwardasatt=>'Posla» ïalej ako prílohu',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Verzia pre tlaè',
    from       => 'Od',
    replyto    => 'Odpoveda»',
@@ -254,7 +262,6 @@ package openwebmail::sk;
    continue   => 'Pokraèova»',
    loginagain => 'Znovu prihlási»',
    exit       => 'Koniec',
-   for        => 'pre',
    yourname   => 'Va¹e Meno',
    save       => 'Ulo¾i»',
    add        => 'Prida»',
@@ -284,8 +291,9 @@ package openwebmail::sk;
    note       => 'Poznámka',
    max        => 'Maximum',
    group      => 'Skupina',
-   quota_hit  => 'Dosiahnutý limit (quota)',
-   usage      => 'Vyu¾itie',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'Dosiahnutý limit (quota)',
    tzmap      => 'Svetová mapa èasových zón',
    testsound  => 'Otestova» zvuk',
    editfroms  => 'Upravi» osobné e-mail adresy',
@@ -411,8 +419,6 @@ package openwebmail::sk;
    tryagain          => 'a skúste znova.',
    abook_toobig      => 'Prepáète, toto by presiahlo veµkostný limit pre Vá¹ adresár. Prosím pokraèujte.',
    cant_create_dir   => 'Nadá sa vytvori» Vá¹ pou¾ívateµský adresár!',
-   folder_hitquota   => 'Prepáète, dosiahli ste Vá¹ limit (quotu) a u¾ ¾iadna z Va¹ích správ nemô¾e by» ulo¾ená do ¾iadneho katalógu. Nebudete môc» presunú» správu do iného katalógu okrem KO©A, kde mô¾e by» zmazaná. Vrá»te sa a zma¾te niektoré správy alebo vysypte KÔ© a skúste znovu.',
-   folder_cutdone    => 'Varovanie! Nakoµko ste dosiahli diskovú kvótu (@@@FOLDERQUOTA@@@), staré správy vo Va¹ich katalógoch boli automaticky zmazané',
    att_overlimit     => 'Prepáète, Va¹a príloha presiahla veµkostný limit, ktorý je',
    inv_msg_op        => 'Neplatná operácia pre správu',
    sess_cookieerr    => 'Va¹a po¾iadavka neobsahuje korektné ID sedenia -- prístup zamietnutý!',
@@ -441,8 +447,12 @@ package openwebmail::sk;
    no_file_todownload=> 'Nebol ¹pecifikovaný súbor na prebranie.',
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Dekompresia pre tento typ súbor nie je dostupná.',
-   webdisk_hitquota   => 'Prepáète, ale prekroèili ste Vá¹ limit diskového priestoru. Skúste si najskôr vymaza» nepotrebné súbory.',
-   webdisk_readonly   => 'Prepáète, ale Vá¹ WebDisk je nastavený iba na èítanie.',
+   webdisk_readonly  => 'Prepáète, ale Vá¹ WebDisk je nastavený iba na èítanie.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

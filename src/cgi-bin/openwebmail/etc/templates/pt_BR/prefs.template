@@ -1,9 +1,17 @@
 @@@STARTPREFSFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
+<tr>
+<td nowrap bgcolor=@@@TITLEBAR@@@ width="30%">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Preferências @@@REALNAME@@@</B></font>
-<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+<B>Preferências do Usuário</B></font>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="center">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@QUOTAUSAGE@@@</B></font>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="right" width="30%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@REALNAME@@@&nbsp;</B></font>
+</tr>
+<tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
 </table>
@@ -19,6 +27,11 @@
 <B>Fuso Horário:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TIMEOFFSETMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Horário de Verão:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>De:</B>
@@ -78,7 +91,7 @@ Assunto:
 @@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image repeated:</B>
+<B>Repetição de imagem de fundo:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
@@ -267,12 +280,12 @@ Colunas @@@EDITCOLUMNSMENU@@@ Linhas @@@EDITROWSMENU@@@
 Colunas @@@ABOOKWIDTHMENU@@@ Linhas @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Posição do botão livro de endereçõs:</B>
+<B>Posição do botão livro de endereços:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtro pradão para livro de endereços:</B>
+<B>Filtro padrão para livro de endereços:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
@@ -385,9 +398,9 @@ Durante @@@NEWMAILWINDOWTIMEMENU@@@ segundos &nbsp;( ZERO desativa a janela de n
 @@@DICTIONARYMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Temporização para o lixo:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@RESERVEDDAYSMENU@@@
+<B>Temporização para Lixeira:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>Mantém por: 
+@@@RESERVEDDAYSMENU@@@ dias, depois apaga definitivamente!
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Tempo limite da Sessão:</B>

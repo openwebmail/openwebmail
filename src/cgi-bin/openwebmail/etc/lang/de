@@ -27,6 +27,13 @@ package openwebmail::de;
    size_rev    => 'Größe (kleinste zuerst)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normal',
@@ -224,6 +231,7 @@ package openwebmail::de;
    replyall   => 'Allen Antworten',
    forward    => 'Weiterleiten',
    forwardasatt=>'Weiterleiten als Anhang',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Version zum Drucken',
    from       => 'Von',
    replyto    => 'Antwort-an',
@@ -254,7 +262,6 @@ package openwebmail::de;
    continue   => 'Weiter',
    loginagain => 'Erneut anmelden',
    exit       => 'Schließen',
-   for        => 'FÜR',
    yourname   => 'Ihr Name',
    save       => 'Speichern',
    add        => 'Neu',
@@ -284,8 +291,9 @@ package openwebmail::de;
    note       => 'Anmerkung',
    max        => 'Maximum',
    group      => 'Gruppe',
-   quota_hit  => 'SPEICHERPLATZLIMIT ÜBERSCHRITTEN',
-   usage      => 'Verwendung',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'SPEICHERPLATZLIMIT ÜBERSCHRITTEN',
    tzmap      => 'Zeitzonenkarte',
    testsound  => 'Sound testen',
    editfroms  => 'Persönliche Email-Adressen bearbeiten',
@@ -411,8 +419,6 @@ package openwebmail::de;
    tryagain          => 'und versuchen Sie es noch einmal',
    abook_toobig      => 'Diese Aktion würde die maximale Größe Ihres Adressbuches überschreiten. Versuchen Sie Speicherplatz frei zu machen. Gehen Sie dann',
    cant_create_dir   => 'Fehler beim Erstellen Ihres Benutzerverzeichnisses!',
-   folder_hitquota   => 'Sie haben Ihr Speicherplatzlimit überschritten. Sie können keine weiteren Nachrichten mehr in Ihren Ordnern speichern. Nachrichten die in den Papierkorb verschoben werden, werden jetzt direkt gelöscht! Versuchen Sie ein paar Nachrichten zu löschen oder Ihren Papierkorb zu leeren um wieder mehr Speicherplatz zu Verfügung zu haben.',
-   folder_cutdone    => 'Warnung: Alte Nachrichten wurden automatisch entfernt, da das Ordnerspeicherlimit limit(@@@FOLDERQUOTA@@@) überschritten wurde',
    att_overlimit     => 'Der Dateianhang überschreitet die zugelassene Maximalgröße von',
    inv_msg_op        => 'Aktion für diese Nachricht nicht möglich',
    sess_cookieerr    => 'Ihre Anfrage enthält keine gültige Sitzungskennung -- Zugriff verweigert!',
@@ -441,8 +447,12 @@ package openwebmail::de;
    no_file_todownload=> 'Keine Datei für den Download ausgewählt',
    upload_overlimit  => 'Die für den Upload ausgewählte Datei überschreitet das Größenlimit',
    decomp_notsupported=>'Eine Decompression ist bei dieser Datei nicht möglich.',
-   webdisk_hitquota   => 'Sorry, das WebDisk-Speicherlimit wurde überschritten. bitte löschen sie erst einige Datein oder Ordner um freien Speicherplatz zu schaffen.',
-   webdisk_readonly   => 'Sorry, auf die WebDisk kann nur lesend zugegriffen werden',
+   webdisk_readonly  => 'Sorry, auf die WebDisk kann nur lesend zugegriffen werden',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

@@ -36,7 +36,12 @@ auth_unix.pl
 auth_unix_cobalt.pl
 auth_vdomain.pl
 
+quota_unixfs.pl			various quota modules
+quota_du.pl
+
 filelock.pl                     modules containing routines used by openwebmail
+htmlrender.pl
+htmltext.pl
 iconv.pl
 iconv-chinese.pl
 iconv-japan.pl
@@ -76,6 +81,7 @@ smtpauth.conf                   file to store username/passwd for SMTP auth
 styles/                         various CSS files
 lang/                           translation files for various languages
 templates/                      template files for various languages
+holidays/                       holidays calendar for various languages
 sites.conf/                     configuration file for different virtual domain
 users.conf/                     configuration file for different user
 users/                          user directories (used only if use_syshomedir disabled)

@@ -1,0 +1,53 @@
+<center> 
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>. ﺩﻥ ﻛﺎ ﻧﻈﺎﺭﻩ</b></font>
+</td></tr>
+@@@STARTFORM@@@
+<tr><td bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td><td bgcolor=@@@MENUBAR@@@ align="left">
+@@@YEARFIELD@@@&nbsp;
+</td></tr>
+@@@ENDFORM@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+</table>
+
+<table width=95% cellpadding=1 cellspacing=0><tr bgcolor=@@@TABLEROW_DARK@@@>
+<td nowrap align=center>@@@PREV_LINK@@@ <b>@@@CALTITLE@@@</b> @@@NEXT_LINK@@@</td>
+</tr></table>
+&nbsp;
+
+<table border=0 width=95%><tr><td align="left" valign=top width=85%>
+
+<table border=0 cellspacing=1 width=100% bgcolor=@@@BACKGROUND@@@>
+@@@CALENDARITEMS@@@
+</table>
+
+</td><td bgcolor=@@@WINDOW_DARK@@@ align=center valign=top width=15%>
+
+<table border=0 cellspacing=2 width=100%>
+@@@STARTADDITEMFORM@@@
+<tr><td colspan=2 align=center><B>ﻛﻴﻠﻴﻨﮉﺭ ﻣﻴﮟ ﺍﻧﺪﺭﺍﺝ ﻛﺮﻳﮟ</B></td></tr>
+<tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
+<tr><td width=25% nowrap>ﺁﻏﺎﺯ ﻛﺎ ﻭﻗﺖ</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>ﺍﺧﺘﺎﻡ ﻛﺎ ﻭﻗﺖ</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
+<tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ ﺍﺱ ﺩﻥ ﺍﻭﺭ ﺍﮔﻠﮯ @@@NDAYSFIELD@@@ ﺩﻥ</td></tr>
+<tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
+<tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ ﻫﺮﺳﺎﻝ</td></tr>
+<tr><td colspan=2 nowrap>ﺍﺱ ﺍﺋﭨﻢ ﻛﻮ ﻫﺎﺋﭙﺮﻟﻨﮏ ﺑﻨﺎﺋﻳﮟ</td></tr>
+<tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
+@@@EMAILSTART@@@
+<tr><td colspan=2 nowrap>ﺍﺱ ﺍﻳﻤﻴﻞ ﺍﮈﺭﻳﺲ ﭘﺮ ﺁﮔﺎﻩ ﻛﺮﻳﮟ</td></tr>
+<tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
+@@@EMAILEND@@@
+<tr><td nowrap>ﺍﺋﭨﻢ ﻛﺎ ﺭﻧﮓ</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
+<tr><td colspan=2>@@@COLORTABLE@@@</td></tr>
+<tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
+@@@ENDFORM@@@
+</table>
+
+</td></tr></table>
+</center>

@@ -26,34 +26,39 @@ require "filelock.pl";
 require "mime.pl";
 require "iconv.pl";
 require "maildb.pl";
+require "htmltext.pl";
 require "pop3mail.pl";
 require "mailfilter.pl";
 
+# common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
+use vars qw($default_logindomain);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
+use vars qw($quotausage $quotalimit);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
-
-openwebmail_init();
-$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
-
-use vars qw($sort $page);
-use vars qw($searchtype $keyword $escapedkeyword);
-
-$page = param("page") || 1;
-$sort = param("sort") || $prefs{'sort'} || 'date';
-$searchtype = param("searchtype") || 'subject';
-$keyword = param("keyword") || ''; $keyword=~s/^\s*//; $keyword=~s/\s*$//;
-$escapedkeyword = escapeURL($keyword);
 
 # extern vars
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_sortlabels
             %lang_calendar %lang_wday @wdaystr); # defined in lang/xy
 use vars qw($_STATUS);		# defined in maildb.pl
 
+# local globals
+use vars qw($sort $page);
+use vars qw($searchtype $keyword $escapedkeyword);
+
 ########################## MAIN ##############################
+clearvars();
+openwebmail_init();
+
+$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
+$page = param("page") || 1;
+$sort = param("sort") || $prefs{'sort'} || 'date';
+$searchtype = param("searchtype") || 'subject';
+$keyword = param("keyword") || ''; $keyword=~s/^\s*//; $keyword=~s/\s*$//;
+$escapedkeyword = escapeURL($keyword);
 
 my $action = param("action");
 if ($action eq "movemessage" ||
@@ -62,8 +67,11 @@ if ($action eq "movemessage" ||
    movemessage();
 } elsif ($action eq "listmessages_afterlogin") {
    cleantrash($prefs{'trashreserveddays'});
+   if ($quotalimit>0 && $quotausage>$quotalimit) {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+   }
    if ( ($config{'forced_moveoldmsgfrominbox'}||$prefs{'moveoldmsgfrominbox'}) &&
-        $folderusage<100) {
+        (!$quotalimit||$quotausage<$quotalimit) ) {
       moveoldmsg2saved();
    }
    update_pop3check();
@@ -83,6 +91,9 @@ if ($action eq "movemessage" ||
       my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
       _retrpop3($config{'pop3_authserver'}, $login, "$folderdir/.authpop3.book");
    }
+   if ($config{'quota_module'} ne 'none') {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+   }
    listmessages();
    if (update_pop3check()) {
       if ($config{'enable_pop3'} && $prefs{'autopop3'}==1 ) {
@@ -91,7 +102,7 @@ if ($action eq "movemessage" ||
    }
 } elsif ($action eq "listmessages") {
    my $update=0; $update=1 if (update_pop3check());
-   if ($update) {
+   if ($update) {	# get mail from auth pop3 server
       if ($config{'auth_module'} eq 'auth_pop3.pl' && 
           $config{'getmail_from_pop3_authserver'}) {
          my $login=$user; $login .= "\@$domain" if ($config{'auth_withdomain'});
@@ -99,7 +110,7 @@ if ($action eq "movemessage" ||
       }
    }
    listmessages();
-   if ($update) {
+   if ($update) {	# get mail from misc pop3 servers
       if ($config{'enable_pop3'} && $prefs{'autopop3'}==1 ) {
          _retrpop3s(0, "$folderdir/.pop3.book");
       }
@@ -114,13 +125,15 @@ if ($action eq "movemessage" ||
    retrpop3();
 } elsif ($action eq "emptytrash") {
    emptytrash();
-   # call getfolders to recalc used quota
-   getfolders(\@validfolders, \$folderusage);
+   if ($quotalimit>0 && $quotausage>$quotalimit) {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+   }
    listmessages();
 } elsif ($action eq "logout") {
    cleantrash($prefs{'trashreserveddays'});
-   if ( ($config{'forced_moveoldmsgfrominbox'}||$prefs{'moveoldmsgfrominbox'}) &&
-        $folderusage<100) {
+   if ( ($config{'forced_moveoldmsgfrominbox'}||
+         $prefs{'moveoldmsgfrominbox'}) &&
+        (!$quotalimit||$quotausage<$quotalimit) ) {
       moveoldmsg2saved();
    }
    logout();
@@ -137,6 +150,7 @@ sub listmessages {
    my $orig_inbox_newmessages=0;
    my $now_inbox_newmessages=0;
    my $now_inbox_allmessages=0;
+   my $inboxsize_k=0;
    my $trash_allmessages=0;
    my %HDB;
 
@@ -153,18 +167,29 @@ sub listmessages {
 
    my ($filtered, $r_filtered)=filtermessage();
 
-   my $do_cutfolders=0;
-   if ($folderusage>=100 && $config{'cutfolders_ifoverquota'}) {
-      cutfolders(@validfolders);
-      $do_cutfolders=1;
-      getfolders(\@validfolders, \$folderusage);
+   my $quotahit_deltype='';
+   if ($quotalimit>0 && $quotausage>$quotalimit &&
+       ($config{'delmail_ifquotahit'}||$config{'delfile_ifquotahit'}) ) {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+      if ($quotausage>$quotalimit) {
+         if ($config{'delmail_ifquotahit'} && $folderusage > $quotausage*0.5) {
+            $quotahit_deltype='quotahit_delmail';
+            cutfoldermails(($quotausage-$quotalimit*0.9)*1024, @validfolders);
+            getfolders(\@validfolders, \$folderusage);
+         } elsif ($config{'delfile_ifquotahit'}) {
+            $quotahit_deltype='quotahit_delfile';
+            my $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
+            cutdirfiles(($quotausage-$quotalimit*0.9)*1024, $webdiskrootdir);
+         }
+         $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+      }
    }
 
    my ($totalsize, $newmessages, $r_messageids, $r_messagedepths)=getinfomessageids();
 
    my $totalmessage=$#{$r_messageids}+1;
    $totalmessage=0 if ($totalmessage<0);
-   my $totalpage = int($totalmessage/$prefs{'msgsperpage'}+0.999999);
+   my $totalpage = int($totalmessage/($prefs{'msgsperpage'}||10)+0.999999);
    $totalpage=1 if ($totalpage==0);
 
    $page = 1 if ($page < 1);
@@ -176,15 +201,6 @@ sub listmessages {
 
    my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder";
    my $main_url_with_keyword = "$main_url&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
-
-
-   if ($totalsize > 1048575){
-      $totalsize = int($totalsize/1048576*10+0.5)/10 . " $lang_sizes{'mb'}";
-   } elsif ($totalsize > 1023) {
-      $totalsize =  int($totalsize/1024+0.5) . " $lang_sizes{'kb'}";
-   } else {
-      $totalsize = $totalsize . " $lang_sizes{'byte'}";
-   }
 
    my ($html, $temphtml);
    $html = readtemplate("viewfolder.template");
@@ -234,6 +250,7 @@ sub listmessages {
          if ($foldername eq 'INBOX') {
             $now_inbox_allmessages=$allmessages;
             $now_inbox_newmessages=$newmessages;
+            $inboxsize_k=(-s $folderfile)/1024;
          } elsif ($foldername eq 'mail-trash')  {
             $trash_allmessages=$allmessages;
          }
@@ -260,38 +277,41 @@ sub listmessages {
    }
    $html =~ s/\@\@\@FOLDERPOPUP\@\@\@/$temphtml/;
 
-   if ($config{'folderquota'}) {
-      if ($folderusage>=100) {
-         $temphtml = " [ $lang_text{'quota_hit'} ]";
-      } elsif ($folderusage>=$config{'folderusage_threshold'}) {
-         $temphtml = " [ $lang_text{'usage'} $folderusage% ]";
-      } else {
-         $temphtml="&nbsp;";
+   if ($config{'quota_module'} ne "none") {
+      $temphtml='';
+      my $overthreshold=($quotalimit>0 && $quotausage/$quotalimit>$config{'quota_threshold'}/100);
+      if ($config{'quota_threshold'}==0 || $overthreshold) {
+         $temphtml = "$lang_text{'quotausage'}: ".lenstr($quotausage*1024,1);
+      }
+      if ($overthreshold) {
+         $temphtml.=" (".(int($quotausage*1000/$quotalimit)/10)."%) ";
       }
    } else {
       $temphtml="&nbsp;";
    }
-   $html =~ s/\@\@\@QUOTAINFO\@\@\@/$temphtml/;
+   $html =~ s/\@\@\@QUOTAUSAGE\@\@\@/$temphtml/;
 
    $temphtml = '';
    if ($totalmessage>0) {
       $temphtml .= "$newmessages $lang_text{'unread'} / " if ($newmessages);
-      $temphtml .= "$totalmessage $lang_text{'messages'} / $totalsize";
+      $temphtml .= "$totalmessage $lang_text{'messages'} / ". lenstr($totalsize, 1);
    } else {
       $temphtml = $lang_text{'nomessages'};
    }
    $html =~ s/\@\@\@NUMBEROFMESSAGES\@\@\@/$temphtml/;
 
-   $temphtml = iconlink("compose.gif", $lang_text{'composenew'}, qq|accesskey="C" href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;compose_caller=main"|);
+   # quota or spool over the limit
+   my $limited=(($quotalimit>0 && $quotausage>$quotalimit) ||			   # quota
+                ($config{'spool_limit'}>0 && $inboxsize_k>$config{'spool_limit'})); # spool
 
-   $temphtml .= qq|&nbsp;\n|;
-
-   if ($config{'folderquota'}) {
-      $temphtml .= iconlink("folder.gif", "$lang_text{'folders'} ($lang_text{'usage'} $folderusage%)", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-folder.pl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
-   } else {
-      $temphtml .= iconlink("folder.gif", $lang_text{'folders'}, qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-folder.pl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+   $temphtml = '';
+   if (!$limited) {
+      $temphtml .= iconlink("compose.gif", $lang_text{'composenew'}, qq|accesskey="C" href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;compose_caller=main"|);
+      $temphtml .= qq|&nbsp;\n|;
    }
-   $temphtml .= iconlink("addrbook.gif", $lang_text{'addressbook'}, qq|accesskey="A" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|).
+
+   $temphtml .= iconlink("folder.gif", $lang_text{'folders'}, qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-folder.pl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|).
+                iconlink("addrbook.gif", $lang_text{'addressbook'}, qq|accesskey="A" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|).
                 iconlink("filtersetup.gif", $lang_text{'filterbook'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
 
    $temphtml .= qq|&nbsp;\n|;
@@ -486,7 +506,7 @@ sub listmessages {
       $linehtml =~ s/\@\@\@STATUS\@\@\@/$temphtml/;
       
       # DATE, convert dateserial(GMT) to localtime
-      $temphtml = dateserial2str(add_dateserial_timeoffset($dateserial, $prefs{'timeoffset'}), $prefs{'dateformat'});
+      $temphtml=dateserial2str($dateserial, $prefs{'timeoffset'}, $prefs{'dateformat'});
       $temphtml = qq|<td bgcolor=$bgcolor>$boldon<font size=-1>$temphtml</font>$boldoff</td>\n|;
       $linehtml =~ s/\@\@\@DATE\@\@\@/$temphtml/;
 
@@ -508,12 +528,20 @@ sub listmessages {
          $to_name=substr($to_name, 0, 29)."..." if (length($to_name)>32);
          $to_address=substr($to_address, 0, 61)."..." if (length($to_address)>64);
          my $escapedto=escapeURL($to);
-         $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedto&amp;compose_caller=main" title="$to_address ">$to_name </a>|;
+         if ($limited) {
+            $from = $to_name;
+         } else {
+            $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedto&amp;compose_caller=main" title="$to_address ">$to_name </a>|;
+         }
       } else {
          my ($from_name, $from_address)=email2nameaddr($from);
          $from_address=~s/"//g;
          my $escapedfrom=escapeURL($from);
-         $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedfrom&amp;compose_caller=main" title="$from_address ">$from_name </a>|;
+         if ($limited) {
+            $from = qq|$from_name |;
+         } else {
+            $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedfrom&amp;compose_caller=main" title="$from_address ">$from_name </a>|;
+         }
       }
       $temphtml=qq|<td bgcolor=$bgcolor>$boldon$from$boldoff</td>\n|;
       $linehtml =~ s/\@\@\@FROM\@\@\@/$temphtml/;
@@ -647,13 +675,13 @@ sub listmessages {
       push (@movefolders, $checkfolder) if ($checkfolder ne $folder);
    }
    # option to del message directly from folder
-   if ($folderusage>=100) {
+   if ($quotalimit>0 && $quotausage>=$quotalimit) {
       @movefolders=('DELETE');
    } else {
       push(@movefolders, 'DELETE');
    }
    my $defaultdestination;
-   if ($folderusage>=100 ) {
+   if ($quotalimit>0 && $quotausage>=$quotalimit) {
       $defaultdestination='DELETE';
    } elsif ($folder eq 'mail-trash') {
       $defaultdestination= 'INBOX';
@@ -673,7 +701,7 @@ sub listmessages {
                        -value=>$lang_text{'move'},
                        -class=>"medtext",
                        -onClick=>"return OpConfirm($lang_text{'msgmoveconf'}, $prefs{'confirmmsgmovecopy'})");
-   if ($folderusage<100) {
+   if (!$limited) {
       $htmlmove .= submit(-name =>'copybutton',
                           -value=>"$lang_text{'copy'}",
                           -class=>"medtext",
@@ -701,7 +729,6 @@ sub listmessages {
    # show 'you have new messages' at status line
    if ($folder ne 'INBOX' ) {
       my $msg;
-
       if ($now_inbox_newmessages>0) {
          $msg="$now_inbox_newmessages $lang_text{'messages'} $lang_text{'unread'}";
       } elsif ($now_inbox_allmessages>0) {
@@ -709,7 +736,6 @@ sub listmessages {
       } else {
          $msg=$lang_text{'nomessages'};
       }
-
       $html.=qq|<script language="JavaScript">\n<!--\n|.
              qq|window.defaultStatus = "$lang_folders{'INBOX'} : $msg";\n|.
              qq|//-->\n</script>\n|;
@@ -725,28 +751,35 @@ sub listmessages {
       }
    }
 
-   my $load_showmsgjs=0;
-
-   # show cut folder warning
-   if ($do_cutfolders) {
-      if (!$load_showmsgjs) {
-         $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
-         $load_showmsgjs=1;
-      }
-      my $msg=qq|<font size="-1" color="#cc0000">$lang_err{'folder_cutdone'}</font>|;
-      $msg=~s/\@\@\@FOLDERQUOTA\@\@\@/$config{'folderquota'}$lang_sizes{'kb'}/;
-      $html.=qq|<script language="JavaScript">\n<!--\n|.
-             qq|showmsg('$prefs{"charset"}', '$lang_text{"quota_hit"}', '$msg', '$lang_text{"close"}', '_cutfolder', 400, 100, 60);\n|.
-             qq|//-->\n</script>\n|;
+   $temphtml='';
+   # show quotahit del warning
+   if ($quotahit_deltype) {
+      my $msg=qq|<font size="-1" color="#cc0000">$lang_err{$quotahit_deltype}</font>|;
+      $msg=~s/\@\@\@QUOTALIMIT\@\@\@/$config{'quota_limit'}$lang_sizes{'kb'}/;
+      $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
+      $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
+                 qq|showmsg('$prefs{"charset"}', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_del', 400, 100, 60);\n|.
+                 qq|//-->\n</script>\n|;
    }
-
+   # show quotahit alert
+   if ($quotalimit>0 && $quotausage>=$quotalimit) {
+      my $msg=qq|<font size="-1" color="#cc0000">$lang_err{'quotahit_alert'}</font>|;
+      $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
+      $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
+                 qq|showmsg('$prefs{"charset"}', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_alert', 400, 100, 60);\n|.
+                 qq|//-->\n</script>\n|;
+   # show spool overlimit alert
+   } elsif ($config{'spool_limit'}>0 && $inboxsize_k>$config{'spool_limit'}) {
+      my $msg=qq|<font size="-1" color="#cc0000">$lang_err{'spool_overlimit'}</font>|;
+      $msg=~s/\@\@\@SPOOLLIMIT\@\@\@/$config{'spool_limit'}$lang_sizes{'kb'}/;
+      $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
+      $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
+                 qq|showmsg('$prefs{"charset"}', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_spool_overlimit', 400, 100, 60);\n|.
+                 qq|//-->\n</script>\n|;
+   }
    # popup stat of incoming msgs
-   if ($prefs{'newmailwindowtime'} >0 &&
-       ($filtered > 0 || ($now_inbox_newmessages>$orig_inbox_newmessages))) {
-      if (!$load_showmsgjs) {
-         $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
-         $load_showmsgjs=1;
-      }
+   if ( $prefs{'newmailwindowtime'}>0 &&
+        ($filtered>0||$now_inbox_newmessages>$orig_inbox_newmessages) ) {
       my $msg;
       my $line=0;
       if ($now_inbox_newmessages>$orig_inbox_newmessages) {
@@ -772,9 +805,13 @@ sub listmessages {
       }
       $msg = qq|<font size=-1>$msg</font>|;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
-      $html.=qq|<script language="JavaScript">\n<!--\n|.
-             qq|showmsg('$prefs{"charset"}', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
-             qq|//-->\n</script>\n|;
+      $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
+                 qq|showmsg('$prefs{"charset"}', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
+                 qq|//-->\n</script>\n|;
+   }
+   if ($temphtml) {
+      $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|.
+             $temphtml;
    }
 
    # since some browser always treat refresh directive as realtive url.
@@ -783,15 +820,22 @@ sub listmessages {
    my $relative_url="$config{'ow_cgiurl'}/openwebmail-main.pl";
    $relative_url=~s!/.*/!!g;
    print htmlheader(-Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=INBOX&action=listmessages&page=1&session_noupdate=1"),
-         $html, 
+         htmlplugin($config{'header_pluginfile'}),
+         $html,
+         htmlplugin($config{'footer_pluginfile'}),
          htmlfooter(2);
 }
 
 # reminder for events within 7 days
 sub eventreminder_html {
    my ($reminderdays, $calbook)=@_;
-   my $starttime=time()+timeoffset2seconds($prefs{'timeoffset'});
-   my ($year, $month, $day, $hour, $min)=(gmtime($starttime))[5,4,3,2,1];
+   my $g2l=time();
+   if ($prefs{'daylightsaving'} eq "on" ||
+       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime
+   }
+   $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
+   my ($year, $month, $day, $hour, $min)=(gmtime($g2l))[5,4,3,2,1];
    $year+=1900; $month++;
    my $hourmin=sprintf("%02d%02d", $hour, $min);
 
@@ -799,18 +843,18 @@ sub eventreminder_html {
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
-   if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
-      if ( readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6)<0 ) {
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'global_calendarbook'}");
-      }
+   if ($prefs{'calendar_reminderforglobal'}) {
+      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
+      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
    }
 
+   my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
    my $event_count=0;
    my %used;	# tag used index so an item won't be show more than once in case it is a regexp
    my $temphtml="";
    for my $x (0..$reminderdays-1) {
       my $wdaynum;
-      ($wdaynum, $year, $month, $day)=(gmtime($starttime+$x*86400))[6,5,4,3];
+      ($wdaynum, $year, $month, $day)=(gmtime($g2l+$x*86400))[6,5,4,3];
       $year+=1900; $month++;
       my $dow=$wdaystr[$wdaynum];
       my $date=sprintf("%04d%02d%02d", $year,$month,$day);
@@ -824,7 +868,10 @@ sub eventreminder_html {
       my $dayhtml="";
       for my $index (@indexlist) {
          next if ($used{$index});
-         if ($date=~/$items{$index}{'idate'}/ || $date2=~/$items{$index}{'idate'}/) {
+         if ($date=~/$items{$index}{'idate'}/  || 
+             $date2=~/$items{$index}{'idate'}/ ||
+             easter_match($year,$month,$day, $easter_month,$easter_day,
+                                      $items{$index}{'idate'}) ) {
             if ($items{$index}{'starthourmin'}>=$hourmin ||
                 $items{$index}{'starthourmin'}==0 ||
                 $x>0) {
@@ -860,7 +907,9 @@ sub eventreminder_html {
          }
       }
       if ($dayhtml ne "") {
-         my $title=dateserial2str(sprintf("%04d%02d%02d",$year,$month,$day),$prefs{'dateformat'});
+         my $title=$prefs{'dateformat'}||"mm/dd/yyyy";
+         my ($m, $d)=(sprintf("%02d",$month), sprintf("%02d",$day));
+         $title=~s/yyyy/$year/; $title=~s/mm/$m/; $title=~s/dd/$d/;
          if ($lang_text{'calfmt_yearmonthdaywday'} =~ /^\s*\@\@\@WEEKDAY\@\@\@/) {
             $title="$lang_wday{$wdaynum} $title";
          } else {
@@ -969,8 +1018,8 @@ sub movemessage {
          $op='move';
       }
    }
-   if ($folderusage>=100 && $op ne "delete") {
-      openwebmailerror("$lang_err{'folder_hitquota'}");
+   if ($quotalimit>0 && $quotausage>$quotalimit && $op ne "delete") {
+      openwebmailerror("$lang_err{'quotahit_alert'}");
    }
 
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $folder);
@@ -979,7 +1028,8 @@ sub movemessage {
    }
    my ($dstfile, $dstdb)=get_folderfile_headerdb($user, $destination);
    if ($destination ne 'DELETE' && ! -f "$dstfile" ) {
-      open (F,">>$dstfile") or openwebmailerror("$lang_err{'couldnt_open'} $lang_err{'destination_folder'} $dstfile!");
+      open (F,">>$dstfile") or 
+         openwebmailerror("$lang_err{'couldnt_open'} $lang_err{'destination_folder'} $dstfile! ($!)");
       close(F);
    }
 
@@ -1004,11 +1054,15 @@ sub movemessage {
    if ($counted>0){
       my $msg;
       if ( $op eq 'move') {
-         $msg="movemsg - move $counted msgs from $folder to $destination - ids=".join(", ", @messageids);
+         $msg="move message - move $counted msgs from $folder to $destination - ids=".join(", ", @messageids);
       } elsif ($op eq 'copy' ) {
-         $msg="copymsg - copy $counted msgs from $folder to $destination - ids=".join(", ", @messageids);
+         $msg="copy message - copy $counted msgs from $folder to $destination - ids=".join(", ", @messageids);
       } else {
-         $msg="delmsg - delete $counted msgs from $folder - ids=".join(", ", @messageids);
+         $msg="delete message - delete $counted msgs from $folder - ids=".join(", ", @messageids);
+        # recalc used quota for del if user quotahit 
+        if ($quotalimit>0 && $quotausage>$quotalimit) {
+           $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+        }
       }
       writelog($msg);
       writehistory($msg);
@@ -1019,9 +1073,6 @@ sub movemessage {
    } elsif ($counted==-3) {
       openwebmailerror("$lang_err{'couldnt_open'} $dstfile!");
    }
-
-   # call getfolders to recalc used quota
-   getfolders(\@validfolders, \$folderusage);
 
    if (param("messageaftermove")) {
       my $headers = param("headers") || $prefs{'headers'} || 'simple';
@@ -1041,8 +1092,8 @@ sub movemessage {
 sub emptytrash {
    my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
    open (TRASH, ">$trashfile") or
-      openwebmailerror ("$lang_err{'couldnt_open'} $trashfile!");
-   close (TRASH) or openwebmailerror("$lang_err{'couldnt_close'} $trashfile!");
+      openwebmailerror ("$lang_err{'couldnt_open'} $trashfile! ($!)");
+   close (TRASH) or openwebmailerror("$lang_err{'couldnt_close'} $trashfile! ($!)");
    if (update_headerdb($trashdb, $trashfile)<0) {
       openwebmailerror("$lang_err{'couldnt_updatedb'} $trashdb$config{'dbm_ext'}");
    }
@@ -1192,13 +1243,17 @@ sub _retrpop3s {
 }
 
 sub update_pop3check {
-   if ( time()-(stat("$folderdir/.pop3.check"))[9] > $config{'fetchpop3interval'}*60
-     || !(-e "$folderdir/.pop3.check")) {
-      my $timestamp = localtime();
-      open (POP3CHECK, "> $folderdir/.pop3.check") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.check!");
-      print POP3CHECK $timestamp;
-      close (POP3CHECK);
+   my $now=time();
+   my $ftime=(stat("$folderdir/.pop3.check"))[9];
+
+   if (!$ftime) {	# create if not exist
+      open (F, "> $folderdir/.pop3.check") or
+         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.pop3.check! ($!)");
+      print F "pop3check timestamp file";
+      close (F);
+   }
+   if ( $now-$ftime > $config{'fetchpop3interval'}*60 ) {
+      utime($now-1, $now-1, "$folderdir/.pop3.check");	# -1 is trick for nfs
       return 1;
    } else {
       return 0;
@@ -1223,7 +1278,7 @@ sub moveoldmsg2saved {
    filelock($srcfile, LOCK_UN);
 
    if ($counted>0){
-      my $msg="movemsg - move $counted old msgs from INBOX to saved-messages";
+      my $msg="move message - move $counted old msgs from INBOX to saved-messages";
       writelog($msg);
       writehistory($msg);
    } elsif ($counted==-1) {
@@ -1239,7 +1294,6 @@ sub moveoldmsg2saved {
 ################# CLEANTRASH ################
 sub cleantrash {
    my $days=$_[0];
-
    if ($days==0) {
       emptytrash(); return;
    } elsif ($days<0||$days>=999999) {
@@ -1247,34 +1301,35 @@ sub cleantrash {
    }
 
    # do clean only if last clean has passed for more than 0.5 day (43200 sec)
-   return if (time()-(stat("$folderdir/.trash.check"))[9] < 43200);
+   my $now=time();
+   my $ftime=(stat("$folderdir/.trash.check"))[9];
 
-   my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
-   filelock($trashfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $trashfile!");
-   my $deleted=delete_message_by_age($days, $trashdb, $trashfile);
-   if ($deleted >0) {
-      writelog("cleantrash - delete $deleted msgs from mail-trash");
-      writehistory("cleantrash - delete $deleted msgs from mail-trash");
+   if (!$ftime) {	# create if not exist
+      open (TRASHCHECK, ">$folderdir/.trash.check" ) or
+         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.trash.check! ($!)");
+      print TRASHCHECK "trashcheck timestamp file";
+      close (TRASHCHECK);
    }
-   filelock($trashfile, LOCK_UN);
+   if ( $now-$ftime > 43200 ) {	# mor than half day
+      my ($trashfile, $trashdb)=get_folderfile_headerdb($user, 'mail-trash');
 
-   open (TRASHCHECK, ">$folderdir/.trash.check" ) or
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.trash.check!");
-   my $t=localtime();
-   print TRASHCHECK "checktime=", $t;
-   close (TRASHCHECK);
+      filelock($trashfile, LOCK_EX|LOCK_NB) or
+         openwebmailerror("$lang_err{'couldnt_lock'} $trashfile!");
+      my $deleted=delete_message_by_age($days, $trashdb, $trashfile);
+      if ($deleted >0) {
+         writelog("clean trash - delete $deleted msgs from mail-trash");
+         writehistory("clean trash - delete $deleted msgs from mail-trash");
+      }
+      filelock($trashfile, LOCK_UN);
 
+      utime($now-1, $now-1, "$folderdir/.trash.check");	# -1 is trick for nfs
+   }
    return;
 }
 ################# END CLEANTRASH ################
 
 #################### LOGOUT ########################
 sub logout {
-   openwebmailerror("Session ID $lang_err{'has_illegal_chars'}") unless
-      (($thissession =~ /^(.+?\-\d?\.\d+)$/) && ($thissession = $1));
-   $thissession =~ s/\///g;  # just in case someone gets tricky ...
-
    unlink "$config{'ow_sessionsdir'}/$thissession";
    writelog("logout - $thissession");
    writehistory("logout - $thissession");
@@ -1284,17 +1339,23 @@ sub logout {
    $html = applystyle($html);
 
    my $start_url=$config{'start_url'};
-   if (cookie("openwebmail-ssl")) {
-      $start_url="https://$ENV{'HTTP_HOST'}$start_url" if ($start_url!~m!^https?://!i);
+ 
+   if (cookie("openwebmail-ssl")) {	# backto SSL
+      $start_url="https://$ENV{'HTTP_HOST'}$start_url" if ($start_url!~s!^https?://!https://!i);
    }
-   $temphtml = startform(-action=>"$start_url") .
-               submit("$lang_text{'loginagain'}").
-               "&nbsp; &nbsp;".
-               button(-name=>"exit",
+   $temphtml = startform(-action=>"$start_url");
+   if ($default_logindomain) {
+      $temphtml .= hidden(-name=>'logindomain',
+                          -value=>$default_logindomain,
+                          -override=>'1');
+   }
+   $temphtml .= submit("$lang_text{'loginagain'}").
+                "&nbsp; &nbsp;".
+                button(-name=>"exit",
                       -value=>$lang_text{'exit'},
                       -onclick=>'javascript:top.window.close();',
                       -override=>'1').
-               end_form();
+                end_form();
    $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/;
 
    print htmlheader(), $html, htmlfooter(2);

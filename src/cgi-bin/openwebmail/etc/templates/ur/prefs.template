@@ -1,0 +1,430 @@
+@@@STARTPREFSFORM@@@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<tr>
+<td nowrap bgcolor=@@@TITLEBAR@@@ width="30%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>ﺍﺳﺘﻌﻤﺎﻝ ﻛﻨﺪﻩ ﻛﻰ ﺗﺮﺟﻴﺤﺎﺕ</B></font>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="center">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@QUOTAUSAGE@@@</B></font>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="left" width="30%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@REALNAME@@@&nbsp;</B></font>
+</tr>
+<tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td></tr>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ﺫﺍﺗﻰ ﻣﻌﻠﻮﻣﺎﺕ</B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﺯﺑﺎﻥ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@LANGUAGEMENU@@@&nbsp;ﻛﺮﻳﻛﭩﺮﺳﻴﭧ @@@CHARSETMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﻭﻗﺖ ﻛﺎ ﺯﻭﻥ : </B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@TIMEOFFSETMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>Daylight Saving Time:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DAYLIGHTSAVINGMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﺍﺭﺳﺎﻝ ﻛﺮﻧﮯ ﻭﺍﻻ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FROMEMAILMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﺟﻮﺍﺏ ﺍﺱ ﺟﮕﮧ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYTOFIELD@@@
+</td></tr>
+@@@FORWARDSTART@@@
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﺍﺱ ﺍﮈﺭﻳﺲ ﭘﺮ ﺁﮔﮯ ﺑﮍﻫﺎﺋﻴﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FORWARDADDRESS@@@
+&nbsp;
+@@@KEEPLOCALCOPY@@@
+ﻧﻘﻞ ﺑﻫﻰ ﺭﻛﻫﻴﮟ
+</td></tr>
+@@@FORWARDEND@@@
+@@@AUTOREPLYSTART@@@
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺧﻮﺩ ﺑﮧ ﺨﻮﺩ ﺟﻮﺍﺏ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOREPLYCHECKBOX@@@
+&nbsp;
+ﻣﻮﺿﻮﻉ :
+@@@AUTOREPLYSUBJECT@@@
+</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
+<B>ﺧﻮﺩ ﺑﮧ ﺧﻮﺩ ﺟﻮﺍﺏ ﻛﺎ ﮢﻴﻛﺴﭧ (500 ﻛﺮﻳﻛﭩﺮ ﺗﮏ)</B><BR>
+@@@AUTOREPLYTEXT@@@
+</td></tr>
+@@@AUTOREPLYEND@@@
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
+<B>ﺩﺳﺘﺨﻄ (500 ﻛﺮﻳﻛﭩﺮ ﺗﮏ)</B><BR>
+@@@SIGAREA@@@
+<br>&nbsp;
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﺩﻳﻛﻬﻨﮯ ﻛﻰ ﺗﺮﺟﻴﺤﺎﺕ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺍﻧﺪﺍﺯ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@STYLEMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺁﺋﻛﻦ ﺳﻴﭧ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ICONSETMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﭘﺲ ﻣﻨﻈﺮ ﻛﻰ ﺗﺼﻮﻳﺮ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
+@@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﭘﺲ ﻣﻨﻈﺮ ﻛﻰ ﺗﺼﻮﻳﺮ ﺩﻭﮨﺮﺍﺋﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BGREPEATCHECKBOX@@@<br>
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻓﻮﻧﭧ ﻛﺎ ﻧﺎﭖ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FONTSIZEMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺗﺎﺭﻳﺦ ﻛﺎ ﺍﻧﺪﺍﺯ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DATEFORMATMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻭﻗﺖ ﻛﺎ ﺍﻧﺪﺍﺯ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HOURFORMATMENU@@@ hour
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﻓﻮﻟﮉﺭ ﺩﻳﻜﻬﻨﺎ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﻓﻮﻟﮉﺭ ﺩﻳﻜﻬﻨﮯ ﻣﻴﮟ ﻛﻨﭩﺮﻭﻝ ﺑﺎﺭ ﻛﻰ ﺟﮕﮧ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONFOLDERVIEWMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺻﻔﮧ ﭘﺮ ﭘﻴﻐﺎﻣﺎﺕ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSPERPAGE@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﻓﻴﻠﮉ ﻛﻰ ﺗﺮﺗﻴﺐ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FIELDORDERMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺗﺮﺗﻴﺐ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SORTMENU@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﭘﻴﻐﺎﻡ ﻛﮯ ﺁﭘﺮﻳﺸﻦ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﻧﻘﻞ ﺍﻭﺭ ﻣﻨﺘﻘﻠﻰ ﭘﺮ ﺍﺟﺎﺯﺕ ﻟﻴﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMMSGMOVECOPY@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﭘﻴﻐﺎﻡ ﻛﻰ ﻣﻨﺰﻝ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DEFAULTDESTINATIONMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺍﺳﻤﺎﺭﭦ ﻣﻨﺰﻝ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SMARTDESTINATION@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﻧﻘﻞ ﺍﻭﺭ ﻣﻨﺘﻘﻠﻰ ﭘﺮ ﺍﮔﻠﮯ ﭘﻴﻐﺎﻡ ﺩﻳﻜﻬﻴﮟ  :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@VIEWNEXTAFTERMSGMOVECOPY@@@
+</td></tr>
+@@@AUTOPOP3START@@@
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﻟﻮﮒ ﺍﻥ ﭘﺮﺧﻮﺩ ﺑﺎ ﺧﻮﺩ POP3 ﺳﮯ ﭘﻴﻐﺎﻡ ﺣﺎﺻﻞﻛﺮﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@AUTOPOP3CHECKBOX@@@
+</td></tr>
+@@@AUTOPOP3END@@@
+@@@MOVEOLDSTART@@@
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺑﮯ ﺩﺧﻠﻰ ﭘﺮ ﭘﺮﺍﻧﮯ ﭘﻴﻐﺎﻡ "ﻣﺤﻔﻮﻇ ﺷﺪﻩ ﭘﻴﻐﺎﻣﺎﺕ" ﻣﻴﮟ ﻣﻨﺘﺨﻞ ﻛﺮﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MOVEOLDMSGFROMINBOX@@@
+</td></tr>
+@@@MOVEOLDEND@@@
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﭘﻴﻐﺎﻡ ﭘﮍﻫﻨﮯ ﻛﮯ ﺁﭘﺸﻦ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﭘﻴﻐﺎﻡ ﭘﮍﻫﻨﮯ ﻣﻴﮟ ﻛﻨﭩﺮﻭﻝ ﺑﺎﺭ ﻛﻰ ﺟﮕﮧ  :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CTRLPOSITIONMSGREADMENU@@@
+</td></tr>﻿
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻫﻴﮉﺭ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﭘﻴﻐﺎﻡ ﭘﮍﻫﻨﮯ ﻣﻴﮟ ﺍﻳﮏ ﻧﺎﭖ ﻛﮯ ﻓﻮﻧﭧ ﺍﺳﺘﻌﻤﺎﻝ ﻛﺮﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USEFIXEDFONT@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﭘﻴﻐﺎﻡ ﭘﮍﻫﻨﮯ ﻣﻴﮟ ﻣﺴﻛﺮﺍﺗﻰ ﺗﺼﻮﻳﺮﻳﮟ ﺍﺳﺘﻌﻤﺎﻝ ﻛﺮﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@USESMILEICON@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﭘﻴﻐﺎﻡ ﻣﻴﮟ ﺟﺎﻭﺍ ﺍﺳﻜﺮﻳﭙﭧ ﻧﺎﻗﺎﺑﻞ ﺍﺳﺘﻌﻤﺎﻝ ﺭﻛﻬﻴﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEJS@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﭘﻴﻐﺎﻡ ﻣﻴﮟ CGI ﻧﺎﻗﺎﺑﻞ ﺍﺳﺘﻌﻤﺎﻝ ﺭﻛﻬﻴﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DISABLEEMBCGI@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﭘﻴﻐﺎﻡ ﻣﻴﮟ ﻣﻨﺴﻠﮏ ﺗﺼﻮﻳﺮﻭﮞ ﻛﻭ ﻟﻴﻨﮏ ﺩﻛﻬﺎﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWIMGASLINK@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﭘﮍﻫﮯﺟﺎﻧﮯ ﻛﻰ ﺭﺳﻴﺪ ﺑﻬﻴﺠﻴﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDRECEIPTMENU@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﺟﻮﺍﺏ  ﻛﮯ ﺁﭘﺸﻦ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺟﻮﺍﺏ ﻛﻰ ﻟﻜﻬﺎﺋﻰ ﻛﮯ ﻟﺌﮯ ﺟﮕﮧ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+ﭼﻮﮌﺍﺉ @@@EDITCOLUMNSMENU@@@ ﻟﻤﺒﺎﺊ @@@EDITROWSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺍﺭﺳﺎﻝ ﻛﮯ ﺑﭩﻦ ﻛﻰ ﺟﮕﮧ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﭘﻴﻐﺎﻡ ﺍﺭﺳﺎﻝ ﻛﺮﻧﮯ ﭘﺮ ﭘﻴﺮﺍﮔﺮﺍﻑ ﺩﺭﺳﺖ ﻛﺮﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REPARAGRAPHORIGMSG@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﺟﻮﺍﺏ ﻛﮯ ﺳﺎﺗﻬ ﭘﻴﻐﺎﻡ ﻣﻨﺴﻠﮏ ﻛﺮﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REPLYWITHORIGMSGMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﺍﺭﺳﺎﻝ ﻛﺮﻧﮯ ﭘﺮ ﭘﻴﻐﺎﻡ "ﺭﻭﺍﻧﮧ ﺷﺪﻩ ﻣﻴﻞ" ﻣﻴﮟ ﻣﺣﻔﻮﻇ ﻛﺮﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKUPSENTMSG@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺟﻮﺍﺏ ﻛﮯ ﻟﺌﮯ ﻛﺮﻳﻜﮣﺮﺳﻴﭧ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SENDCHARSETMENU@@@
+</td></tr>
+
+@@@FILTERSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﻓﻠﭩﺮ ﻛﮯ ﺁﭘﺸﻦ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺩﻭﮨﺮﮯ ﭘﻴﻐﺎﻡ ﻛﻰ ﺣﺪ  :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERREPEATLIMIT@@@ &nbsp;( 0  ﺻﻔﺮ ﻛﮯ ﻣﻌﻨﮯ ﺩﻭﮨﺮﮮ ﭘﻴﻐﺎﻡ ﻛﻮ ﻧﺎ ﺩﻳﻛﻬﻮ )
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺟﻌﻠﻰ SMTP ﻛﮯ ﭘﻴﻐﺎﻡ ﻓﻠﭩﺮ ﻛﺮﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDSMTP@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺟﻌﻠﻰ "ﺍﺭﺳﺎﻝ ﻛﺮﻧﮯ ﻭﺍﻻ"  ﻛﮯ ﭘﻴﻐﺎﻡ ﻓﻠﭩﺮ ﻛﺮﻳﮟ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDFROM@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺟﻌﻠﻰ exe content-type ﻭﺍﻟﮯ ﭘﻴﻐﺎﻡ ﻓﻠﭩﺮ ﻛﺮﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@FILTERFAKEDEXECONTENTTYPE@@@
+</td></tr>
+@@@FILTEREND@@@
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﺍﻳﮉﺭﺱ ﺑﮏ ﻛﮯ ﺁﭘﺸﻦ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺍﻳﮉﺭﺱ ﺑﮏ ﻛﻰ ﻭﻧﮉﻭ ﻛﺎ ﻧﺎﭖ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+ﭼﻮﮌﺍﺉ @@@ABOOKWIDTHMENU@@@ ﻟﻤﺒﺎﺊ @@@ABOOKHEIGHTMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺍﻳﮉﺭﺱ ﺑﮏ ﻛﮯ ﺑﭩﻦ ﻛﻰ ﺟﮕﮧ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKBUTTONPOSITIONMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺍﻳﮉﺭﺱ ﺑﮏ ﻛﺎ ﻓﻠﮍﺭ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ABOOKDEFAULTFILTER@@@
+</td></tr>
+
+@@@CALENDARSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﻛﻠﻴﻨﮉﺭ ﻛﮯ ﺁﭘﺸﻦ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﻣﻬﻴﻨﮯ ﻛﮯ ﻧﻈﺎﺭﮯ ﻣﻴﮟ ﻛﻞ ﺁﺋﮣﻢ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@MONTHVIEWNUMITEMSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻫﻔﺘﮯ ﻛﺎ ﺁﻏﺎﺯ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@WEEKSTARTMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺍﺑﺘﺪﺁﺋﻰ ﮔﻬﻨﭩﺎ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@STARTHOURMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺍﺧﺘﺎﻣﻰ ﮔﻬﻨﭩﺎ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ENDHOURMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺩﻥ ﻛﮯ ﻧﻈﺎﺭﮯ ﻣﻴﮟ ﻭﻗﺖ ﻛﺎ ﻭﻗﻔﮧ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@INTERVALMENU@@@ ﻣﻨﭧ
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺧﺎﻟﻰ ﮔﻬﻨﭩﮯ ﺩﻛﻬﺎﺋﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SHOWEMPTYHOURSCHECKBOX@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺍﻳﻮﻳﻨﭧ ﻛﻰ ﺁﮔﺎﮨﻰ ﻛﮯ ﺩﻥ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REMINDERDAYSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﮔﻠﻮﺑﻞ ﻛﻠﻴﻨﮉﺭ ﺍﻳﻮﻳﻨﭧ ﻛﮯ ﻟﻴﮯ ﺁﮔﺎﮨﻰ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REMINDERFORGLOBALCHECKBOX@@@
+</td></tr>
+@@@CALENDAREND@@@
+
+@@@WEBDISKSTART@@@
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﻭﻳﺏ ﮈﺳﮏ ﻛﮯ ﺁﭘﺸﻦ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﮈﺍﺋﺮﻛﮣﺮﻯ ﻛﻰ ﻟﺳﭧ ﻣﻴﮟ ﻛﻞ ﺁﺋﮣﻢ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DIRNUMITEMSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻓﺎﺋﻞ/ﮈﺍﺋﺮﻳﻛﮣﺮﻯ ﻛﻰ ﻧﻘﻞ ﻳﺎ ﻣﻨﺘﻘﻠﻰ ﭘﺮ ﺍﺟﺎﺯﺕ ﻟﻴﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEMOVECOPY@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻓﺎﺋﻞ/ﮈﺍﺋﺮﻳﻛﮣﺮﻯ ﻛﻮ ﻣﮣﺎﻧﮯ ﭘﺮ ﺍﺟﺎﺯﺕ ﻟﻴﮟ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILEDEL@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻓﺎﺋﻞ/ﮈﺍﺋﺮﻳﻛﮣﺮﻯ ﻛﻮ compress ﻛﺮﻧﮯ ﭘﺮ ﺍﺟﺎﺯﺕ ﻟﻴﮟ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CONFIRMFILECOMPRESS@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻓﺎﺋﻞ ﻛﻰ ﺗﺒﺪﻳﻠﻰ ﻛﻰ ﻭﻧﮉﻭ ﻛﺎ ﻧﺎﭖ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+ﭼﻮﮌﺍﺉ @@@FILEEDITCOLUMNSMENU@@@ ﻟﻤﺒﺎﺊ @@@FILEEDITROWSMENU@@@
+</td></tr>
+@@@WEBDISKEND@@@
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B> ﻣﺘﻔﺮﻕ ﺁﭘﺸﻦ </B></td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B> ﺗﻼﺵ ﺍﻭﺭ ﻓﻠﮍﺭ ﻣﻴﮟ Regex ﺍﺳﺘﻌﻤﺎﻝ ﻛﺮﻳﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REGEXMATCH@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻓﻮﻟﮉﺭ ﻛﮯ ﺍﻧﺪﺭﻭﻧﻰ ﺟﺰ ﭼﻬﭙﺎﺋﮟ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@HIDEINTERNAL@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺗﺎﺯﻩ ﺩﻡ ﻛﺮﻧﮯ ﻛﺎ ﺩﻭﺭﺍﻧﻴﮧ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@REFRESHINTERVALMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻧﮱ ﭘﻴﻐﺎﻡ ﻛﻰ ﺁﮔﺎﮨﻰ ﻛﻰ ﺁﻭﺁﺯ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@NEWMAILSOUNDMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻧﮱ ﭘﻴﻐﺎﻡ ﻛﻰ ﺁﮔﺎﮨﻰ ﻛﻰ ﻭﻧﮈﻭ ﻛﺎ ﻧﺎﭖ:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+ﺍﮔﻠﮯ  @@@NEWMAILWINDOWTIMEMENU@@@  &nbsp; ﺳﻴﻜﻴﻨﮉ( 0 ﺻﻔﺮ ﻛﮯ ﻣﻌﻨﮯ ﻛﻮﺋﻰ ﺁﮔﺎﮨﻰ ﻧﻬﻴﮟ   )
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﻟﻐﻌﺖ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DICTIONARYMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺭﺩﻯ ﻛﮯ ﻟﻴﮱ ﺩﻥ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@RESERVEDDAYSMENU@@@
+</td></tr>
+<tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
+<B>ﺑﮯ ﺩﺧﻠﻰ ﻛﮯ ﻟﻴﮱ ﻭﻗﺖ :</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@SESSIONTIMEOUTMENU@@@
+</td></tr>
+
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>
+<table><tr>
+<td>@@@SAVEBUTTON@@@</td>
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+<td>@@@CANCELBUTTON@@@</td>
+@@@ENDFORM@@@
+</tr></table></td></tr></table>
+
+<script language="JavaScript">
+<!--
+   function playsound(url, soundname)
+   {
+      if (soundname != "NONE" ) {
+         window.open(url+soundname);
+      }
+   }
+//-->
+</script>

@@ -7,8 +7,8 @@ $loginname +-->$loginuser----->+                   +-->$auth_user---+---> auth s
  $logindomain derives form     |                   |                |auth_withdomain=yes?              |
                                |                   |                |                          load per user conf
  1. domain in loginname        +-> virtusertable ->+           $auth_domain                    for $domain/$user
- 2. domain in URL              |                   |                |                                  |
- 3. domain by /bin/hostname    |                   |                |                                  |
+ 2. cgi param(logindomain)     |                   |                |                                  |
+ 3. domain in URL              |                   |                |                                  |
            |                   ^                   |                ^                                  v
            v                   |                   |                |                                  |
            |           get all equivalent          |           override by                     email address from

@@ -26,6 +26,13 @@ package openwebmail::zh_CN_GB2312;
    size_rev    => '大小（小信优先）'
    );
 
+%lang_onofflabels =
+   (
+   auto => '自动切换',
+   on   => '开',
+   off  => '关',
+   );
+
 %lang_prioritylabels =
    (
    normal      => '普通',
@@ -223,6 +230,7 @@ package openwebmail::zh_CN_GB2312;
    replyall   => '全部回复',
    forward    => '转发',
    forwardasatt=>'以附件方式转发',
+   forwardasorig=>'原信转发',
    printfriendly=> '友好打印',
    from       => '发件人',
    replyto    => '回复给',
@@ -253,7 +261,6 @@ package openwebmail::zh_CN_GB2312;
    continue   => '继续',
    loginagain => '重新登录',
    exit       => '离开',
-   for        => 'for',
    yourname   => '您的姓名',
    save       => '保存',
    add        => '增加',
@@ -283,8 +290,9 @@ package openwebmail::zh_CN_GB2312;
    note       => '备注',
    max        => '最大值',
    group      => '邮件组',
-   quota_hit  => '存储空间已满',
-   usage      => '使用空间',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => '存储空间已满',
    tzmap      => '世界时区地图',
    testsound  => '试听',
    editfroms  => '编辑个人邮件地址',
@@ -410,8 +418,6 @@ package openwebmail::zh_CN_GB2312;
    tryagain          => '再试。',
    abook_toobig      => '地址簿超过容量限制。请',
    cant_create_dir   => '无法建立用户目录！',
-   folder_hitquota   => '抱歉！您的容量已经超过限额，请先将不要的信件删除并清空垃圾箱，否则，您将收不到新邮件！',
-   folder_cutdone    => '注意！由于邮件箱容量超出限额(@@@FOLDERQUOTA@@@), 各邮件箱中过旧的讯息已经被自动移除。',
    att_overlimit     => '附件大小超过限制',
    inv_msg_op        => '无效的邮件操作',
    sess_cookieerr    => 'Sessionid cookie 不正确，拒绝存取。请检查是否打开浏览器 cookie 功能或是重复登录。',
@@ -440,8 +446,12 @@ package openwebmail::zh_CN_GB2312;
    no_file_todownload=> '尚未选择要下载的目录或文件',
    upload_overlimit  => '上传文件的大小超出限制',
    decomp_notsupported=>'系统不支持这种文件的解压缩。',
-   webdisk_hitquota   => '抱歉, 您的网络磁盘大小已经超出限额, 请先试著删除一些文件。',
-   webdisk_readonly   => '抱歉, 您的网络磁盘是只读的。',
+   webdisk_readonly  => '抱歉, 您的网络磁盘是只读的。',
+   quota_syserr      => 'Quota 系统内部错误',
+   quotahit_alert    => '很抱歉, 由于您的使用空间已经超过上限, 请先删除信件匣中的信件, 或是网路硬碟中的档案以便释出一些可用空间.',
+   quotahit_delmail  => '注意, 由于使空间已经超过上限(@@@QUOTALIMIT@@@), 信件匣中最旧的一些信件已经被自动删除了.',
+   quotahit_delfile  => '注意, 由于使空间已经超过上限(@@@QUOTALIMIT@@@), 网路硬碟中的一些档案已经被自动删除了.',
+   spool_overlimit   => '很抱歉, 您的新信匣已经超出其容量上限(@@@SPOOLLIMIT@@@). 请将部份信件由新信匣搬到其他信件匣.',
    vdomain_toomanyuser=> '抱歉, 这个网域的使用者数目已经到达上限'
    );
 

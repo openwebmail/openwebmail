@@ -20,6 +20,7 @@ use strict;
 
 my $pam_servicename="openwebmail";
 my $pam_passwdfile_plaintext="/etc/passwd";
+my $check_shell=0;
 
 ################### No configuration required from here ###################
 
@@ -42,7 +43,12 @@ sub get_userinfo {
    if ($pam_passwdfile_plaintext eq "/etc/passwd") {
       ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
    } else {
-      ($uid, $gid, $realname, $homedir)= (getpwnam_file($user, $pam_passwdfile_plaintext))[2,3,6,7];
+      if ($pam_passwdfile_plaintext=~/\|/) { # maybe NIS, try getpwnam first
+         ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7]; 
+      }
+      if ($uid eq "") { # else, open file directly
+         ($uid, $gid, $realname, $homedir)= (getpwnam_file($user, $pam_passwdfile_plaintext))[2,3,6,7];
+      }
    }
    return(-4, "User $user doesn't exist") if ($uid eq "");
 
@@ -72,6 +78,8 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
    }
    open(PASSWD, $pam_passwdfile_plaintext);
    while (defined($line=<PASSWD>)) {
+      next if ($line=~/^#/);
+      chomp($line);
       push(@userlist, (split(/:/, $line))[0]);
    }
    close(PASSWD);
@@ -90,7 +98,7 @@ sub check_userpassword {
    my $r_config;
    local ($pam_user, $pam_password);	# localized global to make reentry safe
    ($r_config, $pam_user, $pam_password)=@_;
-   return (-2, "User or password is null") if ($pam_user eq "" || $pam_password eq "");
+   return (-2, "User or password is null") if (!$pam_user||!$pam_password);
 
    sub checkpwd_conv_func {
       my @res;
@@ -124,7 +132,32 @@ sub check_userpassword {
    }
    $pamh = 0;  # force Destructor (per docs) (invokes pam_close())
 
-   return($ret, $errmsg);
+   return($ret, $errmsg) if ($ret<0);
+   return (0, "") if (!$check_shell);
+
+   my ($name, $shell);
+   if ($pam_passwdfile_plaintext eq "/etc/passwd") {
+      $shell = (getpwnam($pam_user))[8];
+   } else {
+      if ($pam_passwdfile_plaintext=~/\|/) { # maybe NIS, try getpwnam first
+         ($name, $shell)= (getpwnam($pam_user))[0,8];
+      }
+      if ($name eq "") { # else, open file directly
+         ($name, $shell) = (getpwnam_file($pam_user, $pam_passwdfile_plaintext))[0,8];
+      }
+   }
+   if ($shell && open(ES, "/etc/shells")) {
+      my $validshell = 0;   # assume an invalid shell until we get a match
+      while(<ES>) {
+         chop;
+         if( $shell eq $_ ) {
+            $validshell = 1; last;
+         }
+      }
+      close(ES);
+      return (-4, "user doesn't have valid shell") if (!$validshell);
+   }
+   return (0, "");
 }
 
 
@@ -137,7 +170,7 @@ sub change_userpassword {
    local ($pam_user, $pam_password, $pam_newpassword); # localized global to make reentry safe
    my $r_config;
    ($r_config, $pam_user, $pam_password, $pam_newpassword)=@_;
-   return (-2, "User or password is null") if ($pam_user||!$pam_password||!$pam_newpassword);
+   return (-2, "User or password is null") if (!$pam_user||!$pam_password||!$pam_newpassword);
 
    local $pam_convstate=0;	# localized global to make reentry safe
    sub changepwd_conv_func {
@@ -193,7 +226,7 @@ sub getpwnam_file {
    my ($user, $passwdfile_plaintext)=@_;
    my ($name, $passwd, $uid, $gid, $gcos, $dir, $shell);
 
-   return("", "", "", "", "", "", "", "", "") if ($user eq "" || ! -f $passwdfile_plaintext);
+   return("", "", "", "", "", "", "", "", "") if ($user eq "");
 
    open(PASSWD, "$passwdfile_plaintext");
    while(<PASSWD>) {

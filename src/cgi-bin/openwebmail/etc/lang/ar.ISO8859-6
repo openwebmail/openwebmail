@@ -26,6 +26,13 @@ package openwebmail::ar_ISO8859_6;
    size_rev    => 'ÇäÍÌå - ÇäÃÕÚÑ ÃèñäÇ'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'ÙÇÏêñ',
@@ -223,6 +230,7 @@ package openwebmail::ar_ISO8859_6;
    replyall   => 'ÇäÑÏ Ùäé Çäãä',
    forward    => 'åÑÑ',
    forwardasatt=>'åÑÑ ãåäÍâ',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'åäÇÆå ää×ÈÇÙÉ',
    from       => 'åæ',
    replyto    => 'ÃÌÈ Åäé',
@@ -253,7 +261,6 @@ package openwebmail::ar_ISO8859_6;
    continue   => 'ÅÓÊåÑñ',
    loginagain => 'ÅÙÇÏÉ ÊÓÌêä ÇäÏÎèä',
    exit       => 'ÎÑèÌ',
-   for        => '',
    yourname   => 'ÅÓåã',
    save       => 'ÍáØ',
    add        => 'ÅÖÇáÉ',
@@ -283,8 +290,9 @@ package openwebmail::ar_ISO8859_6;
    note       => 'åäÇÍØÉ',
    max        => 'ÇäÍÏñ ÇäÃâÕé',
    group      => 'ÇäåÌåèÙÉ',
-   quota_hit  => 'Êå ÊÌÇèÒ ÇäÍÕÉ ÇäåÓåèÍ ÈçÇ',
-   usage      => 'åÓÊÎÏå',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'Êå ÊÌÇèÒ ÇäÍÕÉ ÇäåÓåèÍ ÈçÇ',
    tzmap      => 'ÎÇÑ×É ÇäåæÇ×â ÇäÒåæêÉ',
    testsound  => 'áÍÕ ÇäÕèÊ',
    editfroms  => 'ÊÍÑêÑ ÙæÇèêæ ÇäÈÑêÏ ÇäÇäãÊÑèæê ÇäÔÎÕêÉ',
@@ -410,8 +418,6 @@ package openwebmail::ar_ISO8859_6;
    tryagain          => 'and try again.',
    abook_toobig      => 'Sorry, this would exceed the size limit for your address book.  Please go',
    cant_create_dir   => 'Can\'t create your user directory!',
-   folder_hitquota   => 'Sorry, you\'ve hit your quota, and no more mail can be stored in your mail folders.  You will be unable to move messages anywhere but to the TRASH, where they will be deleted.  Go back, delete some messages or empty your trash, and try again.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Sorry, your attachments exceed the attachment size limit, which is',
    inv_msg_op        => 'Invalid operation for message',
    sess_cookieerr    => 'Your request didn\'t contain the proper sessionid cookie -- access denied!',
@@ -440,8 +446,12 @@ package openwebmail::ar_ISO8859_6;
    no_file_todownload=> 'No file is specified for download',
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

@@ -16,6 +16,7 @@ fi=kari.paivarinta@viivatieto.fi
 fr=admin@osmium-work.com
 de=mail@schoeppi.net
 el=dimitris@michelinakis.gr
+he=yehuda@whatsup.org.il 
 hu=grin@grin.hu
 id=liangs@kunchang.com.tw
 it=marvi@menhir.biz
@@ -25,7 +26,7 @@ lt=dvm382@takas.lt
 no=are@valinor.dolphinics.no
 pl=pawelj@lodz.dialog.net.pl
 pt=jferra@sfconsultores.pt
-ptbr=vlad@univap.br
+ptbr=julio@cnm.org.br
 ro=vladimir@bitsoft.ro
 ru=duster@tpu.ru
 sr=alexa@yunord.net
@@ -35,6 +36,7 @@ sv=tryfan@telia.com
 th=joke@nakhon.net
 tr=eguler@aegee.metu.edu.tr
 uk=lvm@mystery.lviv.net
+ur=umair@khi.wol.net.pk
 
 # port/package/service maintainer email
 cobalt=webmaster@pkgmaster.com
@@ -98,8 +100,8 @@ tung
     cat /tmp/notify.tmp.$$| \
     /usr/local/bin/mutt -s "OWM $date translation update request" \
     -a /usr/local/www/data/openwebmail/download/lang-templates-* \
-    $ar $bg $ca $cs $gb2312 $big5 $da $nl $fi $fr $de $el $hu $id \
-    $it $jp $kr $lt $no $pl $pt $ptbr $ro $ru $sr $sk $es $sv $th $tr $uk
+    $ar $bg $ca $cs $gb2312 $big5 $da $nl $fi $fr $de $el $he $hu $id \
+    $it $jp $kr $lt $no $pl $pt $ptbr $ro $ru $sr $sk $es $sv $th $tr $uk $ur
   fi
   rm /tmp/notify.tmp.$$
 fi

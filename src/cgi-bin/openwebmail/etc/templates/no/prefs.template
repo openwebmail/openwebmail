@@ -1,9 +1,17 @@
 @@@STARTPREFSFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
+<tr>
+<td nowrap bgcolor=@@@TITLEBAR@@@ width="30%">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Brukerinnstillinger @@@REALNAME@@@</B></font>
-<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+<B>Brukerinnstillinger</B></font>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="center">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@QUOTAUSAGE@@@</B></font>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="right" width="30%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@REALNAME@@@&nbsp;</B></font>
+</tr>
+<tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
 </table>
@@ -19,6 +27,11 @@
 <B>Tidssone:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TIMEOFFSETMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Sommertid:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Fra:</B>
@@ -78,7 +91,7 @@ Emne:
 @@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image repeated:</B>
+<B>Bakgrunnsbilde repeteres:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
@@ -111,7 +124,7 @@ Emne:
 @@@HEADERSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Field order:</B>
+<B>Feltrekkefølge:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FIELDORDERMENU@@@
 </td></tr>
@@ -134,7 +147,7 @@ Emne:
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Smart Destination:</B>
+<B>Smart destinasjon:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SMARTDESTINATION@@@
 </td></tr>
@@ -260,19 +273,19 @@ Bredde @@@EDITCOLUMNSMENU@@@ Høyde @@@EDITROWSMENU@@@
 @@@FILTEREND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Adressebok-oppsett</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>Størrelse for adressebok-vindu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+Bredde @@@ABOOKWIDTHMENU@@@ Høyde @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>Adressebok-knapp-posisjon:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>Adressebok standardfilter:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
@@ -301,9 +314,9 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@ENDHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Time interval in dayview:</B>
+<B>Tidsintervall i dagsvisning:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@INTERVALMENU@@@ minutes
+@@@INTERVALMENU@@@ minutter
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Vis tomme timer:</B>

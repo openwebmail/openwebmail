@@ -26,6 +26,13 @@ package openwebmail::es;
    size_rev    => 'Tamaño (Menor primero)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normal',
@@ -223,6 +230,7 @@ package openwebmail::es;
    replyall   => 'Responder a todos',
    forward    => 'Reenviar',
    forwardasatt=>'Reenviar como archivo adjunto',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Versión imprimible',
    from       => 'Remitente',
    replyto    => 'Responder a',
@@ -253,7 +261,6 @@ package openwebmail::es;
    continue   => 'Continuar',
    loginagain => 'Volver a ingresar',
    exit       => 'Salir',
-   for        => 'para',
    yourname   => 'Su Nombre y Apellido',
    save       => 'Guardar',
    add        => 'Agregar',
@@ -283,8 +290,9 @@ package openwebmail::es;
    note       => 'Nota',
    max        => 'Máximo',
    group      => 'Grupo',
-   quota_hit  => 'TAMAÑO MÁXIMO PERMITIDO',
-   usage      => 'Uso',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'TAMAÑO MÁXIMO PERMITIDO',
    tzmap      => 'Mapa de zonas horarias',
    testsound  => 'Probar sonido',
    editfroms  => 'Editar direcciones de correo',
@@ -410,8 +418,6 @@ package openwebmail::es;
    tryagain          => 'y trate nuevamente.',
    abook_toobig      => 'Lo siento, se ha excedido del tamaño límite para su libreta de direcciones.  Por favor, regrese',
    cant_create_dir   => '¡No puedo crear su directorio de usuario!',
-   folder_hitquota   => 'Lo siento, usted llegó a su límite de espacio y no puedo guardar más mensajes en ninguna bandeja. Sólo podrá mover los mensajes a la bandeja PAPELERA, donde serán borrados.  Regrese atrás, borre algunos mensajes o vacíe la Papelera e intente nuevamente.',
-   folder_cutdone    => 'Advertencia, debido a que se alcanzó el límite del tamaño de las bandejas (@@@FOLDERQUOTA@@@), los mensajes más antiguoshan sido eliminados automáticamente de las mismas.',
    att_overlimit     => 'Lo siento, el tamaño de su archivo excede el tamaño límite permitido, el cual es de',
    inv_msg_op        => 'Operación no válida para el mensaje',
    sess_cookieerr    => 'Su petición no contiene la correspondiente Cookie de Identificación -- acceso denegado!',
@@ -440,8 +446,12 @@ package openwebmail::es;
    no_file_todownload=> 'No se especificó ningún archivo a descargar',
    upload_overlimit  => 'El tamaño del archivo a subir supera el límite',
    decomp_notsupported=>'No se soporta la descompresión de este archivo.',
-   webdisk_hitquota   => 'Lo lamento, ha alcanzado el límite de su Disco Web, por favor elimine algunos archivos primero.',
-   webdisk_readonly   => 'Lo lamento, su Disco Web es de sólo-lectura.',
+   webdisk_readonly  => 'Lo lamento, su Disco Web es de sólo-lectura.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

@@ -49,6 +49,7 @@ libnet-1.0901.tar.gz      (required)
 Text-Iconv-1.2.tar.gz     (required)
 libiconv-1.8.tar.gz       (required if system doesn't support iconv)
 
+Quota-1.4.6.tar.gz        (optional)
 Authen-PAM-0.12.tar.gz    (optional)
 ispell-3.1.20.tar.gz      (optional)
 ImageMagick-5.5.3.tar.gz  (optional)
@@ -299,34 +300,77 @@ any message matching this rule will be kept in the INBOX folder and
 other rules will be ignored.
 
 
-FOLDER QUOTA
-------------
-There are three options related to folder quota in openwebmail.conf.default.
-You may override the defaults by setting them in openwebmail.conf
+USER QUOTA
+----------
+The disk space used by webmail, webcalendar or webdisk are counted together as 
+the user quota usage. There are five options can be used to control the user 
+quota in openwebmail.conf.default. You may override the defaults by setting 
+them in openwebmail.conf.
 
-1. folderquota
+1. quota_module
 
-This option sets folderquota limit (in kb) for user and the message operation 
-is limited to 'delete' if folderquota is hit. This option does not prevent the 
-operation taking the user over this limit from completing, it simply inhibits 
-further saving of messages until the folder size is brought down again.
+This option is used to choose the quota system for your openwebmail.
+There are two quota modules available currently.
 
-ps: If you have enabled the unix filesystem quota for user, please be sure that
-    the diskquota is larger than folderquota for about 20%(or 5 mb).
+a. quota_unixfs.pl
 
-    eg: folderquota 20000
-        filesystem quota softlimit=25000, hardlimit=26000
+This is the recommended quota module if the openwebmail user is the real 
+unix user and you system has enables the disk quota. 
+It has the minimal overhead.
 
-2. cutfolders_ifoverquota 
+ps:You have to install the Quota-1.4.6.tar.gz to use the module.
+
+b. quota_du.pl
+
+This is the recommended module only if quota_unixfs.pl could not be used on 
+your system (eg: openwebmail user is not standard unix user or unix quota 
+is not available.), because it uses the 'du -sk' to get the user quota usage. 
+
+Since running 'du -sk' on a large directory may be quote time consuming, 
+this module will cache the result of the 'du -sk' to avoid too much overhead. 
+The default cache lifetime is 60 seconds and could be changed in quota_du.pl
+
+If you set this option to 'none', then no quota system will be used in openwebmail
+                
+2. quota_limit
+
+This option sets the limit (in kb) for user quota usage. 
+The webmail and webdisk operation is limited to 'delete' if quota is hit. 
+This option does not prevent the operation taking the user over this limit 
+from completing, it simply inhibits further saving of messages or files
+until the user quota usage is brought down again.
+
+ps: The value set in this option is used only if quota module doesn't support 
+    quotalimit. ( whose quota_info() routine returns the quotalimit as -1 )
+
+ps: If you use the quota_unixfs.pl as the quota module,
+    please be sure that there is some space between the softlimit and 
+    hardlimit (eg:5mb)
+
+    eg: filesystem quota softlimit=25000, hardlimit=30000
+
+3. quota_threshold
+
+Normally, the user quota info will be put in the window title of the browser.
+But if the user quota usage is more the threshold set by this option,
+a big quota string will be displayed at the top of webmail and webdisk main menu
+
+4. delmail_ifquotahit
 
 Set this option to yes to make openwebmail remove oldest messages from user 
-mail folders automatically in case his folderquota is hit. the new total 
-size will be cut down to apporximately 90% of option folderquota
+mail folders automatically in case his quotalimit is hit. the new total 
+size will be cut down to apporximately 90% of option quota_limit
 
-3. folderusage_threshold
+5. delfile_ifquotahit
 
-A warning message will be shown if folder usage is more the threshold set by
- this option
+Set this option to yes to make openwebmail remove oldest files from webdisk
+/ automatically in case his quotalimit is hit. the new total 
+size will be cut down to apporximately 90% of option quota_limit
+
+ps:The above options are used to control quota of user homedir.
+   if you want to limit the size of user mail spool (the INBOX folder),
+   you have to use the spool_limit option.
+   Please refer to openwebmail.conf.help for more detail.
 
 
 COMMAND TOOL openwebmail-tool.pl
@@ -466,19 +510,8 @@ External commands are invoked with exec() and parameters are passed by
 array, which prevents using /bin/sh for shell escaped character 
 interpretation and thus is quite secure.
 
-To limit the WebDisk space used by the user, you can
-
-1. enable the UNIX quota system, or
-2. set option webdisk_quota in openwebmail.conf.
-
-While using UNIX quota system to limit the disk usage is more efficient,
-it can be only used with normal unix account. So if your openwebmail user is 
-virtual user or your platform doesn't support quota, you may use the option 
-webdisk_quota. Set it to a value larger than 0 will enable it.
-
-Since option webdisk_quota uses 'du -sk' to gather the disk usage, it could be 
-time-consuming if the system is busy or the user has a big tree in his homedir.
-We suggest using UNIX quota system for disk space control if possible.
+To limit the WebDisk space used by the user, please refer to the 
+'USER QUOTA' section
 
 
 VIRTUAL HOSTING
@@ -803,22 +836,38 @@ ps: You may choose the abbreviation by referencing the following url
    
    package openwebmail::xy
 
-5. add the name and charset of your language to %languagenames, %languagecharsets 
-   in ow-shared.pl, then set default_language to 'xy' in openwebmail.conf
+5. add the name and charset of your language to %languagenames, 
+   %languagecharsets in ow-shared.pl, then set default_language 
+   to 'xy' in openwebmail.conf
 
-6. check iconv.pl, if the charset is not listed, add a line for this charset in both
-   %charset_localname and %charset_convlist.
+6. check iconv.pl, if the charset is not listed, add a line for this charset
+   in both %charset_localname and %charset_convlist.
+
+7. If you want, you may create the holidays of your language with the 
+   openwebmail calendar, then copy the ~/mail/.calendar.book into
+   etc/holidaysdir/your_languagename. Them the holidays will be displayed 
+   to all users of this language
+
+8. If you want, you may also translation help tutorial to your language
+   the help files are located under data/openwebmail/help.
 
 ps: if your language is Right-To-Left oriented and you can read Arabic,
     you can use the Arabic template instead of English as the start templates.
     And don't forget to mention it when you submit the templates 
     to the openwebmail team.
-ps: If you wish your translation to be included in the next release of 
-    openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw.
 ps: Since the language and templates are loaded only once in persistent mode,
     you need to do 'touch openwebmail*pl' to make the modification active.
     To avoid this, you may change your openwebmail backto suid perl mode
     before you make the modifications.
+
+ps: If you wish your translation to be included in the next release of 
+    openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw.
+
+    IMPORTANT!!!
+    Please be sure your translation is based on the template files in the
+    latest openwebmail-current.tgz. And please send both your tranlsation
+    and english version files it based on to us. So we can check if there
+    is any latest modification should be added your translation. 
 
 
 ADD NEW CHARSET TO AUTO CONVERSION LIST

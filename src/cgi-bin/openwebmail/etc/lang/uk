@@ -26,6 +26,13 @@ package openwebmail::uk;
    size_rev    => 'по розм╕ру (Зворотн╕й порядок)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Автоперемикання',
+   on   => 'Вв╕мкнено',
+   off  => 'Вимкнено',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Нормальне',
@@ -181,7 +188,7 @@ package openwebmail::uk;
 
 %lang_text =
    (
-   help       => 'Help',
+   help       => 'Дов╕дка',
    login      => 'Вх╕д',
    clear      => 'В╕дм╕на',
    point      => 'Крапка',
@@ -223,6 +230,7 @@ package openwebmail::uk;
    replyall   => 'В╕дпов╕сти ус╕м',
    forward    => 'Переадресувати',
    forwardasatt=>'Переслати як долучення',
+   forwardasorig=>'Переслати як ориг╕нал',
    printfriendly=> 'Для друку',
    from       => 'В╕д',
    replyto    => 'Зворотна адреса',
@@ -253,7 +261,6 @@ package openwebmail::uk;
    continue   => 'Продовжити',
    loginagain => 'Зайти знову',
    exit       => 'Вийти',
-   for        => 'ДЛЯ',
    yourname   => 'Ваше ╕\'мя',
    save       => 'Зберегти',
    add        => 'Додати',
@@ -283,8 +290,9 @@ package openwebmail::uk;
    note       => 'Прим╕тка',
    max        => 'Максимум',
    group      => 'Група',
-   quota_hit  => 'Перевищення квоти',
-   usage      => 'Використання',
+   quotausage => 'Використана квота',
+   quotalimit => 'Обмеження квоти',
+   quotahit   => 'Перевищення квоти',
    tzmap      => 'Св╕това карта часових пояс╕в',
    testsound  => 'Перев╕рка звуку',
    editfroms  => 'Редагувати персональну адресу електронно╖ пошти',
@@ -320,15 +328,15 @@ package openwebmail::uk;
    spellcheck => 'Перев╕рка правопису',
    checkagain => 'Перев╕рити знову',
    finishchecking => 'Завершити перев╕рку',
-   editpdict  => 'Edit Personal Dictionary',
-   addtodict  => 'Add to Dictionary',
+   editpdict  => 'Редагувати персональний словник',
+   addtodict  => 'Додати до словника',
    manuallyfix=> 'Виправити вручну',
    editstat   => 'Edit Stationery',
    savestat   => 'Save Stationery',
    clearstat  => 'Clear All Stationery',
    statreply  => '-- Stationery for Reply --',
    calendar   => 'Календар',
-   allday     => 'All day',
+   allday     => 'Весь день',
    am         => 'до',
    pm         => 'по',
    calfmt_year          => '@@@YEAR@@@-ий р╕к',
@@ -350,7 +358,7 @@ package openwebmail::uk;
    every_evenmonth_thisyear => 'Кожного парного м╕сяця у цьому роц╕',
    every_month_thisyear     => 'Кожного м╕сяця у цьому роц╕',
    webdisk      => 'М╕й каталог',
-   sshterm      => 'SSH Terminal',
+   sshterm      => 'Терм╕нал SSH',
    dir          => 'Каталог',
    dirs         => 'Каталоги',
    file         => 'Файл',
@@ -376,12 +384,12 @@ package openwebmail::uk;
    savefile_towd=> 'Зберегти файл у св╕й домашн╕й каталог',
    saveatt_towd => 'Зберегти файл у св╕й домашн╕й каталог',
    addatt_fromwd=> 'Додати долучення з свого домашнього каталогу',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   vdomain_usermgr    => 'Керування користувачами в╕ртуального домену',
+   vdomain_createuser => 'Створити користувача',
+   vdomain_changeuser => 'Зм╕нити користувача',
+   vdomain_deleteuser => 'Видалити користувача',
+   vdomain_usertype_localmbox  => 'Локальна скринька',
+   vdomain_usertype_redirected => 'Пересилати на зовн╕шню адресу'
    );
 
 %lang_err =
@@ -394,7 +402,7 @@ package openwebmail::uk;
    couldnt_close     => 'Не можу закрити',
    couldnt_updatedb  => 'Не можу поновити БД ╕ндекс╕в ',
    disallowed_pop3   => 'Недопустимий POP3 сервер',
-   disallowed_client => 'Не дозводя╓ться п╕д\'╓днання з п╕д цього кл╕╓нта',
+   disallowed_client => 'Не дозволя╓ться п╕д\'╓днання з п╕д цього кл╕╓нта',
    disallowed_receiverdomain => 'Вам не дозволено в╕дсилати листи на адресу в цьому домен╕.',
    norootlogin       => 'Вибачте, входження п╕д адм╕н╕стратором заборонене з м╕ркувань безпеки.',
    shouldnt_move_here=> 'Ви не повинн╕ пробувати перенести пов╕домлення сюди!',
@@ -405,17 +413,15 @@ package openwebmail::uk;
    already_exists    => 'вже ╕сну╓!',
    cant_create_folder=> 'Не можу створити теку!',
    under_indexing    => 'все ще ╕ндексу╓ться, спробуйте п╕зн╕ше',
-   abook_invalid     => 'Sorry, this file doesn\'t appear to be an address book exported from Microsoft Outlook Express 5 in CSV format.  Make sure that when viewing it in a text editor, the first line starts out "Name,E-mail Address", then go',
+   abook_invalid     => 'Вибачте, цей файл не схожий на адресну книгу, експортовану з Microsoft Outlook Express 5 у формат╕ CSV.  Переконайтеся за допомогою текстового редактора, що перший рядок у файл╕ почина╓ться з посл╕довност╕ "Name,E-mail Address", пот╕м поверн╕ться',
    back              => 'назад',
    tryagain          => '╕ спробуйте знову.',
    abook_toobig      => 'Вибачте, але це перевищу╓ л╕м╕т на розм╕р адресно╖ книги.  Будь ласка, ╕д╕ть',
    cant_create_dir   => 'Не можу створити домашн╕й каталог для вашого користувача!',
-   folder_hitquota   => 'Sorry, you\'ve hit your quota, and no more mail can be stored in your mail folders.  You will be unable to move messages anywhere but to the TRASH, where they will be deleted.  Go back, delete some messages or empty your trash, and try again.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Вибачте, ваше долучення перевищу╓ допустимий л╕м╕т в ',
    inv_msg_op        => 'Недопустима операц╕я для пов╕домлення',
-   sess_cookieerr    => 'Your request didn\'t contain the proper sessionid cookie -- access denied!',
-   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
+   sess_cookieerr    => 'Ваш запит не м╕стить правильного кор╕нця сес╕╖ -- доступ заборонений!',
+   sess_iperr        => 'Ваш запит прийшов не з т╕╓╖ ╤П-адреси -- доступ заборонено!',
    no_endpart        => 'К╕нцева частина не знайдена',
    part_missing      => 'Деяк╕ частини пропущен╕',
    rebuild_fmterr    => 'Помилки у формат╕ нового пов╕домлення',
@@ -426,7 +432,7 @@ package openwebmail::uk;
    param_fmterr      => 'помилка у формат╕ параметра',
    pwd_incorrect     => 'нев╕рний пароль',
    pwd_confirmmismatch=>'Парол╕ не сп╕впали при зм╕н╕ паролю',
-   pwd_tooshort      => 'Пароль надто коротки (м╕н╕мальна довжина - @@@PASSWDMINLEN@@@ символ╕в)',
+   pwd_tooshort      => 'Пароль надто короткий (м╕н╕мальна довжина - @@@PASSWDMINLEN@@@ символ╕в)',
    pwd_toosimple     => 'Пароль надто простий (необх╕дн╕ букви та цифри)',
    network_server_error => 'помилка мережного сервера',
    sendmail_error    => 'Вибачте - сталася проблема з в╕дправкою вашо╖ пошти. Натисн╕ть кнопку <Назад> у вашому переглядач╕, перев╕рте ваш лист ╕ спробуйте знову.',
@@ -436,13 +442,17 @@ package openwebmail::uk;
    couldnt_chdirto   => 'Не можу зм╕нити каталог на',
    isnt_a_dir        => 'не ╓ каталогом.',
    edit_notfordir    => 'Ви не можете редагувати каталоги',
-   onefileonly       => 'Лише один файл дозволя╓ьтся для ц╕╓╖ операц╕╖',
+   onefileonly       => 'Лише один файл дозволя╓ться для ц╕╓╖ операц╕╖',
    no_file_todownload=> 'Не вказаний файл для завантаження',
    upload_overlimit  => 'Розм╕р в╕двантаженого файлу б╕льший за л╕м╕т',
    decomp_notsupported=> 'Розтиснення таких файл╕в не п╕дтриму╓ться.',
-   webdisk_hitquota   => 'Вибачте, але ви перевищили вашу квоту у вашому домашньому каталоз╕, видал╕ть спочатку як╕сь файли.',
-   webdisk_readonly   => 'Вибачте, ваш домашн╕й каталог лише для читання.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   webdisk_readonly  => 'Вибачте, ваш домашн╕й каталог лише для читання.',
+   quota_syserr      => 'Помилка системи квот',
+   quotahit_alert    => 'Вибачте, але ви перевищили меж╕ вашо╖ квоти. Будь ласка, видал╕ть як╕сь пов╕домлення з вашо╖ скриньки або з вашого домашнього каталогу.',
+   quotahit_delmail  => 'Попередження, так як меж╕ вашо╖ квоти(@@@QUOTALIMIT@@@) перевищено, найстар╕ш╕ пов╕домлення у теках були видален╕',
+   quotahit_delfile  => 'Попередження, так як меж╕ вашо╖ квоти(@@@QUOTALIMIT@@@) перевищено, деяк╕ файли у вашому домашньому каталоз╕ були видален╕ автоматично',
+   spool_overlimit   => 'Вибачте, ваша скринька з вх╕дними пов╕домленнями перевищила обмеження черги (@@@SPOOLLIMIT@@@). Будь ласка, перенес╕ть деяк╕ пов╕домлення з теки ВХ╤ДН╤ у ╕нш╕ теки.',
+   vdomain_toomanyuser=> 'Вибачте, к╕льк╕сть в╕ртуальних користувач╕в перевищила можливост╕ цього в╕ртуального домена.'
    );
 
 1;

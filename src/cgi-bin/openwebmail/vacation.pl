@@ -516,8 +516,7 @@ sub log_debug {
    my ($today, $time);
 
    ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
-   $year+=1900; $mon++;
-   $today=sprintf("%4d%02d%02d", $year, $mon, $mday);
+   $today=sprintf("%4d%02d%02d", $year+1900, $mon+1, $mday);
    $time=sprintf("%02d%02d%02d",$hour,$min, $sec);
 
    open(Z, ">> /tmp/vacation.debug");

@@ -26,6 +26,13 @@ package openwebmail::bg;
    size_rev    => 'размер (първо малките)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'автоматично',
+   on   => 'включено',
+   off  => 'изключено',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'нормален',
@@ -223,6 +230,7 @@ package openwebmail::bg;
    replyall   => 'Отговори на всички',
    forward    => 'Препрати',
    forwardasatt=>'Препрати като прикачен',
+   forwardasorig=>'Препрати като оригинала',
    printfriendly=> 'Приготви за печат',
    from       => 'От',
    replyto    => 'Отговори на',
@@ -253,7 +261,6 @@ package openwebmail::bg;
    continue   => 'Продължи',
    loginagain => 'Влез отново',
    exit       => 'Изход',
-   for        => 'за',
    yourname   => 'Вашето име',
    save       => 'Запис',
    add        => 'Добавяне',
@@ -283,8 +290,9 @@ package openwebmail::bg;
    note       => 'Забележка',
    max        => 'Максимално',
    group      => 'Група',
-   quota_hit  => 'ОГРАНИЧЕНИЕ',
-   usage      => 'Използване',
+   quotausage => 'Quota използване',
+   quotalimit => 'Quota лимит',
+   quotahit   => 'ОГРАНИЧЕНИЕ',
    tzmap      => 'Карта с часовите пояси',
    testsound  => 'Звук за тест',
    editfroms  => 'Редакция на собствения адрес',
@@ -376,12 +384,12 @@ package openwebmail::bg;
    savefile_towd=> 'Запиши файла във Web-Диска',
    saveatt_towd => 'Запиши прикачените във Web-Диска',
    addatt_fromwd=> 'Прикачи от Web-Диск',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   vdomain_usermgr    => 'Потребителско обслужване за виртуални домейни',
+   vdomain_createuser => 'Добавяне на потребител',
+   vdomain_changeuser => 'Промяна на потребител',
+   vdomain_deleteuser => 'Изтриване на потребител',
+   vdomain_usertype_localmbox  => 'Локална пощенска кутия',
+   vdomain_usertype_redirected => 'Препращане към външен пощенски  адрес'
    );
 
 %lang_err =
@@ -410,8 +418,6 @@ package openwebmail::bg;
    tryagain          => 'и опитайте отново.',
    abook_toobig      => 'За съжаление сте достигнали лимита си за адресна книга. Моля върнете се',
    cant_create_dir   => 'Невъзможно е създаването на личната Ви папка!',
-   folder_hitquota   => 'Достигнахте лимита си, поради което пристигналите съобщения няма да бъдат обслужвани.  Невъзможно е местенето на съобщения никъде, освен в Кошчето, откъдето ще бъдат изтрити.  Върнете се изтрийте, ненужните съобщения или изпразнете кошчето и опитайте пак.',
-   folder_cutdone    => 'Внимание, откакто е достигнат лимита (@@@FOLDERQUOTA@@@) , старите съобщения бяха изтрити автоматично',
    att_overlimit     => 'За съжаление превишавате лимита за прикачени файлове, който е',
    inv_msg_op        => 'Непозволена операция за съобщението',
    sess_cookieerr    => 'Достъпът отказан - проблем с БИСКВИТКИТЕ!',
@@ -440,9 +446,13 @@ package openwebmail::bg;
    no_file_todownload=> 'Не е избран файл за даунлоуд',
    upload_overlimit  => 'Големината на файла надвишава лимита',
    decomp_notsupported=>'Файл с неподържан формат за компресия.',
-   webdisk_hitquota   => 'За съжаление достигнахте лимита, първо трябва да изтриете някои файлове.',
-   webdisk_readonly   => 'За съжаление вашия web-диск е само за четене.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   webdisk_readonly  => 'За съжаление вашия web-диск е само за четене.',
+   quota_syserr      => 'Системна грешка при лимитиране',
+   quotahit_alert    => 'За съжаление сте достигнали лимита си. Моля изтрийте няколко писма от пощенската си кутия или файл от web диска за да освободите място.',
+   quotahit_delmail  => 'Внимание, достигане на лимита - (@@@QUOTALIMIT@@@), старите съобщения ще бъдат изтрити автоматично',
+   quotahit_delfile  => 'Внимание, достигане на лимита - (@@@QUOTALIMIT@@@), някои файлове от web диска ще бъдат изтрити автоматично',
+   spool_overlimit   => 'За съжаление е достигнат лимита за папка Входящи(@@@SPOOLLIMIT@@@). Моля преместете някои съобщения от Входящи в друга папка.',
+   vdomain_toomanyuser=> 'За съжаление лимитираният брой потребители за този домейн е достигнат'
    );
 
 1;

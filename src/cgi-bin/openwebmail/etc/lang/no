@@ -26,6 +26,13 @@ package openwebmail::no;
    size_rev    => 'Størrelse (Minste først)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Automatisk',
+   on   => 'På',
+   off  => 'Av',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normal',
@@ -37,7 +44,7 @@ package openwebmail::no;
    (
    at_beginning => 'øverst',
    at_end      => 'nederst',
-   none        => 'Ingen'
+   none        => 'ingen'
    );
 
 %lang_receiptlabels =
@@ -223,6 +230,7 @@ package openwebmail::no;
    replyall   => 'Svar alle',
    forward    => 'Videresend',
    forwardasatt=>'Videresend som vedlegg',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Utskriftsvennlig',
    from       => 'Fra',
    replyto    => 'Svar til',
@@ -253,7 +261,6 @@ package openwebmail::no;
    continue   => 'Fortsett',
    loginagain => 'Log inn igjen',
    exit       => 'Avslutt',
-   for        => 'for',
    yourname   => 'Ditt navn',
    save       => 'Lagre',
    add        => 'Legg til',
@@ -269,7 +276,7 @@ package openwebmail::no;
    total      => 'Total',
    edit       => 'Editér',
    delete     => 'Slett',
-   reserve    => '*** Reserve',
+   reserve    => 'Reserve',
    clearadd   => 'Slett alle addresser',
    importadd  => 'Importér adresse',
    exportadd  => 'Eksportér adresse',
@@ -281,10 +288,11 @@ package openwebmail::no;
    name       => 'Navn',
    email      => 'Melding',
    note       => 'Notat',
-   max        => 'Maximum',
+   max        => 'Maksimum',
    group      => 'Gruppe',
-   quota_hit  => 'IKKE MER LAGRINGSPLASS',
-   usage      => 'Forbruk',
+   quotausage => 'Kvote forbruk',
+   quotalimit => 'Kvote begrensing',
+   quotahit   => 'IKKE MER LAGRINGSPLASS',
    tzmap      => 'Tidssonekart',
    testsound  => 'Test sound',
    editfroms  => 'Endre personlige adresser',
@@ -320,15 +328,15 @@ package openwebmail::no;
    spellcheck => 'Stavekontroll',
    checkagain => 'Kontrollér igjen',
    finishchecking => 'Kontroll ferdig',
-   editpdict  => 'Edit Personal Dictionary',
-   addtodict  => 'Add to Dictionary',
+   editpdict  => 'Editér personlig ordbok',
+   addtodict  => 'Legg til i ordbok',
    manuallyfix=> 'Rett manuellt',
    editstat   => 'Editér brevpapir',
    savestat   => 'Lagre brevpapir',
    clearstat  => 'Blanke alle brevpapir',
    statreply  => '-- Brevpapir for svar --',
    calendar   => 'Kalender',
-   allday     => 'All day',
+   allday     => 'Hele dagen',
    am         => 'am',
    pm         => 'pm',
    calfmt_year          => 'År @@@YEAR@@@',
@@ -340,7 +348,7 @@ package openwebmail::no;
    moreitems  => 'flere elementer',
    multieditconf => 'Dette elementet er lagt inn for flere datoer.\\nEndringer vil gjelde alle datoene.\\nFortsette å endre?',
    multidelconf  => 'Dette elementet er lagt inn for flere datoer.\\nSletting vil gjelde alle datoene.\\nFortsette å slette?',
-   caldelconf => 'Are you sure you want to delete this item?',
+   caldelconf => 'Er du sikker på at du vil slette dette elementet?',
    noitemforthisday => 'Ingen elementer for denne dagen',
    thisday_only          => 'Kun denne dagen',
    the_wday_of_thismonth => '@@@ORDER@@@ @@@WDAY@@@ hver måned',
@@ -376,12 +384,12 @@ package openwebmail::no;
    savefile_towd=> 'Lagre fil på WebDisk',
    saveatt_towd => 'Lagre vedlegg på WebDisk',
    addatt_fromwd=> 'Legg til vedlegg fra WebDisk',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   vdomain_usermgr    => 'Virtuellt somene brukeradministrasjon',
+   vdomain_createuser => 'Opprett bruker',
+   vdomain_changeuser => 'Endre bruker',
+   vdomain_deleteuser => 'Slett bruker',
+   vdomain_usertype_localmbox  => 'Lokal postkasse',
+   vdomain_usertype_redirected => 'Redirigér til ekstern epostadresse'
    );
 
 %lang_err =
@@ -410,8 +418,6 @@ package openwebmail::no;
    tryagain          => 'og prøv på nytt.',
    abook_toobig      => 'Beklager, du overstiger tillatt størrelse på adresseboken din. Gå',
    cant_create_dir   => 'Brukerkatalogen din kunne ikke opprettes!',
-   folder_hitquota   => 'Beklager, du har oversteget tillatt lagringsplass for mappene dine. Du har ikke adgang til å flytte meldinger til andre mapper enn papirkurven, hvor de vil bli slettet automatisk. Gå tilbake og slett noen meldinger eller tømme papirkurven, og prøv på nytt.',
-   folder_cutdone    => 'Advarsel! Siden mappe-kvoten (@@@FOLDERQUOTA@@@) er brukt vil de eldste meldingene i mappen bli slettet automatisk',
    att_overlimit     => 'Beklager, du har oversteget tillatt størrelse for vedlegg. Vedlegg må ikke overstige',
    inv_msg_op        => 'Ugyldig operasjon for melding',
    sess_cookieerr    => 'Din forespørsel inneholdt ikke rett sesjons-id-kjeks -- Ingen adgang!',
@@ -440,9 +446,13 @@ package openwebmail::no;
    no_file_todownload=> 'Ingen fil er angitt for nedlasting',
    upload_overlimit  => 'Opplastingsfilen er for stor',
    decomp_notsupported=>'Utpakking er ikke støttet for denne filen.',
-   webdisk_hitquota   => 'Beklager, du har brukt din webdisk-kvote, vennligst slett noen filer først.',
-   webdisk_readonly   => 'Beklager, din webdisk er skrivebeskyttet.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   webdisk_readonly  => 'Beklager, din webdisk er skrivebeskyttet.',
+   quota_syserr      => 'Kvote systemfeil',
+   quotahit_alert    => 'Beklager, du har brukt opp din kvote. Vennligst slett noen meldinger fra epostmappene eller filer fra webdisken for å frigjøre plass.',
+   quotahit_delmail  => 'Advarsel, siden din kvote (@@@QUOTALIMIT@@@) er oppbrukt, er de eldste meldingene i mappene automatisk slettet.',
+   quotahit_delfile  => 'Advarsel, siden din kvote (@@@QUOTALIMIT@@@) er oppbrukt, er noen filer på din webdisk automatisk slettet.',
+   spool_overlimit   => 'Beklager, din innboks har oversteget grensen (@@@SPOOLLIMIT@@@). Vennligst flytt noen meldinger fra innboks til andre mapper.',
+   vdomain_toomanyuser=> 'Beklager, brukerantallet på dette domene er nådd maksimum'
    );
 
 1;

@@ -150,7 +150,7 @@ sub mailfilter {
                    || ($include eq 'exclude' && $regexmatch && $attr[$index{$rules}] !~ /$text/i)
                    || ($include eq 'exclude' && $attr[$index{$rules}] !~ /\Q$text\E/i)  ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                  $matchcount++; $matchdate=localtime2dateserial();
+                  $matchcount++; $matchdate=gmtime2dateserial();
                   $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                   $matched=1;
@@ -198,7 +198,7 @@ sub mailfilter {
                    ||( $include eq 'exclude' && $regexmatch && $header !~ /$text/im )
                    ||( $include eq 'exclude' && $header !~ /\Q$text\E/im ) ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                  $matchcount++; $matchdate=localtime2dateserial();
+                  $matchcount++; $matchdate=gmtime2dateserial();
                   $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                   $matched=1;
@@ -243,7 +243,7 @@ sub mailfilter {
                    ||( $include eq 'exclude' && $regexmatch && $smtprelays !~ /$text/im )
                    ||( $include eq 'exclude' && $smtprelays !~ /\Q$text\E/im ) ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                  $matchcount++; $matchdate=localtime2dateserial();
+                  $matchcount++; $matchdate=gmtime2dateserial();
                   $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                   $matched=1;
@@ -296,7 +296,7 @@ sub mailfilter {
                    ||( $include eq 'include' && $regexmatch && $body =~ /$text/im )
                    ||( $include eq 'exclude' && $body !~ /\Q$text\E/im ) ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                  $matchcount++; $matchdate=localtime2dateserial();
+                  $matchcount++; $matchdate=gmtime2dateserial();
                   $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                   $matched=1;
@@ -345,7 +345,7 @@ sub mailfilter {
                          ||( $include eq 'exclude' && $regexmatch && ${${$r_attachment}{r_content}} !~ /$text/im )
                          ||( $include eq 'exclude' && ${${$r_attachment}{r_content}} !~ /\Q$text\E/im )  ) {
                         my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                        $matchcount++; $matchdate=localtime2dateserial();
+                        $matchcount++; $matchdate=gmtime2dateserial();
                         $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                         $matched = 1;
@@ -390,7 +390,7 @@ sub mailfilter {
                        ||( $include eq 'exclude' && $regexmatch && ${$r_attachment}{filename} !~ /$text/i )
                        ||( $include eq 'exclude' && ${$r_attachment}{filename} !~ /\Q$text\E/i )  ) {
                      my ($matchcount, $matchdate)=split(":", $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"});
-                     $matchcount++; $matchdate=localtime2dateserial();
+                     $matchcount++; $matchdate=gmtime2dateserial();
                      $FTDB{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$matchcount:$matchdate";
 
                      $matched = 1;
@@ -439,7 +439,7 @@ sub mailfilter {
                     ${$r_attachment}{contenttype} !~ /application\/octet\-stream/i &&
                     ${$r_attachment}{contenttype} !~ /application\/x\-msdownload/i ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedexecontenttype"});
-                  $matchcount++; $matchdate=localtime2dateserial();
+                  $matchcount++; $matchdate=gmtime2dateserial();
                   $FTDB{"filter_fakedexecontenttype"}="$matchcount:$matchdate";
 
                   $matched = 1;
@@ -498,7 +498,7 @@ sub mailfilter {
                     $hdr_domain!~/\Q$env_domain\E/i &&
                     $env_domain!~/\Q$hdr_domain\E/i) ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedfrom"});
-                  $matchcount++; $matchdate=localtime2dateserial();
+                  $matchcount++; $matchdate=gmtime2dateserial();
                   $FTDB{"filter_fakedfrom"}="$matchcount:$matchdate";
 
                   my $append=append_message_to_folder($allmessageids[$i],
@@ -565,7 +565,7 @@ sub mailfilter {
                    !$is_private &&
                    !$is_valid ) {
                   my ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedsmtp"});
-                  $matchcount++; $matchdate=localtime2dateserial();
+                  $matchcount++; $matchdate=gmtime2dateserial();
                   $FTDB{"filter_fakedsmtp"}="$matchcount:$matchdate";
 
                   my $append=append_message_to_folder($allmessageids[$i],
@@ -657,7 +657,7 @@ sub mailfilter {
          $filtered{'_ALL'}=$repeated;
 
          my ($matchcount, $matchdate)=split(":", $FTDB{"filter_repeatlimit"});
-         $matchcount+=$repeated; $matchdate=localtime2dateserial();
+         $matchcount+=$repeated; $matchdate=gmtime2dateserial();
          $FTDB{"filter_repeatlimit"}="$matchcount:$matchdate";
       }
    }

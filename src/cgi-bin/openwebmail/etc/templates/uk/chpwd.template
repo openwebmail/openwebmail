@@ -31,7 +31,7 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-         alert("Пароль мусить мати не меньш н╕ж @@@PASSWDMINLEN@@@-ри символи.");
+         alert("Пароль мусить мати не менш н╕ж @@@PASSWDMINLEN@@@-ри символи.");
          return false;
       }
       if (document.passwordform.newpassword.value !=

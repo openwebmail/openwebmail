@@ -1,19 +1,24 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="center">
-   <table border="0" width="100%" cellpadding="0" cellspacing="0">
-   <tr><td width="33%"><font color=@@@TITLEBAR_TEXT@@@
-   face=@@@FONTFACE@@@ size="3"><B>อ่านจดหมาย</B></font></td>
-   <td align="right" width="33%"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@
-   size="3"><B>@@@FOLDER@@@ : @@@MESSAGETOTAL@@@ ฉบับ</B></font></td></tr></table>
-</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
-   <table border="0" width="100%" cellpadding="0" cellspacing="0">
-   <tr><td nowrap>
-   @@@LEFTMENUBARLINKS@@@
-   </td><td align="right" nowrap>
-   @@@RIGHTMENUBARLINKS@@@
-   </td>
-   </tr></table>
-</td></tr>
+<tr>
+<td nowrap bgcolor=@@@TITLEBAR@@@ width="33%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>อ่านจดหมาย</B></font></td>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="center">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@QUOTAUSAGE@@@</B></font></td>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="right" width="33%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@FOLDER@@@ : @@@MESSAGETOTAL@@@ ฉบับ</B></font></td>
+</tr>
+<tr>
+<td nowrap bgcolor=@@@MENUBAR@@@ colspan="2">
+@@@LEFTMENUBARLINKS@@@</td>
+<td nowrap bgcolor=@@@MENUBAR@@@ align="right" nowrap>
+@@@RIGHTMENUBARLINKS@@@</td>
+</tr>
+</table>
+
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td colspan=2>@@@MESSAGECONTROL@@@</td></tr>
 
 @@@CONTROLBAR1START@@@

@@ -27,20 +27,32 @@ require "filelock.pl";
 require "mime.pl";
 require "iconv.pl";
 require "maildb.pl";
+require "htmltext.pl";
 
+# common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($loginname $logindomain $loginuser);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
+use vars qw($quotausage $quotalimit);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
-openwebmail_init();
+# extern vars
+use vars qw(%languagecharsets);	# defined in ow-shared.pl
+use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_prioritylabels);	# defined in lang/xy
+use vars qw(%charset_convlist);	# defined in iconv.pl
+use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);	# defined in maildb.pl
 
+# local globals
 use vars qw($messageid $escapedmessageid $mymessageid);
 use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
+
+########################## MAIN ##############################
+clearvars();
+openwebmail_init();
 
 $messageid = param("message_id");		# the orig message to reply/forward
 $escapedmessageid = escapeURL($messageid);
@@ -51,13 +63,6 @@ $searchtype = param("searchtype") || 'subject';
 $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
 
-# extern vars
-use vars qw(%languagecharsets);	# defined in ow-shared.pl
-use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_prioritylabels);	# defined in lang/xy
-use vars qw(%charset_convlist);	# defined in iconv.pl
-use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);	# defined in maildb.pl
-
-########################## MAIN ##############################
 my $action = param("action");
 if ($action eq "replyreceipt") {
    replyreceipt();
@@ -94,8 +99,9 @@ sub replyreceipt {
 
       # get message header
       open (FOLDER, "+<$folderfile") or
-          openwebmailerror("$lang_err{'couldnt_open'} $folderfile!");
-      seek (FOLDER, $attr[$_OFFSET], 0) or openwebmailerror("$lang_err{'couldnt_seek'} $folderfile!");
+          openwebmailerror("$lang_err{'couldnt_open'} $folderfile! ($!)");
+      seek (FOLDER, $attr[$_OFFSET], 0) or 
+          openwebmailerror("$lang_err{'couldnt_seek'} $folderfile! ($!)");
       $header="";
       while (<FOLDER>) {
          last if ($_ eq "\n" && $header=~/\n$/);
@@ -107,7 +113,7 @@ sub replyreceipt {
       if ($header=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
          my $to=$1;
          my $from=$prefs{'email'};
-         my $date = dateserial2datefield(gmtime2dateserial(), $prefs{'timeoffset'});
+         my $date=dateserial2datefield(gmtime2dateserial(), $prefs{'timeoffset'});
 
          my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
          foreach (sort keys %userfrom) {
@@ -119,10 +125,18 @@ sub replyreceipt {
          $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
          $from =~ s/['"]/ /g;  # Get rid of shell escape attempts
 
+         my @recipients=();
+         foreach (str2list($to,0)) {
+            my $email=(email2nameaddr($_))[1];
+            next if ($email eq "" || $email=~/\s/);
+            push (@recipients, $email);
+         }
+
          my $smtp;
+         my $timeout=20; $timeout=90 if ($#recipients>=1); # more than 1 recipient
          $smtp=Net::SMTP->new($config{'smtpserver'},
                               Port => $config{'smtpport'},
-                              Timeout => 120,
+                              Timeout => $timeout,
                               Hello => ${$config{'domainnames'}}[0]) or
             openwebmailerror("$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}:$config{'smtpport'}!");
 
@@ -135,15 +149,9 @@ sub replyreceipt {
 
          $smtp->mail($from);
 
-         my @recipients=();
-         foreach (str2list($to,0)) {
-            my $email=(email2nameaddr($_))[1];
-            next if ($email eq "" || $email=~/\s/);
-            push (@recipients, $email);
-         }
-         if (! $smtp->recipient(@recipients, { SkipBad => 1 }) ) {
-            $smtp->reset();
-            $smtp->quit();
+         my @ok=$smtp->recipient(@recipients, { SkipBad => 1 });
+         if ($#ok<0) {
+            $smtp->close();
             openwebmailerror("$lang_err{'sendmail_error'}!");
          }
 
@@ -160,7 +168,11 @@ sub replyreceipt {
          my $xmailer = $config{'name'};
          $xmailer .= " $config{'version'} $config{'releasedate'}" if ($config{'xmailer_has_version'});
          my $xoriginatingip = get_clientip();
-         $xoriginatingip .= " ($loginname)" if ($config{'xoriginatingip_has_userid'});
+         if ($config{'xoriginatingip_has_userid'}) {
+            my $id=$loginuser; $id.="\@$logindomain" if ($config{'auth_withdomain'});
+            $xoriginatingip .= " ($id)";
+         }
+
 
          # reply with english if sender has different charset than us
          if ( $attr[$_CONTENT_TYPE]=~/charset="?\Q$prefs{'charset'}\E"?/i) {
@@ -174,8 +186,8 @@ sub replyreceipt {
             $smtp->datasend("$lang_text{'yourmsg'}\n\n",
                             "  $lang_text{'to'}: $attr[$_TO]\n",
                             "  $lang_text{'subject'}: $attr[$_SUBJECT]\n",
-                            "  $lang_text{'delivered'}: ", dateserial2str($attr[$_DATE], $prefs{'dateformat'}), "\n\n",
-                            "$lang_text{'wasreadon1'} ", dateserial2str(localtime2dateserial(), $prefs{'dateformat'}), " $lang_text{'wasreadon2'}\n\n");
+                            "  $lang_text{'delivered'}: ", dateserial2str($attr[$_DATE], $prefs{'timeoffset'}, $prefs{'dateformat'}), "\n\n",
+                            "$lang_text{'wasreadon1'} ", dateserial2str(gmtime2dateserial(), $prefs{'timeoffset'}, $prefs{'dateformat'}), " $lang_text{'wasreadon2'}\n\n");
          } else {
             $smtp->datasend("Subject: ".encode_mimewords("Read - $attr[$_SUBJECT]", ('Charset'=>$prefs{'charset'}))."\n",
                             "Date: $date\n",
@@ -187,15 +199,14 @@ sub replyreceipt {
             $smtp->datasend("Your message\n\n",
                             "  To: $attr[$_TO]\n",
                             "  Subject: $attr[$_SUBJECT]\n",
-                            "  Delivered: ", dateserial2str($attr[$_DATE], $prefs{'dateformat'}), "\n\n",
-                            "was read on", dateserial2str(localtime2dateserial(), $prefs{'dateformat'}), ".\n\n");
+                            "  Delivered: ", dateserial2str($attr[$_DATE], $prefs{'timeoffset'}, $prefs{'dateformat'}), "\n\n",
+                            "was read on", dateserial2str(gmtime2dateserial(), $prefs{'timeoffset'}, $prefs{'dateformat'}), ".\n\n");
          }
          # $smtp->datasend($prefs{'signature'}, "\n") if ($prefs{'signature'}=~/[^\s]/);
          $smtp->datasend($config{'mailfooter'}, "\n") if ($config{'mailfooter'}=~/[^\s]/);
 
          if (!$smtp->dataend()) {
-            $smtp->reset();
-            $smtp->quit();
+            $smtp->close();
             openwebmailerror("$lang_err{'sendmail_error'}!");
          }
          $smtp->quit();
@@ -223,10 +234,10 @@ sub replyreceipt {
 #                none(newmail)
 sub composemessage {
    # charset is the charset choosed by user for current composing
-   my $charset= $prefs{'charset'};
+   my $composecharset= $prefs{'charset'};
    foreach (values %languagecharsets) {
-      if ($_ eq param("charset")) {
-         $charset=$_; last;
+      if ($_ eq param("composecharset")) {
+         $composecharset=$_; last;
       }
    }
 
@@ -238,7 +249,7 @@ sub composemessage {
       $deleteattfile =~ s/\///g;  # just in case someone gets tricky ...
       ($deleteattfile =~ /^(.+)$/) && ($deleteattfile = $1);   # untaint ...
       # only allow to delete attfiles belongs the $thissession
-      if ($deleteattfile=~/^$thissession/) {
+      if ($deleteattfile=~/^\Q$thissession\E/) {
          unlink ("$config{'ow_sessionsdir'}/$deleteattfile");
       }
       ($savedattsize, $r_attlist) = getattlistinfo();
@@ -258,7 +269,7 @@ sub composemessage {
             $attname = $attachment;
             $attname =~ s/::/'/g;
             # Trim the path info from the filename
-            if ($charset eq 'big5' || $charset eq 'gb2312') {
+            if ($composecharset eq 'big5' || $composecharset eq 'gb2312') {
                $attname = zh_dospath2fname($attname);	# dos path
             } else {
                $attname =~ s|^.*\\||;		# dos path
@@ -285,7 +296,7 @@ sub composemessage {
 
             $attachment=do { local *FH };
             open($attachment, "$webdiskrootdir/$vpath") or
-               openwebmailerror ("$lang_err{'couldnt_open'} $lang_text{'webdisk'} $vpath!");
+               openwebmailerror ("$lang_err{'couldnt_open'} $lang_text{'webdisk'} $vpath! ($!)");
             $attname=$vpath; $attname=~s|/$||; $attname=~s|^.*/||;
             $attcontenttype=ext2contenttype($vpath);
          }
@@ -299,11 +310,11 @@ sub composemessage {
             my $attserial = time();
             open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial");
             print ATTFILE qq|Content-Type: $attcontenttype;\n|.
-                          qq|\tname="|.encode_mimewords($attname, ('Charset'=>$charset)).qq|"\n|.
-                          qq|Content-Disposition: attachment; filename="|.encode_mimewords($attname, ('Charset'=>$charset)).qq|"\n|.
+                          qq|\tname="|.encode_mimewords($attname, ('Charset'=>$composecharset)).qq|"\n|.
+                          qq|Content-Disposition: attachment; filename="|.encode_mimewords($attname, ('Charset'=>$composecharset)).qq|"\n|.
                           qq|Content-Transfer-Encoding: base64\n\n|;
             my $buff;
-            while (read($attachment, $buff, 600*57)) {
+            while (read($attachment, $buff, 400*57)) {
                $buff=encode_base64($buff);
                $savedattsize += length($buff);
                print ATTFILE $buff;
@@ -315,7 +326,7 @@ sub composemessage {
 
             my $attnum=$#{$r_attlist}+1;
             ${${$r_attlist}[$attnum]}{name}=$attname;
-            ${${$r_attlist}[$attnum]}{namecharset}=$charset;
+            ${${$r_attlist}[$attnum]}{namecharset}=$composecharset;
             ${${$r_attlist}[$attnum]}{file}="$thissession-att$attserial";
          }
       }
@@ -358,8 +369,10 @@ sub composemessage {
 
    my $composetype = param("composetype");
    if ($composetype eq "reply" || $composetype eq "replyall" ||
-       $composetype eq "forward" || $composetype eq "editdraft" ) {
-      if ($composetype eq "forward" || $composetype eq "editdraft") {
+       $composetype eq "forward" || $composetype eq "forwardasorig" || 
+       $composetype eq "editdraft" ) {
+      if ($composetype eq "forward" || $composetype eq "forwardasorig" || 
+          $composetype eq "editdraft") {
          %message = %{&getmessage($messageid, "all")};
       } else {
          %message = %{&getmessage($messageid, "")};
@@ -370,7 +383,7 @@ sub composemessage {
       if ($convfrom eq 'none.msgcharset') {
          foreach (values %languagecharsets) {
             if ($_ eq lc($message{'charset'})) {
-               $charset=$_; last;
+               $composecharset=$_; last;
             }
          }
       }
@@ -381,7 +394,7 @@ sub composemessage {
             if ($message{'from'}=~/$_/) {
                $fromemail=$_; last;
             }
-         } else {	# reply/replyall/forward
+         } else {	# reply/replyall/forward/forwardasatt/forwardasorig
             if ($message{'to'}=~/$_/ || $message{'cc'}=~/$_/ ) {
                $fromemail=$_; last;
             }
@@ -490,8 +503,25 @@ sub composemessage {
             $cc = $message{'cc'} if (defined($message{'cc'}) && $message{'cc'}=~/[^\s]/);
          }
 
-         if (is_convertable($convfrom, $prefs{'charset'}) ) {
-            ($body, $subject, $to, $cc)=iconv($convfrom, $prefs{'charset'}, $body,$subject,$to,$cc);
+         if ($body =~ /[^\s]/) {
+            $body =~ s/\n/\n\> /g;
+            $body = "> " . $body;
+         }
+         if ($prefs{replywithorigmsg} eq 'at_beginning') {
+            $body = "On $message{'date'}, ".(email2nameaddr($message{'from'}))[0]." wrote\n". $body if ($body=~/[^\s]/);
+         } elsif ($prefs{replywithorigmsg} eq 'at_end') {
+            my $h="From: $message{'from'}\n".
+                  "To: $message{'to'}\n";
+            $h .= "Cc: $message{'cc'}\n" if ($message{'cc'} ne "");
+            $h .= "Sent: $message{'date'}\n".
+                  "Subject: $message{'subject'}\n";
+            $body = "---------- Original Message -----------\n".
+                    "$h\n$body\n".
+                    "------- End of Original Message -------\n";
+         }
+
+         if (is_convertable($convfrom, $composecharset) ) {
+            ($body, $subject, $to, $cc)=iconv($convfrom, $composecharset, $body,$subject,$to,$cc);
          }
 
          $subject = "Re: " . $subject unless ($subject =~ /^re:/i);
@@ -515,36 +545,24 @@ sub composemessage {
             my ($name,$content,%stationery);
             if ( -f "$folderdir/.stationery.book" ) {
                open (STATBOOK,"$folderdir/.stationery.book") or
-                  openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+                  openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
                while (<STATBOOK>) {
                   ($name, $content) = split(/\@\@\@/, $_, 2);
                   chomp($name); chomp($content);
                   $stationery{escapeURL($name)} = unescapeURL($content);
                }
-               close (STATBOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
+               close (STATBOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
             }
             $stationery = $stationery{$statname};
          }
 
-         if ($body =~ /[^\s]/) {
-            $body =~ s/\n/\n\> /g;
-            $body = "> " . $body;
-         }
          if ($prefs{replywithorigmsg} eq 'at_beginning') {
-            $body = "On $message{'date'}, ".(email2nameaddr($message{'from'}))[0]." wrote\n". $body if ($body=~/[^\s]/);
-            $body .= "\n".$stationery."\n";
             if ($prefs{'signature'}=~/[^\s]/) {
-               $body .= "\n\n".$prefs{'signature'};
+               $body .= "\n".$stationery."\n\n".$prefs{'signature'};
+            } else {
+               $body .= "\n".$stationery."\n";
             }
          } elsif ($prefs{replywithorigmsg} eq 'at_end') {
-            my $h="From: $message{'from'}\n".
-                  "To: $message{'to'}\n";
-            $h .= "Cc: $message{'cc'}\n" if ($message{'cc'} ne "");
-            $h .= "Sent: $message{'date'}\n".
-                  "Subject: $message{'subject'}\n";
-            $body = "---------- Original Message -----------\n".
-                    "$h\n$body\n".
-                    "------- End of Original Message -------\n";
             if ($prefs{'signature'}=~/[^\s]/) {
                $body = "\n".$stationery."\n\n".$prefs{'signature'}."\n\n".$body;
             } else {
@@ -558,7 +576,8 @@ sub composemessage {
             }
          }
 
-      } elsif ($composetype eq "forward" || $composetype eq "editdraft") {
+      } elsif ($composetype eq "forward" || $composetype eq "forwardasorig" || 
+               $composetype eq "editdraft") {
          # carry attachments from old mesage to the new one
          if (defined(${$message{attachment}[0]}{header})) {
             my $attserial=time();
@@ -568,7 +587,7 @@ sub composemessage {
                if (${$message{attachment}[$attnumber]}{header} ne "" &&
                    defined(${${$message{attachment}[$attnumber]}{r_content}}) ) {
                   open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
-                     openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial!");
+                     openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
                   print ATTFILE ${$message{attachment}[$attnumber]}{header}, "\n\n";
                   print ATTFILE ${${$message{attachment}[$attnumber]}{r_content}};
                   close ATTFILE;
@@ -585,33 +604,19 @@ sub composemessage {
             $bcc = $message{'bcc'} if (defined($message{'bcc'}));
             $replyto = $message{'replyto'} if (defined($message{'replyto'}));
 
-            if (is_convertable($convfrom, $prefs{'charset'}) ) {
-               ($body, $subject, $to, $cc, $bcc, $replyto)=iconv($convfrom, $prefs{'charset'}, $body,$subject,$to,$cc,$bcc,$replyto);
+            if (is_convertable($convfrom, $composecharset) ) {
+               ($body, $subject, $to, $cc, $bcc, $replyto)=iconv($convfrom, $composecharset, $body,$subject,$to,$cc,$bcc,$replyto);
             }
 
-            $replyto = $prefs{'replyto'} if ($replyto eq '' && defined($prefs{'replyto'}));
             $inreplyto = $message{'inreplyto'};
             $references = $message{'references'};
             $priority = $message{'priority'} if (defined($message{'priority'}));
+            $replyto = $prefs{'replyto'} if ($replyto eq '' && defined($prefs{'replyto'}));
+
             # we prefer to use the messageid in a draft message if available
             $mymessageid = $messageid if ($messageid);
 
          } elsif ($composetype eq "forward") {
-            if (is_convertable($convfrom, $prefs{'charset'}) ) {
-               ($body, $subject)=iconv($convfrom, $prefs{'charset'}, $body,$subject);
-            }
-
-            $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
-            $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
-            $inreplyto = $message{'messageid'};
-            if ( $message{'references'} ne "" ) {
-               $references = $message{'references'}." ".$message{'messageid'};
-            } elsif ( $message{'inreplyto'} ne "" ) {
-               $references = $message{'inreplyto'}." ".$message{'messageid'};
-            } else {
-               $references = $message{'messageid'};
-            }
-
             my $h="From: $message{'from'}\n".
                   "To: $message{'to'}\n";
             $h .= "Cc: $message{'cc'}\n" if ($message{'cc'} ne "");
@@ -621,7 +626,33 @@ sub composemessage {
                     "---------- Forwarded Message -----------\n".
                     "$h\n$body\n".
                     "------- End of Forwarded Message -------\n";
+
+            if (is_convertable($convfrom, $composecharset) ) {
+               ($body, $subject)=iconv($convfrom, $composecharset, $body,$subject);
+            }
+
+            $inreplyto = $message{'messageid'};
+            if ( $message{'references'} ne "" ) {
+               $references = $message{'references'}." ".$message{'messageid'};
+            } elsif ( $message{'inreplyto'} ne "" ) {
+               $references = $message{'inreplyto'}." ".$message{'messageid'};
+            } else {
+               $references = $message{'messageid'};
+            }
+
+            $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
+            $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
             $body .= "\n\n".$prefs{'signature'} if ($prefs{'signature'}=~/[^\s]/);
+
+         } elsif ($composetype eq "forwardasorig") {
+            $replyto = $message{'from'};
+
+            if (is_convertable($convfrom, $composecharset) ) {
+               ($body, $subject, $replyto)=iconv($convfrom, $composecharset, $body,$subject,$replyto);
+            }
+
+            $references = $message{'references'};
+            $priority = $message{'priority'} if (defined($message{'priority'}));
          }
       }
 
@@ -652,7 +683,7 @@ sub composemessage {
       my $attserial=time();
       ($attserial =~ /^(.+)$/) && ($attserial = $1);   # untaint ...
       open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial!");
+         openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
       print ATTFILE qq|Content-Type: message/rfc822;\n|,
                     qq|Content-Disposition: attachment; filename="Forward.msg"\n\n|;
 
@@ -680,12 +711,9 @@ sub composemessage {
       ($savedattsize, $r_attlist) = getattlistinfo();
 
       $subject = $attr[$_SUBJECT];
-      if (is_convertable($attr[$_CHARSET], $prefs{'charset'}) ) {
-         ($subject)=iconv($attr[$_CHARSET], $prefs{'charset'}, $subject);
+      if (is_convertable($attr[$_CHARSET], $composecharset) ) {
+         ($subject)=iconv($attr[$_CHARSET], $composecharset, $subject);
       }
-
-      $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
-      $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
 
       $inreplyto = $message{'messageid'};
       if ( $message{'references'} ne "" ) {
@@ -696,19 +724,21 @@ sub composemessage {
          $references = $message{'messageid'};
       }
 
+      $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
+      $replyto = $prefs{'replyto'} if (defined($prefs{'replyto'}));
       $body = "\n\n# Message forwarded as attachment\n";
       $body .= "\n\n".$prefs{'signature'} if ($prefs{'signature'}=~/[^\s]/);
 
    } elsif ($composetype eq 'continue') {
       my $convto=param('convto');
       $body = "\n".$body;	# the form text area would eat leading \n, so we add it back here
-      if ($charset ne $convto && is_convertable($charset, $convto) ) {
-         ($body, $subject, $from, $to, $cc, $bcc, $replyto)=iconv($charset, $convto,
+      if ($composecharset ne $convto && is_convertable($composecharset, $convto) ) {
+         ($body, $subject, $from, $to, $cc, $bcc, $replyto)=iconv($composecharset, $convto,
                                                      $body,$subject,$from,$to,$cc,$bcc,$replyto);
       }
       foreach (values %languagecharsets) {
          if ($_ eq $convto) {
-            $charset=$_; last;
+            $composecharset=$_; last;
          }
       }
 
@@ -718,17 +748,17 @@ sub composemessage {
    }
 
    my ($html, $temphtml);
-   if ($charset ne $prefs{'charset'}) {
-      my @tmp=($prefs{'language'}, $prefs{'charset'});
-      ($prefs{'language'}, $prefs{'charset'})=('en', $charset);
 
+   my @tmp;
+   if ($composecharset ne $prefs{'charset'}) {
+      @tmp=($prefs{'language'}, $prefs{'charset'});
+      ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
       readlang($prefs{'language'});
       $printfolder = $lang_folders{$folder} || $folder || '';
-      $html = htmlheader().readtemplate("composemessage.template");
-
+   }
+   $html = readtemplate("composemessage.template");
+   if ($#tmp>=1) {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
-   } else {
-      $html = htmlheader().readtemplate("composemessage.template");
    }
    $html = applystyle($html);
 
@@ -762,8 +792,8 @@ sub composemessage {
    $temphtml .= hidden(-name=>'references',
                        -default=>$references,
                        -override=>'1');
-   $temphtml .= hidden(-name=>'charset',
-                       -default=>$charset,
+   $temphtml .= hidden(-name=>'composecharset',
+                       -default=>$composecharset,
                        -override=>'1');
    $temphtml .= hidden(-name=>'compose_caller',
                        -default=>$compose_caller,
@@ -823,21 +853,24 @@ sub composemessage {
    $html =~ s/\@\@\@PRIORITYMENU\@\@\@/$temphtml/;
 
    # charset conversion menu
-   my %ctlabels=( 'none' => "$charset *" );
+   my %ctlabels=( 'none' => "$composecharset *" );
    my @ctlist=('none');
-   my %miscsets=reverse %languagecharsets;
-   delete $miscsets{$charset};
+   my %allsets;
+   foreach (values %languagecharsets, keys %charset_convlist) {
+      $allsets{$_}=1 if (!defined($allsets{$_}));
+   }
+   delete $allsets{$composecharset};
    
-   if (defined($charset_convlist{$charset})) {
-      foreach my $ct (sort @{$charset_convlist{$charset}}) {
-         if (is_convertable($charset, $ct)) {
-            $ctlabels{$ct}="$charset > $ct";
+   if (defined($charset_convlist{$composecharset})) {
+      foreach my $ct (sort @{$charset_convlist{$composecharset}}) {
+         if (is_convertable($composecharset, $ct)) {
+            $ctlabels{$ct}="$composecharset > $ct";
             push(@ctlist, $ct);
-            delete $miscsets{$ct};
+            delete $allsets{$ct};
          }
       }
    }
-   push(@ctlist, sort keys %miscsets);
+   push(@ctlist, sort keys %allsets);
 
    $temphtml = popup_menu(-name=>'convto',
                           -values=>\@ctlist,
@@ -894,8 +927,8 @@ sub composemessage {
             $blank="target=_blank";
          }
          if (${${$r_attlist}[$i]}{namecharset} &&
-             is_convertable(${${$r_attlist}[$i]}{namecharset}, $charset) ) {
-            (${${$r_attlist}[$i]}{name})=iconv(${${$r_attlist}[$i]}{namecharset}, $charset,
+             is_convertable(${${$r_attlist}[$i]}{namecharset}, $composecharset) ) {
+            (${${$r_attlist}[$i]}{name})=iconv(${${$r_attlist}[$i]}{namecharset}, $composecharset,
                                              ${${$r_attlist}[$i]}{name});
          }
          my $attsize=(-s "$config{'ow_sessionsdir'}/${${$r_attlist}[$i]}{file}");
@@ -1102,11 +1135,11 @@ sub composemessage {
    my $abook_keyword = $prefs{'abook_defaultfilter'}?escapeURL($prefs{'abook_defaultkeyword'}):'';
    $html =~ s/\@\@\@ABOOKKEYWORD\@\@\@/$abook_keyword/g;
 
-   my @tmp=($prefs{'language'}, $prefs{'charset'});
-   if ($charset ne $prefs{'charset'}) {
-      ($prefs{'language'}, $prefs{'charset'})=('en', $charset);
+   my @tmp;
+   if ($composecharset ne $prefs{'charset'}) {
+      @tmp=($prefs{'language'}, $prefs{'charset'});
+      ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
    }
-
    my $session_noupdate=param('session_noupdate');
    if (defined(param('savedraftbutton')) && !$session_noupdate) {
       # savedraft from user clicking, show show some msg for notifitcaiton
@@ -1121,20 +1154,17 @@ sub composemessage {
    if (defined(param('savedraftbutton')) && $session_noupdate) {
       # this is auto savedraft triggered by timeoutwarning,
       # timeoutwarning js code is not required any more
-      $html.=htmlfooter(1);
+      print htmlheader(), $html, htmlfooter(1);
    } else {
       # load footer.js.template and plugin jscode
       # which will be triggered when timeoutwarning shows up.
       my $jscode=qq|window.composeform.session_noupdate.value=1;|.
                  qq|window.composeform.savedraftbutton.click();|;
-      $html.=htmlfooter(2, $jscode);
+      print htmlheader(), $html, htmlfooter(2, $jscode);
    }
-
-   if ($charset ne $prefs{'charset'}) {
+   if ($#tmp>=1) {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
    }
-
-   print $html;
 }
 ############# END COMPOSEMESSAGE #################
 
@@ -1158,7 +1188,7 @@ sub sendmessage {
    $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
 
    my $dateserial=gmtime2dateserial();
-   my $date = dateserial2datefield($dateserial, $prefs{'timeoffset'});
+   my $date=dateserial2datefield($dateserial, $prefs{'timeoffset'});
 
    my $folder = param("folder");
    my $boundary = "----=OPENWEBMAIL_ATT_" . rand();
@@ -1169,7 +1199,7 @@ sub sendmessage {
    my $subject = param("subject") || 'N/A';
    my $inreplyto = param("inreplyto");
    my $references = param("references");
-   my $charset = param("charset") || $prefs{'charset'};
+   my $composecharset = param("composecharset") || $prefs{'charset'};
    my $priority = param("priority");
    my $confirmreading = param("confirmreading");
    my $body = param("body");
@@ -1192,7 +1222,7 @@ sub sendmessage {
       # Convert :: back to the ' like it should be.
       $attname =~ s/::/'/g;
       # Trim the path info from the filename
-      if ($charset eq 'big5' || $charset eq 'gb2312') {
+      if ($composecharset eq 'big5' || $composecharset eq 'gb2312') {
          $attname = zh_dospath2fname($attname);	# dos path
       } else {
          $attname =~ s|^.*\\||;		# dos path
@@ -1201,15 +1231,15 @@ sub sendmessage {
       $attname =~ s|^.*:||;	# mac path and dos drive
 
       $attheader = qq|Content-Type: $attcontenttype;\n|.
-                   qq|\tname="|.encode_mimewords($attname, ('Charset'=>$charset)).qq|"\n|.
-                   qq|Content-Disposition: attachment; filename="|.encode_mimewords($attname, ('Charset'=>$charset)).qq|"\n|.
+                   qq|\tname="|.encode_mimewords($attname, ('Charset'=>$composecharset)).qq|"\n|.
+                   qq|Content-Disposition: attachment; filename="|.encode_mimewords($attname, ('Charset'=>$composecharset)).qq|"\n|.
                    qq|Content-Transfer-Encoding: base64\n|;
    }
    my @attfilelist=();
    opendir (SESSIONSDIR, "$config{'ow_sessionsdir'}") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}!");
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
    while (defined(my $currentfile = readdir(SESSIONSDIR))) {
-      if ($currentfile =~ /^($thissession-att\d+)$/) {
+      if ($currentfile =~ /^(\Q$thissession\E\-att\d+)$/) {
          push (@attfilelist, "$config{'ow_sessionsdir'}/$1");
       }
    }
@@ -1217,10 +1247,10 @@ sub sendmessage {
 
    # convert message to prefs{'sendcharset'}
    if ($prefs{'sendcharset'} ne 'sameascomposing' &&
-       is_convertable($charset, $prefs{'sendcharset'}) ) {
-      ($from,$replyto,$to,$cc,$subject,$body)=iconv($charset, $prefs{'sendcharset'},
+       is_convertable($composecharset, $prefs{'sendcharset'}) ) {
+      ($from,$replyto,$to,$cc,$subject,$body)=iconv($composecharset, $prefs{'sendcharset'},
    						$from,$replyto,$to,$cc,$subject,$body);
-      $charset=$prefs{'sendcharset'};
+      $composecharset=$prefs{'sendcharset'};
    }
    $body =~ s/\r//g;		# strip ^M characters from message. How annoying!
 
@@ -1243,10 +1273,10 @@ sub sendmessage {
    if (defined(param('savedraftbutton'))) { # save msg to draft folder
       $savefolder = 'saved-drafts';
       $do_sendmsg=0;
-      $do_savemsg=0 if  ($folderusage>=100);
+      $do_savemsg=0 if ($quotalimit>0 && $quotausage>=$quotalimit);
    } else {					     # save msg to sent folder && send
       $savefolder = 'sent-mail';
-      $do_savemsg=0 if  ($folderusage>=100 || param("backupsentmsg")==0 );
+      $do_savemsg=0 if (($quotalimit>0 && $quotausage>=$quotalimit) || param("backupsentmsg")==0 );
    }
 
    if ($do_sendmsg) {
@@ -1282,13 +1312,16 @@ sub sendmessage {
       open(STDERR, ">$smtperrfile");
       select(STDERR); local $| = 1; select(STDOUT);
 
+      my $timeout=20; $timeout=90 if ($#recipients>=1); # more than 1 recipient
       if ( !($smtp=Net::SMTP->new($config{'smtpserver'},
                            Port => $config{'smtpport'},
-                           Timeout => 120,
+                           Timeout => $timeout,
                            Hello => ${$config{'domainnames'}}[0],
                            Debug=>1)) ) {
          $send_errcount++;
          $send_errstr="$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}:$config{'smtpport'}!";
+         writelog("send message error - couldn't open SMTP server $config{'smtpserver'}:$config{'smtpport'}");
+         writehistory("send message error - couldn't open SMTP server $config{'smtpserver'}:$config{'smtpport'}");
       }
 
       # SMTP SASL authentication (PLAIN only)
@@ -1297,18 +1330,23 @@ sub sendmessage {
          if (! $smtp->auth($config{'smtpauth_username'}, $config{'smtpauth_password'}) ) {
             $send_errcount++;
             $send_errstr="$lang_err{'network_server_error'}!<br>($config{'smtpserver'} - ".$smtp->message.")";
+            writelog("send message error - SMTP server $config{'smtpserver'} error - ".$smtp->message);
+            writehistory("send message error - SMTP server $config{'smtpserver'} error - ".$smtp->message);
          }
       }
 
-      $smtp->mail($from)                              || $send_errcount++ if ($send_errcount==0);
-      $smtp->recipient(@recipients, { SkipBad => 1 }) || $send_errcount++ if ($send_errcount==0);
-      $smtp->data()                                   || $send_errcount++ if ($send_errcount==0);
+      $smtp->mail($from) || $send_errcount++ if ($send_errcount==0);
+      if ($send_errcount==0) {
+         my @ok=$smtp->recipient(@recipients, { SkipBad => 1 });
+         $send_errcount++ if ($#ok<0);
+      }
+      $smtp->data()      || $send_errcount++ if ($send_errcount==0);
 
       # save message to draft if smtp error, Dattola Filippo 06/20/2002
-      if ($send_errcount>0 && $folderusage<100) {
+      if ($send_errcount>0 && (!$quotalimit||$quotausage<$quotalimit)) {
          $do_savemsg = 1;
          $savefolder = 'saved-drafts';
-	 }
+      }
    }
 
    if ($do_savemsg) {
@@ -1329,34 +1367,32 @@ sub sendmessage {
             filelock($savefile, LOCK_UN);
             openwebmailerror("$lang_err{'couldnt_updatedb'} $savedb$config{'dbm_ext'}");
          }
-         # remove message with same id from draft folder
-         if ( $savefolder eq 'saved-drafts' ) {
-            my $removeoldone=0;
-            my %HDB;
 
-            if (!$config{'dbmopen_haslock'}) {
-               filelock("$savedb$config{'dbm_ext'}", LOCK_EX) or
-                  openwebmailerror("$lang_err{'couldnt_lock'} $savedb$config{'dbm_ext'}");
-            }
-            dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", undef);
-            if (defined($HDB{$mymessageid})) {
-               my @oldheaders=split(/@@@/, $HDB{$mymessageid});
-               if ($subject eq $oldheaders[$_SUBJECT]) {
-                  $removeoldone=1;
-               } else {
-                  # change mymessageid if old is not removed
-                  # since messageid should be unique in one folder
-                  # note: this new mymessageid will be used by composemessage later
-                  $mymessageid=fakemessageid($from);
+         my $oldmsgfound=0;
+         my $oldsubject='';
+         my %HDB;
+         if (!$config{'dbmopen_haslock'}) {
+            filelock("$savedb$config{'dbm_ext'}", LOCK_SH) or
+               openwebmailerror("$lang_err{'couldnt_locksh'} $savedb$config{'dbm_ext'}");
+         }
+         dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", undef);
+         if (defined($HDB{$mymessageid})) {
+            $oldmsgfound=1;
+            $oldsubject=(split(/@@@/, $HDB{$mymessageid}))[$_SUBJECT];
+         }
+         dbmclose(%HDB);
+         filelock("$savedb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
+
+         if ($oldmsgfound) {
+            if ($savefolder eq 'saved-drafts' && $subject eq $oldsubject) {
+               # remove old draft if the subject is the same
+               if (operate_message_with_ids("delete", [$mymessageid], $savefile, $savedb)<=0) {
+                  $mymessageid=fakemessageid($from);	# use another id if remove failed
                }
-            }
-            dbmclose(%HDB);
-            filelock("$savedb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
-
-            if ($removeoldone) {
-               my @ids;
-               push (@ids, $mymessageid);
-               operate_message_with_ids("delete", \@ids, $savefile, $savedb);
+            } else {
+               # change mymessageid to ensure messageid is unique in one folder
+               # note: this new mymessageid will be used by composemessage later
+               $mymessageid=fakemessageid($from);
             }
          }
 
@@ -1391,39 +1427,39 @@ sub sendmessage {
    if ($config{'delimiter_use_GMT'}) {
       $delimiter=dateserial2delimiter(gmtime2dateserial(), "");
    } else {
-      $delimiter=dateserial2delimiter(localtime2dateserial(), "");
+      $delimiter=dateserial2delimiter(gmtime2dateserial(), gettimeoffset()); # use server localtime for delimiter
    }
    print FOLDER "From $user $delimiter\n" || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
    my $tempcontent="";
    if ($realname) {
-      $tempcontent .= "From: ".encode_mimewords(qq|"$realname" <$from>|, ('Charset'=>$charset))."\n";
+      $tempcontent .= "From: ".encode_mimewords(qq|"$realname" <$from>|, ('Charset'=>$composecharset))."\n";
    } else {
-      $tempcontent .= "From: ".encode_mimewords(qq|$from|, ('Charset'=>$charset))."\n";
+      $tempcontent .= "From: ".encode_mimewords(qq|$from|, ('Charset'=>$composecharset))."\n";
    }
    $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
    print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
    if ($to) {
-      $tempcontent = "To: ".encode_mimewords(folding($to), ('Charset'=>$charset))."\n";
+      $tempcontent = "To: ".encode_mimewords(folding($to), ('Charset'=>$composecharset))."\n";
       $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
       print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
    } elsif ($bcc && !$cc) { # recipients in Bcc only, To and Cc are null
       $smtp->datasend("To: undisclosed-recipients: ;\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
    }
    if ($cc) {
-      $tempcontent = "Cc: ".encode_mimewords(folding($cc), ('Charset'=>$charset))."\n";
+      $tempcontent = "Cc: ".encode_mimewords(folding($cc), ('Charset'=>$composecharset))."\n";
       $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
       print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
    }
    if ($bcc) {	# put bcc header in folderfile only, not in outgoing msg
-      $tempcontent = "Bcc: ".encode_mimewords(folding($bcc), ('Charset'=>$charset))."\n";
+      $tempcontent = "Bcc: ".encode_mimewords(folding($bcc), ('Charset'=>$composecharset))."\n";
       print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
    }
 
    $tempcontent="";
-   $tempcontent .= "Reply-To: ".encode_mimewords($replyto, ('Charset'=>$charset))."\n" if ($replyto);
-   $tempcontent .= "Subject: ".encode_mimewords($subject, ('Charset'=>$charset))."\n";
+   $tempcontent .= "Reply-To: ".encode_mimewords($replyto, ('Charset'=>$composecharset))."\n" if ($replyto);
+   $tempcontent .= "Subject: ".encode_mimewords($subject, ('Charset'=>$composecharset))."\n";
    $tempcontent .= "Date: $date\n";
 
    $tempcontent .= "Message-Id: $mymessageid\n";
@@ -1435,15 +1471,18 @@ sub sendmessage {
    my $xmailer = $config{'name'};
    $xmailer .= " $config{'version'} $config{'releasedate'}" if ($config{'xmailer_has_version'});
    my $xoriginatingip = get_clientip();
-   $xoriginatingip .= " ($loginname)" if ($config{'xoriginatingip_has_userid'});
+   if ($config{'xoriginatingip_has_userid'}) {
+      my $id=$loginuser; $id.="\@$logindomain" if ($config{'auth_withdomain'});
+      $xoriginatingip .= " ($id)";
+   }
 
    $tempcontent .= "X-Mailer: $xmailer\n";
    $tempcontent .= "X-OriginatingIP: $xoriginatingip\n";
    $tempcontent .= "MIME-Version: 1.0\n";
    if ($confirmreading) {
       if ($replyto) {
-         $tempcontent .= "X-Confirm-Reading-To: ".encode_mimewords($replyto, ('Charset'=>$charset))."\n";
-         $tempcontent .= "Disposition-Notification-To: ".encode_mimewords($replyto, ('Charset'=>$charset))."\n";
+         $tempcontent .= "X-Confirm-Reading-To: ".encode_mimewords($replyto, ('Charset'=>$composecharset))."\n";
+         $tempcontent .= "Disposition-Notification-To: ".encode_mimewords($replyto, ('Charset'=>$composecharset))."\n";
       } else {
          $tempcontent .= "X-Confirm-Reading-To: $from\n";
          $tempcontent .= "Disposition-Notification-To: $from\n";
@@ -1463,7 +1502,7 @@ sub sendmessage {
                      qq|\tboundary="$boundary"\n\n|.
                      qq|This is a multi-part message in MIME format.\n\n|.
                      qq|--$boundary\n|.
-                     qq|Content-Type: text/plain; charset=$charset\n\n|;
+                     qq|Content-Type: text/plain; charset=$composecharset\n\n|;
 
       $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
       print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
@@ -1482,7 +1521,7 @@ sub sendmessage {
 
          # print attheader line by line
          while (defined($buff = <ATTFILE>)) {
-            $buff =~ s/^(.+name="?)([^"]+)("?.*)$/_convert_attfilename($1, $2, $3, $charset)/ige;
+            $buff =~ s/^(.+name="?)([^"]+)("?.*)$/_convert_attfilename($1, $2, $3, $composecharset)/ige;
             $smtp->datasend($buff) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
             print FOLDER    $buff  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
             last if ($buff =~ /^\s+$/ );
@@ -1504,7 +1543,7 @@ sub sendmessage {
          $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
          print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
-         while (read($attachment, $buff, 600*57)) {
+         while (read($attachment, $buff, 400*57)) {
             $tempcontent=encode_base64($buff);
             $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
             print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
@@ -1521,13 +1560,13 @@ sub sendmessage {
       print FOLDER   "\n\n" || $save_errcount++ if ($do_savemsg && $save_errcount==0);
 
    } else {
-      $contenttype="text/plain; charset=$charset";
+      $contenttype="text/plain; charset=$composecharset";
 
-      $smtp->datasend("Content-Type: text/plain; charset=$charset\n\n", $body, "\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+      $smtp->datasend("Content-Type: text/plain; charset=$composecharset\n\n", $body, "\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
       $smtp->datasend($config{'mailfooter'}, "\n") || $send_errcount++ if ($do_sendmsg && $send_errcount==0 && $config{'mailfooter'}=~/[^\s]/);
 
       $body =~ s/^From />From /gm;
-      print FOLDER   "Content-Type: text/plain; charset=$charset\n\n", $body, "\n\n" || $save_errcount++ if ($do_savemsg && $save_errcount==0);
+      print FOLDER   "Content-Type: text/plain; charset=$composecharset\n\n", $body, "\n\n" || $save_errcount++ if ($do_savemsg && $save_errcount==0);
    }
 
    if ($do_sendmsg) {
@@ -1535,14 +1574,31 @@ sub sendmessage {
          $smtp->dataend();
          $smtp->quit();
          close(STDERR);
+         my @r;
+         push(@r, "to=$to") if ($to); 
+         push(@r, "cc=$cc") if ($cc); 
+         push(@r, "bcc=$bcc") if ($bcc); 
+         writelog("send message - subject=$subject - ".join(', ', @r));
+         writehistory("send message - subject=$subject - ".join(', ', @r));
       } else {
-         if ($smtp) { # close smtp only if it was sucessfully opened
-            $smtp->reset();
-            $smtp->quit();
-            $send_errstr="$lang_err{'sendmail_error'}!".readsmtperr($smtperrfile) if ($send_errstr eq "");
+         $smtp->close() if ($smtp); # close smtp if it was sucessfully opened
+         if ($send_errstr eq "") {
+            my $smtperr=readsmtperr($smtperrfile);
+            $send_errstr=qq|$lang_err{'sendmail_error'}!|.
+                         qq|<form>|.
+                         textarea(-name=>'smtperror',
+                                  -default=>$smtperr,
+                                  -rows=>'5',
+                                  -columns=>'72',
+                                  -wrap=>'soft',
+                                  -override=>'1').
+                         qq|</form>|;
+            $smtperr=~s/\n/\n /gs; $smtperr=~s/\s+$//;
+            writelog("send message error - smtp error ...\n $smtperr");
+            writehistory("send message error - smtp error");
          }
-         close(STDERR);
       }
+      close(STDERR);
       unlink($smtperrfile);
    }
 
@@ -1579,7 +1635,7 @@ sub sendmessage {
 
          $attr[$_SIZE]=$messagesize;
          $attr[$_REFERENCES]=$references;
-         $attr[$_CHARSET]=$charset;
+         $attr[$_CHARSET]=$composecharset;
 
          # escape @@@
          foreach ($_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_REFERENCES) {
@@ -1680,8 +1736,11 @@ sub sendmessage {
          deleteattachments();
          print "Location: $config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page\n\n";
       } else {
-         # call getfolders to recalc used quota
+         # save draft, call getfolders to recalc used quota
          getfolders(\@validfolders, \$folderusage);
+         if ($quotalimit>0 && $quotausage+$messagesize>$quotalimit) {
+            $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+         }
          return(composemessage());
       }
    }
@@ -1710,11 +1769,11 @@ sub getattlistinfo {
    my $totalsize = 0;
 
    opendir (SESSIONSDIR, "$config{'ow_sessionsdir'}") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}!");
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
 
    my $attnum=-1;
    while (defined($currentfile = readdir(SESSIONSDIR))) {
-      if ($currentfile =~ /^($thissession-att\d+)$/) {
+      if ($currentfile =~ /^(\Q$thissession\E\-att\d+)$/) {
          $attnum++;
          $currentfile = $1;
          $totalsize += ( -s "$config{'ow_sessionsdir'}/$currentfile" );
@@ -1749,9 +1808,9 @@ sub getattlistinfo {
 sub deleteattachments {
    my (@delfiles, $attfile);
    opendir (SESSIONSDIR, "$config{'ow_sessionsdir'}") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}!");
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
    while (defined($attfile = readdir(SESSIONSDIR))) {
-      if ($attfile =~ /^($thissession-att\d+)$/) {
+      if ($attfile =~ /^(\Q$thissession\E\-att\d+)$/) {
          $attfile = $1;
          push(@delfiles, "$config{'ow_sessionsdir'}/$attfile");
       }
@@ -1760,26 +1819,6 @@ sub deleteattachments {
    unlink(@delfiles) if ($#delfiles>=0);
 }
 #################### END DELETEATTACHMENTS #########################
-
-################### DST_ADJUST #######################
-# adjust timeoffset for DaySavingTime for outgoing message
-sub dst_adjust {
-   my $timeoffset=$_[0];
-
-   if ( (localtime())[8] ) {
-      if ($timeoffset =~ m|^([\+\-]\d\d)(\d\d)| ) {
-         my ($h, $m)=($1, $2);
-         $h++;
-         if ($h>=0) {
-            $timeoffset=sprintf("+%02d%02d", $h, $m);
-         } else {
-            $timeoffset=sprintf("-%02d%02d", abs($h), $m);
-         }
-      }
-   }
-   return $timeoffset;
-}
-################### END DST_ADJUST #######################
 
 ###################### FOLDING ###########################
 # folding the to, cc, bcc field in case it violates the 998 char limit
@@ -1874,21 +1913,13 @@ sub fakemessageid {
 
 ################### READSMTPERR ##########################
 sub readsmtperr {
-   my $content='';
-
    open(F, $_[0]);
+   my $content;
    while (<F>) {
+      s/\s*$//;
       $content.="$1\n" if (/(>>>.*$)/ || /(<<<.*$)/);
    }
    close(F);
-   $content =qq|<form>|.
-               textarea(-name=>'smtperror',
-                        -default=>$content,
-                        -rows=>'5',
-                        -columns=>'72',
-                        -wrap=>'soft',
-                        -override=>'1').
-             qq|</form>|;
    return($content);
 }
 ################### END READSMTPERR ##########################

@@ -26,6 +26,13 @@ package openwebmail::fi;
    size_rev    => 'Koko (Pienin ensin)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normaali',
@@ -223,6 +230,7 @@ package openwebmail::fi;
    replyall   => 'Vastaa kaikille',
    forward    => 'Lähetä eteenpäin',
    forwardasatt=>'Lähetä liitetiedostona',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Tulostettava versio',
    from       => 'Keneltä',
    replyto    => 'Vastaa osoitteeseen',
@@ -253,7 +261,6 @@ package openwebmail::fi;
    continue   => 'Jatka',
    loginagain => 'Kirjaudu uudestaan',
    exit       => 'Poistu',
-   for        => ' ',
    yourname   => 'Nimesi',
    save       => 'Tallenna',
    add        => 'Lisää',
@@ -283,8 +290,9 @@ package openwebmail::fi;
    note       => 'Lisätiedot',
    max        => 'Maximum',
    group      => 'Ryhmä',
-   quota_hit  => 'Sinulle varattu levytila täynnä',
-   usage      => 'Käyttöaste',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'Sinulle varattu levytila täynnä',
    tzmap      => 'Aikavyöhykekartta',
    testsound  => 'Testaa ääntä',
    editfroms  => 'Muokkaa henkilökohtaisia sähköpostiosoitteita',
@@ -410,8 +418,6 @@ package openwebmail::fi;
    tryagain          => 'kokeile uudelleen.',
    abook_toobig      => 'Osoitekirjasi koko ei riitä',
    cant_create_dir   => 'Ei voi luoda käyttäjäkansiota!',
-   folder_hitquota   => 'Kansiosi on täynnä. Siirrä viestejä roskakoriin ja yritä uudelleen.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Liitetiedostosi koko ylittää sallitun rajan joka on',
    inv_msg_op        => 'Viestin virheellinen operaatio',
    sess_cookieerr    => 'Palvelupyyntösi ei sisältänyt oikeanlaista COOKIE- tiedostoa -- pääsy kielletty!',
@@ -440,8 +446,12 @@ package openwebmail::fi;
    no_file_todownload=> 'No file is specified for download',
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

@@ -63,7 +63,7 @@
    function addcheck()
    {
       if (document.newaddress.email.value  == "") {
-         alert("Please specify the email address.");
+         alert("Vennligst spesifisér epostadresse.");
          return false;
       }
       return true;

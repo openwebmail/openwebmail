@@ -13,16 +13,16 @@
 <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@>
 <BR>Outlook Express 5 i Netscape Mail mogu da izvezu svoj adresar u formatu 
-znanom kao CSV (Comma Separated Values). @@@NAME@@@ mo&#158;e da uveze 
-ove fajlove u Va&#154; lièni adresar i na taj naèin 
-Vam saèuva mnogo vremena i ruènog uno&#154;enja istih.  
+znanom kao CSV (Comma Separated Values). @@@NAME@@@ mo¾e da uveze 
+ove datoteke u Va¹ lièni adresar i na taj naèin 
+Vam saèuva mnogo vremena i ruènog uno¹enja istih.  
 <ul>
 <li>U Netscape-u, otvorite adresar, odaberite File->Export, 
 i onda pod "Save as type:" odaberite "Comma Separated (*.csv)."<BR><BR>
 <li>Za Outlook Express, u glavnom prozoru Outlook Express-a odaberite 
 File->Export->Address Book, i onda izaberite tip "Text file." 
 Proverite da su ime i email adresa prva dva polja, to je podrazumevano 
-pode&#154;avanje.
+pode¹avanje.
 </ul>
 </td></tr></table>
 

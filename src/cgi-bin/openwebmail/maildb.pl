@@ -3,9 +3,7 @@
 #
 # 2001/12/21 tung@turtle.ee.ncku.edu.tw
 #
-
-#
-# description
+# Description
 #
 # 1. it speeds up the message access on folder file by caching important
 #    information with perl dbm.
@@ -33,18 +31,17 @@
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 
+# extern vars, defined in caller openwebmail-xxx.pl
+use vars qw(%config);
+
+# globals, message attribute number constant
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET);
-
-# extern vars
-use vars qw(%config);	# defined in caller openwebmail-xxx.pl
-
-# message attribute number, CONST
 ($_OFFSET, $_FROM, $_TO, $_DATE, $_SUBJECT, $_CONTENT_TYPE, $_STATUS, $_SIZE, $_REFERENCES, $_CHARSET)
  =(0,1,2,3,4,5,6,7,8,9);
 
-if ( $config{'dbm_ext'} eq "" ) {
-   $config{'dbm_ext'}=".db";
-}
+# dirty init
+$config{'dbm_ext'}=".db" if ($config{'dbm_ext'} eq "");
+
 ######################### UPDATE_HEADERDB ############################
 # this routine indexes the messages in a mailfolder
 # and remove those with duplicated messageids
@@ -251,12 +248,17 @@ sub update_headerdb {
                $_to=substr($_to, 0, 252)."..." if (length($_to)>256);
 
                my $dateserial=datefield2dateserial($_date);
-               my $deliserial=delimiter2dateserial($delimiter, $config{'deliver_use_GMT'});
-               if ($dateserial eq "" ||
-                   ($deliserial ne "" && dateserial2daydiff($dateserial)-dateserial2daydiff($deliserial)>1) ) {
-                  $dateserial=$deliserial; # use receiving time if sending time is newer than receiving time
+               my $deliserial=delimiter2dateserial($delimiter, $config{'deliver_use_GMT'}) ||
+                              gmtime2dateserial();
+               if ($dateserial eq "") {
+                  $dateserial=$deliserial; 
+               } elsif ($deliserial ne "") {
+                   my $t=dateserial2gmtime($deliserial)-dateserial2gmtime($dateserial); 
+                   if ($t>86400*7 || $t<-86400) { # msg transmission time
+                      # use deliverytime in case sender host may have wrong time configuration
+                      $dateserial=$deliserial; 
+                   }
                }
-               $dateserial=gmtime2dateserial() if ($dateserial eq "");
                $_date=$dateserial;
 
                $internalmessages++ if (is_internal_subject($_subject));
@@ -1267,14 +1269,11 @@ sub operate_message_with_ids {
 
 #################### DELETE_MESSAGE_BY_AGE #######################
 sub delete_message_by_age {
-   my ($age, $headerdb, $folderfile)=@_;
-   my $folderhandle=do { local *FH };
-   my %HDB;
-   my (@allmessageids, @agedids);
-
+   my ($dayage, $headerdb, $folderfile)=@_;
    return 0 if ( ! -f $folderfile );
 
-   my $nowdaydiff=dateserial2daydiff(gmtime2dateserial());
+   my $folderhandle=do { local *FH };
+   my (%HDB, @allmessageids, @agedids);
 
    if (update_headerdb($headerdb, $folderfile)<0) {
       filelock($folderfile, LOCK_UN);
@@ -1288,9 +1287,10 @@ sub delete_message_by_age {
       filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) or return -1;
    }
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
+   my $agestarttime=gmtime()-$dayage*86400;
    foreach (@allmessageids) {
       my @attr = split(/@@@/, $HDB{$_});
-      push(@agedids, $_) if ($nowdaydiff-dateserial2daydiff($attr[$_DATE])>=$age);
+      push(@agedids, $_) if (dateserial2gmtime($attr[$_DATE])<=$agestarttime); # too old
    }
    dbmclose(%HDB);
    filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
@@ -2163,253 +2163,6 @@ sub search_info_messages_for_keyword {
    return($totalsize, $new, \%found);
 }
 #################### END SEARCH_MESSAGES_FOR_KEYWORD ######################
-
-######################## HTML related ##############################
-# it is suggested calling these following routine in the following order:
-# html4nobase, html4link, html4disablejs, html4disableembcgi,
-# html4attachment, html4mailto, html2table
-
-# since this routine deals with base directive,
-# it must be called first before other html...routines when converting html
-sub html4nobase {
-   my $html=$_[0];
-   my $urlbase;
-   if ( $html =~ m!\<base\s+href\s*=\s*"?([^\<\>]*?)"?\>!i ) {
-      $urlbase=$1;
-      $urlbase=~s!/[^/]+$!/!;
-   }
-
-   $html =~ s!\<base\s+([^\<\>]*?)\>!!gi;
-   if ( ($urlbase ne "") && ($urlbase !~ /^file:/) ) {
-      $html =~ s!(\<a\s+href|background|src|method|action)(=\s*"?)!$1$2$urlbase!gi;
-      # recover links that should not be changed by base directive
-      $html =~ s!\Q$urlbase\E(http://|https://|ftp://|mms://|cid:|mailto:|#)!$1!gi;
-   }
-   return($html);
-}
-
-my @jsevents=('onAbort', 'onBlur', 'onChange', 'onClick', 'onDblClick',
-              'onDragDrop', 'onError', 'onFocus', 'onKeyDown', 'onKeyPress',
-              'onKeyUp', 'onLoad', 'onMouseDown', 'onMouseMove', 'onMouseOut',
-              'onMouseOver', 'onMouseUp', 'onMove', 'onReset', 'onResize',
-              'onSelect', 'onSubmit', 'onUnload');
-
-# this routine is used to add target=_blank to links in a html message
-# so clicking on it will open a new window
-sub html4link {
-   my $html=$_[0];
-   $html=~s/(<a\s+[^\<\>]*?>)/_link_target_blank($1)/igems;
-   return($html);
-}
-
-sub _link_target_blank {
-   my $link=$_[0];
-#   foreach my $event (@jsevents) {
-#      return($link) if ($link =~ /$event/i);
-#   }
-   if ($link =~ /target=/i ||
-       $link =~ /javascript:/i ||
-       $link =~ /href="?#/i ) {
-      return($link);
-   }
-   $link=~s/<a\s+([^\<\>]*?)>/<a $1 target=_blank>/is;
-   return($link);
-}
-
-# this routine is used to resolve frameset in html by
-# converting <frame ...> into <iframe width="100%"..></iframe>
-# so html with frameset can be displayed correctly inside the message body
-sub html4noframe {
-   my $html=$_[0];
-   $html=~s/(<frame\s+[^\<\>]*?>)/_frame2iframe($1)/igems;
-   return($html);
-}
-
-sub _frame2iframe {
-   my $frame=$_[0];
-   return "" if ( $frame!~/src=/i );
-   $frame=~s/<frame /<iframe width="100%" height="250" /is;
-   $frame.=qq|</iframe>|;
-   return($frame);
-}
-
-# this routine disables the javascript in a html message
-# to avoid user being hijacked by some eval programs
-sub html4disablejs {
-   my $html=$_[0];
-   my $event;
-
-   foreach $event (@jsevents) {
-      $html=~s/$event/_$event/imsg;
-   }
-   $html=~s/<script([^\<\>]*?)>/<disable_script$1>\n<!--\n/imsg;
-   $html=~s/<!--\s*<!--/<!--/imsg;
-   $html=~s/<\/script>/\n\/\/-->\n<\/disable_script>/imsg;
-   $html=~s/\/\/-->\s*\/\/-->/\/\/-->/imsg;
-   $html=~s/<([^\<\>]*?)javascript:([^\<\>]*?)>/<$1disable_javascript:$2>/imsg;
-
-   return($html);
-}
-
-# this routine disables the embedded CGI in a html message
-# to avoid user email addresses being confirmed by spammer through embedded CGIs
-sub html4disableembcgi {
-   my $html=$_[0];
-   $html=~s!(src|background)\s*=\s*("?https?://[\w\.\-]+?/?[^\s<>]*[\w/])([\b|\n| ]*)!_clean_embcgi($1,$2,$3)!egis;
-   return($html);
-}
-
-sub _clean_embcgi {
-   my ($type, $url, $end)=@_;
-
-   if ($url=~/\?/s && $url !~ /\Q$ENV{'HTTP_HOST'}\E/is) { # non local CGI found
-      $url=~s/["']//g;
-      return("alt='Embedded CGI removed by $config{'name'}.\n$url'".$end);
-   } else {
-      return("$type=$url".$end);
-   }
-}
-
-# this routine is used to resolve crossreference inside attachments
-# by converting them to request attachment from openwebmail cgi
-sub html4attachments {
-   my ($html, $r_attachments, $scripturl, $scriptparm)=@_;
-   my $i;
-
-   for ($i=0; $i<=$#{$r_attachments}; $i++) {
-      my $filename=escapeURL(${${$r_attachments}[$i]}{filename});
-      my $link="$scripturl/$filename?$scriptparm&amp;attachment_nodeid=${${$r_attachments}[$i]}{nodeid}&amp;";
-      my $cid="cid:"."${${$r_attachments}[$i]}{id}";
-      my $loc=${${$r_attachments}[$i]}{location};
-
-      if ( ($cid ne "cid:" && $html =~ s#\Q$cid\E#$link#ig ) ||
-           ($loc ne "" && $html =~ s#\Q$loc\E#$link#ig ) ||
-           # ugly hack for strange CID
-           ($filename ne "" && $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#ig )
-         ) {
-         # this attachment is referenced by the html
-         ${${$r_attachments}[$i]}{referencecount}++;
-      }
-   }
-   return($html);
-}
-
-# this routine chnage mailto: into webmail composemail function
-# to make it works with base directive, we use full url
-# to make it compatible with undecoded base64 block,
-# we put new url into a seperate line
-sub html4mailto {
-   my ($html, $scripturl, $scriptparm)=@_;
-   $html =~ s/(=\s*"?)mailto:\s?([^\s]*?)\s?(\s|"?\s*\>)/$1\n$scripturl\?$scriptparm&amp;to=$2\n$3/ig;
-   return($html);
-}
-
-sub html2table {
-   my $html=$_[0];
-
-   $html =~ s#<!doctype[^\<\>]*?\>##i;
-   $html =~ s#\<html[^\>]*?\>##i;
-   $html =~ s#\</html\>##i;
-   $html =~ s#\<head\>##i;
-   $html =~ s#\</head\>##i;
-   $html =~ s#\<meta[^\<\>]*?\>##gi;
-   $html =~ s#\<body([^\<\>]*?)\>#\<table width=100% border=0 cellpadding=2 cellspacing=0 $1\>\<tr\>\<td\>#i;
-   $html =~ s#\</body\>#\</td\>\</tr\>\</table\>#i;
-
-   $html =~ s#\<!--.*?--\>##ges;
-   $html =~ s#\<style[^\<\>]*?\>#\n\<!-- style begin\n#gi;
-   $html =~ s#\</style\>#\nstyle end --\>\n#gi;
-   $html =~ s#\<[^\<\>]*?stylesheet[^\<\>]*?\>##gi;
-   $html =~ s#(\<div[^\<\>]*?)position\s*:\s*absolute\s*;([^\<\>]*?\>)#$1$2#gi;
-
-   return($html);
-}
-
-sub html2text {
-   my $t=$_[0];
-
-   $t=~s!\s+! !g;
-   $t=~s|<style>.*?</style>||isg;
-   $t=~s|<script>.*?</script>||isg;
-
-   $t=~s!<title[^\<\>]*?>!\n\n!ig;
-   $t=~s!</title>!\n\n!ig;
-   $t=~s!<br>!\n!ig;
-   $t=~s!<hr[^\<\>]*?>!\n-----------------------------------------------------------------------\n!ig;
-
-   $t=~s!<p>\s?</p>!\n\n!ig;
-   $t=~s!<p>!\n\n!ig;
-   $t=~s!</p>!\n\n!ig;
-
-   $t=~s!<th[^\<\>]*?>!\n!ig;
-   $t=~s!</th>! !ig;
-   $t=~s!<tr[^\<\>]*?>!\n!ig;
-   $t=~s!</tr>! !ig;
-   $t=~s!<td[^\<\>]*?>! !ig;
-   $t=~s!</td>! !ig;
-
-   $t=~s!<--.*?-->!!isg;
-
-   $t=~s!<[^\<\>]*?>!!gsm;
-
-   $t=~s!&nbsp;! !g;
-   $t=~s!&lt;!<!g;
-   $t=~s!&gt;!>!g;
-   $t=~s!&amp;!&!g;
-   $t=~s!&quot;!\"!g;
-#   $t=~s!&#8364;!€!g;	# Euro symbo
-
-   $t=~s!\n\n\s+!\n\n!g;
-
-   return($t);
-}
-
-sub text2html {
-   my $t=$_[0];
-
-   $t=~s/&#(\d\d\d+);/ESCAPE_UNICODE_$1/g;
-   $t=~s/&/ESCAPE_AMP/g;
-
-   $t=~s/\"/ &quot;/g;
-   $t=~s/</ &lt;/g;
-   $t=~s/>/ &gt;/g;
-
-   $t=~s/ {2}/ &nbsp;/g;
-   $t=~s/\t/ &nbsp;&nbsp;&nbsp;&nbsp;/g;
-   $t=~s/\n/<BR>\n/g;
-
-   $t=~s!(https?|ftp|mms|nntp|news|gopher|telnet)://([\w\d\-\.]+?/?[^\s<>]*[\w/])([\b|\n| ]*)!<a href="$1://$2" target="_blank">$1://$2</a>$3!gs;
-   $t=~s!([\b|\n| ]+)(www\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="http://$2" target="_blank">$2</a>$3!igs;
-   $t=~s!([\b|\n| ]+)(ftp\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="ftp://$2" target="_blank">$2</a>$3!igs;
-
-   # remove the blank inserted just now
-   $t=~s/ (&quot;|&lt;|&gt;)/$1/g;
-
-   $t=~s/ESCAPE_AMP/&amp;/g;
-   $t=~s/ESCAPE_UNICODE_(\d\d\d+)/&#$1;/g;
-
-   return($t);
-}
-
-sub str2html {
-   my $t=$_[0];
-
-   $t=~s/&#(\d\d\d\d);/ESCAPE_UNICODE_$1/g;
-   $t=~s/&/ESCAPE_AMP/g;
-
-   $t=~s/\"/ &quot;/g;
-   $t=~s/</ &lt;/g;
-   $t=~s/>/ &gt;/g;
-
-   # remove the blank inserted just now
-   $t=~s/ (&quot;|&lt;|&gt;)/$1/g;
-
-   $t=~s/ESCAPE_AMP/&amp;/g;
-   $t=~s/ESCAPE_UNICODE_(\d\d\d\d)/&#$1;/g;
-
-   return($t);
-}
-######################## END HTML related ##############################
 
 #################### SHIFTBLOCK ####################
 sub shiftblock {

@@ -17,7 +17,7 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Vreme zavr&#154;etka:</B>
+<B>Vreme zavr¹etka:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMINMENU@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
@@ -26,7 +26,7 @@
 @@@LINKFIELD@@@
 @@@EMAILSTART@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Poruka obave&#154;tenja:</B>
+<B>Poruka obave¹tenja:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@EMAILFIELD@@@
 @@@EMAILEND@@@

@@ -7,21 +7,21 @@
 <BR>
 <table align=center border=0 cellspacing=1 cellpadding=1 width=80%>
 <tr>
-<td align=right>E-MAIL Address:</td><td>@@@VUSER@@@ @ @@@DOMAINNAME@@@</td>
+<td align="right">Поштова адреса:</td><td>@@@VUSER@@@ @ @@@DOMAINNAME@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>
 
-<td align=right>Set Password: </td><td>@@@NEWPASSWORDFIELD@@@</td>
+<td align="right">Встановити пароль: </td><td>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>Confirm Password: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align="right">П╕дтвердити пароль: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>
-  <td align=right>User Type</td>
+  <td align="right">Тип користувача</td>
   <td>@@@USERTYPEFIELD@@@</td>
 </tr><tr>
-<td align=right>Redirect: </td><td>@@@REDIRECTFIELD@@@</td>
+<td align="right">Пересилання: </td><td>@@@REDIRECTFIELD@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>
@@ -47,7 +47,7 @@
       confirm=document.userform.confirmnewpassword.value;
       s=document.userform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-         alert("Пароль мусить мати не меньш н╕ж @@@PASSWDMINLEN@@@-ри символи.");
+         alert("Пароль мусить мати не менш н╕ж @@@PASSWDMINLEN@@@-ри символи.");
          return false;
       }
       if (document.userform.newpassword.value !=

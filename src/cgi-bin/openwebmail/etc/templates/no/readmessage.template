@@ -1,19 +1,24 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="center">
-   <table border="0" width="100%" cellpadding="0" cellspacing="0">
-   <tr><td width="33%"><font color=@@@TITLEBAR_TEXT@@@
-   face=@@@FONTFACE@@@ size="3"><B>Les melding</B></font></td>
-   <td align="right" width="33%"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@
-   size="3"><B>@@@FOLDER@@@ : @@@MESSAGETOTAL@@@ meldinger</B></font></td></tr></table>
-</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
-   <table border="0" width="100%" cellpadding="0" cellspacing="0">
-   <tr><td nowrap>
-   @@@LEFTMENUBARLINKS@@@
-   </td><td align="right" nowrap>
-   @@@RIGHTMENUBARLINKS@@@
-   </td>
-   </tr></table>
-</td></tr>
+<tr>
+<td nowrap bgcolor=@@@TITLEBAR@@@ width="33%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>Les melding</B></font></td>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="center">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@QUOTAUSAGE@@@</B></font></td>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="right" width="33%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@FOLDER@@@ : @@@MESSAGETOTAL@@@ meldinger</B></font></td>
+</tr>
+<tr>
+<td nowrap bgcolor=@@@MENUBAR@@@ colspan="2">
+@@@LEFTMENUBARLINKS@@@</td>
+<td nowrap bgcolor=@@@MENUBAR@@@ align="right" nowrap>
+@@@RIGHTMENUBARLINKS@@@</td>
+</tr>
+</table>
+
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td colspan=2>@@@MESSAGECONTROL@@@</td></tr>
 
 @@@CONTROLBAR1START@@@
@@ -53,7 +58,7 @@
 <!--
    function replyreceiptconfirm(url, yes)
    {
-      if (yes==1 || confirm('Denne meldingen ber om lesekvittering. Vil du sende en?')) {
+      if (yes==1 || confirm('Avsender ønsker lesekvittering. Vil du sende en?')) {
          var hWnd = window.open("","_replyreceipt","width=100,height=50,resizable=no,scrollbars=no");
          hWnd.document.write('Sender...');
          hWnd.location.href=url;

@@ -1,0 +1,815 @@
+==========
+= README =
+==========
+
+1.OVERVIEW
+
+From the beginning ssh was designed to be a replacement for the rsh/rcp/rlogin
+progmrams on UNIX computers to basically do what they do (i.e. remote login and
+copying files between UNIX hosts) but in a secure way, basically using strong
+cryptography to protect traffic from eavesdropping and optionally offering
+stronger authentication with RSA-keys. Symmetric-key exchange aswell as
+ssh-server authentication is allways done using RSA public key encryption. The
+ability to provide transparently encrypted tunnels was also added. With this
+ability other, non-secure programs, based on tcp-connections, could also be used
+securely over insecure networks. For more detailed information about how the
+ssh-protocol works and what benefits it provides see here:
+
+http://www.employees.org/~satch/ssh/faq/ssh-faq-2.html
+http://www.sunworld.com/sunworldonline/swol-02-1998/swol-02-security.html
+
+SSH has overtime become a defacto standard for remote administration and access
+to all sorts of systems. With that has also come the need for clients for other
+platforms than UNIX. This need has only partly been fulfilled with the great
+variety of free and commercial clients, mostly for Win95/98/NT, that have
+emerged. The goal of MindTerm is to provide a single client for all platforms
+that can be used in a simple way to leverage the benefits of the ssh-protocol.
+
+Not only does MindTerm offer the ability to run on many different platforms, it
+also offers the unique advantage of beeing accessible through a normal
+web-browser as a java-applet. This is invaluable for persons who are mobile and
+can't install ssh-clients wherever they go. This means that an
+organization/company can give its members/employees access to a secure
+login-shell aswell as secure tunnels for e.g. ftp, smtp, pop, imap from "the
+road" using only a normal web-browser, hence no installation is required on the
+client side.
+
+Apart from this MindTerm also offers some other unique features, such as
+ftp-proxying, built in scp file-transfer, functionality for usage on multi-homed
+hosts, connection keep-alive et.c. which is not part of standard ssh-clients. It
+can also be used to automate ssh-access with scripts running it
+non-interactively without a GUI, much like the standard unix ssh-client.
+
+MindTerm can be heavily customized for specific needs, e.g. slimmed-down to
+support only one block-cipher and have no menus (size can shrink to <150k). When
+the local file system is not accessible or local configuration files are not
+desired, one can set all parameters on the command-line or through
+applet-parameters. Optionally MindTerm can execute a single command (e.g. pine
+or Midnight Commander) on the ssh-server, when the command completes MindTerm
+exits. This can be done both when running it stand-alone (like when running the
+normal unix ssh-client) AND when run as an applet.
+
+
+2.QUICKSTART
+
+By default MindTerm handles most things automatically for you. Settings are by
+default handled on a per-server basis automatically saved and loaded as
+needed. MindTerm saves all its settings in its home-directory, this is by
+default set to the users home-directory appended with "/mindterm/",
+(e.g. /home/mats/mindterm). Apart from settings-files this directory contains
+the 'known_hosts' file (used for server identification) and the RSA identity
+files (used with the RSA authentication method). To change the home-directory of
+MindTerm you must give the directory to use as a command-line parameter
+(e.g. --h /home/mats/.ssh) or with an applet parameter (e.g. <param name=sshhome
+value="c:\ssh\">).
+
+For convenience you can start MindTerm with all settings needed on the
+command-line (or as applet-parameters). This can be useful for example to create
+double-clickable short-cuts for running MindTerm with a specific setting. If you
+don't want to list all parameters you can also just point to a file which
+contains the settings you need, as an example in Win95/98/NT:
+
+javaw -cp c:\mindterm\mindtermfull.jar --q --f c:\mindterm\companyssh.mtp --p none --m no pine
+
+This will launch MindTerm with the settings found in the file
+'c:\mindterm\companyssh.mtp', directly connecting to the server (not prompting
+for server/username) and running the pine mail program to read mail, when you
+exit the pine program MindTerm is exited. (NOTE: in this example the
+settings-file must contain the line 'forcpty=true' since otherwise we can't run
+a command which needs a non-dumb console see 4.3.1).
+
+The above command can of course be saved as a windows-shortcut (note that the
+javaw runtime from Javasoft does not start a DOS-shell for console which might
+be convenient). If you for some reason don't want to download the JDK from
+Javasoft, many operating systems come with a java-runtime preinstalled
+(e.g. Win95/98/NT that have IE4 or later has the jview runtime, MacOS 8 and
+later have the MRJ runtime installed). The above example from windows could be
+rewritten as:
+
+jview /cp:p c:\mindterm\mindtermfull.jar --q --f c:\mindterm\companyssh.mtp --p none --m no pine
+
+And saved as a shortcut, and it would run on most windows-machines without
+having to download a separate java runtime. However, for windows we recommend
+using the runtimes supplied from Javasoft for best results (see paragraph 3. for
+more info on where to get java runtimes and paragraph 6. for more info on how to
+run MindTerm stand-alone).
+
+To create a short-name for a server (and/or multiple settings for a single
+server) you can disable autosave/load (Settings -> Auto Save/Load Settings) and
+create a new session (e.g. with menu-choices File -> Connect... -> New Server),
+connect to the server (optionally setting up tunnels as neeeded, see 4.4). Then
+you can save the settings to file with a short name using (File -> Save As...),
+don't forget the extension '.mtp'. If you choose to save the file in the
+home-directory (see below) of MindTerm, this settings-file can be used by giving
+the name of it (without the '.mtp' extension) at the "SSH-server:" prompt or
+with (File -> Connect...) where it will automatically show up. Another way to
+create a new settings-file is of course to connect to an existing server (one
+which you allready have a settings-file for) and do (File -> Save As...), then
+you can manually edit the file to your need. Just remember, settings-files must
+have the extension '.mtp' and reside in the home-directory of MindTerm.
+
+All settings in MindTerm have decent default values, normally you can run it
+without any parameters. One thing you might want to enable for convenience
+though is the quiet-mode (see paragraph 6. and 7.).
+
+
+3.INSTALLATION
+
+In order to use this program as a standalone client please download the file
+'mindtermbin.zip' or compile the source-files (optionally bundling them into a
+jar-file). You also need the java-runtime (jdk or jre) from Javasoft or any
+other party providing a port for your platform. It should work with any 1.1.x or
+1.2 jdk/jre (it also works with Netscape's and Microsofs's browser-supplied
+java-runtimes). Please read the installation notes for your respective platform
+before trying to run MindTerm (also read about running java-programs with the
+runtime including running programs residing in a jar-file). See paragraph 6. for
+further details about how to run MindTerm stand-alone.
+
+Examples of where java-runtimes can be found:
+
+Linux:
+	http://www.blackdown.org/java-linux.html
+	http://www.alphaworks.ibm.com/tech/linuxjvm
+
+Win32 and Solaris:
+	http://www.javasoft.com/products/
+
+Macintosh:
+	http://www.apple.com/java/
+
+Other platforms:
+	http://java.sun.com/cgi-bin/java-ports.cgi
+
+To use as an applet please download file 'mindtermbin.zip' or compile the
+source-files (optionally bundling them into a jar-file). Assuming you have the
+jar-file (e.g. mindterm.jar) you must write an html-page as in the example in
+paragraph 7. below. If you are using a cryptographically signed binary version
+of MindTerm as an applet from your Netscape or IE browser you will be able to
+use it exactly as the stand-alone version (or any other ssh-client),
+i.e. connect to any host, set up tunnels, save/load settings from file, use
+system clip-board etc. The applet might also be given these permissions
+"manually" depending on your browser/appletviewer.
+
+Please read this entire text before starting to use MindTerm! Good luck, some
+would say you'll need it! :-)
+
+
+4.MENUS
+
+The easiest way to learn how MindTerm works and what features it provides is to
+look through this brief walk-through of all menus in MindTerm. Given within
+parentheses is the keyboard short-cut for each menu item where one exists.
+
+4.1 File
+4.1.1 New Terminal (Ctrl+Shift+N)
+This will create a new MindTerm window with the same settings as the first
+MindTerm window of this session, i.e. all parameters (command-line or applet)
+given to MindTerm at startup will have effect in each new terminal created.
+
+4.1.2 Clone Terminal (Ctrl+Shift+O)
+This will create a new MindTerm window with the exact same settings as the
+window it is created from. If the window contains a connected session, the new
+window will be automatically logged in to the same ssh-server (using the same
+authentication as was used in the original window). Note that the new window
+will not have any open tunnels since the window from where it is created have
+the tunnels opened allready (preventing the new window from opening them).
+
+4.1.3 Connect... (Ctrl+Shift+C)
+This launches the Connect dialog. From this dialog you may either select to
+connect to a host whose settings you have saved or you may create settings for a
+new host. Note when selecting "New Server" a new dialog is shown which is
+identical to the one described in '4.3.1 SSH Connection...'.
+
+4.1.4 Disconnect (Ctrl+Shift+D)
+This forces the current session to be disconnected. Note that this will cause
+all tunnels to be closed and the shell to be abandonded without logging out. The
+preferred way to disconnect is to logout in the shell.
+
+4.1.5 Load Settings...
+Loads settings from a file (extension .mtp) without connecting to the server.
+
+4.1.6 Save Settings (Ctrl+Shift+S)
+Saves current settings.
+
+4.1.7 Save Settings As...
+Creates a new settings file and saves current settings to it. Useful for
+creating a short name for a server, or for having more than one set of settings
+for a specific server.
+
+4.1.8 Create RSA Identity...
+Creates an RSA identity to be used with authentication type 'rsa' or
+'rhostsrsa'. Two files are created, one containing the private key (default name
+'identity') and one containing only the public key (default name
+'identity.pub'). The contents in the file with the extension .pub must be copied
+to the file 'authorized_keys' on the server (typically found in ~/.ssh/). These
+RSA key-files are identical to the ones used with the unix version of ssh.
+
+4.1.9 SCP File Transfer...
+In this dialog you can choose files and/or directories to transfer to or from
+the ssh-server. Local file(s)/dir(s) is a space-separated list of files and/or
+directories (if a name contains a space enclose it in quotes like: "a file with
+spaces"). Normal regexp's can't be used for local files/dirs, however names can
+be given with ONE wild-card ('*') in it (e.g. '*.foo' or foo*bar). If absolute
+path-names are not given the current directory is assumed (defaults to
+MindTerm's home-directory). If the first file/directory given conatains an
+absolute path-name this directory is used as current-directory for the rest of
+the list (e.g. the list '/tmp/foo* *.bar' will expand to all files starting with
+'foo' or ending with '.bar' in the directory '/tmp'). Remote files(s)/dir(s) are
+given EXACTLY as they would be with the standard unix scp-client (i.e. regexps
+can be used). The directory assumed on the remote side is the user's
+home-directory (i.e. just like with the standard unix scp-client).
+
+To change direction of the copy-operation press the "Change Direction" button
+(the direction is indicated with the strings '(source)' and '(destination)'
+after the respective side.
+
+If directories are to be traversed enable "Recursive copy". To make the
+copy-operation use as little bandwidth/CPU as possible set it to be "Low
+priority". Press "Start Copy" to start the copy operation. This will launch a
+small window with progress and statistics of the copy operation. A
+copy-operation can be canceled at any time by pressing the "Cancel" button in
+this window.
+
+4.1.10 Capture To File...
+Captures terminal-output to a file. Capture starts immediately when the file has
+been selected and ends when this menu item is selected again. Note that while
+capturing is active this is indicated by the menu item beeing selected.
+
+4.1.11 Send ASCII File...
+This will send the contents of the selected file to the terminal as input
+(i.e. would be the same as if the contents were typed from the keyboard)
+
+4.1.12 Close (Ctrl+Shift+E)
+Closes this window. Note that when closing a window without logging out you are
+aborting the ssh-connection abnormally, i.e. it is advisable to logout in the
+shell before closing/exiting MindTerm.
+
+4.1.13 Exit (Ctrl+Shift+X)
+Closes all windows and exits MindTerm. Note that when closing windows without
+logging out you are aborting the ssh-connection abnormally, i.e. it is advisable
+to logout in the shell before closing/exiting MindTerm.
+
+
+4.2 Edit
+Note, the system clip-board is not available to applets by default. In this case
+a local (to MindTerm) clip-board is used. Also note that in some implementations
+of the java runtime the clip-board does not work with the system clip-board.
+
+4.2.1 Copy (Ctrl+Ins)
+Copies selected text to clipboard. Selection is done by clicking and holding down
+left mouse-button while dragging the mouse over the area to select.
+
+4.2.2 Paste (Shift+Ins)
+Pastes the contents of the clipboard to the terminal as input (i.e. would be the
+same as if typed from keyboard)
+
+4.2.3 Copy & Paste
+Does a copy followed by a paste.
+
+4.2.4 Select All (Ctrl+Shift+A)
+Selects all content in scrollback buffer and in terminal. Note, this operation
+is very time-consuming right now.
+
+4.2.5 Find... (Ctrl+Shift+F)
+Shows Find dialog from which the scrollback buffer and terminal contents can be
+searched for words. The search can be done case sensitive or case
+insensitive. Each word found is hightlighted. The "bell" is sounded when no more
+matches is found.
+
+4.2.6 Clear Screen
+Clears screen and sets cursor position to upper left corner.
+
+4.2.7 Clear Scrollback
+Clears contents of scrollback buffer.
+
+4.2.8 VT Reset
+Resets terminal-settings to default (e.g. clears line-draw graphics mode which
+might be mistakenly set by displaying a binary file).
+
+
+4.3 Settings
+4.3.1 SSH Connection... (Ctrl+Shift+H)
+In this dialog you can set all ssh parameters. To view all options click the
+button "More options...". When connected you can set the parameters for the
+current session. Note that some changes wont take effect until the next time you
+connect to this server. When not connected a new session is created if one is
+not found with the name of the server. In this case it is the same dialog that
+is shown when selecting "New Server..." from the Connection dialog (see 4.1.3).
+
+  The parameters set in this dialog are (names as given in paragraph 5.):
+
+  server    Name (ip-address) of ssh-server
+  port      Port which ssh-server listens on
+  usrname   User name to login as on ssh-server
+  cipher    Name of block-cipher to use, or if 'none' is selected no encryption
+            (note, no encryption is normally not supported by the ssh-server)
+  authtyp   Method of authentication, or if 'custom...' is selected a comma-
+            separated list of methods to try in order given
+  x11fwd    Selects whether to allow X11-connections to be forwarded or not
+  display   The local X11 display to forward X11 connections to
+  mtu       Maximum packet size to use
+  alive     Keep alive interval in seconds to use
+  portftp   Enables port-commands to be used with FTP-tunnels, don't enable this
+            if you are not sure what you are doing
+  realsrv   Real ip-address of ssh server if it is behind address translation
+            (used when 'portftp' is enabled)
+  localhst  Address to listen on for local tunnels (see 4.4)
+  idhost    Sets whether to verify identity of the ssh-server using its host-key
+            through matching with saved value in the file 'known_hosts'
+  forcpty   Force allocation of PTY, e.g. necessary to enable when executing a
+            single command on the ssh-server that requires a non-dumb terminal
+  prvport   Used to force the local outgoing port of the connection to the ssh-
+            server to use a so called privileged port (i.e. < 1024)
+  remfwd    Enables other hosts than the one running MindTerm to connect through
+            ssh-tunnels
+
+
+4.3.2 Terminal... (Ctrl+Shift+T)
+In this dialog you can set the basic terminal parameters, such as terminal type,
+size, font and colors. The initial window position can optionally also be
+set. It is given as a string with the syntax <+/-><x-position><+/-><y-position>
+a negative sign means it's relative to the right or bottom. A value of zero
+means aligned to the border (i.e. left, right, top, bottom) e.g. +0-0 means
+aligned to bottom right corner.
+
+  The parameters set in this dialog are (names as given in paragraph 5.):
+
+  te    Terminal type
+  gm    Terminal geometry, number of lines, columns and optionally initial position
+  fg    Foreground color, name or when 'custom rgb' is selected an rgb-value
+  bg    Foreground color, name or when 'custom rgb' is selected an rgb-value
+  cc    Cursor color, name or when 'custom rgb' is selected an rgb-value
+
+
+4.3.3 Terminal Misc... (Ctrl+Shift+M)
+This dialog contains some extra settings for the terminal.
+
+  The parameters set in this dialog are (names as given in paragraph 5.):
+
+  sl    Number of lines to save in scrollback buffer
+  sb    Position of scrollbar, or disable scrollbar
+  sd    String containing delimeter characters that are used when "click-selecting"
+        "words", i.e. which characters functions as word-delimeters
+  bs    Indicates whether backaspace or delete should be sent when backspace-key is
+        pressed
+  de    Indicates whether backaspace or delete should be sent when delete-key is
+        pressed
+
+
+4.3.4 Local Command-Shell
+Starts the local command-shell from which one can view and set all parameters of
+MindTerm. The command-shell is really only useful if you don't have menus
+(e.g. when running without a GUI) but for completeness it is available
+here. Note, the command-shell is only available if enabled with command-line
+option '--c' or applet-parameter 'cmdsh'.
+
+4.3.5 Auto Save Settings
+Enables/disables automatic saving of settings, when disabled you must explicitly
+save settings to file when needed. When enabled settings are saved whenever you
+disconnect from a server or when you exit MindTerm. Note that when both
+auto-save and auto-load is enabled (which is default), settings-files are
+created automatically and the user never have to worry about saving/loading
+them.
+
+4.3.6 Auto Load Settings
+Enables/disables automatic loading of settings. When disabled you must
+explicitly load settings from file if you need to. When enabled, MindTerm tries
+to load a settings-file with the same name as what you give at the "SSH Server:"
+prompt or in the (Settings -> SSH Connection...) dialog. These files are located
+in the MindTerm home-directory. Thus the "server" you give at the prompt does
+not necessarily have to be the name of the server, it is mainly the name of the
+settings-file to load. Normally the user does not have to worry about the
+settings-files since it is handled automatically. Though to create short-names
+for servers and to create multiple settings-files for a single server you have
+to explicitly create settings-files.
+
+
+4.4 Tunnels
+
+4.4.1 Basic...
+In this dialog you can set up (local) tunnels to use. When connected the tunnel
+is created instantly and ready to use. Tunnels you create here are saved in the
+settings-file of the current session if you are using settings-files. The
+protocol selection is mostly a convenience function, note however that to create
+FTP-tunnels the protocol should be set to ftp (otherwise the tunnel wont have
+the ftp-plugin enabled). The local port to set is any unused port, this will be
+the port that you point programs that want to use the tunnel to. By default
+tunnels will be set up to listen on all local addresses (i.e. 127.0.0.1 and the
+local host address). In the dialog "SSH Connection..." under "More options..."
+you can set the address to use as local address, i.e. if you want the tunnels to
+listen on 127.0.0.1 only you can set that there. Also, using the "Advanced..."
+tunnels dialog (see 4.4.2) you can set the local address on a per tunnel basis,
+i.e. have more than one tunnel on a single port using different local
+addresses. The remote host is the address of the server that will answer
+connections to the tunnel in the ssh-server end of the connection, likewise the
+remote port is the port on which it answers. To remove a tunnel just select it
+and click "Delete". To add a tunnel fill in all the fields and click
+"Add". Note, you can double-click on a tunnel-specification to copy its values
+to the fields making it convenient to add/delete/edit tunnels.
+
+4.4.2 Advanced...
+This dialog is mainly for advanced users who know the details about using
+ssh-tunnels and their capabilities/limitations. With it you have can set up both
+local (as with the "Basic..." dialog) and remote tunnels, note that remote
+tunnels are not opened until the next time you connect. The syntax for defining
+tunnels in this dialog is the same as with entering them on the command-line or
+as applet-parameters (see 5.). Note, for local tunnels you can here set the
+explicit local address that the tunnel will listen on, regardless of the setting
+of the "localhst" parameter. As in the "Basic..." dialog you can double-click to
+copy a definition-string to the edit-box.
+
+4.4.3 Tunnel Wizard...
+Huh, do we need wizards around here, any magic needed?!? :-)
+
+4.4.4 Current Connections...
+This dialog lists the currently open connections through the tunnels you have
+set up. Note that it doesn't list the tunnels themselves, only active
+connections through them. You can close a tunnel by selecting it and clicking
+close.
+
+
+4.5 Help
+
+4.5.1 Help Topics...
+Well, you have this file haven't you? :-)
+
+4.5.2 About MindTerm
+Check here for info, especially build date/version and which platform you are
+running on when reporting bugs.
+
+
+5.PARAMETERS
+
+When started either as an applet or as a stand-alone program MindTerm is fully
+configurable. You may supply all settable parameters (see below) on the
+command-line (see 6.) or as applet-params (see 7.). Additionally when access to
+the local file system is available you can choose to save all settings to file
+on a per server basis, i.e. each new ssh-server you connect to will have its
+settings in a separate file, note this is by default done automatically if local
+file system is accessible.
+
+SSH-parameters:
+(all these can be set to values in parenthesis where applicable)
+server   : name of server to connect to (N/A)
+realsrv  : real address of sshd if it is behind a firewall, only used with
+           protocol-plugins (N/A)
+localhst : address to use as localhost (N/A)
+port     : port on server to connect to (0-65535)
+usrname  : username to login as (N/A)
+cipher   : name of block cipher to use ( none idea des 3des rc4 blowfish )
+authtyp  : method of authentication ( rhosts rsa passwd rhostsrsa tis kerberos kerbtgt )
+idfile   : name of file containing identity, rsa-keys (N/A)
+display  : display definition, i.e <host>:<screen> (N/A)
+mtu      : maximum packet size to use, 0 means use default (4096 - 256k or 0)
+escseq   : sequence of characters to type to enter local command-shell (N/A)
+secrand  : level of security in random-seed, for generating session-key (0-2,
+           0 is lowest (default) and 2 is highest (very slow :-))
+(all these can be set to either 'true' or 'false')
+alive    : Connection keep-alive interval in seconds (0-600, 0 means none)
+x11fwd   : indicates whether X11 display is forwarded or not (true/false)
+prvport  : indicates whether to use a privileged source port or not (true/false)
+forcpty  : indicates whether to allocate a pty or not (true/false)
+remfwd   : indicates whether we allow remote connects to local forwards (true/false)
+idhost   : indicates whether to check hosts host-key in 'known_hosts' (true/false)
+portftp  : indicates whether to enable ftp 'PORT' command support (true/false)
+
+Terminal-parameters:
+(all these can be set to either 'true' or 'false')
+rv       : reverse video
+aw       : autowrap of line if output reaches edge of window
+rw       : reverse autowrap when going off left edge of window
+im       : insert mode
+al       : do auto-linefeed
+sk       : reposition scroll-area to bottom on keyboard input
+si       : reposition scroll-area to bottom on output to screen
+lp       : use PgUp, PgDn, Home, End keys locally or escape them to shell
+sc       : put <CR><NL> instead of <NL> at end of lines when selecting
+vi       : visible cursor
+ad       : ASCII Line-draw-characters
+le       : do local echo
+sf       : scale font when resizing window
+vb       : visual bell
+ct       : map <ctrl>+<space> to <NUL>
+dc       : toggle 80/132 columns
+da       : enable 80/132 switching
+cs       : copy on mouse-selection
+
+(all these can be set to values in parenthesis where applicable)
+fn       : name of font to use in terminal (N/A)
+fs       : size of font to use in terminal (N/A)
+gm       : geometry of terminal (as x geometry string)
+te       : name of terminal to emulate ( xterm linux scoansi att6386 sun vt220
+           vt100 ansi vt52 xterm-color linux-lat  at386   vt102 )
+sl       : number of lines to save in "scrollback" buffer (0-8192)
+sb       : scrollbar position (left, right, none)
+bg       : background color (black, red, green, yellow, blue,
+           magenta, cyan, white, or one of these with 'i_' before
+           for intensified version e.g. i_white, OR you may use an
+           arbitrary RGB-value such as: 125,102,247)
+fg       : foreground color (same as 'bg')
+cc       : cursor color (same as 'fg'/'bg')
+rg       : resize gravity, fixpoint of screen when resizing (top, bottom)
+bs       : character to send on BACKSPACE (BS, DEL)
+de       : character to send on DELETE (BS, DEL)
+sd       : delimeter characters for click-selection (N/A)
+
+There are also special parameters to configure the tunnels, these are:
+
+local0, local1, ... ,localN
+remote0, remote1, ... ,remoteN
+
+Their syntax is as follows:
+
+localN   : [/<plugin>/][<local-ip>:]<local-port>:<remote-ip>:<remote-port>
+remoteN  : [/<plugin>/]<remote-port>:<local-ip>:<local-port>
+
+They are enumerated, i.e. if you have three local-forward-definitions they will
+be local0, local1 and local2. The same goes for remoteN. These properties are
+used in the exact same way as all other properties (i.e. they can either be
+entered on the command-line, as applet-params or in the settings-files).
+
+For example to set up tunnels to telnet, imap and smtp on the local ports 4711,
+4712 and 4713 to the remote side:
+
+java -cp mindbright.jar mindbright.application.MindTerm -server www.mindbright.se
+	-local0 4711:localhost:23 -local1 4712:localhost:143 -local2 4713:localhost:25
+
+(NOTE: 'localhost' here means "locally" on the ssh-server, i.e. the telnet,
+imap, and smtp servers all run on the same machine as the ssh-server)
+
+There is also an optional (activated with '--c' or 'cmdsh') local command shell
+where all settings can be viewed and/or altered.  To enter this command-shell
+you press ctrl-D at the prompt (i.e. before having logged in) or you can select
+the 'Local Command Shell' option in the 'Settings' menu.  If you are running in
+"dumb" mode you might have to press ENTER after pressing ctrl-D.
+
+This is what is displayed when entering the command-shell:
+
+...entering local command-shell (type 'h' for help).
+
+mindterm> h
+
+The following commands are available in the command-shell:
+
+go                                    Start SSH-session with current settings.
+quit                                  Quit program (or disconnect if connected).
+add <l|r> [/<plug>/]<port>:<host>:<port>  (see below).
+del <l|r> <listen-port>|*             Delete local/remote forward (* = all).
+list [ssh | term]                     Lists ssh- and/or terminal-settings.
+set [<parameter> <value>]             Set value of a ssh-parameter.
+tset [<parameter> <value>]            Set value of a terminal-parameter.
+key [<bits>]                          Generate RSA key-pair (of length <bits>).
+help                                  Display this list, but you knew that :-).
+
+
+6.STANDALONE USAGE
+
+6.1
+When run as a standalone application MindTerm takes two types of command-line
+options. One type is preceeded with a single hyphen ('-').  These are the
+parameters (see 5.) followed by their respective value, for example:
+
+java -cp mindbright.jar mindbright.application.MindTerm -server www.mindbright.se -port 22 -x11fwd true -authtyp rsa
+
+The other type of options are given with two preceeding hyphens ('--'). These
+are the special standalone options. When run with the standalone option '--?'
+the following is displayed:
+
+usage: MindTerm [options] [properties] [command]
+Options:
+  --c            Enable local command-shell.
+  --d            No terminal-window, only dumb command-line and port-forwarding.
+  --f <file>     Use settings from the given file.
+  --h dir        Name of the MindTerm home-dir (default: ~/mindterm/).
+  --m <no | pop | popN>
+                 Use no menus or popup (on mouse-button N) menu instead of menubar.
+  --p <save | load | both | none>
+                 Sets automatic save/load flags for property-files.
+  --q            Quiet; don't query for server/username if given.
+  --v            Verbose; display verbose messages.
+  --D            Debug; display extra debug info.
+  --V            Version; display version number only.
+  --?            Help; display this help.
+
+These are the valid standalone options.
+
+The standalone options MUST be first among the java command-line options
+(right AFTER the java class-name). For example:
+
+java -cp mindbright.jar mindbright.application.MindTerm --p both --h /home/mats/mindterm
+	 -server www.mindbright.se -port 22 -x11fwd true -authtyp rsa
+
+(NOTE: '-cp' in this example is a command-line option to the java runtime)
+
+The parameters (the ones given with one preceding hyphen) are by default saved
+in settings files on a per server basis. The settings files are automatically
+loaded when connecting to a specific server. The automatic save and load feature
+can be disabled in which case settings must be explicitly loaded/saved. The
+settings file can also be manually edited, it's an ordinary text-file (java
+properties file).
+
+Examples of how to start MindTerm as a standalone program:
+
+Linux/jdk1.1.x:
+
+/usr/local/java/bin/java -classpath /usr/local/java/lib/classes.zip:mindtermfull.jar mindbright.application.MindTerm
+
+
+Win32/jdk1.1.x:
+
+c:\jdk1.1.x\bin\java -classpath c:\jdk1.1.6\lib\classes.zip;c:\mindbright\mindtermfull.jar mindbright.application.MindTerm
+
+
+Win32/jre1.1.x:
+
+c:\jdk1.1.x\bin\java -cp c:\mindbright\mindtermfull.jar mindbright.application.MindTerm
+
+
+Win32/jdk/jre1.2:
+
+c:\jdk1.2.x\bin\java -cp c:\mindbright\mindtermfull.jar mindbright.application.MindTerm
+
+c:\jdk1.2.x\bin\javaw -cp c:\mindbright\mindtermfull.jar mindbright.application.MindTerm
+
+(NOTE: The javaw runtime version does not create a DOS-shell window for the
+console making it more convenient for "real" usage)
+
+
+Win32/jview: (microsoft's JVM supplied with IE4 and later)
+
+jview /cp:p mindtermfull.jar mindbright.application.MindTerm
+
+
+MacOS/MRJ:
+
+First get the JBindery application, it is found in the MRJ SDK here:
+http://developer.apple.com/java/text/download.html#sdk
+
+Then drop the mindtermfull.jar file onto the JBindery icon and give it the
+class name mindbright.application.MindTerm. Save it and you are set to run
+MindTerm with just a double-click.
+
+
+Epoc32/jdk1.1.4 (e.g. on Psion5mx):
+TODO:
+For now see http://www.mindbright.se/mindterm/epochowto.txt
+
+
+6.2 STANDALONE FILETRANSFER (SCP)
+
+MindTerm contains an scp-client for file-transfer it can be used either
+interactively (see 4.1.9) or directly from the comand-line (just like the
+standard unix scp-client). To use it from the command-line you use the
+command-line option '--s' which takes an argument to determine direction of
+copy-operation 'toremote' or 'tolocal'. The command-line option '--r' is used to
+indicate that directories are to be recursed. All other command-line options
+work as described in (6.1). The command-line options given AFTER all MindTerm
+options are taken as the list of source-files and target-file/dir.  The LAST
+command-line option ALLWAYS denotes the target-file/dir. The biggest difference
+from the unix scp-client is that you can only copy to/from one remote host
+to/from localhost. To clarify, here are some examples (from unix):
+
+java -cp mindtermfull.jar mindbright.application.MindTerm --s toremote localfile remotefile
+
+This will copy file localfile to file remotefile on ssh-server.
+
+java -cp mindtermfull.jar mindbright.application.MindTerm --s toremote --r localdir1 localdir2/*.mtp remotedir/
+
+This will copy localdir1 and localdir2/*.mtp to the directory remotedir on the
+ssh-server (in the user's home-directory).
+
+java -cp mindtermfull.jar mindbright.application.MindTerm --s tolocal --r remotedir/\*.mtp localdir/
+
+This will copy remotedir/*.mtp from the ssh-server to the local directory localdir
+
+
+7.APPLET USAGE
+
+See page <http://www.mindbright.se/newssh.html> for an example on how to use the
+applet. As stated above all settable parameters may be set with applet-params,
+for example:
+
+<applet archive="mindterm.jar" code=mindbright.application.MindTerm.class width=580 height=400>
+<!-- These parameters are parameters that are listed in paragraph 5. -->
+<param name=port value="22">
+<param name=cipher value="blowfish">
+<param name=gm value="80x32+0-0">
+<param name=forcpty value="true">
+<param name=local0 value="4711:wintermute:23">
+<param name=local1 value="/ftp/4712:wintermute:21">
+<!-- Any parameters listed in paragraph 5. can be included here -->
+
+<!-- These parameters are special for the applet, most have an equivalent -->
+<!-- command-line option when run as a stand-alone client -->
+<param name=sepframe value="false"><!-- wheter to run in a separate frame or not -->
+<param name=verbose value="true"><!-- output verbose debug-info to java-console -->
+<param name=debug value="true"><!-- give more debug-info to java-console -->
+<param name=quiet value="true"><!-- quiet mode, don't query for server/username if given -->
+<param name=cmdsh value="true"><!-- enable/disable local command-shell -->
+<param name=menus value="pop2"><!-- enable/disable pulldown or popup menus -->
+<param name=autoprops value="both"><!-- enable/disable automatic save/load of settings -->
+<param name=propsfile value="c:\ssh\ourserver.mtp"><!-- file containing settings (properties) to load -->
+<param name=commandline value="mc -x -c"><!-- complete commandline if running a single command only -->
+<param name=sshhome value="c:\ssh\"><!-- If authorized to access local files, this is home-dir -->
+<param name=appletbg value="black"><!-- Color of unused space in Applet's Panel -->
+</applet>
+
+You may give any number of parameters to the applet. You only have to supply the
+ones you want, all parameters have default values so you need not supply any
+parameters if you choose.
+
+An applet may be run in basically three ways, namely; with an applet-enabled
+browser, with a java-plugin installed in a browser or with a standalone
+appletviewer. All three ways are perfectly legal ways of running MindTerm, note
+however that the html-code for running an applet using a java-plugin is not the
+same as for running it with an appletviewer or an applet-enabled browser.
+
+Normally applets are for security reasons restricted to run within the so called
+java-sandbox. This puts some restrictions on what it can do. Basically when
+beeing run as an applet MindTerm can only provide a login-shell to the same
+ip-address that served the applet. In many cases this can manually be extended
+so that it can access local files and provide ssh-tunnels et.c.
+
+Another way to make the applet have these restrictions lifted is to use a
+cryptographically signed applet. In this case the applet will function more or
+less as a normal stand-alone program.
+
+(TODO: more on java-plugins, differences between browser-versions, signed
+applets)
+
+
+8.USING FTP TUNNELS
+
+To use the FTP-tunneling feature all you have to do is define a (local) tunnel
+that uses the ftp-plugin. Then you connect to the tunnel using a ftp-client that
+can be set to use "passive mode" transfers (most can do that). The easiest way
+to do this is to go to the (Tunnels -> Basic...) dialog and add a new tunnel
+with protocol set to ftp, this automatically sets the remote port to 21 which is
+the standard port on a UNIX server. The local port is set to an arbitrary unused
+local port. The remote host is the address of the ftp-server (as it is addressed
+from the ssh-server). When you have connected to the ssh-server you can use
+almost any ftp-client to access the ftp-server. For example in WS_Ftp on
+windows:
+
+1) Define a new "site" with address localhost (or the address you uses for
+   localhost, see 4.3.1 and 4.4.)
+2) Go to "Site properties"
+3) In "folder" advanced set "Remote Port:" to local port selected in MindTerm
+4) Enable "Passive transfers"
+
+When WS_Ftp connects to this new site, it connects through the ssh-tunnel in
+MindTerm, hence the ftp-server need not be reachable, e.g. if it is behind a
+firewall. To set up more than one ftp-server behind the same ssh-server, repeat
+the same procedure selecting different local ports for each new server (in both
+MindTerm and WS_Ftp).
+
+Some ftp-clients can only use what is called ftp PORT-commands, these
+ftp-clients can only be used in a limited way with the ftp-tunneling in MindTerm
+(due to restrictions in the implementation, this might be changed in a future
+version of MindTerm). With these clients you must enable FTP Port
+command-support in MindTerm. This is done in the settings menu (see 4.3.1). If
+your ssh-server is behind a firewall that does address translations you must
+also set the real ip-address of the ssh-server for FTP Port commands to
+work. This is also done in the settings menu (see 4.3.1). When using FTP Port
+commands you can only do about 10 directory listings/downloads per minute
+(cumbersome but only way to do it if you don't want to make a lot of new
+connects to the ssh-server). All in all using FTP clients which don't support
+passive mode is possible but should be avoided if possible.
+
+
+9.TESTED PLATFORMS
+
+See the file PLATFORMS for a list of tested platforms.
+
+
+10.MindTunnel SSH-Server
+TODO:
+For now check <http://www.mindbright.se/mindtunnel.html>
+
+
+11.MindVNC VNC CLIENT
+TODO:
+For now check <http://www.mindbright.se/english/technology/products/mindvnc.html>
+
+
+12.OTHER
+
+All comments and bug-reports should be sent to:
+<mindterm@mindbright.se>
+
+Information about this program and its source code can be found at:
+<http://www.mindbright.se/mindterm/>
+
+This software is written and maintained by Mats Andersson
+<mats@mindbright.se> of Mindbright Technology AB in Sweden.
+
+
+13.RSA LICENSE
+
+MindTerm contains code implementing the RSA algorithm which is patented and
+subject to licensing in certain countries (e.g. the United States). It is
+therefore illegal to use MindTerm (for ANY purpose, even non-commercial) without
+proper licensing from RSA in these countries. We have been in contact with RSA
+on this matter and might be able to provide a licensed version of MindTerm for
+non-commercial use, and, for a fee, for commercial use, should we reach an
+agreement with them. More information will appear here when available.

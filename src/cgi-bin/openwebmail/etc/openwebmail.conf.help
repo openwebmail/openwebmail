@@ -98,6 +98,23 @@ auth_domain	server1.domain1.com
 ps: please refer to doc/loginprocess.txt for more information
 
 
+quota_module
+-----------------------------------------------------------------------
+the quota module used to calculate user quotausage and quotalimit,
+if this option is set to 'none', then no quota counting will be used at all.
+
+module			implemented by
+--------------		---------------------------------------
+none			no quota system used at all
+quota_unixfs.pl		user quota info from unix filesystem
+quota_du.pl		user quota reported by 'du' program
+
+IMPORTANT!!!
+
+You may get more information by reading the description in the beginning
+of each auth module script. 
+
+
 mailspooldir
 -----------------------------------------------------------------------
 This is where your user mail spools are kept.
@@ -212,12 +229,6 @@ eg: perl 5.6.1 on FreeBSD 4.4 is found to need setting this to 'no'.
 # openwebmail system configuration
 ##############################################################################
 
-http_protocol
------------------------------------------------------------------------
-the leading string in the url, available value: http, https or auto.
-If this option is set to auto, openwebmail will try to guess a right one.
-
-
 ow_cgidir
 -----------------------------------------------------------------------
 the directory for openwebmail cgi programs
@@ -264,6 +275,11 @@ the directory for string definitions of different languages
 ow_templatesdir
 -----------------------------------------------------------------------
 the directory for html templates of different languages
+
+
+ow_hodidaysdir
+-----------------------------------------------------------------------
+the directory for calendar book of holidays  of different languages
 
 
 ow_sitesconfdir
@@ -377,6 +393,20 @@ solar to lunar calendar mapping txt file (1936..2031)
 ps: g2b_map, b2g_map and lunar_map are used only if lang is 'zh_TW.Big5'
     or 'zh_CN.GB2312', you may set these options to 'none' to skip the 
     creation of the map db
+
+
+header_pluginfile
+footer_pluginfile
+-----------------------------------------------------------------------
+the files to be plugined at the header or footer of most pages
+If this option is set to 'none', the plugin will be disabled
+
+ps: To plugin the output of a program into openwebmail,
+    you may have two choices:
+1. specify the plugin file as a pipe, eg: "/somepath/your_program |"
+2. execute the command in crontab,
+   then use the output file of command as the pluginfile
+While method 1 is more realtime, moethod 2 would have samller overhead.
 
 
 spellcheck
@@ -501,6 +531,11 @@ then user loginname will be converted into lower case before passing
 to authentication system.
 
 
+forced_ssl_login
+-----------------------------------------------------------------------
+Set this to 'yes' if you want to force the use of SSL in login page
+
+
 stay_ssl_afterlogin
 -----------------------------------------------------------------------
 While SSL can be used to protect data transfered on the network, it 
@@ -558,6 +593,7 @@ session_checkcookie
 Set this option to 'no' would allow client to connect even it doesn't 
 support cookie, this gives better compatibility with some browser.
 
+
 session_checksameip
 -----------------------------------------------------------------------
 Set this option to 'no' would allow client ip change in same session
@@ -607,6 +643,12 @@ chooses to reserve the message on server.
 With this option set to 'yes', openwebmail will symlink
 ~/mbox -> ~/mail/saved-messages to make messages accessible either in
 pop3 client or openwebmail
+
+
+enable_history
+-----------------------------------------------------------------------
+Set this to 'no' if you want to disable the 'History' button in the user
+preference
 
 
 enable_about
@@ -807,47 +849,6 @@ foldername_maxlen
 This is the maximum length for the name of a folder
 
 
-folderquota
------------------------------------------------------------------------
-Once a user's saved mail spools (including their INBOX) meet or exceed
-this size (in KB), no future messages will be able to be sent to any
-folder other than TRASH, where they will be immediately deleted,
-until space is freed. This does not prevent the operation taking the 
-user over this limit from completing, it simply inhibits further
-saving of messages until the folder size is brought down again.
-
-Set this to 0 to disable the limit
-
-ps: please also check option cutfolders_ifoverquota 
-
-
-folderusage_threshold
-----------------------------------------------------------------------
-If the percentage of the used folder quota is over this threshold, 
-a '[Usage N%]' will be displayed in the title bar in the folder view.
-Set this to 0 will make the '[UsageN%]' always appear.
-
-
-cutfolders_ifoverquota
------------------------------------------------------------------------
-If the total size of user folders exceeds the option folderquota, 
-setting this option to 'yes' will make openwebmail cut the folders 
-automatically.
-
-The following steps are used when cutting the folders:
-
-1. empty mail-trash
-2. empty saved-drafts
-3. cut other folders
-
-   cutlist=(sentmail, saved-messages);
-   put userfolders to cutlist if they use  more than 33% folderquota
-   put INBOX       to cutlist if it   uses more than 33% folderquota
-
-   remove oldest msgs from folders in cutlist until 
-   total size < 90% folderquota
-
-
 maxbooksize
 -----------------------------------------------------------------------
 This is the maximum size, in kilobytes, that a user's filterbook,
@@ -888,21 +889,6 @@ option value		celia webdisk root directory
 webdisk_readonly
 -----------------------------------------------------------------------
 If set this option to yes, the webdisk will become readonly.
-
-
-webdisk_quota
------------------------------------------------------------------------
-Once the total size of user's webdisk meets or exceeds this limit(in KB), 
-most functions in webdisk will be disabled except the delete function.
-
-Set this to 0 to disable the limit
-
-This is designed for situations that system disk quota can not be used
-with the openwebmail user. (eg: the user is virtual user)
-
-ps: Since the disk usage is gathered by executing 'du -s', it may be 
-    time-consuming if the user has lot of files in the webdisk. 
-    We suggest that you use the OS quota support if possible.
 
 
 webdisk_uploadlimit
@@ -954,6 +940,64 @@ ps: This thumbnail is created by the 'convert' utility in the ImageMagick
     package. The conversion could take times to process on a slow machine.
 
     
+spool_limit
+-----------------------------------------------------------------------
+Once the size of user INBOX folder meet or exceed this limit (in KB), 
+most write access in webmail will be disabled, except the moving of message
+from INBOX to other folder until the size of INBOX is under this limit.
+
+
+quota_limit
+-----------------------------------------------------------------------
+Once a user's homedir diskusage meet or exceed this size (in KB), 
+most write access in openwebmail will be disabled, except the deletion
+of messages or files.
+
+This option does not prevent the operation taking the user over this 
+limit from completing, it simply inhibits further saving of messages 
+or files until the folder size is brought down again.
+
+Set this to 0 to disable the quota limit feature
+
+ps: please also refer to option delmail_ifquotahit, delfile_ifquotahit
+
+
+quota_threshold
+----------------------------------------------------------------------
+If the percentage of the used quota is over this threshold, 
+a '[Usage N%]' will be displayed in the title bar in the folder view.
+Set this to 0 will make the '[UsageN%]' always appear.
+
+
+delmail_ifquotahit
+-----------------------------------------------------------------------
+If the user quota usage exceeds the option quota_limit and
+more than 50% quota usage comes from the mail folders,
+setting this option to 'yes' will make openwebmail remove the oldest messages
+from the folders automatically.
+
+The following steps are used in the message removal:
+
+1. empty mail-trash
+2. empty saved-drafts
+3. cut other folders
+
+   cutlist=(sentmail, saved-messages);
+   put userfolders to cutlist if they are more than 33% used folder quota
+   put INBOX       to cutlist if it   is  more than 33% used folder quota
+
+   remove oldest msgs from folders in cutlist until 
+   user quota usage < 90% quota_limit
+
+
+delfile_ifquotahit
+-----------------------------------------------------------------------
+If the user quota usage exceeds the option quota_limit and
+more than 50% quota usage comes from the webdisk files.
+setting this option to 'yes' will make openwebmail remove the oldest files
+from the webdisk / automatically.
+
+
 vdomain_admlist
 -----------------------------------------------------------------------
 Users of virtual domains defined in this option can manage their 'own' 
@@ -1034,6 +1078,45 @@ The program used to create index of the postfix alias file
 Default: /usr/sbin/postalias
 
 
+vdomain_mailbox_command
+-----------------------------------------------------------------------
+This option approximates the postfix mailbox_command for virtual users.  
+
+Normally virtual users are not processed through the normal 
+postfix processes, in particular the postfix mailbox_command does not 
+apply to virtual delivery.  If you need to process virtual mail through 
+something like procmail, then use this option to define a delivery command 
+instead of the default mail spool file.  
+
+The command will be wrapped in double quotes with a pipe symbol and 
+substituted in the alias map for all 'Local Mailbox' virtual users.  
+Virtual users redirected to external mail addresses won't be touched by this option.
+
+Several parameters (if found in the command) will be substituted as follows:
+
+<user>          The virtual user name
+<domain>        The virtual domain
+<homedir>       The virtual user home directory
+<spoolfile>     The virtual user spool file
+
+For example: 
+
+If the virtual user 'foo@bar.com' is created as a local mailbox 
+with the following vdomain_mailbox_command option:
+
+vdomain_mailbox_command  /usr/bin/procmail -Y -m /etc/procmailrcs/virtualrc <domain> <user>
+
+Then the postfix alias file entry will be created to look like this (quotes included):
+
+foo.bar.com: "| vdomain_mailbox_command  /usr/bin/procmail -Y -m /etc/procmailrcs/virtualrc bar.com foo"
+
+When foo@bar.com receives mail, 
+postfix will pipe the mail into the /user/bin/procmail command 
+with the options '-Y -m /etc/procmailrcs/virtualrc bar.com foo'
+
+Default: none - vdomain_mailbox_command isn't used by default
+
+
 mailfooter
 -----------------------------------------------------------------------
 This block of text will be appended at the tail of each outgoing mail,
@@ -1055,8 +1138,8 @@ openwebmail
 
 default_language
 -----------------------------------------------------------------------
-This is the language defaulted to if a user hasn't saved their own
-language preference yet.
+This is the language used for the login screen or for the new user
+that hasn't saved his own language preference yet.
 
 supported language including: (defined in ow-shared.pl)
 
@@ -1072,6 +1155,7 @@ en           => English
 es           => Spanish			# Espanol
 fi           => Finnish
 fr           => French
+he.ISO8859-8 => Hebrew
 hu           => Hungarian
 id           => Indonesian
 it           => Italiano
@@ -1092,8 +1176,12 @@ sv           => Swedish			# Svenska
 th           => Thai
 tr           => Turkish
 uk           => Ukrainian
+ur           => Urdu
 zh_CN.GB2312 => Chinese - Simplified
 zh_TW.Big5   => Chinese - Traditional 
+
+If this option is set to 'auto', openwebmail will choose the language 
+based on the language that is prefered by the client browser
 
 
 default_charset
@@ -1109,6 +1197,14 @@ default_timeoffset
 This is the default time offset of user timezone from GMT.
 You can set it to 'auto' or value in the notation [-|+]XXXX.
 For example, for Taiwan, the offset is +0800.
+
+
+default_daylightsaving
+-----------------------------------------------------------------------
+This controls whether openwebmail should add one hour to local time 
+for daylight saving. You can set it to 'auto', 'on' or 'off'.
+When this option is set to 'auto', the daylight saving will be switched 
+on/off automatcically based on the value of the time and its timezone
 
 
 default_realname

@@ -1,3 +1,275 @@
+04/25/2003 (version 2.01)
+----------
+1. Norwegian language and templates translation update
+   (thanks to Are Tysland, are.AT.valinor.dolphinics.no)
+2. Japanese (ShiftJIS) language and templates translation update
+   (thanks to Captain James and Interactive Artists, LLC, james.AT.ActionMessage.com)
+3. auto adjust the background image url in case openwebmail has been 
+   reinstalled in different location
+   (suggested by Scott Mazur, scott.AT.littlefish.ca)
+4. uty/fixrc.pl, a small uty to modify the .openwebmailrc for all users
+   (thanks to Scott Mazur, scott.AT.littlefish.ca for his code)
+
+
+04/24/2003
+----------
+1. add options header_pluginfile, footer_pluginfile to openwebmail.conf.default
+   These options can used to plugin text file or output of other programs 
+   into most main pages of openwemail.
+2. fix a bug that a message in sent folder would be overwritten
+   if it was used as a source of draft for another latterly sent message
+   (reported by Klaus F. Abel, kfabel.AT.users.sourceforge.net)
+
+
+04/23/2003
+----------
+1. fix a bug that ow_htmlutl could not be set to /
+   (reported by Gertjan Koetsier, gertjan.koetsier.AT.networksforyou.com)
+2. fix a bug that inbox size was not devided by 1024 for unit k 
+   when compared with spool_limit
+   (reported by Thomas Chung, tchung.AT.openwebmail.com)
+3. cut INBOX in cutfoldermails() only if option use_homedirspools is 
+   set to yes
+
+
+04/22/2003
+----------
+1. untaint all argument for exec() to avoid 'Insecure dependency' error
+   (reported by dlehoang.AT.users.sourceforge.net)
+2. fix to guess_language() to make it works with more languages
+   (thanks to Daniel Hasan, dhasan.AT.accesstime.net)
+3. output sys error msg ($!) in openwebmailerror()
+
+
+04/21/2003
+----------
+1. Serbian languageand templates translation update
+   fix a bug that the charset for Serbian was not defined in ow-shared.pl
+   (thanks to Aleksandar Pejic, alexa.AT.yunord.net)
+2. Portuguese Brazil language and templates translation update
+   and holiday file added.
+   (thanks to Julio Cesar Cunha, julio.AT.cnm.org.br)
+3. better compatibility with IE5.5 for filename of attachment in downloading
+
+
+04/20/2003
+----------
+1. Ukrainian language and template files translation update
+   (thanks to Volodymyr M. Lisivka, lvm.AT.mystery.lviv.net)
+2. fix a bug in webdisk that & char in pathname was not properly 
+   escaped when displayed in showdir
+   (reported by tchuang.AT.turtle.ee.ncku.edu.tw)
+3. fix a bug that quota_module specifed in user conf won't work.
+   (reported by Thomas Chung, tchung.AT.openwebmail.com)
+
+
+04/19/2003
+----------
+1. simplify API of quota module.
+   and switch ruid/euid to root before calling the quota routine
+2. Italian language and templates translation update
+   (thanks to Marvi Benedet, marvi.AT.menhir.biz)
+3. Bulgarian language and template files translation update
+   (thanks to Veselin Slavov, vess.AT.vess.bnc.bg)
+
+
+04/18/2003
+----------
+1. fix a bug that easter based dates won't show on calendar reminder in msglist
+   (reported by Gertjan Koetsier, gertjan.koetsier.AT.networksforyou.com)
+2. fix the 'Not privileged' error with quota_unixfs.pl
+
+
+04/17/2003
+----------
+1. check redirect destination in vuser editing
+   disbale 'deletion' of user on vdomain admlist
+   (thanks to Littlefish Operator, operator.AT.littlefish.ca for his code)
+
+
+04/16/2003
+----------
+1. add option vdomain_mailbox_command to openwebmail.conf.default
+   and fix some bug related to virtual user aliases
+   vdomain_mailbox_command can be used to pipe mails for virtual users 
+   to procmail for mail filtering
+   (thanks to Littlefish Operator, operator.AT.littlefish.ca for his code)
+2. new mirror site at Amsterdam, Netherlands
+   http://openwebmail.roel.net/
+   (thanks to Roel van der Made, roel.AT.roel.net)
+3. disable the encode of german umlaut for in maildb.pl because of 
+   compatibility problem with languages using double-byte characters
+4. remove 'mailto:' from CGI param('to') in openwebmail.pl for IE
+   so correct email address can be put in To: field 
+   when openwebmail is used as default mail client
+   (thanks to Sergiy Zubatiy, sergey_sd.AT.users.sourceforge.net)
+5. fix a bug in ow-shared.pl which might pass wrong param to timegm()
+   This bug is introduced by patch 1 at 04/10/2003
+   (reported by Remco Mels, remco.AT.mels.nl)
+6. default_language can be set to 'auto' now.
+   Openwebmail will guess the default language for login screen and new user
+   based on the enviroment variable HTTP_ACCEPT_LANGUAGE
+
+
+04/15/2003
+----------
+1. reimplement the quota system in openwebmail
+   a. all modules (webmail, webcal, webdisk) share same set of quota settings.
+   b. different quota systems can be used in openwebmail by loading them as module. 
+      Two quota modules are available now: quota_unixfix.pl and quota_du.pl
+   c. old quota options were removed, including:
+      folderquota, folderusage_thresold, cutfolders_ifoverquota, webdisk_quota
+   d. new quota options were added, including:
+      quota_module, quota_limit, quota_threshold, 
+      delmail_ifquotahit, delfile_ifquotahit
+2. add option enable_history to openwbemail.conf.default
+3. add option spool_limit to openwebmail.conf.default
+4. encode german umlaut for html in maildb.pl and all de templates
+   (thanks to Martin Bronk, Martin.AT.Bronk.de)
+5. fix the bug that group address will be lost after addressbook import
+   (reported by Niall Walsh, niall.AT.pembrokecricket.com)
+6. uty in cgi-bin/openwebmail/uty/addrbook_hotmail2owm.pl, 
+   which can be used to convert hotmail addressbook to openwebmail
+   (thanks to Niall Walsh, niall.AT.pembrokecricket.com for his code)
+
+
+04/10/2003
+----------
+1. capture err from timegm() routine to fix the problem that
+   some messages with invalid date field may cause CGI internal server error
+ps: the bug was introduced by patch 1 at 04/08/2003
+2. fix a typo error in ow-shared.pl that gmtim() was used instead of gmtime()
+   (reported by Cyril SABATIER, c.sabatier.At.bocquet.com)
+ps: the bug was introduced by patch 1 at 04/10/2003
+
+
+04/09/2003
+----------
+1. implement is_dst() routine to calc daylight saving time for all timezones.
+ps:Since timezone can't be switched through TZ enviro since perl 5.8,
+   the is_dst value returned by perl localtime/gmtime is for server timezone only
+2. Portuguese Brazil language and templates translation update
+   Iconset Cool3D.PortugueseBrazil major update
+   (thanks to Julio Cesar Cunha, julio.AT.cnm.org.br)
+3. Deutsch prefs.template update
+   (thanks to Martin.Bronk.AT.colt.de)
+
+
+04/08/2003
+----------
+1. clean code of timestamp related routines
+2. add daylightsaving option (auto/on/off) to user preference to
+   fix daylightsaving problem in all timestamps
+   (reported by Cyril SABATIER, c.sabatier.At.bocquet.com,
+                Remco Mels, remco.AT.mels.nl,
+3. fix a bug in message compose window that info of originated message 
+   won't be passed through iconv() for charset conversion
+   (reported by James Briggs, james.AT.ActionMessage.com)
+4. fix a bug in openwebmail.pl that newly created domainhome would have 
+   wrong permission which prevents the following access to user homedir.
+   (reported by Aboobacker Valappil, aboo.AT.aboosplanet.com)
+5. if the msg transmission time is longer than 7 days or smaller than -1 day
+   we assume sender host may have wrong time confiuration and 
+   use delivery time instead of sending time as message timestamp
+
+
+04/05/2003
+----------
+1. add new button "forard as original" button to compose message window
+   (thanks to Dattola Filippo, filippo.AT.sms.it for his patch)
+ps:Please refer to faq for the difference between forward, forwardasatt
+   and forwardasorig
+
+
+04/04/2003
+----------
+1. fix typo error in auth_pam.pl which caused changepwd failed
+   (reported by Louie Ching, fitman.AT.users.sourceforge.net) 
+2. show 'please wait' while doing uploading in webdisk
+3. fix a bad behavior introduced by patch 2 04/03/2003
+   which tried to always use http for images
+   (reported by Martin Gignac, lmcgign.AT.mobilitylab.net)
+4. French help tutorial translation
+   (thanks to Frederic GLISE, fred.AT.forceinfo.net)
+
+
+04/03/2003
+----------
+1. fix a typo error in error msg in auth_vdomain.pl
+2. add a new option forced_ssl_login to openwebmail.conf.default
+3. fix a bug in openwebmail-send.pl that cause old msg saved-drafts 
+   not being deleted. It was due to the use of LOCK_EX before a readonly 
+   dbmopen, which caused the "Resource temporarily unavailable" error
+   in dbmopen if underlying dbm system is GDBM.
+   (reported by Meesha, HyperTGP.com, meesha.AT.hypertgp.com)
+
+
+04/02/2003
+----------
+1. Serbian language translation minor update
+   (thanks to Aleksandar Pejic, alexa.AT.yunord.net)
+
+
+04/01/2003
+----------
+1. use time()-1 for timestamp of session file, .pop3.check and .trash.check
+   to ensure nfs client time won't be replaced on nfs server side
+2. code clean to syncronize the format of logged messages
+3. put logindomain param back to login page when user logout or login failure
+   (thanks to Scott Mazur, scott.AT.littlefish.ca for his fix)
+4. fix openwebmail-send.pl
+   a. log the success or failure of mail sending
+   b. timeout=20 if only one recipient for quicker response.
+      timeout=90 for more than one recipients, 
+      so dns timeouted reciptents could be skipped properly
+      (DNS timeout default=60)
+5. fix a bug that attachment uploaded to message could not be viewed
+   this bug was introduced by patch 2 at 03/31/2003
+   (reported by tchuang.AT.turtle.ee.ncku.edu.tw)
+
+
+03/31/2003
+----------
+1. test whether option savedsuid_support is required to be set 
+   in openwebmail-tool.pl --init
+2. extend the session time by updating timestamp of session file 
+   instead of rewriting th whole file, minor speed improvement.
+
+
+03/29/2003
+----------
+1. Urdu language and templates translation
+   (thanks to Muhammad Umair Abbasi, umair.AT.khi.wol.net.pk)
+2. easter day support in calendar
+   (thanks to Dugal James P., jpd.AT.louisiana.edu for his patch)
+3. new option ow_holidaysdir to define the directory for holiday files
+
+
+03/27/2003
+----------
+1. clean init code in all openwebmail*pl
+2. fix a bug in auth_unix*.pl and auth_pam*.pl that
+   get_userinfo() won't success if passwd is from a command pipe
+   eg: "/usr/bin/ypcat passwd|"   
+   (reported by Dugal James P., jpd.AT.louisiana.edu)
+3. support to list packages used by perl dbm system 
+   in openwebmail-tool.pl (with --test option) and dbmtest.pl
+4. fix a bug in auth_unix.pl and auth_unix_cobalt.pl that
+   change_userpassword always return -3.
+   This is due to the chlid process exit value was taken by SIG CHLD handler,
+   so system() always get error even command is actually done successfully.
+
+
+03/26/2003
+----------
+1. Hebrew language and templates translation
+   (thanks to Yehuda Drori, yehuda.AT.whatsup.org.il)
+2. chmod of /etc/virtusertable dbm to 644 so it can be read in user uid
+3. fix a bug that -a option of openwebmail-tool.pl doesn't work
+   (reported by Pawel Jablonski, pawelj.AT.lodz.dialog.net.pl)
+4. skip lines with leading # when getting user list from passwd file
+
+
 03/25/2003 (version 2.00)
 ----------
 1. better handle of zombie

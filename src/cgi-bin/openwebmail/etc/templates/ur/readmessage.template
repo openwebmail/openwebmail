@@ -1,0 +1,69 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
+<tr>
+<td nowrap bgcolor=@@@TITLEBAR@@@ width="33%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>. ﭘﻴﻐﺎﻡ ﰷ ﻧﻈﺎﺭﻩ</B></font></td>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="center">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@QUOTAUSAGE@@@</B></font></td>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="left" width="33%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@FOLDER@@@ : @@@MESSAGETOTAL@@@ ﭘﻴﻐﺎﻡ</B></font></td>
+</tr>
+<tr>
+<td nowrap bgcolor=@@@MENUBAR@@@ colspan="2">
+@@@LEFTMENUBARLINKS@@@</td>
+<td nowrap bgcolor=@@@MENUBAR@@@ align="left" nowrap>
+@@@RIGHTMENUBARLINKS@@@</td>
+</tr>
+</table>
+
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
+<tr><td colspan=2>@@@MESSAGECONTROL@@@</td></tr>
+
+@@@CONTROLBAR1START@@@
+<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+   <table border="0" width="100%" cellpadding="0" cellspacing="0"><tr valign=bottom>
+   <td nowrap width="35%">@@@CONVFROMMENU1@@@</td>
+   <td nowrap width="30%" align="center">@@@STATIONERYMENU1@@@</td>
+   <td nowrap width="35%" align="left">@@@MOVECONTROLS1@@@</td>
+   </tr></table>
+</td></tr>
+<tr><td colspan="2">&nbsp;</td></tr>
+@@@CONTROLBAR1END@@@
+
+<tr><td rowspan=2 width="90%" bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERS@@@
+</td><td width="10%" nowrap valign="top" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@HEADERSTOGGLE@@@
+</td></tr><tr><td width="10%" nowrap valign="bottom" align="left" bgcolor=@@@WINDOW_DARK@@@>
+@@@ATTMODETOGGLE@@@
+</td></tr><tr><td colspan="2" width="100%" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
+@@@BODY@@@
+</td></tr>
+<tr><td colspan="2">@@@MESSAGECONTROL@@@</td></tr>
+
+@@@CONTROLBAR2START@@@
+<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+   <table border="0" width="100%" cellpadding="0" cellspacing="0"><tr valign=bottom>
+   <td nowrap width="35%">@@@CONVFROMMENU2@@@</td>
+   <td nowrap width="30%" align="center">@@@STATIONERYMENU2@@@</td>
+   <td nowrap width="35%" align="left">@@@MOVECONTROLS2@@@</td>
+   </tr></table>
+</td></tr>
+@@@CONTROLBAR2END@@@
+
+</table>
+<script language="JavaScript">
+<!--
+   function replyreceiptconfirm(url, yes)
+   {
+      if (yes==1 || confirm('?ﻳﮧ ﭘﻴﻐﺎﻡ ﺭﺳﻴﺪ ﻃﻠﺐ ﻛﺮﻫﺎ ﻫﮯ ﻛﻴﺎ ﺑﻬﻴﺞ ﺩﻳﮟ')) {
+         var hWnd = window.open("","_replyreceipt","width=100,height=50,resizable=no,scrollbars=no");
+         hWnd.document.write('...ﺍﺭﺳﺎﻝ ﻫﻮ ﺭﻫﻰ ﻫﮯ');
+         hWnd.location.href=url;
+//         hWnd.close();
+      }
+   }
+//-->
+</script>

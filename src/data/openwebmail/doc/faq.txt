@@ -137,6 +137,49 @@ A: You may has wrong settings in your openwebmail.conf.
    Please modify youropenwebmail.conf as openwebmail suggested and 
    don't forget to redo 'openwebmail-tool.pl --init' again.
    
+Q: --init complains the dbm options after I upgrade OS?
+   --init complains the dbm options after I upgrade perl?
+   --init complains the dbm options when I copy openwebmail.conf to another machine??
+A: The perl system may use different dbm format depending on what packages
+   have been installed in your server. And these dbm format may be not compatible.
+   To know what dbm packages are used by your perl, please execute:
+
+   perl uty/dbmtest.pl
+
+   And you will see output like below:
+
+   ------------------------------------------------------------------
+   You perl uses the following packages for dbm::
+
+   AnyDBM_File.pm          /usr/libdata/perl/5.00503/AnyDBM_File.pm
+   NDBM_File.pm            /usr/libdata/perl/5.00503/mach/NDBM_File.pm
+
+
+   The dbm options in openwebmail.conf should be set as follows:
+
+   dbm_ext                 .db
+   dbmopen_ext             none
+   dbmopen_haslock         no
+   ----------------------------------------------------------------------
+
+   AnyDBM_File.pm is a "pure virtual base class", it has nothing of its own.
+   It's just there to inherit from one of the various DBM packages in the 
+   following order: NDBM_File, DB_File, GDBM_File, SDBM_File, ODBM_File 
+   (you may type 'perldoc AnyDBM_File' to see comparison of these packages)
+
+   In the above example, the system uses NBDM package for dbm.
+   when you upgrade OS, perl or migrade openwebmail to other machine, 
+   you should run dbmtest.pl on both system to ensure that they use same underlying 
+   dbm package.
+   
+Q: ok, my two machins use different DBM systems, what can I do next?
+A: you can enforce the new one to use the same dbm package as the old one by
+   putting the 'use XXX_File.pm' after the 'use strict;' in all openwebmail*pl.
+   then try to run 'openwebmail-tool.pl --test' to see if the XXX_File.pm is
+   really used.
+  
+   where XXX_File.pm is the value you get by running dbmtest.pl on old machine.
+
 Q: The login menu showed okay, but I always got login failure?
 A: Check auth_module option in openwebmail.conf:
 
@@ -590,24 +633,23 @@ A: 1. Set default_filter_fakedsmtp and default_filter_fakedexecontenttype
       user
 
 Q: Some of my messages disappeared?
-A: Your messages my be removed by the cutfolder feature.
+A: Your messages my be removed by the delmail_ifquota feature.
 
-Q: How does the cutfolder feature works?
-   Which message would be cut at first?
+Q: How does the delmail_ifquotahit option work?
+   Which message will be removed first?
 A: It will clean trash and draft first,
-   then remove messages in other folders.
-   ps: userfolders & INBOX will be cut only if their size > 1/3 quota.
+   then remove oldest messages in other folders.
+   The removal will stop if the quota size is download to the 90% of user quota limit.
+ps:The messages in INBOX and user defined folders will be removed only if
+   these folders occupy the majority of the mailfolder space.
 
-   1. empty trash folder, exit if under quota
-   2. empty draft folder, exit if under quota
-   3. cut folders until totalsize = 0.9*quota
-      a. put sent-mail        to cutlist
-      b. put saved-message    to cutlist
-      c. put all userfolders  to cutlist if userfolders > 1/3*(0.9*quota)
-      d. put INBOX            to cutlist if INBOX       > 1/3*(0.9*quota)
-      e. cut all folders in cutlist until totalsize <= 0.9 quota
+   Please refer to routine cutfolders in ow-shared.pl for detail
 
-   Please refer to cutfolders in ow-shared.pl for detail
+Q: How does the delfile_ifquotahit option work?
+   Which file will be removed first?
+A: It will remove the oldest files or direcotries under the webdiskrootdir
+   (webdiskrootdir is default to / of user homedir, but you can change it).
+   The removal will stop if the quota size is download to the 90% of user quota limit.
 
 Q: I could not add attachments?
    Open WebMail was hanged when I pressed the 'add' button to add attachments?
@@ -630,6 +672,25 @@ Q: The permission of cgi-bin/openwebmail/etc is correct but attachments
    still disappeared in message forwarding?
 A: Hmmm, please upgrade to the latest version. 
    Some very old version(1.03,1.04) has little problem in attachment handling.
+
+Q: What is the difference between 'Forward', 'ForwardAsAtt', 'ForwardAsOrig'
+A: If A send msg1 to B, 
+   and B forward this msg as msg2 to B 
+
+   forward:
+   the subject of msg2 will be the subject of msg1 with a prefix "Fw:".
+   msg2 will have all attachments and content of msg1, 
+   and headers of msg1 will be put into the body msg2 as content
+
+   forwardasatt:
+   the subject of msg2 will be the subject of msg1 with a prefix "Fw:".
+   msg2 body will be empty
+   and the raw format of msg1 will be become an attachment of msg2.
+
+   forwardasorig:
+   the subject, body and attachments of msg2 will exactly the same as msg1.
+   the replyto header of msg2 will be set to A.
+   So in case C replies the msg2, the reply will go back to A
 
 Q: When I checked 'edit folder menu', I found some folders were empty but 
    took disk space?
@@ -666,13 +727,14 @@ A: This may happen if the folder openwebmail want to access is locked by
    1. install the 'lsof' utility on your system
       (lsof is available at http://freshmeat.net/projects/lsof/)
    2. cd  your_web/cgi-bin/openwebmail
-      patch < uty/filelock.pl.diff
-   3. step 2 will turn the filelock.pl to a version special for debugging,
-      the debug output will be written to /tmp/openwebmail.debug
+      patch < uty/ow-shared.pl.filelock.diff
+   3. step 2 will turn the filelock routine in ow-shared.pl to a version 
+      special for debugging, the debug output will be written to 
+      /tmp/openwebmail.debug
    4. login into openwebmail and do some operation that will cause lock error,
       then check /tmp/openwebmail.debug for further information
    5. Finally, don't forget to do 'patch < uty/filelock.pl.diff' again to 
-      reverse filelock.pl back to normal version.
+      reverse ow-shared.pl back to the original state.
 
 Q: I have problems in reading some mail....
 A: please check 
@@ -959,6 +1021,7 @@ A: All you have to do is to write a very simple auth_xxx.pl which checks if
 
 Q: How can I setup IE to trigger Open WebMail compose window when I click
    a "mailto:someone@somehost" link?
+   How can I set Open Webmail as the default mail client?
 A: In Windows Explorer, if you go to Tools -> Folder Options, click on the 
    File Types tab. In the window that appears, scroll down the list to the 
    entry for  "URL:MailTo Protocol".  Highlight URL:MailTo and click edit.
@@ -966,12 +1029,20 @@ A: In Windows Explorer, if you go to Tools -> Folder Options, click on the
    Choose to edit the action for open.  By default it probably has a 
    command to open Outlook Express (or your default email client).  
    Change the Application to read:  
-   "C:\program files\internet explorer\iexplore.exe" http://your_server/cgi-bin/openwebmail.pl?loginname=NAME&password=PASS"
+   "C:\program files\internet explorer\iexplore.exe" http://your_server/cgi-bin/openwebmail/openwebmail.pl?loginname=NAME&password=PASSWORD
 
    This will make Windows open Internet Explorer and go directly to the .pl 
    page and login with the specified user and pass.
 
    (Thanks to Mike Andrews, mike.AT.lcso.org)
+
+   If you hope to goto the compose window directly 
+   with the email address put in the To field, 
+   please use the following open string instead
+
+   "C:\Program Files\Internet Explorer\iexplore.exe" http://your_server/cgi-bin/openwebmail/openwebmail.pl?loginname=USER&password=PASSWORD&action=composemessage&to=%1
+
+   (Thanks to Sergiy Zubatiy, sergey_sd.AT.users.sourceforge.net)
 
 Q: How can I set an alias/redirection/link to the openwebmail script so users 
    can use openwebmail with a shorter url?

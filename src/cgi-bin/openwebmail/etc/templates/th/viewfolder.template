@@ -1,13 +1,15 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr><td bgcolor=@@@TITLEBAR@@@ >
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0"><tr>
-<td nowrap bgcolor=@@@TITLEBAR@@@>
+<td nowrap bgcolor=@@@TITLEBAR@@@ width="30%">
 @@@STARTFOLDERFORM@@@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@>
 <B>@@@FOLDERPOPUP@@@</B></FONT></td>
 @@@ENDFORM@@@
-<td><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>@@@QUOTAINFO@@@</B></font></td>
-<td nowrap bgcolor=@@@TITLEBAR@@@ align="right">
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="center">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@QUOTAUSAGE@@@</B></font>&nbsp;</td>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="right" width="30%">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>@@@NUMBEROFMESSAGES@@@</B></font>&nbsp;</td>
 </tr></table>

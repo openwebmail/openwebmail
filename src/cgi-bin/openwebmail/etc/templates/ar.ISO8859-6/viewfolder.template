@@ -1,13 +1,15 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr><td bgcolor=@@@TITLEBAR@@@ >
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0"><tr>
-<td nowrap bgcolor=@@@TITLEBAR@@@>
+<td nowrap bgcolor=@@@TITLEBAR@@@ width="30%">
 @@@STARTFOLDERFORM@@@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@>
 <B>@@@FOLDERPOPUP@@@</B></FONT></td>
 @@@ENDFORM@@@
-<td><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>@@@QUOTAINFO@@@</B></font></td>
-<td nowrap bgcolor=@@@TITLEBAR@@@ align="left">
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="center">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@QUOTAUSAGE@@@</B></font>&nbsp;</td>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="left" width="30%">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>@@@NUMBEROFMESSAGES@@@</B></font>&nbsp;</td>
 </tr></table>
@@ -45,7 +47,7 @@
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="0"><tr>
 <td width="35%" bgcolor=@@@MENUBAR@@@ nowrap>@@@SEARCH2@@@</td>
 <td align="center" bgcolor=@@@MENUBAR@@@ nowrap>@@@PAGECONTROL2@@@</td>
-<td width="35%" align="right" bgcolor=@@@MENUBAR@@@ nowrap>@@@MOVECONTROLS2@@@&nbsp;</td>
+<td width="35%" align="left" bgcolor=@@@MENUBAR@@@ nowrap>@@@MOVECONTROLS2@@@&nbsp;</td>
 </tr></table>
 @@@CONTROLBAR2END@@@
 

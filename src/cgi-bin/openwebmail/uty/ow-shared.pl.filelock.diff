@@ -1,15 +1,13 @@
---- filelock.pl.orig	Fri Nov 22 14:40:45 2002
-+++ filelock.pl	Fri Nov 22 14:42:17 2002
-@@ -7,14 +7,43 @@
- use strict;
- use Fcntl qw(:DEFAULT :flock);
- use FileHandle;
-+use vars qw(%lockcount);
-+
-+local %lockcount=();
+--- ow-shared.pl.orig	Fri Apr  4 00:25:17 2003
++++ ow-shared.pl	Fri Apr  4 00:24:05 2003
+@@ -2784,12 +2784,42 @@
+ ########################## END HOSTNAME ##########################
  
+ ########################## FILELOCK ############################
++use vars qw(%lockcount);
++local %lockcount=();
  sub filelock {
-    my $ret;
++   my $ret;
 +
 +   my $str;
 +   if ($_[1] & LOCK_UN) {
@@ -23,11 +21,13 @@
 +   }
 +   log_time ("[$$] $str $lockcount{$_[0]}:", @_);
 +
-    if ( $::config{'use_dotlockfile'} ) {
-       $ret=filelock_dotlockfile(@_);
+    if ( $config{'use_dotlockfile'} ) {
+-      return openwebmail::filelock::dotfile_lock(@_);
++      $ret=openwebmail::filelock::dotfile_lock(@_);
     } else {
-       $ret=filelock_flock(@_);
-    }
+-      return openwebmail::filelock::flock_lock(@_);
++      $ret=openwebmail::filelock::flock_lock(@_);
++   }
 +
 +   if ($ret==0) {
 +      my ($origruid, $origeuid)=($<, $>);
@@ -39,8 +39,9 @@
 +      $<=$origruid; $>=$origeuid;	# fall back to original ruid/euid
 +
 +      log_time("[$$] LOCK ERROR: locks on file =>\n", $lsof);
-+   }
+    }
 +
-    return($ret);
++   return($ret);
  }
+ ########################## END FILELOCK ############################
  

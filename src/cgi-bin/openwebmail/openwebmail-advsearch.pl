@@ -28,7 +28,9 @@ require "filelock.pl";
 require "mime.pl";
 require "iconv.pl";
 require "maildb.pl";
+require "htmltext.pl";
 
+# common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
@@ -36,13 +38,14 @@ use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
-openwebmail_init();
-
 # extern vars
 use vars qw($_OFFSET $_FROM $_TO $_DATE $_SUBJECT $_CONTENT_TYPE $_STATUS $_SIZE $_REFERENCES $_CHARSET); # defined in maildb.pl
 use vars qw(%lang_folders %lang_advsearchlabels %lang_text %lang_err);	# defined in lang/xy
 
 ########################## MAIN ##############################
+clearvars();
+openwebmail_init();
+
 my $action = param("action");
 if ($action eq "advsearch") {
    advsearch();
@@ -225,7 +228,8 @@ sub search_folders {
    filelock($cachefile, LOCK_EX) or
       openwebmailerror("$lang_err{'couldnt_lock'} $cachefile");
    if ( -e $cachefile ) {
-      open(CACHE, "$cachefile") ||  openwebmailerror("$lang_err{'couldnt_open'} $cachefile!");
+      open(CACHE, "$cachefile") or
+         openwebmailerror("$lang_err{'couldnt_open'} $cachefile! ($!)");
       $cache_metainfo=<CACHE>; chomp($cache_metainfo);
       close(CACHE);
    }
@@ -519,7 +523,7 @@ sub genline {
    $messagesize=lenstr($messagesize,0);
 
    # convert dateserial(GMT) to localtime
-   my $datestr=dateserial2str(add_dateserial_timeoffset($dateserial, $prefs{'timeoffset'}), $prefs{'dateformat'});
+   my $datestr=dateserial2str($dateserial, $prefs{'timeoffset'}, $prefs{'dateformat'});
    $temphtml = qq|<tr>|.
                qq|<td nowrap bgcolor=$bgcolor>$folderstr&nbsp;</td>\n|.
                qq|<td bgcolor=$bgcolor><font size=-1>$datestr</font></td>\n|.

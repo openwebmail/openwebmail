@@ -26,6 +26,13 @@ package openwebmail::sv;
    size_rev    => 'Storlek (Minsta först)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normal',
@@ -223,6 +230,7 @@ package openwebmail::sv;
    replyall   => 'Svara alla',
    forward    => 'Viderebefordra',
    forwardasatt=>'Vidarebefordra som bilaga',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Print friendly',
    from       => 'Från',
    replyto    => 'Svara till',
@@ -253,7 +261,6 @@ package openwebmail::sv;
    continue   => 'Fortsätt',
    loginagain => 'Login again',
    exit       => 'Exit',
-   for        => 'FÖR',
    yourname   => 'Ditt namn',
    save       => 'Lagra',
    add        => 'Lägg till',
@@ -283,8 +290,9 @@ package openwebmail::sv;
    note       => 'Note',
    max        => 'Maximum',
    group      => 'Grupp',
-   quota_hit  => 'Ditt lagringsutrymme är slut!',
-   usage      => 'Använt',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'Ditt lagringsutrymme är slut!',
    tzmap      => 'World timezone map',
    testsound  => 'Test sound',
    editfroms  => 'Edit personal email addresses',
@@ -410,8 +418,6 @@ package openwebmail::sv;
    tryagain          => 'och försök på nytt.',
    abook_toobig      => 'Beklagar, du överstiger den tillåtna storleken på din adressbok. Gå',
    cant_create_dir   => 'Kunde inte skapa din användarkatalog!',
-   folder_hitquota   => 'Beklagar, du har överskridit det tillåtna lagringsutrymmet för dina mappar. Du kan nu bara flytta meddelanden till papperskorgen, där de kommer att raderas automatiskt. Gå tillbaka och radera några meddelanden eller töm papperskorgen, och försök igen.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Beklagar, du har överskridit den tillåtna storleken för bilagor. Bilagorna får inte omfatta mer än',
    inv_msg_op        => 'Otillåten operation',
    sess_cookieerr    => 'Din begäran saknade rätt cookie. Operationen medges inte!',
@@ -440,8 +446,12 @@ package openwebmail::sv;
    no_file_todownload=> 'No file is specified for download',
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="3" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Ureðivanje &#154;ablona</b></font>
+<b>Ureðivanje ¹ablona</b></font>
 </td></tr><tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td>
@@ -9,7 +9,7 @@
 <tr><td bgcolor=@@@COLUMNHEADER@@@ width="20%">
 <B>Naziv</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="70%">
-<B>Tekst &#154;ablona</B></td>
+<B>Tekst ¹ablona</B></td>
 </td>
 <td bgcolor=@@@COLUMNHEADER@@@ width="10%">&nbsp;</td>
 </tr>
@@ -18,12 +18,12 @@
 <tr><td colspan="3">&nbsp;</td></tr>
 
 @@@STARTSTATFORM@@@
-<tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>Novi &#154;ablon</B></td></tr>
+<tr><td colspan="3" bgcolor=@@@COLUMNHEADER@@@><B>Novi ¹ablon</B></td></tr>
 </td><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>
 <B>Naziv:</B>    
 @@@STATNAME@@@
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Tekst &#154;ablona</B><BR>
+<B>Tekst ¹ablona</B><BR>
 @@@STATBODY@@@
 </td></tr>
 <tr><td colspan="3" align="center" bgcolor=@@@WINDOW_DARK@@@>

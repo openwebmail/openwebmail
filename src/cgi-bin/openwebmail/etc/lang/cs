@@ -28,6 +28,13 @@ package openwebmail::cs;
    size_rev    => 'Øadit podle velikosti (Nejkrat¹í první)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Bì¾ná',
@@ -225,6 +232,7 @@ package openwebmail::cs;
    replyall   => 'Odpovìdìt v¹em',
    forward    => 'Poslat dál',
    forwardasatt=>'Poslat jako pøílohu',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Formát pro tisk',
    from       => 'Od',
    replyto    => 'Kam odpovídat (pokud má být pro odpovìï pou¾ita jiná adresa) ',
@@ -255,7 +263,6 @@ package openwebmail::cs;
    continue   => 'Pokraèovat',
    loginagain => 'Nové pøihlá¹ení',
    exit       => 'Konec',
-   for        => 'u¾ivatele',
    yourname   => 'Va¹e jméno',
    save       => 'Ulo¾it',
    add        => 'Pøidat',
@@ -285,8 +292,9 @@ package openwebmail::cs;
    note       => 'Poznámka',
    max        => 'Maximum',
    group      => 'Skupina',
-   quota_hit  => 'Vrchol kvóty',
-   usage      => 'Vyu¾ití',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'Vrchol kvóty',
    tzmap      => 'Svìtová mapa èasových zón',
    testsound  => 'Otestovat zvuk',
    editfroms  => 'Správa vlastních e-mailových adres',
@@ -412,8 +420,6 @@ package openwebmail::cs;
    tryagain          => 'a zkuste operaci opakovat.',
    abook_toobig      => 'Touto operací by do¹lo k pøekroèení kapacitního limitu Va¹eho adresáøe.',
    cant_create_dir   => 'Nelze vytvoøit Va¹i u¾ivatelskou slo¾ku!',
-   folder_hitquota   => 'Dosáhli jste vrcholu kvóty a ¾ádná dal¹í zpráva ji¾ nemù¾e být do ¾ádné ze slo¾ek ulo¾ena. Nebudete moci pøesunout zprávu do jiné slo¾ky kromì Ko¹e, kde je mo¾no ji smazat. Sma¾te nìkteré zprávy nebo vyprázdnìte Ko¹ a zk uste operaci opakovat.',
-   folder_cutdone    => 'Varování, vzhledem k tomu, ¾e jste vyèerpal(a) diskovou kvotu (@@@FOLDERQUOTA@@@), staré zprávy ve Va¹ich slo¾kách byly automaticky smazány',
    att_overlimit     => 'Velikost pøílohy pøekroèila kapacitní limit, který je',
    inv_msg_op        => 'Neplatná operace pro zprávu',
    sess_cookieerr    => 'Vá¹ po¾adavek neobsahoval odpovídající SessionID cookie - pøístup odepøen!',
@@ -442,8 +448,12 @@ package openwebmail::cs;
    no_file_todownload=> 'Nebyl zvolen soubor ke sta¾ení',
    upload_overlimit  => 'Velikost posílaného souboru je vìt¹í ne¾ povolená',
    decomp_notsupported=>'Dekomprimace tohoto souboru není podporována.',
-   webdisk_hitquota   => 'Dosáhl jste bohu¾el maximální kvótu va¹eho webdisku, sma¾te prosím nejdøíve nìjaké soubory.',
-   webdisk_readonly   => 'Promiòte, Vá¹ WebDisk je urèen jen ke ètení.',
+   webdisk_readonly  => 'Promiòte, Vá¹ WebDisk je urèen jen ke ètení.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

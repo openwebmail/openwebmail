@@ -1,11 +1,6 @@
---- openwebmail.conf.orig	Thu Aug  8 16:45:54 2002
-+++ openwebmail.conf	Thu Aug  8 16:45:52 2002
-@@ -20,11 +20,9 @@
- ow_htmlurl		/openwebmail
- logfile			/var/log/openwebmail.log
- spellcheck		/usr/local/bin/ispell
--default_language	zh_TW.Big5
-+default_language	en
+--- openwebmail.conf.orig	Thu Apr 17 00:31:36 2003
++++ openwebmail.conf	Thu Apr 17 00:32:57 2003
+@@ -23,7 +23,5 @@
  
  <default_signature>
  -- 

@@ -1,15 +1,23 @@
 @@@STARTPREFSFORM@@@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
+<tr>
+<td nowrap bgcolor=@@@TITLEBAR@@@ width="30%">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>BENUTZEREINSTELLUNGEN @@@REALNAME@@@</B></font>
-<tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+<B>BENUTZEREINSTELLUNGEN</B></font>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="center">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@QUOTAUSAGE@@@</B></font>
+<td nowrap bgcolor=@@@TITLEBAR@@@ align="right" width="30%">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>@@@REALNAME@@@&nbsp;</B></font>
+</tr>
+<tr><td colspan="3" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
 </table>
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Persönliche Daten</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pers&ouml;nliche Daten</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Sprache:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -19,6 +27,11 @@
 <B>Zeitzonenabstand (zu GMT):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TIMEOFFSETMENU@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Daylight Saving Time:</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Von:</B>
@@ -50,7 +63,7 @@ Betreff:
 @@@AUTOREPLYSUBJECT@@@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Text für automatische Antwort (Max. 500 Zeichen)</B><BR>
+<B>Text f&uuml;r automatische Antwort (Max. 500 Zeichen)</B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr>
 @@@AUTOREPLYEND@@@
@@ -61,7 +74,7 @@ Betreff:
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Anzeige Optionen</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Anzeige</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Stil:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -73,17 +86,17 @@ Betreff:
 @@@ICONSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Hintergrund Grafik:</B>
+<B>Hintergrundbild:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Background image repeated:</B>
+<B>Hintergrundbild wiederholen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Schriftgröße:</B>
+<B>Schriftgr&ouml;&szlig;e:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FONTSIZEMENU@@@
 </td></tr>
@@ -95,13 +108,13 @@ Betreff:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Stundenformat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@HOURFORMATMENU@@@ hour
+@@@HOURFORMATMENU@@@ Stunden
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Folder browsing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Ordneransicht</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Position des Menüs innerhalb der Ordneransicht:</B>
+<B>Position des Men&uuml;s innerhalb der Ordneransicht:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -111,12 +124,12 @@ Betreff:
 @@@HEADERSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Field order:</B>
+<B>Reihenfolge der Felder:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FIELDORDERMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Sortier Reihenfolge:</B>
+<B>Sortierung:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
 </td></tr>
@@ -124,7 +137,7 @@ Betreff:
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Verarbeitung</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Vor dem Kopieren/Verschieben von Nachrichten nachfragen:</B>
+<B>Kopieren/Verschieben von Nachrichten best&auml;tigen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
 </td></tr>
@@ -139,7 +152,7 @@ Betreff:
 @@@SMARTDESTINATION@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nach dem Kopieren/Verschieben einer Nachricht die nächste Nachricht anzeigen:</B>
+<B>Nach dem Kopieren/Verschieben einer Nachricht die n&auml;chste Nachricht anzeigen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIEWNEXTAFTERMSGMOVECOPY@@@
 </td></tr>
@@ -161,7 +174,7 @@ Betreff:
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Lesen</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Position des Menüs innerhalb der Nachrichtenansicht:</B>
+<B>Position des Men&uuml;s innerhalb der Nachrichtenansicht:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONMSGREADMENU@@@
 </td></tr>
@@ -186,17 +199,17 @@ Betreff:
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Die Ausführung von in Nachrichten eingebetteten CGIs deaktivieren:</B>
+<B>Die Ausf&uuml;hrung von in Nachrichten eingebetteten CGIs deaktivieren:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCGI@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Angehängte Grafikdateien als Llink anzeigen:</B>
+<B>Angeh&auml;ngte Grafikdateien als Link anzeigen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWIMGASLINK@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Senden einer Quittierung für eine Nachricht mit Lesebestätigung:</B>
+<B>Senden einer Quittierung f&uuml;r eine Nachricht mit Lesebest&auml;tigung:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDRECEIPTMENU@@@
 </td></tr>
@@ -204,9 +217,9 @@ Betreff:
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Antworten</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Größe des Textfeldes für die Nachrichtenerstellung:</B>
+<B>Gr&ouml;&szlig;e des Textfeldes f&uuml;r die Nachrichtenerstellung:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Breite @@@EDITCOLUMNSMENU@@@ Höhe @@@EDITROWSMENU@@@
+Breite @@@EDITCOLUMNSMENU@@@ H&ouml;he @@@EDITROWSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Position des Senden-Schalters:</B>
@@ -219,17 +232,17 @@ Breite @@@EDITCOLUMNSMENU@@@ Höhe @@@EDITROWSMENU@@@
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Original Nachricht in Antwort übernehmen:</B>
+<B>Original Nachricht in Antwort &uuml;bernehmen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nachrichten beim versenden im Ordner GESENDET speichern:</B>
+<B>Nachrichten beim Versenden im Ordner GESENDET speichern:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Standartzeichensatz für ausgehende Nachrichten:</B>
+<B>Standardzeichensatz f&uuml;r ausgehende Nachrichten:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@
 </td></tr>
@@ -238,41 +251,41 @@ Breite @@@EDITCOLUMNSMENU@@@ Höhe @@@EDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Nachrichtenfilter</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Limit für wiederholte Nachrichten:</B>
+<B>Limit f&uuml;r wiederholte Nachrichten:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERREPEATLIMIT@@@ &nbsp;( 0 führt keine Prüfung auf Wiederholung durch )
+@@@FILTERREPEATLIMIT@@@ &nbsp;( 0 f&uuml;hrt keine Pr&uuml;fung auf Wiederholung durch )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nachrichten mit gefälschten SMTP filtern:</B>
+<B>Nachrichten mit gef&auml;lschtem SMTP filtern:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDSMTP@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nachrichten mit gefälschter Von-Zeile filtern:</B>
+<B>Nachrichten mit gef&auml;lschter Von-Zeile filtern:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDFROM@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nachrichten mit gefälschten ausführbaren Anhang automatisch filtern und in den PAPIERKORB verschieben:</B>
+<B>Nachrichten mit gef&auml;lschten ausf&uuml;hrbaren Anhang automatisch filtern und in den PAPIERKORB verschieben:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
 @@@FILTEREND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Adressbuch</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>Fenstergr&ouml;&szlig;e des Adressbuchs:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+Breite @@@ABOOKWIDTHMENU@@@ H&ouml;he @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>Position des Adressbuch-Schalters:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>Standardfilter des Adressbuchs:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
@@ -281,7 +294,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Kalender</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Anzahl der Einträge in der Monatsansicht:</B>
+<B>Anzahl der Eintr&auml;ge in der Monatsansicht:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MONTHVIEWNUMITEMSMENU@@@
 </td></tr>
@@ -301,7 +314,7 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@ENDHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Time interval in dayview:</B>
+<B>Zeitintervall in der Tagesansicht:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@INTERVALMENU@@@ minutes
 </td></tr>
@@ -311,12 +324,12 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Nach wie viel Tagen auf Einträge überprüfen und erinnern:</B>
+<B>Nach wie viel Tagen auf Eintr&auml;ge &uuml;berpr&uuml;fen und erinnern:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERDAYSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Erinnerung für Events im globalen Kalender:</B>
+<B>Erinnerung f&uuml;r Events im globalen Kalender:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
@@ -326,27 +339,27 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>WebDisk Options</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Anzahl der Einträge innerhalb von Ordnerlistings:</B>
+<B>Anzahl der Eintr&auml;ge innerhalb von Ordnerlistings:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DIRNUMITEMSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Vor dem verschieben/kopieren von Dateien/Ordnern nachfragen:</B>
+<B>Verschieben/Kopieren von Dateien/Ordnern best&auml;tigen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEMOVECOPY@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Vor dem löschen von Dateien/Ordnern nachfragen:</B>
+<B>L&ouml;schen von Dateien/Ordnern best&auml;tigen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEDEL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Vor dem komprimieren von Dateien/Ordnern nachfragen:</B>
+<B>Komprimieren von Dateien/Ordnern best&auml;tigen:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILECOMPRESS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Größe des Eingabefeldes zum bearbeiten von Dateien:</B>
+<B>Gr&ouml;&szlig;e des Eingabefeldes zum Bearbeiten von Dateien:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 </td></tr>
@@ -355,7 +368,7 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Verschiedenes</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Regex beim Suchen und für Filterregeln verwenden:</B>
+<B>Regex beim Suchen und f&uuml;r Filterregeln verwenden:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REGEXMATCH@@@
 </td></tr>
@@ -380,12 +393,12 @@ Width @@@FILEEDITCOLUMNSMENU@@@ Height @@@FILEEDITROWSMENU@@@
 Anzeigedauer in Sekunden: @@@NEWMAILWINDOWTIMEMENU@@@ &nbsp;( 0 schaltet die Benachrichtigung ab )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Wörterbuch für die Rechtschreibprüfung:</B>
+<B>W&ouml;rterbuch f&uuml;r die Rechtschreibpr&uuml;fung:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Gelöschte Nachrichten maximal halten (Tage):</B>
+<B>Gel&ouml;schte Nachrichten maximal halten (Tage):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@RESERVEDDAYSMENU@@@
 </td></tr>

@@ -66,7 +66,12 @@ sub get_userinfo {
    if ($unix_passwdfile_plaintext eq "/etc/passwd") {
       ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
    } else {
-      ($uid, $gid, $realname, $homedir)= (getpwnam_file($user, $unix_passwdfile_plaintext))[2,3,6,7];
+      if ($unix_passwdfile_plaintext=~/\|/) { # maybe NIS, try getpwnam first
+         ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7]; 
+      }
+      if ($uid eq "") { # else, open file directly
+         ($uid, $gid, $realname, $homedir)= (getpwnam_file($user, $unix_passwdfile_plaintext))[2,3,6,7];
+      }
    }
    return(-4, "User $user doesn't exist") if ($uid eq "");
 
@@ -95,6 +100,8 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
    }
    open(PASSWD, $unix_passwdfile_plaintext);
    while (defined($line=<PASSWD>)) {
+      next if ($line=~/^#/);
+      chomp($line);
       push(@userlist, (split(/:/, $line))[0]);
    }
    close(PASSWD);
@@ -122,6 +129,7 @@ sub check_userpassword {
    }
    my ($line, $u, $p);
    while (defined($line=<PASSWD>)) {
+      chomp($line);
       ($u, $p) = (split(/:/, $line))[0,1];
       last if ($u eq $user); # We've found the user in /etc/passwd
    }
@@ -129,7 +137,7 @@ sub check_userpassword {
    filelock("$unix_passwdfile_encrypted", LOCK_UN) if ( -f $unix_passwdfile_encrypted);
 
    return(-4, "User $user doesn't exist") if ($u ne $user);
-   return(-4, "Passowrd incorrect") if (crypt($password,$p) ne $p);
+   return(-4, "Password incorrect") if (crypt($password,$p) ne $p);
 
    ##############################################
    # Cobalt security check
@@ -155,11 +163,16 @@ sub check_userpassword {
    # emulate pam_shells.so
    # Make sure that the user has not been 'suspended'
    return (0, "") if (!$check_shell);
-   my $shell;
+   my ($name, $shell);
    if ($unix_passwdfile_plaintext eq "/etc/passwd") {
       $shell = (getpwnam($user))[8];
    } else {
-      $shell = (getpwnam_file($user, $unix_passwdfile_plaintext))[8];
+      if ($unix_passwdfile_plaintext=~/\|/) { # maybe NIS, try getpwnam first
+         ($name, $shell)= (getpwnam($user))[0,8];
+      }
+      if ($name eq "") { # else, open file directly
+         ($name, $shell) = (getpwnam_file($user, $unix_passwdfile_plaintext))[0,8];
+      }
    }
    # if we can't open /etc/shells; assume password is invalid
    if (!open(ES, "/etc/shells")) {
@@ -210,9 +223,8 @@ sub change_userpassword {
    }
    while (defined($line=<PASSWD>)) {
       $content .= $line;
-      if ($u ne $user) {
-         ($u, $p, $misc) = split(/:/, $line, 3);
-      }
+      chomp($line);
+      ($u, $p, $misc) = split(/:/, $line, 3) if ($u ne $user);
    }
    close (PASSWD);
 
@@ -245,6 +257,8 @@ sub change_userpassword {
    close(TMP) || goto authsys_error;
 
    if ($unix_passwdmkdb ne "" && $unix_passwdmkdb ne "none" ) {
+      # disable outside $SIG{CHLD} handler temporarily for system() return value
+      local $SIG{CHLD}; undef $SIG{CHLD}; 
       # update passwd and db with pwdmkdb program
       if ( system("$unix_passwdmkdb $unix_passwdfile_encrypted.tmp.$$")!=0 ) {
          goto authsys_error;
@@ -278,7 +292,7 @@ sub getpwnam_file {
    my ($user, $passwdfile_plaintext)=@_;
    my ($name, $passwd, $uid, $gid, $gcos, $dir, $shell);
 
-   return("", "", "", "", "", "", "", "", "") if ($user eq "" || ! -f $passwdfile_plaintext);
+   return("", "", "", "", "", "", "", "", "") if ($user eq "");
 
    open(PASSWD, "$passwdfile_plaintext");
    while(<PASSWD>) {

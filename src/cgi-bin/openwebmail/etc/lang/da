@@ -26,6 +26,13 @@ package openwebmail::da;
    size_rev    => 'Størrelse (mindste først)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normal',
@@ -223,6 +230,7 @@ package openwebmail::da;
    replyall   => 'Svar alle',
    forward    => 'Videresend',
    forwardasatt=>'Videresend som vedhæftet fil',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Vis printer venlig udgave',
    from       => 'Fra',
    replyto    => 'Svar til',
@@ -253,7 +261,6 @@ package openwebmail::da;
    continue   => 'Fortsæt',
    loginagain => 'Log ind igen',
    exit       => 'Luk browser',
-   for        => 'for',
    yourname   => 'Dit navn',
    save       => 'Gem',
    add        => 'Tilføj',
@@ -283,8 +290,9 @@ package openwebmail::da;
    note       => 'Notat',
    max        => 'Maksimum',
    group      => 'Gruppe',
-   quota_hit  => 'ADVARSEL, din postkasse er fuld',
-   usage      => 'ADVARSEL, din postkasse er snart fuld, du benytter nu:',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'ADVARSEL, din postkasse er fuld',
    tzmap      => 'Verdenskort med tidszoner',
    testsound  => 'Afspil denne lyd',
    editfroms  => 'Rediger personlige mailadresser',
@@ -410,8 +418,6 @@ package openwebmail::da;
    tryagain          => 'og forsøg igen.',
    abook_toobig      => 'Dette vil gøre din adressebog større end tilladt. Gå',
    cant_create_dir   => 'Kan ikke oprette mappen!',
-   folder_hitquota   => 'Beklager, du har brugt mere plads end tilladt, og der kan ikke gemmes flere mails. Du er nødt til at rydde op. Det er kun muligt at flyttet til papirkurven, hvor de vil blive slettet. Gå tilbage, slet nogle mails eller tøm papirkurven, og forsøg igen.',
-   folder_cutdone    => 'Advarsel, da max. plads forbrug (@@@FOLDERQUOTA@@@) pr. folder var overskredet, er de ældste meddelelser automatisk blevet slettet',
    att_overlimit     => 'Dine vedhæftede filer er større end tilladt',
    inv_msg_op        => 'Ugyldig handling for besked',
    sess_cookieerr    => 'Din forespørgsel indeholdt ikke et gyldigt sessions ID - Ingen adgang!',
@@ -440,8 +446,12 @@ package openwebmail::da;
    no_file_todownload=> 'No file is specified for download',
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

@@ -25,26 +25,31 @@ require "ow-shared.pl";
 require "filelock.pl";
 require "mime.pl";
 require "maildb.pl";
+require "htmltext.pl";
 
+# common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
+use vars qw($quotausage $quotalimit);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
-
-openwebmail_init();
-
-use vars qw($sort $page);
-
-$page = param("page") || 1;
-$sort = param("sort") || $prefs{'sort'} || 'date';
 
 # extern vars
 use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
 use vars qw($_OFFSET $_STATUS);				# defined in maildb.pl
 
+# local globals
+use vars qw($sort $page);
+
 ########################## MAIN ##############################
+clearvars();
+openwebmail_init();
+
+$page = param("page") || 1;
+$sort = param("sort") || $prefs{'sort'} || 'date';
+
 my $action = param("action");
 if ($action eq "editfolders") {
    editfolders();
@@ -171,16 +176,22 @@ sub editfolders {
    $html =~ s/\@\@\@DEFAULTFOLDERS\@\@\@/$temphtml/;
 
    my $usagestr;
-   if ($config{'folderquota'}) {
-      if ($folderusage>=90) {
-         $usagestr="<B><font color='#cc0000'>$folderusage %</font></B>";
+   if ($config{'quota_module'} ne "none") {
+      my $percent=0;
+      $usagestr="$lang_text{'quotausage'}: ".lenstr($quotausage*1024,1);
+      if ($quotalimit>0) {
+         $percent=int($quotausage*1000/$quotalimit)/10;
+         $usagestr.=" ($percent%) &nbsp;";
+         $usagestr.="$lang_text{'quotalimit'}: ".lenstr($quotalimit*1024,1);
+      }         
+      if ($percent>=90) {
+         $usagestr="<B><font color='#cc0000'>$usagestr</font></B>";
       } else {
-         $usagestr="<B>$folderusage %</B>";
+         $usagestr="<B>$usagestr</B>";
       }
    } else {
       $usagestr="&nbsp;";
    }
-
    $total_foldersize=lenstr($total_foldersize,0);
 
    $temphtml = qq|<tr>|.
@@ -237,8 +248,7 @@ sub _folderline {
 
    my $escapedcurrfolder = escapeURL($currfolder);
    my $url = "$config{'ow_cgiurl'}/openwebmail-folder.pl?sessionid=$thissession&amp;folder=$escapedcurrfolder&amp;action=downloadfolder";
-   my $folderstr=$currfolder;
-   $folderstr=$lang_folders{$currfolder} if defined($lang_folders{$currfolder});
+   my $folderstr=$lang_folders{$currfolder}||$currfolder;
 
    my $accesskeystr=$i%10+1;
    if ($accesskeystr == 10) {
@@ -250,7 +260,7 @@ sub _folderline {
    $temphtml .= qq|<tr>|.
                 qq|<td align="center" bgcolor=$bgcolor>|.
                 qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedcurrfolder">|.
-                qq|$folderstr </a>&nbsp;\n|.
+                str2html($folderstr).qq| </a>&nbsp;\n|.
                 iconlink("download.gif", "$lang_text{'download'} $folderstr ", qq|$accesskeystr href="$url"|).
                 qq|</td>\n|.
                 qq|<td align="center" bgcolor=$bgcolor>$newmessages</td>|.
@@ -328,10 +338,14 @@ sub refreshfolders {
       filelock($folderfile, LOCK_UN);
    }
 
-   writelog("refresh folders - $errcount errors");
-   writehistory("refresh folders - $errcount errors");
+   writelog("folder - refresh, $errcount errors");
+   writehistory("folder - refresh, $errcount errors");
 
-   getfolders(\@validfolders, \$folderusage);
+   # get uptodate quota/folder usage info
+   getfolders(\@validfolders, \$folderusage);   
+   if ($config{'quota_module'} ne 'none') {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+   }
    editfolders();
 }
 ################### END REFRESHFOLDERS ##########################
@@ -463,6 +477,13 @@ sub reindexfolder {
 
 ################### ADDFOLDER ##############################
 sub addfolder {
+   if ($quotalimit>0 && $quotausage>$quotalimit) {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];	# get uptodate quotausage
+      if ($quotausage>$quotalimit) {
+         openwebmailerror($lang_err{'quotahit_alert'});
+      }
+   }
+
    my $foldertoadd = safefoldername(param('foldername')) || '';
    ($foldertoadd =~ /^(.+)$/) && ($foldertoadd = $1);
 
@@ -480,8 +501,8 @@ sub addfolder {
    }
 
    open (FOLDERTOADD, ">$folderfile") or
-      openwebmailerror("$lang_err{'cant_create_folder'} $foldertoadd!");
-   close (FOLDERTOADD) or openwebmailerror("$lang_err{'couldnt_close'} $foldertoadd!");
+      openwebmailerror("$lang_err{'cant_create_folder'} $foldertoadd! ($!)");
+   close (FOLDERTOADD) or openwebmailerror("$lang_err{'couldnt_close'} $foldertoadd! ($!)");
 
    # create empty index dbm with mode 0600
    my %HDB;
@@ -541,7 +562,11 @@ sub deletefolder {
       writehistory("delete folder - $foldertodel");
    }
 
+   # get uptodate quota/folder usage info
    getfolders(\@validfolders, \$folderusage);
+   if ($quotalimit>0 && $quotausage>$quotalimit) {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];
+   }
    editfolders();
 }
 ################### END DELETEFOLDER ##########################
@@ -582,8 +607,8 @@ sub renamefolder {
       rename("$oldheaderdb.cache",             "$newheaderdb.cache");
       unlink("$folderdir/$newname.lock",       "$folderdir/$oldname.lock.lock");
 
-      writelog("rename folder - rename $oldname to $newname");
-      writehistory("rename folder - rename $oldname to $newname");
+      writelog("rename folder - $oldname to $newname");
+      writehistory("rename folder - $oldname to $newname");
    }
 
 #   print "Location: $config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfolders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page\n\n";
@@ -633,7 +658,9 @@ sub downloadfolder {
    print qq|Content-Transfer-Coding: binary\n|,
          qq|Connection: close\n|,
          qq|Content-Type: $contenttype; name="$filename"\n|;
-   if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
+   if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition: attachment
+      print qq|Content-Disposition: filename="$filename"\n|;
+   } else {
       print qq|Content-Disposition: attachment; filename="$filename"\n|;
    }
    print qq|\n|;
@@ -653,4 +680,3 @@ sub downloadfolder {
    return;
 }
 ################## END DOWNLOADFOLDER #####################
-

@@ -66,16 +66,16 @@
   <tr valign="top">
   <td nowrap><font color=#cc0000>Quick Installer&nbsp;</font></td>
   <td nowrap>
-    <a href="http://openwebmail.org/openwebmail/download/redhat/">
-    http://openwebmail.org/openwebmail/download/redhat/</a>
+    <a href="http://openwebmail.com/openwebmail/download/redhat/">
+    http://openwebmail.com/openwebmail/download/redhat/</a>
   </td>
   </tr>
 
   <tr valign="top">
   <td nowrap><font color=#cc0000>Online Demo&nbsp;</font></td>
   <td nowrap>
-    <a href="http://openwebmail.com/about/">
-    http://openwebmail.com/about/</a>
+    <a href="http://openwebmail.com/demo/">
+    http://openwebmail.com/demo/</a>
   </td>
   </tr>
 
@@ -92,10 +92,14 @@
       <td bgcolor=#999999><font color=#ffffff>Location</td>
       <td bgcolor=#999999><font color=#ffffff>Maintainer</td><tr>
   <tr>
-  <td>Official</td>
+  <td rowspan=2>Official</td>
   <td><a href="http://openwebmail.org/openwebmail/">http://openwebmail.org/openwebmail/</a></td>
   <td>US</td>
-  <td><a href="mailto:tchung.AT.openwebmail.org">Thomas Chung</a></td>
+  <td rowspan=2><a href="mailto:tchung.AT.openwebmail.org">Thomas Chung</a></td>
+  </tr>
+  <tr>
+  <td><a href="http://openwebmail.com/openwebmail/">http://openwebmail.com/openwebmail/</a></td>
+  <td>US <font color=#cc0000>(High Bandwidth)</font></td>
   </tr>
 
   <tr>
@@ -219,6 +223,13 @@
   <td><a href="mailto:taz.AT.lagmonster.org">Taz Meister</a></td>
   </tr>
 
+  <tr>
+  <td>17</td>
+  <td><a href="http://openwebmail.roel.net/">http://openwebmail.roel.net/</a></td>
+  <td>Amsterdam, Netherlands</td>
+  <td><a href="mailto:roel.AT.roel.net">Roel van der Made</a></td>
+  </tr>
+
   </table>
   </p>
 </blockquote>
@@ -229,12 +240,11 @@
 <blockquote>
   <h4>Multiple Languages/Multiple Charsets</h4>
   <p>
-  Open WebMail current supports more than 30 languages. It is also quite easy to add 
-  new language to Open WebMail if yours is still not supported.
-  Open WebMail also has well support for language with more than one charsets.
-  First, a default charset for the language is assumed. If a message is written with 
-  charset other than the default one, Open WebMail will convert the message to the 
-  default charset automatically.
+  Open WebMail is currently available for more than 30 languages, and it is quite easy 
+  to add new language to Open WebMail if yours is still not supported.
+  For languages with more than one charsets, Open WebMail will choose one as the default 
+  charset for the language. If a message is written with charset other than the 
+  default, it will be converted to the default charset automatically.
   </p>
 
   <h4>Fast Folder Access</h4>
@@ -326,7 +336,6 @@
   john@domain3.com	john3
   </pre>
   </p>
-
 
   <h4>Pure Virtual User Support</h4>
   <p>
@@ -496,7 +505,7 @@
   <p>
   <a href="http://www.daemoninc.com/SpeedyCGI/">SpeedyCGI</a> 
   is a way to run perl scripts persistently, which can make 
-  openwebmail run much more quickly. It is a similar technique like
+  openwebmail run much more quickly. It uses machnism similar to
   <a href="http://perl.apache.org/">mod_perl</a> or
   <a href="http://www.fastcgi.com/">FastCGI</a>.
   Open WebMail has been modified to work with SpeedyCGI. All you have 
@@ -591,7 +600,7 @@
   <tr><td nowrap>Bulgarian</td>
       <td>bg</td>
       <td nowrap>
-          02/22/2003 <a href="mailto:vess.AT.vess.bnc.bg">Veselin Slavov</a>
+          04/19/2003 <a href="mailto:vess.AT.vess.bnc.bg">Veselin Slavov</a>
       </td>
       <td>&nbsp;</td>
       <td><a href="mailto:vess.AT.vess.bnc.bg">Veselin Slavov</a></td></tr>
@@ -674,7 +683,7 @@
           01/22/2003 <a href="mailto:hermet.AT.narrowstream.net>Stephane HERMET</a>,<br>
           03/21/2002 <a href="mailto:c.sabatier.AT.bocquet.com">Cyril Sabatier</a>
       </td>
-      <td>&nbsp;</td>
+      <td><a href="mailto:fred.AT.forceinfo.net">Frederic GLISE</a></td>
       <td>&nbsp;</td></tr>
   <tr><td nowrap>Hellenic/Greek</td>
       <td>el</td>
@@ -683,6 +692,13 @@
       </td>
       <td>&nbsp;</td>
       <td><a href="mailto:dimitris.AT.michelinakis.gr">Dimitris sehh Michelinakis</a></td></tr>
+  <tr><td nowrap>Hebrew - ISO 8859-8</td>
+      <td>he.ISO8859-8</td>
+      <td nowrap>
+          03/26/2003 <a href="mailto:yehuda.AT.whatsup.org.il">Yehuda Drori</a>
+      </td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td></tr>
   <tr><td nowrap>Hungarian</td>
       <td>hu</td>
       <td nowrap>
@@ -702,21 +718,21 @@
   <tr><td nowrap>Italian</td>
       <td>it</td>
       <td nowrap>
-          02/23/2003 <a href="mailto:marvi.AT.menhir.biz">Benedet Marvi</a>
+          04/19/2003 <a href="mailto:marvi.AT.menhir.biz">Benedet Marvi</a>
       </td>
       <td>&nbsp;</td>
       <td><a href="mailto:andrea.AT.linsys.it">Andrea Partinico</a></td></tr>
   <tr><td nowrap>Japanese - ShiftJIS</td>
       <td>ja_JP.Shift_JIS</td>
       <td nowrap>
-          12/31/2002 <a href="mailto:james.AT.ActionMessage.com">Captain James<br>and Interactive Artists, LLC</a>
+          04/25/2003 <a href="mailto:james.AT.ActionMessage.com">Captain James<br>and Interactive Artists, LLC</a>
       </td>
       <td>&nbsp;</td>
       <td>&nbsp;</td></tr>
   <tr><td nowrap>Japanese - eucJP</td>
       <td>ja_JP.eucJP</td>
       <td nowrap>
-          12/31/2002 from ja_JP.Shift_JIS
+          04/25/2003 from ja_JP.Shift_JIS
       </td>
       <td>&nbsp;</td>
       <td>&nbsp;</td></tr>
@@ -737,7 +753,7 @@
   <tr><td nowrap>Norwegian</td>
       <td>no</td>
       <td nowrap>
-          01/31/2003 <a href="mailto:are.AT.valinor.dolphinics.no">Are Tysland</a>
+          04/25/2003 <a href="mailto:are.AT.valinor.dolphinics.no">Are Tysland</a>
       </td>
       <td>&nbsp;</td>
       <td><a href="mailto:are.AT.valinor.dolphinics.no">Are Tysland</a></td></tr>
@@ -761,12 +777,14 @@
   <tr><td nowrap>Portuguese Brazil</td>
       <td>pt_BR</td>
       <td nowrap>
+          04/21/2003 <a href="mailto:julio.AT.cnm.org.br">Julio Cesar Cunha</a>,<br>
           02/25/2003 <a href="mailto:vlad.AT.univap.br">Vladimir M Costa</a>,<br>
           08/28/2002 <a href="mailto:ruisb.AT.ig.com.br">Rui - iG</a>,<br>
           09/20/2001 <a href="mailto:edison.AT.brc.com.br">Edison Figueira Junior</a>
       </td>
       <td><a href="mailto:edison.AT.brc.com.br">Edison Figueira Junior</a></td>
-      <td><a href="mailto:jsb.AT.ductape.net">Jordi S. Bunster</a></td></tr>
+      <td><a href="mailto:julio.AT.cnm.org.br">Julio Cesar Cunha</a>,<br>
+          <a href="mailto:jsb.AT.ductape.net">Jordi S. Bunster</a></td></tr>
   <tr><td nowrap>Romanian</td>
       <td>ro</td>
       <td nowrap>
@@ -784,7 +802,7 @@
   <tr><td nowrap>Serbian</td>
       <td>sr</td>
       <td nowrap>
-          03/09/2003 <a href="mailto:alexa.AT.yunord.net">Aleksandar Pejic</a>
+          04/21/2003 <a href="mailto:alexa.AT.yunord.net">Aleksandar Pejic</a>
       </td>
       <td>&nbsp;</td>
       <td>&nbsp;</td></tr>
@@ -827,10 +845,17 @@
   <tr><td nowrap>Ukrainian</td>
       <td>uk</td>
       <td nowrap>
-          03/01/2003 <a href="mailto:lvm.AT.mystery.lviv.net">Volodymyr M. Lisivka</a>
+          04/20/2003 <a href="mailto:lvm.AT.mystery.lviv.net">Volodymyr M. Lisivka</a>
       </td>
       <td>&nbsp;</td>
       <td>&nbsp;</td></tr>
+  <tr><td nowrap>Urdu</td>
+      <td>ur</td>
+      <td nowrap>
+          03/29/2003 <a href="mailto:umair.AT.khi.wol.net.pk">Muhammad Umair Abbasi</a>
+      </td>
+      <td>&nbsp;</td>
+      <td><a href="mailto:umair.AT.khi.wol.net.pk">Muhammad Umair Abbasi</a></td></tr>
   </table>
   </p>
 
@@ -842,7 +867,9 @@
     <a href="http://www.w3.org/International/O-charset-lang.html">W3C: 
     Languages, countries and the charsets typically used</a><br>
     <a href="http://msdn.microsoft.com/library/default.asp?url=/workshop/author/dhtml/reference/charsets/charset4.asp#charsets4">Mirosoft: 
-    Character Set Recognition</a> <br>
+    Character Set Recognition</a><br>
+    <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/indexsrv/html/ixuwebqy_7gfn.asp">Mirosoft: 
+    Valid Locale Identifiers</a><br>
   </p>
 </blockquote>
 
@@ -867,7 +894,7 @@
     to the Open Webmail project, setup
     <a href="http://openwebmail.org">openwebmail.org</a>
     site and maintained
-    <a href="http://openwebmail.org/openwebmail/download/redhat/">
+    <a href="http://openwebmail.com/openwebmail/download/redhat/">
     the RPM package</a> for Open Webmail on RedHat/Linux platform.
     He also helped other users to solve problems on installing Open Webmail.
     Thank you, Thomas!
@@ -896,7 +923,7 @@
   <a href="mailto:billy.AT.pdcweb.net">William Brillinger</a> of 
   <a href="http://www.pdcweb.net/">Precision Design Co.</a>, Altona, Manitoba, Canada.,
   who wrote the great 
-  <a href="http://openwebmail.org/openwebmail/help/en/index.html">help tutorial</a> 
+  <a href="http://openwebmail.com/openwebmail/help/en/index.html">help tutorial</a> 
   for openwebmail.
   </li>
   <li>
@@ -935,13 +962,13 @@
   Thanks to <a href="mailto:zimerman.AT.mailandnews.com">Nimrod Zimerman</a> and
     <a href="mailto:simba.AT.schoolsucks.com">Nimrod S. Carmi</a>,
     who contributed the
-    <a href="http://openwebmail.org/openwebmail/download/contrib/useraddbyweb.tar.gz">
+    <a href="http://openwebmail.com/openwebmail/download/contrib/useraddbyweb.tar.gz">
     useraddbyweb</a> package in contrib/. This allows users to be added to a
     Linux system dynamically through web sign-up.<br>
   Thanks to Fr. V. Chua, S.J., who wrote the
     <a href="http://mail.savs.hcc.edu.tw/~chuavv/articles/UserAddByWeb.html">
     How to Install</a> document for this 
-    <a href="http://openwebmail.org/openwebmail/download/contrib/useraddbyweb.tar.gz">
+    <a href="http://openwebmail.com/openwebmail/download/contrib/useraddbyweb.tar.gz">
     useraddbyweb</a> package.
   </li>
   <li>
@@ -1012,7 +1039,7 @@
   Thanks to <a href="mailto:heegard.AT.NativeI.com">Chris Heegard</a>,
     who provided the information of how to use openwebmail on Mac OS X and
     suggested the use of
-    <a href="http://openwebmail.org/openwebmail/download/contrib/wrapsuid.pl">wrapsuid.pl</a>
+    <a href="http://openwebmail.com/openwebmail/download/contrib/wrapsuid.pl">wrapsuid.pl</a>
     to generate C wrappers for suid scripts.
   </li>
   <li>
@@ -1134,20 +1161,25 @@
   Thanks to <a href="mailto:openwebmail.AT.mutsaers.net">Alexander Mutsaers</a>
     who designed the XP serious (red/green/blue/purple) iconsets for openwebmail.
   </li>
+  <li>
+  Thanks to <a href="mailto:operator.AT.littlefish.ca">Littlefish Operator</a>
+    who added the vdomain_mailbox_command support to vdomain module and fixed some
+    bugs related to virtual user aliases table.
+  </li>
   </ul>
   </p>
 
 <h3>CONTACT</h3>
 <blockquote>
   <p> If you encountered any problem with Open Webmail, please check
-     <a href="http://openwebmail.org/openwebmail/doc/changes.txt">
+     <a href="http://openwebmail.com/openwebmail/doc/changes.txt">
      changes.txt</a> to see if the problem is fixed in
-     <a href="http://openwebmail.org/openwebmail/download/openwebmail-current.tgz">
+     <a href="http://openwebmail.com/openwebmail/download/openwebmail-current.tgz">
      the latest current version</a>.
      If not, try the
-     <a href="http://openwebmail.org/openwebmail/doc/readme.txt">
+     <a href="http://openwebmail.com/openwebmail/doc/readme.txt">
      readme.txt</a> and
-     <a href="http://openwebmail.org/openwebmail/doc/faq.txt">
+     <a href="http://openwebmail.com/openwebmail/doc/faq.txt">
      faq.txt</a>.
      <br>
      If you want to <b>seek help</b>, please post your problem in the
@@ -1159,7 +1191,7 @@
      openwebmail.AT.turtle.ee.ncku.edu.tw</a>
      <br>
      If you want to <b>mirror</b> this site, please use this
-     <a href="http://openwebmail.org/openwebmail/download/packages/mirror.openwebmail.sh">
+     <a href="http://openwebmail.com/openwebmail/download/packages/mirror.openwebmail.sh">
      script</a>.
      <br><br>
      Please <b>DO NOT</b> email questions/problems to openwebmail.AT.turtle.ee.ncku.edu.tw 
@@ -1220,7 +1252,7 @@
 <center>
 <table>
 <tr><td>
-<a href="http://openwebmail.org/openwebmail/download/icons">
+<a href="http://openwebmail.com/openwebmail/download/icons">
 <IMG src="images/powered-by-openwebmail.gif" 
 border=0 alt="Small icon collections"></a>
 </td><td>

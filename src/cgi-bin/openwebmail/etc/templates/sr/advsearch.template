@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Napredno pretra&#158;ivanje</b></font>
+<b>Napredno pretra¾ivanje</b></font>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td>&nbsp;</td></tr>
@@ -10,7 +10,7 @@
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Odaberite folder</B>
+<B>Odaberite omotnicu</B>
  <input name="allbox" type="checkbox" value="1" onclick="CheckAll();">
 </td></tr>
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@>

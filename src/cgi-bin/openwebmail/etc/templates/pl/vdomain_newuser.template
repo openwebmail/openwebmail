@@ -7,21 +7,21 @@
 <BR>
 <table align=center border=0 cellspacing=1 cellpadding=1 width=80%>
 <tr>
-<td align=right>Adres E-MAIL:</td><td>@@@VUSER@@@ @ @@@DOMAINNAME@@@</td>
+<td align="right">Adres E-MAIL:</td><td>@@@VUSER@@@ @ @@@DOMAINNAME@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>
 
-<td align=right>Ustwa has³o: </td><td>@@@NEWPASSWORDFIELD@@@</td>
+<td align="right">Ustwa has³o: </td><td>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align=right>Potwierd¼ has³o: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align="right">Potwierd¼ has³o: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>
-  <td align=right>User Type</td>
+  <td align="right">User Type</td>
   <td>@@@USERTYPEFIELD@@@</td>
 </tr><tr>
-<td align=right>Przekieruj: </td><td>@@@REDIRECTFIELD@@@</td>
+<td align="right">Przekieruj: </td><td>@@@REDIRECTFIELD@@@</td>
 </tr><tr>
 <td colspan=2><hr></td>
 </tr><tr>

@@ -2,7 +2,7 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Tagesübersicht</b></font>
+<b>Tages&uuml;bersicht</b></font>
 </td></tr>
 @@@STARTFORM@@@
 <tr><td bgcolor=@@@MENUBAR@@@>
@@ -34,16 +34,16 @@
 <tr><td width=25% nowrap>Startt:</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
 <tr><td width=25% nowrap>Ende:</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
-<tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ Für diesen und für die nächsten @@@NDAYSFIELD@@@ Tage</td></tr>
+<tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ F&uuml;r diesen und f&uuml;r die n&auml;chsten @@@NDAYSFIELD@@@ Tage</td></tr>
 <tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Jedes Jahr</td></tr>
-<tr><td colspan=2 nowrap>Einen Link für diesen Eintrag hinterlegen:</td></tr>
+<tr><td colspan=2 nowrap>Einen Link f&uuml;r diesen Eintrag hinterlegen:</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 @@@EMAILSTART@@@
 <tr><td colspan=2 nowrap>Erinnerungsmail schreiben an:</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
-<tr><td nowrap>Farbmarkierung für diesen Vorgang:</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
+<tr><td nowrap>Farbmarkierung f&uuml;r diesen Vorgang:</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>
 <tr><td colspan=2>@@@COLORTABLE@@@</td></tr>
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@

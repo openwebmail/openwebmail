@@ -26,6 +26,13 @@ package openwebmail::ca;
    size_rev    => 'Mida (Primer els petits)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normal',
@@ -223,6 +230,7 @@ package openwebmail::ca;
    replyall   => 'Contestar a tots',
    forward    => 'Reenviar',
    forwardasatt=>'Reenviar com a afegit',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Fàcil d´imprimir',
    from       => 'De',
    replyto    => 'Contestar a',
@@ -253,7 +261,6 @@ package openwebmail::ca;
    continue   => 'Continuar',
    loginagain => 'Tornar a entrar',
    exit       => 'sortir',
-   for        => 'PER A',
    yourname   => 'El seu nom i cognom',
    save       => 'Guardar',
    add        => 'Afegir',
@@ -283,8 +290,9 @@ package openwebmail::ca;
    note       => 'Nota',
    max        => 'Maximum',
    group      => 'Grup',
-   quota_hit  => 'MÀXIMA MIDA PERMESA',
-   usage      => 'Ús',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'MÀXIMA MIDA PERMESA',
    tzmap      => 'World timezone map',
    testsound  => 'Test sound',
    editfroms  => 'Editar les adreces personals',
@@ -410,8 +418,6 @@ package openwebmail::ca;
    tryagain          => 'i torni-ho a intentar.',
    abook_toobig      => 'Ho sento, ha excedit la mida límit per la seva llibreta d´adreces. ',
    cant_create_dir   => 'No puc crear el seu directori d´usuari!',
-   folder_hitquota   => 'Ho sento, ha arribat al límit de quota i no puc guardar més missatges en cap carpeta. Només pot moure els missatges a la carpeta PAPERERA, i esborrar-los.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Ho sento, la mida del seu arxiu supera el límit permès, el qual és de',
    inv_msg_op        => 'Operació no vàlida pel missatge',
    sess_cookieerr    => 'La seva petició no inclou la corresponent GALETA Identificativa -- accés denegat!',
@@ -440,8 +446,12 @@ package openwebmail::ca;
    no_file_todownload=> 'No file is specified for download',
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

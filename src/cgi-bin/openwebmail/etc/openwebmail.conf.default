@@ -15,8 +15,8 @@
 #
 
 name			Open WebMail
-version			2.00
-releasedate		20030325
+version			2.01
+releasedate		20030425
 
 ##############################################################################
 # host dependent configuration
@@ -29,6 +29,7 @@ virtusertable		/etc/mail/virtusertable
 auth_module		auth_unix.pl
 auth_withdomain		no
 auth_domain		auto
+quota_module		none
 mailspooldir		/var/mail
 use_hashedmailspools	no
 use_syshomedir		yes
@@ -39,13 +40,13 @@ homedirfolderdirname	mail
 use_dotlockfile		no
 dbm_ext			.db
 dbmopen_ext		none
+dbmopen_haslock		no
 deliver_use_GMT		no
 savedsuid_support	yes
 
 ##############################################################################
 # openwebmail system configuration
 ##############################################################################
-http_protocol		auto
 ow_cgidir		/usr/local/www/cgi-bin/openwebmail
 ow_cgiurl		/cgi-bin/openwebmail
 ow_htmldir		/usr/local/www/data/openwebmail
@@ -54,6 +55,7 @@ ow_etcdir		%ow_cgidir%/etc
 ow_stylesdir		%ow_etcdir%/styles
 ow_langdir		%ow_etcdir%/lang
 ow_templatesdir		%ow_etcdir%/templates
+ow_holidaysdir		%ow_etcdir%/holidays
 ow_sitesconfdir		%ow_etcdir%/sites.conf
 ow_usersconfdir		%ow_etcdir%/users.conf
 ow_usersdir		%ow_etcdir%/users
@@ -73,6 +75,8 @@ global_calendarbook	%ow_etcdir%/calendar.book
 g2b_map			%ow_etcdir%/g2b.map
 b2g_map			%ow_etcdir%/b2g.map
 lunar_map		%ow_etcdir%/lunar.map
+header_pluginfile	none
+footer_pluginfile	none
 
 spellcheck		/usr/local/bin/ispell
 spellcheck_dictionaries	english, american
@@ -87,6 +91,7 @@ allowed_clientdomain	all
 allowed_clientip	all
 allowed_receiverdomain	all
 case_insensitive_login	no
+forced_ssl_login	no
 stay_ssl_afterlogin	yes
 enable_rootlogin	no
 enable_domainselectmenu yes
@@ -103,6 +108,7 @@ auto_createrc		no
 domainnames_override	no
 symboliclink_mbox	yes
 
+enable_history			yes
 enable_about			yes
 about_info_software		yes
 about_info_scriptfilename	no
@@ -139,15 +145,11 @@ calendar_email_notifyinterval	120
 
 enable_strictfoldername	no
 foldername_maxlen	32
-folderquota		0
-folderusage_threshold	75
-cutfolders_ifoverquota	no
 maxbooksize		32
 attlimit		50000
 
 webdisk_rootpath	/
 webdisk_readonly	no
-webdisk_quota		0
 webdisk_uploadlimit	50000
 webdisk_lsmailfolder	yes
 webdisk_lshidden	yes
@@ -155,6 +157,12 @@ webdisk_lsunixspec	yes
 webdisk_lssymlink	yes
 webdisk_allow_symlinkout	yes
 webdisk_allow_thumbnail	yes
+
+spool_limit		0
+quota_limit		0
+quota_threshold		75
+delmail_ifquotahit	no
+delfile_ifquotahit	no
 
 vdomain_admlist			sysadm
 vdomain_maxuser			100
@@ -165,6 +173,7 @@ vdomain_postfix_aliases		/etc/postfix/aliases
 vdomain_postfix_virtual		/etc/postfix/virtual
 vdomain_postfix_postalias	/usr/sbin/postalias
 vdomain_postfix_postmap		/usr/sbin/postmap
+vdomain_mailbox_command		none
 
 <mailfooter>
 </mailfooter>
@@ -179,9 +188,10 @@ version %version%
 ##############################################################################
 # default setting for new user's preference
 ##############################################################################
-default_language		en
+default_language		auto
 default_charset			auto
 default_timeoffset		auto
+default_daylightsaving		off
 default_realname		auto
 default_fromemails		auto
 default_autoreplysubject	This is an autoreply...[Re: $SUBJECT]

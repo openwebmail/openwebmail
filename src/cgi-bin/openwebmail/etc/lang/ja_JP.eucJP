@@ -1,4 +1,4 @@
-package openwebmail::ja_JP_eucJP;
+package openwebmail::ja_JP_Shift_JIS;
 
 # Japanese translation, charset : Shift_JIS
 # by Captain James and Interactive Artists, LLC, james.AT.ActionMessage.com
@@ -26,6 +26,13 @@ package openwebmail::ja_JP_eucJP;
    size_rev    => 'サイズ (最小が最初)'
    );
 
+%lang_onofflabels =
+   (
+   auto => '自動スイッチ',
+   on   => 'オン',
+   off  => 'オフ',
+   );
+
 %lang_prioritylabels =
    (
    normal      => '普通',
@@ -49,8 +56,8 @@ package openwebmail::ja_JP_eucJP;
 
 %lang_ctrlpositionlabels =
    (
-   top => 'At top',
-   bottom => 'At bottom'
+   top => '上に',
+   bottom => '下に'
    );
 
 %lang_sendpositionlabels =
@@ -62,9 +69,9 @@ package openwebmail::ja_JP_eucJP;
 
 %lang_abookbuttonpositionlabels = 
    (
-   before => 'Before addressbook entries',
-   after  => 'After addressbook entries',
-   both   => 'Before and after addressbook entries'
+   before => 'アドレス帳入力の前に',
+   after  => 'アドレス帳入力後に',
+   both   => 'アドレス帳入力前後に'
    );
 
 %lang_timelabels =
@@ -106,7 +113,7 @@ package openwebmail::ja_JP_eucJP;
    monthview => '月表示',
    weekview  => '週表示',
    dayview   => '日表示',
-   listview  => 'Listview'
+   listview  => 'リスト表示'
    );
 
 %lang_month =
@@ -159,29 +166,29 @@ package openwebmail::ja_JP_eucJP;
 
 %lang_wdbutton =
    (
-   refresh  => 'Refresh',
-   preview  => 'Preview',
+   refresh  => '更新',
+   preview  => 'プレビュー',
    edit     => '編集',
-   listarchive=> 'List',
-   decompress=>'Decompress',
-   extract  => 'Extract',
-   chdir    => 'ChDir',
-   mkdir    => 'MkDir',
-   newfile  => 'NewFile',
-   delete   => 'Delete',
-   copy     => 'Copy',
-   move     => 'Move',
-   gzip     => 'gzCompress',
-   mkzip    => 'MkZip',
-   mktgz    => 'MkTgz',
-   mkthumbnail  => 'MkThumb',
-   download => 'Download',
-   upload   => 'Upload',
+   listarchive=> 'リスト',
+   decompress=>'解凍',
+   extract  => '抽出',
+   chdir    => 'チャンネルディレクトリー',
+   mkdir    => 'ディレクトリーの作成',
+   newfile  => '新規ファイル',
+   delete   => '削除',
+   copy     => 'コピー',
+   move     => '移動',
+   gzip     => 'gz圧縮',
+   mkzip    => 'Mkジップ',
+   mktgz    => 'Tgzの作成',
+   mkthumbnail  => 'サムネールの作成',
+   download => 'ダウンロード',
+   upload   => 'アップロード',
    );   
 
 %lang_text =
    (
-   help       => 'Help',
+   help       => 'ヘルプ',
    login      => 'ログイン',
    clear      => '消去',
    point      => 'ポイント',
@@ -223,6 +230,7 @@ package openwebmail::ja_JP_eucJP;
    replyall   => '全員へ返信',
    forward    => '転送',
    forwardasatt=>'添付ファイルとして転送',
+   forwardasorig=>'オリジナルファイルとして転送',
    printfriendly=> '印刷',
    from       => 'から',
    replyto    => '返信',
@@ -253,7 +261,6 @@ package openwebmail::ja_JP_eucJP;
    continue   => '続行',
    loginagain => '再ログイン',
    exit       => '終了',
-   for        => 'に',
    yourname   => 'あなたの名前',
    save       => '保存',
    add        => '追加',
@@ -281,10 +288,11 @@ package openwebmail::ja_JP_eucJP;
    name       => '名前',
    email      => 'Eメール',
    note       => '注釈',
-   max        => 'Maximum',
+   max        => '最大',
    group      => 'グループ',
-   quota_hit  => 'クォータヒット',
-   usage      => '使用',
+   quotausage => '割り当て使用',
+   quotalimit => '割り当て制限',
+   quotahit   => 'クォータヒット',
    tzmap      => '世界タイムゾーン地図',
    testsound  => '音のテスト',
    editfroms  => '個人Eメールのアドレスの編集',
@@ -320,15 +328,15 @@ package openwebmail::ja_JP_eucJP;
    spellcheck => 'スペルチェック',
    checkagain => '再度チェック',
    finishchecking => 'チェックが完了しました',
-   editpdict  => 'Edit Personal Dictionary',
-   addtodict  => 'Add to Dictionary',
+   editpdict  => '個人ディレクトリーの編集',
+   addtodict  => 'ディレクトリーの追加',
    manuallyfix=> '手動で修正',
    editstat   => '背景を編集',
    savestat   => '背景を保存',
    clearstat  => '選択した背景をクリア',
-   statreply  => '-- Stationery for Reply --',
+   statreply  => '-- 返信用ステイショナリ− --',
    calendar   => 'カレンダー',
-   allday     => 'All day',
+   allday     => '一日中',
    am         => '午前',
    pm         => '午後',
    calfmt_year          => '@@@YEAR@@@年',
@@ -340,48 +348,48 @@ package openwebmail::ja_JP_eucJP;
    moreitems  => 'ほかの項目',
    multieditconf => 'このアイテムが多くの日付に追加されました。\\nそれを編集するとすべての日付におけるアイテムが変更されます。\\n編集を続行しますか？',
    multidelconf  => 'このアイテムが多くの日付に追加されました。\\nそれを削除するとすべての日付におけるアイテムが削除されます。\\n削除を続行しますか？',
-   caldelconf => 'Are you sure you want to delete this item?',
+   caldelconf => 'このアイテムを削除してもよろしいですか？',
    noitemforthisday => 'この日のアイテムはありません',
    thisday_only          => '今日\'の日付けのみ',
    the_wday_of_thismonth => 'その月の@@@ORDER@@@ @@@WDAY@@@ ',
    every_wday_thismonth  => 'この月の毎@@@WDAY@@@ ',
-   thismonth_only           => 'This month only',
-   every_oddmonth_thisyear  => 'Every odd month this year',
-   every_evenmonth_thisyear => 'Every even month this year',
-   every_month_thisyear     => 'Every month this year',
-   webdisk      => 'WebDisk',
-   sshterm      => 'SSH Terminal',
+   thismonth_only           => '今月のみ',
+   every_oddmonth_thisyear  => '今年の奇数の月ごとに',
+   every_evenmonth_thisyear => '今年の偶数の月ごとに',
+   every_month_thisyear     => '今年の毎月ごとに',
+   webdisk      => 'ウェブデスク',
+   sshterm      => 'SSH ターミナル',
    dir          => 'Dir',
    dirs         => 'Dirs',
-   file         => 'File',
-   files        => 'Files',
-   program      => 'Program',
-   dest_of_chdir  => 'the destined directory',
-   name_of_newdir => 'the directory name to create',
-   name_of_newfile=> 'the filename to create',
-   dest_of_thecopy=> 'the destined directory or file of the copy',
-   dest_of_themove=> 'the destined directory or file of the move',
-   dest_of_thezip=> 'the destined filename of the new zip',
-   dest_of_thetgz=> 'the destined filename of the new tgz',
-   homedir      => 'Homedir',
-   showthumbnail    => 'Thumbnails',
-   showhidden   => 'Show hidden files',
-   lastmodified => 'Last modified time',
-   perm         => 'Perm',
-   permission   => 'Access Permission',
-   noitemfound  => 'No item found',
-   savefile     => 'Savefile',
-   succeeded    => 'succeeded',
-   failed       => 'failed',
-   savefile_towd=> 'Save file to WebDisk',
-   saveatt_towd => 'Save attachment to WebDisk',
-   addatt_fromwd=> 'Add attachment from WebDisk',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   file         => 'ファイル',
+   files        => 'ファイル',
+   program      => 'プログラム',
+   dest_of_chdir  => '決められたディレクトリー',
+   name_of_newdir => '作成のためのディレクトリーネーム',
+   name_of_newfile=> '作成のためのファイルネーム',
+   dest_of_thecopy=> '決められたディレクトリー又はそのコピーのファイル',
+   dest_of_themove=> '決められたディレクトリー又はその移動のファイル',
+   dest_of_thezip=> '新しいジップの決められたファイルネーム',
+   dest_of_thetgz=> '新しいtgzの決められたファイルネーム',
+   homedir      => 'ホームディレクトリー',
+   showthumbnail    => 'サムネール',
+   showhidden   => '隠れファイルの表示',
+   lastmodified => '最後に修正した時間',
+   perm         => '永続の',
+   permission   => 'アクセス許可',
+   noitemfound  => 'アイテムが見つかりません',
+   savefile     => 'ファイルの保存',
+   succeeded    => '成功しました',
+   failed       => '失敗しました',
+   savefile_towd=> 'ファイルをウェブデスクに保存する',
+   saveatt_towd => '添付ファイルをウェブデスクに保存する',
+   addatt_fromwd=> '添付ファイルをウェブデスクから追加する',
+   vdomain_usermgr    => 'バーチャルドメインユーザー管理',
+   vdomain_createuser => 'ユーザーの作成',
+   vdomain_changeuser => 'ユーザーの変更',
+   vdomain_deleteuser => 'ユーザーの削除',
+   vdomain_usertype_localmbox  => 'ローカルメールボックス',
+   vdomain_usertype_redirected => '外部メールアドレスへのリダイレクト'
    );
 
 %lang_err =
@@ -410,12 +418,10 @@ package openwebmail::ja_JP_eucJP;
    tryagain          => '再度試してください。',
    abook_toobig      => '申し訳ありませんが、これはあなたのアドレス帳のサイズ制限を越えてしまいますので、次へ進んでください。',
    cant_create_dir   => 'あなたのユーザーディレクトリーが作成できません!',
-   folder_hitquota   => '申し訳ありませんが、あなたはクォータをヒットしたので、これ以上のメールはメールフォルダーには保存されません。メッセージを削除するためのごみ箱以外メッセーを移動することができません。  戻ってメッセージをいくつか削除するか、ごみ箱を空にしてからやり直してください。',
-   folder_cutdone    => '警告です。フォルダーの制限サイズ(@@@FOLDERQUOTA@@@)を超えたので、自動的に古いメッセージ順に削除していきます。',
    att_overlimit     => '申し訳ありませんが、添付ファイルが制限サイズを超えています。制限サイズは次のようになっています',
    inv_msg_op        => 'メッセージに無効な操作です',
    sess_cookieerr    => 'あなたのリクエストは正確なセッションIDクッキーが含まれていませんでした -- アクセスは拒否されました!',
-   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
+   sess_iperr        => 'リクエストがセッションで使われているIPとは違うところから来ています。 -- アクセスは拒否されました!',
    no_endpart        => '最後の部分が見つかりません',
    part_missing      => 'いくつかの部分が見つかりません',
    rebuild_fmterr    => '新しいメッセージのフォーマットエラーです',
@@ -432,17 +438,21 @@ package openwebmail::ja_JP_eucJP;
    sendmail_error    => '申し訳ありませんが、あなたのメッセージの送信時に問題が生じました。ブラウザーの戻るボタンをクリックし、メッセージをチェックしてからもう一度試してみてください。',
    at_char_not_allowed => 'その@文字はこのフィールドでは使えません。  ブラウザーの戻るボタンをクリックしてからもう一度試してみてください。',
    badnum_in_days => '連続した日フィールドでの良くない数',
-   access_denied     => 'Access denied',
-   couldnt_chdirto   => 'Couldn\'t chdir to',
-   isnt_a_dir        => 'is not a directory',
-   edit_notfordir    => 'You can\'t edit a directory',
-   onefileonly       => 'Only one file is allowed for this operation',
-   no_file_todownload=> 'No file is specified for download',
-   upload_overlimit  => 'Upload file size is over the limit',
-   decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   access_denied     => 'アクセスは拒否されました。',
+   couldnt_chdirto   => '次のところにチャンネルディレクトリーできませんでした。',
+   isnt_a_dir        => 'はディレクトリーではありません',
+   edit_notfordir    => 'ディレクトリーを編集できません。',
+   onefileonly       => 'この動作には一つのファイルしか許可されていません。',
+   no_file_todownload=> 'ダウンロードするファイルが特定できません',
+   upload_overlimit  => 'アップロードするファイルのサイズが制限を越えています。',
+   decomp_notsupported=>'このファイルでは解凍サポートはしていません。',
+   webdisk_readonly  => 'あなたのウェブデスクは読み専用です。',
+   quota_syserr      => '割り当てシステムエラー',
+   quotahit_alert    => '割り当て制限を越えました。メールフォルダーのメッセージまたはウェブデスクからのファイルをいくつか削除してください。',
+   quotahit_delmail  => '警告：割り当て制限(@@@QUOTALIMIT@@@)に達しましたので、フォルダーの一番古いファイルは自動的に削除されます。',
+   quotahit_delfile  => '警告：割り当て制限(@@@QUOTALIMIT@@@)に達しましたので、ウェブデスクのいくつかのファイルは自動的に削除されました。',
+   spool_overlimit   => '受信箱がスプールリミット(@@@SPOOLLIMIT@@@)を超えました。メッセージをいくつか受信箱から他のファイルへ移してください。',
+   vdomain_toomanyuser=> 'このドメインのユーザーカウントが最大制限に達しました。'
    );
 
 1;

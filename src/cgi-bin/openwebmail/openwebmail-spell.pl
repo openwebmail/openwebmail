@@ -16,7 +16,8 @@
 # If your dictionary checks vocabularies composed by characters other
 # than english letters, you have to define new entry in below hash
 
-my %dictionary_letters =
+use vars qw (%dictionary_letters);
+%dictionary_letters =
    (
    english   => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
    br        => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz·¡È…ÌÕÛ”˙⁄¸‹ı’„√‡¿Ù‘Í «Á',
@@ -52,6 +53,7 @@ use CGI::Carp qw(fatalsToBrowser carpout);
 require "ow-shared.pl";
 require "filelock.pl";
 
+# common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
@@ -59,14 +61,15 @@ use vars qw(%prefs %style);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
-openwebmail_init();
-
 # extern vars
 use vars qw(%lang_text %lang_err);	# defined in lang/xy
 
-################################ MAIN #################################
-
+# local globals
 use vars qw(*spellIN *spellOUT *spellERR);
+
+################################ MAIN #################################
+clearvars();
+openwebmail_init();
 
 my $form = param('form');
 my $field = param('field');

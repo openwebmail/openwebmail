@@ -2,6 +2,10 @@
 #
 # openwebmail-cal.pl - calendar program
 #
+# 2003/03/29 jpd@louisiana.edu
+#            easter day support
+# 2003/02/17 ateslik.AT.users.sourceforge.net
+#            rewrite the dayview display
 # 2002/07/05 tung@turtle.ee.ncku.edu.tw
 #            modified from WebCal version 1.12.
 #
@@ -33,32 +37,30 @@ require "filelock.pl";
 require "lunar.pl";
 require "iconv-chinese.pl";
 
+# common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
-use vars qw($miscbuttonsstr);
-use vars qw(@slottime);
-
-openwebmail_init();
 
 # extern vars
 use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
 use vars qw(%lang_calendar %lang_month %lang_wday_abbrev %lang_wday %lang_order); # defined in lang/xy
 use vars qw(@wdaystr);	# defined in ow-shared.pl
+
+# local globals
 use vars qw($messageid $escapedmessageid);
+use vars qw($miscbuttonsstr);
+use vars qw(@slottime);
+
+########################## MAIN ##############################
+clearvars();
+openwebmail_init();
 
 $messageid = param("message_id");
 $escapedmessageid = escapeURL($messageid);
-
-########################## MAIN ##############################
-# event background colors
-my %eventcolors=( '1a'=>'b0b0e0', '1b'=>'b0e0b0', '1c'=>'b0e0e0',
-                  '1d'=>'e0b0b0', '1e'=>'e0b0e0', '1f'=>'e0e0b0',
-                  '2a'=>'9090f8', '2b'=>'90f890', '2c'=>'90f8f8',
-                  '2d'=>'f89090', '2e'=>'f890f8', '2f'=>'f8f890');
 
 # init global @slottime
 @slottime=();
@@ -84,6 +86,11 @@ $miscbuttonsstr .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="
 $miscbuttonsstr .= iconlink("logout.gif", "$lang_text{'logout'} $prefs{'email'}", qq|accesskey="X" href="$config{'ow_cgiurl'}/openwebmail-main.pl?sessionid=$thissession&amp;action=logout"|);
 
 my $action = param("action");
+# event background colors
+my %eventcolors=( '1a'=>'b0b0e0', '1b'=>'b0e0b0', '1c'=>'b0e0e0',
+                  '1d'=>'e0b0b0', '1e'=>'e0b0e0', '1f'=>'e0e0b0',
+                  '2a'=>'9090f8', '2b'=>'90f890', '2c'=>'90f8f8',
+                  '2d'=>'f89090', '2e'=>'f890f8', '2f'=>'f8f890');
 
 my $year=param('year')||'';
 my $month=param('month')||'';
@@ -91,8 +98,8 @@ my $day=param('day')||'';
 if (defined(param('daybutton'))) {
    $day=param('daybutton'); $day=~s/\s//g;
 }
-my $index=param('index')||'';
 
+my $index=param('index')||'';
 my $string=param('string')||'';
 my $starthour=param('starthour')||0;
 my $startmin=param('startmin')||0;
@@ -103,14 +110,13 @@ my $endampm=param('endampm')||'am';
 my $link=param('link')||'';
 my $email=param('email')||'';
 my $eventcolor=param('eventcolor')||'none';
-
 my $dayfreq=param('dayfreq')||'thisdayonly';
 my $thisandnextndays=param('thisandnextndays')||0;
 my $ndays=param('ndays')||0;
 my $monthfreq=param('monthfreq')||0;
 my $everyyear=param('everyyear')||0;
 
-if (! $config{'enable_calendar'}) {
+if (!$config{'enable_calendar'}) {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
 
@@ -163,7 +169,12 @@ $<=0; $>=0;
 ########################## YEARVIEW ##########################
 sub yearview {
    my $year=$_[0];
-   my $g2l=time()+timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
+   my $g2l=time();
+   if ($prefs{'daylightsaving'} eq "on" ||
+       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime
+   }
+   $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($current_year, $current_month, $current_day)=(gmtime($g2l))[5,4,3];
    $current_year+=1900; $current_month++;
 
@@ -233,12 +244,12 @@ sub yearview {
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
-   if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
-      if ( readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6)<0 ) {
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'global_calendarbook'}");
-      }
+   if ($prefs{'calendar_reminderforglobal'}) {
+      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
+      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
    }
 
+   my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
    my $week=1;
    for my $month (1..12) {
       my @days = set_days_in_month($year, $month);
@@ -291,8 +302,10 @@ sub yearview {
                foreach ($date, '*') {
                   next if (!defined($indexes{$_}));
                   foreach my $index (@{$indexes{$_}}) {
-                     if ($date=~/$items{$index}{'idate'}/ ||
-                        $date2=~/$items{$index}{'idate'}/ ) {
+                     if ($date =~/$items{$index}{'idate'}/ ||
+                         $date2=~/$items{$index}{'idate'}/ ||
+                         easter_match($year,$month,$day, $easter_month,$easter_day,
+                                      $items{$index}{'idate'}) ) {
                         push(@indexlist, $index);
                      }
                   }
@@ -337,14 +350,23 @@ sub yearview {
       $html =~ s/\@\@\@MONTH$month\@\@\@/$temphtml/;
    }
 
-   print htmlheader(), $html, htmlfooter(2);
+   print htmlheader(), 
+         htmlplugin($config{'header_pluginfile'}), 
+         $html, 
+         htmlplugin($config{'footer_pluginfile'}), 
+         htmlfooter(2);
 }
 ######################## END YEARVIEW ########################
 
 ########################## MONTHVIEW ##########################
 sub monthview {
    my ($year, $month)=@_;
-   my $g2l=time()+timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
+   my $g2l=time();
+   if ($prefs{'daylightsaving'} eq "on" ||
+       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime                         
+   }
+   $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($current_year, $current_month, $current_day)=(gmtime($g2l))[5,4,3];
    $current_year+=1900; $current_month++;
 
@@ -434,10 +456,9 @@ sub monthview {
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
-   if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
-      if ( readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6)<0 ) {
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'global_calendarbook'}");
-      }
+   if ($prefs{'calendar_reminderforglobal'}) {
+      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
+      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
    }
 
    $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-cal.pl");
@@ -461,6 +482,7 @@ sub monthview {
                        -override=>'1');
    $html =~ s/\@\@\@STARTDAYFORM\@\@\@/$temphtml/;
 
+   my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
    my @days = set_days_in_month($year, $month);
    for my $x ( 0..5 ) {
       for my $y ( 0..6 ) {
@@ -480,8 +502,8 @@ sub monthview {
                      qq|<table width="100%" cellpadding="0" cellspacing="0">\n|;
 
          if ($days[$x][$y] =~ /\d+/) {
-            my $t=timelocal 1,1,1,$day,($month-1),($year-1900);
-            my $dow=$wdaystr[(localtime($t))[6]];
+            my $t=timegm 1,1,1,$day,($month-1),($year-1900);
+            my $dow=$wdaystr[(gmtime($t))[6]];
             my $date=sprintf("%04d%02d%02d", $year, $month, $day);
             my $date2=sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
             my $i=0;
@@ -500,8 +522,10 @@ sub monthview {
             foreach ($date, '*') {
                next if (!defined($indexes{$_}));
                foreach my $index (@{$indexes{$_}}) {
-                  if ($date=~/$items{$index}{'idate'}/ ||
-                      $date2=~/$items{$index}{'idate'}/ ) {
+                  if ($date =~/$items{$index}{'idate'}/ ||
+                      $date2=~/$items{$index}{'idate'}/ ||
+                      easter_match($year,$month,$day, $easter_month,$easter_day,
+                                   $items{$index}{'idate'}) ) {
                      push(@indexlist, $index);
                   }
                }
@@ -534,14 +558,23 @@ sub monthview {
       }
    }
 
-   print htmlheader(), $html, htmlfooter(2);
+   print htmlheader(), 
+         htmlplugin($config{'header_pluginfile'}), 
+         $html, 
+         htmlplugin($config{'footer_pluginfile'}), 
+         htmlfooter(2);
 }
 ######################## END MONTHVIEW ########################
 
 ########################## WEEKVIEW ##########################
 sub weekview {
    my ($year, $month, $day)=@_;
-   my $g2l=time()+timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
+   my $g2l=time();
+   if ($prefs{'daylightsaving'} eq "on" ||
+       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime                         
+   }
+   $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($current_year, $current_month, $current_day)=(gmtime($g2l))[5,4,3];
    $current_year+=1900; $current_month++;
 
@@ -603,21 +636,21 @@ sub weekview {
    $temphtml .= "&nbsp;\n$miscbuttonsstr";
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
-   my $time = timelocal("0","0","12", $day, $month-1, $year-1900);
+   my $time = timegm("0","0","12", $day, $month-1, $year-1900);
 
-   my ($prev_year, $prev_month, $prev_day)=(localtime($time-86400*7))[5,4,3];
+   my ($prev_year, $prev_month, $prev_day)=(gmtime($time-86400*7))[5,4,3];
    $prev_year+=1900; $prev_month++;
    my $gif="left.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
    $temphtml=iconlink($gif, "$lang_calendar{'weekview'} ".formatted_date($prev_year,$prev_month,$prev_day), qq|href="|.$cal_url.qq|action=calweek&year=$prev_year&month=$prev_month&day=$prev_day"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
-   my ($next_year, $next_month, $next_day)=(localtime($time+86400*7))[5,4,3];
+   my ($next_year, $next_month, $next_day)=(gmtime($time+86400*7))[5,4,3];
    $next_year+=1900; $next_month++;
    $gif="right.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
    $temphtml=iconlink($gif, "$lang_calendar{'weekview'} ".formatted_date($next_year,$next_month,$next_day), qq|href="|.$cal_url.qq|action=calweek&year=$next_year&month=$next_month&day=$next_day"|). qq| \n|;
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
-   my $wdaynum = (localtime($time))[6];
+   my $wdaynum = (gmtime($time))[6];
    my $start_time = $time - 86400 * (($wdaynum+7-$prefs{'calendar_weekstart'})%7);
    for (my $i=0; $i<7; $i++) {
       my $n=($prefs{'calendar_weekstart'}+$i)%7;
@@ -629,21 +662,20 @@ sub weekview {
          $html =~ s!\@\@\@WEEKDAY$i\@\@\@!$lang_wday{$n}!;
       }
    }
-   my $wdaynum = (localtime($time))[6];
+   my $wdaynum = (gmtime($time))[6];
    my $start_time = $time - 86400 * (($wdaynum+7-$prefs{'calendar_weekstart'})%7);
 
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
-   if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
-      if ( readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6)<0 ) {
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'global_calendarbook'}");
-      }
+   if ($prefs{'calendar_reminderforglobal'}) {
+      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
+      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
    }
 
    for my $x (0..6) {
-      ($year, $month, $day)=(localtime($start_time+$x*86400))[5,4,3];
+      ($year, $month, $day)=(gmtime($start_time+$x*86400))[5,4,3];
       $year+=1900; $month++;
 
       my $bgcolor;
@@ -688,8 +720,10 @@ sub weekview {
                    qq|</td></tr>|.
                    end_form();
 
-      my $t=timelocal 1,1,1,$day,($month-1),($year-1900);
-      my $dow=$wdaystr[(localtime($t))[6]];
+      my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
+
+      my $t=timegm 1,1,1,$day,($month-1),($year-1900);
+      my $dow=$wdaystr[(gmtime($t))[6]];
       my $date=sprintf("%04d%02d%02d", $year, $month, $day);
       my $date2=sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
       my $i=0;
@@ -698,8 +732,10 @@ sub weekview {
       foreach ($date, '*') {
          next if (!defined($indexes{$_}));
          foreach my $index (@{$indexes{$_}}) {
-            if ($date=~/$items{$index}{'idate'}/ ||
-                $date2=~/$items{$index}{'idate'}/ ) {
+            if ($date =~/$items{$index}{'idate'}/ ||
+                $date2=~/$items{$index}{'idate'}/ ||
+                easter_match($year,$month,$day, $easter_month,$easter_day,
+                             $items{$index}{'idate'}) ) {
                push(@indexlist, $index);
             }
          }
@@ -719,7 +755,11 @@ sub weekview {
       $html =~ s/\@\@\@DAY$x\@\@\@/$temphtml/;
    }
 
-   print htmlheader(), $html, htmlfooter(2);
+   print htmlheader(), 
+         htmlplugin($config{'header_pluginfile'}), 
+         $html, 
+         htmlplugin($config{'footer_pluginfile'}), 
+         htmlfooter(2);
 }
 
 # print an item in the month or week view
@@ -766,7 +806,12 @@ sub month_week_item {
 ########################## DAYVIEW ###########################
 sub dayview {
    my ($year, $month, $day)=@_;
-   my $g2l=time()+timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
+   my $g2l=time();
+   if ($prefs{'daylightsaving'} eq "on" ||
+       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime                         
+   }
+   $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($current_year, $current_month, $current_day)=(gmtime($g2l))[5,4,3];
    $current_year+=1900; $current_month++;
 
@@ -826,15 +871,15 @@ sub dayview {
    $temphtml .= "&nbsp;\n$miscbuttonsstr";
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
-   my $time = timelocal("0","0","12", $day, $month-1, $year-1900);
+   my $time = timegm("0","0","12", $day, $month-1, $year-1900);
 
-   my ($prev_year, $prev_month, $prev_day)=(localtime($time-86400))[5,4,3];
+   my ($prev_year, $prev_month, $prev_day)=(gmtime($time-86400))[5,4,3];
    $prev_year+=1900; $prev_month++;
    my $gif="left.gif"; $gif="right.gif" if (is_RTLmode($prefs{'language'}));
    $temphtml=iconlink($gif, formatted_date($prev_year,$prev_month,$prev_day), qq|accesskey="U" href="|.$cal_url.qq|action=calday&year=$prev_year&month=$prev_month&day=$prev_day"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
-   my ($next_year, $next_month, $next_day)=(localtime($time+86400))[5,4,3];
+   my ($next_year, $next_month, $next_day)=(gmtime($time+86400))[5,4,3];
    $next_year+=1900; $next_month++;
    $gif="right.gif"; $gif="left.gif" if (is_RTLmode($prefs{'language'}));
    $temphtml=iconlink($gif, formatted_date($next_year,$next_month,$next_day), qq|accesskey="D" href="|.$cal_url.qq|action=calday&year=$next_year&month=$next_month&day=$next_day"|). qq| \n|;
@@ -845,20 +890,21 @@ sub dayview {
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
-   if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
-      if ( readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6)<0 ) {
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'global_calendarbook'}");
-      }
+   if ($prefs{'calendar_reminderforglobal'}) {
+      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
+      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
    }
 
-   my $t=timelocal(1, 1, 1, $day, $month-1, $year-1900);
-   my $wdaynum=(localtime($t))[6];
+   my $t=timegm(1, 1, 1, $day, $month-1, $year-1900);
+   my $wdaynum=(gmtime($t))[6];
 
    $temphtml = formatted_date($year, $month, $day, $wdaynum);
    if ($prefs{'charset'} eq "big5" || $prefs{'charset'} eq "gb2312") {
       $temphtml .= qq| &nbsp; |.lunar_str($year, $month, $day, $prefs{'charset'});
    }
    $html =~ s/\@\@\@CALTITLE\@\@\@/$temphtml/g;
+
+   my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
 
    # Find all indexes that take place today and sort them by starthourmin
    my $dow   = $wdaystr[$wdaynum];
@@ -869,8 +915,10 @@ sub dayview {
    foreach ($date, '*') {
       next if (!defined($indexes{$_}));
       foreach my $index (@{$indexes{$_}}) {
-         if ($date=~/$items{$index}{'idate'}/ ||
-             $date2=~/$items{$index}{'idate'}/ ) {
+         if ($date =~/$items{$index}{'idate'}/ ||
+             $date2=~/$items{$index}{'idate'}/ ||
+             easter_match($year,$month,$day, $easter_month,$easter_day,
+                          $items{$index}{'idate'}) ) {
             push(@indexlist, $index);
          }
       }
@@ -972,7 +1020,7 @@ sub dayview {
 
    $temphtml .= qq|<!--START EVENT MATRIX-->|;
 
-   my $slots_in_hour=int(60/$prefs{'calendar_interval'}+0.999999);
+   my $slots_in_hour=int(60/($prefs{'calendar_interval'}||30)+0.999999);
 
    for (my $slot = 0; $slot < $#slottime; $slot++) {
       if ($slot % $slots_in_hour==0) {
@@ -1295,7 +1343,11 @@ sub dayview {
    $temphtml = end_form();
    $html =~ s/\@\@\@ENDFORM\@\@\@/$temphtml/g;
 
-   print htmlheader(), $html, htmlfooter(2);
+   print htmlheader(), 
+         htmlplugin($config{'header_pluginfile'}), 
+         $html, 
+         htmlplugin($config{'footer_pluginfile'}), 
+         htmlfooter(2);
 }
 
 sub build_event_matrix {
@@ -1458,7 +1510,12 @@ sub hsv2rgb {
 ######################## LISTVIEW #########################
 sub listview {
    my $year=$_[0];
-   my $g2l=time()+timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
+   my $g2l=time();
+   if ($prefs{'daylightsaving'} eq "on" ||
+       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime                         
+   }
+   $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($current_year, $current_month, $current_day)=(gmtime($g2l))[5,4,3];
    $current_year+=1900; $current_month++;
 
@@ -1527,24 +1584,24 @@ sub listview {
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
-   if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
-      if ( readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6)<0 ) {
-         openwebmailerror("$lang_err{'couldnt_open'} $config{'global_calendarbook'}");
-      }
+   if ($prefs{'calendar_reminderforglobal'}) {
+      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
+      readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E6);
    }
 
-   my $t0 = timelocal(1,1,1, $current_day, $current_month-1, $current_year-1900);
+   my $t0 = timegm(1,1,1, $current_day, $current_month-1, $current_year-1900);
    my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
    if ((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0))) {
       $days_in_month[2]++;
    }
    my @accesskey=qw(0 1 2 3 4 5 6 7 8 9 0 J Q);
 
+   my ($easter_month, $easter_day) = gregorian_easter($year); # compute once
    $temphtml="";
    for my $month (1..12) {
       for my $day (1..$days_in_month[$month]) {
-         my $t=timelocal 1,1,1,$day,($month-1),($year-1900);
-         my $wdaynum=(localtime($t))[6];
+         my $t=timegm 1,1,1,$day,($month-1),($year-1900);
+         my $wdaynum=(gmtime($t))[6];
          my $dow=$wdaystr[$wdaynum];
          my $date=sprintf("%04d%02d%02d", $year, $month, $day);
          my $date2=sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
@@ -1553,8 +1610,10 @@ sub listview {
          foreach ($date, '*') {
             next if (!defined($indexes{$_}));
             foreach my $index (@{$indexes{$_}}) {
-               if ($date=~/$items{$index}{'idate'}/ ||
-                   $date2=~/$items{$index}{'idate'}/ ) {
+               if ($date =~/$items{$index}{'idate'}/ ||
+                   $date2=~/$items{$index}{'idate'}/ ||
+                   easter_match($year,$month,$day, $easter_month,$easter_day,
+                                $items{$index}{'idate'}) ) {
                   push(@indexlist, $index);
                }
             }
@@ -1599,7 +1658,11 @@ sub listview {
    } # month loop end
    $html=~s/\@\@\@ITEMLIST\@\@\@/$temphtml/;
 
-   print htmlheader(), $html, htmlfooter(2);
+   print htmlheader(), 
+         htmlplugin($config{'header_pluginfile'}), 
+         $html, 
+         htmlplugin($config{'footer_pluginfile'}), 
+         htmlfooter(2);
 }
 
 # print an item in the listview
@@ -1672,9 +1735,10 @@ sub edit_item {
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
-
    if (! defined($items{$index}) ) {
-      openwebmailerror("editcal - item missing");
+      openwebmailerror("$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
+      writelog("edit calitem error - item missing, index=$index");
+      writehistory("edit calitem error - item missing, index=$index");
    }
 
    $temphtml = formatted_date($year, $month, $day);
@@ -1905,7 +1969,7 @@ sub add_item {
    } elsif ($link =~ /^\@/) {
       $link=" ".$link;
    }
-   $link=~s/$thissession/\%THISSESSION\%/;
+   $link=~s/\Q$thissession\E/\%THISSESSION\%/;
    $link=0 if ($link !~ m!://[^\s]+!);
    $email=0 if ($email !~ m![^\s@]+@[^\s@]+!);
 
@@ -1933,8 +1997,8 @@ sub add_item {
    }
 
    my $index = $item_count+19690404;	# avoid collision with old records
-   my $t = timelocal(1,1,1,$day, $month-1, $year-1900);
-   my $dow = $wdaystr[(localtime($t))[6]];
+   my $t = timegm(1,1,1,$day, $month-1, $year-1900);
+   my $dow = $wdaystr[(gmtime($t))[6]];
    my $records = "";
 
    # construct the record.
@@ -1945,7 +2009,7 @@ sub add_item {
          }
          my $date_wild='(';
          for (my $i=0; $i<=$ndays; $i++) {
-            my ($y, $m, $d)=(localtime($t+86400*$i))[5,4,3];
+            my ($y, $m, $d)=(gmtime($t+86400*$i))[5,4,3];
             my $date=sprintf("%04d%02d%02d", $y+1900, $m+1, $d);
             $date_wild.='|' if ($i>0);
             $date_wild.=sprintf("%04d%02d%02d", $y+1900, $m+1, $d);
@@ -2012,7 +2076,7 @@ sub add_item {
 
    reset_notifycheck_for_newitem($items{$index});
 
-   my $msg="webcal - additem, start=$starthourmin, end=$endhourmin, str=$string";
+   my $msg="add calitem - start=$starthourmin, end=$endhourmin, str=$string";
    writelog($msg);
    writehistory($msg);
 }
@@ -2022,7 +2086,6 @@ sub add_item {
 # delete an item from user calendar
 sub del_item {
    my $index=$_[0];
-   my $msg;
 
    my (%items, %indexes);
    if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
@@ -2030,13 +2093,11 @@ sub del_item {
    }
    return if (! defined($items{$index}) );
 
-   my $msg="webcal - delitem, index=$index, t=$items{$index}{'starthourmin'}, str=$items{$index}{'string'}";
+   my $msg="delete calitem - index=$index, t=$items{$index}{'starthourmin'}, str=$items{$index}{'string'}";
    delete $items{$index};
-
    if ( writecalbook("$folderdir/.calendar.book", \%items) <0 ) {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
-
    writelog($msg);
    writehistory($msg);
 }
@@ -2071,7 +2132,7 @@ sub update_item {
    } elsif ($link =~ /^\@/) {
       $link=" ".$link;
    }
-   $link=~s/$thissession/\%THISSESSION\%/;
+   $link=~s/\Q$thissession\E/\%THISSESSION\%/;
    $link=0 if ($link !~ m!://[^\s]+!);
    $email=0 if ($email !~ m![^\s@]+@[^\s@]+!);
 
@@ -2098,7 +2159,9 @@ sub update_item {
       openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
    }
    if (! defined($items{$index}) ) {
-      openwebmailerror("updatecal - item missing");
+      openwebmailerror("$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
+      writelog("update calitem error - item missing, index=$index");
+      writehistory("update calitem error - item missing, index=$index");
    }
 
    $items{$index}{'starthourmin'}="$starthourmin"; # " is required or "0000" will be treated as 0?
@@ -2114,7 +2177,7 @@ sub update_item {
 
    reset_notifycheck_for_newitem($items{$index});
 
-   my $msg="webcal - updateitem, index=$index, start=$starthourmin, end=$endhourmin, str=$string";
+   my $msg="update calitem - index=$index, start=$starthourmin, end=$endhourmin, str=$string";
    writelog($msg);
    writehistory($msg);
 }
@@ -2134,8 +2197,8 @@ sub set_days_in_month {
    foreach (keys %wdaynum) {
       $wdaynum{$_}=($wdaynum{$_}+7-$prefs{'calendar_weekstart'})%7;
    }
-   my $time = timelocal("0","0","12","1",$month-1,$year-1900);
-   my $weekday = localtime($time); $weekday =~ s/^(\w+).*$/$1/;
+   my $time = timegm("0","0","12","1",$month-1,$year-1900);
+   my $weekday = gmtime($time); $weekday =~ s/^(\w+).*$/$1/;
 
    my @days;
    my $day_counter = 1;
@@ -2230,7 +2293,12 @@ sub lunar_str {
 # if any item added with date before the lastcheck date
 sub reset_notifycheck_for_newitem {
    my $r_item=$_[0];
-   my $g2l=time()+timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
+   my $g2l=time();
+   if ($prefs{'daylightsaving'} eq "on" ||
+       ($prefs{'daylightsaving'} eq "auto" && is_dst($g2l,$prefs{'timeoffset'})) ) {
+      $g2l+=3600; # plus 1 hour if is_dst at this gmtime                         
+   }
+   $g2l+=timeoffset2seconds($prefs{'timeoffset'}); # trick makes gmtime($g2l) return localtime in timezone of timeoffsset
    my ($wdaynum, $year, $month, $day, $hour, $min)=(gmtime($g2l))[6,5,4,3,2,1];
    $year+=1900; $month++;
 

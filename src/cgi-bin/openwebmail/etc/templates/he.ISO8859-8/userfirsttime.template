@@ -1,0 +1,13 @@
+<BR><BR><BR><BR><BR><BR><BR>
+<table border="0" align="center" width="60%" cellpadding="1" cellspacing="1">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>אבה ךורב @@@NAME@@@!</B></font>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+<table width=85%><tr><td align="center">
+<BR>אבה ךורב @@@NAME@@@!  ב שמתשמ ךניהש הנושארה םעפה וזש ררבתמ @@@NAME@@@,
+.ךיכרצל יבטימה ןפואב @@@NAME@@@  תא םיאתהל תנמ לע םינותנ רפסמ ףוסאל תכרעמה לע
+.@@@NAME@@@  לש תורדגהה ךסמל ךישמהל ץחל אנ
+@@@CONTINUEBUTTON@@@
+</td></tr></table>
+</td></tr></table>

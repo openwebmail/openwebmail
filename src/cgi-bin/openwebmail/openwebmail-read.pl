@@ -26,33 +26,38 @@ require "filelock.pl";
 require "mime.pl";
 require "iconv.pl";
 require "maildb.pl";
+require "htmlrender.pl";
+require "htmltext.pl";
 require "mailfilter.pl";
 
+# common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
+use vars qw($quotausage $quotalimit);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
-
-openwebmail_init();
-$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
-
-use vars qw($sort $page);
-use vars qw($searchtype $keyword $escapedkeyword);
-
-$page = param("page") || 1;
-$sort = param("sort") || $prefs{'sort'} || 'date';
-$searchtype = param("searchtype") || 'subject';
-$keyword = param("keyword") || '';
-$escapedkeyword = escapeURL($keyword);
 
 # extern vars
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err);	# defined in lang/xy
 use vars qw(%charset_convlist);	# defined in iconv.pl
 use vars qw($_STATUS);	# defined in maildb.pl
 
+# local globals
+use vars qw($sort $page);
+use vars qw($searchtype $keyword $escapedkeyword);
+
 ########################## MAIN ##############################
+clearvars();
+openwebmail_init();
+
+$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
+$page = param("page") || 1;
+$sort = param("sort") || $prefs{'sort'} || 'date';
+$searchtype = param("searchtype") || 'subject';
+$keyword = param("keyword") || '';
+$escapedkeyword = escapeURL($keyword);
 
 my $action = param("action");
 if ($action eq "readmessage") {
@@ -117,11 +122,22 @@ sub readmessage {
    my ($filtered, $r_filtered);
    ($filtered, $r_filtered)=filtermessage() if ($folder eq 'INBOX');
 
-   my $do_cutfolders =0;
-   if ($folderusage>=100 && $config{'cutfolders_ifoverquota'}) {
-      cutfolders(@validfolders);
-      $do_cutfolders=1;
-      getfolders(\@validfolders, \$folderusage);
+   my $quotahit_deltype='';
+   if ($quotalimit>0 && $quotausage>$quotalimit &&
+       ($config{'delmail_ifquotahit'}||$config{'delfile_ifquotahit'}) ) {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+      if ($quotausage>$quotalimit) {
+         if ($config{'delmail_ifquotahit'} && $folderusage > $quotausage*0.5) {
+            $quotahit_deltype='quotahit_delmail';
+            cutfoldermails(($quotausage-$quotalimit*0.9)*1024, @validfolders);
+            #getfolders(\@validfolders, \$folderusage);
+         } elsif ($config{'delfile_ifquotahit'}) {
+            $quotahit_deltype='quotahit_delfile';
+            my $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
+            cutdirfiles(($quotausage-$quotalimit*0.9)*1024, $webdiskrootdir);
+         }
+         $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate usage
+      }
    }
 
    my %message = %{&getmessage($messageid)};
@@ -130,7 +146,7 @@ sub readmessage {
       return;
    }
 
-   $page=int($message{'number'}/$prefs{'msgsperpage'}+0.999999)||$page;
+   $page=int($message{'number'}/($prefs{'msgsperpage'}||10)+0.999999)||$page;
    my $escapedmessageid = escapeURL($messageid);
    my $headers = param("headers") || $prefs{'headers'} || 'simple';
    my $attmode = param("attmode") || 'simple';
@@ -157,17 +173,16 @@ sub readmessage {
    $templatefile="printmessage.template" if ($printfriendly eq 'yes');
 
    # temporarily switch lang/charset if user want original charset
+   my @tmp;
    if ($convfrom eq 'none.msgcharset') {
-      my @tmp=($prefs{'language'}, $prefs{'charset'});
+      @tmp=($prefs{'language'}, $prefs{'charset'});
       ($prefs{'language'}, $prefs{'charset'})=('en', lc($message{'charset'}));
-
       readlang($prefs{'language'});
       $printfolder = $lang_folders{$folder} || $folder || '';
-      $html=htmlheader().readtemplate($templatefile);
-
+   }
+   $html=readtemplate($templatefile);
+   if ($convfrom eq 'none.msgcharset') {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
-   } else {
-      $html=htmlheader().readtemplate($templatefile);
    }
    $html = applystyle($html);
 
@@ -251,27 +266,49 @@ sub readmessage {
    }
    $escapedmessageaftermove = escapeURL($messageaftermove);
 
+   if ($config{'quota_module'} ne "none") {
+      $temphtml='';
+      my $overthreshold=($quotalimit>0 && $quotausage/$quotalimit>$config{'quota_threshold'}/100);
+      if ($config{'quota_threshold'}==0 || $overthreshold) {
+         $temphtml = "$lang_text{'quotausage'}: ".lenstr($quotausage*1024,1);
+      }
+      if ($overthreshold) {
+         $temphtml.=" (".(int($quotausage*1000/$quotalimit)/10)."%) ";
+      }
+   } else {
+      $temphtml="&nbsp;";
+   }
+   $html =~ s/\@\@\@QUOTAUSAGE\@\@\@/$temphtml/;
+
    $html =~ s/\@\@\@MESSAGETOTAL\@\@\@/$message{"total"}/;
 
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $printfolder", qq|accesskey="B" href="$main_url&amp;action=listmessages"|);
 
    $temphtml .= "&nbsp;\n";
 
-   if ($folder eq 'saved-drafts') {
-      $temphtml .= iconlink("editdraft.gif",    $lang_text{'editdraft'},    qq|accesskey="E" href="$send_url_with_id&amp;action=composemessage&amp;composetype=editdraft&amp;convfrom=$convfrom"|);
-   } elsif ($folder eq 'sent-mail') {
-      $temphtml .= iconlink("editdraft.gif",    $lang_text{'editdraft'},    qq|accesskey="E" href="$send_url_with_id&amp;action=composemessage&amp;composetype=editdraft&amp;convfrom=$convfrom"|).
-                   iconlink("forward.gif",      $lang_text{'forward'},      qq|accesskey="F" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forward&amp;convfrom=$convfrom"|).
-                   iconlink("forwardasatt.gif", $lang_text{'forwardasatt'}, qq|accesskey="M" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasatt"|);
-   } else {
-      $temphtml .= iconlink("compose.gif",      $lang_text{'composenew'},   qq|accesskey="C" href="$send_url_with_id&amp;action=composemessage"|).
-                   iconlink("reply.gif",        $lang_text{'reply'},        qq|accesskey="R" href="$send_url_with_id&amp;action=composemessage&amp;composetype=reply&amp;convfrom=$convfrom"|).
-                   iconlink("replyall.gif",     $lang_text{'replyall'},     qq|accesskey="A" href="$send_url_with_id&amp;action=composemessage&amp;composetype=replyall&amp;convfrom=$convfrom"|).
-                   iconlink("forward.gif",      $lang_text{'forward'},      qq|accesskey="F" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forward&amp;convfrom=$convfrom"|).
-                   iconlink("forwardasatt.gif", $lang_text{'forwardasatt'}, qq|accesskey="M" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasatt"|);
-   }
+   # quota or spool over the limit
+   my $inboxsize_k=(-s (get_folderfile_headerdb($user, 'INBOX'))[0])/1024;
+   my $limited=(($quotalimit>0 && $quotausage>$quotalimit) ||			   # quota
+                ($config{'spool_limit'}>0 && $inboxsize_k>$config{'spool_limit'})); # spool
 
-   $temphtml .= "&nbsp;\n";
+   if (!$limited) {
+      if ($folder eq 'saved-drafts') {
+         $temphtml .= iconlink("editdraft.gif",    $lang_text{'editdraft'},    qq|accesskey="E" href="$send_url_with_id&amp;action=composemessage&amp;composetype=editdraft&amp;convfrom=$convfrom"|);
+      } elsif ($folder eq 'sent-mail') {
+         $temphtml .= iconlink("editdraft.gif",    $lang_text{'editdraft'},    qq|accesskey="E" href="$send_url_with_id&amp;action=composemessage&amp;composetype=editdraft&amp;convfrom=$convfrom"|).
+                      iconlink("forward.gif",      $lang_text{'forward'},      qq|accesskey="F" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forward&amp;convfrom=$convfrom"|).
+                      iconlink("forwardasatt.gif", $lang_text{'forwardasatt'}, qq|accesskey="M" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasatt"|).
+                      iconlink("forwardasorig.gif",$lang_text{'forwardasorig'},qq|accesskey="O" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasorig&amp;convfrom=$convfrom"|);
+      } else {
+         $temphtml .= iconlink("compose.gif",      $lang_text{'composenew'},   qq|accesskey="C" href="$send_url_with_id&amp;action=composemessage"|).
+                      iconlink("reply.gif",        $lang_text{'reply'},        qq|accesskey="R" href="$send_url_with_id&amp;action=composemessage&amp;composetype=reply&amp;convfrom=$convfrom"|).
+                      iconlink("replyall.gif",     $lang_text{'replyall'},     qq|accesskey="A" href="$send_url_with_id&amp;action=composemessage&amp;composetype=replyall&amp;convfrom=$convfrom"|).
+                      iconlink("forward.gif",      $lang_text{'forward'},      qq|accesskey="F" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forward&amp;convfrom=$convfrom"|).
+                      iconlink("forwardasatt.gif", $lang_text{'forwardasatt'}, qq|accesskey="M" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasatt"|).
+                      iconlink("forwardasorig.gif",$lang_text{'forwardasorig'},qq|accesskey="O" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasorig&amp;convfrom=$convfrom"|);
+      }
+      $temphtml .= "&nbsp;\n";
+   }
 
    $temphtml .= iconlink("print.gif", $lang_text{'printfriendly'}, qq|href=# onClick="javascript:window.open('$read_url_with_id&amp;action=readmessage&amp;headers=$headers&amp;attmode=simple&amp;convfrom=$convfrom&amp;printfriendly=yes','_print', 'width=720,height=360,resizable=yes,menubar=yes,scrollbars=yes')"|);
    $temphtml .= "&nbsp;\n";
@@ -397,7 +434,7 @@ sub readmessage {
 
       if ( -f "$folderdir/.stationery.book" ) {
          open (STATBOOK,"$folderdir/.stationery.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
          while (<STATBOOK>) {
             my ($name, $content) = split(/\@\@\@/, $_, 2);
             chomp($name); chomp($content);
@@ -405,7 +442,7 @@ sub readmessage {
             $escstat{escapeURL($name)} = $name;
          }
          close (STATBOOK) or
-            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
+            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
       }
 
       $htmlstat = startform(-action=>"$config{'ow_cgiurl'}/openwebmail-send.pl",
@@ -493,13 +530,13 @@ sub readmessage {
       }
    }
    # option to del message directly from folder
-   if ($folderusage>=100) {
+   if ($quotalimit>0 && $quotausage>=$quotalimit) {
       @movefolders=('DELETE');
    } else {
       push(@movefolders, 'DELETE');
    }
    my $defaultdestination;
-   if ($folderusage>=100 ) {
+   if ($quotalimit>0 && $quotausage>=$quotalimit) {
       $defaultdestination='DELETE';
    } elsif ($folder eq 'mail-trash') {
       $defaultdestination='INBOX';
@@ -532,7 +569,7 @@ sub readmessage {
       $htmlmove .= submit(-name=>"movebutton",
                           -value=>$lang_text{'move'},
                           -onClick=>"return confirm($lang_text{'msgmoveconf'})");
-      if ($folderusage<100) {
+      if (!$limited) {
          $htmlmove .= submit(-name=>"copybutton",
                              -value=>$lang_text{'copy'},
                              -onClick=>"return confirm($lang_text{'msgcopyconf'})");
@@ -540,7 +577,7 @@ sub readmessage {
    } else {
       $htmlmove .= submit(-name=>"movebutton",
                           -value=>$lang_text{'move'});
-      if ($folderusage<100) {
+      if (!$limited) {
          $htmlmove .= submit(-name=>"copybutton",
                              -value=>$lang_text{'copy'});
       }
@@ -794,31 +831,37 @@ sub readmessage {
       }
    }
 
-   my $load_showmsgjs=0;
+   $temphtml='';
+   my $charset=$prefs{'charset'}; 
+   $charset=lc($message{'charset'}) if ($convfrom eq 'none.msgcharset');
 
-   # show cut folder warning
-   if ($do_cutfolders) {
-      if (!$load_showmsgjs) {
-         $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
-         $load_showmsgjs=1;
-      }
-      my $charset=$prefs{'charset'};
-      $charset=lc($message{'charset'}) if ($convfrom eq 'none.msgcharset');
-      my $msg=qq|<font size="-1" color="#cc0000">$lang_err{'folder_cutdone'}</font>|;
-      $msg=~s/\@\@\@FOLDERQUOTA\@\@\@/$config{'folderquota'}$lang_sizes{'kb'}/;
-      $html.=qq|<script language="JavaScript">\n<!--\n|.
-             qq|showmsg('$charset', '$lang_text{"quota_hit"}', '$msg', '$lang_text{"close"}', '_cutfolders', 400, 100, 60);\n|.
-             qq|//-->\n</script>\n|;
+   # show quotahit del warning
+   if ($quotahit_deltype) {
+      my $msg=qq|<font size="-1" color="#cc0000">$lang_err{$quotahit_deltype}</font>|;
+      $msg=~s/\@\@\@QUOTALIMIT\@\@\@/$config{'quota_limit'}$lang_sizes{'kb'}/;
+      $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
+      $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
+                 qq|showmsg('$charset', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_del', 400, 100, 60);\n|.
+                 qq|//-->\n</script>\n|;
    }
-
+   # show quotahit alert
+   if ($quotalimit>0 && $quotausage>=$quotalimit) {
+      my $msg=qq|<font size="-1" color="#cc0000">$lang_err{'quotahit_alert'}</font>|;
+      $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
+      $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
+                 qq|showmsg('$charset"', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_quotahit_alert', 400, 100, 60);\n|.
+                 qq|//-->\n</script>\n|;
+   # show spool overlimit alert
+   } elsif ($config{'spool_limit'}>0 && $inboxsize_k>$config{'spool_limit'}) {
+      my $msg=qq|<font size="-1" color="#cc0000">$lang_err{'spool_overlimit'}</font>|;
+      $msg=~s/\@\@\@SPOOLLIMIT\@\@\@/$config{'spool_limit'}$lang_sizes{'kb'}/;
+      $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
+      $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
+                 qq|showmsg('$charset', '$lang_text{"quotahit"}', '$msg', '$lang_text{"close"}', '_spool_overlimit', 400, 100, 60);\n|.
+                 qq|//-->\n</script>\n|;
+   }
    # popup stat of incoming msgs
    if ($prefs{'newmailwindowtime'}>0 && $filtered > 0) {
-      if (!$load_showmsgjs) {
-         $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|;
-         $load_showmsgjs=1;
-      }
-      my $charset=$prefs{'charset'};
-      $charset=lc($message{'charset'}) if ($convfrom eq 'none.msgcharset');
       my $msg;
       my $line=0;
       foreach my $f (qw(INBOX saved-messages sent-mail saved-drafts mail-trash DELETE)) {
@@ -840,9 +883,13 @@ sub readmessage {
       }
       $msg = qq|<font size=-1>$msg</font>|;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
-      $html.=qq|<script language="JavaScript">\n<!--\n|.
-             qq|showmsg('$charset', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
-             qq|//-->\n</script>\n|;
+      $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
+                 qq|showmsg('$charset', '$lang_text{"inmessages"}', '$msg', '$lang_text{"close"}', '_incoming', 160, |.($line*16+70).qq|, $prefs{'newmailwindowtime'});\n|.
+                 qq|//-->\n</script>\n|;
+   }
+   if ($temphtml) {
+      $html.=qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/showmsg.js"></script>\n|.
+             $temphtml;
    }
 
    my @tmp;
@@ -854,9 +901,9 @@ sub readmessage {
       $html.=qq|<script language="JavaScript">\n<!--\n|.
              qq|setTimeout("window.print()", 1*1000);\n|.
              qq|//-->\n</script>\n|;
-      print $html, htmlfooter(0);
+      print htmlheader(), $html, htmlfooter(0);
    } else {
-      print $html, htmlfooter(2);
+      print htmlheader(), $html, htmlfooter(2);
    }
    if ($convfrom eq 'none.msgcharset') {
       ($prefs{'language'}, $prefs{'charset'})=@tmp;
@@ -1119,8 +1166,8 @@ sub rebuildmessage {
       }
 
       readmessage($rebuildmsgid);
-      writelog("rebuildmsg - rebuild $rebuildmsgid in $folder");
-      writehistory("rebuildmsg - rebuild $rebuildmsgid from $folder");
+      writelog("rebuild message - rebuild $rebuildmsgid in $folder");
+      writehistory("rebuild message - rebuild $rebuildmsgid from $folder");
    } else {
       my ($html, $temphtml);
       $html = readtemplate("rebuildfailed.template");

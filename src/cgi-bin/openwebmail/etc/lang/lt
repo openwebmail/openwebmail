@@ -26,6 +26,13 @@ package openwebmail::lt;
    size_rev    => 'Pagal dydá (pirma maþiausia)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normalus',
@@ -223,6 +230,7 @@ package openwebmail::lt;
    replyall   => 'Atsakyti visiems',
    forward    => 'Persiøsti',
    forwardasatt=> 'Persiøsti viskà',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Print friendly',
    from       => 'Raðë',
    replyto    => 'Atgalinis adresas',
@@ -253,7 +261,6 @@ package openwebmail::lt;
    continue   => 'Tæsti',
    loginagain => 'Prisijungti vël',
    exit       => 'Iðeiti',
-   for        => '-',
    yourname   => 'Jûsø vardas',
    save       => 'Áraðyti',
    add        => 'Pridëti',
@@ -283,8 +290,9 @@ package openwebmail::lt;
    note       => 'Pastaba',
    max        => 'Maximum',
    group      => 'Grupë',
-   quota_hit  => 'JÛMS SKIRTA VIETA DISKE IÐNAUDOTA!',
-   usage      => 'Iðnaudota disko vietos',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'JÛMS SKIRTA VIETA DISKE IÐNAUDOTA!',
    tzmap      => 'Pasaulio laiko juostø þemëlapis',
    testsound  => 'Pabandyti garsà',
    editfroms  => 'Redaguoti personaliná el. paðto adresà',
@@ -410,8 +418,6 @@ package openwebmail::lt;
    tryagain          => 'bandykit dar kartà.',
    abook_toobig      => 'Gaila, bet Jûs iðnaudojote adresø knygelei skirtà disko vietà.',
    cant_create_dir   => 'Nepavyko sukurti segtuvo Jûsø darbui!',
-   folder_hitquota   => 'Gaila, bet iðnaudota Jums skirta disko vieta. Perþiûrëkit ir iðtrinkit senus, gal bût nebereikalingus laiðkus.',
-   folder_cutdone    => 'Iðnaudotas disko vietos limitas (@@@FOLDERQUOTA@@@) , seniausi laiðkai bus iðmesti automatiðkai',
    att_overlimit     => 'Gaila, bet Jûsø prikabinta byla didesnë uþ leistinà',
    inv_msg_op        => 'Neteisingi veiksmai su laiðku',
    sess_cookieerr    => 'Sesijos ID nesutampa su esamu "sausainiu" - Jûsø veiksmai neleistini!',
@@ -440,8 +446,12 @@ package openwebmail::lt;
    no_file_todownload=> 'Neaiðku kà atsiøsti',
    upload_overlimit  => 'Per didelë byla. Nusiuntimo limitas - ',
    decomp_notsupported=>'Negalimaa iðarchyvuoti ðios bylos',
-   webdisk_hitquota   => 'Virðijote Jums skirtos disko vietos limità. Gal ka nors iðtrinkite...',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

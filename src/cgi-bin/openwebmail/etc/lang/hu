@@ -27,6 +27,13 @@ package openwebmail::hu;
    size_rev    => 'Méret (Elõre a kicsik)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normál',
@@ -224,6 +231,7 @@ package openwebmail::hu;
    replyall   => 'Válasz minden résztvevõnek',
    forward    => 'Továbbítás',
    forwardasatt=>'Továbbítás csatolásként',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Nyomtatóbarát verzió',
    from       => 'Küldõ',
    replyto    => 'Válaszcím (ha más)',
@@ -254,7 +262,6 @@ package openwebmail::hu;
    continue   => 'Tovább',
    loginagain => 'Ismételt belépés',
    exit       => 'Kilépés',
-   for        => '',
    yourname   => 'Az Ön neve',
    save       => 'Ment',
    add        => 'Hozzáad',
@@ -284,8 +291,9 @@ package openwebmail::hu;
    note       => 'Megjegyzés',
    max        => 'Maximum',
    group      => 'Csoport',
-   quota_hit  => 'KVÓTA',
-   usage      => 'kihasználtság',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'KVÓTA',
    tzmap      => 'Idõzóna térkép',
    testsound  => 'Hangpróba',
    editfroms  => 'Címlista szerkesztése',
@@ -411,8 +419,6 @@ package openwebmail::hu;
    tryagain          => 'és próbálja újra.',
    abook_toobig      => 'Ezzel túllépné a mérethatárt. Kérem, lépjen vissza ',
    cant_create_dir   => 'Nem sikerült létrehozni a mappát!',
-   folder_hitquota   => 'Ön elérte a kvótát, így több levelet nem tud elmenteni. Töröljön néhányat és próbálja újra.',
-   folder_cutdone    => 'Figyelem, mivel elérte a mappa mérethatárát (@@@FOLDERQUOTA@@@), a mappa legrégibb üzenetei automatikusan törlõdtek',
    att_overlimit     => 'A csatolás túllépte a mengedett mérethatárt, ami ',
    inv_msg_op        => 'Érvénytelen mûvelet üzenetre!',
    sess_cookieerr    => 'Az Ön kérése nem a helyes cookie-t tartalmazza -- a hozzáférés letiltva!',
@@ -441,8 +447,12 @@ package openwebmail::hu;
    no_file_todownload=> 'Nincs megadva letöltendõ file',
    upload_overlimit  => 'A feltöltendõ file mérete túl nagy',
    decomp_notsupported=>'Ehhez a file-hoz nem áll rendelkezésre kitömörítõ.',
-   webdisk_hitquota   => 'Ön elérte a WebDisk kvótáját, kérem, töröljön róla néhány file-t.',
-   webdisk_readonly   => 'Az ön WebDiskje nem írható.',
+   webdisk_readonly  => 'Az ön WebDiskje nem írható.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

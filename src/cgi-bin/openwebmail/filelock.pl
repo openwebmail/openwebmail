@@ -100,9 +100,8 @@ sub dotfile_lock {
    while (time() <= $endtime) {
       my $status=0;
 
-      if ( -f "$filename.lock" ) {	# remove stale lock
-         my $t=(stat("$filename.lock"))[9];
-         unlink("$filename.lock") if (time()-$t > 300);
+      if ( my $t=(stat("$filename.lock"))[9] ) {
+         unlink("$filename.lock") if (time()-$t > 300);	# remove stale lock
       }
 
       my $locklock=_lock("$filename.lock");
@@ -197,8 +196,7 @@ sub _lock {
    ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
 
    $staletimeout=60 if $staletimeout eq 0;
-   if ( -f "$filename.lock" ) {
-      my $t=(stat("$filename.lock"))[9];
+   if ( my $t=(stat("$filename.lock"))[9] ) {
       unlink("$filename.lock") if (time()-$t > $staletimeout);
    }
    if ( sysopen(LL, "$filename.lock", O_RDWR|O_CREAT|O_EXCL) ) {

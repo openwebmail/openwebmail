@@ -17,7 +17,6 @@ $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0002); # make sure the openwebmail group can write
 
 use strict;
-use IPC::Open3;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
@@ -27,18 +26,29 @@ require "filelock.pl";
 require "mime.pl";
 require "iconv.pl";
 require "maildb.pl";
+require "htmlrender.pl";
+require "htmltext.pl";
 
+# common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style);
+use vars qw($quotausage $quotalimit);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
-openwebmail_init();
+# extern vars
+use vars qw(%lang_text %lang_err);	# defined in lang/xy
+use vars qw($_SUBJECT $_CHARSET);	# defined in maildb.pl
 
+# local global
 use vars qw($sort $page);
 use vars qw($searchtype $keyword $escapedkeyword);
+
+########################## MAIN ##############################
+clearvars();
+openwebmail_init();
 
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
@@ -46,11 +56,6 @@ $keyword = param("keyword") || '';
 $escapedkeyword = escapeURL($keyword);
 $searchtype = param("searchtype") || 'subject';
 
-# extern vars
-use vars qw(%lang_text %lang_err);	# defined in lang/xy
-use vars qw($_SUBJECT $_CHARSET);	# defined in maildb.pl
-
-########################## MAIN ##############################
 my $action = param("action");
 if ($action eq "viewattachment") {
    viewattachment();
@@ -130,7 +135,9 @@ sub getattachment {
                     qq|Content-Transfer-Coding: binary\n|.
                     qq|Connection: close\n|.
                     qq|Content-Type: message/rfc822; name="$subject.msg"\n|;
-      if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
+      if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition: attachment
+         $attheader.=qq|Content-Disposition: filename="$subject.msg"\n|;
+      } else {
          $attheader.=qq|Content-Disposition: attachment; filename="$subject.msg"\n|;
       }
       return("$subject.msg", $length, \$attheader, $r_block);
@@ -218,9 +225,11 @@ sub getattachment {
                        qq|Content-Transfer-Coding: binary\n|.
                        qq|Connection: close\n|.
                        qq|Content-Type: $contenttype; name="$filename"\n|;
-         if ( $ENV{'HTTP_USER_AGENT'}!~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition
-            if ($contenttype =~ /^text/i) {
-               $attheader.=qq|Content-Disposition: inline; filename="$filename"\n|;
+         if ($contenttype =~ /^text/i) {
+            $attheader.=qq|Content-Disposition: inline; filename="$filename"\n|;
+         } else {
+            if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) { # ie5.5 is broken with content-disposition: attachment
+               $attheader.=qq|Content-Disposition: filename="$filename"\n|;
             } else {
                $attheader.=qq|Content-Disposition: attachment; filename="$filename"\n|;
             }
@@ -260,7 +269,7 @@ sub saveattfile {	# save attachments uploaded to $config{'pw_sessiondir'} to web
 sub getattfile {
    my $attfile=$_[0];
    # only allow to view attfiles belongs the $thissession
-   if ($attfile!~/^$thissession/  || !-f "$config{'ow_sessionsdir'}/$attfile") {
+   if ($attfile!~/^\Q$thissession\E/  || !-f "$config{'ow_sessionsdir'}/$attfile") {
       openwebmailerror("What the heck? Attfile $config{'ow_sessionsdir'}/$attfile seems to be gone!");
    }
 
@@ -271,7 +280,7 @@ sub getattfile {
    $attsize=(-s("$config{'ow_sessionsdir'}/$attfile"));
 
    open(ATTFILE, "$config{'ow_sessionsdir'}/$attfile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$attfile!");
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$attfile! ($!)");
    read(ATTFILE, $attheader, 512);
    $attheaderlen=index($attheader,  "\n\n", 0);
    $attheader=substr($attheader, 0, $attheaderlen);
@@ -349,18 +358,16 @@ sub getattfile {
 ##################### SAVEFILE2WEBDISK ###################
 sub savefile2webdisk {
    my ($filename, $length, $r_content, $webdisksel)=@_;
-   my $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
-   ($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint ...
 
-   if ($config{'webdisk_quota'}>0) {
-      my $webdiskusage=0;
-      my ($stdout, $stderr, $exit, $sig)=execute('/usr/bin/du', '-sk', $webdiskrootdir);
-      $webdiskusage=$1 if ($stdout=~/(\d+)/);
-      if ($length/1024+$webdiskusage > $config{'webdisk_quota'}) {
-         autoclosewindow($lang_text{'quota_hit'}, $lang_err{'webdisk_hitquota'});
+   if ($quotalimit>0 && $quotausage+$length/1024>$quotalimit) {
+      $quotausage=(quota_get_usage_limit(\%config, $user, $homedir, 1))[2];	# get uptodate quotausage
+      if ($quotausage + $length/1024 > $quotalimit) {
+         autoclosewindow($lang_text{'quotahit'}, $lang_err{'quotahit_alert'});
       }
    }
 
+   my $webdiskrootdir=$homedir.absolute_vpath("/", $config{'webdisk_rootpath'});
+   ($webdiskrootdir =~ m!^(.+)/?$!) && ($webdiskrootdir = $1);  # untaint ...
    my $vpath=absolute_vpath('/', $webdisksel);
    my $err=verify_vpath($webdiskrootdir, $vpath);
    openwebmailerror($err) if ($err);
@@ -382,8 +389,8 @@ sub savefile2webdisk {
    chmod(0644, "$webdiskrootdir/$vpath");
    filelock("$webdiskrootdir/$vpath", LOCK_UN);
 
-   writelog("saveatt - $vpath");
-   writehistory("saveatt - $vpath");
+   writelog("save attachment - $vpath");
+   writehistory("save attachment - $vpath");
 
    autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'succeeded'} ($vpath)");
 }

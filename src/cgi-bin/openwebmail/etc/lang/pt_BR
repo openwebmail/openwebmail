@@ -1,7 +1,8 @@
 package openwebmail::pt_BR;
 
 # Portuguese Brazil translation, charset: iso-8859-1
-# by Edison Figueira Junior, edison.AT.brc.com.br
+# by Julio Cesar da Cunha, julio.AT.cnm.org.br
+#    Edison Figueira Junior, edison.AT.brc.com.br
 #    Rui - iG, ruisb.AT.ig.com.br
 
 %lang_folders =
@@ -10,7 +11,7 @@ package openwebmail::pt_BR;
    'saved-messages' => 'Guardadas',
    'sent-mail'      => 'Enviadas',
    'saved-drafts'   => 'Rascunho',
-   'mail-trash'     => 'Lixo',
+   'mail-trash'     => 'Lixeira',
    DELETE => '--APAGAR--'
    );
 
@@ -25,6 +26,13 @@ package openwebmail::pt_BR;
    subject_rev => 'Assunto (Menos Recente)',
    size        => 'Tamanho (Maior)',
    size_rev    => 'Tamanho (Menor)'
+   );
+
+%lang_onofflabels =
+   (
+   auto => 'Automático',
+   on   => 'Ativado',
+   off  => 'Desativado',
    );
 
 %lang_prioritylabels =
@@ -175,7 +183,7 @@ package openwebmail::pt_BR;
    gzip     => 'Compactar (gz)',
    mkzip    => 'Compactar (Zip)',
    mktgz    => 'Compactar (Tgz)',
-   mkthumbnail  => 'Criar Thumbnail',
+   mkthumbnail  => 'Criar Miniatura',
    download => 'Download',
    upload   => 'Upload',
    );   
@@ -199,8 +207,8 @@ package openwebmail::pt_BR;
    userprefs  => 'Preferências do Usuário',
    addressbook=> 'Livro de Endereços',
    folders    => 'Pastas',
-   emptytrash => 'Esvaziar Pasta Lixo',
-   totrash    => 'Mover para o Lixo',
+   emptytrash => 'Esvaziar Lixeira',
+   totrash    => 'Enviar para Lixeira',
    forever    => 'Para sempre',
    delatlogout=> 'Apagar ao Sair',
    userdef    => 'Definição do Usuário',
@@ -224,6 +232,7 @@ package openwebmail::pt_BR;
    replyall   => 'Responder a Todos',
    forward    => 'Encaminhar',
    forwardasatt=>'Encaminhar como Anexo',
+   forwardasorig=>'Encaminhar como original',
    printfriendly=> 'Impressão Amigável',
    from       => 'De',
    replyto    => 'Responder a',
@@ -254,7 +263,6 @@ package openwebmail::pt_BR;
    continue   => 'Continuar',
    loginagain => 'Novo Acesso',
    exit       => 'Sair',
-   for        => 'Para',
    yourname   => 'Seu Nome',
    save       => 'Salvar',
    add        => 'Adicionar',
@@ -284,8 +292,9 @@ package openwebmail::pt_BR;
    note       => 'Nota',
    max        => 'Máximo',
    group      => 'Grupo',
-   quota_hit  => 'LIMITE DE ESPAÇO PERMITIDO',
-   usage      => 'Uso',
+   quotausage => 'Espaço usado',
+   quotalimit => 'Limite de espaço',
+   quotahit   => 'LIMITE DE ESPAÇO PERMITIDO',
    tzmap      => 'Fuso horário',
    testsound  => 'Testar som',
    editfroms  => 'Editar Endereços de E-mail Pessoal',
@@ -312,7 +321,7 @@ package openwebmail::pt_BR;
    globaladdressbook => 'Livro de Endereços Global',
    globalfilterrule => 'Regras de Filtros Globais',
    readonly   => 'Somente Leitura',
-   textcontent=> 'Conteúdo do Texto',
+   textcontent=> 'Conteúdo',
    search     => 'Pesquisar',
    advsearch  => 'Pesquisa Avançada',
    folder     => 'Pasta',
@@ -365,7 +374,7 @@ package openwebmail::pt_BR;
    dest_of_thezip=> 'o nome do novo arquivo zip',
    dest_of_thetgz=> 'o nome do novo arquivo tgz',
    homedir      => 'Diretório inicial',
-   showthumbnail    => 'Thumbnails',
+   showthumbnail    => 'Miniaturas',
    showhidden   => 'Mostrar arquivos ocultos',
    lastmodified => 'Data da última modificação',
    perm         => 'Perm',
@@ -377,12 +386,12 @@ package openwebmail::pt_BR;
    savefile_towd=> 'Salvar arquivo no Disco Web',
    saveatt_towd => 'Salvar anexo no Disco Web',
    addatt_fromwd=> 'Adicionar anexo do Disco Web',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   vdomain_usermgr    => 'Gerência de Usuário de Domínio Virtual',
+   vdomain_createuser => 'Criar Usuário',
+   vdomain_changeuser => 'Alterar Usuário',
+   vdomain_deleteuser => 'Apagar Usuário',
+   vdomain_usertype_localmbox  => 'Caixa Postal Local',
+   vdomain_usertype_redirected => 'Redirecionar para e-mail externo'
    );
 
 %lang_err =
@@ -411,8 +420,6 @@ package openwebmail::pt_BR;
    tryagain          => 'Tentar novamente.',
    abook_toobig      => 'Lamento, foi excedido o limite permitido para o livro de endereços.',
    cant_create_dir   => 'Não foi possível criar o diretório do usuário!',
-   folder_hitquota   => 'Lamento, chegou ao limite de espaço da sua pasta, mais nenhum e-mail será guardado. Por favor envie as mensagens antigas para o LIXO e depois apague-as definitivamente.',
-   folder_cutdone    => 'Atenção, o limite de espaço da sua pasta(@@@FOLDERQUOTA@@@) foi excedido, mensagens antigas foram removidas automaticamnete',
    att_overlimit     => 'Lamento, o tamanho do arquivo anexado ultrapassou o limite permitido.',
    inv_msg_op        => 'Operação inválida para a mensagem',
    sess_cookieerr    => 'O pedido não tem o ID correto -- acesso negado!',
@@ -441,9 +448,13 @@ package openwebmail::pt_BR;
    no_file_todownload=> 'Nenhum arquivo foi marcado para download',
    upload_overlimit  => 'O limite do arquivo para upload excedeu',
    decomp_notsupported=>'Não há descompactador para este arquivo.',
-   webdisk_hitquota   => 'Desculpe, voce excedeu seu limite no Disco Web, apague alguns arquivos antes.',
-   webdisk_readonly   => 'Desculpe, seu diso web é somente para leitura.',
-   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   webdisk_readonly  => 'Desculpe, seu Disco Web é somente para leitura.',
+   quota_syserr      => 'Erro no sistema de Quota',
+   quotahit_alert    => 'Desculpe, limite de espaço excedido. Favor apagar algumas mensagens das pastas de e-mail ou alguns arquivos do Disco Web para liberar espaço.',
+   quotahit_delmail  => 'Atenção, o limite de espaço (@@@QUOTALIMIT@@@) foi excedido, mensagens antigas nas pastas foram removidas automaticamente',
+   quotahit_delfile  => 'Atenção, o limite de espaço (@@@QUOTALIMIT@@@) foi excedido, alguns arquivos no Disco Web foram removidos automaticamente',
+   spool_overlimit   => 'Desculpe, sua pasta ENTRADA teve o limite (@@@SPOOLLIMIT@@@) excedido. Favor mover algumas mensagens para outras pastas.',
+   vdomain_toomanyuser=> 'Desculpe, o número de usuários neste domínio atingiu o limite máximo'
    );
 
 1;

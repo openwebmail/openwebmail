@@ -27,6 +27,13 @@ package openwebmail::nl;
    size_rev    => 'Grootte (Kleinste eerst)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normaal',
@@ -224,6 +231,7 @@ package openwebmail::nl;
    replyall   => 'Antwoord iedereen',
    forward    => 'Doorsturen',
    forwardasatt=>'Doorsturen als bijlage',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Printvriendelijke versie',
    from       => 'Van',
    replyto    => 'Antwoord naar',
@@ -254,7 +262,6 @@ package openwebmail::nl;
    continue   => 'Doorgaan',
    loginagain => 'Opnieuw Inloggen',
    exit       => 'Afsluiten',
-   for        => 'Voor',
    yourname   => 'Uw naam',
    save       => 'Bewaar',
    add        => 'Voeg toe',
@@ -284,8 +291,9 @@ package openwebmail::nl;
    note       => 'Notitie',
    max        => 'Maximum',
    group      => 'Groep',
-   quota_hit  => 'QUOTUM OVERSCHREDEN',
-   usage      => 'Gebruik',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'QUOTUM OVERSCHREDEN',
    tzmap      => 'Wereldtijdenkaart',
    testsound  => 'Test geluid',
    editfroms  => 'Bewerk persoonlijke e-mail adressen',
@@ -411,8 +419,6 @@ package openwebmail::nl;
    tryagain          => 'en probeer opnieuw.',
    abook_toobig      => 'Sorry, uw adresboek is vol, er is geen plaats meer. Ga',
    cant_create_dir   => 'Kan uw eigen directory niet maken!',
-   folder_hitquota   => 'Sorry, uw mail quotum is overschreden, er kan niet meer mail opgeslagen worden. Uw kunt nog wel berichten verplaatsen naar de PRULLENBAK, waar ze zullen worden verwijderd.  Ga terug, verwijder oude berichten of leeg uw PRULLENBAK, probeer dan opnieuw.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Sorry, uw bijlage overschrijdt de maximale grootte van',
    inv_msg_op        => 'Onjuiste handeling op het bericht',
    sess_cookieerr    => 'Uw verzoek bevatte geen juist cookie -- toegang geweigerd!',
@@ -441,8 +447,12 @@ package openwebmail::nl;
    no_file_todownload=> 'U heeft geen bestand gekozen om te downloaden',
    upload_overlimit  => 'Dit bestand is te groot om te uploaden',
    decomp_notsupported=>'Het uitpakken van dit bestandsformaat wordt niet ondersteund.',
-   webdisk_hitquota   => 'Sorry, uw webdisk quotum is bereikt. Verwijder eerst bestanden.',
-   webdisk_readonly   => 'Sorry, uw webdisk staat op Alleen Lezen.',
+   webdisk_readonly  => 'Sorry, uw webdisk staat op Alleen Lezen.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

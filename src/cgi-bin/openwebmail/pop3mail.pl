@@ -198,8 +198,8 @@ sub retrpop3mail {
       my $dateserial=datefield2dateserial($stDate);
       my $gmserial=gmtime2dateserial();
       if ($dateserial eq "" ||
-          dateserial2daydiff($dateserial)-dateserial2daydiff($gmserial)>1 ) {
-         $dateserial=$gmserial;	# use current time if msg time is newer than now
+          dateserial2gmtime($dateserial)-dateserial2gmtime($gmserial)>86400 ) {
+         $dateserial=$gmserial;	# use current time if msg time is newer than now for 1 day
       }
       if ($config{'deliver_use_GMT'}) {
          $stDate=dateserial2delimiter($dateserial, "");

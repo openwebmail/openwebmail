@@ -31,7 +31,7 @@
 @@@EMAILFIELD@@@
 @@@EMAILEND@@@
 </td></tr><tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Farbmarkierung für diesen Vorgang:</B>
+<B>Farbmarkierung f&uuml;r diesen Vorgang:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@EVENTCOLORMENU@@@
 </td></tr><tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@>

@@ -1,0 +1,458 @@
+package openwebmail::he_ISO8859_8;
+
+# Hebrew translation, charset: iso-8859-8
+# by Yehuda Drori
+
+%lang_folders =
+   (
+   INBOX => 'סנכנ ראוד',
+   'saved-messages' => 'תורומש תועדוה',
+   'sent-mail'      => 'חלשנש ראוד',
+   'saved-drafts'   => 'הטויט',
+   'mail-trash'     => 'רוזחימ לס',
+   DELETE => '--הקיחמ--'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'םדוק וחתפנ אלש) סוטטס)',
+   date        => 'םדוק םישדח) ךיראת)',
+   date_rev    => 'םדוק םינשי) ךיראת)',
+   sender      => 'םדוק םישדח) חלוש)',
+   sender_rev  => 'םדוק םינשי) חלוש)',
+   subject     => 'םדוק םישדח) אשונ)',
+   subject_rev => 'םדוק םינשי) אשונ)',
+   size        => 'םדוק םילודג) לדוג)',
+   size_rev    => 'םדוק םינטק) לדוג)'
+   );
+
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'ליגר',
+   urgent      => 'ףוחד',
+   'non-urgent'=> 'ףוחד אל'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'הליחתב',
+   at_end      => 'ףוסב',
+   none        => 'אלל'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'אדוול לאש',
+   yes => 'ןכ',
+   no  => 'אל'
+   );
+
+%lang_ctrlpositionlabels =
+   (
+   top => 'שארב',
+   bottom => 'תיתחתב'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'Before mail edit area',
+   after => 'After mail edit area',
+   both  => 'חולשמ ירחאו ינפל רוזיא ךורע'
+   );
+
+%lang_abookbuttonpositionlabels = 
+   (
+   before => 'Before addressbook entries',
+   after  => 'After addressbook entries',
+   both   => 'Before and after addressbook entries'
+   );
+
+%lang_timelabels =
+   (
+      3 => 'תוקד 3',
+      5 => 'תוקד 5',
+     10 => 'תוקד 10',
+     20 => 'תוקד 20',
+     30 => 'תוקד 30',
+     60 => 'תוקד 60',
+    120 => 'םייתעש',
+    180 => 'תועש 3',
+    360 => 'תועש 6',
+    720 => 'תועש 12',
+   1440 =>'תועש 24'
+   );
+
+%lang_advsearchlabels =
+   (
+   contains    => 'ליכמ',
+   notcontains => 'ליכמ וניא',
+   is          => 'וניה',
+   isnot       => 'ונניא',
+   startswith  => 'ב ליחתמ-',
+   endswith    => 'ב םייתבמ-',
+   regexp      => 'םאות',
+   );
+
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
+%lang_calendar = 
+   (
+   yearview  => 'יתנש',
+   monthview => 'ישדוח',
+   weekview  => 'יעובש',
+   dayview   => 'ימוי',
+   listview  => 'ןורחא'
+   );
+
+%lang_month =
+   (
+   1  => 'ראוני',
+   2  => 'ראורבפ',
+   3  => 'ץרמ',
+   4  => 'לירפא',
+   5  => 'יאמ',
+   6  => 'ינוי',
+   7  => 'ילוי',
+   8  => 'טסוגוא',
+   9  => 'רבמטפס',
+   10 => 'רבוטקוא',
+   11 => 'רבמבונ',
+   12 => 'רבמצד'
+   );
+
+%lang_wday =
+   (
+   0 => 'ןושאר',
+   1 => 'ינש',
+   2 => 'ישילש',
+   3 => 'יעיבר',
+   4 => 'ישימח',
+   5 => 'ישיש',
+   6 => 'תבש'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'א',
+   1 => 'ב',
+   2 => 'ג',
+   3 => 'ד',
+   4 => 'ה',
+   5 => 'ו',
+   6 => 'ש'
+   );
+
+%lang_order =
+   (
+   1 => 'ןושאר',
+   2 => 'ינש',
+   3 => 'ישילש',
+   4 => 'יעיבר',
+   5 => 'ןורחא'
+   );
+
+%lang_wdbutton =
+   (
+   refresh  => 'ןנער',
+   preview  => 'המידקמ הגוצת',
+   edit     => 'ךורע',
+   listarchive=> 'המישר',
+   decompress=>'סחד',
+   extract  => 'ץלח',
+   chdir    => 'הירפיס הנש',
+   mkdir    => 'הירפיס רוצ',
+   newfile  => 'שדח ץבוק',
+   delete   => 'קחמ',
+   copy     => 'קתעה',
+   move     => 'זזה',
+   gzip     => 'gzCompress',
+   mkzip    => 'MkZip',
+   mktgz    => 'MkTgz',
+   mkthumbnail  => 'MkThumb',
+   download => 'דרוה',
+   upload   => 'הלעה',
+   );   
+
+%lang_text =
+   (
+   help       => 'Help',
+   login      => 'הסינכ',
+   clear      => 'הקנ',
+   point      => 'הדוקנ',
+   pixel      => 'לסקיפ',
+   changepwd  => 'אמסיס הנש',
+   viewhistory=> 'הירוטסיה גצה',
+   of         => 'ךותמ',
+   messages   => 'תועדוה',
+   unread     => 'וארקנ אל',
+   nomessages => 'תועדוה ןיא',
+   inmessages => 'תוסנכנ תועדוה',
+   composenew => 'השדח העדוה רבח',
+   refresh    => 'ןנער',
+   userprefs  => 'שמתשמ תורדגה',
+   addressbook=> 'תובותכ רפס',
+   folders    => 'תוציחמ',
+   emptytrash => 'רוזחימ לס הקנ',
+   totrash    => 'רוזחימ לסל רבעה',
+   forever    => 'דימת',
+   delatlogout=> 'האיציב קחמ',
+   userdef    => 'שמתשמ תרדגה',
+   logout     => 'האיצי',
+   page       => 'דומע',
+   msgcopyconf=> '\'ורחבנש תועדוהה תקתעה יבגל חוטב ךניה םאה\'',
+   copy       => 'קתעה',
+   msgmoveconf=> '\'ורחבנש תועדוהה תרבעה יבגל חוטב ךניה םאה?\'',
+   move       => 'רבעה',
+   markasread => 'ארקנכ ןמס',
+   markasunread => 'ארקנ אלכ ןמס',
+   dateformat => 'ךיראת תינבת',
+   date       => 'ךיראת',
+   recipient  => 'ןעמנ',
+   sender     => 'חלוש',
+   subject    => 'אשונ',
+   thread     => 'ליתפ',
+   size       => 'לדוג',
+   backto     => 'ל רוזח',
+   reply      => 'בשה',
+   replyall   => 'םלוכל בשה',
+   forward    => 'רבעה',
+   forwardasatt=>'חפסנכ רבעה',
+   forwardasorig=>'Forward as original',
+   printfriendly=> 'תספדמל יתודידי',
+   from       => 'תאמ',
+   replyto    => 'ל בשה',
+   to         => 'לא',
+   cc         => 'העידיל',
+   bcc        => 'רתסנ',
+   simplehead => 'תוטושפ תורתוכ',
+   allhead    => 'תורתוכה לכ',
+   simpleattmode => 'םיטושפ םיחפסנ',
+   allattmode    => 'םיחפסנה לכ',
+   attachment => 'חפסנ',
+   type       => 'גוס',
+   filename   => 'ץבוק םש',
+   encoding   => 'דודיק',
+   description=> 'רואת',
+   download   => 'הדרוה',
+   charset    => 'תויתוא טס',
+   samecharset=> 'העדוהב תויתואה גוסל ההז',
+   thisispartialmsg => 'תיקלח העדוה יהוז',
+   msgrebuild => 'שדחמ העדוה תינב',
+   editdraft  => 'הטויט ךורע',
+   savedraft  => 'הטויט רומש',
+   send       => 'חלש',
+   about      => 'לע',
+   close      => 'רוגס',
+   cancel     => 'לוטיב',
+   ok         => 'Ok',
+   continue   => 'ךשמה',
+   loginagain => 'תרזוח הסינכ',
+   exit       => 'האיצי',
+   yourname   => 'ךמש',
+   save       => 'רומש',
+   add        => 'ףסוה',
+   folderrenprop => '\'וז הציחמל שדח םש סנכה\'',
+   rename     => 'Rename',
+   folderdelconf => '\'התלוכת לע וז הציחמ קוחמל ךנוצרבש ענכושמ ךניה םאה?\'',
+   markread   => 'ארקנכ ןמס',
+   foldermarkreadconf => '\'וארקנכ וז הציחמב תועדוהה לכ תא ןמסל הצור ךניה םאה?\'',
+   chkindex   => 'סקדניא קודב',
+   folderchkindexconf => '\'וז הירפסל סקדניא קודבל ךנוצרבש חוטב ךניה םאה?\'',
+   reindex    => 'ReIndex',
+   folderreindexconf => '\'וז הירפיסל רזוח סקדיא עצבל ךנוצרבש חוטב ךניה םאה?\'',
+   total      => 'לכה-ךס',
+   edit       => 'ךורע',
+   delete     => 'קחמ',
+   reserve    => 'ררחש',
+   clearadd   => 'תובותכה לכ תא קחמ',
+   importadd  => 'תובותכ אביי',
+   exportadd  => 'תובותכ אציי',
+   import     => 'אביי',
+   addmod     => 'הנש/ךורע',
+   modify     => 'הנש',
+   abooktitle => 'תובותכ רפס',
+   abook      => 'תובותכ רפס',
+   name       => 'םש',
+   email      => 'ל"אוד',
+   note       => 'העדוה',
+   max        => 'Maximum',
+   group      => 'הצובק',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'םוקמ תלבגמ',
+   tzmap      => 'תימלוע ןמש תפמ',
+   testsound  => 'לילצ קודב',
+   editfroms  => 'תישיא ל"אוד תבותכ ךורע',
+   pop3book   => 'POP3 רדגה',
+   retr_pop3s => 'Retrieve POP3 Mail',
+   filterbook => 'ראוד יננסמ תרדגה',
+   include    => 'לולכ',
+   exclude    => 'אצוה',
+   smtprelay  => 'SMTP Relay',
+   header     => 'תרתוכ',
+   body       => 'ףוג',
+   attfilename=> 'AttFilename',
+   all        => 'לכה',
+   enable     => 'רשפא',
+   disable    => 'לטב',
+   filtered   => 'ןנוסמ',
+   blockrelay => 'ראוד תרש םוסח',
+   blockemail => 'ראוד תבותכ םוסח',
+   read       => 'ארק',
+   yourmsg    => 'ךלש העדוהה',
+   delivered  => 'ב חלשנ-',
+   wasreadon1 => 'ב ארקנ-',
+   wasreadon2 => '.',
+   globaladdressbook => 'יללכ תובותכ רפס',
+   globalfilterrule => 'םיללכ ןוניס יקוח',
+   readonly   => 'דבלב האירק',
+   textcontent=> 'קסקט תלוכת',
+   search     => 'שופיח',
+   advsearch  => 'םדקתמ שופיח',
+   folder     => 'הציחמ',
+   nofoldersel=> 'הציחמ הרחבנ אל',
+   showall    => 'לוכה הארה',
+   spellcheck => 'תויא קודב',
+   checkagain => 'בוש קודב',
+   finishchecking => 'הקידב םייס',
+   editpdict  => 'Edit Personal Dictionary',
+   addtodict  => 'Add to Dictionary',
+   manuallyfix=> 'ינדי ןוקית',
+   editstat   => 'Edit Stationery',
+   savestat   => 'Save Stationery',
+   clearstat  => 'Clear All Stationery',
+   statreply  => '-- Stationery for Reply --',
+   calendar   => 'הנש חול',
+   allday     => 'All day',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'הנש @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   none       => 'אלל',
+   moreitems  => 'םיפסונ םיטרפ',
+   multieditconf => 'יונישב ךישמהל.םידעומ רפסמל רדגומ הז טירפ.םידעומה לכ לע עיפשי וב יונישn\\n\\?',
+   multidelconf  => 'הקיחמב ךישמהל.םידעומ רפסמל רדגומ הז טירפ.םידעומה לכב ותעפוה תא ריסי ותקיחמn\\n\\?',
+   caldelconf => 'Are you sure you want to delete this item?',
+   noitemforthisday => 'הזםויל םיטירפ ןיא',
+   thisday_only          => 'דבלב הז םוי',
+   the_wday_of_thismonth => 'The @@@ORDER@@@ @@@WDAY@@@ of the month',
+   every_wday_thismonth  => 'Every @@@WDAY@@@ this month',
+   thismonth_only           => 'This month only',
+   every_oddmonth_thisyear  => 'Every odd month this year',
+   every_evenmonth_thisyear => 'Every even month this year',
+   every_month_thisyear     => 'Every month this year',
+   webdisk      => 'תשר קסיד',
+   sshterm      => 'חטבואמ לנימרט',
+   dir          => 'הירפיס',
+   dirs         => 'תוירפיס',
+   file         => 'ץבוק',
+   files        => 'םיצבק',
+   program      => 'תינכות',
+   dest_of_chdir  => 'דעיה תירפיס',
+   name_of_newdir => 'הירפיס תריציל םש',
+   name_of_newfile=> 'ץבוק תריציל םש',
+   dest_of_thecopy=> 'הקתעהל תדעוימה הירפסה וא ץבוקה',
+   dest_of_themove=> 'הרבעהל הירפסה וא ץבוקה',
+   dest_of_thezip=> 'הסיחדל דעוימה ץבוקה םש (zip)',
+   dest_of_thetgz=> 'הסיחדל דעוימה ץבוקה םש (tgz)',
+   homedir      => 'תיבה תירפיס',
+   showthumbnail    => 'Thumbnails',
+   showhidden   => 'םירתסנ םיצבק הארה',
+   lastmodified => 'ןורחא יוניש ךיראת',
+   perm         => 'האשרה',
+   permission   => 'Access Permission',
+   noitemfound  => 'טירפ אצמנ אל',
+   savefile     => 'ץבוק רומש',
+   succeeded    => 'החילצה הלועפה',
+   failed       => 'הלשכנ הלועפה',
+   savefile_towd=> 'תשר תירפיסל ץבוק רומש',
+   saveatt_towd => 'תשר תירפיסל חפסנ רומש',
+   addatt_fromwd=> 'תשר תירפסמ חפסנ ףסוה',
+   vdomain_usermgr    => 'Virtual Domain User Management',
+   vdomain_createuser => 'Create User',
+   vdomain_changeuser => 'Change User',
+   vdomain_deleteuser => 'Delete User',
+   vdomain_usertype_localmbox  => 'Local Mailbox',
+   vdomain_usertype_redirected => 'Redirect to external mail address'
+   );
+
+%lang_err =
+   (
+   has_illegal_chars => 'םייקוח םיוות!',
+   couldnt_open      => 'חתפנ אל',
+   couldnt_locksh    => 'האירקל לעננ אל',
+   couldnt_lock      => 'הביתכל לעננ אל',
+   couldnt_seek      => 'הליחתל קורסל ןתנ אל',
+   couldnt_close     => 'רגסנ אל',
+   couldnt_updatedb  => 'סקדניא ןכדוע אל',
+   disallowed_pop3   => 'תרש  POP3 השרומ אל',
+   disallowed_client => 'וז הנחתמ רבחתהל השרומ ךניא',
+   disallowed_receiverdomain => 'וז תבותכל ראוד חולשל השרומ ךניא',
+   norootlogin       => 'Sorry, root login is disabled for security\'s sake.',
+   shouldnt_move_here=> 'ןאכל תועדוה ריבעהל רומא ךניא!',
+   destination_folder=> 'דעי תציחמ',
+   doesnt_exist      => 'םייק אל!',
+   foldername_long   => 'םיוות 16 לע תולעל לוכי וניא הציחמ םש!',
+   folder_with_name  => 'םשה תלעב הציחמ',
+   already_exists    => 'םייק רבכ!',
+   cant_create_folder=> 'הציחמ רוציל חילצמ אל!',
+   under_indexing    => 'רתוי רחואמ הסנ סקדניא ךילהתב ןיידע',
+   abook_invalid     => 'Sorry, this file doesn\'t appear to be an address book exported from Microsoft Outlook Express 5 in CSV format.  Make sure that when viewing it in a text editor, the first line starts out "Name,E-mail Address", then go',
+   back              => 'רוזח',
+   tryagain          => 'תינש הסנו.',
+   abook_toobig      => 'Sorry, this would exceed the size limit for your address book.  Please go',
+   cant_create_dir   => 'Can\'t create your user directory!',
+   att_overlimit     => 'Sorry, your attachments exceed the attachment size limit, which is',
+   inv_msg_op        => 'Invalid operation for message',
+   sess_cookieerr    => 'Your request didn\'t contain the proper sessionid cookie -- access denied!',
+   sess_iperr        => 'Your request didn\'t come from the same ip of this session -- access denied!',
+   no_endpart        => 'אצמנ אל ןורחאה קלחה',
+   part_missing      => 'םירסח םיקלח רפסמ',
+   rebuild_fmterr    => 'New message format error',
+   rebuild_sizeerr   => 'New message size mismatch',
+   user_not_exist    => 'םייק אל שמתשמ',
+   func_notsupported => 'תכמתנ אל הנוכת',
+   auth_syserr       => 'authentication system error',
+   param_fmterr      => 'parameter format error',
+   pwd_incorrect     => 'היוגש אמסיס',
+   pwd_confirmmismatch=>'New passowrd confirm mismatch',
+   pwd_tooshort      => 'Password too short (minimum length @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Password too simple (both alphabet and digit are required)',
+   network_server_error => 'network server error',
+   sendmail_error    => 'תינש הסנו ךתעדוה תא קודב ,ןפדפדב רוזח ע ץחל אנ .ךלשנ אל ךתעדוה הלקת לשב.',
+   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
+   badnum_in_days => 'bad number in consecutive days field',
+   access_denied     => 'Access denied',
+   couldnt_chdirto   => 'Couldn\'t chdir to',
+   isnt_a_dir        => 'is not a directory',
+   edit_notfordir    => 'You can\'t edit a directory',
+   onefileonly       => 'Only one file is allowed for this operation',
+   no_file_todownload=> 'No file is specified for download',
+   upload_overlimit  => 'Upload file size is over the limit',
+   decomp_notsupported=>'Decompression support is not available for this file.',
+   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
+   vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
+   );
+
+1;

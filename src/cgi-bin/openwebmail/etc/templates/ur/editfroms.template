@@ -1,0 +1,45 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>ﺍﭘﻨﺎ ﺍﻯ ﻣﻴﻞ ﺍﮈﺭﻳﺲ ﺗﺒﺪﻴﻞ ﻛﺮﻳﮟ</B></font>
+</td></tr>
+<tr><td bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td</tr>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@>
+<B>ﺍﺻﻞ ﻧﺎﻡ</B></td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@>
+<B>ﺍﻯ ﻣﻴﻞ ﺍﮈﺭﻳﺲ</B> (ﻛﻠﻴﮏ ﺳﮯ ﺗﺒﺪﻳﻞ ﻛﺮﻳﮟ)</td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>ﻋﻤﻞ</B>
+</td></tr>
+@@@STARTFROMFORM@@@
+<tr>
+<td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@REALNAMEFIELD@@@
+</td>
+<td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@EMAILFIELD@@@
+</td>
+<td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@ADDBUTTON@@@
+</td>
+</tr>
+@@@ENDFORM@@@
+
+@@@FROMS@@@
+</table>
+
+<script language="JavaScript">
+<!--
+   function Update(realname, email)
+   {
+      document.newfrom.realname.value = realname;
+      document.newfrom.email.value = email;
+   }
+//-->
+</script>

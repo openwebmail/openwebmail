@@ -108,6 +108,7 @@ use CGI::Carp qw(fatalsToBrowser carpout);
 require "ow-shared.pl";
 require "filelock.pl";
 
+# common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
@@ -115,19 +116,15 @@ use vars qw(%prefs %style);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
-openwebmail_init();
-
 # extern vars
 use vars qw(%lang_text %lang_err);	# defined in lang/xy
 
 ########################## MAIN ############################
+clearvars();
+openwebmail_init();
 
 # $user has been determined by openwebmain_init()
-my $is_adm=0;
-foreach my $adm (@{$config{'vdomain_admlist'}}) {
-   if ($user eq $adm) { $is_adm=1; last; }
-}
-if (!$is_adm) {
+if (!$config{'enable_vdomain'} || !is_vdomain_adm($user)) {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
 
@@ -158,6 +155,18 @@ if ($action eq "display_vuserlist") {
 # back to root if possible, required for setuid under persistent perl
 $<=0; $>=0;
 ###################### END MAIN ############################
+
+######################## IS_ADM ##########################
+sub is_vdomain_adm {
+   my $user=$_[0];
+   if (defined(@{$config{'vdomain_admlist'}})) {
+      foreach my $adm (@{$config{'vdomain_admlist'}}) {
+         return 1 if ($user eq $adm);
+      }
+   }
+   return 0;
+}
+###################### END IS_ADM #######################
 
 ##################### DISPLAY_VUSERLIST ##################
 sub display_vuserlist {
@@ -191,7 +200,7 @@ sub display_vuserlist {
    filelock("$pwdfile", LOCK_SH) or 
       openwebmailerror("$lang_err{'couldnt_locksh'} $pwdfile");
    open (PASSWD, $pwdfile) or
-      openwebmailerror("$lang_err{'couldnt_open'} $pwdfile");
+      openwebmailerror("$lang_err{'couldnt_open'} $pwdfile ($!)");
    while (<PASSWD>) {
       next if (/^#/);
       s/:.*//;
@@ -263,12 +272,12 @@ sub edit_vuser {
    filelock($virtualfile, LOCK_SH) or 
       openwebmailerror("$lang_err{'couldnt_locksh'} $virtualfile");
    open (VIRTUAL, $virtualfile) or
-      openwebmailerror("$lang_err{'couldnt_open'} $virtualfile");
+      openwebmailerror("$lang_err{'couldnt_open'} $virtualfile ($!)");
    while (<VIRTUAL>) {
       s/^\s*//; s/\s*$//;
-      my @a=split(/\s+/);
-      if ($a[0] eq "$vuser\@$domain") {	# virtual user for this user@domain found
-         ($user_email, $user_virtual)=@a; last;
+      if ( /(\S+)\s*(.+)/ && $1 eq "$vuser\@$domain") { 
+         # virtual user for this user@domain found
+         ($user_email, $user_virtual)=($1, $2); last;
       }
    }
    close (VIRTUAL);
@@ -282,12 +291,11 @@ sub edit_vuser {
       filelock("$aliasfile", LOCK_SH) or 
          openwebmailerror("$lang_err{'couldnt_locksh'} $aliasfile");
       open (ALIASES, "$aliasfile") or
-         openwebmailerror("$lang_err{'couldnt_open'} $aliasfile");
+         openwebmailerror("$lang_err{'couldnt_open'} $aliasfile ($!)");
       while (<ALIASES>) {
          s/^\s*//; s/\s*$//;
-         my @a=split(/[\s:]+/);
-         if ($a[0] eq "$user_virtual") {		# alias for the virtual user found
-            $user_alias=$a[1]; last;
+         if ( /(\S+)\s*:\s*(.+)/ && $1 eq $user_virtual) { 
+            $user_alias=$2; last; # alias for the virtual user found
          }
       }
       close (ALIASES);
@@ -298,10 +306,10 @@ sub edit_vuser {
    $<=$origruid; $>=$origeuid;
 
    # check user type
-   if ( $user_alias =~ /\@/ ) { 
-      $usertype="external";
-   } else { 
+   if ( $user_alias !~ /\@/ || $user_alias =~ /['"% ]/ ) {
       $usertype="local";
+   } else { 
+      $usertype="external";
    }
 
    my ($html, $temphtml);
@@ -324,6 +332,9 @@ sub edit_vuser {
                       -override=>'1') .
                hidden(-name=>'usertype',
                       -default=>$usertype,
+                      -override=>'1') .
+               hidden(-name=>'redirect',
+                      -default=>$redirect,
                       -override=>'1');
    $html =~ s/\@\@\@STARTUSERFORM\@\@\@/$temphtml/;
 
@@ -352,7 +363,7 @@ sub edit_vuser {
 
    my $redirect='';
    $redirect=$user_alias if ($usertype eq 'external');
-   $temphtml = textfield(-name=>'redirect',
+   $temphtml = textfield(-name=>'redirect_new',
                          -default=>$redirect,
                          -size=>'40',
                          -override=>'1');
@@ -379,7 +390,11 @@ sub edit_vuser {
                       -override=>'1');
    $html =~ s/\@\@\@STARTDELFORM\@\@\@/$temphtml/;
 
-   $temphtml = submit("$lang_text{'vdomain_deleteuser'}");
+   if (is_vdomain_adm($vuser)){
+      $temphtml = '';
+   } else {
+      $temphtml = submit("$lang_text{'vdomain_deleteuser'}");
+   }
    $html =~ s/\@\@\@DELETEBUTTON\@\@\@/$temphtml/;
 
    # cancel button
@@ -415,6 +430,7 @@ sub change_vuser {
    my $usertype = param('usertype');
    my $usertype_new = param('usertype_new');
    my $redirect = param('redirect');
+   my $redirect_new = param('redirect_new');
 
    # changed password ?
    my $encrypted = '';
@@ -444,15 +460,15 @@ sub change_vuser {
       filelock($pwdfile, LOCK_EX|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_lock'} $pwdfile");
       open (PWD, $pwdfile) or
-         openwebmailerror("$lang_err{'couldnt_open'} $pwdfile");
+         openwebmailerror("$lang_err{'couldnt_open'} $pwdfile ($!)");
       open (TMP, ">$tmpfile") or
-         openwebmailerror("$lang_err{'couldnt_open'} $tmpfile");
+         openwebmailerror("$lang_err{'couldnt_open'} $tmpfile ($!)");
       my $found=0;
-      while (defined(my $line=<PWD>)) {	# write the tmp pwd file
-         if ($line =~ /^$vuser:/g) {
+      while (<PWD>) {	# write the tmp pwd file
+         if (/^$vuser:/g) {
             print TMP "$vuser:$encrypted\n"; $found=1;
          } else {
-            print TMP $line;
+            print TMP $_;
          }
       }
       close (TMP);
@@ -475,19 +491,15 @@ sub change_vuser {
 
    # change the type of virtual user ?
    my $account  = '';
-   if ( $usertype_new ne $usertype ) {
-      if ( $usertype_new eq "external" && $redirect ne '') {
-         $account = "$vuser.$domain: $redirect";
-      } else {	# usertyoe_new eq 'local'
-         $account = "$vuser.$domain: $config{'vdomain_vmpop3_mailpath'}/$domain/$vuser";
-      }
+   if ( $usertype_new ne $usertype or $redirect_new ne $redirect ) {
+      $account = "$vuser.$domain: " . vuser_redirect($usertype_new, $vuser, $redirect_new);
    }
    if ( $account ne "" ) {
       # set ruid/euid to root before change files
       my ($origruid, $origeuid)=($<, $>);
       $>=0; $<=0;
 
-      # CHNAGE POSTFIX ALIAS
+      # CHANGE POSTFIX ALIAS
       my $aliasfile = $config{'vdomain_postfix_aliases'};
       ($aliasfile =~ /^(.+)$/) && ($aliasfile = $1);		# untaint
       my $tmpfile ="$aliasfile.tmp.$$";
@@ -496,18 +508,17 @@ sub change_vuser {
       filelock($aliasfile, LOCK_EX|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_lock'} $aliasfile");
       open (ALIASES, $aliasfile) or
-         openwebmailerror("$lang_err{'couldnt_open'} $aliasfile");
+         openwebmailerror("$lang_err{'couldnt_open'} $aliasfile ($!)");
       open (TMP, ">$tmpfile") or
-         openwebmailerror("$lang_err{'couldnt_open'} $tmpfile");
+         openwebmailerror("$lang_err{'couldnt_open'} $tmpfile ($!)");
       my $printed=0;
-      while (defined(my $line=<ALIASES>)) {	# write the tmp aliases file
-         $line=~s/^\s*//; $line=~s/\s*$//;
-         my @a=split(/\s+/, $line);
-         if ($a[0] eq "$vuser\@$domain") {	# old virtual user entry for this user@domain found
-            print TMP "$account\n"; $printed=1;
-         } else {
-            print TMP "$line\n";
-         }
+      while (<ALIASES>) {	# write the tmp aliases file
+         s/^\s*//; s/\s*$//;
+         if ( m/(\S+)\s*:\s*(.+)/ && $1 eq "$vuser.$domain") {	
+            # old alias for the virtual user found
+            print TMP "$account\n"; $printed=1; next; 
+         } 
+         print TMP "$_\n";
       }
       print TMP "$account\n" if (!$printed);
       close (TMP);
@@ -552,12 +563,12 @@ sub delete_vuser {
    filelock($pwdfile, LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $pwdfile");
    open (PWD, $pwdfile) or
-      openwebmailerror("$lang_err{'couldnt_open'} $pwdfile");
+      openwebmailerror("$lang_err{'couldnt_open'} $pwdfile ($!)");
    open (TMP, ">$tmpfile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $tmpfile");
-   while (defined(my $line=<PWD>)) {	# write the tmp pwd file
-      next if ($line =~ /^$vuser:/g);
-      print TMP $line;
+      openwebmailerror("$lang_err{'couldnt_open'} $tmpfile ($!)");
+   while (<PWD>) {	# write the tmp pwd file
+      next if (/^$vuser:/g);
+      print TMP $_;
    }
    close (TMP);
    close (PWD);
@@ -578,14 +589,15 @@ sub delete_vuser {
    filelock($virtualfile, LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $virtualfile");
    open (VIRTUAL, $virtualfile) or
-      openwebmailerror("$lang_err{'couldnt_open'} $virtualfile");
+      openwebmailerror("$lang_err{'couldnt_open'} $virtualfile ($!)");
    open (TMP, ">$tmpfile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $tmpfile");
-   while (defined(my $line=<VIRTUAL>)) {	# write the tmp virtual file
-      $line=~s/^\s*//; $line=~s/\s*$//;
-      my @a=split(/\s+/, $line);
-      next if ($a[0] eq "$vuser\@$domain");	# skip old virtual user entry for this user@domain
-      print TMP "$line\n";
+      openwebmailerror("$lang_err{'couldnt_open'} $tmpfile ($!)");
+   while (<VIRTUAL>) {	# write the tmp virtual file
+      s/^\s*//; s/\s*$//;
+      if ( /(\S+)\s*(.+)/ && $1 eq "$vuser\@$domain") {
+         next;	# skip old virtual user entry for this user@domain
+      }
+      print TMP "$_\n";
    }
    close (TMP);
    close (VIRTUAL);
@@ -611,14 +623,15 @@ sub delete_vuser {
    filelock($aliasfile, LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $aliasfile");
    open (ALIASES, $aliasfile) or
-      openwebmailerror("$lang_err{'couldnt_open'} $aliasfile");
+      openwebmailerror("$lang_err{'couldnt_open'} $aliasfile ($!)");
    open (TMP, ">$tmpfile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $tmpfile");
-   while (defined(my $line=<ALIASES>)) {	# write the tmp aliases file
-      $line=~s/^\s*//; $line=~s/\s*$//;
-      my @a=split(/[\s:]+/, $line);
-      next if ($a[0] eq "$vuser.$domain");	# skip old alias entry for this virtual user
-      print TMP "$line\n";
+      openwebmailerror("$lang_err{'couldnt_open'} $tmpfile ($!)");
+   while (<ALIASES>) {	# write the tmp aliases file
+      s/^\s*//; s/\s*$//;
+      if ( /(\S+)\s*:\s*(.+)/ && $1 eq "$vuser.$domain") {
+         next;	# skip old alias entry for this virtual user
+      }
+      print TMP "$_\n";
    }
    close (TMP);
    close (ALIASES);
@@ -757,11 +770,7 @@ sub create_vuser {
 
    # usertype of virtual user ?
    my $account  = '';
-   if ( $usertype eq "external" && $redirect ne '') {
-      $account = "$vuser.$domain: $redirect";
-   } else {	# tyep eq 'local'
-      $account = "$vuser.$domain: $config{'vdomain_vmpop3_mailpath'}/$domain/$vuser";
-   }
+   $account = "$vuser.$domain: " . vuser_redirect($usertype, $vuser, $redirect);
 
    # set ruid/euid to root before change files
    my ($origruid, $origeuid)=($<, $>);
@@ -776,7 +785,7 @@ sub create_vuser {
    filelock($pwdfile, LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $pwdfile");
    open (PWD, $pwdfile) or
-      openwebmailerror("$lang_err{'couldnt_open'} $pwdfile");
+      openwebmailerror("$lang_err{'couldnt_open'} $pwdfile ($!)");
    while (defined(my $line=<PWD>)) {	# write the tmp pwd file
       next if ($line=~/^#/);
       if ($line =~ /^$vuser:/g) {
@@ -791,7 +800,7 @@ sub create_vuser {
    }
 
    open (PWD, ">>$pwdfile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $pwdfile");
+      openwebmailerror("$lang_err{'couldnt_open'} $pwdfile ($!)");
    seek(PWD, 0, 2);	# seek to tail
    print PWD "$vuser:$encrypted\n";
    close (PWD);
@@ -804,7 +813,7 @@ sub create_vuser {
    filelock($virtualfile, LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $virtualfile");
    open (VIRTUAL, ">>$virtualfile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $virtualfile");
+      openwebmailerror("$lang_err{'couldnt_open'} $virtualfile ($!)");
    seek(VIRTUAL, 0, 2);	# seek to tail
    print VIRTUAL "$vuser\@$domain\t$vuser.$domain\n";
    close (VIRTUAL);
@@ -822,7 +831,7 @@ sub create_vuser {
    filelock($aliasfile, LOCK_EX|LOCK_NB) or
       openwebmailerror("$lang_err{'couldnt_lock'} $aliasfile");
    open (ALIASES, ">>$aliasfile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $aliasfile");
+      openwebmailerror("$lang_err{'couldnt_open'} $aliasfile ($!)");
    seek(ALIASES, 0, 2);	#seek to tail
    print ALIASES "$account\n";
    close (ALIASES);
@@ -839,3 +848,26 @@ sub create_vuser {
    display_vuserlist();
 }
 ##################### END WRITE NEW USER #####################
+
+##################### VUSER_REDIRECT ##################
+sub vuser_redirect {
+   my ($usertype, $vuser, $redirect) = @_;
+   my $dest;
+   if ( $usertype eq "external" && $redirect ne "") {
+      $dest = $redirect;
+   } else {
+      my $spool="$config{'vdomain_vmpop3_mailpath'}/$domain/$vuser";
+      if ( $config{'vdomain_mailbox_command'} ne "none" ) {
+         my $vhomedir = (get_userinfo(\%config, "$vuser\@$domain"))[5];
+         $dest = qq!"|$config{'vdomain_mailbox_command'}"!;
+         $dest =~ s/<domain>/$domain/g;
+         $dest =~ s/<user>/$vuser/g;
+         $dest =~ s/<homedir>/$vhomedir/g;
+         $dest =~ s/<spoolfile>/$spool/g;
+      } else {
+         $dest=$spool;
+      }
+   }
+   return $dest;
+}
+##################### END VUSER_DESTINATION #####################

@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Userlist of Domain @@@DOMAINNAME@@@</B></font>
+<B>Lista de Usuários do Domínio @@@DOMAINNAME@@@</B></font>
 <tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>

@@ -29,6 +29,13 @@ package openwebmail::pl;
    size_rev    => 'Rozmiar (od najmniejszych)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normalny',
@@ -226,6 +233,7 @@ package openwebmail::pl;
    replyall   => 'Odpowiedz wszystkim',
    forward    => 'Przeka¿',
    forwardasatt=>'Przeka¿ jako za³±cznik',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Do wydruku',
    from       => 'Od',
    replyto    => 'Odpowiedz',
@@ -256,7 +264,6 @@ package openwebmail::pl;
    continue   => 'Kontynuuj',
    loginagain => 'Zaloguj ponownie',
    exit       => 'Wyjd¼',
-   for        => 'DLA',
    yourname   => 'Imiê Nazwisko',
    save       => 'Zapisz',
    add        => 'Dodaj',
@@ -286,8 +293,9 @@ package openwebmail::pl;
    note       => 'Opis',
    max        => 'Maksimum',
    group      => 'Grupa',
-   quota_hit  => 'OSI¡GNIÊTO LIMIT DOSTÊPNEJ PRZESTRZENI NA DYSKU',
-   usage      => 'U¿ycie',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'OSI¡GNIÊTO LIMIT DOSTÊPNEJ PRZESTRZENI NA DYSKU',
    tzmap      => 'Mapa stref czasowych',
    testsound  => 'Sprawd¼ d¼wiêk',
    editfroms  => 'Edytuj w³asne adresy e-mail',
@@ -413,8 +421,6 @@ package openwebmail::pl;
    tryagain          => 'i spróbuj jeszcze raz.',
    abook_toobig      => 'Niestety przekraczasz dopuszczalny rozmiar swojej Ksi±¿ki Adresowej.  Przejd¼',
    cant_create_dir   => 'Nie mo¿na utworzyæ twojego osobistego katalogu!',
-   folder_hitquota   => 'Niestety przekroczy³e¶ dopuszczalny rozmiar skrzynki pocztowej. Nie bêdziesz teraz móg³ przenie¶æ wiadomo¶ci gdziekolwiek poza Kosze, z którego zostan± natychmiast usuniête.  Wróæ, usuñ czê¶æ wiadomo¶ci, opró¿nij kosz i spróbuj jeszcze raz.',
-   folder_cutdone    => 'Uwaga, po osi±gniêciu maksymalnego rozmiaru skrzynki pocztowej (@@@FOLDERQUOTA@@@), najstarsze wiadomo¶ci zosta³y automatycznie usuniête',
    att_overlimit     => 'Niestety rozmiar za³±cznika przekracza limit, który wynosi',
    inv_msg_op        => 'Nieprawid³owa operacja dla tej wiadomo¶ci',
    sess_cookieerr    => 'Twoje zapytanie nie zawiera w³asciwego identyfikatora sesji - dostêp zabroniony!',
@@ -443,8 +449,12 @@ package openwebmail::pl;
    no_file_todownload=> 'Nie okre¶lono pliku do pobrania',
    upload_overlimit  => 'Rozmiar wysy³anego pliku przekracza limit',
    decomp_notsupported=>'Rozpakowanie tego typu pliku nie jest mo¿liwe',
-   webdisk_hitquota   => 'Niestety osi±gniêto maksymalne zape³nienie dysku sieciowego, rozpoznij od usuniêcia pewnych plików.',
-   webdisk_readonly   => 'Niestety, dysk sieciowy jest tylko do odczytu',
+   webdisk_readonly  => 'Niestety, dysk sieciowy jest tylko do odczytu',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

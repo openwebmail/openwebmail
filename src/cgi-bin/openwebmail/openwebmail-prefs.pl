@@ -27,22 +27,38 @@ require "pop3mail.pl";
 require "mime.pl";
 require "iconv.pl";
 
+# common globals
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($loginname $logindomain $loginuser);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
+use vars qw($quotausage $quotalimit);
 use vars qw($folderdir @validfolders $folderusage);
 use vars qw($folder $printfolder $escapedfolder);
 
-openwebmail_init();
-$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
+# extern vars
+use vars qw(%languagenames %languagecharsets @openwebmailrcitem); # defined in ow-shared.pl
+use vars qw(%lang_folders %lang_sizes %lang_text %lang_err
+	    %lang_onofflabels %lang_sortlabels 
+            %lang_withoriglabels %lang_receiptlabels
+            %lang_ctrlpositionlabels %lang_sendpositionlabels
+            %lang_abookbuttonpositionlabels
+	    %lang_timelabels %lang_wday);	# defined in lang/xy
+use vars qw(%charset_convlist);			# defined in iconv.pl
+use vars qw(%medfontsize);			# defined in ow-shared.pl
 
+# local globals
 use vars qw($sort $page);
 use vars qw($messageid $escapedmessageid);
 use vars qw($userfirsttime $prefs_caller);
 use vars qw($urlparmstr $formparmstr);
 
+########################## MAIN ##############################
+clearvars();
+openwebmail_init();
+
+$SIG{CHLD}=sub { wait }; # whole process scope to prevent zombie
 $page = param("page") || 1;
 $sort = param("sort") || $prefs{'sort'} || 'date';
 $messageid=param("message_id") || '';
@@ -74,19 +90,8 @@ $formparmstr=hidden(-name=>'sessionid',
                     -default=>$prefs_caller,
                     -override=>'1');
 
-# extern vars
-use vars qw(%languagenames %languagecharsets @openwebmailrcitem); # defined in ow-shared.pl
-use vars qw(%lang_folders %lang_sizes %lang_text %lang_err
-	    %lang_sortlabels %lang_withoriglabels %lang_receiptlabels
-            %lang_ctrlpositionlabels %lang_sendpositionlabels
-            %lang_abookbuttonpositionlabels
-	    %lang_timelabels %lang_wday);	# defined in lang/xy
-use vars qw(%charset_convlist);			# defined in iconv.pl
-use vars qw(%medfontsize);			# defined in ow-shared.pl
-
-########################## MAIN ##############################
 my $action = param("action");
-if ($action eq "about") {
+if ($action eq "about" && $config{'enable_about'}) {
    about();
 } elsif ($action eq "userfirsttime") {
    userfirsttime();
@@ -94,11 +99,11 @@ if ($action eq "about") {
    editprefs();
 } elsif ($action eq "saveprefs") {
    saveprefs();
-} elsif ($action eq "editpassword") {
+} elsif ($action eq "editpassword" && $config{'enable_changepwd'}) {
    editpassword();
-} elsif ($action eq "changepassword" && $config{'enable_changepwd'} ) {
+} elsif ($action eq "changepassword" && $config{'enable_changepwd'}) {
    changepassword();
-} elsif ($action eq "viewhistory") {
+} elsif ($action eq "viewhistory" && $config{'enable_history'}) {
    viewhistory();
 } elsif ($action eq "editfroms") {
    editfroms();
@@ -118,13 +123,13 @@ if ($action eq "about") {
    modfilter("add");
 } elsif ($action eq "deletefilter") {
    modfilter("delete");
-} elsif (param('delstatbutton')) {
+} elsif (param('delstatbutton') && $config{'enable_stationery'}) {
    delstat();
-} elsif (param('editstatbutton') || $action eq "editstat") {
+} elsif ((param('editstatbutton')||$action eq "editstat") && $config{'enable_stationery'}) {
    editstat();
-} elsif ($action eq "clearstat") {
+} elsif ($action eq "clearstat" && $config{'enable_stationery'}) {
    clearstat();
-} elsif ($action eq "addstat") {
+} elsif ($action eq "addstat" && $config{'enable_stationery'}) {
    addstat();
 } elsif ($action eq "timeoutwarning") {
    timeoutwarning();
@@ -239,12 +244,26 @@ sub editprefs {
                $formparmstr;
    $html =~ s/\@\@\@STARTPREFSFORM\@\@\@/$temphtml/;
 
+   if ($config{'quota_module'} ne "none") {
+      $temphtml='';
+      my $overthreshold=($quotalimit>0 && $quotausage/$quotalimit>$config{'quota_threshold'}/100);
+      if ($config{'quota_threshold'}==0 || $overthreshold) {
+         $temphtml = "$lang_text{'quotausage'}: ".lenstr($quotausage*1024,1);
+      }
+      if ($overthreshold) {
+         $temphtml.=" (".(int($quotausage*1000/$quotalimit)/10)."%) ";
+      }
+   } else {
+      $temphtml="&nbsp;";
+   }
+   $html =~ s/\@\@\@QUOTAUSAGE\@\@\@/$temphtml/;
+
    my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, "$folderdir/.from.book");
 
    if ($userfrom{$prefs{'email'}}) {
-      $temphtml = " $lang_text{'for'} " . $userfrom{$prefs{'email'}};
+      $temphtml = $userfrom{$prefs{'email'}};
    } else {
-      $temphtml = '';
+      $temphtml = "&nbsp;";
    }
    $html =~ s/\@\@\@REALNAME\@\@\@/$temphtml/;
 
@@ -286,12 +305,15 @@ sub editprefs {
          $temphtml .= iconlink("vdusers.gif", $lang_text{'vdomain_usermgr'}, qq|accesskey="P" href="$config{'ow_cgiurl'}/openwebmail-vdomain.pl?action=display_vuserlist&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
       }
    }
-   $temphtml .= iconlink("history.gif", $lang_text{'viewhistory'}, qq|accesskey="V" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=viewhistory&amp;$urlparmstr"|);
+   if ($config{'enable_history'}) {
+      $temphtml .= iconlink("history.gif", $lang_text{'viewhistory'}, qq|accesskey="V" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=viewhistory&amp;$urlparmstr"|);
+   }
    if ($config{'enable_about'}) {
       $temphtml .= iconlink("info.gif", $lang_text{'about'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=about&amp;$urlparmstr"|);
    }
 
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
+
 
    my $defaultlanguage=$prefs{'language'};
    my $defaultcharset=$prefs{'charset'}||$languagecharsets{$prefs{'language'}};
@@ -336,6 +358,13 @@ sub editprefs {
                           -override=>'1').
                qq|&nbsp;|. iconlink("earth.gif", $lang_text{'tzmap'}, qq|href="$config{'ow_htmlurl'}/images/timezone.jpg" target="_timezonemap"|). qq|\n|;
    $html =~ s/\@\@\@TIMEOFFSETMENU\@\@\@/$temphtml/;
+
+   $temphtml = popup_menu(-name=>'daylightsaving',
+                          -values=>[ 'auto', 'on', 'off' ],
+                          -labels=>\%lang_onofflabels,
+                          -default=>$prefs{'daylightsaving'},
+                          -override=>'1');
+   $html =~ s/\@\@\@DAYLIGHTSAVINGMENU\@\@\@/$temphtml/;
 
    my @fromemails=sort keys %userfrom;
    my %fromlabels;
@@ -437,7 +466,7 @@ sub editprefs {
    # Get a list of valid style files
    my @styles;
    opendir (STYLESDIR, "$config{'ow_stylesdir'}") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_stylesdir'} directory for reading!");
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_stylesdir'} directory for reading! ($!)");
    while (defined(my $currstyle = readdir(STYLESDIR))) {
       if ($currstyle =~ /^([^\.].*)$/) {
          push (@styles, $1);
@@ -445,7 +474,7 @@ sub editprefs {
    }
    @styles = sort(@styles);
    closedir(STYLESDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_stylesdir'}!");
+      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_stylesdir'}! ($!)");
 
    $temphtml = popup_menu(-name=>'style',
                           -values=>\@styles,
@@ -457,7 +486,7 @@ sub editprefs {
    # Get a list of valid iconset
    my @iconsets;
    opendir (ICONSETSDIR, "$config{'ow_htmldir'}/images/iconsets") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/iconsets directory for reading!");
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/iconsets directory for reading! ($!)");
    while (defined(my $currset = readdir(ICONSETSDIR))) {
       if (-d "$config{'ow_htmldir'}/images/iconsets/$currset" && $currset =~ /^([^\.].*)$/) {
          push (@iconsets, $1);
@@ -465,7 +494,7 @@ sub editprefs {
    }
    @iconsets = sort(@iconsets);
    closedir(ICONSETSDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/iconsets!");
+      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/iconsets! ($!)");
 
    $temphtml = popup_menu(-name=>'iconset',
                           -values=>\@iconsets,
@@ -476,14 +505,14 @@ sub editprefs {
    # Get a list of valid background images
    my @backgrounds;
    opendir (BACKGROUNDSDIR, "$config{'ow_htmldir'}/images/backgrounds") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/backgrounds directory for reading!");
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/backgrounds directory for reading! ($!)");
    while (defined(my $currbackground = readdir(BACKGROUNDSDIR))) {
       if ($currbackground =~ /^([^\.].*)$/) {
          push (@backgrounds, $1);
       }
    }
    closedir(BACKGROUNDSDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/backgrounds!");
+      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/backgrounds! ($!)");
    @backgrounds = sort(@backgrounds);
    push(@backgrounds, "USERDEFINE");
 
@@ -766,7 +795,7 @@ sub editprefs {
                              -override=>'1');
       ($matchcount, $matchdate)=split(":", $FTDB{"filter_repeatlimit"});
       if ($matchdate) {
-         $matchdate=dateserial2str($matchdate);
+         $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
          $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
       }
       $html =~ s/\@\@\@FILTERREPEATLIMIT\@\@\@/$temphtml/;
@@ -777,7 +806,7 @@ sub editprefs {
                            -label=>'');
       ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedsmtp"});
       if ($matchdate) {
-         $matchdate=dateserial2str($matchdate);
+         $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
          $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
       }
       $html =~ s/\@\@\@FILTERFAKEDSMTP\@\@\@/$temphtml/;
@@ -788,7 +817,7 @@ sub editprefs {
                            -label=>'');
       ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedfrom"});
       if ($matchdate) {
-         $matchdate=dateserial2str($matchdate);
+         $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
          $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
       }
       $html =~ s/\@\@\@FILTERFAKEDFROM\@\@\@/$temphtml/;
@@ -799,7 +828,7 @@ sub editprefs {
                            -label=>'');
       ($matchcount, $matchdate)=split(":", $FTDB{"filter_fakedexecontenttype"});
       if ($matchdate) {
-         $matchdate=dateserial2str($matchdate);
+         $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
          $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
       }
       $html =~ s/\@\@\@FILTERFAKEDEXECONTENTTYPE\@\@\@/$temphtml/;
@@ -1001,14 +1030,14 @@ sub editprefs {
    # Get a list of new mail sound
    my @sounds;
    opendir (SOUNDDIR, "$config{'ow_htmldir'}/sounds") or
-      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/sounds directory for reading!");
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/sounds directory for reading! ($!)");
    while (defined(my $currsnd = readdir(SOUNDDIR))) {
       if (-f "$config{'ow_htmldir'}/sounds/$currsnd" && $currsnd =~ /^([^\.].*)$/) {
          push (@sounds, $1);
       }
    }
    closedir(SOUNDDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/sounds!");
+      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/sounds! ($!)");
 
    @sounds = sort(@sounds);
    unshift(@sounds, 'NONE');
@@ -1101,7 +1130,7 @@ sub editprefs {
 sub saveprefs {
    if (! -d "$folderdir" ) {
       mkdir ("$folderdir", oct(700)) or
-         openwebmailerror("$lang_err{'cant_create_dir'} $folderdir");
+         openwebmailerror("$lang_err{'cant_create_dir'} $folderdir ($!)");
    }
    if ($config{'enable_strictforward'} &&
        param("forwardaddress") =~ /[&;\`\<\>\(\)\{\}]/) {
@@ -1248,18 +1277,18 @@ sub saveprefs {
       $signaturefile="$homedir/.signature";
    }
    open (SIGNATURE,">$signaturefile") or
-      openwebmailerror("$lang_err{'couldnt_open'} $signaturefile!");
+      openwebmailerror("$lang_err{'couldnt_open'} $signaturefile! ($!)");
    print SIGNATURE $newprefs{'signature'};
-   close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $signaturefile!");
+   close (SIGNATURE) or openwebmailerror("$lang_err{'couldnt_close'} $signaturefile! ($!)");
    chown($uuid, $ugid, $signaturefile) if ($signaturefile eq "$homedir/.signature");
 
    # save .openwebmailrc
-   open (RC, ">$folderdir/.openwebmailrc")
-      or openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc!");
+   open (RC, ">$folderdir/.openwebmailrc") or
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.openwebmailrc! ($!)");
    foreach my $key (@openwebmailrcitem) {
       print RC "$key=$newprefs{$key}\n";
    }
-   close (RC) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc!");
+   close (RC) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.openwebmailrc! ($!)");
 
    %prefs = readprefs();
    %style = readstyle($prefs{'style'});
@@ -1451,7 +1480,11 @@ sub writedotvacationmsg {
          $ENV{'LOGNAME'}=$user;
          $ENV{'HOME'}=$homedir;
          $<=$>;		# drop ruid by setting ruid = euid
-         exec(split(/\s/, $config{'vacationinit'}));
+         my @cmd;
+         foreach (split(/\s/, $config{'vacationinit'})) { 
+            /^(.*)$/ && push(@cmd, $1); # untaint all argument
+         }
+         exec(@cmd);
 #         system("/bin/sh -c '$config{vacationinit} 2>>/tmp/err.log2  >>/tmp/err.log'" );
          exit 0;
       }
@@ -1488,8 +1521,8 @@ sub editpassword {
    $html = applystyle($html);
 
    my $chpwd_url="$config{'ow_cgiurl'}/openwebmail-prefs.pl";
-   if (cookie("openwebmail-ssl")) {
-      $chpwd_url="https://$ENV{'HTTP_HOST'}$chpwd_url" if ($chpwd_url!~m!^https?://!i);
+   if (cookie("openwebmail-ssl")) {	# backto SSL
+      $chpwd_url="https://$ENV{'HTTP_HOST'}$chpwd_url" if ($chpwd_url!~s!^https?://!https://!i);
    }
    $temphtml = startform(-name=>"passwordform",
 			 -action=>$chpwd_url).
@@ -1577,12 +1610,12 @@ sub changepassword {
       $<=$origruid; $>=$origeuid;	# fall back to original ruid/euid
 
       if ($errorcode==0) {
-         writelog("change passwd");
-         writehistory("change passwd");
+         writelog("change password");
+         writehistory("change password");
          $html = readtemplate("chpwdok.template");
       } else {
-         writelog("change passwd error - $config{'auth_module'} : $errorcode, $errormsg");
-         writehistory("change passwd error - $config{'auth_module'} : $errorcode");
+         writelog("change password error - $config{'auth_module'}, ret $errorcode, $errormsg");
+         writehistory("change password error - $config{'auth_module'}, ret $errorcode, $errormsg");
          my $webmsg='';
          if ($errorcode==-1) {
             $webmsg=$lang_err{'func_notsupported'};
@@ -1603,8 +1636,9 @@ sub changepassword {
    $html = applystyle($html);
 
    my $url="$config{'ow_cgiurl'}/openwebmail-prefs.pl";
-   if ( ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) && !$config{'stay_ssl_afterlogin'}) {
-      $url="http://$ENV{'HTTP_HOST'}$url" if ($url !~ m!https?://! );
+   if ( !$config{'stay_ssl_afterlogin'} &&	# leave SSL
+        ($ENV{'HTTPS'}=~/on/i || $ENV{'SERVER_PORT'}==443) ) {
+      $url="http://$ENV{'HTTP_HOST'}$url" if ($url!~s!^https?://!http://!i);
    }
    $temphtml = startform(-action=>"$url") .
                hidden(-name=>'action',
@@ -1775,11 +1809,11 @@ sub modfrom {
       }
 
       open (FROMBOOK, ">$folderdir/.from.book" ) or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.from.book!");
+         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.from.book! ($!)");
       foreach $email (sort keys %from) {
          print FROMBOOK "$email\@\@\@$from{$email}\n";
       }
-      close (FROMBOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.from.book!");
+      close (FROMBOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.from.book! ($!)");
    }
 
    editfroms();
@@ -2086,12 +2120,12 @@ sub editfilter {
 
    if ( -f "$folderdir/.filter.book" ) {
       open (FILTER,"$folderdir/.filter.book") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.filter.book!");
+         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.filter.book! ($!)");
       while (<FILTER>) {
          chomp($_);
          push (@filterrules, $_) if(/^\d+\@\@\@/); # add valid rules only (Filippo Dattola)
       }
-      close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.filter.book!");
+      close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.filter.book! ($!)");
    }
    if ( $config{'global_filterbook'} ne "" && -f "$config{'global_filterbook'}" ) {
       if ( open (FILTER, "$config{'global_filterbook'}") ) {
@@ -2118,7 +2152,7 @@ sub editfilter {
 
       $temphtml .= "<tr>\n";
       if ($matchdate) {
-         $matchdate=dateserial2str($matchdate);
+         $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
          $temphtml .= "<td bgcolor=$bgcolor align=center><a title='$matchdate'>$matchcount</a></font></td>\n";
       } else {
          $temphtml .= "<td bgcolor=$bgcolor align=center>0</font></td>\n";
@@ -2190,7 +2224,7 @@ sub editfilter {
 
       $temphtml .= "<tr>\n";
       if ($matchdate) {
-         $matchdate=dateserial2str($matchdate);
+         $matchdate=dateserial2str($matchdate, $prefs{'timeoffset'}, $prefs{'dateformat'});
          $temphtml .= "<td bgcolor=$bgcolor align=center><a title='$matchdate'>$matchcount</a></font></td>\n";
       } else {
          $temphtml .= "<td bgcolor=$bgcolor align=center>0</font></td>\n";
@@ -2264,7 +2298,7 @@ sub modfilter {
          filelock("$folderdir/.filter.book", LOCK_EX|LOCK_NB) or
             openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.filter.book!");
          open (FILTER,"+<$folderdir/.filter.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.filter.book!");
+            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.filter.book! ($!)");
          while(<FILTER>) {
             my ($epriority,$erules,$einclude,$etext,$eop,$edestination,$eenable);
             my $line=$_; chomp($line);
@@ -2278,25 +2312,25 @@ sub modfilter {
             $filterrules{"$rules\@\@\@$include\@\@\@$text\@\@\@$destination"}="$priority\@\@\@$rules\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable";
          }
          seek (FILTER, 0, 0) or
-            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.filter.book!");
+            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.filter.book! ($!)");
 
          foreach (sort values %filterrules) {
             print FILTER "$_\n";
          }
          truncate(FILTER, tell(FILTER));
-         close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.filter.book!");
+         close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.filter.book! ($!)");
          filelock("$folderdir/.filter.book", LOCK_UN);
 
          # read global filter into hash %filterrules
          open (FILTER,"$config{'global_filterbook'}") or
-            openwebmailerror("$lang_err{'couldnt_open'} $config{'global_filterbook'}!");
+            openwebmailerror("$lang_err{'couldnt_open'} $config{'global_filterbook'}! ($!)");
          while(<FILTER>) {
             my ($epriority,$erules,$einclude,$etext,$eop,$edestination,$eenable);
             my $line=$_; chomp($line);
             ($epriority,$erules,$einclude,$etext,$eop,$edestination,$eenable) = split(/\@\@\@/, $line);
             $filterrules{"$erules\@\@\@$einclude\@\@\@$etext\@\@\@$edestination"}="$epriority\@\@\@$erules\@\@\@$einclude\@\@\@$etext\@\@\@$eop\@\@\@$edestination\@\@\@$eenable";
          }
-         close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $config{'global_filterbook'}!");
+         close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $config{'global_filterbook'}! ($!)");
 
          # remove stale entries in filterrule db by checking %filterrules
          if (!$config{'dbmopen_haslock'}) {
@@ -2318,9 +2352,9 @@ sub modfilter {
 
       } else {
          open (FILTER, ">$folderdir/.filter.book" ) or
-                  openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.filter.book!");
+                  openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.filter.book! ($!)");
          print FILTER "$priority\@\@\@$rules\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable\n";
-         close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.filter.book!");
+         close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.filter.book! ($!)");
       }
 
       ## remove .filter.check ##
@@ -2347,13 +2381,13 @@ sub editstat {
 
    if ( -f "$folderdir/.stationery.book" ) {
       open (STATBOOK,"$folderdir/.stationery.book") or
-         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
       while (<STATBOOK>) {
          ($name, $content) = split(/\@\@\@/, $_, 2);
          chomp($name); chomp($content);
          $stationery{$name} = unescapeURL($content);
       }
-      close (STATBOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
+      close (STATBOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
    }
 
    if ($prefs_caller eq "") {
@@ -2444,7 +2478,7 @@ sub delstat {
          filelock("$folderdir/.stationery.book", LOCK_EX|LOCK_NB) or
             openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.stationery.book!");
          open (STATBOOK,"+<$folderdir/.stationery.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
          while (<STATBOOK>) {
             ($name, $content) = split(/\@\@\@/, $_, 2);
             chomp($name); chomp($content);
@@ -2453,7 +2487,7 @@ sub delstat {
          delete $stationery{$statname};
 
          seek (STATBOOK, 0, 0) or
-            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.stationery.book!");
+            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.stationery.book! ($!)");
 
          foreach (sort keys %stationery) {
             ($name,$content)=($_, $stationery{$_});
@@ -2462,7 +2496,7 @@ sub delstat {
          }
          truncate(STATBOOK, tell(STATBOOK));
          close (STATBOOK) or
-            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
+            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
          filelock("$folderdir/.stationery.book", LOCK_UN);
       }
    }
@@ -2475,7 +2509,7 @@ sub delstat {
 sub clearstat {
    if ( -f "$folderdir/.stationery.book" ) {
       unlink("$folderdir/.stationery.book") or
-         openwebmailerror ("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+         openwebmailerror ("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
    }
    writelog("clear stationery");
    writehistory("clear stationery");
@@ -2497,7 +2531,7 @@ sub addstat {
          filelock("$folderdir/.stationery.book", LOCK_EX|LOCK_NB) or
             openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.stationery.book!");
          open (STATBOOK,"+<$folderdir/.stationery.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
          while (<STATBOOK>) {
             ($name, $content) = split(/\@\@\@/, $_, 2);
             chomp($name); chomp($content);
@@ -2506,7 +2540,7 @@ sub addstat {
          $stationery{"$newname"} = escapeURL($newcontent);
 
          seek (STATBOOK, 0, 0) or
-            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.stationery.book!");
+            openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.stationery.book! ($!)");
 
          foreach (sort keys %stationery) {
             ($name,$content)=($_, $stationery{$_});
@@ -2515,14 +2549,14 @@ sub addstat {
          }
          truncate(STATBOOK, tell(STATBOOK));
          close (STATBOOK) or
-            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
+            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
          filelock("$folderdir/.stationery.book", LOCK_UN);
       } else {
          open (STATBOOK,">$folderdir/.stationery.book") or
-            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book!");
+            openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.stationery.book! ($!)");
          print STATBOOK "$newname\@\@\@".escapeURL($newcontent)."\n";
          close (STATBOOK) or
-            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book!");
+            openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.stationery.book! ($!)");
       }
    }
 

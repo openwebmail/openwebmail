@@ -26,6 +26,13 @@ package openwebmail::it;
    size_rev    => 'Dimensioni (Ordine crescente)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Automatico',
+   on   => 'Si',
+   off  => 'No',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normale',
@@ -223,6 +230,7 @@ package openwebmail::it;
    replyall   => 'Rispondi a tutti',
    forward    => 'Inoltra',
    forwardasatt=>'Inoltra come allegato',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Versione stampabile',
    from       => 'Da',
    replyto    => 'Rispondi a',
@@ -253,7 +261,6 @@ package openwebmail::it;
    continue   => 'Continua',
    loginagain => 'Login di nuovo',
    exit       => 'Uscita',
-   for        => 'PER',
    yourname   => 'Nome',
    save       => 'Salva',
    add        => 'Aggiungi',
@@ -281,10 +288,11 @@ package openwebmail::it;
    name       => 'Nome',
    email      => 'Email',
    note       => 'Note',
-   max        => 'Maximum',
+   max        => 'Massimo',
    group      => 'Gruppo',
-   quota_hit  => 'LIMITE RAGGIUNTO',
-   usage      => 'Uso',
+   quotausage => 'Uso Quota',
+   quotalimit => 'Limite quota',
+   quotahit   => 'LIMITE RAGGIUNTO',
    tzmap      => 'Mappa fusi orari',
    testsound  => 'Test suono',
    editfroms  => 'Modifica indirizzi e-mail personali',
@@ -376,12 +384,12 @@ package openwebmail::it;
    savefile_towd=> 'Salva file nel WebDisk',
    saveatt_towd => 'Salva allegato nel WebDisk',
    addatt_fromwd=> 'Aggiungi allegato da WebDisk',
-   vdomain_usermgr    => 'Virtual Domain User Management',
-   vdomain_createuser => 'Create User',
-   vdomain_changeuser => 'Change User',
-   vdomain_deleteuser => 'Delete User',
-   vdomain_usertype_localmbox  => 'Local Mailbox',
-   vdomain_usertype_redirected => 'Redirect to external mail address'
+   vdomain_usermgr    => 'Gestione Utenti Domini Virtuali',
+   vdomain_createuser => 'Crea Utente',
+   vdomain_changeuser => 'Cambia Utente',
+   vdomain_deleteuser => 'Cancella Utente',
+   vdomain_usertype_localmbox  => 'Mailbox Locale',
+   vdomain_usertype_redirected => 'Reindirizza verso indirizzo posta esterno'
    );
 
 %lang_err =
@@ -410,8 +418,6 @@ package openwebmail::it;
    tryagain          => 'e riprova.',
    abook_toobig      => 'Spiacente, questo eccederebbe il limite per la tua rubrica. Torna',
    cant_create_dir   => 'Non posso creare la tua directory utente!',
-   folder_hitquota   => 'Spiacente, hai raggiunto il limite di spazio a te concesso e non puoi più salvare posta. Puoi solo spostare i tuoi messaggi nel cestino dove verranno cancellati. Torna indietro, cancella qualche messaggio, svuota il cestino e riprova.',
-   folder_cutdone    => 'Attenzione, dal momento che è stato raggiunto il limite di spazio su disco (@@@FOLDERQUOTA@@@), sono stati rimmossi automaticamente i vecchi messaggi',
    att_overlimit     => 'L\'allegato è troppo grande. Il limite è',
    inv_msg_op        => 'Operazione invalida per il messaggio',
    sess_cookieerr    => 'La tua richiesta non contiene un sessionid cookie valido -- accesso negato!',
@@ -440,8 +446,12 @@ package openwebmail::it;
    no_file_todownload=> 'Non è stato specificato nessun file da scaricare',
    upload_overlimit  => 'Dimensione file da caricare superiori al consentito',
    decomp_notsupported=>'Il formato di decompressione non è supportato per questo file.',
-   webdisk_hitquota   => 'Purtroppo hai superato lo spazio limite per il tuo webdisk quota, cancella prima qualche file.',
-   webdisk_readonly   => 'Impossibile continuare, il tuo webdisk è a sola lettura.',
+   webdisk_readonly  => 'Impossibile continuare, il tuo webdisk è a sola lettura.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

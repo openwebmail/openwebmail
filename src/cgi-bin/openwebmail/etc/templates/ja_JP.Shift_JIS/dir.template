@@ -1,11 +1,13 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@>
+<tr><td bgcolor=@@@TITLEBAR@@@ width="20%">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>WebDisk</b></font>
-</td><td bgcolor=@@@TITLEBAR@@@ align="right">
+<b>ウェブデスク</b></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="center">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>@@@INFOQUOTA@@@</b></font>
-</td></tr><tr><td bgcolor=@@@MENUBAR@@@ colspan="2">
+<b>@@@QUOTAUSAGE@@@</b></font>
+</td><td bgcolor=@@@TITLEBAR@@@ align="right" width="20%">
+&nbsp;
+</td></tr><tr><td bgcolor=@@@MENUBAR@@@ colspan="3">
 @@@MENUBARLINKS@@@
 </td></tr></table>
 
@@ -20,7 +22,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SHOWHIDDENLABEL@@@</td><td>@@@SHOWHIDDENCHECKBOX@@@</td>
 <td>@@@SHOWTHUMBLABEL@@@</td><td>@@@SHOWTHUMBCHECKBOX@@@</td>
-<td>Single page</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
+<td>シングルページ</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
 </tr></table>
 </td>
 </tr></table>
@@ -46,15 +48,15 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0"><tr>
 <td width="15%" nowrap>&nbsp;@@@INFOCOUNT@@@</td>
 <td align=center nowrap>@@@LEFTPAGECONTROL@@@ @@@PAGELINKS@@@ @@@RIGHTPAGECONTROL@@@</td>
-<td width="15%" nowrap align="right">Listed file size: @@@INFOSIZE@@@&nbsp;</td>
+<td width="15%" nowrap align="right">リストされたファイルのサイズ: @@@INFOSIZE@@@&nbsp;</td>
 </tr></table>
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Operation</B>
+<B>操作</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 <table border="0" cellpadding="1" cellspacing="1">
-<tr><td width="10%">DestinedName:</td><td width=90%>@@@DESTNAMEFIELD@@@</td></tr>
+<tr><td width="10%">決められた名前:</td><td width=90%>@@@DESTNAMEFIELD@@@</td></tr>
 <tr><td nowrap colspan="2">@@@BUTTONS@@@</td></tr>
 </table>
 </td></tr>
@@ -64,7 +66,7 @@
 <td>
 
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nopwrap bgcolor=@@@COLUMNHEADER@@@><B>Search</B></td>
+<td nopwrap bgcolor=@@@COLUMNHEADER@@@><B>検索</B></td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@SEARCHFILEFIELD@@@</td>
 </tr></table>
@@ -74,7 +76,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Upload</B></td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>アップロード</B></td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>
@@ -86,7 +88,7 @@
 
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@COLUMNHEADER@@@>
-<B>Messages</B>
+<B>メッセージ</B>
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>
 @@@MSGTEXTAREA@@@
 </td></tr>
@@ -159,6 +161,7 @@
          alert("Please choose the file to upload first.");
          return false;
       } else {
+         document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
          return true;
       }
    }

@@ -40,6 +40,7 @@
    'follow.up.gif'     => ' + ',
    'forward.gif'       => ' [Fwd] ',
    'forwardasatt.gif'  => ' [FwdAsAtt] ',
+   'forwardasorig.gif' => ' [FwdAsOrig] ',
    'group.gif'         => ' [Group] ',
    'history.gif'       => ' [History] ',
    'home.gif'          => ' [Home] ',

@@ -12,13 +12,13 @@
 
 <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Outlook Express 5 und Netscape Mail können Adressbücher in einem Format
+<BR>Outlook Express 5 und Netscape Mail k&ouml;nnen Adressb&uuml;cher in einem Format
 das als CSV (Comma Separated Values) bezeichnet wird exportieren. @@@NAME@@@ kann
-Adressbücher im CSV Format in Ihr Adressbuch importieren.
+Adressb&uuml;cher im CSV Format in Ihr Adressbuch importieren.
 <ul>
-<li> In Netscape, öffnen Sie Ihr Adressbuch und wählen Sie Datei-&gt;Exportieren, dann
-wählen Sie unter "Sichern als Typ:" "Comma Separated (*.csv)." <BR><BR>
-<li> In Outlook Express, öffnen Sie das Menü Datei-&gt;Exportieren-&gt;Adressbuch und anschliessend wählen Sie als Exporttyp
+<li> In Netscape, &ouml;ffnen Sie Ihr Adressbuch und w&auml;hlen Sie Datei-&gt;Exportieren, dann
+w&auml;hlen Sie unter "Sichern als Typ:" "Comma Separated (*.csv)." <BR><BR>
+<li> In Outlook Express, &ouml;ffnen Sie das Men&uuml; Datei-&gt;Exportieren-&gt;Adressbuch und anschliessend w&auml;hlen Sie als Exporttyp
 "Text File". Stellen Sie sicher, dass Name und eMail Adresse die ersten beiden
 Felder sind (dies ist die Standardeinstellung).
 </ul>

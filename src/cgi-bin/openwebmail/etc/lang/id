@@ -26,6 +26,13 @@ package openwebmail::id;
    size_rev    => 'Ukuran (Utamakan Kecil)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Biasa',
@@ -223,6 +230,7 @@ package openwebmail::id;
    replyall   => 'Balas semua',
    forward    => 'Kirim Ke',
    forwardasatt=>'Kirim dengan lampiran',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Lihat Cetak',
    from       => 'Pengirim',
    replyto    => 'Balas Ke',
@@ -253,7 +261,6 @@ package openwebmail::id;
    continue   => 'Lanjut',
    loginagain => 'Login Ulang',
    exit       => 'Keluar',
-   for        => 'for',
    yourname   => 'Nama Anda',
    save       => 'Simpan',
    add        => 'Tambah',
@@ -283,8 +290,9 @@ package openwebmail::id;
    note       => 'Keterangan',
    max        => 'Maximum',
    group      => 'Kelompok',
-   quota_hit  => 'Kapasitas sudah penuh',
-   usage      => 'Kapasitas Penggunaan',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'Kapasitas sudah penuh',
    tzmap      => 'World timezone map',
    testsound  => 'Test sound',
    editfroms  => 'Mengganti Alamat Email',
@@ -410,8 +418,6 @@ package openwebmail::id;
    tryagain          => 'Cobalah lagi.',
    abook_toobig      => 'Buku Alamat Melebihi kapasitas. silahkan',
    cant_create_dir   => 'Tidak dapat membuat Folder user',
-   folder_hitquota   => 'Maaf,Sudah melebihi kapasitas,hapuslah surat yg tidak berguna,jikalah tidak anda tidak dapat menerima Surat.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Lampiran melebihi kapasitas',
    inv_msg_op        => 'Pengaturan tak dikenal',
    sess_cookieerr    => 'Session ID tidak benar,periksa apakah ada yg masuk kembali.',
@@ -440,8 +446,12 @@ package openwebmail::id;
    no_file_todownload=> 'No file is specified for download',
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 

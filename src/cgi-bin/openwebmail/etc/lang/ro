@@ -26,6 +26,13 @@ package openwebmail::ro;
    size_rev    => 'Marime (Intai cele mai mici)'
    );
 
+%lang_onofflabels =
+   (
+   auto => 'Auto switched',
+   on   => 'On',
+   off  => 'Off',
+   );
+
 %lang_prioritylabels =
    (
    normal      => 'Normal',
@@ -223,6 +230,7 @@ package openwebmail::ro;
    replyall   => 'Raspunde tuturor',
    forward    => 'Trimite mai departe',
    forwardasatt=>'Forwardeaza atasat',
+   forwardasorig=>'Forward as original',
    printfriendly=> 'Bun de tipar',
    from       => 'De la',
    replyto    => 'Raspunde',
@@ -253,7 +261,6 @@ package openwebmail::ro;
    continue   => 'Continua',
    loginagain => 'Login inca o data',
    exit       => 'Esire',
-   for        => 'PENTRU',
    yourname   => 'Numele Tau',
    save       => 'Salveaza',
    add        => 'Adauga',
@@ -283,8 +290,9 @@ package openwebmail::ro;
    note       => 'Note',
    max        => 'Maximum',
    group      => 'Groupa',
-   quota_hit  => 'DEP&Atilde;SIRE SPATIU ALOCAT',
-   usage      => 'Folosit',
+   quotausage => 'Quota usage',
+   quotalimit => 'Quota limit',
+   quotahit   => 'DEP&Atilde;SIRE SPATIU ALOCAT',
    tzmap      => 'World timezone map',
    testsound  => 'Test sound',
    editfroms  => 'Redactarea email-urilor personale',
@@ -410,8 +418,6 @@ package openwebmail::ro;
    tryagain          => 'incearca din nou.',
    abook_toobig      => 'Imi pare rau dar aceasta ar depasi limita agendei tale. Te rog du-te',
    cant_create_dir   => 'Nu pot creea directorul tau!',
-   folder_hitquota   => 'Imi pare rau dar ti-ai depasit spatiul alocat si nu mai poti salva scrisori.  Nu vei putea muta decat mesaje spre STERSE.  Du-te inapoi sterge ceva mesaje, distruge mesajele sterse si incearca din nou.',
-   folder_cutdone    => 'Warning, since the folderquota limit(@@@FOLDERQUOTA@@@) were hit, oldest messages in folders have been removed automatcially',
    att_overlimit     => 'Imi pare rau, atachmentul dvs. depaseste marimea acceptata, adica',
    inv_msg_op        => 'Operatia incorecta pentru mesaj',
    sess_cookieerr    => 'Request-ul Dv. nu contine cooky-ul potrivit pentru sessiunea aceasta - acces inchis!',
@@ -440,8 +446,12 @@ package openwebmail::ro;
    no_file_todownload=> 'No file is specified for download',
    upload_overlimit  => 'Upload file size is over the limit',
    decomp_notsupported=>'Decompression support is not available for this file.',
-   webdisk_hitquota   => 'Sorry, you\'ve hit your webdisk quota, please delete some files first.',
-   webdisk_readonly   => 'Sorry, your webdisk is read only.',
+   webdisk_readonly  => 'Sorry, your webdisk is read only.',
+   quota_syserr      => 'Quota system error',
+   quotahit_alert    => 'Sorry, you\'ve hit your quota limit. Please delete some messages from mail folders or some files from the webdisk to free disk space.',
+   quotahit_delmail  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, oldest messages in folders have been removed automatcially',
+   quotahit_delfile  => 'Warning, since the quota limit(@@@QUOTALIMIT@@@) were hit, some files in the webdisk have been removed automatcially',
+   spool_overlimit   => 'Sorry, your INBOX has exceeded the spool limit(@@@SPOOLLIMIT@@@). Please move some messages from INBOX to other folders.',
    vdomain_toomanyuser=> 'Sorry, the user count of this domain has reached its maximum limit'
    );
 
