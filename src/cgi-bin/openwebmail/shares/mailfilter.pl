@@ -54,10 +54,10 @@ sub filtermessage {
    }
 
    ow::filelock::lock($filtercheckfile, LOCK_EX) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $filtercheckfile");
+      openwebmailerror("$lang_err{'couldnt_writelock'} $filtercheckfile");
    if (!open(FILTERCHECK, $filtercheckfile)) {
       ow::filelock::lock($filtercheckfile, LOCK_UN);
-      openwebmailerror("$lang_err{'couldnt_open'} $filtercheckfile");
+      openwebmailerror("$lang_err{'couldnt_read'} $filtercheckfile");
    }
    $_=<FILTERCHECK>;
    close(FILTERCHECK);
@@ -67,7 +67,7 @@ sub filtermessage {
    }
    if (!open(FILTERCHECK, ">$filtercheckfile")) {
       ow::filelock::lock($filtercheckfile, LOCK_UN);
-      openwebmailerror("$lang_err{'couldnt_open'} $filtercheckfile");
+      openwebmailerror("$lang_err{'couldnt_write'} $filtercheckfile");
    }
    print FILTERCHECK $metainfo;
    close (FILTERCHECK);
@@ -712,9 +712,9 @@ sub filter_allmessageids {
       }
       if ($#repeatedids>=0) {
          my ($trashfile, $trashdb)=get_folderpath_folderdb($user, 'mail-trash');
+         my ($moved, $errmsg);
          if (ow::filelock::lock($trashfile, LOCK_EX) ) {
-            my $moved=operate_message_with_ids('move', \@repeatedids, $folderfile, $folderdb,
-      							$trashfile, $trashdb);
+            ($moved, $errmsg)=operate_message_with_ids('move', \@repeatedids, $folderfile, $folderdb, $trashfile, $trashdb);
             ow::filelock::lock($trashfile, LOCK_UN);
             if ($moved>0) {
                if ($config{'debug_mailfilter'}) {
@@ -724,10 +724,10 @@ sub filter_allmessageids {
                filterruledb_increase("filter_repeatlimit", $moved);
                filterfolderdb_increase('mail-trash', $moved);
             } elsif ($moved<0) {
-               my $m="mailfilter - mail-trash write error"; writelog($m); writehistory($m);
+               writelog($errmsg); writehistory($errmsg);
             }
          } else {
-            my $m="$trashfile write lock error"; writelog($m); writehistory($m);
+            my $m="$lang_err{'couldnt_writelock'} $trashfile"; writelog($m); writehistory($m);
          }
       }
 

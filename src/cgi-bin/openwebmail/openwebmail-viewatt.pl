@@ -333,7 +333,7 @@ sub getattfile {
 
    my (%att, $attheader, $attcontent);
    open(ATTFILE, "$config{'ow_sessionsdir'}/$attfile") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$attfile! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}/$attfile! ($!)");
    local $/="\n\n"; $attheader=<ATTFILE>;	# read until 1st blank line
    undef $/; $attcontent=<ATTFILE>;		# read until file end
    close(ATTFILE);
@@ -404,7 +404,7 @@ sub savefile2webdisk {
       autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpathstr: $!)");
    }
    ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX) or
-      autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $vpathstr!");
+      autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_writelock'} $vpathstr!");
    print F ${$r_content};
    close(F);
    chmod(0644, "$webdiskrootdir/$vpath");

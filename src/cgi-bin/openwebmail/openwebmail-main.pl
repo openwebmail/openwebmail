@@ -202,7 +202,7 @@ sub listmessages {
    my $spooldb=(get_folderpath_folderdb($user, 'INBOX'))[1];
    if (ow::dbm::exist($spooldb)) {
       ow::dbm::open(\%FDB, $spooldb, LOCK_SH) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $spooldb");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db $spooldb");
       $orig_inbox_newmessages=$FDB{'NEWMESSAGES'};	# new msg in INBOX
       ow::dbm::close(\%FDB, $spooldb);
    }
@@ -278,7 +278,7 @@ sub listmessages {
       ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldername);
       if (ow::dbm::exist($folderdb)) {
          ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db ".f2u($folderdb));
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db ".f2u($folderdb));
          $allmessages=$FDB{'ALLMESSAGES'}-$FDB{'ZAPMESSAGES'};
          $allmessages-=$FDB{'INTERNALMESSAGES'} if ($prefs{'hideinternal'});
          $newmessages=$FDB{'NEWMESSAGES'};
@@ -530,7 +530,7 @@ sub listmessages {
    my ($tr_bgcolorstr, $td_bgcolorstr, $checkbox_onclickstr, $boldon, $boldoff);
 
    ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db ".f2u($folderdb));
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db ".f2u($folderdb));
 
    $temphtml = '';
    foreach my $messnum ($firstmessage  .. $lastmessage) {
@@ -981,7 +981,7 @@ sub eventreminder_html {
    my $calbookfile=dotpath('calendar.book');
    my (%items, %indexes);
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
@@ -1082,7 +1082,7 @@ sub markasread {
 
    if ($attr[$_STATUS] !~ /R/i) {
       ow::filelock::lock($folderfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile)."!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile)."!");
       update_message_status($messageid, $attr[$_STATUS]."R", $folderdb, $folderfile);
       ow::filelock::lock($folderfile, LOCK_UN);
    }
@@ -1104,7 +1104,7 @@ sub markasunread {
       $newstatus=~s/[RV]//ig;
 
       ow::filelock::lock($folderfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile)."!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile)."!");
       update_message_status($messageid, $newstatus, $folderdb, $folderfile);
       ow::filelock::lock($folderfile, LOCK_UN);
    }
@@ -1146,31 +1146,32 @@ sub movemessage {
 
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
    my ($dstfile, $dstdb)=get_folderpath_folderdb($user, $destination);
-   my $counted=0;
 
    if (!-f $folderfile) {
       openwebmailerror(__FILE__, __LINE__, f2u($folderfile)." $lang_err{'doesnt_exist'}");
    }
+
+   my ($counted, $errmsg)=(0, '');
    if ($folder ne $destination) {
       ow::filelock::lock($folderfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile)."!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile)."!");
 
       if ($destination eq 'DELETE') {
-         $counted=operate_message_with_ids($op, $r_messageids, $folderfile, $folderdb);
+         ($counted, $errmsg)=operate_message_with_ids($op, $r_messageids, $folderfile, $folderdb);
       } else {
          if (!-f "$dstfile" ) {
             if (!open (F,">>$dstfile")) {
                my $err=$!;
                ow::filelock::lock($folderfile, LOCK_UN);
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_err{'destination_folder'} ".f2u($dstfile)."! ($err)");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $lang_err{'destination_folder'} ".f2u($dstfile)."! ($err)");
             }
             close(F);
          }
          if (!ow::filelock::lock($dstfile, LOCK_EX)) {
             ow::filelock::lock($folderfile, LOCK_UN);
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($dstfile)."!");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($dstfile)."!");
          }
-         $counted=operate_message_with_ids($op, $r_messageids, $folderfile, $folderdb, $dstfile, $dstdb);
+         ($counted, $errmsg)=operate_message_with_ids($op, $r_messageids, $folderfile, $folderdb, $dstfile, $dstdb);
       }
       folder_zapmessages($folderfile, $folderdb) if ($counted>0);
 
@@ -1235,12 +1236,8 @@ sub movemessage {
       }
       writelog($msg);
       writehistory($msg);
-   } elsif ($counted==-1) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'inv_msg_op'}");
-   } elsif ($counted==-2) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($folderfile));
-   } elsif ($counted==-3) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($dstfile)."!");
+   } elsif ($counted<0) {
+      openwebmailerror(__FILE__, __LINE__, $errmsg);
    }
    return;
 }
@@ -1252,12 +1249,12 @@ sub www_emptyfolder {
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
 
    ow::filelock::lock($folderfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile)."!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile)."!");
    my $ret=empty_folder($folderfile, $folderdb);
    ow::filelock::lock($folderfile, LOCK_UN);
 
    if ($ret==-1) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($folderfile)."!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($folderfile)."!");
    } elsif ($ret==-2) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db ".f2u($folderdb));
    }
@@ -1279,7 +1276,7 @@ sub www_pop3_fetch {
    }
    my %accounts;
    if (readpop3book($pop3book, \%accounts) <0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $pop3book!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $pop3book!");
    }
    # don't care enable flag since this is triggered by user clicking
    my ($pop3ssl, $pop3passwd, $pop3del)
@@ -1340,7 +1337,7 @@ sub pop3_fetches {
 
    return 0 if ( ! -f "$pop3book" );
    if (readpop3book("$pop3book", \%accounts)<0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $pop3book!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $pop3book!");
    }
 
    # fork a child to do fetch pop3 mails and return immediately
@@ -1394,7 +1391,7 @@ sub update_pop3check {
 
    if (!$ftime) {	# create if not exist
       open (F, "> $pop3checkfile") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $pop3checkfile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $pop3checkfile! ($!)");
       print F "pop3check timestamp file";
       close (F);
    }
@@ -1411,14 +1408,13 @@ sub update_pop3check {
 sub moveoldmsg2saved {
    my ($srcfile, $srcdb)=get_folderpath_folderdb($user, 'INBOX');
    my ($dstfile, $dstdb)=get_folderpath_folderdb($user, 'saved-messages');
-   my $counted;
 
    ow::filelock::lock($srcfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($srcfile)."!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($srcfile)."!");
    ow::filelock::lock($dstfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($dstfile)."!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($dstfile)."!");
 
-   $counted=move_oldmsg_from_folder($srcfile, $srcdb, $dstfile, $dstdb);
+   my $counted=move_oldmsg_from_folder($srcfile, $srcdb, $dstfile, $dstdb);
 
    ow::filelock::lock($dstfile, LOCK_UN);
    ow::filelock::lock($srcfile, LOCK_UN);
@@ -1427,12 +1423,6 @@ sub moveoldmsg2saved {
       my $msg="move message - move $counted old msgs from INBOX to saved-messages";
       writelog($msg);
       writehistory($msg);
-   } elsif ($counted==-1) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'inv_msg_op'}");
-   } elsif ($counted==-2) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($srcfile));
-   } elsif ($counted==-3) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($dstfile));
    }
 }
 ########## END MOVEOLDMSG2SAVED ##################################
@@ -1444,7 +1434,7 @@ sub clean_trash_spamvirus {
    my $ftime=(stat($trashcheckfile))[9];
    if (!$ftime) {	# create if not exist
       open (TRASHCHECK, ">$trashcheckfile" ) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($trashcheckfile)."! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($trashcheckfile)."! ($!)");
       print TRASHCHECK "trashcheck timestamp file";
       close (TRASHCHECK);
    }
@@ -1462,7 +1452,7 @@ sub clean_trash_spamvirus {
       my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
 
       ow::filelock::lock($folderfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile)."!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile)."!");
       if ($reserveddays{$folder}==0) {	# empty folder
          my $ret=empty_folder($folderfile, $folderdb);
          if ($ret == 0) {

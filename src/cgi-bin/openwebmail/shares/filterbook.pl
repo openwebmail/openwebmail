@@ -49,7 +49,7 @@ sub read_filterbook {
 
    if ( -f $filterbookfile ) {
       open (FILTER, $filterbookfile) or
-         return (-1, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
+         return (-1, "$lang_err{'couldnt_read'} $filterbookfile! ($!)");
       while (<FILTER>) {
          chomp($_);
          if (/^\d+\@\@\@/) { # add valid rule only (Filippo Dattola)
@@ -74,7 +74,7 @@ sub write_filterbook {
    my @sortedrules=sort_filterrules($r_filterrules);
 
    open (FILTER, ">$filterbookfile") or
-      return (-1, "$lang_err{'couldnt_open'} $filterbookfile! ($!)");
+      return (-1, "$lang_err{'couldnt_write'} $filterbookfile! ($!)");
    foreach (@sortedrules) {
       my %rule=%{${$r_filterrules}{$_}};
       print FILTER join('@@@', $rule{priority},

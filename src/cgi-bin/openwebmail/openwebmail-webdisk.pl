@@ -87,7 +87,7 @@ $webdiskrootdir=ow::tool::untaint($homedir.absolute_vpath("/", $config{'webdisk_
 $webdiskrootdir=~s!/+$!!; # remove tail /
 if (! -d $webdiskrootdir) {
    mkdir($webdiskrootdir, 0755) or
-      openwebmailerror(__FILE__, __LINE__, "lang_text{'cant_create_dir'} $webdiskrootdir ($!)");
+      openwebmailerror(__FILE__, __LINE__, "lang_text{'couldnt_create'} $webdiskrootdir ($!)");
 }
 
 my $action = param('action')||'';
@@ -386,7 +386,7 @@ sub createdir {
          writehistory("webdisk mkdir - $vpath");
          return("$lang_wdbutton{'mkdir'} $vpathstr\n");
       } else {
-         return("$lang_err{'couldnt_open'} $vpathstr ($!)\n");
+         return("$lang_err{'couldnt_create'} $vpathstr ($!)\n");
       }
    }
 }
@@ -412,7 +412,7 @@ sub createfile {
          writehistory("webdisk createfile - $vpath");
          return("$lang_wdbutton{'newfile'} $vpathstr\n");
       } else {
-         return("$lang_err{'couldnt_open'} $vpathstr ($!)\n");
+         return("$lang_err{'couldnt_create'} $vpathstr ($!)\n");
       }
    }
 }
@@ -547,13 +547,13 @@ sub editfile {
       autoclosewindow($lang_wdbutton{'edit'}, "$lang_err{'access_denied'} ($vpathstr: $err)") if ($err);
 
       ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_SH|LOCK_NB) or
-         autoclosewindow($lang_text{'edit'}, "$lang_err{'couldnt_locksh'} $vpathstr!");
+         autoclosewindow($lang_text{'edit'}, "$lang_err{'couldnt_readlock'} $vpathstr!");
       if (open(F, "$webdiskrootdir/$vpath")) {
          local $/; undef $/;
          $content=<F>; close(F);
       } else {
          ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_UN);
-         autoclosewindow($lang_wdbutton{'edit'}, "$lang_err{'couldnt_open'} $vpathstr");
+         autoclosewindow($lang_wdbutton{'edit'}, "$lang_err{'couldnt_read'} $vpathstr");
       }
       ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_UN);
 
@@ -639,7 +639,7 @@ sub savefile {
       autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpathstr: $!)", 60);
    }
    ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX) or
-      autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_lock'} $vpathstr!", 60);
+      autoclosewindow($lang_text{'savefile'}, "$lang_err{'couldnt_writelock'} $vpathstr!", 60);
    print F $content;
    close(F);
    ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_UN);
@@ -737,7 +737,7 @@ sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, lzh,
    my $vpathstr=f2u($vpath);
 
    if ( !-f "$webdiskrootdir/$vpath" || !-r _) {
-      return("$lang_err{'couldnt_open'} $vpathstr");
+      return("$lang_err{'couldnt_read'} $vpathstr");
    }
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
@@ -1000,7 +1000,7 @@ sub makepdfps {		# ps2pdf or pdf2ps
    my $vpathstr=f2u($vpath);
 
    if ( !-f "$webdiskrootdir/$vpath" || !-r _) {
-      return("$lang_err{'couldnt_open'} $vpathstr");
+      return("$lang_err{'couldnt_read'} $vpathstr");
    }
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
@@ -1182,7 +1182,7 @@ sub downloadfile {
    return("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
 
    open(F, "$webdiskrootdir/$vpath") or
-      return("$lang_err{'couldnt_open'} $vpathstr\n");
+      return("$lang_err{'couldnt_read'} $vpathstr\n");
 
    my $dlname=safedlname($vpath);
    my $contenttype=ow::tool::ext2contenttype($vpath);
@@ -1241,7 +1241,7 @@ sub previewfile {
    return("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
 
    if ($filecontent eq "") {
-      open(F, "$webdiskrootdir/$vpath") or return("$lang_err{'couldnt_open'} $vpath\n");
+      open(F, "$webdiskrootdir/$vpath") or return("$lang_err{'couldnt_read'} $vpath\n");
       local $/; undef $/; $filecontent=<F>; # no separator, read whole file at once
       close(F);
    }
@@ -1433,7 +1433,7 @@ sub dirfilesel {
          $msg .= "$lang_err{'access_denied'} (".f2u($dir).": $err)<br>\n"; next;
       }
       if (!opendir(D, "$webdiskrootdir/$dir")) {
-         $msg .= "$lang_err{'couldnt_open'} ".f2u($dir)." ($!)<br>\n"; next;
+         $msg .= "$lang_err{'couldnt_read'} ".f2u($dir)." ($!)<br>\n"; next;
       }
       $currentdir=$dir; last;
    }
@@ -1861,7 +1861,7 @@ sub showdir {
             $msg .= "$lang_err{'access_denied'} (".f2u($dir).": $err)\n"; next;
          }
          if (!opendir(D, "$webdiskrootdir/$dir")) {
-            $msg .= "$lang_err{'couldnt_open'} ".f2u($dir)." ($!)\n"; next;
+            $msg .= "$lang_err{'couldnt_read'} ".f2u($dir)." ($!)\n"; next;
          }
          @list=readdir(D);
          closedir(D);
@@ -2560,10 +2560,10 @@ sub filelist_of_search {
 
    $cachefile=ow::tool::untaint($cachefile);
    ow::filelock::lock($cachefile, LOCK_EX) or
-      return("$lang_err{'couldnt_lock'} $cachefile\n");
+      return("$lang_err{'couldnt_writelock'} $cachefile\n");
 
    if ( -e $cachefile ) {
-      open(CACHE, "$cachefile") or  return("$lang_err{'couldnt_open'} $cachefile!");
+      open(CACHE, "$cachefile") or  return("$lang_err{'couldnt_read'} $cachefile!");
       $cache_metainfo=<CACHE>;
       chomp($cache_metainfo);
       close(CACHE);

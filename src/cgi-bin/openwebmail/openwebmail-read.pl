@@ -668,7 +668,7 @@ sub readmessage {
          if ($config{'enable_addressbook'}) {
             my $is_writableabook_found=0;
             for my $dir (dotpath('webaddr'),  $config{'ow_addressbooksdir'}) {
-               opendir(D, $dir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dir directory for reading! ($!)");
+               opendir(D, $dir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $dir ($!)");
                while (defined(my $fname=readdir(D))) {
                   next if ($fname=~/^\./ || $fname=~/^categories\.cache$/);
                   if (-w "$dir/$fname") {
@@ -992,7 +992,7 @@ sub readmessage {
       my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
       my (%FDB, @attr);
       ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} db ".f2u($folderdb));
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} db ".f2u($folderdb));
       @attr=string2msgattr($FDB{$messageid});
       if ($attr[$_STATUS] !~ /R/i) {
          $attr[$_STATUS].="R";
@@ -1303,7 +1303,7 @@ sub rebuildmessage {
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
 
    ow::filelock::lock($folderfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile)."!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile)."!");
 
    my ($errorcode, $rebuildmsgid, @partialmsgids)=
 	rebuild_message_with_partialid($folderfile, $folderdb, $partialid);
@@ -1315,9 +1315,8 @@ sub rebuildmessage {
       my ($trashfile, $trashdb)=get_folderpath_folderdb($user, "mail-trash");
       if ($folderfile ne $trashfile) {
          ow::filelock::lock($trashfile, LOCK_EX) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $trashfile");
-         my $moved=operate_message_with_ids("move", \@partialmsgids,
-				$folderfile, $folderdb, $trashfile, $trashdb);
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $trashfile");
+         my $moved=(operate_message_with_ids("move", \@partialmsgids, $folderfile, $folderdb, $trashfile, $trashdb))[0];
          folder_zapmessages($folderfile, $folderdb) if ($moved>0);
          ow::filelock::lock($trashfile, LOCK_UN);
       }

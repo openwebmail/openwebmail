@@ -236,7 +236,7 @@ sub get_sessioncount {
    my @sessioncount=();
 
    opendir(SESSIONSDIR, "$config{'ow_sessionsdir'}") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}! ($!)");
    while (defined(my $sessfile=readdir(SESSIONSDIR))) {
       if ($sessfile =~ /^[\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+$/) {
          my $modifyage = $t-(stat("$config{'ow_sessionsdir'}/$sessfile"))[9];
@@ -544,7 +544,7 @@ sub editprefs {
       # Get a list of valid style files
       my @styles;
       opendir(STYLESDIR, "$config{'ow_stylesdir'}") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_stylesdir'} directory for reading! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_stylesdir'}! ($!)");
       while (defined(my $currstyle = readdir(STYLESDIR))) {
          if ($currstyle =~ /^([^\.].*)$/) {
             push (@styles, $1);
@@ -565,7 +565,7 @@ sub editprefs {
       # Get a list of valid iconset
       my @iconsets;
       opendir(ICONSETSDIR, "$config{'ow_htmldir'}/images/iconsets") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/iconsets directory for reading! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_htmldir'}/images/iconsets! ($!)");
       while (defined(my $currset = readdir(ICONSETSDIR))) {
          if (-d "$config{'ow_htmldir'}/images/iconsets/$currset" && $currset =~ /^([^\.].*)$/) {
             push (@iconsets, $1);
@@ -585,7 +585,7 @@ sub editprefs {
       # Get a list of valid background images
       my @backgrounds;
       opendir(BACKGROUNDSDIR, "$config{'ow_htmldir'}/images/backgrounds") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/backgrounds directory for reading! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_htmldir'}/images/backgrounds! ($!)");
       while (defined(my $currbackground = readdir(BACKGROUNDSDIR))) {
          if ($currbackground =~ /^([^\.].*)$/) {
             push (@backgrounds, $1);
@@ -1047,7 +1047,7 @@ sub editprefs {
             my $filterruledb=dotpath('filter.ruledb');
             my (%FILTERRULEDB, $matchcount, $matchdate);
             ow::dbm::open(\%FILTERRULEDB, $filterruledb, LOCK_SH) or
-                  openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $filterruledb");
+                  openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db $filterruledb");
 
             $temphtml = popup_menu(-name=>'filter_repeatlimit',
                                    -values=>['0','5','10','20','30','40','50','100'],
@@ -1288,7 +1288,7 @@ sub editprefs {
          # Get a list of valid holiday files
          my @holidays;
          opendir(HOLIDAYSDIR, "$config{'ow_holidaysdir'}") or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_holidaysdir'} directory for reading! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_holidaysdir'}! ($!)");
          while (defined(my $currholiday = readdir(HOLIDAYSDIR))) {
             if ($currholiday =~ /^([^\.].*)$/) {
                push (@holidays, $1);
@@ -1476,7 +1476,7 @@ sub editprefs {
          # Get a list of new mail sound
          my @sounds;
          opendir(SOUNDDIR, "$config{'ow_htmldir'}/sounds") or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_htmldir'}/sounds directory for reading! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_htmldir'}/sounds! ($!)");
          while (defined(my $currsnd = readdir(SOUNDDIR))) {
             if (-f "$config{'ow_htmldir'}/sounds/$currsnd" && $currsnd =~ /^([^\.].*)$/) {
                push (@sounds, $1);
@@ -1719,7 +1719,7 @@ sub saveprefs {
       $signaturefile="$homedir/.signature";
    }
    open (SIGNATURE,">$signaturefile") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $signaturefile! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $signaturefile! ($!)");
    print SIGNATURE $newprefs{'signature'};
    close (SIGNATURE) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $signaturefile! ($!)");
    chown($uuid, (split(/\s+/,$ugid))[0], $signaturefile) if ($signaturefile eq "$homedir/.signature");
@@ -1727,7 +1727,7 @@ sub saveprefs {
    # save .openwebmailrc
    my $rcfile=dotpath('openwebmailrc');
    open (RC, ">$rcfile") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $rcfile! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $rcfile! ($!)");
    foreach my $key (@openwebmailrcitem) {
       print RC "$key=$newprefs{$key}\n";
    }
@@ -2269,7 +2269,7 @@ sub modfrom {
       }
 
       open (FROMBOOK, ">$frombookfile" ) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $frombookfile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $frombookfile! ($!)");
       foreach $email (sort_emails_by_domainnames($config{'domainnames'}, keys %userfrom)) {
          print FROMBOOK "$email\@\@\@$userfrom{$email}\n";
       }
@@ -2293,7 +2293,7 @@ sub editpop3 {
    my $freespace = int($config{'maxbooksize'} - ($pop3booksize/1024) + .5);
 
    if (readpop3book($pop3bookfile, \%accounts) <0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $pop3bookfile!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $pop3bookfile!");
    }
 
    $html =~ s/\@\@\@FREESPACE\@\@\@/$freespace $lang_sizes{'kb'}/;
@@ -2477,7 +2477,7 @@ sub modpop3 {
       my %accounts;
 
       if (readpop3book($pop3bookfile, \%accounts) <0) {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $pop3bookfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $pop3bookfile!");
       }
 
       if ($mode eq 'delete') {
@@ -2500,7 +2500,7 @@ sub modpop3 {
       }
 
       if (writepop3book($pop3bookfile, \%accounts)<0) {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $pop3bookfile!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $pop3bookfile!");
       }
 
       # rmove unused pop3 uidl db
@@ -2636,7 +2636,7 @@ sub editfilter {
    my %FILTERRULEDB;
    my $bgcolor = $style{"tablerow_dark"};
    ow::dbm::open(\%FILTERRULEDB, $filterruledb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db $filterruledb");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db $filterruledb");
 
    foreach my $key (@sorted_filterrules) {
       my %rule=%{$filterrules{$key}};
@@ -2782,7 +2782,7 @@ sub modfilter {
          }
          # read personal filter and update it
          ow::filelock::lock($filterbookfile, LOCK_EX) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $filterbookfile!");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $filterbookfile!");
 
          my ($ret, $errmsg)=read_filterbook($filterbookfile, \%filterrules);
          openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
@@ -2814,7 +2814,7 @@ sub modfilter {
          # remove stale entries in filterrule db by checking %filterrules
          my (%FILTERRULEDB, @keys);
          ow::dbm::open(\%FILTERRULEDB, $filterruledb, LOCK_EX) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} db $filterbookfile");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} db $filterbookfile");
          @keys=keys %FILTERRULEDB;
          foreach my $key (@keys) {
            if (!defined $filterrules{$key} &&
@@ -2953,7 +2953,7 @@ sub delstat {
       my $statbookfile=dotpath('stationery.book');
       if ( -f $statbookfile ) {
          ow::filelock::lock($statbookfile, LOCK_EX) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $statbookfile!");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $statbookfile!");
          my ($ret, $errmsg)=read_stationerybook($statbookfile,\%stationery);
          openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);
 
@@ -2976,7 +2976,7 @@ sub clearstat {
 
    if ( -f $statbookfile ) {
       unlink($statbookfile) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $statbookfile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_delete'} $statbookfile! ($!)");
    }
    writelog("clear stationery");
    writehistory("clear stationery");
@@ -2997,7 +2997,7 @@ sub addstat {
       my $statbookfile=dotpath('stationery.book');
       if ( -f $statbookfile ) {
          ow::filelock::lock($statbookfile, LOCK_EX) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $statbookfile!");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $statbookfile!");
 
          my ($ret, $errmsg)=read_stationerybook($statbookfile,\%stationery);
          openwebmailerror(__FILE__, __LINE__, $errmsg) if ($ret<0);

@@ -640,7 +640,7 @@ sub readprefs {
    #     2. store prefs value back to openwebmailrc file
    if ( -f $rcfile ) {
       open (RC, $rcfile) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $rcfile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $rcfile! ($!)");
       while (<RC>) {
          ($key, $value) = split(/=/, $_);
          chomp($value);
@@ -660,7 +660,7 @@ sub readprefs {
    if (-f $signaturefile) {
       $prefshash{"signature"} = '';
       open (SIGNATURE, $signaturefile) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $signaturefile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $signaturefile! ($!)");
       while (<SIGNATURE>) {
          $prefshash{"signature"} .= $_;
       }
@@ -752,7 +752,7 @@ sub readtemplate {
          return $_templatecache{$file};
       }
    }
-   openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_templatesdir'}/$lang/$templatename! ($!)");
+   openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_templatesdir'}/$lang/$templatename! ($!)");
 }
 ########## END READTEMPLATE ######################################
 
@@ -767,7 +767,7 @@ sub readstyle {
    if (!defined $_stylecache{"$config{'ow_stylesdir'}/$stylefile"}) {
       my (%hash, $key, $value);
       open (STYLE,"$config{'ow_stylesdir'}/$stylefile") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_stylesdir'}/$stylefile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_stylesdir'}/$stylefile! ($!)");
       while (<STYLE>) {
          if (/###STARTSTYLESHEET###/) {
             $hash{'css'} = '';
@@ -892,14 +892,14 @@ sub verifysession {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'sess_iperr'}");
    }
 
-   # no_update is used by auto-refresh/timeoutwarning
+   # no_update is set to 1 if auto-refresh/timeoutwarning
    my $session_noupdate=param('session_noupdate')||0;
    if (!$session_noupdate) {
       # update the session timestamp with now-1,
       # the -1 is for nfs, utime is actually the nfs rpc setattr()
       # since nfs server current time will be used if setattr() is issued with nfs client's current time.
       utime ($now-1, $now-1,  $sessionfile) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'}  $sessionfile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'}  $sessionfile! ($!)");
    }
    return 1;
 }
@@ -913,7 +913,7 @@ sub sessioninfo {
 
    if ( !open(F, "$config{'ow_sessionsdir'}/$sessionid") ) {
       writelog("session error - couldn't open $config{'ow_sessionsdir'}/$sessionid ($@)");
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$sessionid");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}/$sessionid");
    }
    $sessionkey= <F>; chomp $sessionkey;
    $ip= <F>; chomp $ip;
@@ -1380,7 +1380,7 @@ sub writelog {
    } else {
       # show log error only if CGI mode
       if (defined $ENV{'GATEWAY_INTERFACE'}) {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'logfile'}! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $config{'logfile'}! ($!)");
       }
    }
    return;
@@ -1398,14 +1398,14 @@ sub writehistory {
 
    if ( -f $historyfile ) {
       ow::filelock::lock($historyfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $historyfile");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $historyfile");
       my $end=(stat($historyfile))[7];
 
       if ( $end > ($config{'maxbooksize'} * 1024) ) {
          my ($start, $buff);
          $start=$end-int($config{'maxbooksize'} * 1024 * 0.8);
          open (HISTORYLOG,$historyfile) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $historyfile!($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $historyfile!($!)");
          seek(HISTORYLOG, $start, 0);
          $_=<HISTORYLOG>;
          $start+=length($_);
@@ -1413,11 +1413,11 @@ sub writehistory {
          close(HISTORYLOG);
 
          open (HISTORYLOG,">$historyfile") or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $historyfile!($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $historyfile!($!)");
          print HISTORYLOG $buff;
       } else {
          open (HISTORYLOG,"+<$historyfile") or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $historyfile!($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $historyfile!($!)");
          seek(HISTORYLOG, $end, 0);	# seek to tail
       }
       print HISTORYLOG "$timestamp - [$$] ($loggedip) $loggeduser - $_[0]\n";	# log
@@ -1426,7 +1426,7 @@ sub writehistory {
 
    } else {
       open(HISTORYLOG, ">$historyfile") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $historyfile($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $historyfile($!)");
       print HISTORYLOG "$timestamp - [$$] ($loggedip) $loggeduser - $_[0]\n";	# log
       close(HISTORYLOG);
    }
@@ -1805,7 +1805,7 @@ sub check_and_create_dotdir {
       my $p=ow::tool::untaint($dotdir); $p.="/$_" if ($_ ne '/');
       if (! -d $p) {
          mkdir($p, 0700) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $p ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $p ($!)");
          writelog("create dir - $p, euid=$>, egid=$)");
       }
    }
@@ -1911,7 +1911,7 @@ sub getfolders {
 
    while ($fdir=pop(@fdirs)) {
       opendir(FOLDERDIR, "$fdir") or
-    	 openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($fdir)."! ($!)");
+    	 openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} ".f2u($fdir)."! ($!)");
          @folderfiles=readdir(FOLDERDIR);
       closedir(FOLDERDIR) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($folderdir)."! ($!)");
@@ -1996,7 +1996,7 @@ sub del_staledb {
    my (@dbfiles, $filename);
 
    opendir(DBDIR, $dbdir) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($dbdir)."! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} ".f2u($dbdir)."! ($!)");
       @dbfiles=readdir(DBDIR);
    closedir(DBDIR) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($dbdir)."! ($!)");

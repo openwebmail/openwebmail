@@ -318,10 +318,10 @@ sub search_folders {
 
    $cachefile=ow::tool::untaint($cachefile);
    ow::filelock::lock($cachefile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($cachefile));
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($cachefile));
    if ( -e $cachefile ) {
       open(CACHE, "$cachefile") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($cachefile)."! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} ".f2u($cachefile)."! ($!)");
       $cache_metainfo=<CACHE>; chomp($cache_metainfo);
       close(CACHE);
    }
@@ -373,7 +373,7 @@ sub search_folders2 {
       my (%FDB, %status);
 
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db ".f2u($folderdb));
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db ".f2u($folderdb));
       open (FOLDER, "$folderfile"); # used in TEXTCONTENT search
 
       foreach my $messageid (@{$r_messageids}) {

@@ -22,7 +22,7 @@ sub read_stationerybook {
       }
       close (STATBOOK) or  ($ret, $errmsg)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
    } else {
-      ($ret, $errmsg)=(-1, "$lang_err{'couldnt_open'} $file! ($!)");
+      ($ret, $errmsg)=(-1, "$lang_err{'couldnt_read'} $file! ($!)");
    }
 
    return ($ret, $errmsg);
@@ -49,7 +49,7 @@ sub write_stationerybook {
       print STATBOOK $lines;
       close (STATBOOK) or  ($ret, $errmsg)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
    } else {
-      ($ret, $errmsg)=(-1, "$lang_err{'couldnt_open'} $file! ($!)");
+      ($ret, $errmsg)=(-1, "$lang_err{'couldnt_write'} $file! ($!)");
    }
 
    return ($ret, $errmsg);

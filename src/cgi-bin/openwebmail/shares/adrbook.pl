@@ -90,7 +90,7 @@ sub convert_addressbook {
       $filemode=0644;		# readable by others
    }
 
-   ow::filelock::lock($oldadrbookfile, LOCK_SH|LOCK_NB) or croak("$lang_err{'couldnt_locksh'} $oldadrbookfile");
+   ow::filelock::lock($oldadrbookfile, LOCK_SH|LOCK_NB) or croak("$lang_err{'couldnt_readlock'} $oldadrbookfile");
    open(F, "$oldadrbookfile"); my $firstline=<F>; close(F);
    ow::filelock::lock($oldadrbookfile, LOCK_UN);
    if ($firstline=~/^BEGIN:VCARD/) {	# oldadrbookfile is already in vcard format
@@ -114,10 +114,10 @@ sub _convert_addressbook {
 
    my @entries = ();
    if (-s $old) { # file is not 0 bytes
-      ow::filelock::lock($old, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_lock'} $old");
+      ow::filelock::lock($old, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_writelock'} $old");
       open(ADRBOOK, "$old") or return -1;
 
-      ow::filelock::lock($backup, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_lock'} $backup");
+      ow::filelock::lock($backup, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_writelock'} $backup");
       open(ADRBOOKBACKUP, ">$backup") or return -1;
 
       my @chars = ( 'A' .. 'Z', 0 .. 9 );
@@ -184,7 +184,7 @@ sub _convert_addressbook {
       ow::filelock::lock($old, LOCK_UN);
    } else {
       # old addressbook is 0 bytes. Write an empty backup.
-      ow::filelock::lock($backup, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_lock'} $backup");
+      ow::filelock::lock($backup, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_writelock'} $backup");
       open(ADRBOOKBACKUP, ">$backup") or return -1;
       print ADRBOOKBACKUP @entries;
       close(ADRBOOKBACKUP) or return -1;
@@ -192,7 +192,7 @@ sub _convert_addressbook {
    }
 
    # write out the new converted addressbook
-   ow::filelock::lock($new, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_lock'} $new");
+   ow::filelock::lock($new, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_writelock'} $new");
    open(ADRBOOKNEW, ">$new") or return -1;
    print ADRBOOKNEW @entries;
    close(ADRBOOKNEW) or return -1;

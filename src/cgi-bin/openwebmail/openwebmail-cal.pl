@@ -265,7 +265,7 @@ sub yearview {
    my (%items, %indexes);
    my $calbookfile=dotpath('calendar.book');
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
@@ -471,7 +471,7 @@ sub monthview {
    my (%items, %indexes);
    my $calbookfile=dotpath('calendar.book');
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
@@ -698,7 +698,7 @@ sub weekview {
    my (%items, %indexes);
    my $calbookfile=dotpath('calendar.book');
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
@@ -918,7 +918,7 @@ sub dayview {
    my (%items, %indexes);
    my $calbookfile=dotpath('calendar.book');
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
@@ -1648,7 +1648,7 @@ sub listview {
    my (%items, %indexes);
    my $calbookfile=dotpath('calendar.book');
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
    }
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
@@ -1816,7 +1816,7 @@ sub edit_item {
 
    my (%items, %indexes);
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
    }
    if (!defined $items{$index}) {
       openwebmailerror(__FILE__, __LINE__, "$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
@@ -2219,7 +2219,7 @@ sub add_item {
 
    my ($item_count, %items, %indexes);
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
    }
 
    my $index = $item_count+19690404;	# avoid collision with old records
@@ -2296,7 +2296,7 @@ sub add_item {
    $items{$index}{'charset'}=$prefs{'charset'};
 
    if (writecalbook($calbookfile, \%items) <0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $calbookfile");
    }
 
    reset_notifycheck_for_newitem($items{$index});
@@ -2315,13 +2315,13 @@ sub del_item {
    my $calbookfile=dotpath('calendar.book');
    my (%items, %indexes);
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
    }
    return if (!defined $items{$index});
 
    delete $items{$index};
    if ( writecalbook($calbookfile, \%items) <0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $calbookfile");
    }
 
    my ($s)=iconv($items{$index}{'charset'}, $prefs{'charset'}, $items{$index}{'string'});
@@ -2460,7 +2460,7 @@ sub update_item {
 
    my (%items, %indexes);
    if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
    }
    if (!defined $items{$index}) {
       openwebmailerror(__FILE__, __LINE__, "$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
@@ -2478,7 +2478,7 @@ sub update_item {
    $items{$index}{'charset'}=$prefs{'charset'};
 
    if ( writecalbook($calbookfile, \%items) <0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $calbookfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $calbookfile");
    }
 
    reset_notifycheck_for_newitem($items{$index});

@@ -799,19 +799,18 @@ sub operate_message_with_ids {
    my (%FDB, %FDB2);
    my $opendst=0;
 
-   # $lang_err{'inv_msg_op'}
-   return -1 if ($op ne "move" && $op ne "copy" && $op ne "delete");
-   return 0 if ($srcfile eq $dstfile || $#{$r_messageids} < 0);
+   return (0, '') if ($srcfile eq $dstfile || $#{$r_messageids} < 0);
+   return (-1, $lang_err{'onv_msg_op'}) if ($op ne "move" && $op ne "copy" && $op ne "delete");
 
    if (update_folderindex($srcfile, $srcdb)<0) {
       writelog("db error - Couldn't update index db $srcdb");
       writehistory("db error - Couldn't update index db $srcdb");
-      return -1;
+      return (-1, "$lang_err{'couldnt_updatedb'} $srcdb");
    }
 
    my $srchandle=FileHandle->new();
-   return -3 if (!open($srchandle, $srcfile));
-   return -1 if (!ow::dbm::open(\%FDB, $srcdb, LOCK_EX));
+   return (-2, "$lang_err{'couldnt_read'} $srcfile ($!)") if (!open($srchandle, $srcfile));
+   return (-1, "$lang_err{'couldnt_read'} $srcdb") if (!ow::dbm::open(\%FDB, $srcdb, LOCK_EX));
 
    my $dsthandle=FileHandle->new();
    my $dstlength=0;
@@ -822,13 +821,14 @@ sub operate_message_with_ids {
          close ($srchandle);
          writelog("db error - Couldn't update index db $dstdb");
          writehistory("db error - Couldn't update index db $dstdb");
-         return -1;
+         return (-1, "$lang_err{'couldnt_updatedb'} $dstdb");
       }
 
       if (!open ($dsthandle, ">>$dstfile")) {
+         my $errmsg=$!;
          ow::dbm::close(\%FDB, $srcdb);
          close ($srchandle);
-         return -5;
+         return (-2, "$lang_err{'couldnt_write'} $dstfile ($errmsg)");
       }
       $dstlength=(stat($dsthandle))[7];
       # since setvbuf is only available before perl 5.8.0, we put this inside eval
@@ -840,7 +840,7 @@ sub operate_message_with_ids {
          close ($srchandle);
          writelog("db error - Couldn't open index db $dstdb");
          writehistory("db error - Couldn't open index db $dstdb");
-         return -1;
+         return (-1, "$lang_err{'couldnt_write'} $dstdb");
       }
       $opendst=1;
    }
@@ -868,7 +868,7 @@ sub operate_message_with_ids {
             ow::dbm::close(\%FDB2,$dstdb);
             update_folderindex($dsthandle, $dstdb);	# ensure msg cp/mv to dst are correctly indexed
          }
-         return -8;
+         return (-3, "msg $messageid in $srcfile index inconsistence");
       }
 
       $counted++;
@@ -926,7 +926,7 @@ sub operate_message_with_ids {
                   close ($dsthandle);
                   @FDB2{'METAINFO', 'LSTMTIME'}=('ERR', -1);
                   ow::dbm::close(\%FDB2, $dstdb);
-                  return -8;
+                  return (-3, "$lang_err{'couldnt_write'} $dstfile");;
                }
 
                $left-=$BUFF_blocksize;
@@ -968,7 +968,7 @@ sub operate_message_with_ids {
    close ($srchandle);
    ow::dbm::close(\%FDB, $srcdb);
 
-   return($counted);
+   return($counted, '');
 }
 
 sub folder_zapmessages {
@@ -1099,7 +1099,7 @@ sub delete_message_by_age {
 
    return 0 if ($#agedids==-1);
 
-   my $deleted=operate_message_with_ids('delete', \@agedids, $folderfile, $folderdb);
+   my $deleted=(operate_message_with_ids('delete', \@agedids, $folderfile, $folderdb))[0];
    my $zapped=folder_zapmessages($folderfile, $folderdb);
 
    return($zapped) if ($deleted<0);
@@ -1132,7 +1132,7 @@ sub move_oldmsg_from_folder {
    # no old msg found
    return 0 if ($#messageids==-1);
 
-   my $moved=operate_message_with_ids('move', \@messageids, $srcfile, $srcdb, $dstfile, $dstdb);
+   my $moved=(operate_message_with_ids('move', \@messageids, $srcfile, $srcdb, $dstfile, $dstdb))[0];
    my $zapped=folder_zapmessages($srcfile, $srcdb);
 
    return($zapped) if ($moved<0);

@@ -242,7 +242,7 @@ sub _folderline {
 
    if (ow::dbm::exist("$folderdb")) {
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db ".f2u($folderdb));
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db ".f2u($folderdb));
       if (defined $FDB{'ALLMESSAGES'}) {
          $allmessages=$FDB{'ALLMESSAGES'};
          ${$r_total_allmessages}+=$allmessages;
@@ -347,7 +347,7 @@ sub refreshfolders {
       my ($folderfile,$folderdb)=get_folderpath_folderdb($user, $currfolder);
 
       ow::filelock::lock($folderfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile)."!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile)."!");
       if (update_folderindex($folderfile, $folderdb)<0) {
          $errcount++;
          writelog("db error - Couldn't update db $folderdb");
@@ -374,7 +374,7 @@ sub markreadfolder {
    my $ioerr=0;
 
    ow::filelock::lock($folderfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile)."!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile)."!");
 
    if (update_folderindex($folderfile, $folderdb)<0) {
       ow::filelock::lock($folderfile, LOCK_UN);
@@ -383,7 +383,7 @@ sub markreadfolder {
 
    my (%FDB, %offset, %status);
    ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db ".f2u($folderdb));
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db ".f2u($folderdb));
    foreach my $messageid (keys %FDB) {
       next if ($is_internal_dbkey{$messageid});
       my @attr=string2msgattr($FDB{$messageid});
@@ -403,7 +403,7 @@ sub markreadfolder {
 
       open(F, ">$tmpfile"); close(F);
       ow::filelock::lock($tmpfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $tmpfile");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $tmpfile");
 
       if (update_folderindex($tmpfile, $tmpdb)<0) {
          ow::filelock::lock($tmpfile, LOCK_UN);
@@ -415,7 +415,7 @@ sub markreadfolder {
       while (!$ioerr && $#unreadmsgids>=0) {
          my $messageid=shift(@unreadmsgids);
 
-         my $copied=operate_message_with_ids("copy", [$messageid], $folderfile, $folderdb, $tmpfile, $tmpdb);
+         my $copied=(operate_message_with_ids("copy", [$messageid], $folderfile, $folderdb, $tmpfile, $tmpdb))[0];
          if ($copied>0) {
             if (update_message_status($messageid, $status{$messageid}."R", $tmpdb, $tmpfile)==0) {
                push(@markids, $messageid);
@@ -432,10 +432,9 @@ sub markreadfolder {
               $#unreadmsgids<0 ) { 			# no more unread msg
             # copy read msg back from tmp folder
             if ($#markids>=0) {
-               $ioerr++ if (operate_message_with_ids("delete", \@markids, $folderfile, $folderdb)<0);
+               $ioerr++ if ((operate_message_with_ids("delete", \@markids, $folderfile, $folderdb))[0]<0);
                $ioerr++ if (folder_zapmessages($folderfile, $folderdb)<0);
-               $ioerr++ if (operate_message_with_ids("move", \@markids,
-   					$tmpfile, $tmpdb, $folderfile, $folderdb)<0);
+               $ioerr++ if ((operate_message_with_ids("move", \@markids, $tmpfile, $tmpdb, $folderfile, $folderdb))[0]<0);
             }
             last;	# renew tmp folder and @markids
          }
@@ -462,7 +461,7 @@ sub reindexfolder {
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertoindex);
 
    ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($folderfile));
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} ".f2u($folderfile));
 
    if ($recreate) {
       ow::dbm::unlink($folderdb);
@@ -471,7 +470,7 @@ sub reindexfolder {
       my %FDB;
       if (!ow::dbm::open(\%FDB, $folderdb, LOCK_SH)) {
          ow::filelock::lock($folderfile, LOCK_UN);
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} db ".f2u($folderdb));
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db ".f2u($folderdb));
       }
       @FDB{'METAINFO', 'LSTMTIME'}=('RENEW', -1);
       ow::dbm::close(\%FDB, $folderdb);
@@ -535,7 +534,7 @@ sub addfolder {
    # create empty index dbm with mode 0600
    my %FDB;
    ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderdb));
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderdb));
    ow::dbm::close(\%FDB, $folderdb);
 
    writelog("create folder - $foldertoadd");
@@ -645,7 +644,7 @@ sub downloadfolder {
    $filename=~s/\s+/_/g;
 
    ow::filelock::lock($folderfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderfile));
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile));
 
    # disposition:attachment default to save
    print qq|Connection: close\n|,

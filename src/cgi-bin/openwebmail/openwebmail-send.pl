@@ -112,7 +112,7 @@ sub replyreceipt {
    my %FDB;
 
    ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($folderdb));
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} ".f2u($folderdb));
    @attr=string2msgattr($FDB{$messageid});
    ow::dbm::close(\%FDB, $folderdb);
 
@@ -121,7 +121,7 @@ sub replyreceipt {
 
       # get message header
       open (FOLDER, "+<$folderfile") or
-          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} ".f2u($folderfile)."! ($!)");
+          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($folderfile)."! ($!)");
       seek (FOLDER, $attr[$_OFFSET], 0) or
           openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} ".f2u($folderfile)."! ($!)");
       $header="";
@@ -407,7 +407,7 @@ sub composemessage {
 
             $attachment=do { local *FH };
             open($attachment, "$webdiskrootdir/$vpath") or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_text{'webdisk'} $vpathstr! ($!)");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $lang_text{'webdisk'} $vpathstr! ($!)");
             $attname=$vpath; $attname=~s|/$||; $attname=~s|^.*/||;
             $attname=(iconv($prefs{fscharset}, $composecharset, $attname))[0];	# conv to composehcarset
             $attcontenttype=ow::tool::ext2contenttype($vpath);
@@ -584,7 +584,7 @@ sub composemessage {
                      ($attheader, $r_content)=($arc_attheader, $arc_r_content) if ($arc_attheader ne '');
                   }
                   open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
-                     openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
+                     openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
                   print ATTFILE $attheader, "\n", ${$r_content};
                   close ATTFILE;
                }
@@ -839,7 +839,7 @@ sub composemessage {
 
       my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($folderfile)."!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} ".f2u($folderfile)."!");
       if (update_folderindex($folderfile, $folderdb)<0) {
          ow::filelock::lock($folderfile, LOCK_UN);
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} ".f2u($folderdb));
@@ -863,7 +863,7 @@ sub composemessage {
       open(FOLDER, "$folderfile");
       my $attserial=time(); $attserial=ow::tool::untaint($attserial);
       open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
       print ATTFILE qq|Content-Type: message/rfc822;\n|,
                     qq|Content-Transfer-Encoding: 8bit\n|,
                     qq|Content-Disposition: attachment; filename="Forward.msg"\n|,
@@ -914,7 +914,7 @@ sub composemessage {
 
       my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($folderfile)."!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} ".f2u($folderfile)."!");
 
       if (update_folderindex($folderfile, $folderdb)<0) {
          ow::filelock::lock($folderfile, LOCK_UN);
@@ -927,7 +927,7 @@ sub composemessage {
          $attserial++;
          my @attr=get_message_attributes($forwardids[$i], $folderdb);
          open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
          print ATTFILE qq|Content-Type: message/rfc822;\n|,
                        qq|Content-Transfer-Encoding: 8bit\n|,
                        qq|Content-Disposition: attachment; filename="Forward$i.msg"\n|,
@@ -952,7 +952,7 @@ sub composemessage {
 
       # delete the forwarded messages if required
       if ($composetype eq 'forwardids_delete') {
-         my $deleted=operate_message_with_ids('delete', \@forwardids, $folderfile, $folderdb);
+         my $deleted=(operate_message_with_ids('delete', \@forwardids, $folderfile, $folderdb))[0];
          folder_zapmessages($folderfile, $folderdb) if ($deleted>0);
       }
       ow::filelock::lock($folderfile, LOCK_UN);
@@ -1471,7 +1471,7 @@ sub composemessage {
    if ($msgformat ne 'text') {
       if ($_htmlarea_css_cache eq '') {
          open(F, "$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/htmlarea.css") or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_htmldir'}/javascript/htmlarea.openwebmail/htmlarea.css! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_htmldir'}/javascript/htmlarea.openwebmail/htmlarea.css! ($!)");
          local $/; undef $/; $_htmlarea_css_cache=<F>; # read whole file in once
          close(F);
       }
@@ -1714,7 +1714,7 @@ sub sendmessage {
          if (open ($folderhandle, ">$savefile")) {
             close ($folderhandle);
          } else {
-            $saveerrstr="$lang_err{'couldnt_open'} $savefile!";
+            $saveerrstr="$lang_err{'couldnt_write'} $savefile!";
             $saveerr++;
             $do_save=0;
          }
@@ -1730,7 +1730,7 @@ sub sendmessage {
          my $oldsubject='';
          my %FDB;
          ow::dbm::open(\%FDB, $savedb, LOCK_SH) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} ".f2u($savedb));
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} ".f2u($savedb));
          if (defined $FDB{$mymessageid}) {
             $oldmsgfound=1;
             $oldsubject=(string2msgattr($FDB{$mymessageid}))[$_SUBJECT];
@@ -1740,7 +1740,7 @@ sub sendmessage {
          if ($oldmsgfound) {
             if ($savefolder eq 'saved-drafts' && $subject eq $oldsubject) {
                # remove old draft if the subject is the same
-               if (operate_message_with_ids("delete", [$mymessageid], $savefile, $savedb)>0) {
+               if ((operate_message_with_ids("delete", [$mymessageid], $savefile, $savedb))[0]>0) {
                   folder_zapmessages($savefile, $savedb);
                } else {
                   $mymessageid=fakemessageid($from);	# use another id if remove failed
@@ -1756,13 +1756,13 @@ sub sendmessage {
             $messagestart=(stat($folderhandle))[7];
             seek($folderhandle, $messagestart, 0);	# seek end manually to cover tell() bug in perl 5.8
          } else {
-            $saveerrstr="$lang_err{'couldnt_open'} $savefile!";
+            $saveerrstr="$lang_err{'couldnt_write'} $savefile!";
             $saveerr++;
             $do_save=0;
          }
 
       } else {
-         $saveerrstr="$lang_err{'couldnt_lock'} $savefile!";
+         $saveerrstr="$lang_err{'couldnt_writelock'} $savefile!";
          $saveerr++;
          $do_save=0;
       }
@@ -2151,7 +2151,7 @@ sub sendmessage {
 
          my %FDB;
          ow::dbm::open(\%FDB, $savedb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($savedb));
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($savedb));
          $FDB{$mymessageid}=msgattr2string(@attr);
          $FDB{'ALLMESSAGES'}++;
          $FDB{'METAINFO'}=ow::tool::metainfo($savefile);
@@ -2163,7 +2163,7 @@ sub sendmessage {
 
          my %FDB;
          ow::dbm::open(\%FDB, $savedb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($savedb));
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($savedb));
          $FDB{'METAINFO'}=ow::tool::metainfo($savefile);
          $FDB{'LSTMTIME'}=time();
          ow::dbm::close(\%FDB, $savedb);
@@ -2201,7 +2201,7 @@ sub sendmessage {
          my (%FDB, $oldstatus, $found);
 
          ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderdb));
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderdb));
          if (defined $FDB{$inreplyto}) {
             $oldstatus = (string2msgattr($FDB{$inreplyto}))[$_STATUS];
             $found=1;
@@ -2370,7 +2370,7 @@ sub getattfilesinfo {
    my $totalsize = 0;
 
    opendir(SESSIONSDIR, "$config{'ow_sessionsdir'}") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}! ($!)");
       @sessfiles=readdir(SESSIONSDIR);
    closedir(SESSIONSDIR);
 
@@ -2408,7 +2408,7 @@ sub deleteattachments {
    my (@delfiles, @sessfiles);
 
    opendir(SESSIONSDIR, "$config{'ow_sessionsdir'}") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}! ($!)");
       @sessfiles=readdir(SESSIONSDIR);
    closedir(SESSIONSDIR);
 

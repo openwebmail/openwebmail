@@ -99,7 +99,7 @@ if ($config{'logfile'}) {
    my ($fmode, $fuid, $fgid) = (stat($config{'logfile'}))[2,4,5];
    if ( !($fmode & 0100000) ) {
       open (LOGFILE,">>$config{'logfile'}") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_text{'file'} $config{'logfile'}! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $lang_text{'file'} $config{'logfile'}! ($!)");
       close(LOGFILE);
    }
    chmod(0660, $config{'logfile'}) if (($fmode&0660)!=0660);
@@ -290,7 +290,7 @@ sub login {
       my ($fmode, $fuid, $fgid) = (stat($config{'logfile'}))[2,4,5];
       if ( !($fmode & 0100000) ) {
          open (LOGFILE,">>$config{'logfile'}") or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $lang_text{'file'} $config{'logfile'}! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $lang_text{'file'} $config{'logfile'}! ($!)");
          close(LOGFILE);
       }
       chmod(0660, $config{'logfile'}) if (($fmode&0660)!=0660);
@@ -416,7 +416,7 @@ sub login {
          if (mkdir ($owuserdir, oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $owuserdir)) {
             writelog("create owuserdir - $owuserdir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
          } else {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $owuserdir ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $owuserdir ($!)");
          }
       }
    }
@@ -427,7 +427,7 @@ sub login {
       if (mkdir ($homedir, oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $homedir)) {
          writelog("create homedir - $homedir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
       } else {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $homedir ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $homedir ($!)");
       }
    }
 
@@ -470,7 +470,7 @@ sub login {
       if (mkdir ($folderdir, 0700)) {
          writelog("create folderdir - $folderdir, euid=$>, egid=$)");
       } else {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $folderdir ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $folderdir ($!)");
       }
       upgrade_20021218($user_releasedate);
    }
@@ -493,7 +493,7 @@ sub login {
       $sessionkey = crypt(rand(),'OW');
    }
    open (SESSION, "> $config{'ow_sessionsdir'}/$thissession") or # create sessionid
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}/$thissession! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $config{'ow_sessionsdir'}/$thissession! ($!)");
    print SESSION $sessionkey, "\n";
    print SESSION $clientip, "\n";
    print SESSION join("\@\@\@", $domain, $user, $userrealname, $uuid, $ugid, $homedir), "\n";
@@ -765,7 +765,7 @@ sub search_clean_oldsessions {
    my @delfiles;
 
    opendir(SESSIONSDIR, "$config{'ow_sessionsdir'}") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $config{'ow_sessionsdir'}! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}! ($!)");
       my @sessfiles=readdir(SESSIONSDIR);
    closedir(SESSIONSDIR);
 

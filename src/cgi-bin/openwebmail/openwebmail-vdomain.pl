@@ -667,7 +667,7 @@ sub change_vuser {
          if (mkdir ($vhomedir, 0700) && chown($vuid, $vgid, $vhomedir)) {
             writelog("vdomain $user: $vuser\@$domain  create homedir - $vhomedir, uid=$vuid, gid=$vgid");
          } else {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_dir'} $vhomedir ($!)");
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $vhomedir ($!)");
          }
       }
 
@@ -681,7 +681,7 @@ sub change_vuser {
       my $releasedatefile=_dotpath('release.date', $domain, $vuser, $vhomedir);
       writelog("vdomain $user: $vuser\@$domain  create release.date - $releasedatefile, uid=$vuid, gid=$vgid");
       open(RD, ">$releasedatefile") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $releasedatefile ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $releasedatefile ($!)");
       print RD "$config{'releasedate'}\n";
       close(RD);
       chmod(0700, $releasedatefile);
@@ -690,7 +690,7 @@ sub change_vuser {
       my $dotforward="$vhomedir/.forward";
       writelog("vdomain $user: $vuser\@$domain  create .forward - $dotforward, uid=$vuid, gid=$vgid");
       open (DF, ">$dotforward") or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $dotforward ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $dotforward ($!)");
       print DF vdomain_userspool($vuser, $vhomedir)."\n";
       close (DF);
       chmod(0700, $dotforward);
@@ -1080,7 +1080,7 @@ sub vuser_update {
    }
 
    open ($fh, ">$file") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $file ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $file ($!)");
 
    print $fh @lines;
 
@@ -1112,9 +1112,9 @@ sub from_update {
    else { writelog("vdomain $user: $vuser\@$domain  create from.book - $frombook, uid=$<, gid=$>"); }
 
    ow::filelock::lock($frombook, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $frombook");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $frombook");
    open (FB, ">$frombook") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $frombook ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $frombook ($!)");
 
    print FB "$vuser\@$domain\@\@\@$realnm\n" if ($realnm);
    foreach (sort keys %from_list) {
@@ -1155,7 +1155,7 @@ sub valias_update {
    }
 
    open ($fh, ">$file") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $file ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $file ($!)");
 
    print $fh @lines;
 
@@ -1224,7 +1224,7 @@ sub vpasswd_update {
    writelog("vdomain $user: $vuser\@$domain  disable user login") if ($disable);
 
    open ($fh, ">$file") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $file ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $file ($!)");
 
    print $fh @lines;
 
@@ -1303,13 +1303,13 @@ sub root_open {
 
    if ($action ne '') {
       ow::filelock::lock($file, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} $file");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $file");
    } else {
       ow::filelock::lock($file, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_locksh'} $file");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} $file");
    }
    open ($fh, "$action$file") or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $file ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $file ($!)");
 
    return ($fh, $file, $origruid, $origeuid, $origegid);
 }

@@ -140,7 +140,7 @@ sub _cutfoldermail {	# reduce folder size by $cutpercent
       last if ($cutsize+$FDB{'ZAPSIZE'} > $totalsize*$cutpercent);
    }
    ow::dbm::close(\%FDB, $folderdb);
-   my $counted=operate_message_with_ids("delete", \@delids, $folderfile, $folderdb);
+   my $counted=(operate_message_with_ids("delete", \@delids, $folderfile, $folderdb))[0];
    $counted=folder_zapmessages($folderfile, $folderdb);
 
    ow::filelock::lock($folderfile, LOCK_UN);

@@ -1,3 +1,10 @@
+02/09/2005
+----------
+1. Deutsch template files translation minor update
+   (thanks to Martin Bronk, martin.AT.bronk.de)
+2. clean code of error messages
+
+
 02/07/2005
 ----------
 1. change address book email lookup in message list

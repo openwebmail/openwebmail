@@ -27,7 +27,7 @@ sub getmessage {
 
       my %FDB;	# set metainfo=ERR to force reindex in next update_folderindex
       ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_lock'} ".f2u($folderdb));
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderdb));
       @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
       ow::dbm::close(\%FDB, $folderdb);
 
