@@ -1327,6 +1327,7 @@ sub uploadfile {
 
       my $ext=ow::tool::contenttype2ext($contenttype);
       $fname=$upload;				# url
+      $fname=ow::tool::unescapeURL($fname);	# unescape str in url
       $fname=~s/\?.*$//;			# clean cgi parm in url
       $fname=~ s!/$!!; $fname =~ s|^.*/||;	# clear path in url
       $fname.=".$ext" if ($fname!~/\.$ext$/ && $ext ne 'bin');
@@ -1346,6 +1347,7 @@ sub uploadfile {
       }
       $fname =~ s|^.*/||;	# unix path
       $fname =~ s|^.*:||;	# mac path and dos drive
+      $fname=u2f($fname);	# prefscharset to fscharset
    }
 
    my $vpath=ow::tool::untaint(absolute_vpath($currentdir, $fname));

@@ -356,6 +356,7 @@ sub composemessage {
                my $wgetbin=ow::tool::findbin('wget');
                if ($wgetbin ne '') {
                   $attname=$attachment;			# url
+                  $attname=ow::tool::unescapeURL($attname); 	# unescape str in URL
                   my ($ret, $errmsg);
                   ($ret, $errmsg, $attcontenttype, $attachment)=ow::wget::get_handle($wgetbin, $attachment);
                   if ($ret==0) {
