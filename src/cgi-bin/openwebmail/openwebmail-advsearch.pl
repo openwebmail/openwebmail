@@ -562,38 +562,28 @@ sub search_folders2 {
 # this routines generates one line table containing folder, msgid and @attr
 sub genline {
    my ($colornum, $folder, $messageid, $r_attr, $r_abookemailhash) = @_;
-   my ($escapedmessageid);
-   my ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset);
-   my ($bgcolor, $message_status,$temphtml,$folderstr,$escapedfolder);
 
-   $folderstr = (defined $lang_folders{$folder})?$lang_folders{$folder}:f2u($folder);
-   if ( $colornum ) {
-      $bgcolor = $style{"tablerow_light"};
-   } else {
-      $bgcolor = $style{"tablerow_dark"};
-   }
+   my $bgcolor = $colornum?$style{"tablerow_light"}:$style{"tablerow_dark"};
+   my $folderstr = (defined $lang_folders{$folder})?$lang_folders{$folder}:f2u($folder);
+   my $escapedfolder = ow::tool::escapeURL($folder);
+   my $escapedmessageid = ow::tool::escapeURL($messageid);
 
-   $escapedfolder = ow::tool::escapeURL($folder);
-   $escapedmessageid = ow::tool::escapeURL($messageid);
-   ($offset, $from, $to, $dateserial, $subject, $content_type, $status, $messagesize, $references, $charset) = @{$r_attr};
-
+   my $msgcharset=${$r_attr}[$_CHARSET];
    # convert from mesage charset to current user charset
-   if ($charset eq '' && $prefs{'charset'} eq 'utf-8') {
+   if ($msgcharset eq '' && $prefs{'charset'} eq 'utf-8') {
       # assume msg is from sender using same language as the recipient's browser
-      $charset=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
+      $msgcharset=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
    }
-   ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $from, $to, $subject);
 
+   my ($from, $to, $subject)=iconv($msgcharset, $prefs{'charset'}, ${$r_attr}[$_FROM], ${$r_attr}[$_TO], ${$r_attr}[$_SUBJECT]);
    my ($from_name, $from_address)=ow::tool::email2nameaddr($from);
    my $escapedfrom=ow::tool::escapeURL($from);
    $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedfrom" title="$from_address">$from_name </a>|;
-
    my $friendstr;
    if ($config{'enable_addressbook'} &&
        defined ${$r_abookemailhash}{$from_address}) {
       $friendstr=iconlink("friend.gif", "$lang_text{'search'} $lang_text{'addressbook'}", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;abookkeyword=$from_address&amp;abooksearchtype=email&amp;abookfolder=ALL&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
    }
-
    $subject=substr($subject, 0, 64)."..." if (length($subject)>67);
    $subject = ow::htmltext::str2html($subject);
    if ($subject !~ /[^\s]/) {   # Make sure there's SOMETHING clickable
@@ -601,25 +591,22 @@ sub genline {
    }
 
    # Round message size and change to an appropriate unit for display
-   $messagesize=lenstr($messagesize,1);
-
+   my $sizestr=lenstr(${$r_attr}[$_SIZE],1);
    # convert dateserial(GMT) to localtime
-   my $datestr=ow::datetime::dateserial2str($dateserial,
+   my $datestr=ow::datetime::dateserial2str(${$r_attr}[$_DATE],
                                $prefs{'timeoffset'}, $prefs{'daylightsaving'},
                                $prefs{'dateformat'}, $prefs{'hourformat'});
 
-   $temphtml = qq|<tr>|.
-               qq|<td nowrap bgcolor=$bgcolor>$folderstr&nbsp;</td>\n|.
-               qq|<td bgcolor=$bgcolor>$datestr</td>\n|.
-               qq|<td bgcolor=$bgcolor>$friendstr $from</td>\n|.
-               qq|<td bgcolor=$bgcolor>|.
-               qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;|.
-               qq|sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
-               qq|headers=|.($prefs{'headers'} || 'simple').qq|&amp;|.
-               qq|message_id=$escapedmessageid">\n$subject \n</a></td>|.
-               qq|<td bgcolor=$bgcolor>$messagesize</td>\n|.
-               qq|</tr>\n|;
-
-   return $temphtml;
+   return qq|<tr>|.
+          qq|<td nowrap bgcolor=$bgcolor>$folderstr&nbsp;</td>\n|.
+          qq|<td bgcolor=$bgcolor>$datestr</td>\n|.
+          qq|<td bgcolor=$bgcolor>$friendstr $from</td>\n|.
+          qq|<td bgcolor=$bgcolor>|.
+          qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;|.
+          qq|sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
+          qq|headers=|.($prefs{'headers'} || 'simple').qq|&amp;|.
+          qq|message_id=$escapedmessageid">\n$subject \n</a></td>|.
+          qq|<td bgcolor=$bgcolor>$sizestr</td>\n|.
+          qq|</tr>\n|;
 }
 ########## END GENLINE ###########################################

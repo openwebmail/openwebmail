@@ -11,7 +11,7 @@
 <B>@@@QUOTAUSAGE@@@</B></font>&nbsp;</td>
 <td nowrap bgcolor=@@@TITLEBAR@@@ align="right" width="30%">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>@@@NUMBEROFMESSAGES@@@</B></font>&nbsp;</td>
+<B>@@@MESSAGESIZE@@@</B></font>&nbsp;</td>
 </tr></table>
 
 </td></tr><tr><td bgcolor=@@@MENUBAR@@@>

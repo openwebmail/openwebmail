@@ -35,6 +35,7 @@ sub getmessage {
       openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html($errmsg)) if ($msgsize<0 && $msgsize!=-2);
    }
    return \%message if ($msgsize<=0);
+   $message{size}=$msgsize;
 
    # member: header, body, attachment
    #         return-path from to cc bcc reply-to date subject status

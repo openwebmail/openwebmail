@@ -1,3 +1,8 @@
+02/28/2005
+----------
+1. minor change to readmessage templates
+
+
 02/27/2005
 ----------
 1. guess a better contenttype in attachment downloading

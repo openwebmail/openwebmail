@@ -338,15 +338,8 @@ sub readmessage {
    }
    $html =~ s/\@\@\@QUOTAUSAGE\@\@\@/$temphtml/;
 
-   $temphtml = '';
-   my $totalmessage=$#{$r_messageids}+1; $totalmessage=0 if ($totalmessage<0);
-   if ($totalmessage>0) {
-      $temphtml .= "$newmessages $lang_text{'unread'} / " if ($newmessages);
-      $temphtml .= "$totalmessage $lang_text{'messages'} / ". lenstr($totalsize, 1);
-   } else {
-      $temphtml = $lang_text{'nomessages'};
-   }
-   $html =~ s/\@\@\@NUMBEROFMESSAGES\@\@\@/$temphtml/;
+   $temphtml=lenstr($message{'size'},1);
+   $html =~ s/\@\@\@MESSAGESIZE\@\@\@/$temphtml/;
 
    my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl?$urlparm";
    my $read_url = "$config{'ow_cgiurl'}/openwebmail-read.pl?$urlparm";
@@ -524,7 +517,7 @@ sub readmessage {
       $gif="left-grey.s.gif"; $gif="right-grey.s.gif" if ($ow::lang::RTL{$prefs{'language'}});
       $temphtml .= iconlink($gif, "-", "");
    }
-   $temphtml.=qq|$message_num|;
+   $temphtml.=qq|$message_num/|.($#{$r_messageids}+1);
    if ($messageid_next ne '') {
       my $gif="right.s.gif"; $gif="left.s.gif" if ($ow::lang::RTL{$prefs{'language'}});
       $temphtml .= iconlink($gif, "&gt;", qq|accesskey="D" href="$read_url&amp;message_id=|.ow::tool::escapeURL($messageid_next).qq|&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode"|);
