@@ -1,3 +1,9 @@
+12/13/2004
+----------
+1. fix some typo errors in French language file
+   (thanks to Dominique, dominique.fournier.AT.grenoble.cnrs.fr)
+
+
 12/09/2004
 ----------
 1. change calendar event notification email to a more concise format

@@ -293,7 +293,7 @@ package ow::fr;
 %lang_wdbutton =
    (
    refresh  => 'Rafraîchir',
-   preview  => 'Apperçu',
+   preview  => 'Aperçu',
    edit     => 'Editer',
    listarchive=> 'Lister',
    decompress=>'Decompresser',
@@ -317,7 +317,7 @@ package ow::fr;
 
 %lang_text =
    (
-   loading    => 'Chargement, veuillez patinter',
+   loading    => 'Chargement, veuillez patienter',
    help       => 'Aide ',
    login      => 'Entrer',
    clear      => 'Effacer',
@@ -339,7 +339,7 @@ package ow::fr;
    emptyfolder=> 'Vider le dossier',
    emptytrash => 'Vider la poubelle',
    totrash    => 'Mettre à la poubelle',
-   learnspam  => 'Apprende Spam',
+   learnspam  => 'Apprendre Spam',
    forever    => 'Toujours',
    delatlogout=> 'Effacer à la déconnexion',
    userdef    => 'Personnaliser',
