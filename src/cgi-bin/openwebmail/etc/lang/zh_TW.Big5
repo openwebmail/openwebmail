@@ -185,6 +185,36 @@ package ow::zh_TW_Big5;
    PUBLIC => '公共的',
    );
 
+%lang_satestfields =
+   (
+   name       => '名稱',
+   desc       => '描述',
+   type       => '比對位置',
+   expression => '比對樣式',
+   score      => '分數',
+   );
+
+%lang_satesttypes =
+   (
+   header  => '信件表頭',
+   body    => '本文文字(不含HTML標籤)',
+   uri     => '本文內網址',
+   rawbody => '本文與附件中的文字(含HTML標籤)',
+   full    => '原始信件(未解碼)',
+   );
+
+%lang_satestheaderattrs =
+   (
+   ALL        => '全部',
+   Subject    => '標題',
+   From       => '寄信人',
+   To         => '收信人',
+   Cc         => '副本',
+   ToCc       => '收信人與副本',
+   MESSAGEID  => '信件 ID',
+   USERDEFINE => '使用者自訂',
+   );
+
 %lang_advsearchlabels =
    (
    contains    => '包含',
@@ -612,6 +642,10 @@ package ow::zh_TW_Big5;
    abook_editform_save_and_return => '存檔並回到上一頁',
    abook_editform_cancel_and_return => '取消並回到前一頁',
    abook_editform_new_agent_link => '建立',
+   sa_prefs         => 'SpamAssassin 個人設定',
+   sa_edittest      => '編輯比對規則',
+   sa_editblacklist => '編輯黑名單',
+   sa_editwhitelist => '編輯白名單',
    );
 
 %lang_err =

@@ -403,6 +403,11 @@ ps:Please be sure that the spamd is started with -L or --local option
 5. there are some other spamcheck related options in defaults/openwebmail.conf,
    please refer to openwebmail.conf.help for more detail
 
+ps: If you have set 'allow_user_rules 1' in the local.cf of your spamassassin,
+    you may set option 'enable_saprefs' to yes in your openwebmail.conf,
+    this would allow users to set the test rules, whilelist and blacklist in
+    the spamassassin userprefs file (~/.spamassassin/userprefs).
+
 ps: How and when does openwebmail call the external programs to check messages?
 
     The pop3 messages are checked when they are fetched

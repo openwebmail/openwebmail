@@ -90,8 +90,12 @@ Assumpte:
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Imatge de fons:</B>
-</td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
-@@@BACKGROUNDMENU@@@ <font size=-2>URL </font>@@@BGURLFIELD@@@
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+<table border="0" width="100%"><tr>
+<td width="10%">@@@BACKGROUNDMENU@@@</td>
+<td><div id="urldiv" style="position:relative; visibility:visible;" width="100%" height="100%">
+<font size=-2>URL </font>@@@BGURLFIELD@@@</div></td>
+</tr></table>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Imatge de fons repetida:</B>
@@ -300,7 +304,7 @@ Ample @@@EDITCOLUMNSMENU@@@ Alt @@@EDITROWSMENU@@@
 
 @@@SPAMCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Comprovació d'Spam</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Comprovació d'Spam</B> &nbsp; @@@SAPREFSLINK@@@</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Missatges a comprovar:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -563,11 +567,24 @@ durant @@@MAILSENTWINDOWTIMEMENU@@@ segons &nbsp;( 0 desactiva la finestra de no
 
 <script language="JavaScript">
 <!--
+   function seturldivvisibility()
+   {
+      var div=document.getElementById('urldiv');
+      if (document.prefsform.background.value=='USERDEFINE') {
+         div.style.visibility='visible';
+      } else {
+	 div.style.visibility='hidden';
+      }
+   }
+	
    function playsound(url, soundname) 
    {
       if (soundname != "NONE" ) {
          window.open(url+soundname);
       } 
    }
+
+   seturldivvisibility()
+
 //-->
 </script>

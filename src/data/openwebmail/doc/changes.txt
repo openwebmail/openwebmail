@@ -1,3 +1,12 @@
+12/07/2004
+----------
+1. Deutsch lang file translation update
+   (thanks to Martin Bronk, martin.AT.bronk.de)
+2. add new option enable_saprefs to openwebmail.conf
+   This option would allow users to edit the testrules, whitelist and
+   blacklist in the spamassassin userprefs file (~/.spamassassin/userprefs)
+
+
 12/05/2004
 ----------
 1. new iconset: Cool3D.Spanish

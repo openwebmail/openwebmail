@@ -124,3 +124,12 @@ diff -ruN suidperl/openwebmail.pl speedy/openwebmail.pl
  #################################################################
  #                                                               #
  # Open WebMail - Provides a web interface to user mailboxes     #
+diff -ruN suidperl/openwebmail-saprefs.pl speedy/openwebmail-saprefs.pl
+--- suidperl/openwebmail-saprefs.pl	Wed Dec  8 00:41:27 2004
++++ speedy/openwebmail-saprefs.pl	Wed Dec  8 00:40:58 2004
+@@ -1,4 +1,4 @@
+-#!/usr/bin/suidperl -T
++#!/usr/local/bin/speedy_suidperl
+ #
+ # openwebmail-saprefs.pl - spamassassin userprefs config
+ #

@@ -594,7 +594,7 @@ sub editprefs {
                              -values=>\@backgrounds,
                              -labels=>{ 'USERDEFINE'=>"--$lang_text{'userdef'}--" },
                              -default=>$background,
-                             -onChange=>"JavaScript:document.prefsform.bgurl.value='';",
+                             -onChange=>"JavaScript:seturldivvisibility();document.prefsform.bgurl.value='';",
                              -override=>'1',
                              defined($config_raw{'DEFAULT_bgurl'})?('-disabled'=>'1'):());
       $html =~ s/\@\@\@BACKGROUNDMENU\@\@\@/$temphtml/;
@@ -967,6 +967,13 @@ sub editprefs {
 
          if ($config{'enable_spamcheck'}) {
             templateblock_enable($html, 'SPAMCHECK');
+
+            if ($config{'enable_saprefs'}) {
+               $temphtml = iconlink("saprefs.s.gif", $lang_text{'sa_prefs'}, qq|href="$config{'ow_cgiurl'}/openwebmail-saprefs.pl?action=edittest&amp;$urlparmstr"|);
+               $html =~ s/\@\@\@SAPREFSLINK\@\@\@/$temphtml/;
+            } else {
+               $html =~ s/\@\@\@SAPREFSLINK\@\@\@//;
+            }
 
             my @source=('none');
             if ($config{'spamcheck_source_allowed'} eq 'pop3') {
@@ -2855,7 +2862,7 @@ sub editstat {
    if ($prefs_caller eq "") {
       $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder), qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;$urlparmstr"|);
    } else {
-      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder), qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
+      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} $lang_text{'userprefs'}", qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr"|);
    }
    $temphtml .= "&nbsp;\n";
    $temphtml .= iconlink("clearst.gif", "$lang_text{'clearstat'}", qq|accesskey="Z" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=clearstat&amp;$urlparmstr" onclick="return confirm('$lang_text{'clearstat'}?')"|). qq| \n|;

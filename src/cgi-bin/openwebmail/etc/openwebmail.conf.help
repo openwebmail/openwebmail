@@ -1046,6 +1046,12 @@ mail-trash, spam-mail or virus-mail, then this is the folder that the
 learned message will be moved to. (default: INBOX)
 
 
+enable_saprefs
+-----------------------------------------------------------------------
+If this option is set to yes, user will be allowed to edit their 
+SpamAssassin userprefs file (~/.spamassassin/userprefs) in openwebmail.
+
+
 enable_pop3
 -----------------------------------------------------------------------
 Open WebMail has complete support as pop3 client. If you want to disable

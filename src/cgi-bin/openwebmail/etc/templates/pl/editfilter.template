@@ -62,56 +62,42 @@
 
 @@@FILTERRULES@@@
 </table>
+
 <script language="JavaScript">
 <!--
    function Update(priority,rules,include,text,op,destination,enable)
    {
-      var i;
       var quot=new RegExp("!QUOT!","g");
       text=text.replace(quot, '"');
 
-      for (i=0; i<document.newfilter.priority.length; i++) {
-         if (document.newfilter.priority.options[i].value==priority) {
-            document.newfilter.priority.options[i].selected=true;
-            break;
-         }
-      }
-
-      for (i=0; i<document.newfilter.ruletype.length; i++) {
-         if (document.newfilter.ruletype.options[i].value==rules) {
-            document.newfilter.ruletype.options[i].selected=true;
-            break;
-         }
-      }
-
-      for (i=0; i<document.newfilter.include.length; i++) {
-         if (document.newfilter.include.options[i].value==include) {
-            document.newfilter.include.options[i].selected=true;
-            break;
-         }
-      }
+      selectoption(document.newfilter.priority, priority);
+      selectoption(document.newfilter.ruletype, rules);
+      selectoption(document.newfilter.include, include);
 
       document.newfilter.text.value = text;
 
-      for (i=0; i<document.newfilter.op.length; i++) {
-         if (document.newfilter.op.options[i].value==op) {
-            document.newfilter.op.options[i].selected=true;
-            break;
+      selectoption(document.newfilter.op, op);
+      selectoption(document.newfilter.destination, destination);
+
+      document.newfilter.enable.checked = (enable==1)?true:false;
+   }
+
+   function selectoption (menu, value)
+   {
+      var i_default=0;
+
+      for (var i=0; i<menu.length; i++) {
+         if (menu.options[i].value==value) {
+            menu.options[i].selected=true;
+            return i;
+         }
+         if (menu.options[i].defaultSelected) {
+            i_default=i;
          }
       }
 
-      for (i=0; i<document.newfilter.destination.length; i++) {
-         if (document.newfilter.destination.options[i].value==destination) {
-            document.newfilter.destination.options[i].selected=true;
-            break;
-         }
-      }
-
-      if (enable == 1)
-      	document.newfilter.enable.checked = true;
-      else
-        document.newfilter.enable.checked = false;
+      menu.options[i_default].selected=true;
+      return i_default;
    }
 //-->
 </script>
-

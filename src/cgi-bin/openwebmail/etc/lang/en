@@ -185,6 +185,36 @@ package ow::en;
    PUBLIC => 'Public',
    );
 
+%lang_satestfields =
+   (
+   name       => 'Name',
+   desc       => 'Description',
+   type       => 'Test Type',
+   expression => 'Expression',
+   score      => 'Score',
+   );
+
+%lang_satesttypes =
+   (
+   header  => 'Message Header',
+   body    => 'Text in Msgbody (HTML tag removed)',
+   uri     => 'Links in Message Body',
+   rawbody => 'Text in Msgbody and Attachments (HTML tag reserved)',
+   full    => 'Undecoded Msgbody and Attachments',
+   );
+
+%lang_satestheaderattrs =
+   (
+   ALL        => 'All',
+   Subject    => 'Subject',
+   From       => 'From',
+   To         => 'To',
+   Cc         => 'Cc',
+   ToCc       => 'To and Cc',
+   MESSAGEID  => 'Message Id',
+   USERDEFINE => 'User Define',
+   );
+
 %lang_advsearchlabels =
    (
    contains    => 'contains',
@@ -400,11 +430,11 @@ package ow::en;
    testsound  => 'Test sound',
    editfroms  => 'Edit personal email addresses',
    pop3book   => 'POP3 Setup',
-   retr_pop3s => 'Retrieve POP3 Mail',
-   filterbook => 'Mail Filter Setup',
+   retr_pop3s => 'Retrieve POP3 mail',
+   filterbook => 'Mail filter setup',
    include    => 'Include',
    exclude    => 'Exclude',
-   smtprelay  => 'SMTP Relay',
+   smtprelay  => 'SMTP relay',
    header     => 'Header',
    body       => 'Body',
    attfilename=> 'AttFilename',
@@ -414,7 +444,7 @@ package ow::en;
    yes        => 'Yes',
    no         => 'No',
    filtered   => 'Filtered',
-   blockrelay => 'Block SMTP Relay',
+   blockrelay => 'Block SMTP relay',
    blockemail => 'Block email',
    read       => 'Read',
    yourmsg    => 'Your message',
@@ -612,6 +642,10 @@ package ow::en;
    abook_editform_save_and_return => 'Save and return to parent',
    abook_editform_cancel_and_return => 'Cancel and return to parent',
    abook_editform_new_agent_link => 'create',
+   sa_prefs         => 'SpamAssassin user preferences',
+   sa_edittest      => 'Edit Test Rules',
+   sa_editblacklist => 'Edit Black List',
+   sa_editwhitelist => 'Edit White List',
    );
 
 %lang_err =

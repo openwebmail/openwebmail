@@ -10,7 +10,8 @@
 30@@@from@@@include@@@anti.*virus|amavisd|interscan|mailsqr@@@move@@@mail-trash@@@1
 30@@@from@@@include@@@\s{7}@@@move@@@mail-trash@@@1
 30@@@from@@@include@@@[a-z][0-9]{6,11}@(yahoo|hotmail|pchome)\.com@@@move@@@mail-trash@@@1
-50@@@attfilename@@@include@@@(readme|instruction|transcript|mail|letter|file|text|attachment|document|message)\.(cmd|bat|com|exe|pif|scr|zip)@@@move@@@virus-mail@@@1
+50@@@attfilename@@@include@@@(readme|instruction|transcript|mail|letter)\.(cmd|bat|com|exe|pif|scr|zip)@@@move@@@virus-mail@@@1
+50@@@attfilename@@@include@@@(file|text|attachment|document|message)\.(cmd|bat|com|exe|pif|scr|zip)@@@move@@@virus-mail@@@1
 50@@@attfilename@@@include@@@readme\.(eml|exe|com|wav)@@@move@@@virus-mail@@@1
 50@@@attfilename@@@include@@@(NakedWife|MYBABYPIC|SAMPLE)\.EXE@@@move@@@virus-mail@@@1
 60@@@textcontent@@@include@@@viagra|xanax|vicodin|zoloft|citrate|penis@@@move@@@spam-mail@@@1

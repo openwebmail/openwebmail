@@ -348,6 +348,9 @@ sub listmessages {
    if ($config{'enable_userfilter'}) {
       $temphtml .= iconlink("filtersetup.gif", $lang_text{'filterbook'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
    }
+   if ($config{'enable_saprefs'}) {
+      $temphtml .= iconlink("saprefs.gif", $lang_text{'sa_prefs'}, qq|href="$config{'ow_cgiurl'}/openwebmail-saprefs.pl?action=edittest&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+   }
 
    $temphtml .= qq|&nbsp;\n|;
 
