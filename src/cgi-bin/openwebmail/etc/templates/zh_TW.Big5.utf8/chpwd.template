@@ -1,0 +1,50 @@
+<BR><BR><BR><BR><BR>
+<table border="0" align="center" width="60%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>變更密碼</B></FONT>
+</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@STARTFORM@@@
+<BR>
+<table align=center border=0 cellspacing=2 cellpadding=0>
+<tr>
+<td align="right">帳號: </td><td>@@@LOGINNAMEFIELD@@@</td>
+</tr><tr>
+<td align="right">舊密碼: </td><td>@@@OLDPASSWORDFIELD@@@</td>
+</tr><tr>
+<td align="right">新密碼: </td><td>@@@NEWPASSWORDFIELD@@@</td>
+</tr><tr>
+<td align="right">確認新密碼: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+</tr><tr>
+<td colspan=2>
+<table width="100%"><tr>
+<td align=center>@@@CHANGEBUTTON@@@ @@@ENDFORM@@@ </td><td align=center>@@@CANCELBUTTON@@@</td>
+</tr></table>
+</td>
+</tr>
+</table>
+</td></tr></table>
+<script language="JavaScript">
+   document.passwordform.oldpassword.focus()
+
+   function changecheck()
+   {
+      var s;
+      s=document.passwordform.newpassword.value;
+      if (s.length < @@@PASSWDMINLEN@@@) {
+         alert("密碼長度至少要有 @@@PASSWDMINLEN@@@ 個字元.");
+         return false;
+      }
+      if (document.passwordform.newpassword.value !=
+	  document.passwordform.confirmnewpassword.value) {
+         alert("新密碼與確認欄位內容不符.");
+         return false;
+      }
+      if (document.passwordform.newpassword.value ==
+	  document.passwordform.oldpassword.value) {
+         alert("新密碼與舊密碼完全相同.");
+         return false;
+      }
+      return true;
+   }
+
+</script>

@@ -132,7 +132,7 @@
             return true;
          }
       }
-      alert("There is no directory or file selected.");
+      alert("選択されたディレクトリ/ファイルが存在しません。");
       return false;
    }
    function selectedstr()
@@ -158,7 +158,7 @@
    }
    function destnamefilled(target) {
       if (document.dirform.destname.value == '') {
-         alert('Please fill  < '+target+' >  first.');
+         alert('最初に< '+target+' >を入力してください。');
          return false;
       } else {
          return true;
@@ -166,7 +166,7 @@
    }
    function uploadfilled() {
       if (document.dirform.upload.value == '') {
-         alert("Please choose the file to upload first.");
+         alert("最初にアップロードするファイルを選んでください。");
          return false;
       } else {
          document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
@@ -175,7 +175,7 @@
    }
    function opconfirm(op, conf) {
       if (conf) {
-         return(confirm('Are you sure you want to '+op+' the selected items? ( '+selectedstr()+' )'));
+         return(confirm('本当に選択された項目を'+op+'しますか？ ( '+selectedstr()+' )'));
       } else {
          return true;
       }

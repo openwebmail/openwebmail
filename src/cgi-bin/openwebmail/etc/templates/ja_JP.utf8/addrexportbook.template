@@ -1,0 +1,76 @@
+@@@BEFORELISTVIEWSTART@@@
+@@@BEFORELISTVIEWEND@@@
+
+@@@AFTERLISTVIEWSTART@@@
+<tr>
+  <td colspan="@@@TOTALSPAN@@@" bgcolor=@@@WINDOW_LIGHT@@@ align="center">
+    <table cellpadding="0" cellspacing="0" border="0" width="80%">
+    <tr>
+      <td><br><p><b>概要</b><br>書き出し(エクスポート)では、ローカルコンピュータにアドレスをダウンロードします。もしアドレス帳全体をダウンロードしたければ、アドレス帳管理ページを使ってください。アドレス帳のダウンロードアイコンをクリックし一度にダウンロードできます。</p><p><b>1. ダウンロードしたいアドレスを選択してください。</b><br><br></p></td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td colspan="@@@TOTALSPAN@@@" bgcolor=@@@WINDOW_LIGHT@@@ align="center">
+    <table cellpadding="0" cellspacing="0" border="0" width="80%">
+    <tr>
+      <td><b>2. 書き出す(エキスポート)ファイルの形式を選択してください:</b></td>
+    </tr>
+    <tr>
+      <td>
+        <table cellpadding="0" cellspacing="0" border="0">
+          <tr> 
+	    <td>@@@EXPORTMODEFORMFORMATSMENU@@@</td>
+            <td>&nbsp;&nbsp;</td>
+	    <td>@@@EXPORTCHARSETMENU@@@</td>
+	  <tr>
+	</table>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>
+        <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+           <td>@@@EXPORTMODEFORMEXPORTNOW@@@</td>
+           <td>&nbsp;&nbsp;</td>
+           <td>@@@EXPORTMODECANCELFORM@@@</td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td><br><br></td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<script type="text/javascript" language="javascript">
+<!--
+function exportOptionsToggle(exportformat, sourceForm) {
+   if (exportformat == 'csv' || exportformat == 'tab') {
+     for(i=0; i<document.forms[sourceForm].elements.length; i++) {
+        var e = document.forms[sourceForm].elements[i];
+        if (e.name == 'exportcharset') {
+           e.disabled = 0;
+        }
+     }
+   } else {
+     for(i=0; i<document.forms[sourceForm].elements.length; i++) {
+        var e = document.forms[sourceForm].elements[i];
+        if (e.name == 'exportcharset') {
+           e.disabled = 1;
+        }
+     }
+   }
+}
+//-->
+</script>
+@@@AFTERLISTVIEWEND@@@
+
+
+@@@JAVASCRIPTSTART@@@
+@@@JAVASCRIPTEND@@@

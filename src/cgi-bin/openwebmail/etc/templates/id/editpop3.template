@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="5" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Konfigurasi Surat dari Luar</b></font>
+<b>Konfigurasi Surat dari POP3</b></font>
 </td><td nowrap colspan="3" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <b>sisa @@@FREESPACE@@@ Kapasitas</b></font>
@@ -14,17 +14,17 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Port</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@USEPOP3SSLSTART@@@<B>Use SSL</B>@@@USEPOP3SSLEND@@@</td>
+@@@USEPOP3SSLSTART@@@<B>Gunakan SSL</B>@@@USEPOP3SSLEND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>akaunt Id</B> (Tekan menyimpan surat)</td>
+<B>Nama Asli</B> (Tekan menyimpan surat)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Kode rahasia</B></td>
+<B>Sandi rahasia</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@DELPOP3STRSTART@@@<B>Hapus Surat dari luar</B>@@@DELPOP3STREND@@@</td>
+@@@DELPOP3STRSTART@@@<B>Hapus Surat dari POP3</B> @@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Aktif</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Tombol</B>
+<B>Tombol Aksi</B>
 </td></tr>
 @@@STARTPOP3FORM@@@
 <tr>

@@ -36,7 +36,7 @@
           <td><input class="mono" type="text" name="@@@POSTOFFICEADDRESS.NAME@@@" value="@@@POSTOFFICEADDRESS.VALUE@@@" size="30"></td>
         </tr>
         <tr>
-          <td class="smalltext">kotak kantor pos</td>
+          <td class="smalltext">kotak pos</td>
         </tr>
         <tr>
           <td class="smalltext">&nbsp;</td>
@@ -71,7 +71,7 @@
             <tr>
               <td class="smalltext">kode pos</td>
               <td>&nbsp;</td>
-              <td class="smalltext">negeri</td>
+              <td class="smalltext">negera</td>
             </tr>
             <tr>
               <td colspan="3" height="40">&nbsp;</td>
@@ -87,27 +87,27 @@
         <tr>
           <td><input class="mono" type="checkbox" name="@@@HOME.NAME@@@" value="HOME" @@@HOME.VALUE@@@></td>
           <td rowspan="6" width="5">&nbsp;</td>
-          <td nowrap><a href="javascript:check_toggle('@@@HOME.NAME@@@');"><span class="smalltext">home address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@HOME.NAME@@@');"><span class="smalltext">Alamat Rumah</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@WORK.NAME@@@" value="WORK" @@@WORK.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@WORK.NAME@@@');"><span class="smalltext">work address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@WORK.NAME@@@');"><span class="smalltext">Alamat Kantor</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@DOM.NAME@@@" value="DOM" @@@DOM.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@DOM.NAME@@@');"><span class="smalltext">domestic address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@DOM.NAME@@@');"><span class="smalltext">Alamat Domestik</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@INTL.NAME@@@" value="INTL" @@@INTL.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@INTL.NAME@@@');"><span class="smalltext">international address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@INTL.NAME@@@');"><span class="smalltext">Alamat Internasional</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@POSTAL.NAME@@@" value="POSTAL" @@@POSTAL.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@POSTAL.NAME@@@');"><span class="smalltext">postal delivery address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@POSTAL.NAME@@@');"><span class="smalltext">Alamat Pengiriman Pos</span></a></td>
         </tr>
         <tr>
           <td><input class="mono" type="checkbox" name="@@@PARCEL.NAME@@@" value="PARCEL" @@@PARCEL.VALUE@@@></td>
-          <td nowrap><a href="javascript:check_toggle('@@@PARCEL.NAME@@@');"><span class="smalltext">parcel delivery address</span></a></td>
+          <td nowrap><a href="javascript:check_toggle('@@@PARCEL.NAME@@@');"><span class="smalltext">Alamat Pengiriman Parcel</span></a></td>
         </tr>
         </table>
       </td>
@@ -128,7 +128,7 @@
           </td>
         </tr>
         <tr>
-          <td colspan="2"><a href="javascript:makeLabel('editForm','@@@LABEL.INDEX@@@');"><span class="smalltext"><b>automake label</b></span></a></td>
+          <td colspan="2"><a href="javascript:makeLabel('editForm','@@@LABEL.INDEX@@@');"><span class="smalltext"><b>Buat Label Otomatis</b></span></a></td>
         </tr>
         </table>
       </td>

@@ -1,0 +1,760 @@
+package ow::zh_CN_GB2312_utf8;
+
+# Simplified Chinese Translation, charset: utf-8
+# by Wang Jun, wjun.AT.mail.iap.ac.cn
+
+%lang_folders =
+   (
+   INBOX            => '收件箱',
+   'saved-messages' => '存档箱',
+   'sent-mail'      => '已发送邮件',
+   'saved-drafts'   => '草稿箱',
+   'mail-trash'     => '废件箱',
+   'spam-mail'      => '垃圾邮件箱',
+   'virus-mail'     => '病毒邮件箱',
+   LEARNSPAM        => '--垃圾邮件学习--',
+   LEARNHAM         => '--正常邮件学习--',
+   FORWARD          => '--邮件转发--',
+   DELETE           => '--直接删除--'
+   );
+
+%lang_sortlabels =
+   (
+   status      => '状态（未读优先）',
+   date        => '日期（新信优先）',
+   date_rev    => '日期（旧信优先）',
+   sender      => '发件人（新信优先）',
+   sender_rev  => '发件人（旧信优先）',
+   subject     => '主题（新信优先）',
+   subject_rev => '主题（旧信优先）',
+   size        => '大小（大信优先）',
+   size_rev    => '大小（小信优先）'
+   );
+
+%lang_abooksortlabels =
+   (
+   fullname     => '全名 (A 到 Z)',
+   fullname_rev => '全名 (Z 到 A)',
+   prefix       => '前缀 (A 到 Z)',
+   prefix_rev   => '前缀 (Z 到 A)',
+   first        => '名 (A 到 Z)',
+   first_rev    => '名 (Z 到 A)',
+   middle       => '别名 (A 到 Z)',
+   middle_rev   => '别名 (Z 到 A)',
+   last         => '姓 (A 到 Z)',
+   last_rev     => '姓 (Z 到 A)',
+   suffix       => '后缀 (A 到 Z)',
+   suffix_rev   => '后缀 (Z 到 A)',
+   email        => 'Email (A 到 Z)',
+   email_rev    => 'Email (Z 到 A)',
+   phone        => '电话号码 (数字由小到大)',
+   phone_rev    => '电话号码 (数字由大到小)',
+   );
+
+%lang_abookselectionlabels =
+   (
+   ALL => "全部通讯录",
+   GLOBAL => "公用通讯录",
+   );
+
+%lang_onofflabels =
+   (
+   auto => '自动切换',
+   on   => '开',
+   off  => '关',
+   );
+
+%lang_bgfilterthresholdlabels =
+   (
+     0 => 'No',
+     1 => 'Yes',
+    20 => '只在新信匣新信超过 20 封时',
+    50 => '只在新信匣新信超过 50 封时',
+   100 => '只在新信匣新信超过 100 封时',
+   200 => '只在新信匣新信超过 200 封时',
+   500 => '只在新信匣新信超过 500 封时',
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => '普通',
+   urgent      => '急件',
+   'non-urgent'=> '非紧急'
+   );
+
+%lang_msgformatlabels =
+   (
+   auto => '自动选择',
+   text => '纯文本',
+   html => 'HTML',
+   both => '同时使用纯文本与HTML'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => '附在前面',
+   at_end       => '附在后面',
+   none         => '不要附上'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => '要求确认',
+   yes => '是',
+   no  => '否'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => '无',
+   cgionly => '只关闭 CGI',
+   all     => '关闭所有内嵌的 URL'
+   );
+
+%lang_ctrlpositionlabels =
+   (
+   top    => '在上面',
+   bottom => '在下面'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => '在邮件编辑区之前',
+   after  => '在邮件编辑区之后',
+   both   => '在邮件编辑区前后'
+   );
+
+%lang_abookbuttonpositionlabels =
+   (
+   before => '在地址簿项目之前',
+   after  => '在地址簿项目之后',
+   both   => '在地址簿项目前后'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => '收件箱内所有新进邮件',
+   pop3 => '从 POP3 服务器收取的邮件',
+   none => '无'
+   );
+
+%lang_timelabels =
+   (
+      3 => '3 分钟',
+      5 => '5 分钟',
+     10 => '10 分钟',
+     20 => '20 分钟',
+     30 => '30 分钟',
+     60 => '60 分钟',
+    120 => '2 小时',
+    180 => '3 小时',
+    360 => '6 小时',
+    720 => '12 小时',
+   1440 => '24 小时'
+   );
+
+%lang_timezonelabels =
+   (
+   '-1200' => '国际换日线西',
+   '-1100' => '诺姆, 阿纳德尔',
+   '-1000' => '阿拉斯加, 夏威夷标准',
+   '-0900' => '育空准省(加拿大)标准',
+   '-0800' => '太平洋标准',
+   '-0700' => '美山区标准',
+   '-0600' => '美中标准',
+   '-0500' => '美东标准',
+   '-0400' => '大西洋标准',
+   '-0330' => '纽芬兰岛标准',
+   '-0300' => '大西洋日光节约',
+   '-0230' => '纽芬兰岛日光节约',
+   '-0200' => '亚速尔群岛, 南桑威奇群岛',
+   '-0100' => '西非',
+   '+0000' => '格林威治',
+   '+0100' => '中欧',
+   '+0200' => '东欧',
+   '+0300' => '巴格达, 墨西哥, 奈洛比',
+   '+0330' => '德黑兰',
+   '+0400' => '阿布扎比, 伏尔戈格勒(苏联窝瓦河沿岸), 喀布尔',
+   '+0500' => '喀拉蚩',
+   '+0530' => '印度',
+   '+0600' => '达卡',
+   '+0630' => '仰光',
+   '+0700' => '曼谷, 雅加达',
+   '+0800' => '中原标准',
+   '+0900' => '日本标准',
+   '+0930' => '澳洲中部标准',
+   '+1000' => '澳洲东部标准',
+   '+1030' => '豪勋爵岛',
+   '+1100' => '澳洲东部夏季',
+   '+1200' => '国际换日线东',
+   '+1300' => '纽西兰日光节约',
+   );
+
+%lang_abookclasslabels =
+   (
+   PRIVATE => '私人的',
+   PUBLIC => '公共的',
+   );
+
+%lang_satestfields =
+   (
+   name       => '名称',
+   desc       => '描述',
+   type       => '比对位置',
+   expression => '比对样式',
+   score      => '分数',
+   );
+
+%lang_satesttypes =
+   (
+   header  => '信件表头',
+   body    => '本文文字(不含HTML标签)',
+   uri     => '本文内网址',
+   rawbody => '本文与附件中的文字(含HTML标签)',
+   full    => '原始信件(未解码)',
+   );
+
+%lang_satestheaderattrs =
+   (
+   ALL        => '全部',
+   Subject    => '标题',
+   From       => '寄信人',
+   To         => '收信人',
+   Cc         => '副本',
+   ToCc       => '收信人与副本',
+   MESSAGEID  => '信件 ID',
+   USERDEFINE => '使用者自订',
+   );
+
+%lang_searchtypelabels =
+   (
+   contains    => '包含',
+   notcontains => '不包含',
+   is          => '是',
+   isnot       => '不是',
+   startswith  => '开始于',
+   endswith    => '结束于',
+   regexp      => '正则表示式',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => '全部',
+   today       => '今天',
+   oneweek     => '一星期内',
+   twoweeks    => '两星期内',
+   onemonth    => '一个月内',
+   threemonths => '三个月内',
+   sixmonths   => '六个月内',
+   oneyear     => '一年内',
+   );
+
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
+%lang_calendar =
+   (
+   yearview  => '年历',
+   monthview => '月历',
+   weekview  => '周历',
+   dayview   => '日历',
+   listview  => '项目列表'
+   );
+
+%lang_month =
+   (
+   1  => '一月',
+   2  => '二月',
+   3  => '三月',
+   4  => '四月',
+   5  => '五月',
+   6  => '六月',
+   7  => '七月',
+   8  => '八月',
+   9  => '九月',
+   10 => '十月',
+   11 => '十一月',
+   12 => '十二月'
+   );
+
+%lang_wday =
+   (
+   0 => '星期日',
+   1 => '星期一',
+   2 => '星期二',
+   3 => '星期三',
+   4 => '星期四',
+   5 => '星期五',
+   6 => '星期六'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => '周',
+   0 => '日',
+   1 => '一',
+   2 => '二',
+   3 => '三',
+   4 => '四',
+   5 => '五',
+   6 => '六'
+   );
+
+%lang_order =
+   (
+   1 => '第一个',
+   2 => '第二个',
+   3 => '第三个',
+   4 => '第四个',
+   5 => '最后一个'
+   );
+
+%lang_wdbutton =
+   (
+   refresh  => '刷新',
+   preview  => '预览',
+   edit     => '编辑',
+   listarchive=> '列表',
+   decompress=>'解压缩',
+   extract  => '解压缩文件',
+   mkpdf    => '转 pdf',
+   mkps     => '转 ps',
+   chdir    => '换目录',
+   mkdir    => '建目录',
+   newfile  => '建新文件',
+   copy     => '复制',
+   move     => '移动',
+   symlink  => '快捷连接',
+   delete   => '删除',
+   gzip     => 'gz 压缩',
+   mkzip    => '建 zip 文件',
+   mktgz    => '建 tgz 文件',
+   mkthumbnail  => '建缩略图',
+   download => '下载',
+   upload   => '上传',
+   );
+
+%lang_text =
+   (
+   loading    => '载入中，请稍等',
+   help       => '帮助',
+   login      => '登录',
+   clear      => '清除',
+   webmail    => '网络邮箱',
+   point      => '点',
+   pixel      => '像素',
+   changepwd  => '修改密码',
+   viewhistory=> '查看历史记录',
+   of         => '/',
+   messages   => '封信',
+   unread     => '未读',
+   nomessages => '无邮件',
+   inmessages => '新进邮件',
+   composenew => '写新邮件',
+   refresh    => '刷新',
+   userprefs  => '设定个人模版',
+   addressbook=> '地址簿',
+   folders    => '邮件箱',
+   emptyfolder=> '清空邮件箱',
+   emptytrash => '清空废件箱',
+   totrash    => '移至废件箱',
+   learnspam  => '垃圾邮件学习',
+   forever    => '永久保留',
+   delatlogout=> '退出时删除',
+   userdef    => '用户自定义',
+   logout     => '退出',
+   page       => '页',
+   msgsperpage=> '每页 @@@MSGCOUNT@@@ 封信',
+   msgcopyconf=> '\'您确定要复制所选择的邮件吗？\'',
+   copy       => '复制',
+   msgmoveconf=> '\'您确定要移动所选择的邮件吗？\'',
+   move       => '移动',
+   markasread => '标示成已读',
+   markasunread => '标示成未读',
+   dateformat => '日期格式',
+   date       => '日期',
+   recipient  => '收件人',
+   sender     => '发件人',
+   subject    => '主题',
+   thread     => '信件线程',
+   size       => '大小',
+   backto     => '返回到',
+   reply      => '回复',
+   replyall   => '全部回复',
+   forward    => '转发',
+   forwardasatt=>'以附件方式转发',
+   forwardasorig=>'原信转发',
+   printfriendly=> '友好打印',
+   msgformat  => '邮件格式',
+   from       => '发件人',
+   replyto    => '回复给',
+   to         => '收件人',
+   cc         => '抄送',
+   bcc        => '密件抄送',
+   simplehead => '简洁邮件头',
+   allhead    => '完全邮件头',
+   simpleattmode => '简列附件',
+   allattmode    => '详列附件',
+   attachment => '附件',
+   type       => '类型',
+   filename   => '文件名',
+   encoding   => '编码',
+   description=> '描述',
+   download   => '下载',
+   charset    => '字符集',
+   sameascomposecharset => '与写信时字符集相同',
+   thisispartialmsg => '这是某封邮件的一部分。',
+   msgrebuild => '邮件重组',
+   editdraft  => '编辑草稿',
+   savedraft  => '暂存草稿',
+   draftsaved => '草稿 @@@SUBJECT@@@ 暂存成功',
+   send       => '发送',
+   msgsent    => '信件 @@@SUBJECT@@@ 已经顺利寄出',
+   about      => '关于',
+   close      => '关闭',
+   cancel     => '取消',
+   ok         => '确定',
+   continue   => '继续',
+   loginagain => '重新登录',
+   exit       => '离开',
+   yourname   => '您的姓名',
+   save       => '保存',
+   add        => '增加',
+   folderrenprop => '\'请输入这个邮件箱的新名称。\'',
+   rename     => '改名',
+   folderdelconf => '\'您确定要删除这个邮件箱及其内容吗？\'',
+   markread   => '标示已读',
+   foldermarkreadconf => '\'您确定要将这个邮件箱内所有邮件标示成已读吗？\'',
+   chkindex   => '检查索引',
+   folderchkindexconf => '\'您确定要检查这个邮件箱的索引吗？\'',
+   reindex    => '重建索引',
+   folderreindexconf => '\'您确定要重建这个邮件箱的索引吗？\'',
+   total      => '总计',
+   edit       => '编辑',
+   delete     => '删除',
+   reserve    => '保留',
+   clearadd   => '清除所有地址',
+   importadd  => '导入地址簿',
+   exportadd  => '导出地址簿',
+   import     => '导入',
+   export     => 'Export',
+   addmod     => '增加/修改',
+   modify     => '修改',
+   max        => '最大值',
+   group      => '邮件组',
+   quotausage => '限额用量',
+   quotalimit => '限额上限',
+   quotahit   => '存储空间已满',
+   tzmap      => '世界时区地图',
+   testsound  => '试听',
+   editfroms  => '编辑个人邮件地址',
+   pop3book   => '设定POP3邮件',
+   retr_pop3s => '收取POP3邮件',
+   filterbook => '设定邮件过滤规则',
+   include    => '包含',
+   exclude    => '不含',
+   smtprelay  => '转信主机',
+   header     => '邮件头',
+   body       => '正文',
+   attfilename=> '附件名称',
+   all        => '全部',
+   enable     => '启用',
+   disable    => '停用',
+   yes        => '是',
+   no         => '否',
+   filtered   => '过滤',
+   blockrelay => '封锁转信主机',
+   blockemail => '封锁邮件地址',
+   read       => '读取',
+   yourmsg    => '您发出的邮件',
+   delivered  => '传送',
+   wasreadon1 => '已于',
+   wasreadon2 => '被读取',
+   globalfilterrule => '公共邮件过滤规则',
+   readonly   => '只读',
+   textcontent=> '文字内容',
+   search     => '搜索',
+   advsearch  => '高级搜索',
+   folder     => '邮件箱',
+   nofoldersel=> '没有邮件箱被选择',
+   showall    => '全部显示',
+   spellcheck => '拼写检查',
+   checkagain => '重新检查',
+   finishchecking => '检查完毕',
+   editpdict  => '编辑个人字典',
+   addtodict  => '加入字典',
+   manuallyfix=> '手动修正',
+   editstat   => '编辑信纸底稿',
+   savestat   => '保存信纸底稿',
+   clearstat  => '清除所有信纸底稿',
+   statreply  => '-- 选择回信底稿 --',
+   calendar   => '日程表',
+   allday     => '本日',
+   today      => '今天',
+   am         => '上午',
+   pm         => '下午',
+   calfmt_year          => '@@@YEAR@@@年',
+   calfmt_yearmonth     => '@@@YEAR@@@年 @@@MONTH_STR@@@',
+   calfmt_yearmonthday  => '@@@YEAR@@@年 @@@MONTH_STR@@@ @@@DAY@@@日',
+   calfmt_yearmonthdaywday => '@@@YEAR@@@年 @@@MONTH_STR@@@ @@@DAY@@@日 @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => '自动选择',
+   none       => '无',
+   moreitems  => '更多项目...',
+   multieditconf => '这个项目已经被放到多份的行程中。\\n如果修改会改动所有相关行程。\\n继续修改？',
+   multidelconf  => '这个项目已经被放到多份的行程中。\\n如果删除会删掉所有相关行程。\\n进行删除？',
+   caldelconf => '您确定要删除这个项目吗？',
+   noitemforthisday => '本日没有安排事情',
+   thisday_only          => '本日',
+   the_wday_of_thismonth => '本月 @@@ORDER@@@ @@@WDAY@@@ ',
+   every_wday_thismonth  => '本月 每个 @@@WDAY@@@ ',
+   thismonth_only           => '本月',
+   every_oddmonth_thisyear  => '本年所有单数月份',
+   every_evenmonth_thisyear => '本年所有偶数月份',
+   every_month_thisyear     => '本年所有月份',
+   webdisk      => '网络磁盘',
+   sshterm      => 'SSH 终端',
+   dir          => '目录',
+   dirs         => '目录',
+   file         => '文件',
+   files        => '文件',
+   program      => '程序',
+   dest_of_chdir  => '目的目录',
+   name_of_newdir => '要建立的目录名称',
+   name_of_newfile=> '要建立的新文件名称',
+   dest_of_thecopy=> '此次复制的预设目的目录或文件名',
+   dest_of_themove=> '此次移动的预设目的目录或文件名',
+   dest_of_thezip=> '要建立的 zip 压缩文件名称',
+   dest_of_thetgz=> '要建立的 tgz 压缩文件名称',
+   homedir      => '家目录',
+   showthumbnail    => '显示缩略图',
+   showhidden   => '显示隐藏文件',
+   lastmodified => '最后修改时间',
+   perm         => '权限',
+   permission   => '文件存取权限',
+   noitemfound  => '未找到任何项目',
+   savefile     => '保存文件',
+   succeeded    => '成功',
+   failed       => '失败',
+   savefile_towd=> '保存文件至网络磁盘',
+   saveatt_towd => '保存附件至网络磁盘',
+   addatt_fromwd=> '从网络磁盘新增附件',
+   vdomain_usermgr    => '虚拟帐号管理',
+   vdomain_createuser => '新增用户',
+   vdomain_changeuser => '修改用户',
+   vdomain_deleteuser => '删除用户',
+   vdomain_changeview => '改变显示方式',
+   vdomain_usersonly  => '只列出用户',
+   vdomain_useralias  => '列出用户/别名',
+   vdomain_fmtuseralias => '列出格式化的用户/别名',
+   vdomain_admin      => '管理员',
+   vdomain_localuser  => '本地帐号',
+   set_passwd         => '设定密码',
+   reset_passwd       => '重设密码',
+   email_alias        => 'Email 别名',
+   name       => '名字',
+   email      => '电子邮件地址',
+   note       => '备忘',
+   abooks => '管理通讯录',
+   abook_title => '通讯录',
+   abook_converted => 'Converted',
+   abook_group_member => '成员',
+   abook_group_allmembers => '所有成员',
+   abook_import => '汇入通讯录',
+   abook_importdest => '汇入资料到目的通讯录中...',
+   abook_export => '汇出通讯录',
+   abook_exportnow => '开始汇出',
+   abook_newcontact => '建立新个人资料',
+   abook_newgroup => '建立新群组',
+   abook_noconversion => '不转换',
+   abook_listview_addrperpage => '每页显示 @@@ADDRCOUNT@@@ 笔资料',
+   abook_listview_writemailto => '写信给',
+   abook_listview_edit => '编辑',
+   abook_listview_move => '搬移',
+   abook_listview_copy => '复制',
+   abook_listview_compose => '寄信给已选择的对象',
+   abook_listview_composemode => '选择要寄信对象',
+   abook_listview_fullname => '全名',
+   abook_listview_prefix   => '前缀',
+   abook_listview_first    => '名',
+   abook_listview_middle   => '别名',
+   abook_listview_last     => '姓',
+   abook_listview_suffix   => '后缀',
+   abook_listview_email    => '电子邮件地址',
+   abook_listview_phone    => '电话',
+   abook_listview_note     => '备忘',
+   abook_listview_none     => '无',
+   abook_listview_telpref  => '偏好',
+   abook_listview_telhome  => '住家',
+   abook_listview_telwork  => '公司',
+   abook_listview_telcell  => '手机',
+   abook_listview_telcar   => '汽车',
+   abook_listview_telfax   => '传真',
+   abook_listview_telpager => '呼叫器',
+   abook_listview_telvoice => '语音',
+   abook_listview_telvideo => '影像',
+   abook_listview_telmsg   => '简讯',
+   abook_listview_telbbs   => 'BBS',
+   abook_listview_telisdn  => 'ISDN',
+   abook_listview_telmodem => '数据机',
+   abook_listview_categories => '类别',
+   abook_listview_quickadd => '快速新增',
+   abook_listview_expandall => '全部展开',
+   abook_listview_collapseall => '全部收起',
+   abook_listview_noaddresses => '-- 这个通讯录中没有资料 --',
+   abook_listview_nomatch => '-- 搜寻不到任何资料 --',
+   abook_listview_done => '确认',
+   abook_listview_viewselected => '检视所有已选择的收件者',
+   abook_listview_unselectall => '取消所有已选择的收件者',
+   abook_showchecked_export => '资料确认无误, 准备汇出',
+   abook_editform_destination => '目的通讯录',
+   abook_editform_new_agent => '这个新连络人',
+   abook_editform_grouplabel => '群组',
+   abook_editform_valuelabel => '资料',
+   abook_editform_namelabel_FN => '全名 @@@SOUND@@@',
+   abook_editform_valuelabel_FN => '&nbsp;',
+   abook_editform_namelabel_EMAIL => '这个群组中所有的 Email 地址',
+   abook_editform_namelabel_GROUPNAME => '群组名称 @@@SOUND@@@',
+   abook_editform_namelabel_NICKNAME => '昵称</b>@@@ADDMORELINK@@@<b>',
+   abook_editform_valuelabel_NICKNAME => '&nbsp;',
+   'abook_editform_namelabel_SORT-STRING' => '名字排序字串',
+   'abook_editform_valuelabel_SORT-STRING' => '例: 原本名字<i>von Trapp</i>&nbsp;&nbsp;&nbsp;在排序时改用:<i>Trapp</i>',
+   abook_editform_valuelabel_TITLE => '例: 研发部副总',
+   abook_editform_valuelabel_ROLE => '例: 管理, 执行, 其他',
+   abook_editform_valuelabel_ORGANIZATIONNAME => '例: ABC 股份有限公司.',
+   abook_editform_valuelabel_ORGANIZATIONALUNITS => '例: 欧洲区, 会计部门',
+   abook_editform_namelabel_URL => '网站</b> @@@ADDMORELINK@@@<b>',
+   abook_editform_valuelabel_URL => 'http://www.mysite.com',
+   abook_editform_namelabel_TZ => '时区',
+   abook_editform_namelabel_MAILER => 'EMail 程式',
+   abook_editform_valuelabel_MAILER => 'openwebmail, outlook, 其他',
+   abook_editform_namelabel_NOTE => '备忘',
+   abook_editform_namelabel_KEY => '个人金钥',
+   abook_editform_undef_KEY => '尚未有任何金钥.',
+   abook_editform_view_KEY => '检视这份个人金钥',
+   abook_editform_unknown_KEY => '不认得的金钥形式',
+   abook_editform_x509_KEY => 'X.509 Public 金钥证明',
+   abook_editform_pgp_KEY => 'IETF Pretty Good Privacy PGP 金钥',
+   abook_editform_gpg_KEY => 'GNU Privacy Guard GPG 金钥',
+   abook_editform_namelabel_AGENT => '相关连络人',
+   abook_editform_undef_AGENT => '没有相关连络人.',
+   abook_editform_download_AGENT => '下载相关连络人的 vcard 资讯',
+   abook_editform_unknown_AGENT => '相关连络人的 vcard型式无法辨识',
+   abook_editform_vcf_AGENT => 'Versit Card 档案',
+   abook_editform_GEO_find => '寻找你的地理位置',
+   abook_editform_GEO_findurl => 'http://www.multimap.com/map/home.cgi?client=public&lang=&advanced=&db=US',
+   abook_editform_GEO_map => '显示这这个位置的地图',
+   abook_editform_GEO_photo => '显示这个位置的卫星照片',
+   abook_editform_namelabel_CLASS => '存取类别',
+   abook_editform_namelabel_PRODID => '建立此份资料所用程式',
+   abook_editform_valuelabel_PRODID => 'outlook, openwebmail, 其他',
+   abook_editform_namelabel_UID => '外部唯一ID',
+   abook_editform_valuelabel_UID => '让外部程式能透过此 ID 取得这个 vCard',
+   abook_editform_namelabel_SOURCE => 'vCard 来源网址',
+   abook_editform_valuelabel_SOURCE => 'http://www.mysite.com/mycard.vcf',
+   abook_editform_namelabel_NAME => 'vCard 来源名称',
+   abook_editform_valuelabel_NAME => '关于这个网址的描述',
+   abook_editform_valuelabel_CUSTOMNAME => '自订名称',
+   abook_editform_valuelabel_CUSTOMVALUES => '自订名称的对应数值',
+   abook_editform_playsound => '播放声音',
+   abook_editform_deletesound => '删除声音',
+   abook_editform_save_and_return => '存档并回到上一页',
+   abook_editform_cancel_and_return => '取消并回到前一页',
+   abook_editform_new_agent_link => '建立',
+   sa_prefs         => 'SpamAssassin 个人设定',
+   sa_edittest      => '编辑比对规则',
+   sa_editblacklist => '编辑黑名单',
+   sa_editwhitelist => '编辑白名单',
+   );
+
+%lang_err =
+   (
+   has_illegal_chars => '有非法字符！',
+   couldnt_open      => '无法打开',
+   couldnt_locksh    => '读取无法锁定',
+   couldnt_lock      => '写入无法锁定',
+   couldnt_seek      => '无法寻找',
+   couldnt_close     => '无法关闭',
+   couldnt_updatedb  => '无法更新邮件索引 ',
+   disallowed_pop3   => '禁止连线至POP3服务器',
+   disallowed_client => '您被禁止由当前地址连线使用 WebMail',
+   disallowed_receiverdomain => '您被禁止寄信到这个邮件地址',
+   norootlogin       => '不能用root登录。',
+   shouldnt_move_here=> '不能在这里移动邮件！',
+   destination_folder=> '目的邮件箱',
+   doesnt_exist      => '不存在！',
+   foldername_long   => '邮件箱名称不能超过16个字符！',
+   folder_with_name  => '该名称的邮件箱',
+   already_exists    => '已存在！',
+   cant_create_folder=> '不能建立新邮件箱！',
+   under_indexing    => '还在索引中，请稍候再试',
+   back              => '返回上一页',
+   tryagain          => '再试。',
+   mailfilter_error  => '邮件过滤错误',
+   cant_create_dir   => '无法建立用户目录！',
+   att_overlimit     => '附件大小超过限制',
+   inv_msg_op        => '无效的邮件操作',
+   sess_cookieerr    => 'Sessionid cookie 不正确，拒绝存取。请检查是否打开浏览器 cookie 功能或是重复登录。',
+   sess_iperr        => '连线来自不同的 IP 地址, 拒绝存取',
+   no_endpart        => '找不到结尾部分',
+   part_missing      => '某些部分找不到',
+   rebuild_fmterr    => '组出的邮件格式有误',
+   rebuild_sizeerr   => '组出的邮件大小不对',
+   user_not_exist    => '用户不存在',
+   func_notsupported => '系统不支持本功能',
+   auth_syserr       => '认证系统内部错误',
+   param_fmterr      => '参数格式错误',
+   pwd_incorrect     => '密码错误',
+   pwd_confirmmismatch=>'新密码与确认项不符',
+   pwd_tooshort      => '密码太短 (最小长度 @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => '密码太简单（同时要有字母与数字）',
+   network_server_error => '网络服务器错误',
+   sendmail_error    => '抱歉！无法发出您的邮件，请回到上一页检查是否输入错误后，再重发一次。',
+   at_char_not_allowed => '栏位中不能有 @ 字符。请回到上一页再试一次',
+   badnum_in_days => '代表天数栏位的数值发生错误',
+   access_denied     => '拒绝存取',
+   couldnt_chdirto   => '无法切换目录到',
+   isnt_a_dir        => '不是一个目录',
+   edit_notfordir    => '您不能对目录进行编辑动作',
+   onefileonly       => '这个操作只允许一个文件',
+   no_file_todownload=> '尚未选择要下载的目录或文件',
+   upload_overlimit  => '上传文件的大小超出限制',
+   decomp_notsupported =>'系统不支持这种文件的解压缩。',
+   filefmt_notsupported =>'系统不支援这种文件格式.',
+   webdisk_readonly  => '抱歉, 您的网络磁盘是只读的。',
+   quota_syserr      => '限额系统内部错误',
+   quotahit_alert    => '很抱歉, 由于您的使用空间已经超过上限, 请先删除邮件箱中的信件, 或是网络磁盘中的文件以便释出一些可用空间。',
+   quotahit_delmail  => '注意, 由于您的使用空间已经超过上限(@@@QUOTALIMIT@@@), 邮件箱中最旧的一些邮件已经被自动删除了。',
+   quotahit_delfile  => '注意, 由于您的使用空间已经超过上限(@@@QUOTALIMIT@@@), 网络磁盘中的一些文件已经被自动删除了。',
+   spool_overlimit   => '很抱歉, 您的收件箱已经超出其容量上限(@@@SPOOLLIMIT@@@)。请将部份邮件由收件箱移到其他邮件箱。',
+   vdomain_toomanyuser  => '抱歉, 这个域的用户数目已经到达上限',
+   vdomain_toomanyalias => '抱歉, 这个用户的 E-MAIL 别名个数已经到达上限',
+   vdomain_userrequired => '需要输入用户名称',
+   vdomain_fwdrequired => '需要输入合法的转发邮件地址',
+   all_module_disabled => '所有模块都被关闭',
+   abook_all_readonly => '所有的通讯录都是唯读的, 请先建立一个新的通讯录',
+   abook_import_nofile => '要先选择汇入的档案',
+   abook_import_noformat => '要先选择汇入的格式',
+   abook_import_nodest => '要先选择汇入的目的通讯录',
+   abook_import_unsupfmt => '目前尚未支援 "@@@FORMAT@@@" 通讯录格式, 请选其它汇入格式',
+   abook_export_unsupfmt => '目前尚未支援 "@@@FORMAT@@@" 通讯录格式, 请选其它汇出格式',
+   abook_export_undef => '汇出时至少要选择一个依上的连络人资料',
+   abook_delete_xowmuid => '没有定义 UniqueID, 删除失败',
+   abook_delete_book => '无法删除通讯录 @@@ADDRESSBOOK@@@',
+   abook_doesnt_exist => '通讯录 @@@ADDRESSBOOK@@@ 不存在',
+   abook_already_exists => '通讯录@@@ADDRESSBOOK@@@ 已经存在 . 请另选一个名字',
+   abook_name_too_long => '通讯录名称 @@@ADDRESSBOOK@@@ 太长, 超过 @@@FOLDERNAME_MAX@@@ 字元',
+   abook_cant_rename => '通讯录名称变更失败',
+   abook_ext_notsupported => '系统不支援您上传的通讯录的档案型态 - ',
+   abook_toobig => '很抱歉, 这将会超出您的通讯录空间上限. 请到 ',
+   abook_delete_first => '已经存在. 在试下一个之前请将其删除.',
+   abook_global_denied => '您没有修改公用通讯录的权限',
+   abook_editform_no_N => '连络人资料要填入名字后才能储存. 请回前一页填入这个连络人的名字',
+   abook_agent_one_contact => '上传的连络人 vCard 内只能含有一个人的资料.',
+   );
+
+1;

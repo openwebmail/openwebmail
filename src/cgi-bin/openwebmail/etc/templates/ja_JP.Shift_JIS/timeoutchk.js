@@ -34,7 +34,7 @@
       if (remainingseconds>0) {
          return true;
       } else {
-         alert("Sorry, your session is timeouted, please login again.");
+         [UTF-8?]alert("セッションが時間切れになりました。\n再度、ログインしてください。");
          return false;
       }
    }

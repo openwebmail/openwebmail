@@ -11,9 +11,9 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>gunakan daftar alamat yang tidak boleh ke Dari alamat email</B></td>
+<B>Gunakan daftar alamat yang tidak boleh ke Dari alamat email</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Buat</B>
+<B>Tombol</B>
 </td></tr>
 @@@STARTADDLISTFORM@@@
 <tr>

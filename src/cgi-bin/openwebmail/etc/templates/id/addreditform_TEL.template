@@ -29,7 +29,7 @@
       <td><input class="mono" type="checkbox" name="@@@MODEM.NAME@@@" value="MODEM" @@@MODEM.VALUE@@@></td>
       <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@MODEM.NAME@@@');"><span class="smalltext">modem</span></a>&nbsp;</td>
       <td><input class="mono" type="checkbox" name="@@@MSG.NAME@@@" value="MSG" @@@MSG.VALUE@@@></td>
-      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@MSG.NAME@@@');"><span class="smalltext">message</span></a>&nbsp;</td>
+      <td nowrap>&nbsp;<a href="javascript:check_toggle('@@@MSG.NAME@@@');"><span class="smalltext">pesan</span></a>&nbsp;</td>
     </tr>
     <tr>
       <td colspan="16">&nbsp;</td>

@@ -18,7 +18,7 @@
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Ukuran</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Tombol</B>
+<B>Tombol Aksi</B>
 </td></tr>
 @@@STARTFOLDERFORM@@@
 <tr><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>

@@ -6,10 +6,10 @@
 <tr><td bgcolor=@@@WINDOW_DARK@@@>&nbsp;</td></tr>
 @@@STARTEDITFORM@@@
 <tr><td align="center" bgcolor=@@@WINDOW_DARK@@@>
-<table cellspacing="0" cellpadding="0" border="0"><tr><td><B>File</B>&nbsp;</td><td>@@@FILENAME@@@</td></tr></table>
+<table cellspacing="0" cellpadding="0" border="0"><tr><td><B>Nama File</B>&nbsp;</td><td>@@@FILENAME@@@</td></tr></table>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_DARK@@@>
-<B>Daftar File</B><BR>@@@FILECONTENT@@@
+<B>Isi File</B><BR>@@@FILECONTENT@@@
 </td></tr>
 <tr><td bgcolor=@@@WINDOW_DARK@@@>&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_DARK@@@>

@@ -5,7 +5,7 @@
   <td bgcolor=@@@TITLEBAR@@@>
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
-      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edit Personal Information</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>個人情報の編集</b></font></td>
       <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
     </tr>
     </table>
@@ -22,7 +22,7 @@
     <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
     <tr>
       <td>&nbsp;@@@AGENTPATH@@@</td>
-      <td align="right">Character Set:&nbsp;@@@CONVTOMENU@@@</td>
+      <td align="right">文字符号:&nbsp;@@@CONVTOMENU@@@</td>
     </tr>
     </table>
   </td>
@@ -31,7 +31,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Personal Information</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>個人情報</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -47,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Email Addresses</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Eメールアドレス</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -63,7 +63,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Telephone Numbers</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>電話番号</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -79,7 +79,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Addresses</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>住所</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -95,7 +95,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Work Information</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>仕事関係</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -111,7 +111,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Miscellaneous Information</b><a name="URL"></a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>その他</b><a name="URL"></a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -159,7 +159,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Add Files to Contact - @@@AVAILABLEATTSPACE@@@ Available</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>連絡先にファイルを追加する - 空き容量:@@@AVAILABLEATTSPACE@@@</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -170,11 +170,11 @@
     <tr>
       <td>
         <select name="UPLOAD.FILE.TYPE" class="mono">
-        <option value="PHOTO" selected>Photo of Contact</option>
-        <option value="SOUND">Sound of Name</option>
-        <option value="LOGO">Company Logo</option>
-        <option value="KEY">Public Encryption Key</option>
-        <option value="AGENT">Agent vCard</option>
+        <option value="PHOTO" selected>連絡先の写真</option>
+        <option value="SOUND">名前の発音(サウンド)</option>
+        <option value="LOGO">会社ロゴ</option>
+        <option value="KEY">公開暗号鍵</option>
+        <option value="AGENT">vCardのエージェント</option>
         </select>
       </td>
       <td width="5">&nbsp;</td>
@@ -182,14 +182,14 @@
       <td width="5">&nbsp;</td>
       <td><input class="mono" type="file" name="UPLOAD.FILE" size="25"></td>
       <td width="5">&nbsp;</td>
-      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Add"></td>
+      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="追加"></td>
       <td width="5">&nbsp;</td>
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
     <tr>
-      <td colspan="2" class="smalltext" nowrap>choose a file type to add</td>
-      <td colspan="2" class="smalltext" nowrap>enter a url to the file (http://...)</td>
-      <td colspan="5" class="smalltext" nowrap>or upload the file directly</td>
+      <td colspan="2" class="smalltext" nowrap>追加するファイル形式を選択</td>
+      <td colspan="2" class="smalltext" nowrap>追加するファイルのURL(http://...)を入力</td>
+      <td colspan="5" class="smalltext" nowrap>もしくは、直接ファイルをアップロード</td>
     </tr>
     <tr>
       <td  colspan="9" height="10">&nbsp;</td>
@@ -250,20 +250,20 @@ function makeLabel(formName, adrNumber) {
 
    // OWM TRANSLATORS: MODIFY THE CODE BELOW THIS COMMENT TO CHANGE HOW ADDRESS LABELS ARE AUTO-GENERATED
    var label = '';
-   label += postofficeaddress != '' ? postofficeaddress+'\n' : '';
+   label += postofficeaddress != '' ? [UTF-8?]postofficeaddress+'\n' : '';
    if (street != '' && extendedaddress != '') {
-      label += street+', '+extendedaddress+'\n';
+      label += street+', [UTF-8?]'+extendedaddress+'\n';
    } else if (street != '') {
-      label += street+'\n';
+      label += [UTF-8?]street+'\n';
    } else if (extendedaddress != '') {
-      label += extendedaddress+'\n';
+      label += [UTF-8?]extendedaddress+'\n';
    }
    if (locality != '' && region != '') {
-      label += locality+', '+region+'\n';
+      label += locality+', [UTF-8?]'+region+'\n';
    } else if (locality != '') {
-      label += locality+'\n';
+      label += [UTF-8?]locality+'\n';
    } else if (region != '') {
-      label += region+'\n';
+      label += [UTF-8?]region+'\n';
    }
    if (postalcode != '' && country != '') {
       label += '         '+postalcode+' '+country;
@@ -291,13 +291,13 @@ function showGeo (formName, geoNumber, showThing) {
          window.open(url,"_showGeo","width=550,height=500,resizable=yes,scrollbars=yes");
       }
    } else {
-      alert('You must fill in the longitude and latitude\nbefore any maps or photos can be viewed.');
+      alert('You must fill in the longitude and [UTF-8?]latitude\nbefore any maps or photos can be viewed.');
    }
 }
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('All data must be saved before viewing or creating an agent card.\nSave and continue?'));
+      return(confirm('All data must be saved before viewing or creating an agent [UTF-8?]card.\nSave and continue?'));
    } else if (msgOption == 'cancelchanges') {
       return(confirm('All changes to this agent will be lost, continue?'));
    }

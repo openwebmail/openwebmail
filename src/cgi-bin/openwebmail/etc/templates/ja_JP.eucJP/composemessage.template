@@ -8,14 +8,14 @@
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td>文字の設定: </td>
+<td>文字符号: </td>
 <td>@@@CONVTOMENU@@@&nbsp;</td>
 </tr></table>
 </td>
 </tr></table>
 </td></tr><tr><td colspan="2">&nbsp;</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>送信先:</B>
+<B>送信者:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="1"><tr>
 <td>@@@FROMMENU@@@&nbsp;&nbsp;</td>
@@ -39,11 +39,11 @@
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>返信:</B>
+<B>返信先:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@REPLYTOFIELD@@@&nbsp;&nbsp;</td>
-<td><B>読みの確認</B></td>
+<td><B>開封確認メッセージの要求</B></td>
 <td>@@@CONFIRMREADINGCHECKBOX@@@</td>
 </tr></table>
 </td></tr>
@@ -58,7 +58,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
 @@@BACKUPSENTSTART@@@
-<td><B>送信したメッセージのバックアップ</B></td>
+<td><B>送信したメッセージの複製保存</B></td>
 <td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
 @@@BACKUPSENTEND@@@
 </tr></table>
@@ -112,7 +112,7 @@
 
    function msgfmthelp()
    {
-      alert("Sorry, IE 5.5+(Windows) or Mozilla 1.3+(all OS) is required for HTML composing support.");
+      alert("HTML編集を行うには、IE 5.5+(Windows) または Mozilla 1.3+(all OS) が必要です。");
    }
 
    function msgfmtchangeconfirm()
@@ -120,7 +120,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("The HTML data format will be lost after the conversion, are you sure to change to Text mode?")) {
+         if (confirm("テキスト形式へ変更するとHTMLデータ形式がなくなってしまいます。\n本当にテキスト形式に変更しますか？")) {
             bodygethtml();
             document.composeform.submit();
             return true;
@@ -172,12 +172,12 @@
       if (document.composeform.to.value == ""
        && document.composeform.cc.value == ""
        && document.composeform.bcc.value == "" ) {
-         alert("Please specify the receiver before sending.");
+         alert("送信する前に、宛先(もしくはCCおよびBCC)に入力してください。");
          return false;
       }
       if (document.composeform.subject.value == "" 
        || document.composeform.subject.value == "N/A" ) {
-         return(confirm("This message has no subject, do you still want to send it?"));
+         return(confirm("件名が未入力のままです。本当にこのまま送信しますか？"));
       }
       return true;
    }

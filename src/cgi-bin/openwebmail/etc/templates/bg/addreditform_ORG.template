@@ -5,7 +5,7 @@
       <td></td>
       <td><b>Име на фирмата</b></td>
       <td rowspan="3">&nbsp;</td>
-      <td><b>Job Title</b></td>
+      <td><b>Длъжност</b></td>
     </tr>
     <tr>
       <td>@@@GROUP@@@</td>
@@ -26,7 +26,7 @@
     <tr>
       <td><b>Описание на дейността</b></td>
       <td rowspan="2">&nbsp;</td>
-      <td><b>Division Structure</b>&nbsp;<a href="javascript:document.editForm.formchange.value='@@@ADDORGANIZATIONALUNITS@@@,0,1'; document.editForm.submit();">+</a></td>
+      <td><b>Описание на отдела</b>&nbsp;<a href="javascript:document.editForm.formchange.value='@@@ADDORGANIZATIONALUNITS@@@,0,1'; document.editForm.submit();">+</a></td>
     </tr>
     <tr>
       <td valign="top">

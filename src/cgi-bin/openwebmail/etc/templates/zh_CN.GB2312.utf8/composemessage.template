@@ -1,0 +1,185 @@
+@@@STARTCOMPOSEFORM@@@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>撰写新邮件</B></font>
+</td></tr><tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
+<table width="100%" cellspacing="0" cellpadding="0"><tr>
+<td>@@@BACKTOFOLDER@@@</td>
+<td align="right">
+<table border="0" cellpadding="0" cellspacing="0"><tr>
+<td>写信使用字符集：</td>
+<td>@@@CONVTOMENU@@@&nbsp;</td>
+</tr></table>
+</td>
+</tr></table>
+</td></tr><tr><td colspan="2">&nbsp;</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>发件人：</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+<table border="0" cellpadding="0" cellspacing="1"><tr>
+<td>@@@FROMMENU@@@&nbsp;&nbsp;</td>
+<td><B>优先级：</B></td>
+<td>@@@PRIORITYMENU@@@</td>
+</tr></table>
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>收件人：</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@TOFIELD@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>抄送：</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@CCFIELD@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>密件抄送：</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BCCFIELD@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>回复给：</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+<table border="0" cellpadding="0" cellspacing="0"><tr>
+<td>@@@REPLYTOFIELD@@@&nbsp;&nbsp;</td>
+<td><B>要求读取收条</B></td>
+<td>@@@CONFIRMREADINGCHECKBOX@@@</td>
+</tr></table>
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>附件：</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@ATTACHMENTFIELD@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
+<B>主题：</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+<table border="0" cellpadding="0" cellspacing="0"><tr>
+<td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
+@@@BACKUPSENTSTART@@@
+<td><B>保存寄件备份</B></td>
+<td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
+@@@BACKUPSENTEND@@@
+</tr></table>
+</td></tr>
+
+<tr><td colspan="2" bgcolor=@@@WINDOW_LIGHT@@@ class=msgbody>
+@@@BUTTONSBEFORE@@@
+@@@BODYAREA@@@
+@@@BUTTONSAFTER@@@
+</td></tr>
+
+@@@ENDFORM@@@<!-- End of message composition form -->
+@@@STARTSPELLCHECKFORM@@@
+@@@ENDFORM@@@
+@@@STARTCANCELFORM@@@
+@@@ENDFORM@@@
+</table>
+
+<script language="JavaScript">
+<!--
+   if (self.document.composeform.to.value == "") {
+      self.document.composeform.to.focus();
+   } else {
+      self.document.composeform.body.focus();
+   }
+
+   function OnLoadHandler()
+   {
+      document.composeform.to.focus();
+   }
+
+   function GoAddressWindow()
+   {
+      var url = "@@@ABOOKURL@@@?action=addrlistview&sessionid=@@@SESSIONID@@@&abookkeyword=@@@ABOOKKEYWORD@@@&abooksearchtype=@@@ABOOKSEARCHTYPE@@@&listviewmode=composeselect";
+
+      url += "&to=" + escape (document.composeform.to.value);
+      url += "&cc=" + escape (document.composeform.cc.value);
+      url += "&bcc=" + escape (document.composeform.bcc.value);
+
+      var hWnd = window.open(url,"_addressbook","width=@@@ABOOKWIDTH@@@,height=@@@ABOOKHEIGHT@@@,resizable=yes,scrollbars=yes");
+      if ((document.window != null) && (!hWnd.opener))
+         hWnd.opener = document.window;
+   }
+
+   function DeleteAttFile(deleteattfile)
+   {
+      document.composeform.deleteattfile.value=deleteattfile;
+      bodygethtml();
+      document.composeform.submit();
+   }
+
+   function msgfmthelp()
+   {
+      alert("很抱歉, HTML 编辑功能需要 IE 5.5+(Windows) 或是 Mozilla 1.3+(所有 OS)");
+   }
+
+   function msgfmtchangeconfirm()
+   {
+      if ((document.composeform.msgformat.value == "html" ||
+           document.composeform.msgformat.value == "both") &&
+          document.composeform.newmsgformat.value == "text" ) {
+         if (confirm("转换后 HTML 格式会遗失, 确定要转成纯文本吗？")) {
+            bodygethtml();
+            document.composeform.submit();
+            return true;
+         } else {
+            document.composeform.newmsgformat.value = document.composeform.msgformat.value;
+            return false;
+         }
+      }
+      if (document.composeform.msgformat.value == "text" &&
+          (document.composeform.newmsgformat.value == "html" ||
+           document.composeform.newmsgformat.value == "both") ) {
+         document.composeform.submit();
+         return true;
+      }
+      // else always follow new format but no need to submit to CGI
+      document.composeform.msgformat.value = document.composeform.newmsgformat.value;
+      return true;
+   }
+
+   function bodygethtml()
+   {
+      if (document.composeform.msgformat.value == "html" ||
+          document.composeform.msgformat.value == "both") {
+         document.composeform.body.value = editor.getHTML();
+      }
+   }
+
+   function bodysethtml()
+   {
+      if (document.composeform.msgformat.value == "html" ||
+          document.composeform.msgformat.value == "both") {
+         editor.setHTML(document.composeform.body.value);
+      }
+   }
+
+   function spellcheck()
+   {
+      bodygethtml();
+      document.spellcheckform.sessionid.value = document.composeform.sessionid.value;
+      document.spellcheckform.form.value = "composeform";
+      document.spellcheckform.field.value = "body";
+      document.spellcheckform.string.value = document.composeform.body.value;
+      window.open('','_spellcheck','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+      return true;
+   }
+
+   function sendcheck()
+   {
+      if (document.composeform.to.value == ""
+       && document.composeform.cc.value == ""
+       && document.composeform.bcc.value == "" ) {
+         alert("请填妥收件人，再开始发信。");
+         return false;
+      }
+      if (document.composeform.subject.value == "" 
+       || document.composeform.subject.value == "N/A" ) {
+         return(confirm("这封邮件没有主题，请问仍然要发出吗？"));
+      }
+      return true;
+   }
+//-->
+</script>

@@ -8,7 +8,7 @@
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use CGI::Carp qw(fatalsToBrowser carpout);
+#use CGI::Carp qw(fatalsToBrowser carpout);
 #use Text::Iconv;	# let caller do this, as Text::Icon may be unavailable on some platform
 
 require "modules/filelock.pl"; # openwebmail filelocking routines

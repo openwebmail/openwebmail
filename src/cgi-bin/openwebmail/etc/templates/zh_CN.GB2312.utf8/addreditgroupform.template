@@ -1,0 +1,139 @@
+@@@EDITFORMSTART@@@
+
+<table cellpadding="0" cellspacing="0" border="0" align="center" width="90%">
+<tr>
+  <td bgcolor=@@@TITLEBAR@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>编辑群组资料</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td bgcolor=@@@MENUBAR@@@>@@@MENUBARLINKS@@@</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@MENUBAR@@@>
+    <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
+    <tr>
+      <td>&nbsp;@@@AGENTPATH@@@</td>
+      <td align="right">字集:&nbsp;@@@CONVTOMENU@@@</td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>群组资讯</b></td>
+</tr>
+<tr>
+  <td bgcolor=@@@WINDOW_DARK@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    @@@100@@@
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>增加相关档案到这个群组 - 尚有 @@@AVAILABLEATTSPACE@@@ 空间</b></td>
+</tr>
+<tr>
+  <td bgcolor=@@@WINDOW_DARK@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
+    <tr>
+      <td  colspan="9" height="10">&nbsp;</td>
+    </tr>
+    <tr>
+      <td>
+        <select name="UPLOAD.FILE.TYPE" class="mono">
+        <option value="PHOTO" selected>群组照片</option>
+        <option value="SOUND">声音档</option>
+        </select>
+      </td>
+      <td width="5">&nbsp;</td>
+      <td><input class="mono" type="text" name="UPLOAD.URI" value="" size="25"></td>
+      <td width="5">&nbsp;</td>
+      <td><input class="mono" type="file" name="UPLOAD.FILE" size="25"></td>
+      <td width="5">&nbsp;</td>
+      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="新增"></td>
+      <td width="5">&nbsp;</td>
+      <td>@@@UPLOADWEBDISKLINK@@@</td>
+    </tr>
+    <tr>
+      <td colspan="2" class="smalltext" nowrap>选择要加入的档案的种类</td>
+      <td colspan="2" class="smalltext" nowrap>输入档案的网址 (http://...)</td>
+      <td colspan="5" class="smalltext" nowrap>或是直接上传档案</td>
+    </tr>
+    <tr>
+      <td  colspan="9" height="10">&nbsp;</td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td align="center">
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td>@@@EDITFORMSUBMIT@@@@@@EDITFORMEND@@@</td>
+      <td width="5">&nbsp;</td>
+      <td>
+        <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td>@@@CANCELANDRETURNFORM@@@</td>
+          <td width="5">&nbsp;</td>
+          <td>@@@CANCELEDITFORM@@@</td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td height="10">&nbsp;</td>
+</tr>
+</table>
+
+<script language="javascript">
+<!--
+function check_toggle(target) {
+   document.forms['editForm'].elements[target].checked=!document.forms['editForm'].elements[target].checked;
+}
+
+function popupNotice (msgOption) {
+   if (msgOption == 'agentmustsave') {
+      return(confirm('检视或建立相关连络人资料前, 现有资料必须先存档.\n 确定继续?'));
+   } else if (msgOption == 'cancelchanges') {
+      return(confirm('所有对这位相关连络人的修改都将会作废, 确定?'));
+   }
+}
+
+function GoAddressWindow() {
+   var url = "@@@ABOOKURL@@@?action=addrlistview&sessionid=@@@SESSIONID@@@&abookkeyword=@@@ABOOKKEYWORD@@@&abooksearchtype=@@@ABOOKSEARCHTYPE@@@&listviewmode=composeselect&editgroupform=1";
+
+   url += "&to=" + escape (document.editForm.elements['EMAIL.0.VALUE'].value);
+
+   var hWnd = window.open(url,"_addressbook","width=@@@ABOOKWIDTH@@@,height=@@@ABOOKHEIGHT@@@,resizable=yes,scrollbars=yes");
+   if ((document.window != null) && (!hWnd.opener)) {
+      hWnd.opener = document.window;
+   }
+}
+// -->
+</script>
+
+

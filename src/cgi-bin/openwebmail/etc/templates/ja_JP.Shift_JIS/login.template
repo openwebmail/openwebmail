@@ -71,14 +71,14 @@
       if (document.login.httpcompress.checked) {
          alert(
 "HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, "+
-"but there are some compatibility issues:\n\n"+
+"but there are some compatibility [UTF-8?]issues:\n\n"+
 "1. some proxy servers only support HTTP compression via HTTP 1.1, "+
-"you may have to enable the HTTP1.1 support for proxy in your browser\n"+
+"you may have to enable the HTTP1.1 support for proxy in your [UTF-8?]browser\n"+
 "2. some proxy servers don't support HTTP compression at all, "+
-"you may have to list the webmail server as directly connected in the proxy configuration of your browser.\n"+
-"3. some browsers have problems when using HTTP compression with SSL...\n"+
-"4. some browsers claim to support HTTP compression but actually not...\n\n"+
-"So if you encounter any problem, please login again with this checkbox unchecked.\n"
+"you may have to list the webmail server as directly connected in the proxy configuration of your [UTF-8?]browser.\n"+
+"3. some browsers have problems when using HTTP compression with [UTF-8?]SSL...\n"+
+"4. some browsers claim to support HTTP compression but actually [UTF-8?]not...\n\n"+
+"So if you encounter any problem, please login again with this checkbox [UTF-8?]unchecked.\n"
          );
       }
       return(true);
@@ -91,7 +91,7 @@
 "When this feature is enabled, you may login into openwebmail without typing username/password "+
 "if you didn't do logout in your previous openwebmail session and that session is not timeout. "+
 "However, others may also auto login into your openwebmail account with this computer, "+
-"so please DO NOT enable this feature on a public computer\n"
+"so please DO NOT enable this feature on a public [UTF-8?]computer\n"
          );
       }
       return(true);

@@ -69,7 +69,7 @@
 <!--
    function replyreceiptconfirm(url, yes)
    {
-      if (yes==1 || confirm('surat ini menginginkan konfirmasi,Kirim?')) {
+      if (yes==1 || confirm('surat ini menginginkan konfirmasi,anda ingin mengkirimkan?')) {
          var hWnd = window.open("","_replyreceipt","width=100,height=50,resizable=no,scrollbars=no");
          hWnd.document.write('Kirim...');
          hWnd.location.href=url;

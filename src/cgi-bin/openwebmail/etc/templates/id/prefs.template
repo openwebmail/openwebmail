@@ -17,14 +17,14 @@
 </table>
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Informasi Personal</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Informasi Pribadi</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ @@@DESCWIDTH@@@>
 <B>Bahasa:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@LANGUAGEMENU@@@&nbsp;Charset @@@CHARSETMENU@@@
+@@@LANGUAGEMENU@@@&nbsp;Karakter Set @@@CHARSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Zona Waktu (+/- Waktu Local):</B>
+<B>Zona Waktu (+/- Waktu Lokal):</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TIMEOFFSETMENU@@@
 </td></tr>
@@ -177,7 +177,7 @@ Otomatis Balas dengan Subjek:
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Put mail filter at background:</B>
+<B>Letakan filter email di bagian latar belakang:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERTHRESHOLDMENU@@@
 </td></tr>
@@ -273,7 +273,7 @@ Ubah Lebar Kolom @@@EDITCOLUMNSMENU@@@ Ubah Tinggi Kolom @@@EDITROWSMENU@@@
 <B>Balas dengan pesan original: </B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
-</td><i>BackUp<i> pesan yang dikirim ke folder </tr>
+</td></tr>
 @@@BACKUPSENTSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Simpan pesan yang dikirim ke folder KIRIM:</B>
@@ -316,7 +316,7 @@ Ubah Lebar Kolom @@@EDITCOLUMNSMENU@@@ Ubah Tinggi Kolom @@@EDITROWSMENU@@@
 @@@SPAMCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ukuran Maximum waktu memeriksa pesan:</B>
+<B>Ukuran Maksimum waktu memeriksa pesan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKMAXSIZEMENU@@@ KB
 </td></tr>
@@ -362,12 +362,12 @@ Ubah Lebar Kolom @@@EDITCOLUMNSMENU@@@ Ubah Tinggi Kolom @@@EDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan-pilihan Buku Alamat</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ukuran Untuk Pilihan Daftar Alamat:</B>
+<B>Ukuran Untuk Pilihan Buku Alamat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Keluasan @@@ABOOKWIDTHMENU@@@ Tinggi @@@ABOOKHEIGHTMENU@@@
+Lebar @@@ABOOKWIDTHMENU@@@ Tinggi @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Posisi Kancing Buku Alamat:</B>
+<B>Posisi Buku Alamat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
@@ -377,22 +377,22 @@ Keluasan @@@ABOOKWIDTHMENU@@@ Tinggi @@@ABOOKHEIGHTMENU@@@
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Alamat-alamat Terpajang Per Halaman:</B>
+<B>Daftar Buku Alamat Per Halaman:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display only one line per contact:</B>
+<B>Hanya tampilkan satu baris per kontak:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRCOLLAPSE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default addressbook sort order:</B>
+<B>Default Buku Alamat diurutkan berdasarkan:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Listview field order:</B>
+<B>Lihat daftar berdasarkan kolom:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@ABOOKLISTVIEWFIELDORDERMENU@@@
 </td></tr>
@@ -423,12 +423,12 @@ Keluasan @@@ABOOKWIDTHMENU@@@ Tinggi @@@ABOOKHEIGHTMENU@@@
 @@@WEEKSTARTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Waktu Mulai:</B>
+<B>Waktu Awal:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Waktu Selesai:</B>
+<B>Waktu Akhir:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
 </td></tr>
@@ -449,7 +449,7 @@ Keluasan @@@ABOOKWIDTHMENU@@@ Tinggi @@@ABOOKHEIGHTMENU@@@
 @@@REMINDERDAYSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pengingat untuk events kalender global:</B>
+<B>Pengingat untuk acara-acara kalender global:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REMINDERFORGLOBALCHECKBOX@@@
 </td></tr>
@@ -489,12 +489,12 @@ Lebar @@@FILEEDITCOLUMNSMENU@@@ Tinggi @@@FILEEDITROWSMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Pilihan Lain-Lain</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default charset for file system:</B>
+<B>Default karakter set untuk sistem file:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FSCHARSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Gunakan Gunakan record yang dipilih dengan warna yang berbeda:</B>
+<B>Gunakan record yang dipilih dengan warna yang berbeda:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USELIGHTBARCHECKBOX@@@
 </td></tr>

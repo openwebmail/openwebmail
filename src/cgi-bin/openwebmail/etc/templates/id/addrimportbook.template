@@ -4,7 +4,7 @@
     <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Masukkan Informasi Buku Alamat</b></font>
   </td>
   <td bgcolor=@@@TITLEBAR@@@ align="right">
-    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ Tersedia</b></font>
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ Tersedia pada</b></font>
   </td>
 </tr>
 <tr>
@@ -18,20 +18,20 @@
   <td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
     <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
     <tr>
-      <td><br><b>Overview</b></td>
+      <td><br><b>Ringkasan</b></td>
     </tr>
     <tr>
-      <td>Beberapa program buku alamat bisa mengirim data buku alamat.@@@NAME@@@ dapat menerima beberapa dari format file, menyimpan data yang anda ketik. Langkah di bawah ini akan membimbing anda untuk menerima informasi buku alamat. Batas ukukran di buku alamat adalah @@@ABOOKIMPORTLIMIT@@@ .</td>
+      <td>Beberapa program buku alamat dapat mengirimkan data buku alamat.@@@NAME@@@ dapat menerima beberapa dari format file, menyimpan data yang anda ketik. Langkah di bawah ini akan membimbing anda untuk menerima informasi buku alamat. Batas ukuran di dalam buku alamat adalah @@@ABOOKIMPORTLIMIT@@@ .</td>
     </tr>
     @@@STARTIMPORTFORM@@@
     <tr>
-      <td><br><br><b>1. Cari file yang kamu impor:</b></td>
+      <td><br><br><b>1. Cari file yang ingin di-impor oleh anda:</b></td>
     </tr>
     <tr>
       <td>@@@IMPORTFILEFIELD@@@</td>
     </tr>
     <tr>
-      <td><br><b>2. Pilih format file anda impor:</b></td>
+      <td><br><b>2. Pilih format file yang ingin anda impor:</b></td>
     </tr>
     <tr>
       <td>@@@FORMATSMENU@@@&nbsp;@@@IMPORTCHARSETMENU@@@</td>

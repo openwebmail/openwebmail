@@ -1,7 +1,7 @@
 <html style="width: 398; height: 220">
 
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=shift_jis">
+  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp">
   <title>Insert Sound</title>
 
 <script type="text/javascript" src="popup.js"></script>
@@ -90,7 +90,7 @@ function onChange() {
       f_type.value="";
    } else {
       f_alt.value=f_attlist.options[i].text;
-      var type=f_alt.value.replace(/^.*\./, "");
+      var [UTF-8?]type=f_alt.value.replace(/^.*\./, "");
       if ( type != '' ) {
         f_type.value="audio/x-"+type;
       } else {
@@ -203,7 +203,7 @@ function init_attlist () {
    var sel=document.getElementById("f_attlist");
    if (options) {
       for (var i in options) {
-         if ( i.match(/\.(mid|midi|wav|mp3|ra|au|snd)$/i) ) {
+         if ( [UTF-8?]i.match(/\.(mid|midi|wav|mp3|ra|au|snd)$/i) ) {
             var op = document.createElement("option");
             op.appendChild(document.createTextNode(i));
             op.value = options[i];

@@ -69,7 +69,7 @@
 <!--
    function replyreceiptconfirm(url, yes)
    {
-      if (yes==1 || confirm('このメッセージを開くと送信者に確認メッセージが送られます。送信しますか?')) {
+      if (yes==1 || confirm('このメッセージを開くと送信者に開封確認メッセージが送られます。送信しますか?')) {
          var hWnd = window.open("","_replyreceipt","width=100,height=50,resizable=no,scrollbars=no");
          hWnd.document.write('送信しています...');
          hWnd.location.href=url;

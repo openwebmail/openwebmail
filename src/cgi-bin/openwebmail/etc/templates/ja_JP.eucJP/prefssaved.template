@@ -3,9 +3,9 @@
 @@@STARTSAVEDFORM@@@
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>お気に入りを保存</B></font>
+<B>お好み設定を保存</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>お気に入りが保存されました<BR>&nbsp;<BR>
+<BR>お好み設定が保存されました<BR>&nbsp;<BR>
 @@@CONTINUEBUTTON@@@
 <BR>&nbsp;
 </td></tr>

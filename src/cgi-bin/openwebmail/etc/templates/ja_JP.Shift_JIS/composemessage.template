@@ -8,14 +8,14 @@
 <td>@@@BACKTOFOLDER@@@</td>
 <td align="right">
 <table border="0" cellpadding="0" cellspacing="0"><tr>
-<td>•¶š‚Ìİ’è: </td>
+<td>•¶š•„†: </td>
 <td>@@@CONVTOMENU@@@&nbsp;</td>
 </tr></table>
 </td>
 </tr></table>
 </td></tr><tr><td colspan="2">&nbsp;</td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>‘—Mæ:</B>
+<B>‘—MÒ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="1"><tr>
 <td>@@@FROMMENU@@@&nbsp;&nbsp;</td>
@@ -39,11 +39,11 @@
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>•ÔM:</B>
+<B>•ÔMæ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@REPLYTOFIELD@@@&nbsp;&nbsp;</td>
-<td><B>“Ç‚İ‚ÌŠm”F</B></td>
+<td><B>ŠJ••Šm”FƒƒbƒZ[ƒW‚Ì—v‹</B></td>
 <td>@@@CONFIRMREADINGCHECKBOX@@@</td>
 </tr></table>
 </td></tr>
@@ -58,7 +58,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
 @@@BACKUPSENTSTART@@@
-<td><B>‘—M‚µ‚½ƒƒbƒZ[ƒW‚ÌƒoƒbƒNƒAƒbƒv</B></td>
+<td><B>‘—M‚µ‚½ƒƒbƒZ[ƒW‚Ì•¡»•Û‘¶</B></td>
 <td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
 @@@BACKUPSENTEND@@@
 </tr></table>
@@ -112,7 +112,7 @@
 
    function msgfmthelp()
    {
-      alert("Sorry, IE 5.5+(Windows) or Mozilla 1.3+(all OS) is required for HTML composing support.");
+      alert("HTML•ÒW‚ğs‚¤‚É‚ÍAIE 5.5+(Windows) ‚Ü‚½‚Í Mozilla 1.3+(all OS) ‚ª•K—v‚Å‚·B");
    }
 
    function msgfmtchangeconfirm()
@@ -120,7 +120,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("The HTML data format will be lost after the conversion, are you sure to change to Text mode?")) {
+         if [UTF-8?](confirm("ãƒ†ã‚­ã‚¹ãƒˆå½¢å¼ã¸å¤‰æ›´ã™ã‚‹ã¨HTMLãƒ‡ãƒ¼ã‚¿å½¢å¼ãŒãªããªã£ã¦ã—ã¾ã„ã¾ã™ã€‚\næœ¬å½“ã«ãƒ†ã‚­ã‚¹ãƒˆå½¢å¼ã«å¤‰æ›´ã—ã¾ã™ã‹ï¼Ÿ")) {
             bodygethtml();
             document.composeform.submit();
             return true;
@@ -172,12 +172,12 @@
       if (document.composeform.to.value == ""
        && document.composeform.cc.value == ""
        && document.composeform.bcc.value == "" ) {
-         alert("Please specify the receiver before sending.");
+         alert("‘—M‚·‚é‘O‚ÉAˆ¶æ(‚à‚µ‚­‚ÍCC‚¨‚æ‚ÑBCC)‚É“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B");
          return false;
       }
       if (document.composeform.subject.value == "" 
        || document.composeform.subject.value == "N/A" ) {
-         return(confirm("This message has no subject, do you still want to send it?"));
+         return(confirm("Œ–¼‚ª–¢“ü—Í‚Ì‚Ü‚Ü‚Å‚·B–{“–‚É‚±‚Ì‚Ü‚Ü‘—M‚µ‚Ü‚·‚©H"));
       }
       return true;
    }

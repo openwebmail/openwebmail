@@ -1,19 +1,19 @@
 <BR><BR><BR><BR><BR>
 <table border="0" align="center" width="60%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>Merubah Kode</B></FONT>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>Merubah Sandi</B></FONT>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 @@@STARTFORM@@@
 <BR>
 <table align=center border=0 cellspacing=2 cellpadding=0>
 <tr>
-<td align="right">Id: </td><td>@@@LOGINNAMEFIELD@@@</td>
+<td align="right">Nama Login: </td><td>@@@LOGINNAMEFIELD@@@</td>
 </tr><tr>
-<td align="right">Kode Lama: </td><td>@@@OLDPASSWORDFIELD@@@</td>
+<td align="right">Sandi Lama: </td><td>@@@OLDPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align="right">Kode baru: </td><td>@@@NEWPASSWORDFIELD@@@</td>
+<td align="right">Sandi baru: </td><td>@@@NEWPASSWORDFIELD@@@</td>
 </tr><tr>
-<td align="right">Pemeriksaan Kode baru: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+<td align="right">Konfirmasi Sandi baru: </td><td>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
 </tr><tr>
 <td colspan=2>
 <table width="100%"><tr>
@@ -31,17 +31,17 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-         alert("nomor Kode minimal @@@PASSWDMINLEN@@@ angka atau huruf.");
+         alert("nomor Sandi minimal @@@PASSWDMINLEN@@@ angka atau huruf.");
          return false;
       }
       if (document.passwordform.newpassword.value !=
 	  document.passwordform.confirmnewpassword.value) {
-         alert("Kode baru dan pemeriksaan tidak sama.");
+         alert("Sandi baru dan konfirmasi sandi tidak sama.");
          return false;
       }
       if (document.passwordform.newpassword.value ==
 	  document.passwordform.oldpassword.value) {
-         alert("Kode lama dan kode baru sama.");
+         alert("Sandi lama dan Sandi baru sama.");
          return false;
       }
       return true;

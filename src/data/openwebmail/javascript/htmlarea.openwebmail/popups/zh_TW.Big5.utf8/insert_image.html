@@ -1,0 +1,240 @@
+<html style="width: 398; height: 243">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>插入圖片</title>
+
+<script type="text/javascript" src="popup.js"></script>
+
+<script type="text/javascript">
+var preview_window = null;
+
+function Init() {
+  __dlg_init();
+  document.getElementById("f_url").focus();
+};
+
+function onOK() {
+  var required = {
+    "f_url": "您必須輸入 URL",
+    "f_alt": "請輸入說明文字"
+  };
+  for (var i in required) {
+    var el = document.getElementById(i);
+    if (!el.value) {
+      alert(required[i]);
+      el.focus();
+      return false;
+    }
+  }
+  // pass data back to the calling window
+  var fields = ["f_url", "f_alt", "f_align", "f_border",
+                "f_horiz", "f_vert"];
+  var param = new Object();
+  for (var i in fields) {
+    var id = fields[i];
+    var el = document.getElementById(id);
+    param[id] = el.value;
+  }
+  if (preview_window) {
+    preview_window.close();
+  }
+  __dlg_close(param);
+  return false;
+};
+
+function onCancel() {
+  if (preview_window) {
+    preview_window.close();
+  }
+  __dlg_close(null);
+  return false;
+};
+
+function onPreview() {
+  var f_url = document.getElementById("f_url");
+  var url = f_url.value;
+  if (!url) {
+    alert("您必須先輸入圖片 URL");
+    f_url.focus();
+    return false;
+  }
+//  var img = new Image();
+//  img.src = url;
+  var win = null;
+  if (!document.all) {
+    win = window.open("about:blank", "ha_imgpreview", "toolbar=no,menubar=no,personalbar=no,scrollbars=yes,resizable=yes");
+  } else {
+    win = window.open("about:blank", "ha_imgpreview", "channelmode=no,directories=no,location=no,menubar=no,resizable=yes,scrollbars=yes,toolbar=no");
+  }
+  win.document.write("<html><head></head><body>\n");
+  win.document.write("<table border=0><tr><td>\n");
+  win.document.write("<img noborder src='"+url+"'>\n");
+  win.document.write("</td></tr></table>\n");
+  win.document.write("</body></html>\n");
+  win.focus();
+  return false;
+};
+
+function onChange() {
+   var f_attlist = document.getElementById('f_attlist');
+   var f_url = document.getElementById('f_url');
+   var f_alt = document.getElementById('f_alt');
+
+   var i=f_attlist.options.selectedIndex;
+
+   f_url.value=f_attlist.options[i].value;
+   if (f_url.value == "") {
+      f_alt.value = "";
+   } else {
+      f_alt.value=f_attlist.options[i].text;
+   }
+   return true;
+};
+</script>
+
+<style type="text/css">
+html, body {
+  background: ButtonFace;
+  color: ButtonText;
+  font: 11px Tahoma,Verdana,sans-serif;
+  margin: 0px;
+  padding: 0px;
+}
+body { padding: 5px; }
+table {
+  font: 11px Tahoma,Verdana,sans-serif;
+}
+form p {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
+.fr { width: 6em; float: left; padding: 2px 5px; text-align: right; }
+fieldset { padding: 0px 10px 5px 5px; }
+select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
+button { width: 70px; }
+.space { padding: 2px; }
+
+.title { background: #ddf; color: #000; font-weight: bold; font-size: 120%; padding: 3px 10px; margin-bottom: 10px;
+border-bottom: 1px solid black; letter-spacing: 2px;
+}
+form { padding: 0px; margin: 0px; }
+</style>
+
+</head>
+
+<body onload="Init()">
+
+<div class="title">插入圖片</div>
+
+<form action="" method="get">
+<table border="0" width="100%" style="padding: 0px; margin: 0px">
+  <tbody>
+
+  <tr>
+    <td style="width: 7em; text-align: right">現有附件:</td>
+    <td><select name="attlist" id="f_attlist" 
+         onchange="return onChange();" style="witdth:100%">
+        <option selected value="">-- 尚未選擇 --
+        </select>
+    </td>
+  </tr>
+  <tr>
+    <td style="width: 7em; text-align: right">圖片 URL:</td>
+    <td><input type="text" name="url" id="f_url" style="width:75%"
+      title="請在這裡輸入圖片的 URL" />
+      <button name="preview" onclick="return onPreview();"
+      title="開新視窗預覽圖片">預覽</button>
+    </td>
+  </tr>
+  <tr>
+    <td style="width: 7em; text-align: right">說明文字:</td>
+    <td><input type="text" name="alt" id="f_alt" style="width:100%"
+      title="這裡的說明是為了不支援圖形顯示能力的瀏覽器所準備的" /></td>
+  </tr>
+
+  </tbody>
+</table>
+
+<p />
+
+<fieldset style="float:right; margin-right: 5px;">
+<legend>外觀</legend>
+
+<div class="space"></div>
+
+<div class="fl">對齊方式:</div>
+<select size="1" name="align" id="f_align"
+  title="Positioning of this image">
+  <option value=""                             >無</option>
+  <option value="left"                         >左</option>
+  <option value="right"                        >右</option>
+  <option value="texttop"                      >文字上方</option>
+  <option value="absmiddle"                    >絕對中間</option>
+  <option value="baseline" selected="1"        >基準線</option>
+  <option value="absbottom"                    >絕對下面</option>
+  <option value="bottom"                       >下面</option>
+  <option value="middle"                       >中間</option>
+  <option value="top"                          >上面</option>
+</select>
+
+<p />
+
+<div class="fl">邊框厚度:</div>
+<input type="text" name="border" id="f_border" size="5"
+title="如果不要邊框的話這格請空白" />
+
+<div class="space"></div>
+
+</fieldset>
+
+<fieldset style="float:right; margin-right: 5px;">
+<legend>間距</legend>
+
+<div class="space"></div>
+
+<div class="fr">水平:</div>
+<input type="text" name="horiz" id="f_horiz" size="5"
+title="水平間距" />
+
+<p />
+
+<div class="fr">垂直:</div>
+<input type="text" name="vert" id="f_vert" size="5"
+title="垂直間距" />
+
+<div class="space"></div>
+
+</fieldset>
+
+<div style="margin-top: 85px; text-align: right;">
+<hr />
+<button type="button" name="ok" onclick="return onOK();">確定</button>
+<button type="button" name="cancel" onclick="return onCancel();">取消</button>
+</div>
+
+</form>
+
+<script type="text/javascript">
+var tid;
+function init_attlist () {
+   var options=window.dialogArguments;
+   var sel=document.getElementById("f_attlist");
+   if (options) {
+      for (var i in options) {
+         if ( i.match(/\.(jpg|jpeg|gif|png|bmp)$/i) ) {
+            var op = document.createElement("option");
+            op.appendChild(document.createTextNode(i));
+            op.value = options[i];
+            sel.appendChild(op);
+         }
+      }
+   }
+   clearTimeout(tid);
+}
+// delay 0.1 sec to ensure attlist has been loaded by Init at body onload
+tid=setTimeout("init_attlist()", 100);
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>关于</B></font>
+</td></tr>
+<tr><td bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td></tr>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
+
+@@@INFOSOFTWARESTART@@@
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>软件版本</B></td></tr>
+@@@INFOSOFTWARE@@@
+<tr><td colspan=2>&nbsp;</td></tr>
+@@@INFOSOFTWAREEND@@@
+
+@@@INFOPROTOCOLSTART@@@
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>通讯协议</B></td></tr>
+@@@INFOPROTOCOL@@@
+<tr><td colspan=2>&nbsp;</td></tr>
+@@@INFOPROTOCOLEND@@@
+
+@@@INFOSERVERSTART@@@
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>服务器端信息</B></td></tr>
+@@@INFOSERVER@@@
+<tr><td colspan=2>&nbsp;</td></tr>
+@@@INFOSERVEREND@@@
+
+@@@INFOCLIENTSTART@@@
+<tr><td colspan=2 bgcolor=@@@COLUMNHEADER@@@><B>客户端信息</B></td></tr>
+@@@INFOCLIENT@@@
+@@@INFOCLIENTEND@@@
+
+</table>

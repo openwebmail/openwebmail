@@ -1,10 +1,10 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="4" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>メールフィルターの編集</b></font>
+<b>メールフィルタの編集</b></font>
 </td><td nowrap colspan="6" bgcolor=@@@TITLEBAR@@@ align="right">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b> @@@FREESPACE@@@可能</b></font>
+<b>空き容量：@@@FREESPACE@@@</b></font>
 </td></tr><tr><td colspan="9" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr><tr><td colspan="9">&nbsp;</td></tr>
@@ -18,11 +18,11 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>含む/含まない</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>列</B> (click to edit)</td>
+<B>文字列</B> (クリックして編集してください)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>アクション</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>送信先</B></td>
+<B>移動先/コピー先</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>有効</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>

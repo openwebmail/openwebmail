@@ -32,7 +32,7 @@
 <td align="right">@@@SETPASS@@@: </td>
 <td>@@@NEWPASSWORDFIELD@@@</td>
 <td width="10%" align="right">@@@CHKLOGIN@@@ </td>
-<td>Suspend Login @@@DISABLECHKLOGIN@@@</td>
+<td>Tunda Login @@@DISABLECHKLOGIN@@@</td>
 <td>&nbsp;</td>
 </tr>
 <tr>
@@ -52,12 +52,12 @@
 <tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
 <table align="center" border="0" cellspacing="0" cellpadding="1" width="90%">
 <tr>
- <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Alamat Email/Alias</B> (click to edit)</td>
+ <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Alamat Email/Alias</B> (klik untuk Ubah)</td>
  <td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Nama Asli</B></td>
- <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>Buat</B></td>
+ <td align="center" bgcolor=@@@COLUMNHEADER@@@><B>Tombol Aksi</B></td>
 </tr>
 <tr>
- <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>@@@EMAILFIELD@@@</td>
+ <td nowrap  bgcolor=@@@TABLEROW_LIGHT@@@>@@@EMAILFIELD@@@</td>
  <td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>@@@REALNAMEFIELD@@@</td>
  <td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>@@@ADDBUTTON@@@</td>
 </tr>

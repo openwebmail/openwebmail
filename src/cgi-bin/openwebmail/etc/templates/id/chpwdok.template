@@ -4,6 +4,6 @@
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>Perubahan Berhasil</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Perubahan Kode baru telah berhasil.<BR>
+<BR>Perubahan Sandi baru telah berhasil.<BR>
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

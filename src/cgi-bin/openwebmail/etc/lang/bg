@@ -66,13 +66,13 @@ package ow::bg;
 
 %lang_bgfilterthresholdlabels =
    (
-     0 => 'No',
-     1 => 'Yes',
-    20 => 'Only if INBOX has more than 20 new messages',
-    50 => 'Only if INBOX has more than 50 new messages',
-   100 => 'Only if INBOX has more than 100 new messages',
-   200 => 'Only if INBOX has more than 200 new messages',
-   500 => 'Only if INBOX has more than 500 new messages',
+     0 => 'Не',
+     1 => 'Да',
+    20 => 'Единствено ако във Входящи има повече от 20 нови писма',
+    50 => 'Единствено ако във Входящи има повече от 50 нови писма',
+   100 => 'Единствено ако във Входящи има повече от 100 нови писма',
+   200 => 'Единствено ако във Входящи има повече от 200 нови писма',
+   500 => 'Единствено ако във Входящи има повече от 500 нови писма',
    );
 
 %lang_prioritylabels =
@@ -531,7 +531,7 @@ package ow::bg;
    dest_of_thezip=> 'име за нов zip файл',
    dest_of_thetgz=> 'име за нов tgz файл',
    homedir      => 'Домашна директория',
-   showthumbnail    => 'Миниатурни',
+   showthumbnail    => 'Миниатюрни',
    showhidden   => 'Покажи скритите файлове',
    lastmodified => 'Посредна промяна на',
    perm         => 'позволение',

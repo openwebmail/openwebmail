@@ -13,8 +13,8 @@
 <table bgcolor=@@@TABLEROW_DARK@@@ border="0" cellspacing="1" cellpadding="2" align="center" width="100%">
 @@@STARTADDTESTFORM@@@
 <tr><td><B>Nama Tes:</B></td>
-<td colspan="2">@@@TESTNAMEFIELD@@@&nbsp;(letters, digits & underline only)</td></tr>
-<tr><td><B>Deskripsi:</B></td>
+<td colspan="2">@@@TESTNAMEFIELD@@@&nbsp;(hanya huruf-huruf, angka-angka & garisbawah)</td></tr>
+<tr><td><B>Deskripsi Tes:</B></td>
 <td colspan="2">@@@TESTDESCFIELD@@@</td></tr>
 
 <tr><td><B>Tipe Tes:</B></td>
@@ -31,10 +31,10 @@
 </tr></table>
 </td></tr>
 
-<tr><td><B>Expression:</B></td>
-<td colspan="2">@@@PATTERNFIELD@@@ &nbsp; Ignore Case@@@IGNORECASECHECKBOX@@@ &nbsp; SingleLine Match@@@SINGLELINECHECKBOX@@@</td></tr>
-<tr><td><B>Score:</B></td>
-<td>@@@SCOREMENU@@@  (set score>0 for Spam, score <0 for Ham)</td><td align="right">@@@ADDBUTTON@@@ &nbsp; </td></tr>
+<tr><td><B>Ekspresi:</B></td>
+<td colspan="2">@@@PATTERNFIELD@@@ &nbsp; Abaikan Kasus@@@IGNORECASECHECKBOX@@@ &nbsp; Cocok dengan baris @@@SINGLELINECHECKBOX@@@</td></tr>
+<tr><td><B>Nilai:</B></td>
+<td>@@@SCOREMENU@@@  (Buat nilai>0 untuk Spam, nilai <0 untuk Ham)</td><td align="right">@@@ADDBUTTON@@@ &nbsp; </td></tr>
 @@@ENDFORM@@@
 </table>
 

@@ -1030,7 +1030,7 @@ ps: You may choose the abbreviation by referencing the following url
    package ow::xy
 
 5. add the name and charset of your language to %languagenames,
-   %languagecharsets in ow-shared.pl, then set default_language
+   %languagecharsets in modules/lang.pl, then set default_language
    to 'xy' in openwebmail.conf
 
 6. check iconv.pl, if the charset is not listed, add a line for this charset
@@ -1074,6 +1074,18 @@ ps: Since the language and templates are loaded only once in persistent mode,
     you need to do 'touch openwebmail*pl' to make the modification active.
     To avoid this, you may change your openwebmail backto suid perl mode
     before you make the modifications.
+
+ps: If you just want support of different charset of existing language,
+    you may try the openwebmail-tool.pl --langconv command
+
+    a. choose a new name for the converted language
+    b. add the new name and it charset to %languagenames,%languagecharsets
+       in modules/lang.pl
+    c. execute 'openwebmail-tool.pl --langconv oldlangname newlangname'
+    d. if you see any error complaing directory doesn't exist,
+       you may creat it manually and re-execute above command
+    e. After conversion, don't forget to test the converted lang file by
+       'perl etc/lang/newlangname' to ensure it is valid for perl parser.
 
 ps: If you wish your translation to be included in the next release of
     openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw.

@@ -1,0 +1,318 @@
+@@@EDITFORMSTART@@@
+
+<table cellpadding="0" cellspacing="0" border="0" align="center" width="90%">
+<tr>
+  <td bgcolor=@@@TITLEBAR@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>編輯個人資料</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td bgcolor=@@@MENUBAR@@@>@@@MENUBARLINKS@@@</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@MENUBAR@@@>
+    <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
+    <tr>
+      <td>&nbsp;@@@AGENTPATH@@@</td>
+      <td align="right">字集:&nbsp;@@@CONVTOMENU@@@</td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>個人資訊</b></td>
+</tr>
+<tr>
+  <td bgcolor=@@@WINDOW_DARK@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    @@@100@@@
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>電子郵件地址</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
+</tr>
+<tr>
+  <td bgcolor=@@@WINDOW_DARK@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    @@@200@@@
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>電話號碼</b>&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();">+</a></td>
+</tr>
+<tr>
+  <td bgcolor=@@@WINDOW_DARK@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    @@@300@@@
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>地址</b>&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();">+</a></td>
+</tr>
+<tr>
+  <td bgcolor=@@@WINDOW_DARK@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    @@@400@@@
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>工作資訊</b>&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();">+</a></td>
+</tr>
+<tr>
+  <td bgcolor=@@@WINDOW_DARK@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    @@@500@@@
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>其他資訊</b><a name="URL"></a></td>
+</tr>
+<tr>
+  <td bgcolor=@@@WINDOW_DARK@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    @@@600@@@
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>vCard 資訊</b></td>
+</tr>
+<tr>
+  <td bgcolor=@@@WINDOW_DARK@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    @@@700@@@
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>自訂屬性</b>&nbsp;<a name="X-OWM-CUSTOM" href="javascript:document.editForm.formchange.value='X-OWM-CUSTOM,0,1'; document.editForm.submit();">+</a></td>
+</tr>
+<tr>
+  <td bgcolor=@@@WINDOW_DARK@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    @@@800@@@
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>增加相關檔案到這份個人資料 - 尚有 @@@AVAILABLEATTSPACE@@@ 空間</b></td>
+</tr>
+<tr>
+  <td bgcolor=@@@WINDOW_DARK@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
+    <tr>
+      <td  colspan="9" height="10">&nbsp;</td>
+    </tr>
+    <tr>
+      <td>
+        <select name="UPLOAD.FILE.TYPE" class="mono">
+        <option value="PHOTO" selected>個人照片</option>
+        <option value="SOUND">聲音檔</option>
+        <option value="LOGO">公司識別標誌</option>
+        <option value="KEY">公開加密金鑰</option>
+        <option value="AGENT">相關連絡人 vCard</option>
+        </select>
+      </td>
+      <td width="5">&nbsp;</td>
+      <td><input class="mono" type="text" name="UPLOAD.URI" value="" size="25"></td>
+      <td width="5">&nbsp;</td>
+      <td><input class="mono" type="file" name="UPLOAD.FILE" size="25"></td>
+      <td width="5">&nbsp;</td>
+      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="新增"></td>
+      <td width="5">&nbsp;</td>
+      <td>@@@UPLOADWEBDISKLINK@@@</td>
+    </tr>
+    <tr>
+      <td colspan="2" class="smalltext" nowrap>選擇要加入的檔案的種類</td>
+      <td colspan="2" class="smalltext" nowrap>輸入檔案的網址 (http://...)</td>
+      <td colspan="5" class="smalltext" nowrap>或是直接上傳檔案</td>
+    </tr>
+    <tr>
+      <td  colspan="9" height="10">&nbsp;</td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
+  <td align="center">
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td>@@@EDITFORMSUBMIT@@@@@@EDITFORMEND@@@</td>
+      <td width="5">&nbsp;</td>
+      <td>
+        <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td>@@@CANCELANDRETURNFORM@@@</td>
+          <td width="5">&nbsp;</td>
+          <td>@@@CANCELEDITFORM@@@</td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td height="10">&nbsp;</td>
+</tr>
+</table>
+
+<style type="text/css">
+#bdaycalpopupDiv{ position: absolute;
+                  visibility: hidden;
+                  background-color: @@@MENUBAR@@@;
+                  layer-background-color: @@@MENUBAR@@@;
+                }
+</style>
+<div id="bdaycalpopupDiv"></div>
+
+<script language="javascript">
+<!--
+function check_toggle(target) {
+   document.forms['editForm'].elements[target].checked=!document.forms['editForm'].elements[target].checked;
+}
+
+function makeLabel(formName, adrNumber) {
+   var street = document.forms[formName].elements['ADR.'+adrNumber+'.VALUE.STREET'].value;
+   var extendedaddress = document.forms[formName].elements['ADR.'+adrNumber+'.VALUE.EXTENDEDADDRESS'].value;
+   var postofficeaddress = document.forms[formName].elements['ADR.'+adrNumber+'.VALUE.POSTOFFICEADDRESS'].value;
+   var locality = document.forms[formName].elements['ADR.'+adrNumber+'.VALUE.LOCALITY'].value;
+   var region = document.forms[formName].elements['ADR.'+adrNumber+'.VALUE.REGION'].value;
+   var postalcode = document.forms[formName].elements['ADR.'+adrNumber+'.VALUE.POSTALCODE'].value;
+   var country = document.forms[formName].elements['ADR.'+adrNumber+'.VALUE.COUNTRY'].value;
+
+   // OWM TRANSLATORS: MODIFY THE CODE BELOW THIS COMMENT TO CHANGE HOW ADDRESS LABELS ARE AUTO-GENERATED
+   var label = '';
+   label += postofficeaddress != '' ? postofficeaddress+'\n' : '';
+   if (street != '' && extendedaddress != '') {
+      label += street+', '+extendedaddress+'\n';
+   } else if (street != '') {
+      label += street+'\n';
+   } else if (extendedaddress != '') {
+      label += extendedaddress+'\n';
+   }
+   if (locality != '' && region != '') {
+      label += locality+', '+region+'\n';
+   } else if (locality != '') {
+      label += locality+'\n';
+   } else if (region != '') {
+      label += region+'\n';
+   }
+   if (postalcode != '' && country != '') {
+      label += '         '+postalcode+' '+country;
+   } else if (postalcode != '') {
+      label += '         '+postalcode;
+   } else if (country != '') {
+      label += '         '+country;
+   }
+   // END LANGUAGE-SPECIFIC LABEL CODE
+
+   document.forms[formName].elements['ADR.'+adrNumber+'.VALUE.LABEL'].value = label;
+}
+
+function showGeo (formName, geoNumber, showThing) {
+   var longItude=document.forms[formName].elements['GEO.'+geoNumber+'.VALUE.LONGITUDE'].value;
+   var latItude=document.forms[formName].elements['GEO.'+geoNumber+'.VALUE.LATITUDE'].value;
+   if (longItude != '' && latItude != '') {
+      if (showThing == 'photo') {
+         // change this url to show satellite photos for your country
+         var url='http://mapper.acme.com/?lat='+latItude+'&long='+longItude+'&scale=10&theme=Image&width=4&height=3&dot=Yes';
+         window.open(url,"_showGeo","width=550,height=500,resizable=yes,scrollbars=yes");
+      } else if (showThing == 'map') {
+         // change this url to a mapping service that converts addresses to longitude and latitude in decimal degrees
+         var url='http://www.multimap.com/map/browse.cgi?lat='+latItude+'&lon='+longItude+'&scale=5000&icon=x';
+         window.open(url,"_showGeo","width=550,height=500,resizable=yes,scrollbars=yes");
+      }
+   } else {
+      alert('在看人和地圖或相片之前, 你必須先填入經緯度.');
+   }
+}
+
+function popupNotice (msgOption) {
+   if (msgOption == 'agentmustsave') {
+      return(confirm('在檢視或是建立相關連絡人資料前, 現有資料必須先存檔.\n 確定繼續?'));
+   } else if (msgOption == 'cancelchanges') {
+      return(confirm('所有對這位相關連絡人的修改都將會作廢, 確定?'));
+   }
+}
+
+function savecheck (formName) {
+   if (document.forms[formName].elements['N.0.VALUE.GIVENNAME'].value == '' &&
+       document.forms[formName].elements['N.0.VALUE.FAMILYNAME'].value == '') {
+      alert("請先填入這個人的姓氏和名字欄位.");
+      return false;
+   }
+   if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {
+      return(confirm("電子郵件地址是空白的, 您確定要儲存這筆資料嗎?"));
+   }
+   return true
+}
+// -->
+</script>

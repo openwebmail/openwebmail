@@ -498,7 +498,7 @@ sub listmessages {
          $temphtml = qq|<a href="$sort_url=size">$lang_text{'size'}</a>|;
       }
    }
-   $temphtml = qq|<td width="5%" bgcolor=$style{'columnheader'} align="right"><B>$temphtml</B></td>\n|;
+   $temphtml = qq|<td width="5%" bgcolor=$style{'columnheader'} align="right" nowrap><B>$temphtml</B></td>\n|;
    $linehtml =~ s/\@\@\@SIZE\@\@\@/$temphtml/;
 
    $temphtml = qq|<td width="3%" bgcolor=$style{'columnheader'} align ="center">|.

@@ -1,0 +1,32 @@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<B>编辑 SpamAssassin 信件来源黑名单</B></font>
+</td></tr>
+<tr><td bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td</tr>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@>
+<B>黑名单电子邮件地址</B></td>
+<td align="center" bgcolor=@@@COLUMNHEADER@@@>
+<B>按钮</B>
+</td></tr>
+@@@STARTADDLISTFORM@@@
+<tr>
+<td nowrap bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@EMAILFIELD@@@
+</td>
+<td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
+@@@ADDBUTTON@@@
+</td>
+</tr>
+@@@ENDFORM@@@
+
+<tr><td colspan="2">&nbsp;</td></tr>
+
+@@@EMAILS@@@
+</table>

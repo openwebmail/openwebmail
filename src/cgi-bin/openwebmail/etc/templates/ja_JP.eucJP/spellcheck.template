@@ -7,13 +7,12 @@
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>スペル間違いの語は直されたいくつかの語に置き換えられます。
-ユーザーはその語の中のひとつを選び、置き換えることができます。
-もし直された語がなければ、ユーザーは"-手動で直す-"を選択し、[もう一度チェック]をクリックすると、
-ユーザーはテキストフィールドが使え、手動で入力できるように
-なります。
-If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
-the original word will be added to the user's personal dictionary.
+<BR><font size=-1>スペルミスした単語については、置換候補のメニューが表示されます。
+元の単語を修正するためには、その置換候補から１つを選びます。
+もし置換候補に正しい単語がなければ、"--手動で修正--"を選択し[再度チェック]をクリックしてください。
+そうすると、入力用文字列項目が表示され、手動で入力できるようになります。
+また、"--辞書に追加--"を選択し[再度チェック]をクリックすると、元の単語が個人辞書に追加されます。
+</font>
 </td></tr>
 </table>
 <br>

@@ -32,19 +32,19 @@
 
 <table border=0 cellspacing=2 width=100%>
 @@@STARTADDITEMFORM@@@
-<tr><td colspan=2 align=center><B>Tambah Entri Kalender</B></td></tr>
+<tr><td colspan=2 align=center><B>Tambahkan Input Kalender</B></td></tr>
 <tr><td colspan=2 nowrap>@@@ITEMDATEMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
-<tr><td width=25% nowrap>Waktu permulaan</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
-<tr><td width=25% nowrap>Waktu akhiran</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Waktu Awal</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Waktu Akhir</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@THISANDNEXTNDAYSCHECKBOX@@@ Hari ini dan @@@NDAYSFIELD@@@ hari lagi</td></tr>
 <tr><td colspan=2 nowrap>@@@MONTHFREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Setiap Tahun</td></tr>
-<tr><td colspan=2 nowrap>Buat URL ke entri ini</td></tr>
+<tr><td colspan=2 nowrap>Buat URL di dalam input ini</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 @@@EMAILSTART@@@
-<tr><td colspan=2 nowrap>Mengirim email laporan ke</td></tr>
+<tr><td colspan=2 nowrap>Mengirimkan email laporan ke alamat</td></tr>
 <tr><td colspan=2 nowrap>@@@EMAILFIELD@@@</td></tr>
 @@@EMAILEND@@@
 <tr><td nowrap>Warna Kejadian</td><td nowrap>@@@EVENTCOLORMENU@@@</td></tr>

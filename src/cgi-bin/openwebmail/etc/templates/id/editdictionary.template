@@ -7,7 +7,7 @@
 <tr><td bgcolor=@@@COLUMNHEADER@@@ width="85%">
 <B>Kata</B>
 </td><td bgcolor=@@@COLUMNHEADER@@@ align=center>
-<B>Perbuatan</B>
+<B>Tombol Aksi</B>
 </td></tr>
 @@@STARTFORM@@@
 @@@DICTIONARYWORDS@@@

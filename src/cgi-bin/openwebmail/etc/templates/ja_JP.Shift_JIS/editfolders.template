@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td colspan="5" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>フォルダーの編集</b></font>
+<b>フォルダの編集</b></font>
 </td></tr>
 <tr><td colspan="5" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
@@ -10,7 +10,7 @@
 @@@USERFOLDERSSTART@@@
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>フォルダー名 (@@@FOLDERNAME_MAXLEN@@@ characters)</B></td>
+<B>フォルダ名 (@@@FOLDERNAME_MAXLEN@@@ 文字)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>新規</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -39,7 +39,7 @@
 
 <tr><td colspan="5">&nbsp;</td></tr>
 <tr><td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>ディフォルトフォルダー</B></td>
+<B>ディフォルトフォルダ</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>新規</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>

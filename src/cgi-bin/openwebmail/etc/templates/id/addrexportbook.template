@@ -6,7 +6,7 @@
   <td colspan="@@@TOTALSPAN@@@" bgcolor=@@@WINDOW_LIGHT@@@ align="center">
     <table cellpadding="0" cellspacing="0" border="0" width="80%">
     <tr>
-      <td><br><p><b>Lihat Kembali</b><br>Sistem ekspor akan membantu anda mendownload buku alamat ke komputer anda. Jika anda ingin mendownload, silahkan gunakan halaman buku alamat "buku" dimana anda dapat meng klik untuk memasukkan buku alamat dalam satu kali.</p><p><b>1. Pilih alamat yang kamu ingin kamu download di atas ini.</b><br><br></p></td>
+      <td><br><p><b>Lihat Kembali</b><br>Sistem ekspor akan membantu anda mendownload buku alamat ke komputer anda. Jika anda ingin mendownload, silahkan gunakan halaman buku alamat "buku" dimana anda dapat meng-klik untuk memasukkan buku alamat dalam satu kali.</p><p><b>1. Pilih alamat yang ingin anda download di atas ini.</b><br><br></p></td>
     </tr>
     </table>
   </td>
@@ -15,7 +15,7 @@
   <td colspan="@@@TOTALSPAN@@@" bgcolor=@@@WINDOW_LIGHT@@@ align="center">
     <table cellpadding="0" cellspacing="0" border="0" width="80%">
     <tr>
-      <td><b>2. Pilih format export:</b></td>
+      <td><b>2. Pilih format ekspor:</b></td>
     </tr>
     <tr>
       <td>

@@ -1,0 +1,139 @@
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@>
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
+<b>編輯 SpamAssassin 比對規則</b></font>
+</td></tr>
+<tr><td bgcolor=@@@MENUBAR@@@>
+@@@MENUBARLINKS@@@
+</td></tr>
+<tr><td>&nbsp;</td></tr>
+
+<tr><td>
+
+<table bgcolor=@@@TABLEROW_DARK@@@ border="0" cellspacing="1" cellpadding="2" align="center" width="100%">
+@@@STARTADDTESTFORM@@@
+<tr><td><B>規則名稱:</B></td>
+<td colspan="2">@@@TESTNAMEFIELD@@@&nbsp;(只能含有英文字母, 數字與底線)</td></tr>
+<tr><td><B>描述:</B></td>
+<td colspan="2">@@@TESTDESCFIELD@@@</td></tr>
+
+<tr><td><B>比對位置:</B></td>
+<td colspan="2">
+<table border="0" cellpadding="0" cellspacing="0"><tr>
+<td>@@@TESTTYPEMENU@@@</td>
+<td>
+<div id="headerdiv" style="position:relative; visibility:visible;" width="100%" height="100%">
+<table border="0" cellpadding="0" cellspacing="0"><tr>
+<td>屬性&nbsp;</td><td>@@@HEADERATTRMENU@@@</td><td>@@@HEADERATTRFIELD@@@</td><td>@@@OPMENU@@@</td>
+</tr></table>
+</div>
+</td>
+</tr></table>
+</td></tr>
+
+<tr><td><B>比對樣式:</B></td>
+<td colspan="2">@@@PATTERNFIELD@@@ &nbsp; 忽略大小寫@@@IGNORECASECHECKBOX@@@ &nbsp; 跨行比對@@@SINGLELINECHECKBOX@@@</td></tr>
+<tr><td><B>分數:</B></td>
+<td>@@@SCOREMENU@@@ (垃圾信設定分數 >0, 正常信設定分數 <0)</td><td align="right">@@@ADDBUTTON@@@ &nbsp; </td></tr>
+@@@ENDFORM@@@
+</table>
+
+</td></tr>
+
+<tr><td>&nbsp;</td></tr>
+
+<tr><td>
+
+<table border="0" align="center" width="100%" cellpadding="1" cellspacing="2">
+@@@TESTS@@@
+</table>
+
+</td></tr>
+</table>
+
+<script language="JavaScript">
+<!--
+   function setheaderattrfield ()
+   {
+      var s=document.addtest.testheaderattr_sel.value;
+      if (s=='User Define') {
+         document.addtest.testheaderattr.value='';
+      } else {
+         document.addtest.testheaderattr.value=s;
+      }
+   }
+
+   function sethheaderdivvisibility()
+   {
+      var div=document.getElementById('headerdiv');
+      if (document.addtest.testtype.value == "header") {
+         div.style.visibility='visible';
+      } else {
+	 div.style.visibility='hidden';
+      }
+   }
+	
+   function update (testname, desc, type, headerattr, op, pattern, ignorecase, singleline, score)
+   {
+      var e;
+
+      document.addtest.testname.value = testname;
+      document.addtest.testdesc.value = desc;
+
+      selectoption(document.addtest.testtype, type);
+
+      if (type=='header') {
+         document.addtest.testheaderattr.value = headerattr;
+         selectoption(document.addtest.testheaderattr_sel, headerattr);
+         selectoption(document.addtest.testop, op);
+      }
+
+      document.addtest.pattern.value = pattern;
+
+      document.addtest.ignorecase.checked = (ignorecase==1)?true:false;
+      document.addtest.singleline.checked = (singleline==1)?true:false;
+
+      e=document.addtest.score;
+
+      for (var i=0; i<e.length; i++) {
+         if (e.options[i].value<=score) {
+            e.options[i].selected=true;
+            break;
+         }
+      }
+
+      setheaderattrfield();
+      sethheaderdivvisibility();
+   }
+
+   function addcheck()
+   {
+      if (document.addtest.testname.value  == "") {
+         alert("Please specify the test name.");
+         return false;
+      }
+      if (document.addtest.pattern.value  == "") {
+         alert("Please specify the test expression.");
+         return false;
+      }
+      return true;
+   }
+
+   function selectoption (menu, value)
+   {
+      var i_default=0;
+
+      for (var i=0; i<menu.length; i++) {
+         if (menu.options[i].value==value) {
+            menu.options[i].selected=true;
+            return i;
+         }
+         if (menu.options[i].defaultSelected) {
+            i_default=i;
+         }
+      }
+      menu.options[i_default].selected=true;
+      return i_default;
+   }
+//-->
+</script>

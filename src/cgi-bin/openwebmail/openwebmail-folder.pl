@@ -472,6 +472,7 @@ sub addfolder {
    }
 
    my $foldertoadd = ow::tool::untaint(param('foldername')) || '';
+   $foldertoadd = (iconv($prefs{'charset'}, $prefs{'fscharset'}, $foldertoadd))[0];
    is_safefoldername($foldertoadd) or
       openwebmailerror(__FILE__, __LINE__, "$foldertoadd $lang_err{'has_illegal_chars'}");
    $foldertoadd = safefoldername($foldertoadd);
@@ -517,6 +518,7 @@ sub is_lang_defaultfolder {
 ########## DELETEFOLDER ##########################################
 sub deletefolder {
    my $foldertodel = safefoldername(param('foldername')) || '';
+   $foldertodel = (iconv($prefs{'charset'}, $prefs{'fscharset'}, $foldertodel))[0];
 
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $foldertodel);
    if ( -f $folderfile) {
@@ -543,8 +545,10 @@ sub renamefolder {
    if ($oldname eq 'INBOX') {
       return editfolders();
    }
+   $oldname = (iconv($prefs{'charset'}, $prefs{'fscharset'}, $oldname))[0];
 
    my $newname = ow::tool::untaint(param('foldernewname'))||'';
+   $newname = (iconv($prefs{'charset'}, $prefs{'fscharset'}, $newname))[0];
    is_safefoldername($newname) or
       openwebmailerror(__FILE__, __LINE__, "$newname $lang_err{'has_illegal_chars'}");
    $newname = safefoldername($newname);

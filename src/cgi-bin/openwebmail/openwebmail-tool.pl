@@ -24,7 +24,6 @@ push (@INC, $SCRIPT_DIR);
 
 foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write
-
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use Net::SMTP;
@@ -71,6 +70,7 @@ use vars qw(%is_internal_dbkey);	# from maildb.pl
 # local globals
 use vars qw($POP3_TIMEOUT %opt);
 
+
 ########## main ##################################################
 openwebmail_requestbegin();
 
@@ -97,6 +97,10 @@ if ($ARGV[0] eq "--") {		# called by inetd
          $opt{'init'}=1;
       } elsif ($ARGV[$i] eq "--test") {
          $opt{'test'}=1;
+      } elsif ($ARGV[$i] eq "--langconv") {
+         $opt{'langconv'}=1;
+         $i++; $opt{'srclang'}=$ARGV[$i];
+         $i++; $opt{'dstlang'}=$ARGV[$i];
 
       } elsif ($ARGV[$i] eq "--yes" || $ARGV[$i] eq "-y") {
          $opt{'yes'}=1;
@@ -167,6 +171,8 @@ if ($opt{'init'}) {
    $retval=init();
 } elsif ($opt{'test'}) {
    $retval=do_test();
+} elsif ($opt{'langconv'}) {
+   $retval=do_langconv($opt{'srclang'}, $opt{'dstlang'});
 } elsif ($opt{'thumbnail'}) {
    $retval=makethumbnail(\@list);
 } else {
@@ -208,6 +214,7 @@ sub showhelp {
    print "
 Syntax: openwebmail-tool.pl --init [options]
         openwebmail-tool.pl --test
+        openwebmail-tool.pl --langconv srclang dstlang
         openwebmail-tool.pl -t [options] [image1 image2 ...]
         openwebmail-tool.pl [options] [user1 user2 ...]
 
@@ -469,6 +476,119 @@ sub check_savedsuid_support {
             qq|\thas_savedsuid_support no\n\n\n|;
       return -1;
    }
+   return 0;
+}
+
+########## langconv routines #####################################
+sub do_langconv {
+   my ($srclang, $dstlang)=@_;
+
+   load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
+   if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
+      read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
+      print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
+   }
+
+   langconv($srclang, $dstlang);
+   return 0;
+}
+
+sub langconv {
+   my ($srclang, $dstlang)=@_;
+
+   print "langconv $srclang -> $dstlang\n";
+
+   if (!defined $ow::lang::languagecharsets{$srclang}) {
+      die "src lang $srclang is not defined in lang.pl";
+   }
+   if (!defined $ow::lang::languagecharsets{$dstlang}) {
+      die "dst lang $dstlang is not defined in lang.pl";
+   }
+   my $srccharset=$ow::lang::languagecharsets{$srclang};
+   my $dstcharset=$ow::lang::languagecharsets{$dstlang};
+   if (!is_convertible($srccharset, $dstcharset)) {
+      die "lang $srclang -> $dstlang is not convertible";
+   }
+
+   langconv_file("$config{'ow_langdir'}/$srclang", $srclang,
+                 "$config{'ow_langdir'}/$dstlang", $dstlang, 1);
+
+   langconv_dir("$config{'ow_templatesdir'}/$srclang", $srclang,
+                "$config{'ow_templatesdir'}/$dstlang", $dstlang);
+
+   langconv_dir("$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$srclang", $srclang,
+                "$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$dstlang", $dstlang);
+}
+
+sub langconv_dir {
+   my ($srcdir, $srclang, $dstdir, $dstlang)=@_;
+
+   print "langconv dir $srcdir -> $dstdir\n";
+
+   die "srcdir $srcdir doesn't exist" if (!-d $srcdir);
+   if (!-d $dstdir) {
+      $dstdir=ow::tool::untaint($dstdir);
+      mkdir($dstdir, 0755) || die "create $dstdir error ($!)";
+      chmod(0755, $dstdir);
+   }
+
+   my @files;
+
+   opendir(D, $srcdir) || die "can't open directory: $srcdir";
+   while (my $f=readdir(D)) {
+      next if ($f =~ /^\..*/);
+      next if ($f =~ /.*README.*/);
+      push(@files, $f);
+   }
+   closedir(D);
+
+   foreach my $f (@files) {
+      langconv_file("$srcdir/$f", $srclang,
+                    "$dstdir/$f", $dstlang, 0);
+   }
+}
+
+sub langconv_file {
+   my ($srcfile, $srclang, $dstfile, $dstlang, $check_pkgname)=@_;
+
+   print "langconv file $srcfile -> $dstfile\n";
+
+   my @lines;
+   open(F, $srcfile) || die "$srcfile open error ($!)";
+   @lines=<F>;
+   close(F);
+
+   my $srccharset=$ow::lang::languagecharsets{$srclang};
+   my $srcpkg=$srclang; $srcpkg=~s/[\.\-]/_/g;
+
+   my $dstcharset=$ow::lang::languagecharsets{$dstlang};
+   my $dstpkg=$dstlang; $dstpkg=~s/[\.\-]/_/g;
+
+   if ($check_pkgname) {
+      if ($lines[0] ne "package ow::$srcpkg;\n") {
+         die "$srcfile 1st line is not 'package ow::$srcpkg;'";
+      }
+      $lines[0]="package ow::$dstpkg;\n";
+   }
+
+   # change charset name in html file
+   foreach (@lines) {
+      s!content="text/html; charset=$srccharset"!content="text/html; charset=$dstcharset"!ig;
+      s!charset: $srccharset!charset: $dstcharset!ig;
+   }
+
+   my $content=join('', @lines);
+   ($content)=iconv($srccharset, $dstcharset, $content);
+
+   $dstfile=ow::tool::untaint($dstfile);
+   open(F, ">$dstfile") || die "$dstfile open error ($!)";
+   print F $content;
+   close(F);
+
+   my ($fmode, $fuid, $fgid)=(stat($srcfile))[2,4,5];
+   chmod(ow::tool::untaint($fmode), $dstfile);
+   chown(ow::tool::untaint($fuid), ow::tool::untaint($fgid), $dstfile);
+
    return 0;
 }
 
