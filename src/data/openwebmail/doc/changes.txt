@@ -1,3 +1,14 @@
+02/23/2005
+----------
+1. Spanish language and template files trnslation minor update
+   (thanks to Javier Smaldone, javier.AT.diff.com.ar)
+2. Catalan language and template files translation minor update
+   (thanks to Jordi Sanfeliu, mikaku.AT.fiwix.org)
+3. Romanian (ro & ro.utf8) lang and template files translation minor update
+   (thanks to Gabriel Hojda, gabriel.hojda.AT.gmail.com)
+4. clear stale /tmp/.ow.xxx files in login routine
+
+
 02/21/2005
 ----------
 1. remove unnecessary file permission.template from english template

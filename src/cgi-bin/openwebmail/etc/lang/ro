@@ -348,7 +348,7 @@ package ow::ro;
    login      => 'Intra',
    clear      => 'Sterge',
    webmail    => 'WebMail',
-   msglist    => 'Message List',
+   msglist    => 'Lista Mesaje',
    point      => 'Punct',
    pixel      => 'Pixel',
    changepwd  => 'Schimba parola',
@@ -680,8 +680,8 @@ package ow::ro;
 %lang_err =
    (
    has_illegal_chars => 'are caractere ilegale!',
-   couldnt_readlock  => 'Nu se poate citi mesajul blocat',
-   couldnt_writelock => 'Nu se poate bloca',
+   couldnt_readlock  => 'Nu se poate bloca mesajul la citire',
+   couldnt_writelock => 'Nu se poate bloca mesajul la scriere',
    couldnt_create    => 'Nu se poste crea',
    couldnt_delete    => 'Nu se poate sterge',
    couldnt_open      => 'Nu se poate deschide',

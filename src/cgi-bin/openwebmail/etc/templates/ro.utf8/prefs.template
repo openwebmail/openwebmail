@@ -207,7 +207,7 @@ Subiect:
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Read with message charset:</B>
+<B>Citire mesaje cu setul de caractere:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@READWITHMSGCHARSET@@@
 </td></tr>

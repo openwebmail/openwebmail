@@ -553,6 +553,7 @@ sub login {
       $refreshurl="http://$ENV{'HTTP_HOST'}$refreshurl" if ($refreshurl!~s!^https?://!http://!i);
    }
 
+   my @header=(-Charset=>$prefs{'charset'});
    my @cookies=();
    # cookie for autologin switch, expired until 1 month later
    my $autologin=param('autologin')||0;
@@ -592,14 +593,15 @@ sub login {
                          -value => $default_logindomain,
                          -path  => '/',
                          -expires => '+1M') );
+
    # cookie for httpcompress switch, expired until 1 month later
    push(@cookies, cookie(-name  => 'ow-httpcompress',
                          -value => param('httpcompress')||0,
                          -path  => '/',
                          -expires => '+1M') );
+   push(@header, -cookie=>\@cookies);
 
    my ($js, $repeatstr)=('', 'no-repeat');
-   my @header=(-cookie=>\@cookies);
    if ($ENV{'HTTP_USER_AGENT'}!~/MSIE.+Mac/) {
       # reload page with Refresh header only if not MSIE on Mac
       push(@header, -refresh=>"0.1;URL=$refreshurl");
@@ -765,10 +767,10 @@ sub search_clean_oldsessions {
    my @sessioncount=(0,0,0);	# active sessions in 1, 5, 15 minutes
    my @delfiles;
 
-   opendir(SESSIONSDIR, "$config{'ow_sessionsdir'}") or
+   opendir(D, "$config{'ow_sessionsdir'}") or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}! ($!)");
-      my @sessfiles=readdir(SESSIONSDIR);
-   closedir(SESSIONSDIR);
+      my @sessfiles=readdir(D);
+   closedir(D);
 
    my $t=time();
    my $clientip=ow::tool::clientip();
@@ -809,6 +811,17 @@ sub search_clean_oldsessions {
    foreach my $sessfile (@delfiles) {
       writelog("session cleanup - $sessfile");
       unlink ow::tool::untaint("$config{'ow_sessionsdir'}/$sessfile");
+   }
+
+   # clear stale files for ow::tool::tmpname
+   @delfiles=();
+   if (opendir(D, "/tmp")) {
+      my @tmpfiles=readdir(D); closedir(D);
+      foreach my $tmpfile (@tmpfiles) {
+         next if ($tmpfile!~/^\.ow\./);
+         push(@delfiles, ow::tool::untaint("/tmp/$tmpfile")) if ($t-(stat("/tmp/$tmpfile"))[9]>3600);
+      }
+      unlink @delfiles;
    }
 
    return($oldsessionid, @sessioncount);

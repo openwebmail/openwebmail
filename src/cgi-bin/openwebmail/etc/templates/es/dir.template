@@ -184,10 +184,10 @@
    function chmodinput() {
       var oldperm=document.dirform.permission.value;
       var newperm;
-      newperm=prompt('Please enter the permission for selected items ( '+selectedstr()+' )\n\n'+
-                     'Permission examples:\n'+
-                     '0755 for shared directories , 0644 for shared files\n'+
-                     '0700 for private directories , 0600 for private files', oldperm);
+      newperm=prompt('Por favor, ingrese los permisos para los ítems seleccionados ( '+selectedstr()+' )\n\n'+
+                     'Ejemplos:\n'+
+                     '0755 para directorios compartidos, 0644 para archivos compartidos\n'+
+                     '0700 para directorios privados , 0600 para archivos privados', oldperm);
       if ( newperm==oldperm ||
            newperm==null ) {
          return false;

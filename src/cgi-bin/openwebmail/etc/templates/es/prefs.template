@@ -207,7 +207,7 @@ Asunto:
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Read with message charset:</B>
+<B>Leer con el mapa de caracteres:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@READWITHMSGCHARSET@@@
 </td></tr>

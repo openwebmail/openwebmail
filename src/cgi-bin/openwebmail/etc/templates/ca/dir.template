@@ -167,10 +167,10 @@
    }
    function uploadfilled() {
       if (document.dirform.upload.value == '') {
-         alert("Si us plau, seleccioneu primer el fitxer per upload.");
+         alert("Si us plau, seleccioneu primer el fitxer per carregar.");
          return false;
       } else {
-         document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
+         document.dirform.msg.value = 'Carregant el fitxer '+document.dirform.upload.value+', si us plau espereu...';
          return true;
       }
    }
@@ -184,10 +184,10 @@
    function chmodinput() {
       var oldperm=document.dirform.permission.value;
       var newperm;
-      newperm=prompt('Please enter the permission for selected items ( '+selectedstr()+' )\n\n'+
-                     'Permission examples:\n'+
-                     '0755 for shared directories , 0644 for shared files\n'+
-                     '0700 for private directories , 0600 for private files', oldperm);
+      newperm=prompt('Si us plau, introduïu els permisos pels elements seleccionats ( '+selectedstr()+' )\n\n'+
+                     'Exemples de permisos:\n'+
+                     '0755 per directoris compartits , 0644 per fitxers compartits\n'+
+                     '0700 per directoris privats , 0600 per fitxers privats', oldperm);
       if ( newperm==oldperm ||
            newperm==null ) {
          return false;

@@ -1,7 +1,7 @@
 package ow::es;
 
 # Spanish translation, charset: iso-8859-1
-# by Javier Smaldone, javier.AT.diff.com.ar, 02-15-2005
+# by Javier Smaldone, javier.AT.diff.com.ar, 02-22-2005
 
 %lang_folders =
    (
@@ -330,7 +330,7 @@ package ow::es;
    move     => 'Mover',
    symlink  => 'Enlace',
    delete   => 'Eliminar',
-   chmod    => 'Chmod',
+   chmod    => 'Permisos',
    gzip     => 'Crear gzip',
    mkzip    => 'Crear zip',
    mktgz    => 'Crear tgz',
@@ -346,7 +346,7 @@ package ow::es;
    login      => 'Ingresar',
    clear      => 'Restablecer',
    webmail    => 'WebMail',
-   msglist    => 'Message List',
+   msglist    => 'Listado de Mensajes',
    point      => 'puntos',
    pixel      => 'píxels',
    changepwd  => 'Cambiar contraseña',
