@@ -8,11 +8,25 @@
 domainnames
 -----------------------------------------------------------------------
 default domainnames for user's outgoing mail domain.
-If set this to auto, $ENV{HTTP_HOST} will be used (the hostname in URL).
-If $ENV{HTTP_HOST} is IP, we get this by running '/bin/hostname'
+If set this to auto, then the default domainnames may come from:
+
+1. if @domainname is specified in username, then that domain will be used
+2. if the option enable_domainselectmenu is set to yes, then the one
+   choosed from the domain select menu will be used
+3. $ENV{HTTP_HOST} will be used (the hostname in URL).
+4. If $ENV{HTTP_HOST} is IP, we get this by running '/bin/hostname'
 
 Example:
+domainnames		auto
 domainnames		server1.domain1.com, server2.domain2.com
+
+ps: domains specified in this option should be equivalent ones,
+    in short, they are domains with exactly same group of users.
+
+    If you have virtual domains that are actually independent,
+    you should leave this to auto, and try to 
+    a. set option enable_domainnameselectmeu to yes, and
+    b. specify all virtualdomains in the option domainselectmenu_list
 
 
 smtpserver
@@ -86,6 +100,7 @@ When previous option auth_withdomain is set to yes, the domain may
 come from serverial sources:
 1. the domain mapped by virtusertable
 2. the domain part in loginname specified by user
+   (or the domain choosed in the domainname select menu)
 3. the domain in the webmail URL
 4. the domain by /bin/hostname
 
@@ -599,18 +614,19 @@ change password page will use SSL.
 
 enable_domainselectmenu
 -----------------------------------------------------------------------
-Set this to 'yes' if you want a selection menu at login when there are
-more than one domainnames defined. 
+Set this to 'yes' if you want a selection menu at login
+This could be useful if you have more than one virtual domains setup on
+same host
 
 
-domainselmenu_list
+domainselectmenu_list
 ----------------------------------------------------------------------
 This is the domainnames that will be listed in the above selection menu
 If this option is set to 'auto', the entries will be derived from option
 domainnames
 
 Example:
-domainselmenu_list	server1.domain1.com, server2.domain2.com
+domainselectmenu_list	server1.domain1.com, server2.domain2.com
 
 
 enable_strictvirtuser

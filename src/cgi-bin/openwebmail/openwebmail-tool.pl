@@ -176,8 +176,8 @@ if ($opt{'init'}) {
 
       my %prefs = readprefs();		
       loadlang($prefs{'language'});	# for converted filename $lang_text{abook_converted}
-      print "converting GLOBAL addressbook..." if (!$opt{'quiet'});
 
+      print "converting GLOBAL addressbook..." if (!$opt{'quiet'});
       $retval=convert_addressbook('global', $prefs{'charset'});
       if ($retval<0) {
          print "error:$@. EXITING\n";
@@ -888,7 +888,7 @@ sub usertool {
          loadlang($prefs{'language'});	# for converted filename $lang_text{abook_converted}
          print "converting user $user addressbook..." if (!$opt{'quiet'});
          my $ret=convert_addressbook('user', $prefs{'charset'});
-         print "done.\n" if (!$opt{'quiet'} && $ret!=0);
+         print "done.\n" if (!$opt{'quiet'});
       }
 
       $usercount++;

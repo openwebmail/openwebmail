@@ -1659,8 +1659,7 @@ sub addrlistview {
       delete($supportedexportformat{'tab auto'});
       for (keys %supportedexportformat) { $supportedlabels{$_} = $supportedexportformat{$_}[2] };
       $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
-                             -name=>'exportformatForm',
-                          );
+                             -name=>'exportformatForm');
       $temphtml .= popup_menu(-name=>'exportformat',
                              -values=>[sort keys %supportedexportformat],
                              -default=>'vcard3.0',

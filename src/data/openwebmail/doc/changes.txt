@@ -1,3 +1,14 @@
+11/14/2004
+----------
+1. change default for enable_domainselectmenu from yes to no,
+   rename domainselmenu_list to domainselectmenu_list
+2. fix a bug that if option domainanmes has only one entry,
+   domainanme select menu won't appear even enable_domainselectmenu 
+   is set to yes 
+3. fix a bug that domain selected from dropdown menu at login won't 
+   be used as the default domain for user
+
+
 11/12/2004
 ----------
 1. use dispatch table for url redirection in refreshurl_after_login() in

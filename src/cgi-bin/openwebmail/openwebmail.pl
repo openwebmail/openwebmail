@@ -200,11 +200,11 @@ sub loginmenu {
       templateblock_disable($html, 'AUTOLOGIN', $temphtml);
    }
 
-   if ($config{'enable_domainselectmenu'} && $#{$config{'domainnames'}} >0) {
+   if ($config{'enable_domainselectmenu'}) {
       templateblock_enable($html, 'DOMAIN');
       $temphtml = popup_menu(-name=>'logindomain',
                              -default=>$logindomain,
-                             -values=>[@{$config{'domainselmenu_list'}}] );
+                             -values=>[@{$config{'domainselectmenu_list'}}] );
       $html =~ s/\@\@\@DOMAINMENU\@\@\@/$temphtml/;
    } else {
       $temphtml = ow::tool::hiddens(logindomain=>param('logindomain')||'');

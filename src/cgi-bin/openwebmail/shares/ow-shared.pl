@@ -82,7 +82,7 @@ foreach (qw(
 
 # auto type config options
 foreach (qw(
-   auth_domain domainnames domainselmenu_list
+   auth_domain domainnames domainselectmenu_list
    default_language default_charset default_msgformat
    default_fromemails default_autoreplysubject
    default_timeoffset default_daylightsaving default_calendar_holidaydef
@@ -90,7 +90,7 @@ foreach (qw(
 
 # list type config options
 foreach (qw(	
-   domainnames domainselmenu_list spellcheck_dictionaries
+   domainnames domainselectmenu_list spellcheck_dictionaries
    allowed_serverdomain allowed_clientdomain allowed_clientip
    allowed_receiverdomain allowed_autologinip allowed_rootloginip
    pop3_disallowed_servers localusers
@@ -320,8 +320,9 @@ sub userenv_init {
    $userconf="$config{'ow_usersconfdir'}/$domain/$user" if ($config{'auth_withdomain'});
    read_owconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
 
-   # override auto guessing domainanmes if loginame has domain
-   if (${$config_raw{'domainnames'}}[0] eq 'auto' && $loginname=~/\@/) {
+   # override auto guessing domainanmes if loginam has domain or domainselectmenu enabled
+   if (${$config_raw{'domainnames'}}[0] eq 'auto' && 
+       ($loginname=~/\@/ || $config{'enable_domainselectmenu'})) {
       $config{'domainnames'}=[ $logindomain ];
    }
    # override realname if defined in config
@@ -465,7 +466,7 @@ sub read_owconf {
    # set options that refer to other options
    ${$r_config}{'default_bgurl'}="${$r_config}{'ow_htmlurl'}/images/backgrounds/Transparent.gif" if ( ${$r_config}{'default_bgurl'} eq '' );
    ${$r_config}{'default_abook_defaultsearchtype'}="name" if ( ${$r_config}{'default_abook_defaultsearchtype'} eq '' );
-   ${$r_config}{'domainselmenu_list'}=${$r_config}{'domainnames'} if ( ${${$r_config}{'domainselmenu_list'}}[0] eq 'auto' );
+   ${$r_config}{'domainselectmenu_list'}=${$r_config}{'domainnames'} if ( ${${$r_config}{'domainselectmenu_list'}}[0] eq 'auto' );
 
    # untaint pathname variable defined in openwebmail.conf
    foreach $key ( keys %{$is_config_option{'untaint'}} ) {
@@ -1080,14 +1081,7 @@ sub get_defaultemails {
    return (@{$config{'default_fromemails'}}) if (${$config{'default_fromemails'}}[0] ne 'auto');
 
    my %emails=();
-
-   my @defaultdomains=();
-   if ($config{'enable_domainselectmenu'}) {	 
-      # if selectmenu used, we assume only the selected one should be treated as default
-      @defaultdomains=($logindomain);
-   } else {
-      @defaultdomains=@{$config{'domainnames'}};
-   }
+   my @defaultdomains=@{$config{'domainnames'}};
 
    my $vu=get_virtualuser_by_user($user);
    if ($vu ne "") {
