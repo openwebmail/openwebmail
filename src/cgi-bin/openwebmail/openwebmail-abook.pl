@@ -283,7 +283,7 @@ sub addrbookedit {
    $html = applystyle(readtemplate("addrbookedit.template"));
 
    # menubar links
-   $temphtml = iconlink("backtofolder.gif", ("$lang_text{'backto'} ".ow::htmltext::str2html($abookfolder)),
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||$abookfolder),
                         qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm"|);
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -551,7 +551,7 @@ sub addrlistview {
 
    # load up the list of available books
    my @alladdressbooks = getaddrbooks_readable($webaddrdir);	# readable ones
-   my @destbooks = getaddrbooks_writable($webaddrdir);		# writable ones
+   my @writablebooks = getaddrbooks_writable($webaddrdir);	# writable ones
 
    # calculate the available free space
    my $availfreespace = '';
@@ -748,13 +748,11 @@ sub addrlistview {
    foreach my $key ('TO', 'CC', 'BCC') {
       foreach my $parmname (lc($key), 'checked'.lc($key)) {
          my $recipients = join(',', param(lc($parmname)));
-ow::tool::log_time("$parmname -> $recipients");
          # conv %uXXXX back to CJK
          # since these parm are passed in by javascript escape() routine         
          if (is_convertable('utf-8', $prefs{'charset'}) && 
              $recipients =~ s/%u([0-9a-fA-F]{4})/ow::tool::ucs4_to_utf8(hex($1))/ge) {
             ($recipients) = iconv('utf-8', $prefs{'charset'}, $recipients);
-ow::tool::log_time("$parmname iconv -> $recipients");
          }
 
          for (ow::tool::str2list($recipients)) {
@@ -952,7 +950,7 @@ ow::tool::log_time("$parmname iconv -> $recipients");
    # left side navigation buttons
    $temphtml = '';
    if ($listviewmode eq '') {
-      if ($#destbooks>=0) {
+      if ($#writablebooks>=0) {
          $temphtml .= iconlink("abooknewcontact.gif", $lang_text{'abook_newcontact'},
                                qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;$urlparm"|);
          $temphtml .= iconlink("abooknewgroup.gif", $lang_text{'abook_newgroup'},
@@ -978,10 +976,10 @@ ow::tool::log_time("$parmname iconv -> $recipients");
       $temphtml .= "&nbsp;\n";
       if ($config{'enable_webmail'}) {
          if ($messageid eq "") {
-            $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+            $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} ".ow::htmltext::str2html($lang_folders{$folder}||$folder),
                                   qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
          } else {
-            $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} ".($lang_folders{$folder}||$folder),
+            $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} ".ow::htmltext::str2html($lang_folders{$folder}||$folder),
                                   qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
          }
       }
@@ -1010,11 +1008,8 @@ ow::tool::log_time("$parmname iconv -> $recipients");
                             qq|accesskey="X" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=logout&amp;sessionid=$thissession"|);
 
    } elsif ($listviewmode eq 'export') {
-      $temphtml .= iconlink("backtofolder.gif", ("$lang_text{'backto'} ".ow::htmltext::str2html($abookfolder)),
+      $temphtml .= iconlink("backtofolder.gif", "$lang_text{'backto'} ".ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||$abookfolder),
                                qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm"|);
-      $temphtml .= "&nbsp;\n";
-      $temphtml .= iconlink("abooks.gif", $lang_text{'abooks'},
-                            qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookedit&amp;$urlparm"|);
    }
    # in any defined listviewmode the temphtml here will be the addressbook dropdown form
    $html =~ s/\@\@\@MENUBARLINKSLEFT\@\@\@/$temphtml/g;
@@ -1063,9 +1058,25 @@ ow::tool::log_time("$parmname iconv -> $recipients");
    # move/copy/delete menu
    my %movecopydeletelabels = %lang_abookselectionlabels;
    $movecopydeletelabels{'DELETE'} = $lang_folders{'DELETE'};
+
+   my @destbooks=();
+   my $is_src_editable=0;
+   if ($abookfolder eq 'ALL') {
+      @destbooks=@writablebooks;
+      $is_src_editable=1 if ($#writablebooks>=0);
+   } else {
+      foreach (@writablebooks) {
+         if ($_ eq $abookfolder) { 
+            $is_src_editable=1; next;
+         } else {
+            push(@destbooks, $_);
+         }
+      }
+   }
+
    $temphtml = '';
-   if ($listviewmode eq '' &&	# no copy/move in export or compose popup
-       $#destbooks>=0) {	# copy/move is possible only if writable addressbook exists
+   if ($listviewmode eq '' &&			# not in export or compose popup
+       ($is_src_editable || $#destbooks>=0) ) {	# either src or dst is writable, then cp/mv make sence
       $temphtml = start_form(-name=>"moveCopyForm",
                              -action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl").
                   ow::tool::hiddens(action=>'addrmovecopydelete',
@@ -1080,14 +1091,9 @@ ow::tool::log_time("$parmname iconv -> $recipients");
                                     bcc=>'',
                                     ).
                   $formparm;
-
-      my $is_abookfolder_writable=0;
-      foreach (@destbooks) {
-         if ($_ eq $abookfolder) { $is_abookfolder_writable=1; last; }
-      }
-      if ($is_abookfolder_writable || $abookfolder eq 'ALL') {
+      if ($is_src_editable) {	
          $temphtml .=popup_menu(-name=>'destinationabook',
-                                -default=>$destbooks[0],
+                                -default=>$writablebooks[0],
                                 -override=>1,
                                 -values=>[@destbooks, 'DELETE'],
                                 -labels=>\%movecopydeletelabels,
@@ -1096,19 +1102,20 @@ ow::tool::log_time("$parmname iconv -> $recipients");
                             -value=>$lang_text{'abook_listview_move'},
                             -onClick=>"javascript:addToForm('moveCopyForm','contactsForm','to','cc','bcc'); document.moveCopyForm.submit();",
                             -class=>"medtext");
-      } else {	# current addrbook is readonly, delete/move is not allowed
+      } else {
          $temphtml .=popup_menu(-name=>'destinationabook',
-                                -default=>$destbooks[0],
+                                -default=>$writablebooks[0],
                                 -override=>1,
                                 -values=>\@destbooks,
                                 -labels=>\%movecopydeletelabels,
                                );
       }
-
-      $temphtml .=submit(-name=>'addrcopyaddresses',
-                         -value=>$lang_text{'abook_listview_copy'},
-                         -onClick=>"javascript:addToForm('moveCopyForm','contactsForm','to','cc','bcc'); document.moveCopyForm.submit();",
-                         -class=>"medtext");
+      if ($#destbooks>=0) {	# dest is writable
+         $temphtml .=submit(-name=>'addrcopyaddresses',
+                            -value=>$lang_text{'abook_listview_copy'},
+                            -onClick=>"javascript:addToForm('moveCopyForm','contactsForm','to','cc','bcc'); document.moveCopyForm.submit();",
+                            -class=>"medtext");
+      }
       $temphtml .=endform();
 
       $html =~ s/\@\@\@MOVECOPYFORM\@\@\@/$temphtml/g;
@@ -1526,7 +1533,7 @@ ow::tool::log_time("$parmname iconv -> $recipients");
                   $displaynote =~ s!([\b|\n| ]+)(ftp\.[\w\d\-\.]+\.[\w\d\-]{2,4})([\b|\n| ]*)!$1<a href="ftp://$2" target="_blank">$2</a>$3!igs;
                   my $noteoffset = ($headingpos{'note'} > int(((@headings-3)/2)+1) ? -350 : 150);
                   $newrow[$headingpos{'note'}] .= qq|<td bgcolor=$bgcolor[$colornum] nowrap><a href="javascript:{;}" onClick="displayNote(this,'notepopup',$noteoffset,-25,'|.
-                                                  ow::tool::escapeURL($displaynote).
+                                                  ow::htmltext::str2html($displaynote).
                                                   qq|');">|.ow::htmltext::str2html($shortnote).qq|</a></td>\n|;
                }
             }
@@ -1705,16 +1712,16 @@ sub addreditform {
    $abookfolder = safefoldername($abookfolder);
    $abookfolder = ow::tool::untaint($abookfolder);
 
-   my @destbooks = getaddrbooks_writable($webaddrdir);
-   openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_all_readonly'}") if ($#destbooks<0);
+   my @writablebooks = getaddrbooks_writable($webaddrdir);
+   openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_all_readonly'}") if ($#writablebooks<0);
 
    my $is_abookfolder_writable=0;
-   foreach (@destbooks) {
+   foreach (@writablebooks) {
       if ($abookfolder eq $_) {
          $is_abookfolder_writable=1; last;
       }
    }
-   $abookfolder=$destbooks[0] if (!$is_abookfolder_writable);
+   $abookfolder=$writablebooks[0] if (!$is_abookfolder_writable);
 
    my $abookfile = "$webaddrdir/$abookfolder";
    $abookfile = $config{'global_addressbook'} if ($abookfolder eq 'GLOBAL');
@@ -1997,7 +2004,7 @@ sub addreditform {
    }
 
    # menubar links
-   $temphtml = iconlink("backtofolder.gif", ("$lang_text{'backto'} ".ow::htmltext::str2html($abookfolder)),
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".ow::htmltext::str2html($lang_abookselectionlabels{$editformcaller}||$editformcaller),
                         qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=$escapededitformcaller&amp;$abook_urlparm"|);
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -2021,7 +2028,7 @@ sub addreditform {
       $temphtml = qq|$lang_text{'abook_editform_destination'}:&nbsp;&nbsp;|.
                   popup_menu(-name=>'abookfolder',
                              -override=>1,
-                             -values=>\@destbooks,
+                             -values=>\@writablebooks,
                              -labels=>\%lang_abookselectionlabels,
                             );
       $html =~ s/\@\@\@AGENTPATH\@\@\@/$temphtml/;
@@ -4127,7 +4134,7 @@ sub addrimportform {
    $html =~ s/\@\@\@ABOOKIMPORTLIMIT\@\@\@/$config{'abook_importlimit'} $lang_sizes{'kb'}/g;
 
    # menubar links
-   $temphtml = iconlink("backtofolder.gif", ("$lang_text{'backto'} ".ow::htmltext::str2html($abookfolder)),
+   $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} ".ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||$abookfolder),
                         qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;$urlparm"|);
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
@@ -4177,9 +4184,9 @@ sub addrimportform {
                           -disabled=>'1');
    $html =~ s/\@\@\@FIELDCHOICESMENU\@\@\@/$temphtml/g;
 
-   my @destbooks = getaddrbooks_writable($webaddrdir);	# export destination must be writable 
+   my @writablebooks = getaddrbooks_writable($webaddrdir);	# export destination must be writable 
    $temphtml = popup_menu(-name=>'importdest',
-                          -values=>[$lang_text{'abook_importdest'}, @destbooks],
+                          -values=>[$lang_text{'abook_importdest'}, @writablebooks],
                           -override=>1,
                          );
    $html =~ s/\@\@\@ADDRBOOKSMENU\@\@\@/$temphtml/;

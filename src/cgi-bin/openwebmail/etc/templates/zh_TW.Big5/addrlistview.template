@@ -64,7 +64,7 @@
 <!--
 function CheckAll(thisBox,formName,nameName,groupName) {
    if (thisBox.type == 'checkbox') {
-      thisBox.toggle = !thisBox.checked;
+      thisBox.toggle = thisBox.checked;
    } else {
       thisBox.toggle = !thisBox.toggle;
    }

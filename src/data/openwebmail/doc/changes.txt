@@ -1,3 +1,12 @@
+11/02/2004
+----------
+1. more checks on possible destination addressbooks in addrlistview
+2. fix a bug that member checkboxs always have inverse state as the group 
+   checkbox when collapse mode is off in addrlistview
+3. fix the bug that string passed to displayNotes are escape with escapeURL,
+   it should be str2html instead.
+
+
 11/01/2004
 ----------
 1. adjust the default width/height of address popup window for upgraded users.

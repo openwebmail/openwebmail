@@ -168,7 +168,7 @@ sub docheckform {
                                  field=>$fieldname,
                                  dictionary=>$dictionary,
                                  wordcount=>$wordcount,
-                                 wordframe=>ow::tool::escapeURL($wordframe));
+                                 wordframe=>ow::htmltext::str2html($wordframe));
    $html =~ s/\@\@\@STARTSPELLCHECKFORM\@\@\@/$temphtml/;
 
    if ( defined(param('checkagainbutton')) ) {
@@ -457,12 +457,7 @@ sub spellcheck_words2html {
    }
 
    # conversion make text for happy html display
-   $html=~s/&/&amp;/g;
-   $html=~s/</&lt;/g;
-   $html=~s/>/&gt;/g;
-   $html=~s/\n/<BR>/g;
-   $html=~s/"/&quot;/g;
-   $html=~s/  /&nbsp;&nbsp;/g;
+   $html=ow::htmltext::text2html($html);
 
    # find all words leading with ~!~, remove ~!~ and add them to pdict
    my %pdicword=();

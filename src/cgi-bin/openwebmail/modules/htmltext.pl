@@ -91,7 +91,7 @@ sub text2html {
    $t=~s/&#(\d\d\d+);/ESCAPE_UNICODE_$1/g;
    $t=~s/&/ESCAPE_AMP/g;
 
-   $t=~s/\"/ &quot; /g;
+   $t=~s/"/ &quot; /g;
    $t=~s/</ &lt; /g;
    $t=~s/>/ &gt; /g;
 
@@ -115,15 +115,15 @@ sub text2html {
 sub str2html {
    my $t=$_[0];
 
-   $t=~s/&#(\d\d\d\d);/ESCAPE_UNICODE_$1/g;
+   $t=~s/&#(\d\d\d+);/ESCAPE_UNICODE_$1/g;
    $t=~s/&/ESCAPE_AMP/g;
 
-   $t=~s/\"/&quot;/g;
+   $t=~s/"/&quot;/g;
    $t=~s/</&lt;/g;
    $t=~s/>/&gt;/g;
 
    $t=~s/ESCAPE_AMP/&amp;/g;
-   $t=~s/ESCAPE_UNICODE_(\d\d\d\d)/&#$1;/g;
+   $t=~s/ESCAPE_UNICODE_(\d\d\d+)/&#$1;/g;
 
    return($t);
 }

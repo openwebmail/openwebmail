@@ -655,16 +655,16 @@ sub readmessage {
          # load up the list of available books
          my $webaddrdir = dotpath('webaddr');
          opendir(WEBADDR, $webaddrdir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} $webaddrdir directory for reading! ($!)");
-         my @destbooks = map { (-w "$webaddrdir/$_")?$_:() }
-                         sort { $a cmp $b }
-                         grep { /^[^.]/ && !/^categories\.cache$/ }
-                         readdir(WEBADDR);
+         my @writablebooks = map { (-w "$webaddrdir/$_")?$_:() }
+                             sort { $a cmp $b }
+                             grep { /^[^.]/ && !/^categories\.cache$/ }
+                             readdir(WEBADDR);
          closedir(WEBADDR) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $webaddrdir! ($!)");
          if ($config{'abook_globaleditable'} && $config{'global_addressbook'} ne "") { 
-            push(@destbooks, 'GLOBAL') if (-w $config{'global_addressbook'});
+            push(@writablebooks, 'GLOBAL') if (-w $config{'global_addressbook'});
          }
 
-         if (@destbooks > 0) {
+         if (@writablebooks > 0) {
             my ($firstname, @lastname) = split(/ /,$ename);
             my $lastname = join(" ",@lastname);
             $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  "$lang_text{'importadd'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;N.0.VALUE.GIVENNAME=|.ow::tool::escapeURL($firstname).qq|&amp;N.0.VALUE.FAMILYNAME=|.ow::tool::escapeURL($lastname).qq|&amp;FN.0.VALUE=|.ow::tool::escapeURL($ename).qq|&amp;EMAIL.0.VALUE=|.ow::tool::escapeURL($eaddr).qq|&amp;formchange=1" onclick="return confirm('$lang_text{importadd} $eaddr ?');"|) . qq|\n|;
