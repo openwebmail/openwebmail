@@ -150,6 +150,13 @@ function popupNotice (msgOption) {
       return(confirm('Jste si jisti, ¾e chcete smazat tento kontakt?'));
    }
 }
+
+function setchkbox (id) {
+   if (!document.layers) {
+      var cb=document.getElementById(id);
+      cb.checked=!cb.checked;
+   }
+}
 //-->
 </script>
 

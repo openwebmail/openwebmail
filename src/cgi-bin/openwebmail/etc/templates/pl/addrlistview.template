@@ -150,6 +150,13 @@ function popupNotice (msgOption) {
       return(confirm('Jeste¶ pewien, ¿e chcesz usun±æ ten kontakt?'));
    }
 }
+
+function setchkbox (id) {
+   if (!document.layers) {
+      var cb=document.getElementById(id);
+      cb.checked=!cb.checked;
+   }
+}
 //-->
 </script>
 

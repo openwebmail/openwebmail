@@ -1,3 +1,8 @@
+03/02/2005
+----------
+1. support quick selection in addressbook (similar to the one in message list)
+
+
 03/01/2005
 ----------
 1. support *.ace archive list/decompression in webdisk

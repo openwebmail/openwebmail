@@ -150,6 +150,13 @@ function popupNotice (msgOption) {
       return(confirm('Sunteti sigur ca doriti sa stergeti acest contact?'));
    }
 }
+
+function setchkbox (id) {
+   if (!document.layers) {
+      var cb=document.getElementById(id);
+      cb.checked=!cb.checked;
+   }
+}
 //-->
 </script>
 
