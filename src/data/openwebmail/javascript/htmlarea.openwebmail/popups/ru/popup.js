@@ -26,7 +26,7 @@ function __dlg_init() {
 		window.innerWidth = body.offsetWidth;
 	} else {
 		var body = document.body;
-		window.dialogHeight = body.offsetHeight + 50 + "px";
+		window.dialogHeight = body.offsetHeight + 90 + "px";
 		window.dialogWidth = body.offsetWidth + "px";
 	}
 };

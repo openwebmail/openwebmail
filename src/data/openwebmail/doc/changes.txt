@@ -3,6 +3,10 @@
 1. fix a bug that spam/virus reserved days option does not show up in
    user prefs
    (thanks to kkenyon.AT.aircanopy.net for his fix)
+2. fix a problem that the height of insert image/sound/table window in html
+   composor was not large enough to include the ok and cancel botton
+3. fix a bug that < and > in replyto field would be removed in user preference
+   (reported by Yves MARTIN, ymartin.AT.mail.com)
 
 
 12/26/2004

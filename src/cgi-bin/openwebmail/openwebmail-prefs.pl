@@ -1613,7 +1613,9 @@ sub saveprefs {
             $newprefs{$key}="$config{'ow_htmlurl'}/images/backgrounds/$background";
          }
          next;
-      } elsif ($key eq 'dateformat') {
+      } elsif ($key eq 'dateformat' || $key eq 'replyto') {
+         $value =~ s/\.\.+//g;
+         $value =~ s/[=\n\`]//g; # remove dangerous char
          $newprefs{$key}=$value;
          next;
       }
