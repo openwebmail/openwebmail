@@ -225,13 +225,16 @@ sub filtermessage {
                $io_errcount++; $i--; next;
             }
 
+            if ($config{'log_filtermove_detail'}) {
+               my $m="mailfilter - check $allmessageids[$i], subject=$attr[$_SUBJECT]"; writelog($m); writehistory($m);
+            }
+
             if ($attr[$_STATUS] !~ /V/i) {
                ow::dbm::open(\%FDB, $folderdb, LOCK_EX);
                $attr[$_STATUS].="V";
                $FDB{$allmessageids[$i]}=msgattr2string(@attr);
                ow::dbm::close(\%FDB, $folderdb);
             }
-
             # 1. virus check
             if ($config{'enable_viruscheck'} && !$to_be_moved) {
                my $virusfound=0;

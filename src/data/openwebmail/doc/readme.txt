@@ -185,6 +185,12 @@ If you are using FreeBSD and install apache with pkg_add,
 
 4. execute /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
+ps: If you are using FreeBSD and your perl is compiled from port,
+    then please note that the SUID support is disabled by default
+    since the port for perl 5.8.1 or later
+
+    You need to do 'make -DENABLE_SUIDPERL' in making port
+
 
 If you are using RedHat 7.x (or most Linux) with Apache
 

@@ -240,7 +240,7 @@ package ow::el;
    emptyfolder=> '¶δειασμα φακέλου',
    emptytrash => '¶δειασμα απορριμάτων',
    totrash    => 'Διαγραφή',
-   learnspam  => 'Learn Spam',
+   learnspam  => 'Μάθηση Spam',
    forever    => 'Για πάντα',
    delatlogout=> 'Διαγραφή κατά την έξοδο',
    userdef    => 'Καθορισμός από τον χρήστη',
