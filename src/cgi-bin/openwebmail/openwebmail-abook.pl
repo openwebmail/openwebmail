@@ -520,7 +520,7 @@ sub addrbookdownload {
 # (composeselect has 2 cases, editgroup or compose)
 sub addrlistview {
    # show the book we left from
-   my $editformcaller = safefoldername(param('editformcaller'));
+   my $editformcaller = safefoldername(ow::tool::unescapeURL(param('editformcaller')));
    if ($editformcaller ne '') {
       $abookfolder = $editformcaller;
       $escapedabookfolder = ow::tool::escapeURL($abookfolder);
@@ -2164,7 +2164,7 @@ sub addreditform {
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_all_readonly'}");
       }
    } else {
-      $temphtml = hidden(-name=>"abookfolder", -default=>$abookfolder, -override=>1).
+      $temphtml = ow::tool::hiddens(abookfolder=>$escapedabookfolder).
                   qq|$lang_text{'addressbook'}: |.
                   ow::htmltext::str2html($lang_abookselectionlabels{$abookfolder}||(iconv($prefs{'fscharset'}, $composecharset, $abookfolder))[0]).
                   qq|&nbsp;|;
@@ -4256,7 +4256,7 @@ sub get_writable_abookfolders {
 
 sub abookfolder2file {
    if ($_[0] eq 'ALL') {
-      return "/tmp/.nonexistance";
+      return "/nonexistent";
    } elsif (is_abookfolder_global($_[0])) {
       return ow::tool::untaint("$config{'ow_addressbooksdir'}/$_[0]");
    } else {

@@ -1,3 +1,9 @@
+03/07/2005
+----------
+1. fix error "There is no file named "/tmp/nonexistance" main::readadrbook ..."
+   which happened in saving contact to abook with nonalphabet in in abookname
+
+
 03/06/2004
 ----------
 1. fix the bug that DEFAULT_charset and DEFAULT_fscharset didn't lock the
