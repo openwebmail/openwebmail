@@ -23,9 +23,9 @@ read ans
 if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   echo sending to translators...
 
-  echo "openwebmail current $date">/tmp/mktgz.tmp.$$
-  q /tmp/mktgz.tmp.$$
-  cat /tmp/mktgz.tmp.$$| \
+  echo "openwebmail current $date">/tmp/notify.tmp.$$
+  q /tmp/notify.tmp.$$
+  cat /tmp/notify.tmp.$$| \
   /usr/local/bin/mutt -s "openwebmail current $date" \
   -a /usr/local/www/data/openwebmail/download/openwebmail-current.tgz \
   -a /usr/local/www/data/openwebmail/download/doc/changes.txt \
@@ -54,17 +54,18 @@ if [ "$ans" = "y" -o "$ans" = "Y" ]; then
   blackfire@virtual.net.pl \
   vladimir@bitsoft.ro \
   jan@bilik.org \
-  are@valinor.dolphinics.no
+  are@valinor.dolphinics.no \
+  james.AT.ActionMessage.com
 
   echo "openwebmail current $date is available at
-http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-current.tgz">/tmp/mktgz.tmp.$$
-  q /tmp/mktgz.tmp.$$
-  cat /tmp/mktgz.tmp.$$| \
+http://turtle.ee.ncku.edu.tw/openwebmail/download/openwebmail-current.tgz">/tmp/notify.tmp.$$
+  q /tmp/notify.tmp.$$
+  cat /tmp/notify.tmp.$$| \
   /usr/local/bin/mutt -s "openwebmail current $date" \
   -a /usr/local/www/data/openwebmail/download/doc/changes.txt \
   i3100579@ingstud.units.it \
   frank@post12.tele.dk \
   webmaster@pkgmaster.com
 
-  rm /tmp/mktgz.tmp.$$
+  rm /tmp/notify.tmp.$$
 fi

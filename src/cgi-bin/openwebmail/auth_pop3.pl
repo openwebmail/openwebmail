@@ -1,6 +1,10 @@
 #
 # auth_pop3.pl - authenticate user with POP3 server
 #
+# 2002/03/08 tung@turtle.ee.ncku.edu.tw
+#
+
+#
 # This module assumes that
 #
 #   a. users are located on remote pop3 server, or
@@ -63,8 +67,6 @@
 # $pop3_authserver: the server used to authenticate pop3 user
 # $pop3_authport: the port which pop3 server is listening to
 # $local_uid: uid used on this machine
-#
-# 2002/03/08 tung@turtle.ee.ncku.edu.tw
 #
 
 # global vars, also used by openwebmail.pl

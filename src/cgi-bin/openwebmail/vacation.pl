@@ -312,7 +312,7 @@ sub pipe_mode {
    if (!$opt_j) {
       my $found=0;
       foreach my $name (@aliases) {
-         if ($to =~ /\b$name\b/) {
+         if ($to =~ /\b$name\b/i) {
             $found=1; last;
          }
       }

@@ -10,7 +10,6 @@
    'sent-mail'      => '寄件備分',
    'saved-drafts'   => '草稿匣',
    'mail-trash'     => '垃圾桶',
-   'all'            => '所有信件匣',
    DELETE => '--直接刪除--'
    );
 
@@ -165,7 +164,7 @@
    size       => '大小',
    backto     => '回至',
    reply      => '回信',
-   replyall   => '全部回信',
+   replyall   => '回信給所有人',
    forward    => '轉寄',
    forwardasatt=>'以附件方式轉寄',
    printfriendly=> '友善列印',
@@ -276,10 +275,8 @@
    del        => '刪除',
    noitemforthisday => '本日沒有安排事情',
    today_only               => '今天',
-   the_wday_of_thismonth    => '這個月',
-   the_wday_of_thismonth2   => '',
-   every_wday_of_thismonth  => '這個月每個',
-   every_wday_of_thismonth2 => ''
+   the_wday_of_thismonth    => '這個月 @@@ORDER@@@ @@@WDAY@@@ ',
+   every_wday_of_thismonth  => '這個月 每個 @@@WDAY@@@ '
    );
 
 %lang_err =

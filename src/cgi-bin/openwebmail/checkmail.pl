@@ -8,11 +8,12 @@
 # syntax: checkmail.pl [-q] [-p] [-i] [-a] [-f userlist] [user1 user2 ...]
 #
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\nPlease execute script checkmail.pl with full path!\n"; exit 0; }
 push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; 	# no PATH should be needed
+$ENV{ENV} = "";      # no startup script for sh
 $ENV{BASH_ENV} = ""; 	# no startup script for bash
 
 use strict;
@@ -83,7 +84,7 @@ if ($ARGV[0] eq "--") {
          foreach my $u (get_userlist()) {
             push(@userlist, $u);
             if ($#userlist <0 ) {
-               print("-a is not supported by $config{'auth_module'}, use -f instead\n") if (!$opt_quiet);
+               print "-a is not supported by $config{'auth_module'}, use -f instead\n" if (!$opt_quiet);
                exit 1;
             }
          }
@@ -145,7 +146,7 @@ foreach $loginname (@userlist) {
 	=get_domain_user_userinfo($loginname);
 
    if ($user eq "") {
-      print("user $loginname doesn't exist\n") if (!$opt_quiet);
+      print "user $loginname doesn't exist\n" if (!$opt_quiet);
       next;
    }
 
@@ -187,11 +188,11 @@ foreach $loginname (@userlist) {
    ($folderdir =~ /^(.+)$/) && ($folderdir = $1);  # untaint $folderdir
 
    if ( ! -d $folderdir ) {
-      print("$folderdir doesn't exist\n") if (!$opt_quiet);
+      print "$folderdir doesn't exist\n" if (!$opt_quiet);
       next;
    }
    if ( ! -f "$folderdir/.openwebmailrc" ) {
-      print("$folderdir/.openwebmailrc doesn't exist\n") if (!$opt_quiet);
+      print "$folderdir/.openwebmailrc doesn't exist\n" if (!$opt_quiet);
       next;
    }
 
@@ -239,7 +240,7 @@ sub cleantrash {
 
 sub checknewmail {
    my ($spoolfile, $headerdb)=get_folderfile_headerdb($user, 'INBOX');
-   print ("$loginname ") if (!$opt_quiet);
+   print "$loginname " if (!$opt_quiet);
 
    if (defined($pop3_authserver) && $config{'getmail_from_pop3_authserver'}) {
       my $login=$user;
@@ -251,7 +252,7 @@ sub checknewmail {
    }
 
    if ( ! -f $spoolfile || (stat($spoolfile))[7]==0 ) {
-      print ("has no mail\n") if (!$opt_quiet);
+      print "has no mail\n" if (!$opt_quiet);
       return 0;
    }
 
@@ -266,20 +267,20 @@ sub checknewmail {
 
    if (!$opt_quiet) {
       my (%HDB, $allmessages, $internalmessages, $newmessages);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       $allmessages=$HDB{'ALLMESSAGES'};
       $internalmessages=$HDB{'INTERNALMESSAGES'};
       $newmessages=$HDB{'NEWMESSAGES'};
       dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
       if ($newmessages > 0 ) {
-         print ("has new mail\n") if (!$opt_quiet);
+         print "has new mail\n" if (!$opt_quiet);
       } elsif ($allmessages-$internalmessages > 0 ) {
-         print ("has mail\n") if (!$opt_quiet);
+         print "has mail\n" if (!$opt_quiet);
       } else {
-         print ("has no mail\n") if (!$opt_quiet);
+         print "has no mail\n" if (!$opt_quiet);
       }
    }
 }
@@ -291,10 +292,13 @@ sub checknewevent {
    $year+=1900; $month++;
    my $hourmin=sprintf("%02d%02d", $hour, $min);
 
-   my (%items, %indexes, $item_count);
-   $item_count=readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0);
+   my (%items, %indexes);
+
+   if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
+      return(-1);
+   }
    if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
-      $item_count+=readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
+      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
    }
 
    my $dow=$wdaystr[$wdaynum];
@@ -320,10 +324,12 @@ sub checknewevent {
    }
 
    if ($newevent > 0 ) {
-      print ("$loginname has new event\n") if (!$opt_quiet);
+      print "$loginname has new event\n" if (!$opt_quiet);
    } elsif ($oldevent > 0 ) {
-      print ("$loginname has event\n") if (!$opt_quiet);
+      print "$loginname has event\n" if (!$opt_quiet);
    }
+
+   return(0);
 }
 
 sub getpop3s {
@@ -390,7 +396,7 @@ sub getpop3s {
       sleep 1;
       last if ($complete{$childpid}==1);
    }
-   return;
+   return(0);
 }
 
 sub verifyfolders {

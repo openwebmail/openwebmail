@@ -47,7 +47,7 @@
 </td><td valign="middle" align="left" bgcolor=@@@WINDOW_DARK@@@>
 @@@SUBJECTFIELD@@@
 &nbsp;
-<B>Backup sent message</B>
+<B>Almacenar mensaje enviado</B>
 @@@BACKUPSENTMSGCHECKBOX@@@
 </td></tr>
 <tr><td colspan="3" bgcolor=@@@WINDOW_LIGHT@@@>

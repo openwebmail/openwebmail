@@ -10,7 +10,6 @@
    'sent-mail'      => 'INVIATI',
    'saved-drafts'   => 'BOZZE',
    'mail-trash'     => 'CESTINO',
-   'all'            => 'Tutti',
    DELETE => '--CANCELLA--'
    );
 
@@ -68,7 +67,7 @@
    isnot       => 'non e\'',
    startswith  => 'inizia per',
    endswith    => 'finisce per',
-   regexp      => 'soddisfa regexp(insensitive)',
+   regexp      => 'soddisfa regexp',
    );
 
 %lang_calendar = 
@@ -276,10 +275,8 @@
    del        => 'Del',
    noitemforthisday => 'Nessuna voce per questo giorno',
    today_only               => 'Solo Oggi',
-   the_wday_of_thismonth    => 'Il',
-   the_wday_of_thismonth2   => 'del mese',
-   every_wday_of_thismonth  => 'Ogni',
-   every_wday_of_thismonth2 => 'questo mese'
+   the_wday_of_thismonth    => 'Il @@@ORDER@@@ @@@WDAY@@@ del mese',
+   every_wday_of_thismonth  => 'Ogni @@@WDAY@@@ questo mese'
    );
 
 %lang_err =

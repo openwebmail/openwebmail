@@ -25,8 +25,9 @@ sub filelock_flock {
    my ($filename, $lockflag)=@_;
    my ($dev, $inode, $fh);
 
+   ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint...
+
    if ( (! -e $filename) && $lockflag ne LOCK_UN) {
-      ($filename =~ /^(.+)$/) && ($filename = $1);
       sysopen(F, $filename, O_RDWR|O_CREAT, 0600); # create file for lock
       close(F);
    }
@@ -75,6 +76,12 @@ sub filelock_flock {
 # it is only recommended if the files are located on remote nfs server
 # and the lockd on your nfs server or client has problems
 # since it is slower than flock
+#
+# This routine stores the shared lock counter in filename.lock and 
+# uses filename.lock.lock to guarentee unique access to filename.lock.
+# If the filename is locates in a readonly directory, since the 
+# filename.lock and filename.lock.lock could not be created, this routine will
+# grant all shared lock and deny all exclusive lock.
 sub filelock_dotlockfile {
    my ($filename, $lockflag)=@_;
    my ($mode, $count);
@@ -91,7 +98,9 @@ sub filelock_dotlockfile {
    my $oldumask=umask(0111);
 
    # resolve symbolic link
+   my $ldepth=0;
    while (-l "$filename") {
+      $ldepth++; return (0) if ($ldepth>32);		# link to deep
       $filename=readlink($filename);
    }
    ($filename =~ /^(.+)$/) && ($filename = $1);		# untaint ...
@@ -104,9 +113,16 @@ sub filelock_dotlockfile {
          unlink("$filename.lock") if (time()-$t > 300);
       }
 
-      if (_lock("$filename.lock")==0) {
+      my $locklock=_lock("$filename.lock");
+      if ($locklock==0) {
          sleep 1;
          next;
+      } elsif ($locklock==-1) {	# rdonly dir, no further processing
+         if ($lockflag & LOCK_EX) {
+            return(0);
+         } else {
+            return(1);
+         }
       }
 
       if ( $lockflag & LOCK_UN ) {
@@ -197,7 +213,11 @@ sub _lock {
       close(LL);
       return(1)
    } else {
-      return(0);
+      if ($!=~/permission/i) {	# .lock file in readonly dir?
+         return(-1);
+      } else {			# .lock file already exist
+         return(0);
+      }
    }
 }
 sub _unlock {
@@ -207,7 +227,11 @@ sub _unlock {
    if ( unlink("$filename.lock") ) {
       return(1);
    } else {
-      return(0);
+      if ($!=~/permission/i) {	# .lock file in readonly dir?
+         return(-1);
+      } else {
+         return(0);
+      }
    }
 }
 

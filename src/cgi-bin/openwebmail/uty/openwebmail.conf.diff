@@ -1,6 +1,6 @@
---- openwebmail.conf.orig	Sun Jun  9 16:40:03 2002
-+++ openwebmail.conf	Sun Jun  9 16:40:42 2002
-@@ -19,11 +19,9 @@
+--- openwebmail.conf.orig	Thu Aug  8 16:45:54 2002
++++ openwebmail.conf	Thu Aug  8 16:45:52 2002
+@@ -20,11 +20,9 @@
  ow_htmlurl		/openwebmail
  logfile			/var/log/openwebmail.log
  spellcheck		/usr/local/bin/ispell

@@ -1,8 +1,8 @@
-<center> 
+<center>
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@ align="left">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Day View</b></font>
+<b>Vista diaria</b></font>
 </td></tr>
 @@@STARTFORM@@@
 <tr><td bgcolor=@@@MENUBAR@@@ align="left">
@@ -26,7 +26,7 @@
 <table border=0 cellspacing=1 width=100% bgcolor=@@@BACKGROUND@@@>
 <tr align=center>
 <td width="10%" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
-<td width="90%" nowrap bgcolor=@@@COLUMNHEADER@@@><B>Calendar Items</B></td>
+<td width="90%" nowrap bgcolor=@@@COLUMNHEADER@@@><B>Items del Calendario</B></td>
 </tr>
 @@@CALENDARITEMS@@@
 </table>
@@ -35,15 +35,15 @@
 
 <table border=0 cellspacing=2 width=100%>
 @@@STARTADDITEMFORM@@@
-<tr><td colspan=2 align=center><B>Add Calendar Entry</B></td></tr>
+<tr><td colspan=2 align=center><B>Añadir Entrada al Calendario</B></td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
-<tr><td width=25% nowrap>Start time</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
-<tr><td width=25% nowrap>End time</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Hora de comienzo</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Hora de finalización</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
-<tr><td colspan=2 nowrap>@@@TODAYANDNEXTNDAYSCHECKBOX@@@ Today and next @@@NDAYSFIELD@@@ days</td></tr>
-<tr><td colspan=2 nowrap>@@@EVERYMONTHCHECKBOX@@@ Every month this year</td></tr>
-<tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Every year</td></tr>
-<tr><td colspan=2 nowrap>Make this item a hyperlink to</td></tr>
+<tr><td colspan=2 nowrap>@@@TODAYANDNEXTNDAYSCHECKBOX@@@ Hoy y los próximos @@@NDAYSFIELD@@@ días</td></tr>
+<tr><td colspan=2 nowrap>@@@EVERYMONTHCHECKBOX@@@ Cada mes este año</td></tr>
+<tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Cada año</td></tr>
+<tr><td colspan=2 nowrap>Hacer de este item un enlace a</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>
 @@@ENDFORM@@@

@@ -11,13 +11,14 @@
 #############################################################################
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
+$ENV{ENV} = "";      # no startup script for sh
 $ENV{BASH_ENV} = ""; # no startup script for bash
-umask(0007); # make sure the openwebmail group can write
+umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
@@ -66,11 +67,14 @@ my $endampm=param('endampm')||'am';
 my $link=param('link')||'';
 
 my $freq=param('freq')||'todayonly';
-my $weekorder=param('weekorder')||'';
 my $todayandnextndays=param('todayandnextndays')||0;
 my $ndays=param('ndays')||0;
 my $everymonth=param('everymonth')||0;
 my $everyyear=param('everyyear')||0;
+
+if (! $config{'enable_calendar'}) {
+   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
+}
 
 if ($action eq "calyear") {
    yearview($year);
@@ -87,7 +91,7 @@ if ($action eq "calyear") {
             $string,
             $starthour, $startmin, $startampm,
             $endhour, $endmin, $endampm,
-            $freq, $weekorder,
+            $freq,
             $todayandnextndays, $ndays, $everymonth, $everyyear,
             $link);
    dayview($year, $month, $day);
@@ -254,7 +258,7 @@ sub yearview {
                }
                $temphtml .= qq|<td $bgcolor><a href=|.$cal_url.qq|action=calday&year=$year&month=$month&day=$day>|.
                             qq|$days[$x][$y]</a></td>\n|;
-               $week++ if ($y==6 && $week<52);
+               $week++ if ($y==6 && $week<53);
             } else {
                $temphtml .= qq|<td>&nbsp;</td>|;
             }
@@ -388,9 +392,16 @@ sub monthview {
       $html =~ s!\@\@\@WEEKDAY6\@\@\@!<font color=#cc0000>$lang_wday{'0'}</font>!;
    }
 
-   my (%items, %indexes, $item_count);
-   $item_count =readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0);
-   $item_count+=readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6) if (-f "$config{'global_calendarbook'}");
+   my (%items, %indexes);
+   if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+   }
+   if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
+      if ( readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6)<0 ) {
+         openwebmailerror("$lang_err{'couldnt_open'} $config{'global_calendarbook'}");
+      }
+   }
+
    my @days = set_days_in_month($year, $month);
    for my $x ( 0..5 ) {
       for my $y ( 0..6 ) {
@@ -612,9 +623,15 @@ sub weekview {
       $start_time = $time - (86400 * $wdaynum{$day});
    }
 
-   my (%items, %indexes, $item_count);
-   $item_count =readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0);
-   $item_count+=readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6) if (-f "$config{'global_calendarbook'}");
+   my (%items, %indexes);
+   if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+   }
+   if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
+      if ( readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6)<0 ) {
+         openwebmailerror("$lang_err{'couldnt_open'} $config{'global_calendarbook'}");
+      }
+   }
 
    for my $x (0..6) {
       ($year, $month, $day)=(localtime($start_time+$x*86400))[5,4,3];
@@ -817,9 +834,15 @@ sub dayview {
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
 
-   my (%items, %indexes, $item_count);
-   $item_count =readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0);
-   $item_count+=readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6) if (-f "$config{'global_calendarbook'}");
+   my (%items, %indexes);
+   if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+   }
+   if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
+      if ( readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6)<0 ) {
+         openwebmailerror("$lang_err{'couldnt_open'} $config{'global_calendarbook'}");
+      }
+   }
 
    my $t=timelocal(1, 1, 1, $day, $month-1, $year-1900);
    my $wdaynum=(localtime($t))[6];
@@ -991,8 +1014,12 @@ sub dayview {
    my %wdaynum = qw (Sun 0 Mon 1 Tue 2 Wed 3 Thu 4 Fri 5 Sat 6);
    my $weekorder=int(($day+6)/7);
    my %freqlabels = ('todayonly'           =>$lang_text{'today_only'},
-                     'thewdayofthismonth'  =>"$lang_text{'the_wday_of_thismonth'} $lang_order{$weekorder} $lang_wday{$wdaynum{$dow}} $lang_text{'the_wday_of_thismonth2'}",
-                     'everywdayofthismonth'=>"$lang_text{'every_wday_of_thismonth'} $lang_wday{$wdaynum{$dow}}  $lang_text{'every_wday_of_thismonth2'}" );
+                     'thewdayofthismonth'  =>$lang_text{'the_wday_of_thismonth'},
+                     'everywdayofthismonth'=>$lang_text{'every_wday_of_thismonth'});
+   $freqlabels{'thewdayofthismonth'}=~s/\@\@\@ORDER\@\@\@/$lang_order{$weekorder}/;
+   $freqlabels{'thewdayofthismonth'}=~s/\@\@\@WDAY\@\@\@/$lang_wday{$wdaynum{$dow}}/;
+   $freqlabels{'everywdayofthismonth'}=~s/\@\@\@WDAY\@\@\@/$lang_wday{$wdaynum{$dow}}/;
+
    if ($weekorder<=4) {
       $temphtml .= hidden(-name=>'weekorder',
                           -value=>$weekorder,
@@ -1002,7 +1029,7 @@ sub dayview {
                              -labels=>\%freqlabels);
    } else {
       $temphtml = popup_menu(-name=>'freq',
-                             -values=>['today', 'everywday'],
+                             -values=>['todayonly', 'everywdayofthismonth'],
                              -labels=>\%freqlabels);
    }
    $html =~ s/\@\@\@FREQMENU\@\@\@/$temphtml/;
@@ -1106,8 +1133,10 @@ sub edit_item {
 
    $html = applystyle($html);
 
-   my ($item_count, %items, %indexes);
-   $item_count =readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0);
+   my (%items, %indexes);
+   if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+   }
 
    if (! defined($items{$index}) ) {
       openwebmailerror("editcal - item missing");
@@ -1265,7 +1294,7 @@ sub add_item {
        $string,
        $starthour, $startmin, $startampm,
        $endhour, $endmin, $endampm,
-       $freq, $weekorder,
+       $freq, 
        $todayandnextndays, $ndays,
        $everymonth,
        $everyyear,
@@ -1311,8 +1340,10 @@ sub add_item {
       $endhourmin = sprintf("%02d%02d", $endhour,$endmin);
    }
 
-   my (%items, %indexes, $item_count);
-   $item_count=readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0);
+   my ($item_count, %items, %indexes);
+   if ( ($item_count=readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)) <0 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+   }
 
    my $index = $item_count+19690404;	# avoid collision with old records
    my $t = timelocal(1,1,1,$day, $month-1, $year-1900);
@@ -1346,6 +1377,7 @@ sub add_item {
       my $year_wild=sprintf("%04d", $year);
       my $month_wild=sprintf("%02d", $month);
       my $day_wild=sprintf("%02d", $day);
+      my $weekorder=int(($day+6)/7);
       $day_wild=$weekorder_day_wild{$weekorder} if ($weekorder_day_wild{$weekorder} ne "");
       $month_wild = ".*" if ($everymonth);
       $year_wild = ".*" if ($everyyear);
@@ -1369,7 +1401,9 @@ sub add_item {
    $items{$index}{'string'}=$string;
    $items{$index}{'link'}=$link;
 
-   writecalbook("$folderdir/.calendar.book", \%items);
+   if ( writecalbook("$folderdir/.calendar.book", \%items) <0 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+   }
 
    my $msg="additem - start=$starthourmin, end=$endhourmin, str=$string";
    writelog($msg);
@@ -1383,15 +1417,18 @@ sub del_item {
    my $index=$_[0];
    my $msg;
 
-   my (%items, %indexes, $item_count);
-   $item_count=readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0);
-
+   my (%items, %indexes);
+   if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+   }
    return if (! defined($items{$index}) );
 
    my $msg="delitem - index=$index, t=$items{$index}{'starthourmin'}, str=$items{$index}{'string'}";
    delete $items{$index};
 
-   writecalbook("$folderdir/.calendar.book", \%items);
+   if ( writecalbook("$folderdir/.calendar.book", \%items) <0 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+   }
 
    writelog($msg);
    writehistory($msg);
@@ -1448,8 +1485,10 @@ sub update_item {
       $endhourmin = sprintf("%02d%02d", $endhour,$endmin);
    }
 
-   my (%items, %indexes, $item_count);
-   $item_count=readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0);
+   my (%items, %indexes);
+   if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+   }
    if (! defined($items{$index}) ) {
       openwebmailerror("updatecal - item missing");
    }
@@ -1459,7 +1498,9 @@ sub update_item {
    $items{$index}{'string'}=$string;
    $items{$index}{'link'}=$link;
 
-   writecalbook("$folderdir/.calendar.book", \%items);
+   if ( writecalbook("$folderdir/.calendar.book", \%items) <0 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+   }
 
    my $msg="updateitem - index=$index, start=$starthourmin, end=$endhourmin, str=$string";
    writelog($msg);

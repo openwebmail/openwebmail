@@ -11,11 +11,12 @@
 #############################################################################
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
+$ENV{ENV} = "";      # no startup script for sh
 $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0002); # make sure the openwebmail group can write
 
@@ -217,8 +218,8 @@ sub _folderline {
    my (%HDB, $newmessages, $allmessages, $foldersize);
    my ($folderfile,$headerdb)=get_folderfile_headerdb($user, $currfolder);
 
-   if ( -f "$headerdb$config{'dbm_ext'}" ) {
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
+   if ( -f "$headerdb$config{'dbm_ext'}" && !-z "$headerdb$config{'dbm_ext'}" ) {
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       if ( defined($HDB{'ALLMESSAGES'}) ) {
          $allmessages=$HDB{'ALLMESSAGES'};
@@ -233,7 +234,7 @@ sub _folderline {
          $newmessages='&nbsp;';
       }
       dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    } else {
       $allmessages='&nbsp;';
       $newmessages='&nbsp;';
@@ -317,8 +318,9 @@ sub _folderline {
 ################### MARKREADFOLDER ##############################
 sub markreadfolder {
    my $foldertomark = param('foldername') || '';
-   $foldertomark =~ s/\.\.+//g;
-   $foldertomark =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
+   $foldertomark =~ s!\.\.+/!!g;
+   $foldertomark =~ s!^\s*/!!g;
+   $foldertomark =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
    ($foldertomark =~ /^(.+)$/) && ($foldertomark = $1);
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldertomark);
 
@@ -327,7 +329,7 @@ sub markreadfolder {
    update_headerdb($headerdb, $folderfile);
 
    my (%HDB, %offset, %status);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    foreach my $messageid (keys %HDB) {
       next if ( $messageid eq 'METAINFO'
@@ -342,7 +344,7 @@ sub markreadfolder {
       }
    }
    dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
    my @markids;
    my $tmpfile="/tmp/markread_tmp_$$";
@@ -361,10 +363,18 @@ sub markreadfolder {
    					$folderfile, $headerdb, $tmpfile, $tmpdb) >0 ) {
          update_message_status($messageid, $status{$messageid}."R", $tmpdb, $tmpfile);
          push(@markids, $messageid);
+
+         if ($#markids>=99) { # flush per 100 msgs
+            operate_message_with_ids("delete", \@markids, $folderfile, $headerdb);
+            operate_message_with_ids("move", \@markids,
+   					$tmpfile, $tmpdb, $folderfile, $headerdb);
+            @markids=();
+         }
+
       }
    }
    operate_message_with_ids("delete", \@markids, $folderfile, $headerdb);
-   operate_message_with_ids("copy", \@markids,
+   operate_message_with_ids("move", \@markids,
    					$tmpfile, $tmpdb, $folderfile, $headerdb);
       
    filelock("$tmpfile", LOCK_UN);
@@ -383,8 +393,9 @@ sub markreadfolder {
 sub reindexfolder {
    my $recreate=$_[0];
    my $foldertoindex = param('foldername') || '';
-   $foldertoindex =~ s/\.\.+//g;
-   $foldertoindex =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
+   $foldertoindex =~ s!\.\.+/!!g;
+   $foldertoindex =~ s!^\s*/!!g;
+   $foldertoindex =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
    ($foldertoindex =~ /^(.+)$/) && ($foldertoindex = $1);
    my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldertoindex);
 
@@ -396,11 +407,11 @@ sub reindexfolder {
 
    if ( -f "$headerdb$config{'dbm_ext'}" ) {
       my %HDB;
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       $HDB{'METAINFO'}={'RENEW'};
       dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    }
    update_headerdb($headerdb, $folderfile);
 
@@ -421,8 +432,9 @@ sub reindexfolder {
 ################### ADDFOLDER ##############################
 sub addfolder {
    my $foldertoadd = param('foldername') || '';
-   $foldertoadd =~ s/\.\.+//g;
-   $foldertoadd =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
+   $foldertoadd =~ s!\.\.+/!!g;
+   $foldertoadd =~ s!^\s*/!!g;
+   $foldertoadd =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
    ($foldertoadd =~ /^(.+)$/) && ($foldertoadd = $1);
 
    if (length($foldertoadd) > $config{'foldername_maxlen'}) {
@@ -476,8 +488,9 @@ sub is_defaultfolder {
 ################### DELETEFOLDER ##############################
 sub deletefolder {
    my $foldertodel = param('foldername') || '';
-   $foldertodel =~ s/\.\.+//g;
-   $foldertodel =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
+   $foldertodel =~ s!\.\.+/!!g;
+   $foldertodel =~ s!^\s*/!!g;
+   $foldertodel =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
    ($foldertodel =~ /^(.+)$/) && ($foldertodel = $1);
 
    # if is INBOX, return to editfolder immediately
@@ -487,14 +500,16 @@ sub deletefolder {
    }
 
    if ( -f "$folderdir/$foldertodel" ) {
+      my $headerdb="$folderdir/$foldertodel";
+      ($headerdb =~ /^(.+)\/(.*)$/) && ($headerdb = "$1/.$2");
       unlink ("$folderdir/$foldertodel",
-              "$folderdir/.$foldertodel$config{'dbm_ext'}",
-              "$folderdir/.$foldertodel.db",
-	      "$folderdir/.$foldertodel.dir",
-              "$folderdir/.$foldertodel.pag",
-              "$folderdir/.$foldertodel.cache",
               "$folderdir/$foldertodel.lock",
-              "$folderdir/$foldertodel.lock.lock");
+              "$folderdir/$foldertodel.lock.lock",
+              "$headerdb$config{'dbm_ext'}",
+              "$headerdb.db",
+	      "$headerdb.dir",
+              "$headerdb.pag",
+              "$headerdb.cache");
 
       writelog("delete folder - $foldertodel");
       writehistory("delete folder - $foldertodel");
@@ -508,8 +523,9 @@ sub deletefolder {
 ################### RENAMEFOLDER ##############################
 sub renamefolder {
    my $oldname = param('foldername') || '';
-   $oldname =~ s/\.\.+//g;
-   $oldname =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
+   $oldname =~ s!\.\.+/!!g;
+   $oldname =~ s!^\s*/!!g;
+   $oldname =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
    ($oldname =~ /^(.+)$/) && ($oldname = $1);
 
    if ($oldname eq 'INBOX') {
@@ -518,8 +534,9 @@ sub renamefolder {
    }
 
    my $newname = param('foldernewname');
-   $newname =~ s/\.\.+//g;
-   $newname =~ s/[\s\/\`\|\<\>;]//g; # remove dangerous char
+   $newname =~ s!\.\.+/!!g;
+   $newname =~ s!^\s*/!!g;
+   $newname =~ s/[\s\`\|\<\>;]//g; # remove dangerous char
    ($newname =~ /^(.+)$/) && ($newname = $1);
 
    if (length($newname) > $config{'foldername_maxlen'}) {
@@ -534,13 +551,17 @@ sub renamefolder {
    }
 
    if ( -f "$folderdir/$oldname" ) {
-      rename("$folderdir/$oldname",          "$folderdir/$newname");
-      rename("$folderdir/.$oldname$config{'dbm_ext'}", "$folderdir/.$newname$config{'dbm_ext'}");
-      rename("$folderdir/.$oldname.db",      "$folderdir/.$newname.db");
-      rename("$folderdir/.$oldname.dir",     "$folderdir/.$newname.dir");
-      rename("$folderdir/.$oldname.pag",     "$folderdir/.$newname.pag");
-      rename("$folderdir/.$oldname.cache",   "$folderdir/.$newname.cache");
-      unlink("$folderdir/$oldname.lock", "$folderdir/$oldname.lock.lock");
+      my $oldheaderdb="$folderdir/$oldname";
+      my $newheaderdb="$folderdir/$newname";
+      ($oldheaderdb =~ /^(.+)\/(.*)$/) && ($oldheaderdb = "$1/.$2");
+      ($newheaderdb =~ /^(.+)\/(.*)$/) && ($newheaderdb = "$1/.$2");
+      rename("$folderdir/$oldname",            "$folderdir/$newname");
+      rename("$oldheaderdb$config{'dbm_ext'}", "$newheaderdb$config{'dbm_ext'}");
+      rename("$oldheaderdb.db",                "$newheaderdb.db");
+      rename("$oldheaderdb.dir",               "$newheaderdb.dir");
+      rename("$oldheaderdb.pag",               "$newheaderdb.pag");
+      rename("$oldheaderdb.cache",             "$newheaderdb.cache");
+      unlink("$folderdir/$newname.lock",       "$folderdir/$oldname.lock.lock");
 
       writelog("rename folder - rename $oldname to $newname");
       writehistory("rename folder - rename $oldname to $newname");

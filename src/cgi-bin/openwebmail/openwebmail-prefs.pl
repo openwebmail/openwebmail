@@ -11,11 +11,12 @@
 #############################################################################
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
+$ENV{ENV} = "";      # no startup script for sh
 $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0002); # make sure the openwebmail group can write
 
@@ -401,7 +402,6 @@ sub editprefs {
 
    # Get a list of valid background images
    my @backgrounds;
-   my %bglabels=();
    opendir (BACKGROUNDSDIR, "$config{'ow_htmldir'}/images/backgrounds") or
       openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/images/backgrounds directory for reading!");
    while (defined(my $currbackground = readdir(BACKGROUNDSDIR))) {
@@ -413,10 +413,9 @@ sub editprefs {
       openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/images/backgrounds!");
    @backgrounds = sort(@backgrounds);
    push(@backgrounds, "USERDEFINE");
-   $bglabels{"USERDEFINE"}="--$lang_text{'userdef'}--";
 
    my ($background, $bgurl);
-   if ( $prefs{'bgurl'}=~m!$config{'ow_htmlurl'}/images/backgrounds/([\w\d\._]+)! ) {
+   if ( $prefs{'bgurl'}=~m!$config{'ow_htmlurl'}/images/backgrounds/([\w\d\._\-]+)! ) {
       $background=$1; $bgurl="";
    } else {
       $background="USERDEFINE"; $bgurl=$prefs{'bgurl'};
@@ -424,7 +423,7 @@ sub editprefs {
 
    $temphtml = popup_menu(-name=>'background',
                           -"values"=>\@backgrounds,
-                          -labels=>\%bglabels,
+                          -labels=>{ 'USERDEFINE'=>"--$lang_text{'userdef'}--" },
                           -default=>$background,
                           -onChange=>"JavaScript:document.prefsform.bgurl.value='';",
                           -override=>'1');
@@ -519,12 +518,28 @@ sub editprefs {
 
    $html =~ s/\@\@\@DICTIONARYMENU\@\@\@/$temphtml/;
 
-   $temphtml = checkbox(-name=>'newmailsound',
-                  -value=>'1',
-                  -checked=>$prefs{'newmailsound'},
-                  -label=>'');
+   # Get a list of new mail sound
+   my @sounds;
+   opendir (SOUNDDIR, "$config{'ow_htmldir'}/sounds") or
+      openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_htmldir'}/sounds directory for reading!");
+   while (defined(my $currsnd = readdir(SOUNDDIR))) {
+      if (-f "$config{'ow_htmldir'}/sounds/$currsnd" && $currsnd =~ /^([^\.].*)$/) {
+         push (@sounds, $1);
+      }
+   }
+   closedir(SOUNDDIR) or
+      openwebmailerror("$lang_err{'couldnt_close'} $config{'ow_htmldir'}/sounds!");
 
-   $html =~ s/\@\@\@NEWMAILSOUND\@\@\@/$temphtml/g;
+   @sounds = sort(@sounds);
+   unshift(@sounds, 'NONE');
+
+   $temphtml = popup_menu(-name=>'newmailsound',
+                          -labels=>{ 'NONE'=>$lang_text{'none'} },
+                          -"values"=>\@sounds,
+                          -default=>$prefs{'newmailsound'},
+                          -override=>'1');
+
+   $html =~ s/\@\@\@NEWMAILSOUNDMENU\@\@\@/$temphtml/g;
 
    $temphtml = checkbox(-name=>'hideinternal',
                   -value=>'1',
@@ -648,7 +663,7 @@ sub editprefs {
    }
 
    my (%FTDB, $matchcount, $matchdate);
-   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH);
+   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
    dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
 
    $temphtml = popup_menu(-name=>'filter_repeatlimit',
@@ -700,7 +715,7 @@ sub editprefs {
    $html =~ s/\@\@\@FILTERFAKEDEXECONTENTTYPE\@\@\@/$temphtml/g;
 
    dbmclose(%FTDB);
-   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN);
+   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
    my %dayslabels = ('0'=>$lang_text{'forever'});
    $temphtml = popup_menu(-name=>'trashreserveddays',
@@ -802,65 +817,74 @@ sub editprefs {
 
    $html =~ s/\@\@\@SIGAREA\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'calendar_hourformat',
-                          -"values"=>[12, 24],
-                          -default=>$prefs{'calendar_hourformat'},
-                          -override=>'1');
+   if ($config{'enable_calendar'}) {
+      $html =~ s/\@\@\@CALENDARSTART\@\@\@//g;
+      $html =~ s/\@\@\@CALENDAREND\@\@\@//g;
 
-   $html =~ s/\@\@\@HOURFORMATMENU\@\@\@/$temphtml/;
+      $temphtml = popup_menu(-name=>'calendar_hourformat',
+                             -"values"=>[12, 24],
+                             -default=>$prefs{'calendar_hourformat'},
+                             -override=>'1');
 
-   $temphtml = popup_menu(-name=>'calendar_monthviewnumitems',
-                          -"values"=>[3, 4, 5, 6, 7, 8, 9, 10],
-                          -default=>$prefs{'calendar_monthviewnumitems'},
-                          -override=>'1');
+      $html =~ s/\@\@\@HOURFORMATMENU\@\@\@/$temphtml/;
 
-   $html =~ s/\@\@\@MONTHVIEWNUMITEMSMENU\@\@\@/$temphtml/;
+      $temphtml = popup_menu(-name=>'calendar_monthviewnumitems',
+                             -"values"=>[3, 4, 5, 6, 7, 8, 9, 10],
+                             -default=>$prefs{'calendar_monthviewnumitems'},
+                             -override=>'1');
 
-   $temphtml = popup_menu(-name=>'calendar_weekstart',
-                          -"values"=>['S', 'M'],
-                          -labels=>{ S=>$lang_wday{'0'}, M=>$lang_wday{'1'} },
-                          -default=>$prefs{'calendar_weekstart'},
-                          -override=>'1');
+      $html =~ s/\@\@\@MONTHVIEWNUMITEMSMENU\@\@\@/$temphtml/;
 
-   $html =~ s/\@\@\@WEEKSTARTMENU\@\@\@/$temphtml/;
+      $temphtml = popup_menu(-name=>'calendar_weekstart',
+                             -"values"=>['S', 'M'],
+                             -labels=>{ S=>$lang_wday{'0'}, M=>$lang_wday{'1'} },
+                             -default=>$prefs{'calendar_weekstart'},
+                             -override=>'1');
 
-   my @militaryhours;
-   for (my $i=0; $i<24; $i++) {
-      push(@militaryhours, sprintf("%02d00", $i));
-   }
-   $temphtml = popup_menu(-name=>'calendar_starthour',
-                          -"values"=>\@militaryhours,
-                          -default=>$prefs{'calendar_starthour'},
-                          -override=>'1');
+      $html =~ s/\@\@\@WEEKSTARTMENU\@\@\@/$temphtml/;
 
-   $html =~ s/\@\@\@STARTHOURMENU\@\@\@/$temphtml/;
+      my @militaryhours;
+      for (my $i=0; $i<24; $i++) {
+         push(@militaryhours, sprintf("%02d00", $i));
+      }
+      $temphtml = popup_menu(-name=>'calendar_starthour',
+                             -"values"=>\@militaryhours,
+                             -default=>$prefs{'calendar_starthour'},
+                             -override=>'1');
 
-   $temphtml = popup_menu(-name=>'calendar_endhour',
-                          -"values"=>\@militaryhours,
-                          -default=>$prefs{'calendar_endhour'},
-                          -override=>'1');
+      $html =~ s/\@\@\@STARTHOURMENU\@\@\@/$temphtml/;
 
-   $html =~ s/\@\@\@ENDHOURMENU\@\@\@/$temphtml/;
+      $temphtml = popup_menu(-name=>'calendar_endhour',
+                             -"values"=>\@militaryhours,
+                             -default=>$prefs{'calendar_endhour'},
+                             -override=>'1');
 
-   $temphtml = checkbox(-name=>'calendar_showemptyhours',
-                        -value=>'1',
-                        -checked=>$prefs{'calendar_showemptyhours'},
-                        -label=>'');
-   $html =~ s/\@\@\@SHOWEMPTYHOURSCHECKBOX\@\@\@/$temphtml/g;
+      $html =~ s/\@\@\@ENDHOURMENU\@\@\@/$temphtml/;
 
-   $temphtml = popup_menu(-name=>'calendar_reminderdays',
-                          -"values"=>[0, 1, 2, 3, 4, 5, 6 ,7, 14, 21, 30, 60],
-                          -labels=>{ 0=>$lang_text{'none'} },
-                          -default=>$prefs{'calendar_reminderdays'},
-                          -override=>'1');
-
-   $html =~ s/\@\@\@REMINDERDAYSMENU\@\@\@/$temphtml/g;
-
-   $temphtml = checkbox(-name=>'calendar_reminderforglobal',
+      $temphtml = checkbox(-name=>'calendar_showemptyhours',
                            -value=>'1',
-                           -checked=>$prefs{'calendar_reminderforglobal'},
+                           -checked=>$prefs{'calendar_showemptyhours'},
                            -label=>'');
-   $html =~ s/\@\@\@REMINDERFORGLOBALCHECKBOX\@\@\@/$temphtml/g;
+      $html =~ s/\@\@\@SHOWEMPTYHOURSCHECKBOX\@\@\@/$temphtml/g;
+
+      $temphtml = popup_menu(-name=>'calendar_reminderdays',
+                             -"values"=>[0, 1, 2, 3, 4, 5, 6 ,7, 14, 21, 30, 60],
+                             -labels=>{ 0=>$lang_text{'none'} },
+                             -default=>$prefs{'calendar_reminderdays'},
+                             -override=>'1');
+
+      $html =~ s/\@\@\@REMINDERDAYSMENU\@\@\@/$temphtml/g;
+
+      $temphtml = checkbox(-name=>'calendar_reminderforglobal',
+                              -value=>'1',
+                              -checked=>$prefs{'calendar_reminderforglobal'},
+                              -label=>'');
+      $html =~ s/\@\@\@REMINDERFORGLOBALCHECKBOX\@\@\@/$temphtml/g;
+
+   } else {
+      $html =~ s/\@\@\@CALENDARSTART\@\@\@/<!--/g;
+      $html =~ s/\@\@\@CALENDAREND\@\@\@/-->/g;
+   }
 
    $temphtml = submit("$lang_text{'save'}") . end_form();
 
@@ -977,7 +1001,6 @@ sub saveprefs {
                 $key eq 'disableembcgi' ||
                 $key eq 'showimgaslink' ||
                 $key eq 'hideinternal' ||
-                $key eq 'newmailsound' ||
                 $key eq 'usefixedfont' ||
                 $key eq 'usesmileicon' ||
                 $key eq 'autopop3'     ||
@@ -2163,7 +2186,7 @@ sub editfilter {
    $temphtml = '';
    my %FTDB;
    my $bgcolor = $style{"tablerow_dark"};
-   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH);
+   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
    dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", undef);
 
    foreach my $line (@filterrules) {
@@ -2285,7 +2308,7 @@ sub editfilter {
    }
 
    dbmclose(%FTDB);
-   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN);
+   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
    $html =~ s/\@\@\@FILTERRULES\@\@\@/$temphtml/;
 
@@ -2361,7 +2384,7 @@ sub modfilter {
          close (FILTER) or openwebmailerror("$lang_err{'couldnt_close'} $config{'global_filterbook'}!");
 
          # remove stale entries in filterrule db by checking %filterrules
-         filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX);
+         filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
          my %FTDB;
          dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", undef);
          foreach my $key (keys %FTDB) {
@@ -2373,7 +2396,7 @@ sub modfilter {
            }
          }
          dbmclose(%FTDB);
-         filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN);
+         filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
       } else {
          open (FILTER, ">$folderdir/.filter.book" ) or

@@ -1,0 +1,50 @@
+<BR><BR><BR><BR><BR>
+<table border="0" align="center" width="60%" cellpadding="0" cellspacing="0">
+<tr><td bgcolor=@@@TITLEBAR@@@ align="left">
+<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>パスワードの変更</B></FONT>
+</td></tr><tr><td align="center" valign="middle" bgcolor=@@@WINDOW_LIGHT@@@>
+@@@STARTFORM@@@
+<BR>
+<table align=center border=0 cellspacing=2 cellpadding=0>
+<tr>
+<td align=right>ユーザーID: </td><td align=left>@@@USERIDFIELD@@@</td>
+</tr><tr>
+<td align=right>前のパスワード: </td><td align=left>@@@OLDPASSWORDFIELD@@@</td>
+</tr><tr>
+<td align=right>新しいパスワード: </td><td align=left>@@@NEWPASSWORDFIELD@@@</td>
+</tr><tr>
+<td align=right>新しいパスワードの確認: </td><td align=left>@@@CONFIRMNEWPASSWORDFIELD@@@</td>
+</tr><tr>
+<td colspan=2>
+<table width="100%"><tr>
+<td align=center>@@@CHANGEBUTTON@@@ @@@ENDFORM@@@ </td><td align=center>@@@CANCELBUTTON@@@</td>
+</tr></table>
+</td>
+</tr>
+</table>
+</td></tr></table>
+<script language="JavaScript">
+   document.passwordform.oldpassword.focus()
+
+   function changecheck()
+   {
+      var s;
+      s=document.passwordform.newpassword.value;
+      if (s.length < 4) {
+         alert("Password must has at least 4 characters.");
+         return false;
+      }
+      if (document.passwordform.newpassword.value !=
+	  document.passwordform.confirmnewpassword.value) {
+         alert("New password confirm mismatch.");
+         return false;
+      }
+      if (document.passwordform.newpassword.value ==
+	  document.passwordform.oldpassword.value) {
+         alert("New password is the same as the old one.");
+         return false;
+      }
+      return true;
+   }
+
+</script>

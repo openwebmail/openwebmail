@@ -116,8 +116,8 @@ then just
       openwebmail-read.pl, openwebmail-viewatt.pl, 
       openwebmail-send.pl, openwebmail-spell.pl,
       openwebmail-prefs.pl, openwebmail-folder.pl, 
-      openwebmail-abook.pl, openwebmail-advsearch.pl
-      and checkmail.pl
+      openwebmail-abook.pl, openwebmail-advsearch.pl,
+      openwebmail-cal.pl and checkmail.pl
 
 If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
 (by clarinet.AT.totoro.cs.nthu.edu.tw)
@@ -129,7 +129,7 @@ If you are using RedHat 6.2/CLE 0.9p1(or most Linux) with apache
 
 2. cd /home/httpd/cgi-bin/openwebmail
    modify auth_unix.pl
-   a. set variable $unix_passwdfile to '/etc/shadow'
+   a. set variable $unix_passwdfile_encrypted to '/etc/shadow'
    b  set variable $unix_passwdmkdb to 'none'
 
 3. modify /home/httpd/cgi-bin/openwebmail/etc/openwebmail.conf
@@ -181,32 +181,35 @@ eg: /usr/local/apache/share, then
       openwebmail.pl, openwebmail-main.pl, 
       openwebmail-read.pl, openwebmail-viewatt.pl, 
       openwebmail-send.pl, openwebmail-spell.pl,
-      openwebmail-prefs.pl, openwebmail-folder.pl, openwebmail-abook.pl
-      and checkmail.pl
+      openwebmail-prefs.pl, openwebmail-folder.pl, 
+      openwebmail-abook.pl, openwebmail-advsearch.pl,
+      openwebmail-cal.pl and checkmail.pl
 
    change the #!/usr/bin/perl to the location where your suidperl is.
 
    modify auth_unix.pl
-   a. set variable $unix_passwdfile to '/etc/shadow'
+   a. set variable $unix_passwdfile_encrypted to '/etc/shadow'
    b  set variable $unix_passwdmkdb to 'none'
 
 
 CHECK YOUR DBM SYSTEM
 ---------------------
 Some unix has different dbm system than others does, so you may have to 
-change the dbm_ext and dbmopen_ext option in openwebmail.conf to make 
-openwebmail work on your server. (eg: Cobalt, Solaris, Linux/Slackware)
+change the dbm_ext, dbmopen_ext and dbmopen_haslock options in openwebmail.conf 
+to make openwebmail work on your server. 
+(eg: Cobalt, Solaris, Linux/Slackware, Linux.Suse)
 
-To find the correct setting for the two options: 
+To find the correct setting for the three options: 
 
 perl cgi-bin/openwebmail/uty/dbmtest.pl [enter]
 
 and you will get output like this:
 
-dbm_ext         .db
-dbmopen_ext     none
+dbm_ext              .db
+dbmopen_ext          none
+dbmopen_haslock      no
 
-Then put the two lines into your openwebmail.conf.
+Then put the three lines into your openwebmail.conf.
 
 
 USING OPENWEBMAIL WITH OTHER SMTP SERVER
@@ -529,10 +532,20 @@ ps: For more detail about PAM configuration, it is recommended to read
 ADD NEW AUTHENTICATION MODULE TO OPENWEBMAIL
 --------------------------------------------
 Various authentications are directly available for openwebmail, including
-auth_unix.pl, auth_ldap.pl, auth_mysql, auth_mysql_vmail.pl,
-auth_pgsql, auth_pop3.pl and auth_pam.pl. In case you found these modules 
-not suitable for your need, you may write a new authentication module for 
-your own.
+
+auth_ldap.pl
+auth_mysql.pl
+auth_mysql_vmail.pl
+auth_pam.pl
+auth_pam_cobalt.pl
+auth_pg.pl
+auth_pgsql.pl
+auth_pop3.pl
+auth_unix.pl
+auth_unix_cobalt.pl
+
+In case you found these modules not suitable for your need, 
+you may write a new authentication module for your own.
 
 To add new authentication module into openwebmail, you have to:
 
@@ -566,9 +579,9 @@ It is very simple to add support for your language into openwebmail
 1. choose an abbreviation for your language, eg: xy
 
 ps: You may choose the abbreviation by referencing the following url
-    http://i18n.kde.org/stats/gui/i18n-table-KDE_2_2_BRANCH.html
     http://babel.alis.com/langues/iso639.en.htm
     http://www.unicode.org/unicode/onlinedat/languages.html
+    http://www.w3.org/International/O-charset.html
 
 2. cd cgi-bin/openwebmail/etc. 
    cp lang/en lang/xy
@@ -622,6 +635,8 @@ TEST
    ~/openwebmail-prefs.pl       - owner=root, group=mail, mode=4755
    ~/openwebmail-folder.pl      - owner=root, group=mail, mode=4755
    ~/openwebmail-abook.pl       - owner=root, group=mail, mode=4755
+   ~/openwebmail-advsearch.pl   - owner=root, group=mail, mode=4755
+   ~/openwebmail-cal.pl         - owner=root, group=mail, mode=4755
    ~/checkmail.pl               - owner=root, group=mail, mode=4755
    ~/vacation.pl                - owner=root, group=mail, mode=0755
    ~/etc                        - owner=root, group=mail, mode=755
@@ -641,10 +656,9 @@ TODO
 ----
 Features that we would like to implement first...
 
-1. web calendar
-2. web disk
-3. shared folder
-4. mod_perl compatibility
+1. web disk
+2. shared folder
+3. mod_perl compatibility
 
 Features that people may also be interested
 
@@ -653,7 +667,7 @@ Features that people may also be interested
 3. log analyzer
 
 
-03/14/2002
+07/28/2002
 
 openwebmail.AT.turtle.ee.ncku.edu.tw
 

@@ -25,7 +25,7 @@ use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
                  'ca'           => 'Catalan',
                  'cs'           => 'Czech',
                  'da'           => 'Danish',
-                 'de'           => 'German',			# Deutsch
+                 'de'           => 'Deutsch',			# German
                  'en'           => 'English',
                  'es'           => 'Spanish',			# Espanol
                  'fi'           => 'Finnish',
@@ -33,6 +33,7 @@ use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
                  'hu'           => 'Hungarian',
                  'id'           => 'Indonesian',
                  'it'           => 'Italiano',
+                 'ja_JP.Shift_JIS'=>'Japanese ( ShiftJIS )',
                  'kr'           => 'Korean',
                  'lt'           => 'Lithuanian',
                  'nl'           => 'Nederlands',
@@ -66,6 +67,7 @@ use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
                    'hu'           => 'iso-8859-2',
                    'id'           => 'iso-8859-1',
                    'it'           => 'iso-8859-1',
+                   'ja_JP.Shift_JIS'=>'shift_jis',
                    'kr'           => 'euc-kr',
                    'lt'           => 'windows-1257',
                    'nl'           => 'iso-8859-1',
@@ -192,7 +194,6 @@ sub openwebmail_init {
 
    %prefs = %{&readprefs};
    %style = %{&readstyle};
-
    ($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
    require "etc/lang/$prefs{'language'}";
 
@@ -264,17 +265,17 @@ sub readconf {
    }
 
    # processing yes/no
-   foreach $key ( qw(smtpauth use_hashedmailspools use_dotlockfile
+   foreach $key ( qw(smtpauth use_hashedmailspools use_dotlockfile dbmopen_haslock
                      create_homedir use_homedirspools use_homedirfolders
                      auth_withdomain deliver_use_GMT savedsuid_support
-                     enable_rootlogin enable_domainselectmenu
+                     case_insensitive_login enable_rootlogin enable_domainselectmenu
                      enable_changepwd enable_setfromemail
                      enable_about about_info_software about_info_protocol
                      about_info_server about_info_client about_info_scriptfilename
                      xmailer_has_version xoriginatingip_has_userid
-                     enable_autoreply enable_setforward
+                     enable_autoreply enable_setforward enable_calendar
                      enable_pop3 delpop3mail_by_default delpop3mail_hidden
-                     getmail_from_pop3_authserver
+                     getmail_from_pop3_authserve domainnames_override
                      default_autopop3
                      default_reparagraphorigmsg default_backupsentmsg
                      default_confirmmsgmovecopy default_viewnextaftermsgmovecopy
@@ -283,7 +284,7 @@ sub readconf {
                      default_filter_fakedsmtp default_filter_fakedfrom
                      default_filter_fakedexecontenttype
                      default_disablejs default_disableembcgi
-                     default_showimgaslink default_regexmatch default_newmailsound
+                     default_showimgaslink default_regexmatch
                      default_usefixedfont default_usesmileicon
                      default_calendar_showemptyhours 
                      default_calendar_reminderforglobal) ) {
@@ -335,7 +336,8 @@ sub readconf {
                   'mailspooldir', 'homedirspoolname', 'homedirfolderdirname',
                   'dbm_ext', 'dbmopen_ext',
                   'ow_cgidir', 'ow_htmldir','ow_etcdir', 'logfile',
-                  'vacationinit', 'vacationpipe', 'spellcheck' ) {
+                  'vacationinit', 'vacationpipe', 'spellcheck',
+                  'global_addressbook', 'global_filterbook', 'global_calendarbook') {
       (${$r_config}{$key} =~ /^(.+)$/) && (${$r_config}{$key}=$1);
    }
    foreach my $domain ( @{${$r_config}{'domainnames'}} ) {
@@ -362,11 +364,11 @@ sub update_virtusertable {
    if ( -e "$virdb$config{'dbm_ext'}" ) {
       my ($metainfo);
 
-      filelock("$virdb$config{'dbm_ext'}", LOCK_SH);
+      filelock("$virdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
       dbmopen (%DB, "$virdb$config{'dbmopen_ext'}", undef);
       $metainfo=$DB{'METAINFO'};
       dbmclose(%DB);
-      filelock("$virdb$config{'dbm_ext'}", LOCK_UN);
+      filelock("$virdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
       return if ( $metainfo eq metainfo($virfile) );
    }
@@ -377,11 +379,11 @@ sub update_virtusertable {
           "$virdb.rev$config{'dbm_ext'}",);
 
    dbmopen(%DB, "$virdb$config{'dbmopen_ext'}", 0644);
-   filelock("$virdb$config{'dbm_ext'}", LOCK_EX);
+   filelock("$virdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
    %DB=();	# ensure the virdb is empty
 
    dbmopen(%DBR, "$virdb.rev$config{'dbmopen_ext'}", 0644);
-   filelock("$virdb.rev$config{'dbm_ext'}", LOCK_EX);
+   filelock("$virdb.rev$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
    %DBR=();
 
    open (VIRT, $virfile);
@@ -407,37 +409,39 @@ sub update_virtusertable {
 
    $DB{'METAINFO'}=metainfo($virfile);
 
-   filelock("$virdb.rev$config{'dbm_ext'}", LOCK_UN);
+   filelock("$virdb.rev$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    dbmclose(%DBR);
-   filelock("$virdb$config{'dbm_ext'}", LOCK_UN);
+   filelock("$virdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    dbmclose(%DB);
    return;
 }
 
 sub get_user_by_virtualuser {
    my ($vu, $virdb)=@_;
-   my (%DB, $u);
+   my %DB=();
+   my $u='';
 
-   if ( -f "$virdb$config{'dbm_ext'}" ) {
-      filelock("$virdb$config{'dbm_ext'}", LOCK_SH);
+   if ( -f "$virdb$config{'dbm_ext'}" && !-z "$virdb$config{'dbm_ext'}" ) {
+      filelock("$virdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
       dbmopen (%DB, "$virdb$config{'dbmopen_ext'}", undef);
       $u=$DB{$vu};
       dbmclose(%DB);
-      filelock("$virdb$config{'dbm_ext'}", LOCK_UN);
+      filelock("$virdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    }
    return($u);
 }
 
 sub get_virtualuser_by_user {
    my ($user, $virdbr)=@_;
-   my (%DBR, $vu);
+   my %DBR=();
+   my $vu='';
 
-   if ( -f "$virdbr$config{'dbm_ext'}" ) {
-      filelock("$virdbr$config{'dbm_ext'}", LOCK_SH);
+   if ( -f "$virdbr$config{'dbm_ext'}" && !-z "$virdbr$config{'dbm_ext'}" ) {
+      filelock("$virdbr$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
       dbmopen (%DBR, "$virdbr$config{'dbmopen_ext'}", undef);
       $vu=$DBR{$user};
       dbmclose(%DBR);
-      filelock("$virdbr$config{'dbm_ext'}", LOCK_UN);
+      filelock("$virdbr$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    }
    return($vu);
 }
@@ -448,10 +452,14 @@ sub get_domain_user_userinfo {
    my ($l, $u);
 
    if ($loginname=~/^(.*)\@(.*)$/) {
-      ($user, $domain)=($1, $2);
+      ($user, $domain)=($1, lc($2));
    } else {
-       my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;	# remove port number
-      ($user, $domain)=($loginname, $httphost);
+      if($config{'auth_domain'} ne 'auto') {
+         ($user, $domain)=($loginname, lc($config{'auth_domain'}));
+      } else {
+         my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;        # remove port number
+         ($user, $domain)=($loginname, lc($httphost));
+      }
    }
    my $default_realname=$user;
 
@@ -478,10 +486,10 @@ sub get_domain_user_userinfo {
    if ($u ne "") {
       $loginname=$l;
       if ($u=~/^(.*)\@(.*)$/) {
-         ($user, $domain)=($1, $2);
+         ($user, $domain)=($1, lc($2));
       } else {
          my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;	# remove port number
-         ($user, $domain)=($u, $httphost);
+         ($user, $domain)=($u, lc($httphost));
       }
    }
 
@@ -516,9 +524,16 @@ sub get_defaultemails {
       my $vu=get_virtualuser_by_user($user, "$config{'ow_etcdir'}/$virtname.rev");
       if ($vu ne "") {
          foreach my $name (str2list($vu,0)) {
-            next if substr($name, 0, 1) eq '@';	# skip @domain to userid mapping
-            if ($name=~/\@/) {
-               push(@emails, $name);
+            if ($name=~/^(.*)\@(.*)$/) {
+               next if ($1 eq "");	# skip whole @domain mapping
+               if ($config{'domainnames_override'}) {
+                  my $purename=$1;
+                  foreach my $host (@{$config{'domainnames'}}) {
+                     push(@emails,  "$purename\@$host");
+                  }
+               } else {
+                  push(@emails, $name);
+               }
             } else {
                foreach my $host (@{$config{'domainnames'}}) {
                   push(@emails, "$name\@$host");
@@ -772,8 +787,8 @@ sub readpop3book {
 sub writepop3book {
    my ($pop3book, $r_accounts) = @_;
 
+   ($pop3book =~ /^(.+)$/) && ($pop3book = $1); # untaint ...
    if (! -f "$pop3book" ) {
-      ($pop3book =~ /^(.+)$/) && ($pop3book = $1); # untaint ...
       open (POP3BOOK,">$pop3book") or return (-1);
       close(POP3BOOK);
    }
@@ -802,11 +817,12 @@ sub readcalbook {
    my ($calbook, $r_items, $r_indexes, $indexshift)=@_;
    my $item_count=0;
 
-   filelock($calbook, LOCK_SH);
-   open(DB, "$calbook") or
-      openwebmailerror("$lang_err{'couldnt_open'} $calbook");
+   return 0 if (! -f $calbook);
 
-   while (<DB>) {
+   filelock($calbook, LOCK_SH);
+   open(CALBOOK, "$calbook") or return(-1);
+
+   while (<CALBOOK>) {
       next if (/^#/);
       chomp;
       my @a=split(/\@{3}/, $_);
@@ -834,39 +850,36 @@ sub readcalbook {
       $item_count++;
    }
 
-   close(DB);
+   close(CALBOOK);
    filelock($calbook, LOCK_UN);
 
    return($item_count);
 }
 
 sub writecalbook {
-   my ($calendarbook, $r_items)=@_;
+   my ($calbook, $r_items)=@_;
    my @indexlist=sort { ${$r_items}{$a}{'idate'}<=>${$r_items}{$b}{'idate'} } 
                        (keys %{$r_items});
 
-   my $tmpbook="$calendarbook.tmp.$$";
-   ($tmpbook =~ /^(.+)$/) && ($tmpbook = $1);	# untaint ...
-   ($calendarbook =~ /^(.+)$/) && ($calendarbook = $1);	# untaint ...
+   ($calbook =~ /^(.+)$/) && ($calbook = $1);	# untaint ...
+   if (! -f "$calbook" ) {
+      open (CALBOOK,">$calbook") or return (-1);
+      close(CALBOOK);
+   }
 
-   filelock($tmpbook, LOCK_EX|LOCK_NB) or
-      openwebmailerror("$lang_err{'couldnt_lock'} $tmpbook!");
-   open (TEMP, ">$tmpbook") or
-      openwebmailerror("$lang_err{'couldnt_open'} $tmpbook");
-
+   filelock($calbook, LOCK_EX);
+   open (CALBOOK, ">$calbook") or return(-1);
    my $newindex=1;
    foreach (@indexlist) {
-      print TEMP join('@@@', $newindex, ${$r_items}{$_}{'idate'}, 
+      print CALBOOK join('@@@', $newindex, ${$r_items}{$_}{'idate'}, 
                        ${$r_items}{$_}{'starthourmin'}, ${$r_items}{$_}{'endhourmin'},
                        ${$r_items}{$_}{'string'}, ${$r_items}{$_}{'link'})."\n";
       $newindex++;
    }
+   close(CALBOOK);
+   filelock($calbook, LOCK_UN);
 
-   close(TEMP);
-   filelock($tmpbook, LOCK_UN);
-
-   unlink($calendarbook);
-   rename("$tmpbook","$calendarbook");
+   return($newindex);
 }
 #################### END READ/WRITE CALBOOK #####################
 
@@ -948,7 +961,8 @@ sub get_folderfile_headerdb {
 
    } else {
       $folderfile = "$folderdir/$foldername";
-      $headerdb="$folderdir/.$foldername";
+      $headerdb=$folderfile;
+      ($headerdb =~ /^(.+)\/(.*)$/) && ($headerdb = "$1/.$2");
    }
 
    ($folderfile =~ /^(.+)$/) && ($folderfile = $1); # untaint ...
@@ -968,57 +982,54 @@ sub getfolders {
    my $totalsize = 0;
    my $filename;
 
-   opendir (FOLDERDIR, "$folderdir") or
-      openwebmailerror("$lang_err{'couldnt_open'} $folderdir!");
+   my @fdirs=($folderdir);		# start with root folderdir
+   while (my $fdir=pop(@fdirs)) {
+      opendir (FOLDERDIR, "$fdir") or
+    	 openwebmailerror("$lang_err{'couldnt_open'} $fdir!");
 
-   while (defined($filename = readdir(FOLDERDIR))) {
-
-      ($filename =~ /^(.+)$/) && ($filename = $1);   # untaint data from readdir
-
-      next if ( $filename eq "." || $filename eq ".." );
-
-      # find internal file that are stale
-      if ( $filename=~/^\.(.*)\.db$/ ||
-           $filename=~/^\.(.*)\.dir$/ ||
-           $filename=~/^\.(.*)\.pag$/ ||
-           $filename=~/^(.*)\.lock$/ ||
-           ($filename=~/^\.(.*)\.cache$/ && $filename ne ".search.cache") ) {
-         if ($1 ne $user &&
-             $1 ne 'address.book' &&
-             $1 ne 'filter.book' &&
-             ! -f "$folderdir/$1" ) {
-            # dbm or cache whose folder doesn't exist
-            push (@delfiles, "$folderdir/$filename");
+      while (defined($filename = readdir(FOLDERDIR))) {
+         ($filename =~ /^(.+)$/) && ($filename = $1);   # untaint data from readdir
+         next if ( $filename eq "." || $filename eq ".." );
+         if (-d "$fdir/$filename") {
+            push(@fdirs,"$fdir/$filename");
             next;
          }
-      # clean tmp file in msg rebuild
-      } elsif ($filename=~/^_rebuild_tmp_\d+$/ ||
-               $filename=~/^\._rebuild_tmp_\d+$/ ) {
-         push (@delfiles, "$folderdir/$filename");
-         next;
+
+         # find internal file that are stale
+         if ( $filename=~/^\.(.*)\.db$/ ||
+              $filename=~/^\.(.*)\.dir$/ ||
+              $filename=~/^\.(.*)\.pag$/ ||
+              $filename=~/^(.*)\.lock$/ ||
+              ($filename=~/^\.(.*)\.cache$/ && $filename ne ".search.cache") ) {
+            if ($1 ne $user &&
+                $1 ne 'address.book' &&
+                $1 ne 'filter.book' &&
+                ! -f "$folderdir/$1" ) {
+               # dbm or cache whose folder doesn't exist
+               push (@delfiles, "$folderdir/$filename");
+               next;
+            }
+         }
+
+         # summary file size
+         $totalsize += ( -s "$folderdir/$filename" ) || 0;
+
+         # skip openwebmail internal files (conf, dbm, lock, search caches...)
+         next if ( $filename=~/^\./ || $filename =~ /\.lock$/);
+
+         # find all user folders
+         if ( $filename ne 'saved-messages' &&
+              $filename ne 'sent-mail' &&
+              $filename ne 'saved-drafts' &&
+              $filename ne 'mail-trash' ) {
+            push(@userfolders, substr("$fdir/$filename",length($folderdir)+1));
+         }
       }
 
-      # summary file size
-      $totalsize += ( -s "$folderdir/$filename" ) || 0;
-
-      # skip openwebmail internal files (conf, dbm, lock, search caches...)
-      next if ( $filename=~/^\./ || $filename =~ /\.lock$/);
-
-      # find all user folders
-      if ( $filename ne 'saved-messages' &&
-           $filename ne 'sent-mail' &&
-           $filename ne 'saved-drafts' &&
-           $filename ne 'mail-trash' ) {
-         push (@userfolders, $filename);
-      }
+      closedir (FOLDERDIR) or
+         openwebmailerror("$lang_err{'couldnt_close'} $folderdir!");
    }
-
-   closedir (FOLDERDIR) or
-      openwebmailerror("$lang_err{'couldnt_close'} $folderdir!");
-
-   if ($#delfiles >= 0) {
-      unlink(@delfiles);
-   }
+   unlink(@delfiles) if ($#delfiles>=0);
 
    @{$r_folders}=();
    push (@{$r_folders},
@@ -1071,12 +1082,12 @@ sub getmessage {
       filelock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror("$lang_err{'couldnt_locksh'} $folderfile!");
 
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
       my %HDB;
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
       $HDB{'METAINFO'}="ERR";
       dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
       # forced reindex since metainfo = ERR
       update_headerdb($headerdb, $folderfile);
@@ -1131,55 +1142,55 @@ sub getmessage {
          elsif ($lastline eq 'INREPLYTO') { $currentinreplyto .= $_ }
          elsif ($lastline eq 'REFERENCES') { $currentreferences .= $_ }
          elsif ($lastline eq 'RECEIVED') { $currentreceived .= $_ }
-      } elsif (/^from:\s+(.+)$/ig) {
+      } elsif (/^from:\s*(.*)$/ig) {
          $currentfrom = $1;
          $lastline = 'FROM';
-      } elsif (/^reply-to:\s+(.+)$/ig) {
+      } elsif (/^reply-to:\s*(.*)$/ig) {
          $currentreplyto = $1;
          $lastline = 'REPLYTO';
-      } elsif (/^to:\s+(.+)$/ig) {
+      } elsif (/^to:\s*(.*)$/ig) {
          $currentto = $1;
          $lastline = 'TO';
-      } elsif (/^cc:\s+(.+)$/ig) {
+      } elsif (/^cc:\s*(.*)$/ig) {
          $currentcc = $1;
          $lastline = 'CC';
-      } elsif (/^bcc:\s+(.+)$/ig) {
+      } elsif (/^bcc:\s*(.*)$/ig) {
          $currentbcc = $1;
          $lastline = 'BCC';
-      } elsif (/^date:\s+(.+)$/ig) {
+      } elsif (/^date:\s*(.*)$/ig) {
          $currentdate = $1;
          $lastline = 'DATE';
-      } elsif (/^subject:\s+(.+)$/ig) {
+      } elsif (/^subject:\s*(.*)$/ig) {
          $currentsubject = $1;
          $lastline = 'SUBJ';
-      } elsif (/^message-id:\s+(.*)$/ig) {
+      } elsif (/^message-id:\s*(.*)$/ig) {
          $currentid = $1;
          $lastline = 'MESSID';
-      } elsif (/^content-type:\s+(.+)$/ig) {
+      } elsif (/^content-type:\s*(.*)$/ig) {
          $currenttype = $1;
          $lastline = 'TYPE';
-      } elsif (/^content-transfer-encoding:\s+(.+)$/ig) {
+      } elsif (/^content-transfer-encoding:\s+(.*)$/ig) {
          $currentencoding = $1;
          $lastline = 'ENCODING';
-      } elsif (/^status:\s+(.+)$/ig) {
+      } elsif (/^status:\s*(.*)$/ig) {
          $currentstatus .= $1;
          $currentstatus =~ s/\s//g;
          $lastline = 'NONE';
-      } elsif (/^x-status:\s+(.+)$/ig) {
+      } elsif (/^x-status:\s*(.*)$/ig) {
          $currentstatus .= $1;
          $currentstatus =~ s/\s//g;
          $lastline = 'NONE';
-      } elsif (/^references:\s+(.+)$/ig) {
+      } elsif (/^references:\s*(.*)$/ig) {
          $currentreferences = $1;
          $lastline = 'REFERENCES';
-      } elsif (/^in-reply-to:\s+(.+)$/ig) {
+      } elsif (/^in-reply-to:\s*(.*)$/ig) {
          $currentinreplyto = $1;
          $lastline = 'INREPLYTO';
-      } elsif (/^priority:\s+(.*)$/ig) {
+      } elsif (/^priority:\s*(.*)$/ig) {
          $currentpriority = $1;
          $currentstatus .= "I";
          $lastline = 'NONE';
-      } elsif (/^Received:(.+)$/ig) {
+      } elsif (/^Received:\s*(.*)$/ig) {
          my $tmp=$1;
          if ($currentreceived=~ /.*\sby\s([^\s]+)\s.*/) {
             unshift(@smtprelays, $1) if ($smtprelays[0] ne $1);
@@ -1571,50 +1582,57 @@ sub openwebmailerror {
 # mapping table b2g.map, g2b.map and routine b2g(), g2b() are
 # borrowed from Encode::HanConvert by Autrijus Tang <autrijus@autrijus.org>
 sub mkdb_b2g {
-   return if ( ! -f $config{'b2g_map'} ||
-               -f "$config{'ow_etcdir'}/b2g$config{'dbm_ext'}");
+   return if ( -f "$config{'ow_etcdir'}/b2g$config{'dbm_ext'}" ||
+               ! -f $config{'b2g_map'});
    dbm_test();
 
-   my $b2gdb="$config{'ow_etcdir'}/b2g$config{'dbmopen_ext'}";
-   ($b2gdb =~ /^(.+)$/) && ($b2gdb = $1);		# untaint ...
-   my %B2G;
-   dbmopen (%B2G, $b2gdb, 0644);
-   open (T, "$config{'b2g_map'}");
-   $_=<T>; $_=<T>;
-   while (<T>) {
-      /^(..)\s(..)/;
-      $B2G{$1}=$2;
-   }
-   close(T);
-   dbmclose(%B2G);
+   if ( fork() == 0 ) {		# child
+      my $b2gdb="$config{'ow_etcdir'}/b2g$config{'dbmopen_ext'}";
+      ($b2gdb =~ /^(.+)$/) && ($b2gdb = $1);		# untaint ...
+      my %B2G;
+      dbmopen (%B2G, $b2gdb, 0644);
+      open (T, "$config{'b2g_map'}");
+      $_=<T>; $_=<T>;
+      while (<T>) {
+         /^(..)\s(..)/;
+         $B2G{$1}=$2;
+      }
+      close(T);
+      dbmclose(%B2G);
 
-   writelog("mkdb $config{'ow_etcdir'}/b2g$config{'dbm_ext'}");
+      writelog("mkdb $config{'ow_etcdir'}/b2g$config{'dbm_ext'}");
+      exit 0;
+   }
 }
 
 sub mkdb_g2b {
-   return if ( ! -f $config{'g2b_map'} ||
-               -f "$config{'ow_etcdir'}/g2b$config{'dbm_ext'}");
+   return if ( -f "$config{'ow_etcdir'}/g2b$config{'dbm_ext'}" ||
+               ! -f $config{'g2b_map'});
    dbm_test();
 
-   my $g2bdb="$config{'ow_etcdir'}/g2b$config{'dbmopen_ext'}";
-   ($g2bdb =~ /^(.+)$/) && ($g2bdb = $1);		# untaint ...
-   my %G2B;
-   dbmopen (%G2B, $g2bdb, 0644);
-   open (T, "$config{'g2b_map'}");
-   $_=<T>; $_=<T>;
-   while (<T>) {
-      /^(..)\s(..)/;
-      $G2B{$1}=$2;
-   }
-   close(T);
-   dbmclose(%G2B);
+   if ( fork() == 0 ) {		# child
+      my $g2bdb="$config{'ow_etcdir'}/g2b$config{'dbmopen_ext'}";
+      ($g2bdb =~ /^(.+)$/) && ($g2bdb = $1);		# untaint ...
+      my %G2B;
+      dbmopen (%G2B, $g2bdb, 0644);
+      open (T, "$config{'g2b_map'}");
+      $_=<T>; $_=<T>;
+      while (<T>) {
+         /^(..)\s(..)/;
+         $G2B{$1}=$2;
+      }
+      close(T);
+      dbmclose(%G2B);
 
-   writelog("mkdb $config{'ow_etcdir'}/g2b$config{'dbm_ext'}");
+      writelog("mkdb $config{'ow_etcdir'}/g2b$config{'dbm_ext'}");
+      exit 0;
+   }
 }
 
 sub b2g {
    my $str = $_[0];
-   if ( -f "$config{'ow_etcdir'}/b2g$config{'dbm_ext'}") {
+   if ( -f "$config{'ow_etcdir'}/b2g$config{'dbm_ext'}" &&
+       !-z "$config{'ow_etcdir'}/b2g$config{'dbm_ext'}" ) {
       my %B2G;
       dbmopen (%B2G, "$config{'ow_etcdir'}/b2g$config{'dbmopen_ext'}", undef);
       $str =~ s/([\xA1-\xF9].)/$B2G{$1}/eg;
@@ -1625,7 +1643,8 @@ sub b2g {
 
 sub g2b {
    my $str = $_[0];
-   if ( -f "$config{'ow_etcdir'}/g2b$config{'dbm_ext'}") {
+   if ( -f "$config{'ow_etcdir'}/g2b$config{'dbm_ext'}" &&
+       !-z "$config{'ow_etcdir'}/g2b$config{'dbm_ext'}" ) {
       my %G2B;
       dbmopen (%G2B, "$config{'ow_etcdir'}/g2b$config{'dbmopen_ext'}", undef);
       $str =~ s/([\x81-\xFE].)/$G2B{$1}/eg;
@@ -1637,31 +1656,35 @@ sub g2b {
 
 ##################### SOLAR -> LUNAR #########################
 sub mkdb_lunar {
-   return if ( ! -f $config{'lunar_map'} ||
-               -f "$config{'ow_etcdir'}/lunar$config{'dbm_ext'}");
+   return if ( -f "$config{'ow_etcdir'}/lunar$config{'dbm_ext'}" ||
+               ! -f $config{'lunar_map'} );
    dbm_test();
 
-   my $lunardb="$config{'ow_etcdir'}/lunar$config{'dbmopen_ext'}";
-   ($lunardb =~ /^(.+)$/) && ($lunardb = $1);		# untaint ...
-   my %LUNAR;
-   dbmopen (%LUNAR, $lunardb, 0644);
-   open (T, "$config{'lunar_map'}");
-   $_=<T>; $_=<T>;
-   while (<T>) {
-      my @a=split(/,/, $_);      
-      $LUNAR{$a[0]}="$a[1],$a[2]";
-   }
-   close(T);
-   dbmclose(%LUNAR);
+   if ( fork() == 0 ) {		# child
+      my $lunardb="$config{'ow_etcdir'}/lunar$config{'dbmopen_ext'}";
+      ($lunardb =~ /^(.+)$/) && ($lunardb = $1);		# untaint ...
+      my %LUNAR;
+      dbmopen (%LUNAR, $lunardb, 0644);
+      open (T, "$config{'lunar_map'}");
+      $_=<T>; $_=<T>;
+      while (<T>) {
+         my @a=split(/,/, $_);      
+         $LUNAR{$a[0]}="$a[1],$a[2]";
+      }
+      close(T);
+      dbmclose(%LUNAR);
 
-   writelog("mkdb $config{'ow_etcdir'}/lunar$config{'dbm_ext'}");
+      writelog("mkdb $config{'ow_etcdir'}/lunar$config{'dbm_ext'}");
+      exit 0;
+   }
 }
 
 sub solar2lunar {
    my ($year, $month, $day)=@_;
    my ($lunar_year, $lunar_monthday);
 
-   if ( -f "$config{'ow_etcdir'}/lunar$config{'dbm_ext'}") {
+   if ( -f "$config{'ow_etcdir'}/lunar$config{'dbm_ext'}" &&
+       !-z "$config{'ow_etcdir'}/lunar$config{'dbm_ext'}" ) {
       my %LUNAR;
       my $date=sprintf("%04d%02d%02d", $year, $month, $day);
       dbmopen(%LUNAR, "$config{'ow_etcdir'}/lunar$config{'dbmopen_ext'}", undef);
@@ -1674,34 +1697,85 @@ sub solar2lunar {
 
 ######################## DBMTEST ##############################
 sub dbm_test {
-   my (%DB, @filelist);
+   my (%DB, @filelist, @delfiles);
+   my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock);
 
    mkdir ("/tmp/dbmtest.$$", 0755);
+
    dbmopen(%DB, "/tmp/dbmtest.$$/test", 0600); dbmclose(%DB);
+
+   @delfiles=();
    opendir (TESTDIR, "/tmp/dbmtest.$$");
    while (defined(my $filename = readdir(TESTDIR))) {
       ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint ...
       if ($filename!~/^\./ ) {
          push(@filelist, $filename);
-         unlink("/tmp/dbmtest.$$/$filename");
+         push(@delfiles, "/tmp/dbmtest.$$/$filename");
       }
    }
    closedir(TESTDIR);
+   unlink(@delfiles) if ($#delfiles>=0);
+
+   @filelist=reverse sort(@filelist);
+   if ($filelist[0]=~/(\..*)$/) {
+      ($dbm_ext, $dbmopen_ext)=($1, '');
+   } else {
+      ($dbm_ext, $dbmopen_ext)=('.db', '.db');
+   }
+
+   filelock("/tmp/dbmtest.$$/test$dbm_ext", LOCK_EX);
+   eval {
+      local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
+      alarm 5;	# timeout 5 sec
+      dbmopen(%DB, "/tmp/dbmtest.$$/test$dbmopen_ext", 0600); dbmclose(%DB);
+      alarm 0;
+   };
+   if ($@) {	# eval error, it means timeout
+      $dbmopen_haslock=1;
+   } else {
+      $dbmopen_haslock=0;
+   }
+   filelock("/tmp/dbmtest.$$/test$dbm_ext", LOCK_UN);
+
+   @delfiles=();
+   opendir (TESTDIR, "/tmp/dbmtest.$$");
+   while (defined(my $filename = readdir(TESTDIR))) {
+      ($filename =~ /^(.+)$/) && ($filename = $1);	# untaint ...
+      push(@delfiles, "/tmp/dbmtest.$$/$filename") if ($filename!~/^\./ );
+   }
+   closedir(TESTDIR);
+   unlink(@delfiles) if ($#delfiles>=0);
+
    rmdir("/tmp/dbmtest.$$");
 
-   @filelist=sort(@filelist);
-   my ($dbm_ext, $dbmopen_ext);
-   if ($filelist[0]=~/(\..*)$/) {
-      ($dbm_ext, $dbmopen_ext)=($1, 'none');
-      return if ($config{'dbm_ext'} eq $dbm_ext && $config{'dbmopen_ext'} eq "");
-   } else {
-      ($dbm_ext, $dbmopen_ext)=('.db', '%dbm_ext%');
-      return if ($config{'dbm_ext'} eq $dbm_ext && $config{'dbmopen_ext'} eq $dbm_ext);
+   return if ($dbm_ext eq $config{'dbm_ext'} &&
+              $dbmopen_ext eq $config{'dbmopen_ext'} &&
+              (!$dbmopen_haslock || 
+               $dbmopen_haslock && $dbmopen_haslock eq $config{'dbmopen_haslock'})
+             );
+
+   # convert value to str
+   if ($dbmopen_ext eq $dbm_ext) {
+      $dbmopen_ext='%dbm_ext%';
+   } elsif ($dbmopen_ext eq "") {
+      $dbmopen_ext='none';
    }
-   openwebmailerror(qq|Please set the following options in openwebmail.conf</br><br>|.
+   if ($dbmopen_haslock) {
+      $dbmopen_haslock='yes';
+   } else {
+      $dbmopen_haslock='no';
+   }
+
+   openwebmailerror(qq|Please change the 3 options in openwebmail.conf</br>|.
                     qq|<table width=50%>|.
-                    qq|<tr><td><b>dbm_ext    </td><td>&nbsp;<b>$dbm_ext</td></tr>|.
-                    qq|<tr><td><b>dbmopen_ext</td><td>&nbsp;<b>$dbmopen_ext</td></tr>|.
+                    qq|<tr><td nowrap colspan=2><br>from</td></tr>|.
+                    qq|<tr><td nowrap><b>dbm_ext    </td><td nowrap>&nbsp;<b>$config_raw{'dbm_ext'}</td></tr>|.
+                    qq|<tr><td nowrap><b>dbmopen_ext</td><td nowrap>&nbsp;<b>$config_raw{'dbmopen_ext'}</td></tr>|.
+                    qq|<tr><td nowrap><b>dbmopen_haslock</td><td nowrap>&nbsp;<b>$config_raw{'dbmopen_haslock'}</td></tr>|.
+                    qq|<tr><td nowrap colspan=2><br>to</td></tr>|.
+                    qq|<tr><td nowrap><b>dbm_ext    </td><td nowrap>&nbsp;<b>$dbm_ext</td></tr>|.
+                    qq|<tr><td nowrap><b>dbmopen_ext</td><td nowrap>&nbsp;<b>$dbmopen_ext</td></tr>|.
+                    qq|<tr><td nowrap><b>dbmopen_haslock</td><td nowrap>&nbsp;<b>$dbmopen_haslock</td></tr>|.
                     qq|</table>|);
 }
 ###################### END DBMTEST ############################
@@ -1766,9 +1840,9 @@ sub get_clientip {
       $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^172\.[1-3][0-9]\./ &&
       $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^192\.168\./ &&
       $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^127\.0\./ ) {
-      $clientip=(split(/,/,$ENV{HTTP_X_FORWARDED_FOR}))[0];
-   } elsif (defined $ENV{REMOTE_ADDR} ) {
-      $clientip=$ENV{REMOTE_ADDR};
+      $clientip=(split(/,/,$ENV{'HTTP_X_FORWARDED_FOR'}))[0];
+   } elsif (defined $ENV{'REMOTE_ADDR'} ) {
+      $clientip=$ENV{'REMOTE_ADDR'};
    } else {
       $clientip="127.0.0.1";
    }

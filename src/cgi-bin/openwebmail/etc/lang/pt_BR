@@ -11,7 +11,6 @@
    'sent-mail'      => 'Enviadas',
    'saved-drafts'   => 'Rascunho',
    'mail-trash'     => 'Lixo',
-   'all'            => 'All',
    DELETE => '--APAGAR--'
    );
 
@@ -63,69 +62,69 @@
 
 %lang_advsearchlabels =
    (
-   contains    => 'contains',
-   notcontains => 'does not contain',
-   is          => 'is',
-   isnot       => 'is not',
-   startswith  => 'starts with',
-   endswith    => 'ends with',
-   regexp      => 'matches regexp(insensitive)',
+   contains    => 'contendo',
+   notcontains => 'não contendo',
+   is          => 'sendo',
+   isnot       => 'não sendo',
+   startswith  => 'iniciando com',
+   endswith    => 'terminado em',
+   regexp      => 'conforme expressão regular',
    );
 
 %lang_calendar = 
    (
-   yearview  => 'Yearview',
-   monthview => 'Monthview',
-   weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   yearview  => 'Visualizar o',
+   monthview => 'Visualizar o Mês de',
+   weekview  => 'Visualizar a Semana do dia',
+   dayview   => 'Visualizar o Dia'
    );
 
 %lang_month =
    (
-   1  => 'January',
-   2  => 'February',
-   3  => 'March',
-   4  => 'April',
-   5  => 'May',
-   6  => 'June',
-   7  => 'July',
-   8  => 'August',
-   9  => 'September',
-   10 => 'October',
-   11 => 'November',
-   12 => 'December'
+   1  => 'Janeiro',
+   2  => 'Fevereiro',
+   3  => 'Março',
+   4  => 'Abril',
+   5  => 'Maio',
+   6  => 'Junho',
+   7  => 'Julho',
+   8  => 'Agosto',
+   9  => 'Setembro',
+   10 => 'Outubro',
+   11 => 'Novembro',
+   12 => 'Dezembro'
    );
 
 %lang_wday =
    (
-   0 => 'Sunday',
-   1 => 'Monday',
-   2 => 'Tuesday',
-   3 => 'Wednesday',
-   4 => 'Thursday',
-   5 => 'Friday',
-   6 => 'Saturday'
+   0 => 'Domingo',
+   1 => 'Segunda',
+   2 => 'Terça',
+   3 => 'Quarta',
+   4 => 'Quinta',
+   5 => 'Sexta',
+   6 => 'Sábado'
    );
 
 %lang_wday_abbrev =
    (
-   week => 'WK',
-   0 => 'S',
-   1 => 'M',
+   week => 'SEM',
+   0 => 'D',
+   1 => 'S',
    2 => 'T',
-   3 => 'W',
-   4 => 'T',
-   5 => 'F',
+   3 => 'Q',
+   4 => 'Q',
+   5 => 'S',
    6 => 'S'
    );
 
 %lang_order =
    (
-   1 => '1st',
-   2 => '2nd',
-   3 => '3rd',
-   4 => '4th',
-   5 => 'last'
+   1 => '1º',
+   2 => '2º',
+   3 => '3º',
+   4 => '4º',
+   5 => 'última'
    );
 
 %lang_text =
@@ -203,8 +202,8 @@
    folderrenprop => '\' favor indicar o novo nome para esta pasta\'',
    rename     => 'Renomear',
    folderdelconf => '\'Tem certeza que quer excluir esta pasta e o seu conteúdo?\'',
-   markread   => 'MarkRead',
-   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   markread   => 'Marcar com Lido',
+   foldermarkreadconf => '\'Tem certeza que quer marcar todas as mensagens desta pasta como lidas?\'',
    chkindex   => 'Verifica Índice',
    folderchkindexconf => '\'Tem certeza que quer verificar o índice desta pasta?\'',
    reindex    => 'Refaz Índice',
@@ -224,7 +223,7 @@
    email      => 'E-mail',
    note       => 'Nota',
    group      => 'Grupo',
-   quota_hit  => 'QUOTA HIT',
+   quota_hit  => 'LIMITE DE TAMANHO PERMITIDO',
    usage      => 'Uso',
    tzmap      => 'Fuso horário',
    editfroms  => 'Editar Endereços de E-mail Pessoal',
@@ -252,35 +251,33 @@
    globalfilterrule => 'Regras de Filtros Globais',
    readonly   => 'Somente Leitura',
    textcontent=> 'Conteúdo do Texto',
-   search     => 'Procurar',
-   advsearch  => 'Advanced search',
-   folder     => 'Folder',
-   nofoldersel=> 'No Folder selected',
-   showall    => 'Show All',
+   search     => 'Pesquisar',
+   advsearch  => 'Pesquisa Avançada',
+   folder     => 'Pasta',
+   nofoldersel=> 'Nenhuma Pasta Selecionada',
+   showall    => 'Mostrar Todas',
    spellcheck => 'Verificar Ortografia',
    checkagain => 'Verificar Novamente',
    finishchecking => 'Terminar a Verificação',
    manuallyfix=> 'Corrigir Manualmente',
-   calendar   => 'Calendar',
+   calendar   => 'Agenda de Compromissos',
    am         => 'am',
    pm         => 'pm',
-   calfmt_year          => 'Year @@@YEAR@@@',
-   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
-   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
-   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_year          => 'Ano de @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ de @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@DAY@@@ de @@@MONTH_STR@@@ de @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@, @@@DAY@@@ de @@@MONTH_STR@@@ de @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   none       => 'None',
-   moreitems  => 'more items',
-   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
-   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
-   ed         => 'Ed',
-   del        => 'Del',
-   noitemforthisday => 'No items for this day',
-   today_only               => 'Today\'s date only',
-   the_wday_of_thismonth    => 'The',
-   the_wday_of_thismonth2   => 'of the month',
-   every_wday_of_thismonth  => 'Every',
-   every_wday_of_thismonth2 => 'this month'
+   none       => 'Nenhum',
+   moreitems  => 'mais itens',
+   multieditconf => 'Este item foi adicionado em multiplas datas.\\nEditá-lo irá alterar o item em todas as datas.\\nContinua a Edição?',
+   multidelconf  => 'Este item foi adicionado em multiplas datas.\\nExcluí-lo irá fazer com que seja excluido em todas as datas.\\nContinua a Exclusão?',
+   ed         => 'Editar',
+   del        => 'Excluir',
+   noitemforthisday => 'Nenhum item para esta data',
+   today_only               => 'Somente nesta data',
+   the_wday_of_thismonth    => 'A @@@ORDER@@@ @@@WDAY@@@ do mês',
+   every_wday_of_thismonth  => 'Cada @@@WDAY@@@ deste mês'
    );
 
 %lang_err =
@@ -323,8 +320,8 @@
    pwd_incorrect     => 'Senha incorreta',
    network_server_error => 'erro no servidor de rede',
    sendmail_error    => 'Lamento, houve um problema no envio da mensagem. Favor clicar no botão de voltar do navegador (browser), verifique a sua mensagem e tente novamente.',
-   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
-   badnum_in_days => 'bad number in consecutive days field'
+   at_char_not_allowed => 'O caracter @ não é permitido neste campo. Pressione o botão retornar do navegador e tente novamente',
+   badnum_in_days => 'número incorreto no campo de dias consecutivos'
    );
 
 1;

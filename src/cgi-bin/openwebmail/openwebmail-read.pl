@@ -11,13 +11,14 @@
 #############################################################################
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
+$ENV{ENV} = "";      # no startup script for sh
 $ENV{BASH_ENV} = ""; # no startup script for bash
-umask(0007); # make sure the openwebmail group can write
+umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
@@ -312,7 +313,9 @@ sub readmessage {
          $temphtml .= qq|title="$lang_text{'totrash'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/totrash.gif" border="0" ALT="$lang_text{'totrash'}"></a> \n|;
       }
       $temphtml .= "&nbsp; \n";
-      $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid" title="$lang_text{'calendar'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/calendar.gif" border="0" ALT="$lang_text{'calendar'}"></a> \n|;
+      if ($config{'enable_calendar'}) {
+         $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid" title="$lang_text{'calendar'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/calendar.gif" border="0" ALT="$lang_text{'calendar'}"></a> \n|;
+      }
       $temphtml .= qq|<a href="$main_url&amp;action=logout" title="$lang_text{'logout'} $prefs{'email'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/logout.gif" border="0" ALT="$lang_text{'logout'} $prefs{'email'}"></a>\n|;
 
       $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
@@ -391,9 +394,9 @@ sub readmessage {
       if ($folderusage>=100 ) {
          $defaultdestination='DELETE';
       } elsif ($folder eq 'mail-trash') {
-         $defaultdestination=param("destination") || 'INBOX';
+         $defaultdestination='INBOX';
       } elsif ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
-         $defaultdestination=param("destination") || 'mail-trash';
+         $defaultdestination='mail-trash';
       } else {
          my $smartdestination;
          my $subject=$message{'subject'}; $subject=~s/\s//g;
@@ -402,8 +405,7 @@ sub readmessage {
                $smartdestination=$_; last;
             }
          }
-         $defaultdestination=$smartdestination || param("destination") ||
-                             $prefs{'defaultdestination'} || 'mail-trash';
+         $defaultdestination=$smartdestination || $prefs{'defaultdestination'} || 'mail-trash';
          $defaultdestination='mail-trash' if ( $folder eq $defaultdestination);
       }
       $temphtml = popup_menu(-name=>'destination',
@@ -442,7 +444,20 @@ sub readmessage {
          $temphtml = text2html($temphtml);
          $temphtml =~ s/\n([-\w]+?:)/\n<B>$1<\/B>/g;
       } else {
-         $temphtml = "<B>$lang_text{'date'}:</B> $message{date}<BR>\n";
+         $temphtml = "<B>$lang_text{'date'}:</B> $message{date}";
+         if ($printfriendly ne "yes") {
+            # enable download the whole message
+            my $dlicon;
+            if ($message{'header'}=~/X\-Mailer:\s+Open WebMail/) {
+               $dlicon="download.s.ow.gif";
+            } else {
+               $dlicon="download.s.gif";
+            }
+            $temphtml .= qq|&nbsp; <a href="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/Unknown.msg?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=all$zhconvertparm" title="$lang_text{'download'} $subject.msg">|.
+                         qq|<IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/$dlicon" align="absmiddle" border="0" ALT="$lang_text{'download'} $subject.msg">|.
+                         qq|</a>\n|;
+         }
+         $temphtml .= "<BR>\n";
 
          my ($ename, $eaddr)=email2nameaddr($message{from});
          $temphtml .= "<B>$lang_text{'from'}:</B> <a href='http://www.google.com/search?q=$eaddr' title='google $lang_text{'search'}...' target=_blank>$from</a>&nbsp; \n";
@@ -459,7 +474,6 @@ sub readmessage {
                             qq|</a>\n|;
             }
          }
-
          $temphtml .= "<BR>";
 
          if ($replyto) {
@@ -493,18 +507,11 @@ sub readmessage {
             if ($message{'priority'} eq 'urgent') {
                $temphtml .= qq|&nbsp<IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/important.gif" align="absmiddle" border="0">|;
             }
-            # enable download the whole message
-            my $dlicon;
-            if ($message{'header'}=~/X\-Mailer:\s+Open WebMail/) {
-               $dlicon="download.s.ow.gif";
-            } else {
-               $dlicon="download.s.gif";
+            # display read and answered icon
+            if ($message{'status'} =~ /a/i) {
+               $temphtml .= qq|&nbsp; <IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/read.a.gif" align="absmiddle" border="0">|;
             }
-            $temphtml .= qq|&nbsp;<a href="$config{'ow_cgiurl'}/openwebmail-viewatt.pl/Unknown.msg?action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder&amp;attachment_nodeid=all$zhconvertparm" title="$lang_text{'download'} $subject.msg">|.
-                         qq|<IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/$dlicon" align="absmiddle" border="0" ALT="$lang_text{'download'} $subject.msg">|.
-                         qq|</a>\n|;
          }
-
       }
 
       $html =~ s/\@\@\@HEADERS\@\@\@/$temphtml/g;

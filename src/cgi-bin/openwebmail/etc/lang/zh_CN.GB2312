@@ -10,7 +10,6 @@
    'sent-mail'      => '已发送邮件',
    'saved-drafts'   => '草稿箱',
    'mail-trash'     => '垃圾箱',
-   'all'            => '所有信件箱',
    DELETE => '--直接删除--'
    );
 
@@ -277,10 +276,8 @@
    del        => '删除',
    noitemforthisday => '本日没有安排事情',
    today_only               => '今天',
-   the_wday_of_thismonth    => '这个月',
-   the_wday_of_thismonth2   => '',
-   every_wday_of_thismonth  => '这个月每个',
-   every_wday_of_thismonth2 => ''
+   the_wday_of_thismonth    => '这个月 @@@ORDER@@@ @@@WDAY@@@ ',
+   every_wday_of_thismonth  => '这个月 每个 @@@WDAY@@@ '
    );
 
 %lang_err =

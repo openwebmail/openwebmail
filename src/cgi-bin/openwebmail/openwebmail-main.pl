@@ -11,13 +11,14 @@
 #############################################################################
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
+$ENV{ENV} = "";      # no startup script for sh
 $ENV{BASH_ENV} = ""; # no startup script for bash
-umask(0007); # make sure the openwebmail group can write
+umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
@@ -54,7 +55,7 @@ $escapedkeyword = escapeURL($keyword);
 
 # extern vars
 use vars qw(%lang_folders %lang_text %lang_err %lang_sortlabels
-            %lang_calendar @wdaystr);	# defined in lang/xy
+            %lang_calendar %lang_wday @wdaystr); # defined in lang/xy
 use vars qw($pop3_authserver);	# defined in auth_pop3.pl
 use vars qw($_STATUS);		# defined in maildb.pl
 
@@ -134,12 +135,12 @@ sub displayheaders {
    my $trash_allmessages=0;
    my %HDB;
 
-   if ( -f "$folderdir/.$user$config{'dbm_ext'}") {
-      filelock("$folderdir/.$user$config{'dbm_ext'}", LOCK_SH);
+   if (-f "$folderdir/.$user$config{'dbm_ext'}" && !-z "$folderdir/.$user$config{'dbm_ext'}" ) {
+      filelock("$folderdir/.$user$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
       dbmopen (%HDB, "$folderdir/.$user$config{'dbmopen_ext'}", undef);	# dbm for INBOX
       $orig_inbox_newmessages=$HDB{'NEWMESSAGES'};	# new msg in INBOX
       dbmclose(%HDB);
-      filelock("$folderdir/.$user$config{'dbm_ext'}", LOCK_UN);
+      filelock("$folderdir/.$user$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    }
 
    filtermessage();
@@ -246,10 +247,10 @@ sub displayheaders {
 
       # add message count in folderlabel
       ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
-      if ( -f "$headerdb$config{'dbm_ext'}" ) {
+      if ( -f "$headerdb$config{'dbm_ext'}" && !-z "$headerdb$config{'dbm_ext'}" ) {
          my ($newmessages, $allmessages);
 
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
          dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
          $allmessages=$HDB{'ALLMESSAGES'};
          $allmessages-=$HDB{'INTERNALMESSAGES'} if ($prefs{'hideinternal'});
@@ -261,7 +262,7 @@ sub displayheaders {
             $trash_allmessages=$allmessages;
          }
          dbmclose(%HDB);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
          if ( $newmessages ne "" && $allmessages ne "" ) {
             $folderlabels{$foldername}.= " ($newmessages/$allmessages)";
@@ -285,7 +286,7 @@ sub displayheaders {
    if ($config{'folderquota'}) {
       if ($folderusage>=100) {
          $temphtml = " [ $lang_text{'quota_hit'} ]";
-      } elsif ($folderusage>=85) {
+      } elsif ($folderusage>=$config{'folderusage_threshold'}) {
          $temphtml = " [ $lang_text{'usage'} $folderusage% ]";
       } else {
          $temphtml="&nbsp;";
@@ -329,7 +330,9 @@ sub displayheaders {
       $temphtml .= qq|<a href="JavaScript:document.moveform.destination.value='mail-trash'; document.moveform.submit();" onClick="return OpConfirm($lang_text{'msgmoveconf'}, $prefs{'confirmmsgmovecopy'})" title="$lang_text{'totrash'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/totrash.gif" border="0" ALT="$lang_text{'totrash'}"></a> \n|;
    }
    $temphtml .= qq|&nbsp; \n|;
-   $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;sessionid=$thissession&amp;folder=$escapedfolder" title="$lang_text{'calendar'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/calendar.gif" border="0" ALT="$lang_text{'calendar'}"></a> \n|;
+   if ($config{'enable_calendar'}) {
+      $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-cal.pl?action=calmonth&amp;sessionid=$thissession&amp;folder=$escapedfolder" title="$lang_text{'calendar'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/calendar.gif" border="0" ALT="$lang_text{'calendar'}"></a> \n|;
+   }
    $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage" title="$lang_text{'userprefs'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/prefs.gif" border="0" ALT="$lang_text{'userprefs'}"></a> \n|;
    $temphtml .= qq|<a href="$main_url&amp;action=logout" title="$lang_text{'logout'} $prefs{'email'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/logout.gif" border="0" ALT="$lang_text{'logout'} $prefs{'email'}"></a> &nbsp; \n|;
 
@@ -442,11 +445,11 @@ sub displayheaders {
    if ($folderusage>=100 ) {
       $defaultdestination='DELETE';
    } elsif ($folder eq 'mail-trash') {
-      $defaultdestination= param("destination") || 'INBOX';
+      $defaultdestination= 'INBOX';
    } elsif ($folder eq 'sent-mail' || $folder eq 'saved-drafts') {
-      $defaultdestination=param("destination") || 'mail-trash';
+      $defaultdestination='mail-trash';
    } else {
-      $defaultdestination= param("destination") || $prefs{'defaultdestination'} || 'mail-trash';
+      $defaultdestination= $prefs{'defaultdestination'} || 'mail-trash';
       $defaultdestination='mail-trash' if ( $folder eq $defaultdestination);
    }
    $temphtml = popup_menu(-name=>'destination',
@@ -545,7 +548,7 @@ sub displayheaders {
    my ($bgcolor, $message_status);
    my ($boldon, $boldoff); # Used to control whether text is bold for new mails
 
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
    $temphtml = '';
@@ -695,7 +698,7 @@ sub displayheaders {
    }
 
    dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
    $html =~ s/\@\@\@HEADERS\@\@\@/$temphtml/;
 
@@ -739,7 +742,7 @@ sub displayheaders {
    $html =~ s/\@\@\@SEARCH\@\@\@/$temphtml/g;
 
    $temphtml="";
-   if ($prefs{'calendar_reminderdays'}>0) {
+   if ($config{'enable_calendar'} && $prefs{'calendar_reminderdays'}>0) {
       $temphtml=eventreminder_html($prefs{'calendar_reminderdays'}, "$folderdir/.calendar.book");
    }
    if ($temphtml ne "") {
@@ -772,8 +775,8 @@ sub displayheaders {
    # b. user is viewing other folder and new msg increases in INBOX
    if ( (defined(param("refresh")) && $now_inbox_newmessages>0) ||
         ($folder ne 'INBOX' && $now_inbox_newmessages>$orig_inbox_newmessages) ) {
-      if ($prefs{'newmailsound'}==1 && $config{'sound_url'} ne "" ) {
-         print qq|<embed src="$config{'sound_url'}" autostart=true hidden=true>|;
+      if (-f "$config{'ow_htmldir'}/sounds/$prefs{'newmailsound'}" ) {
+         print qq|<embed src="$config{'ow_htmlurl'}/sounds/$prefs{'newmailsound'}" autostart=true hidden=true>|;
       }
    }
 
@@ -788,10 +791,14 @@ sub eventreminder_html {
    $year+=1900; $month++;
    my $hourmin=sprintf("%02d%02d", $hour, $min);
 
-   my (%items, %indexes, $item_count);
-   $item_count =readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0);
+   my (%items, %indexes);
+   if ( readcalbook("$folderdir/.calendar.book", \%items, \%indexes, 0)<0 ) {
+      openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.calendar.book");
+   }
    if ($prefs{'calendar_reminderforglobal'} && -f $config{'global_calendarbook'}) {
-      $item_count+=readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
+      if ( readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6)<0 ) {
+         openwebmailerror("$lang_err{'couldnt_open'} $config{'global_calendarbook'}");
+      }
    }
 
    my $event_count=0;
@@ -839,12 +846,16 @@ sub eventreminder_html {
          }
       }
       if ($dayhtml ne "") {
+         my $title=dateserial2str(sprintf("%04d%02d%02d",$year,$month,$day),$prefs{'dateformat'});
+         if ($lang_text{'calfmt_yeatmonthdaywday'} =~ /^\s*\@\@\@WEEKDAY\@\@\@/) {
+            $title="$lang_wday{$wdaynum} $title";
+         } else {
+            $title="$title $lang_wday{$wdaynum}";
+         }
          $temphtml.=qq| &nbsp; | if ($temphtml ne"");
          $temphtml.=qq|<font size=-2>[+$x] </font>| if ($x>0);
          $temphtml.=qq|<a href="$config{'ow_cgiurl'}/openwebmail-cal.pl?sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
-                    qq|action=calday&year=$year&month=$month&day=$day" title="|.dateserial2str(sprintf("%04d%02d%02d",$year,$month,$day)).qq|">|.
-                    $dayhtml.
-                    qq|</a>\n|;
+                    qq|action=calday&year=$year&month=$month&day=$day" title="$title">$dayhtml</a>\n|;
       }
    }
    $temphtml .= " &nbsp; ..." if ($event_count>5);
@@ -922,8 +933,9 @@ sub movemessage {
       openwebmailerror ("$lang_err{'shouldnt_move_here'}")
    }
 
-   $destination =~ s/\.\.+//g;
-   $destination =~ s/[\s\/\`\|\<\>;]//g;		# remove dangerous char
+   $destination =~ s!\.\.+/!!g;
+   $destination =~ s!^\s*/!!g;
+   $destination =~ s/[\s\`\|\<\>;]//g;		# remove dangerous char
    ($destination =~ /^(.+)$/) && ($destination = $1);	# untaint ...
 
    my $op;
@@ -1271,7 +1283,7 @@ sub logout {
    close (LOGINOUT);
    $html = applystyle($html);
 
-   my $temphtml = startform(-action=>"$config{'ow_cgiurl'}/openwebmail.pl") .
+   my $temphtml = startform(-action=>"$config{'start_url'}") .
                   submit("$lang_text{'loginagain'}").
                   "&nbsp; &nbsp;".
                   button(-name=>"exit",

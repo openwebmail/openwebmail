@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>Huruf Besar <br>dan kecil ada perbedaan</font></td></tr></table>
+<table><tr><td><font size=1>remember<br>my userid</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>
@@ -45,17 +45,17 @@
 
    document.login.loginname.focus()
 
-   function focuspwd() 
-   { 
-      document.login.password.focus(); 
-      return(true); 
-   } 
+   function focuspwd()
+   {
+      document.login.password.focus();
+      return(true);
+   }
 
-   function focuslogin() 
-   { 
-      document.login.login.focus(); 
-      return (true); 
-   } 
+   function focuslogin()
+   {
+      document.login.login.focus();
+      return (true);
+   }
 
 //-->
 </script>

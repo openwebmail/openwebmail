@@ -10,7 +10,6 @@
    'sent-mail'      => 'ODOSLANÉ',
    'saved-drafts'   => 'KONCEPT',
    'mail-trash'     => 'KÔ©',
-   'all'            => 'V¹etko',
    DELETE => '--ZMAZA«--'
    );
 
@@ -276,10 +275,8 @@
    del        => 'Zmaza»',
    noitemforthisday => '®iadne polo¾ky pre tento deò',
    today_only               => 'Iba dne¹ný dátum',
-   the_wday_of_thismonth    => '',
-   the_wday_of_thismonth2   => 'v mesiaci',
-   every_wday_of_thismonth  => 'ka¾dý',
-   every_wday_of_thismonth2 => 'tento mesiac'
+   the_wday_of_thismonth    => ' @@@ORDER@@@ @@@WDAY@@@ v mesiaci',
+   every_wday_of_thismonth  => 'ka¾dý @@@WDAY@@@ tento mesiac'
    );
 
 %lang_err =

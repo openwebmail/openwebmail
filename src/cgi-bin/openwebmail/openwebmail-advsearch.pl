@@ -11,11 +11,12 @@
 #############################################################################
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
+$ENV{ENV} = "";      # no startup script for sh
 $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0002); # make sure the openwebmail group can write
 
@@ -276,7 +277,7 @@ sub search_folders2 {
       my ($totalsize, $new, $r_messageids)=get_info_messageids_sorted_by_date($headerdb, 1);
       my (%HDB, %status);
 
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
       dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
       foreach my $messageid (@{$r_messageids}) {
@@ -449,7 +450,7 @@ sub search_folders2 {
       } # end messageid loop
 
       dbmclose(%HDB);
-      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+      filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
       filelock($folderfile, LOCK_UN);
    } # end foldertosearch loop
 

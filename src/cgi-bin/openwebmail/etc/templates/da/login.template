@@ -25,7 +25,7 @@
 <table><tr><td>@@@LOGINBUTTON@@@</td></tr></table>
 </td>
 <td align=center>
-<table><tr><td><font size=1>Bem&aelig;rk: Der er forskel p&aring;<br>store og sm&aring; bogstaver</font></td></tr></table>
+<table><tr><td><font size=1>remember<br>my userid</font></td><td>@@@REMEMBERMECHECKBOX@@@</td></tr></table>
 </td>
 </tr>
 </table>

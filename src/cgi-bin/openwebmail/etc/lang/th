@@ -10,7 +10,6 @@
    'sent-mail'      => 'ส่งแล้ว',
    'saved-drafts'   => 'ร่าง',
    'mail-trash'     => 'ถังขยะ',
-   'all'            => 'All',
    DELETE => '--ลบทิ้ง--'
    );
 
@@ -62,77 +61,77 @@
 
 %lang_advsearchlabels =
    (
-   contains    => 'contains',
-   notcontains => 'does not contain',
-   is          => 'is',
-   isnot       => 'is not',
-   startswith  => 'starts with',
-   endswith    => 'ends with',
-   regexp      => 'matches regexp(insensitive)',
+   contains    => 'มี',
+   notcontains => 'ไม่มี',
+   is          => 'เป็น',
+   isnot       => 'ไม่เป็น',
+   startswith  => 'ขึ้นต้นด้วย',
+   endswith    => 'ลงท้ายด้วย',
+   regexp      => 'ตรงกับ regexp',
    );
 
 %lang_calendar = 
    (
-   yearview  => 'Yearview',
-   monthview => 'Monthview',
-   weekview  => 'Weekview',
-   dayview   => 'Dayview'
+   yearview  => 'แสดงรายปี',
+   monthview => 'แสดงรายเดือน',
+   weekview  => 'แสดงรายสัปดาห์',
+   dayview   => 'แสดงรายวัน'
    );
 
 %lang_month =
    (
-   1  => 'January',
-   2  => 'February',
-   3  => 'March',
-   4  => 'April',
-   5  => 'May',
-   6  => 'June',
-   7  => 'July',
-   8  => 'August',
-   9  => 'September',
-   10 => 'October',
-   11 => 'November',
-   12 => 'December'
+   1  => 'มกราคม',
+   2  => 'กุมภาพันธ์',
+   3  => 'มีนาคม',
+   4  => 'เมษายน',
+   5  => 'พฤษภาคม',
+   6  => 'มิถุนายน',
+   7  => 'กรกฎาคม',
+   8  => 'สิงหาคม',
+   9  => 'กันยายน',
+   10 => 'ตุลาคม',
+   11 => 'พฤศจิกายน',
+   12 => 'ธันวาคม'
    );
 
 %lang_wday =
    (
-   0 => 'Sunday',
-   1 => 'Monday',
-   2 => 'Tuesday',
-   3 => 'Wednesday',
-   4 => 'Thursday',
-   5 => 'Friday',
-   6 => 'Saturday'
+   0 => 'อาทิตย์',
+   1 => 'จันทร์',
+   2 => 'อังคาร',
+   3 => 'พุธ',
+   4 => 'พฤหัสบดี',
+   5 => 'ศุกร์',
+   6 => 'เสาร์'
    );
 
 %lang_wday_abbrev =
    (
-   week => 'WK',
-   0 => 'S',
-   1 => 'M',
-   2 => 'T',
-   3 => 'W',
-   4 => 'T',
-   5 => 'F',
-   6 => 'S'
+   week => 'สด',
+   0 => 'อา',
+   1 => 'จ',
+   2 => 'อ',
+   3 => 'พ',
+   4 => 'พฤ',
+   5 => 'ศ',
+   6 => 'ส'
    );
 
 %lang_order =
    (
-   1 => '1st',
-   2 => '2nd',
-   3 => '3rd',
-   4 => '4th',
-   5 => 'last'
+   1 => 'ที่ 1',
+   2 => 'ที่ 2',
+   3 => 'ที่ 3',
+   4 => 'ที่ 4',
+   5 => 'สุดท้าย'
    );
 
 %lang_text =
    (
    login      => 'เข้าระบบ',
    clear      => 'ล้าง',
-   point      => 'Point',
-   pixel      => 'Pixel',
+   point      => 'พ้อยต์',
+   pixel      => 'จุด',
    changepwd  => 'เปลี่ยนรหัสผ่าน',
    viewhistory=> 'ดูประวัติ',
    of         => 'ของ',
@@ -145,7 +144,7 @@
    addressbook=> 'สมุดรายชื่อ',
    folders    => 'โฟลเดอร์',
    emptytrash => 'ล้างถังขยะ',
-   totrash    => 'Move to Trash',
+   totrash    => 'ทิ้งถังขยะ',
    forever    => 'ตลอดไป',
    userdef    => 'ผู้ใช้กำหนด',
    logout     => 'ออกจากระบบ',
@@ -202,8 +201,8 @@
    folderrenprop => '\'กรุณาตั้งชื่อโฟลเดอร์นี้ใหม่\'',
    rename     => 'เปลี่ยนชื่อ',
    folderdelconf => '\'กรุณายืนยันการลบโฟลเดอร์ และจดหมายทั้งหมดในโฟลเดอร์นี้?\'',
-   markread   => 'MarkRead',
-   foldermarkreadconf => '\'Are you going to mark read on all messages in this folder?\'',
+   markread   => 'หมายว่าอ่านแล้ว',
+   foldermarkreadconf => '\'กรุณายืนยันการหมายว่าอ่านจดหมายทุกฉบับในโฟลเดอร์นี้แล้ว?\'',
    chkindex   => 'ตรวจสอบดัชนี',
    folderchkindexconf => '\'กรุณายืนยันการตรวจสอบดัชนีของโฟลเดอร์นี้?\'',
    reindex    => 'สร้างดัชนีใหม่',
@@ -252,34 +251,32 @@
    readonly   => 'อ่านได้อย่างเดียว',
    textcontent=> 'เนื้อความ',
    search     => 'ค้นหา',
-   advsearch  => 'Advanced search',
-   folder     => 'Folder',
-   nofoldersel=> 'No Folder selected',
-   showall    => 'Show All',
+   advsearch  => 'ค้นหาแบบละเอียด',
+   folder     => 'โฟลเดอร์',
+   nofoldersel=> 'ไม่ได้เลือกโฟลเดอร์',
+   showall    => 'แสดงทั้งหมด',
    spellcheck => 'ตรวจคำผิด',
    checkagain => 'ตรวจอีกครั้ง',
    finishchecking => 'ตรวจเสร็จแล้ว',
    manuallyfix=> 'แก้ไขเอง',
-   calendar   => 'Calendar',
+   calendar   => 'ปฏิทิน',
    am         => 'am',
    pm         => 'pm',
-   calfmt_year          => 'Year @@@YEAR@@@',
+   calfmt_year          => 'ค.ศ. @@@YEAR@@@',
    calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
-   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
-   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
    calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
-   none       => 'None',
-   moreitems  => 'more items',
-   multieditconf => 'This item was added for multiple dates.\\nEditing it will change the item for all dates.\\nContinue with Edit?',
-   multidelconf  => 'This item was added for multiple dates.\\nDeleting it will delete the item for all dates.\\nContinue with Delete?',
-   ed         => 'Ed',
-   del        => 'Del',
-   noitemforthisday => 'No items for this day',
-   today_only               => 'Today\'s date only',
-   the_wday_of_thismonth    => 'The',
-   the_wday_of_thismonth2   => 'of the month',
-   every_wday_of_thismonth  => 'Every',
-   every_wday_of_thismonth2 => 'this month'
+   none       => 'ไม่มี',
+   moreitems  => 'รายการเพิ่มเติม',
+   multieditconf => 'รายการนี้ถูกใส่ไว้ในหลายวัน\\nการแก้ไขจะมีผลต่อทุกรายการ\\nกรุณายืนยันการแก้ไข?',
+   multidelconf  => 'รายการนี้ถูกใส่ไว้ในหลายวัน\\nการลบจะมีผลต่อทุกรายการ\\nกรุณายืนยันการลบ?',
+   ed         => 'แก้ไข',
+   del        => 'ลบ',
+   noitemforthisday => 'ไม่มีรายการในวันนี้',
+   today_only               => 'วันนี้เท่านั้น',
+   the_wday_of_thismonth    => 'ใน @@@WDAY@@@ @@@ORDER@@@ ของเดือน',
+   every_wday_of_thismonth  => 'ทุกๆ @@@WDAY@@@ ในเดือนนี้'
    );
 
 %lang_err =
@@ -322,8 +319,8 @@
    pwd_incorrect     => 'รหัสผ่านผิดพลาด',
    network_server_error => 'เซิร์ฟเวอร์เครือข่ายผิดพลาด',
    sendmail_error    => 'มีความผิดพลาดในการส่งจดหมายของคุณ กรุณากดปุ่ม Back ในบราวเซอร์, ตรวจสอบจดหมาย แล้วลองใหม่อีกครั้ง',
-   at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
-   badnum_in_days => 'bad number in consecutive days field'
+   at_char_not_allowed => 'ไม่สามารถใช้เครื่องหมาย @ ในช่องนี้ได้ กรุณากดปุ่ม back แล้วลองใหม่',
+   badnum_in_days => 'จำนวนในช่องวันติดต่อกันผิดพลาด'
    );
 
 1;

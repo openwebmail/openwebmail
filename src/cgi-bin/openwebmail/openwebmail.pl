@@ -11,11 +11,12 @@
 #############################################################################
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
+$ENV{ENV} = "";      # no startup script for sh
 $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0002); # make sure the openwebmail group can write
 
@@ -48,7 +49,7 @@ if ( $>!=0 && ($config{'use_homedirspools'}||$config{'use_homedirfolders'}) ) {
 }
 
 # validate allowed_serverdomain
-my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;	# remove port number
+my $httphost=lc($ENV{'HTTP_HOST'}); $httphost=~s/:\d+$//;	# remove port number
 if (! is_serverdomain_allowed($httphost) ) {
    print "Content-type: text/html\n\nService is not available for domain  ' $httphost '";
    exit 0;
@@ -66,19 +67,17 @@ if ( ($config{'logfile'} ne 'no') ) {
    chown($>, $mailgid, $config{'logfile'}) if ($fuid!=$>||$fgid!=$mailgid);
 }
 
-%prefs = %{&readprefs};
-%style = %{&readstyle};
-
-($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
-require "etc/lang/$prefs{'language'}";
-
 ####################### MAIN ##########################
 
 if ( param("loginname") && param("password") ) {
    $loginname=param("loginname");
-   if ($loginname!~/\@/ && param("logindomain") ne "") {
-      $loginname .= "\@".param("logindomain");
+   $loginname.='@'.param("logindomain") if ($loginname!~/\@/ && param("logindomain") ne "");
+   if ($config{'case_insensitive_login'}) {
+      $loginname=lc($loginname);
+   } else {
+      $loginname=$1.'@'.lc($2) if ($loginname=~/^(.+)\@(.+)$/);
    }
+
    my $siteconf;
    if ($loginname=~/\@(.+)$/) {
        my $domain=$1;
@@ -87,7 +86,7 @@ if ( param("loginname") && param("password") ) {
        }
        $siteconf="$config{'ow_etcdir'}/sites.conf/$domain";
    } else {
-       my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;	# remove port number
+       my $httphost=lc($ENV{'HTTP_HOST'}); $httphost=~s/:\d+$//;	# remove port number
        $siteconf="$config{'ow_etcdir'}/sites.conf/$httphost";
    }
    readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf");
@@ -116,12 +115,22 @@ if ( param("loginname") && param("password") ) {
    mkdb_g2b();
    mkdb_lunar();
 
+   %prefs = %{&readprefs};
+   %style = %{&readstyle};
+   ($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
+   require "etc/lang/$prefs{'language'}";
+
    login();
 
 } else {            # no action has been taken, display login page
-   my $httphost=$ENV{'HTTP_HOST'}; $httphost=~s/:\d+$//;	# remove port number
+   my $httphost=lc($ENV{'HTTP_HOST'}); $httphost=~s/:\d+$//;	# remove port number
    my $siteconf="$config{'ow_etcdir'}/sites.conf/$httphost";
    readconf(\%config, \%config_raw, "$siteconf") if ( -f "$siteconf");
+
+   %prefs = %{&readprefs};
+   %style = %{&readstyle};
+   ($prefs{'language'} =~ /^([\w\d\._]+)$/) && ($prefs{'language'} = $1);
+   require "etc/lang/$prefs{'language'}";
 
    loginmenu();
 }
@@ -151,18 +160,34 @@ sub loginmenu {
       $temphtml .= hidden("subject", param('subject')) if (defined(param('subject')));
    }
    $html =~ s/\@\@\@STARTFORM\@\@\@/$temphtml/;
-   $temphtml = textfield(-name=>'loginname',
-                         -default=>'',
-                         -size=>'12',
-                         -onChange=>'focuspwd()',
-                         -override=>'1');
+
+   if (cookie("openwebmail-rememberme")) {
+      $temphtml = textfield(-name=>'loginname',
+                            -default=>cookie("openwebmail-loginname"),
+                            -size=>'12',
+                            -onChange=>'focuspwd()',
+                            -override=>'1');
+   } else {
+      $temphtml = textfield(-name=>'loginname',
+                            -default=>'' ,
+                            -size=>'12',
+                            -onChange=>'focuspwd()',
+                            -override=>'1');
+   }
    $html =~ s/\@\@\@USERIDFIELD\@\@\@/$temphtml/;
+
    $temphtml = password_field(-name=>'password',
                               -default=>'',
                               -size=>'12',
                               -onChange=>'focuslogin()',
                               -override=>'1');
    $html =~ s/\@\@\@PASSWORDFIELD\@\@\@/$temphtml/;
+
+   $temphtml = checkbox(-name=>'rememberme',
+                        -value=>'1',
+                        -checked=>cookie("openwebmail-rememberme")||0,
+                        -label=>'');
+   $html =~ s/\@\@\@REMEMBERMECHECKBOX\@\@\@/$temphtml/;
 
    if ( $#{$config{'domainnames'}} >0 && $config{'enable_domainselectmenu'} ) {
       $temphtml = popup_menu(-name=>'logindomain',
@@ -424,13 +449,18 @@ sub login {
       my $cookie1 = cookie( -name  => "$user-sessionid",
                             -value => "$sessioncookie_value",
                             -path  => '/');
-      # cookie for other ap to find openwebmail loginname, expired until 3 month later
+      # cookie for other ap to find openwebmail loginname, expired until 1 month later
       my $cookie2 = cookie( -name  => "openwebmail-loginname",
                             -value => "$loginname",
                             -path  => '/',
                             -expires => "+1M" );
-      push(@headers, -cookie=>[$cookie1, $cookie2]);
+      # cookie for remember loginname switch, expired until 1 month later
+      my $cookie3 = cookie( -name  => "openwebmail-rememberme",
+                            -value => param("rememberme")||'',
+                            -path  => '/',
+                            -expires => "+1M" );
 
+      push(@headers, -cookie=>[$cookie1, $cookie2, $cookie3]);
       push(@headers, -charset=>$prefs{'charset'}) if ($CGI::VERSION>=2.57);
 
       # load page with Refresh header only if not MSIE on Mac
@@ -578,8 +608,9 @@ sub is_serverdomain_allowed {
 sub search_and_cleanoldsessions {
    my $oldcookie=$_[0];
    my $oldsessionid="";
-
    my $sessionid;
+   my @delfiles;
+
    opendir (SESSIONSDIR, "$config{'ow_etcdir'}/sessions") or
       openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions!");
    while (defined($sessionid = readdir(SESSIONSDIR))) {
@@ -588,7 +619,7 @@ sub search_and_cleanoldsessions {
          if ($sessionid =~ /^$loginname\-session\-0./) { # remove user old session if timeout
             if ( -M "$config{'ow_etcdir'}/sessions/$sessionid" > $prefs{'sessiontimeout'}/60/24 ) {
                writelog("session cleanup - $sessionid");
-               unlink "$config{'ow_etcdir'}/sessions/$sessionid";
+               push(@delfiles, "$config{'ow_etcdir'}/sessions/$sessionid");
             } else {	# remove user old session from same client
                open (SESSION, "$config{'ow_etcdir'}/sessions/$sessionid");
                my $cookie = <SESSION>; chomp $cookie;
@@ -599,19 +630,20 @@ sub search_and_cleanoldsessions {
                      $oldsessionid=$sessionid;
                   } else {
                      writelog("session cleanup - $sessionid");
-                     unlink "$config{'ow_etcdir'}/sessions/$sessionid";
+                     push(@delfiles, "$config{'ow_etcdir'}/sessions/$sessionid");
                   }
                }
             }
          } else {	# remove others old session if more than 1 day
             if ( -M "$config{'ow_etcdir'}/sessions/$sessionid" > 1 ) {
                writelog("session cleanup - $sessionid");
-               unlink "$config{'ow_etcdir'}/sessions/$sessionid";
+               push(@delfiles, "$config{'ow_etcdir'}/sessions/$sessionid");
             }
          }
       }
    }
    closedir (SESSIONSDIR);
+   unlink(@delfiles) if ($#delfiles>=0);
    return($oldsessionid);
 }
 ############## END SEARCH_AND_CLEANOLDSESSIONS ################
@@ -734,12 +766,11 @@ sub releaseupgrade {
       foreach my $foldername (@validfolders) {
          my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
          my (%HDB, @messageids, @attr);
-
-         next if ( ! -f "$headerdb$config{'dbm_ext'}");
+         next if ( ! -f "$headerdb$config{'dbm_ext'}" || -z "$headerdb$config{'dbm_ext'}" );
 
          filelock($folderfile, LOCK_SH);
          open (FOLDER, $folderfile);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
          dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
          if ( $HDB{'METAINFO'} eq metainfo($folderfile) ) { # upgrade only if hdb is uptodate
@@ -785,7 +816,7 @@ sub releaseupgrade {
             }
          }
          dbmclose(%HDB);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
          filelock($folderfile, LOCK_UN);
       }
       writehistory("release upgrade - $folderdir/* by 20020108.02");
@@ -799,10 +830,9 @@ sub releaseupgrade {
       foreach my $foldername (@validfolders) {
          my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
          my (%HDB, @messageids, @attr);
+         next if ( ! -f "$headerdb$config{'dbm_ext'}" || -z "$headerdb$config{'dbm_ext'}" );
 
-         next if ( ! -f "$headerdb$config{'dbm_ext'}");
-
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
          dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
          @messageids=keys %HDB;
@@ -826,7 +856,7 @@ sub releaseupgrade {
             $HDB{$id}=join('@@@', @attr);
          }
          dbmclose(%HDB);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
          my $cachefile="$headerdb.cache";
          ($cachefile =~ /^(.+)$/) && ($cachefile = $1);  # untaint ...
@@ -845,11 +875,11 @@ sub releaseupgrade {
       foreach my $foldername (@validfolders) {
          my ($folderfile, $headerdb)=get_folderfile_headerdb($user, $foldername);
          my (%HDB, @messageids, @attr);
-         next if ( ! -f "$headerdb$config{'dbm_ext'}");
+         next if ( ! -f "$headerdb$config{'dbm_ext'}" || -z "$headerdb$config{'dbm_ext'}" );
 
          filelock($folderfile, LOCK_SH);
          open (FOLDER, $folderfile);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
          dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
 
          @messageids=keys %HDB;
@@ -886,14 +916,14 @@ sub releaseupgrade {
             $HDB{$id}=join('@@@', @attr);
          }
          dbmclose(%HDB);
-         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+         filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
          filelock($folderfile, LOCK_UN);
       }
       writehistory("release upgrade - $folderdir/* by 20020601");
       writelog("release upgrade - $folderdir/* by 20020601");
    }
 
-   if ( $user_releasedate lt "20020708" ) {
+   if ( $user_releasedate lt "20020728" ) {
       $rc_upgrade=1;	# .openwebmailrc upgrade will be requested
    }
 

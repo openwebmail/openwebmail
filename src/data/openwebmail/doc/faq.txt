@@ -44,7 +44,7 @@ A: There are many possible answers...
       openwebmail-send.pl, openwebmail-spell.pl,
       openwebmail-prefs.pl, openwebmail-folder.pl, 
       openwebmail-abook.pl, openwebmail-advsearch.pl
-      and checkmail.pl
+      openwebmail-cal.pl and checkmail.pl
 
       should be
 
@@ -97,7 +97,8 @@ Q: The login menu showed okay, but I always got login failure?
 A: Check auth_module option in openwebmail.conf:
 
    If it is 'auth_unix.pl', 
-   check if $unix_passwdfile and $unix_passwdmkdb in auth_unix.pl are correct
+   check if $unix_passwdfile_encrypted and $unix_passwdmkdb in auth_unix.pl 
+   are correct
 
    If it is 'auth_pam.pl', 
    make sure you have followed the instructions of 'PAM SUPPORT' in readme.txt.
@@ -114,7 +115,11 @@ A: Openwebmail has to initialize some mapping tables for future use,
 
 Q: It took a long time in every login?
 A: You probably have wrong settings for option dbm_ext and dbmopen_ext in the 
-   openwebmail.conf, please execute uty/dbmtest.pl to find the correct settings.
+   openwebmail.conf, please execute uty/dbmtest.pl to find correct settings.
+
+Q: Openwebmail hangs at every login after I saved the preference in the firsttime?
+A: You probably have wrong settings for option dbmopen_haslock in the 
+   openwebmail.conf, please execute uty/dbmtest.pl to find correct settings.
 
 Q: Will it speedup the login if the GNU copyright page is removed?
 A: The GNU copyright page should be displayed for less than 1 second.
@@ -133,13 +138,14 @@ A: It is possible that you are upgrading from version prior to 1.41
 Q: The login is okay, but I can't change by my password with openwebmail?
 A: There are 2 possible answers for this:
    1. Your passwdfile is not local accessible.
-      If you use auth_unix.pl for authentication and your $unix_passwdfile
-      is not a local accessible file (ex: examples in auth_unix.pl that are
-      terminated with |), the changepassword feature won't be available.
+      If you use auth_unix.pl for authentication and your 
+      $unix_passwdfile_encrypted is not a local accessible file 
+      (ex: examples in auth_unix.pl that are terminated with |), 
+      the changepassword feature won't be available.
       In these cases, you have to use auth_pam.pl to get the changepassword
       to work.
    2. Your system doesn't support saved set-user-ID, so openwebmail won't get
-      enough privilege to change the passwdfile.
+      enough privilege to change the passwd file.
       Try to set savedsuid_support to 'no' in openwebmail.conf to solve 
       this problem.
    3. The authentication module which you used doesn't support password 
@@ -166,6 +172,20 @@ A: Please download MIME-Base64-2.12.tar.gz and install
    perl Makefile.PL
    make
    make install
+
+Q: I got "Use of uninitialized value in subroutine entry at /xxx/DB_File.pm 
+   line yyy" error ?
+A: The line you got error should be inside the sub routine tie_hash_or_aeeay.
+   Please find the following comment line in DB_File.pm:
+
+   # make recno in Berkeley DB version 2 work like recno in version 1
+
+   And add the following line just beofre the above line:
+
+   $arg[3] = 0666 unless defined $arg[3] ;
+
+   (thanks to Paul Marquess, Paul.Marquess.AT.btinternet.com 
+          and mainely_linux.AT.users.sourceforge.net)
 
 Q: I got "can't open /var/log/openwebmail.log" error?
 A: Please check the openwebmail.log permission, it should be
@@ -248,7 +268,7 @@ A: You have 2 ways to do this:
    In auth_pam.pl ~
 
    my $pam_servicename="openwebmail"; 
-   my $pam_passwdfile="/etc/passwd";
+   my $pam_passwdfile_plaintext="/etc/passwd";
 
    vi /etc/pam.d/openwebmail:
 
@@ -367,7 +387,7 @@ A: You can use the virtusertable or the per user config file
        a specific user.
 
 Q: How can I disallow the user to set their from email address?
-A: set option allow_setfromemail to 'no' in either openwebmal.conf or per 
+A: set option enable_setfromemail to 'no' in either openwebmal.conf or per 
    user config.
 
 Q: Some of my messages were moved to trash folder automatically?
@@ -570,12 +590,12 @@ A: This is due to the dbmopen() of your perl didn't add the ".db" extension
 
    and you will get output like this:
 
-   dbm_ext         .db
-   dbmopen_ext     none
+   dbm_ext              .db
+   dbmopen_ext          none
+   dbmopen_haslock      no
 
-   Then put the two lines into your openwebmail.conf.
+   Then put the three lines into your openwebmail.conf.
 
-   I
 Q: My openwebmail was okay, but I got "Your request didn't contain the proper 
    session ID cookie -- access denied!" in these days?
 A: Openwebmail puts user uploaded attachments in 
@@ -765,6 +785,10 @@ A: Maybe, but it won't be implemented in the near future since we don't use
    qmail on our mail server. It is said that qmail has a 'mbox' compatible 
    mode, you may use that mode with openwebmail.
 
+Q: Can Openwebmail do xxx function or have yyy control option?
+A: The best way to know all features of openwebmail is to check the
+   cgi-bin/openwebmail/etc/openwebmail.conf.help. Please check it.
+
 Q: Can I use Open WebMail in a commercial web site? 
 A: Yes. Open WebMail is GPLed software (please see copyright.txt for 
    detail of GPL). You can distribute/use/modify/sell it freely ONLY IF
@@ -776,6 +800,6 @@ A: Yes. Open WebMail is GPLed software (please see copyright.txt for
    c. Products based on Open Webmail must be also distributed under GPL.
 
 
-04/02/2002 
+07/28/2002 
 
 openwebmail.AT.turtle.ee.ncku.edu.tw

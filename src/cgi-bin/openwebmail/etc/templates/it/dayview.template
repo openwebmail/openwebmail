@@ -37,8 +37,8 @@
 @@@STARTADDITEMFORM@@@
 <tr><td colspan=2 align=center><B>Aggiungi voce in calendario</B></td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
-<tr><td width=25% nowrap>Start time</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
-<tr><td width=25% nowrap>End time</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Ora inizio</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Ora fine</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@TODAYANDNEXTNDAYSCHECKBOX@@@ Oggi e i prossimi @@@NDAYSFIELD@@@ giorni</td></tr>
 <tr><td colspan=2 nowrap>@@@EVERYMONTHCHECKBOX@@@ Ogni mese questo anno</td></tr>

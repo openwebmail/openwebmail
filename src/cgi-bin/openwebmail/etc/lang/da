@@ -10,7 +10,6 @@
    'sent-mail'      => 'Sendt mail',
    'saved-drafts'   => 'Kladder',
    'mail-trash'     => 'Papirkurv',
-   'all'            => 'Alle',
    DELETE => '--Slet permanent--'
    );
 
@@ -68,7 +67,7 @@
    isnot       => 'er ikke',
    startswith  => 'starter med',
    endswith    => 'ender på',
-   regexp      => 'matcher regexp. (store og små bogstaver)',
+   regexp      => 'matcher regexp.',
    );
 
 %lang_calendar = 
@@ -276,10 +275,8 @@
    del        => 'Slet',
    noitemforthisday => 'Ingen aftaler i dag',
    today_only               => 'Kun dags dato',
-   the_wday_of_thismonth    => 'Den',
-   the_wday_of_thismonth2   => 'i hver måned',
-   every_wday_of_thismonth  => 'Hver',
-   every_wday_of_thismonth2 => 'i denne måned'
+   the_wday_of_thismonth    => 'Den @@@ORDER@@@ @@@WDAY@@@ i hver måned',
+   every_wday_of_thismonth  => 'Hver @@@WDAY@@@ i denne måned'
    );
 
 %lang_err =

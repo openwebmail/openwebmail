@@ -106,7 +106,7 @@ openwebmail-1.xx.tgz file you have just downloaded.
    cd /home/httpd
    tar -zxvBpf openwebmail-1.xx.tgz
    edit auth_unix.pl:
-   set $unix_passwdfile to /etc/shadow
+   set $unix_passwdfile_encrypted to /etc/shadow
        $unix_passwdmkdb to none
 
    cd cgi-bin/etc
@@ -122,7 +122,7 @@ openwebmail-1.xx.tgz file you have just downloaded.
    cd /var/www
    tar -zxvBpf openwebmail-1.xx.tgz
    edit auth_unix.pl:
-   set $unix_passwdfile to /etc/shadow
+   set $unix_passwdfile_encrypted to /etc/shadow
        $unix_passwdmkdb to none
 
    cd cgi-bin/etc
@@ -149,9 +149,13 @@ domainnames		auto
 auth_module		auth_unix.pl
 mailspooldir		/var/spool/mail
 dbm_ext			.db
+dbmopen_ext		none
+dbmopen_haslock		no
 timeoffset		-0600
 ow_cgidir		/var/www/cgi-bin/openwebmail
+ow_cgiurl		/cgi-bin/openwebmail
 ow_htmldir		/var/www/data/openwebmail
+ow_htmlurl		/openwebmail
 logfile			/var/log/openwebmail.log
 spellcheck		/usr/bin/aspell
 default_language	en

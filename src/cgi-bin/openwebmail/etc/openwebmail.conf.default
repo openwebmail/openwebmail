@@ -11,8 +11,8 @@
 #
 
 name			Open WebMail
-version			1.70
-releasedate		20020712
+version			1.71
+releasedate		20020827
 
 ##############################################################################
 # host dependent configuration
@@ -24,6 +24,7 @@ smtpauth		no
 virtusertable		/etc/mail/virtusertable
 auth_module		auth_unix.pl
 auth_withdomain		no
+auth_domain		auto
 mailspooldir		/var/mail
 use_hashedmailspools	no
 create_homedir		no
@@ -46,10 +47,10 @@ ow_cgiurl		/cgi-bin/openwebmail
 ow_htmldir		/usr/local/www/data/openwebmail
 ow_htmlurl		/openwebmail
 ow_etcdir		%ow_cgidir%/etc
+start_url		%ow_cgiurl%/openwebmail.pl
 ico_url			%ow_htmlurl%/images/openwebmail.ico
 logo_url		%ow_htmlurl%/images/openwebmail.gif
 logo_link		http://openwebmail.org/
-sound_url		%ow_htmlurl%/yougotmail.wav
 logfile			%ow_cgidir%/openwebmail.log
 global_addressbook	%ow_etcdir%/address.book
 global_filterbook	%ow_etcdir%/filter.book
@@ -65,6 +66,7 @@ allowed_serverdomain	all
 allowed_clientdomain	all
 allowed_clientip	all
 allowed_receiverdomain	all
+case_insensitive_login	no
 enable_rootlogin	no
 enable_domainselectmenu yes
 enable_changepwd	yes
@@ -79,17 +81,20 @@ xoriginatingip_has_userid	yes
 enable_setfromemail	yes
 enable_autoreply	yes
 enable_setforward	yes
+enable_calendar		yes
 enable_pop3		yes
 disallowed_pop3servers	your_server, your_server.domain
 getmail_from_pop3_authserver	no
 delpop3mail_by_default	yes
 delpop3mail_hidden	no
+domainnames_override	no
 symboliclink_mbox	yes
 loginerrordelay		10
 refreshinterval		15
 fetchpop3interval	15
 foldername_maxlen	32
 folderquota		0
+folderusage_threshold	85
 maxbooksize		32
 attlimit		50
 
@@ -118,7 +123,7 @@ default_dateformat	mm/dd/yyyy
 default_editcolumns	78
 default_editrows	20
 default_dictionary	english
-default_newmailsound	yes
+default_newmailsound	YouGotMail.English.wav
 default_hideinternal	yes
 default_usefixedfont	no
 default_usesmileicon	yes

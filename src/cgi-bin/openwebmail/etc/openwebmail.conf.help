@@ -53,14 +53,17 @@ auth_module
 -----------------------------------------------------------------------
 the authentication module used in openwebmail
 
-auth_module	authentication by
---------------	---------------------------------------
-auth_unix.pl	unix passwd
-auth_pam.pl	pam (pluggable authentication module)
-auth_ldap.pl	ldap server
-auth_pop3.pl	remote pop3 server
-auth_mysql.pl	mysql server
-auth_pgsql.pl	postgres server
+auth_module		authentication by
+--------------		---------------------------------------
+auth_unix.pl		unix passwd
+auth_pam.pl		pam 		(pluggable authentication module)
+auth_ldap.pl		ldap server
+auth_pop3.pl		remote pop3 server
+auth_mysql.pl		mysql server    (DBI interface)
+auth_mysql_vmail.pl	mysql server	(optimized for vmail)
+auth_pgsql.pl		postgres server (DBI interface)
+auth_pg.pl		postgres server (pgsql interface)
+auth_cobalt.pl		unix passwd	(optimized for Sun Cobalt servers)
 
 IMPORTANT!!!
 
@@ -73,6 +76,23 @@ auth_withdomain
 -----------------------------------------------------------------------
 Set this option to 'yes' if the the user to be authenticated by
 auth_module is in the form of 'username@domainname
+
+
+auth_domain
+-----------------------------------------------------------------------
+When previous option auth_withdomain is set to yes, the domain is derived 
+from 3 sources in the following order:
+1. the domain part in username after virtusertable mapping
+2. the domain in the webmail URL
+3. the domain part in loginname specified by user
+
+The auth_domain option stands for source 2 since the URL may not always 
+contains the proper domain we need to auth by. 
+If the option is set to auto, the hostname in the URL will be used. 
+Or its value will be used instead for source 2.
+
+Example:
+auth_domain	server1.domain1.com
 
 
 mailspooldir
@@ -143,6 +163,16 @@ only if you use any DB File module in script explicitly
 ps: It is said this option needs to be set to '%dbm_ext%' on the Sun
     Cobal server or Slackware 8.x.
     You can run 'perl openwebmail/uty/dbmtest.pl' to get value for this
+
+
+dbmopen_haslock
+-----------------------------------------------------------------------
+If your perl dbm system will do filelock in dbmopen() by itself, 
+set this option to 'yes' so openwebmail won't do unnecessary filelock 
+before dbmopen. On most systems, this option should be set to 'no'.
+
+ps: If your openwebmail hangs after login or saving preference, 
+    you probablely need to set this option to 'yes'
 
 
 deliver_use_GMT
@@ -218,6 +248,13 @@ ps: The directories sessions/ and users/ should be mode 750 and owned by the
     better security.
 
 
+start_url
+-----------------------------------------------------------------------
+The url of the start page for openwebmail login.
+Set this option if you have customized start page for openwebmail login,
+so [continue] button at logout page can lead your user to correct page
+
+
 ico_url
 -----------------------------------------------------------------------
 The graphic that is used as the shortcut icon for openwebmail.
@@ -233,13 +270,6 @@ This graphic that appears at the top of openwebmail login pages.
 logo_link
 -----------------------------------------------------------------------
 The link to go when user clicks the logo image
-
-
-sound_url
------------------------------------------------------------------------
-this is the sound file played if new mail is found.
-Openwebmail checks new mail for user every 15 min if user is in INBOX
-folderview. Set to '' will disable this feature
 
 
 logfile
@@ -357,6 +387,13 @@ Example:
 allowed_receiverdomain	company.com, someone@company2.com
 
 
+case_insensitive_login
+-----------------------------------------------------------------------
+Set this to 'yes' if you want case insensitive login in openwebmail,
+then user loginname will be converted into lower case before passing 
+to authentication system.
+
+
 enable_rootlogin
 -----------------------------------------------------------------------
 Set this to 'yes' if you want to allow root login
@@ -433,6 +470,12 @@ This option would allow user to set their ~/.forward
 which will forward their mail to other server automatically
 
 
+enable_calendar
+-----------------------------------------------------------------------
+Open WebMail has built-in clendar support.
+Set this option to 'no' if you want to disable it.
+
+
 enable_pop3
 -----------------------------------------------------------------------
 Open WebMail has complete support for pop3 mail. If you want to disable
@@ -466,6 +509,18 @@ delpop3mail_hidden
 If this option is on, openwebmail will hide the 'del remote mail'
 checkbox in editpop3 menu so uer will not be able to change it.
 Then the value delpop3mail_by_default will be used
+
+
+domainnames_override
+-----------------------------------------------------------------------
+The domainame for the user default email comes from the following source:
+1. the domainname in the URL line
+2. the domainname defined in the option domainnames in openwebmail.conf
+3. the domainname of the virtualuser defined in the virtusertable
+
+The later sources will override the former.
+If you set 'domainnames_override' to yes, the source 2 will also override 
+the source 3.
 
 
 symboliclink_mbox
@@ -512,6 +567,13 @@ folder other than TRASH, where they will be immediately deleted,
 until space is freed. This does not prevent the operation taking the user
 over this limit from completing, it simply inhibits further saving of
 messages until the folder size is brought down again.
+
+
+folderusage_threshold
+----------------------------------------------------------------------
+If the percentage of the used folder quota is over this threshold, 
+a '[Usage N%]' will be displayed in the title bar in the folder view.
+Set this to 0 will make the '[UsageN%]' always appear.
 
 
 maxbooksize
@@ -680,8 +742,9 @@ the default dictionary used in spellcheck for new user
 
 default_newmailsound
 -----------------------------------------------------------------------
-if this option is set to yes, the user will be notified with sound
-'You have mail' when new mail is available
+this is the sound file played if new mail is found.
+Openwebmail checks new mail for user every 15 min if user is in INBOX
+folderview. Set to 'NONE' will disable this feature
 
 
 hideinternal

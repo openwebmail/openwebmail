@@ -1,14 +1,13 @@
 #
-# auth_mysql_vmail.pl - authenticate user with MySQL, where required fields are in more tables (like in vmail-sql).
-#
+# auth_mysql_vmail.pl - authenticate user with MySQL, where required fields 
+#                       are in more tables (like in vmail-sql).
 # v1.5
+# 2002/04/23 Zoltan Kovacs - werdy@freemail.hu
 #
-# 2002/04/23
-# Zoltan Kovacs
-# werdy@freemail.hu
+
 #
 # The sample config made for vmail-sql.
-
+#
 # This is the table which holds information about domains in vmail-sql (got from vmail-sql's README).
 # CREATE TABLE domain (
 #         domain_name VARCHAR(255) PRIMARY KEY,   # domain name
@@ -17,7 +16,7 @@
 #         path VARCHAR(255),                      # base path for this domain
 #         max_popbox INT                          # maximum number of popboxes in this domain
 # ) ;
-
+#
 # This is the table which holds user's informations in vmail-sql (got from vmail-sql's README).
 # CREATE TABLE popbox (
 #         domain_name VARCHAR(255) not null,      # domain this refers to
@@ -26,6 +25,7 @@
 #         mbox_name VARCHAR(255),                 # appended to domain.path
 #         PRIMARY KEY (domain_name(16), local_part(32));
 # ) ;
+#
 
 my ( %mysql_auth, %mysql_query );
 

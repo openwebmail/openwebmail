@@ -1,3 +1,219 @@
+08/24/2002 (version 1.71)
+----------
+1. Japanese (ShiftJIS) language and templates translation
+   (thanks to Captain James and Interactive Artists, LLC, 
+              james.AT.ActionMessage.com)
+
+
+08/23/2002
+----------
+1. iconset Cool3D.Dutch update
+   (thanks to Jan Houtsma, jan.AT.houtsma.net)
+2. cut the length of db key+value to shorter than 1000 in maildb.pl
+   to be compatible with all kinds of dbm systems
+   (reported by Benjamin Bennett, ben.AT.phys.psu.edu)
+3. fix the bug that entries in message header will be treated as empty if it s
+   tarted with a blank line
+
+
+08/22/2002
+----------
+1. add option start_url to openwebmail.conf.default to customize the link for 
+   continue button at logout page
+   (suggested by Daniel Pentecost, daniel.AT.davoice.net)
+2. fix a bug in calendar that the repeatness of nth weekday in the month won't work.
+   (reported by Stewart Ives, ivessm.AT.users.sourceforge.net)
+3. fix typing error in openwebmail.conf. The ddmopen_haslock should be dbmopen_haslock.
+   (reported by Julio, julio.AT.cnm.org.br)
+4. add the 'remember my userid' support for login menu
+   (thanks to Robert Blayzor, rblayzor.AT.inoc.net)
+
+
+08/21/2002
+-----------
+1. fix the bug that the modified text of a forwarded message won't be displayed if 
+   the original message contained both text and html 
+   (reported by Tsing Moh Lim, moke.AT.amcpl.net)
+2. add option case_insensitive_login to openwebmail.conf.default
+   (suggested by Jason Clifford, jason.AT.ukpost.com)
+3. fix a bug in forwarding a mail error report
+   (thanks to Sven Niemetz, sven.AT.grovestreet.net for his fix)
+
+
+08/20/2002
+----------
+1. new iconset Default.Norwegian and updated iconset Default.Norwegian
+   (thanks to Are Tysland, are.AT.valinor.dolphinics.no)
+2. Italian templates translation minor update
+   (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
+
+
+08/13/2002
+----------
+1. fix the bug that dbmopen_haslock warning always appears even the option is
+   correctly set
+   (reported by chouki.AT.users.sourceforge.net)
+2. fix the bug in openwebmail.pl that some options in site.conf have no effect
+   (reported by Alejandro Gonzalez Hernandez, imoq.AT.users.sourceforge.net)
+
+
+08/12/2002
+----------
+1. add new option dbmopen_haslock to openwebmail.conf
+   The default is 'no' which means your perl system won't do filelock in 
+   dbmopen() by itself, so openwebmail will do filelock for you. But if 
+   your openwebmail hangs after login, you may try to set this option to 'yes'.
+2. fix a bug in checkmail.pl which prevent checkmail.pl to find the correct 
+   fullpath of itself
+   (thanks to Filitov, Chin-Hao Chang, filitov.AT.fili.to)
+
+
+08/07/2002
+----------
+1. fix the bug that some platform will have the "invlaid cookie" error
+   after sending message.
+   (reported by Wern-Nerne Lin, lin.AT.mail.ncku.edu.tw)
+
+
+08/06/2002
+----------
+1. fix the duplicated From: To: bug introduced by 2002/08/05 patch
+
+
+08/05/2002
+----------
+1. basic support of subdir for mailfolder
+   allow '-' char in background image
+   new iconset: Default.Deutsch
+   iconset update: Cool3D.Deutsch
+   (thanks to Ralf Becker,beckerr.AT.fh-trier.de)
+2. new option in openwebmail.conf: auth_domain
+   fix a bug in filelock.pl for perl 5.8.0
+   (thanks to Robert Blayzor,rblayzor.AT.inoc.net)
+3. donation of openwebmail.com from Neil Inns
+   (thanks to Neil Inns, neil.AT.emailattitude.com)
+4. fix bug in writecalbook so it can work with file linked to 
+   global_calendarbook
+   (reported by Davide Sacchetti, davidesacchetti.AT.users.sourceforge.net)
+5. stripe Bcc from message header before passing it to MTA
+   (reported by Ruud Verstijnen, rudev.AT.users.sourceforge.net)
+
+
+08/04/2002
+----------
+1. fix the "unabele to write lock calendarbook" error
+   (thanks to Thomas Chung, tchung.AT.pasadena.oao.com)
+
+
+08/03/2002
+----------
+1. fix a bug in filelock.pl which entered endless loop if it was used to 
+   lock files in a readonly directory under dotlockfile mode
+   This fixed the hang problem in 1.70 caused by the dotlockfile lock on 
+   global_calendarbook
+   (reported by /Frank, frank.AT.post12.tele.dk)
+2. Slovak templates minor update and Cool3D.Slovak iconset update
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
+
+
+08/02/2002
+----------
+1. new auth module: auth_pam_cobakt.pl
+   (thanks to Taco Scargo, webmaster.AT.pkgmaster.com)
+
+
+08/01/2002
+----------
+1. fix a bug in checkmail.pl which caused checkmail.pl to quit if any 
+   read event error
+   (reported by lubos klokner, lubos.AT.klokner.sk)
+2. add a pine addressbook import button to addressbook management menu
+   (thanks to Caner Kurtul, kurtul.AT.boun.edu.tr)
+3. check if the size of a dbm is zero before opening it to avoid the delay 
+   problem on some platform 
+   (reported by Taco Scargo, webmaster.AT.pkgmaster.com)
+
+
+07/30/2002
+----------
+1. fix a bug in calendar dayview which appears if that day belong to the 
+   5th week of a month
+2. new iconset: Default.Slovak
+   (thanks to lubos klokner, lubos.AT.klokner.sk)
+3. fix the insecure $ENV{ENV} bug
+   (reported by lubos klokner, lubos.AT.klokner.sk)
+
+
+07/28/2002
+----------
+1. iconset Cool3D.Turkish update
+   (thanks to Erdinc Guler, eguler.AT.aegee.metu.edu.tr)
+2. add a dropdown menu to user preference to choose newmailsound file
+   (suggested by /Frank, frank.AT.post12.tele.dk)
+
+
+07/27/2002
+----------
+1. move initialzation routine mkdb_* to background so it won't timeouted
+   on slow or very busy machine.
+
+
+07/26/2002
+----------
+1. use mkcool3d_en.sh and mkcool3d_it.sh to make iconsets to generate new iconsets: 
+   Cool3D.Large.English, Cool3D.Italian
+   (thanks to Andrea Partinico, andrea.AT.linsys.it for his scrips and iconsets)
+
+
+07/20/2002
+----------
+1. new icon sets: Default.English, Default.Chinese.Traditional
+   updated icon sets: Cool3D.English, Cool3D.Chinese.Traditional
+
+
+07/19/2002
+----------
+1. check /etc/nologin and valid shell for user in auth_cobalt.pl
+   (thanks to Trevor Paquette, Trevor.Paquette.AT.TeraGo.ca)
+2. Thai language and templates translation update
+   (thanks to Atsawin Chaowanakritsanakul, joke.AT.nakhon.net)
+3. add option enable_calendar to openwebmail.conf.default 
+4. minor fix to auth_unix.pl and auth_cobalt.pl so they can work with
+   passwd files other than system default
+5. fix the "Insecure dependency in sysopen" error caused by readcalbook()
+   on Solaris 9.
+
+
+07/18/2002
+----------
+1. Portuguese Brazil language and templates translation update
+   (thanks to Rui - iG, ruisb.AT.ig.com.br)
+
+
+07/17/2002
+----------
+1. add option domainnames_override, folderusage_threshold to 
+   openwebmail.conf.default
+   (thanks to Trevor Paquette, Trevor.Paquette.AT.TeraGo.ca for his patch)
+2. case insensitive comparison of virtual address in vacation.pl
+   (thanks to Trevor Paquette, Trevor.Paquette.AT.TeraGo.ca for his fix)
+3. minor fix to the background image Envelope.gif
+   (thanks to Dimitris 'sehh' Michelinakis, dimitris.AT.michelinakis.gr)
+4. auth_cobalt.pl - add check for cobalt security over auth_unix.pl
+   (thanks to Trevor Paquette, Trevor.Paquette.AT.TeraGo.ca)
+
+
+07/15/2002
+----------
+1. show weekday in reminder
+
+
+07/14/2002
+----------
+1. Spanish language and template files update
+   (thanks to Javier Smaldone, jsmaldone.AT.yahoo.com)
+
+
 07/12/2002 (version 1.70)
 ----------
 1. Lithuanian language and templates translation update
@@ -31,7 +247,7 @@
 1. add option global_calendarbook to openwebmail.conf,
    prilimary support for global calendar
 2. reminder can be configured to show events in global calendar or not.
-3. German language and templates trnaslation update
+3. Deutsch language and templates trnaslation update
    (thanks to Christian Schoepplein, mail.AT.schoeppi.net)
 4. add dbm_test() to mkdb* routines, so the error setting of option 
    dbm_ext and dbmopen_ext will be detected automatically
@@ -123,7 +339,7 @@
 
 06/26/2002
 ----------
-1. German template trnaslation update
+1. Deutsch template trnaslation update
    (thanks to Christian Schoepplein, mail.AT.schoeppi.net)
 
 
@@ -202,7 +418,7 @@
 
 06/10/2002
 ----------
-1. spanish language and template files update
+1. Spanish language and template files update
    (thanks to Javier Smaldone, jsmaldone.AT.yahoo.com)
 2. move charset setting from language file to user preference,
    so you may set charset independly with the language.
@@ -370,7 +586,7 @@
 
 05/09/2002
 ----------
-1. add new iconset: Cool3D.German
+1. add new iconset: Cool3D.Deutsch
    (thanks to Ralf Becker, beckerr.AT.fh-trier.de)
 2. add new iconset: Cool3D.Polish
    (thanks to Grzegorz Nosek, blackfire.AT.virtual.net.pl)
@@ -404,7 +620,7 @@
     suggested by Yen-Ming Lee, leeym.AT.leeym.com)
 2. Italian language and templates translation update
    (thanks to Marvi Benedet, i3100579.AT.ingstud.units.it)
-3. German language and template trnaslation minor update
+3. Deutsch language and template trnaslation minor update
    (thanks to Christian Schoepplein, mail.AT.schoeppi.net)
 
 
@@ -506,7 +722,7 @@
 
 04/13/2002
 ----------
-1. german login.templates translation update
+1. Deutsch login.templates translation update
    (thanks to Nicola Tiling, nti.AT.w4w.net)
 2. set Refresh directive with meta instead of http header for better 
    compatibility
@@ -864,7 +1080,7 @@
 
 02/25/2002
 ----------
-1. German language and templates translation update
+1. Deutsch language and templates translation update
    (thanks to Christian Schoepplein, mail.AT.schoeppi.net)
 2. minor change to footer.template to be more compatible with lynx reader
 
@@ -1047,7 +1263,7 @@
 2. add usefixedfont to openwebmail.conf and userpreference
    (suggested by kyork, kyork.AT.videovideo.com
                  Martin Gignac, lmcgign.AT.mobilitylab.net)
-3. spanish language and template files update
+3. Spanish language and template files update
    (thanks to Javier Smaldone, jsmaldone.AT.yahoo.com)
 
 
@@ -1553,7 +1769,7 @@ ps: The user .*.book file will be converted automatically when user logins.
 
 10/27/2001
 ----------
-1. minor fix for spanish templates
+1. minor fix for Spanish templates
    (thanks to Osvaldo Ancarola, oancarola.AT.hotmail.com)
 2. correct a bug that locates background images in wrong path
    (thanks to Osvaldo Ancarola, oancarola.AT.hotmail.com)
@@ -1688,7 +1904,7 @@ ps: The user .*.book file will be converted automatically when user logins.
 2. The default setting for most items in user preference are now available
    in openwebmail.conf.
 3. all static links in templates are removed.
-4. spanish language and templates translation update
+4. Spanish language and templates translation update
    (thanks to Félix Martos, pakito.AT.asinkecualo.org)
 
 Note: Since openwebmail.conf is totally changed, a reinstallation is 
@@ -1878,7 +2094,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 
 07/26/2001
 ----------
-1. spanish language and templates translation 
+1. Spanish language and templates translation 
    (thanks to Félix Martos, pakito.AT.asinkecualo.org)
 
 
@@ -2083,7 +2299,7 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 ----------
 1. fix minor error in sendmessage which sets $from value in dbm to $to
    when storing message backup to SENT folder
-2. german language and templates translation
+2. Deutsch language and templates translation
    (thanks to Andreas Roedl, flood.AT.flood-net.de)
 3. minor fix to displayheader to solve the delay problem on some 
    platform, eg: linux RedHat6.2/CLE0.9
@@ -2094,9 +2310,9 @@ Note: Since openwebmail.conf is totally changed, a reinstallation is
 ----------
 1. use new 3D icons instead of the original flat icons.
    (thanks to Emir Litric, elitric.AT.yahoo.com, for his grea work of art!!!)
-2. spanish language and templates translation
+2. Spanish language and templates translation
    (thanks to Félix Martos, pakito.AT.asinkecualo.org)
-3. german language translation
+3. Deutsch language translation
    (thanks to Andreas Roedl, flood.AT.flood-net.de)
 4. fix .pop3.book open error when pop3book size=0
    (reported by kwang.AT.mail.cgjh.tcc.edu.tw)

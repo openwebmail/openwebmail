@@ -13,7 +13,6 @@
    'sent-mail'      => 'WYS£ANE',
    'saved-drafts'   => 'BRUDNOPIS',
    'mail-trash'     => 'KOSZ',
-   'all'            => 'WSZYSTKIE',
    DELETE => '--USUÑ--'
    );
 
@@ -71,7 +70,7 @@
    isnot       => 'nie jest równy',
    startswith  => 'rozpoczyna siê od',
    endswith    => 'koñczy siê na',
-   regexp      => 'matches regexp(insensitive)',
+   regexp      => 'matches regexp',
    );
 
 %lang_calendar = 
@@ -279,10 +278,8 @@
    del        => 'Usuñ',
    noitemforthisday => 'Koniec wpisów',
    today_only               => 'Tylko w dniu dzisiejszym',
-   the_wday_of_thismonth    => 'W ',
-   the_wday_of_thismonth2   => 'miesi±ca',
-   every_wday_of_thismonth  => 'Ka¿dy(±)',
-   every_wday_of_thismonth2 => 'bie¿±cego miesi±ca'
+   the_wday_of_thismonth    => 'W  @@@ORDER@@@ @@@WDAY@@@ miesi±ca',
+   every_wday_of_thismonth  => 'Ka¿dy(±) @@@WDAY@@@ bie¿±cego miesi±ca'
    );
 
 %lang_err =

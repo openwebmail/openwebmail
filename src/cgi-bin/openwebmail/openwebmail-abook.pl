@@ -11,11 +11,12 @@
 #############################################################################
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
+$ENV{ENV} = "";      # no startup script for sh
 $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0002); # make sure the openwebmail group can write
 
@@ -65,6 +66,8 @@ if ($action eq "addressbook") {
    clearaddress();
 } elsif ($action eq "importabook") {
    importabook();
+} elsif ($action eq "importabook_pine") {
+   importabook_pine();
 } elsif ($action eq "exportabook") {
    exportabook();
 } else {
@@ -183,31 +186,6 @@ sub addressbook {
                     "$name.$email.$note" !~ /\Q$abook_keyword\E/i) )  ) {
                next;
             }
-            $addresses{"$name"} = "$email";
-            $notes{"$name"} = "$note";
-         }
-         close (ABOOK);
-      }
-
-      # import pine addressbook
-      if (open (ABOOK,"$homedir/.addressbook") ) {
-         while (<ABOOK>) {
-            my ($dummy, $name, $email, $dummy2, $note) = split(/\t/, $_, 5);
-            chomp($email);
-            chomp($note);
-            if ( $abook_keyword ne "" &&
-                 ( ($abook_searchtype eq "name" &&
-                    $name!~/$abook_keyword/i && $name!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "email" &&
-                    $email!~/$abook_keyword/i && $email!~/\Q$abook_keyword\E/i) ||
-                   ($abook_searchtype eq "note" &&
-                    $note!~/$abook_keyword/i && $note!~/\Q$abook_keyword\E/i)   ||
-                   ($abook_searchtype eq "all" &&
-                    "$name.$email.$note" !~ /$abook_keyword/i &&
-                    "$name.$email.$note" !~ /\Q$abook_keyword\E/i) )  ) {
-               next;
-            }
-            next if ($email=~/^\s*$/);	# skip if email is null
             $addresses{"$name"} = "$email";
             $notes{"$name"} = "$note";
          }
@@ -385,7 +363,7 @@ sub importabook {
 #            openwebmailerror(qq|$lang_err{'abook_invalid'} <a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid">$lang_err{'back'}</a> $lang_err{'tryagain'}|);
 #         }
 #      }
-      unless ( -f "$folderdir/.address.book" ) {
+      if (! -f "$folderdir/.address.book" ) {
          open (ABOOK, ">>$folderdir/.address.book"); # Create if nonexistent
          close(ABOOK);
       }
@@ -550,6 +528,66 @@ sub importabook {
       printfooter(2);
    }
 }
+
+sub importabook_pine {
+   if ( ! -f "$folderdir/.address.book" ) {
+      open (ABOOK, ">>$folderdir/.address.book"); # Create if nonexistent
+      close(ABOOK);
+   }
+
+   if (open (PINEBOOK,"$homedir/.addressbook") ) {
+      my ($name, $email, $note);
+      my (%addresses, %notes);
+      my $abooktowrite='';
+
+      filelock("$folderdir/.address.book", LOCK_EX|LOCK_NB) or
+         openwebmailerror("$lang_err{'couldnt_lock'} $folderdir/.address.book!");
+      open (ABOOK,"+<$folderdir/.address.book") or
+         openwebmailerror("$lang_err{'couldnt_open'} $folderdir/.address.book!");
+
+      while (<ABOOK>) {
+         ($name, $email, $note) = split(/\@\@\@/, $_, 3);
+         chomp($email); chomp($note);
+         $addresses{"$name"} = $email;
+         $notes{"$name"}=$note;
+      }
+
+      while (<PINEBOOK>) {
+         my ($name, $email, $note) = (split(/\t/, $_,5))[1,2,4];
+         chomp($email);
+         chomp($note);
+         next if ($email=~/^\s*$/);  # skip if email is null
+         $addresses{"$name"} = $email;
+         $notes{"$name"}=$note;
+      }
+      close (PINEBOOK);
+
+      seek (ABOOK, 0, 0) or
+         openwebmailerror("$lang_err{'couldnt_seek'} $folderdir/.address.book!");
+
+      foreach (sort keys %addresses) {
+         ($name,$email,$note)=($_, $addresses{$_}, $notes{$_});
+         $name=~s/\@\@/\@\@ /g; $name=~s/\@$/\@ /;
+         $email=~s/\@\@/\@\@ /g; $email=~s/\@$/\@ /;
+         $abooktowrite .= "$name\@\@\@$email\@\@\@$note\n";
+      }
+
+      if (length($abooktowrite) > ($config{'maxbooksize'} * 1024)) {
+         openwebmailerror(qq|$lang_err{'abook_toobig'}|.
+                          qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;folder=$escapedfolder&amp;firstmessage=$firstmessage&amp;message_id=$escapedmessageid">$lang_err{'back'}</a>|.
+                          qq|$lang_err{'tryagain'}|);
+      }
+      print ABOOK $abooktowrite;
+      truncate(ABOOK, tell(ABOOK));
+
+      close (ABOOK) or openwebmailerror("$lang_err{'couldnt_close'} $folderdir/.address.book!");
+      filelock("$folderdir/.address.book", LOCK_UN);
+
+      writelog("import addressbook");
+      writehistory("import addressbook");
+   }
+   editaddresses();
+}
 #################### END IMPORTABOOK #########################
 
 ##################### EXPORTABOOK ############################
@@ -645,8 +683,11 @@ sub editaddresses {
    } else {
       $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder" title="$lang_text{'backto'} $printfolder"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/backtofolder.gif" border="0" ALT="$lang_text{'backto'} $printfolder"></a> &nbsp; |;
    }
-   $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'importadd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/import.gif" border="0" ALT="$lang_text{'importadd'}"></a> |.
-                qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=exportabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'exportadd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/export.gif" border="0" ALT="$lang_text{'exportadd'}"></a> |.
+   $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'importadd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/import.gif" border="0" ALT="$lang_text{'importadd'}"></a> |;
+   if ( -f "$homedir/.addressbook" ) {
+      $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=importabook_pine&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'importadd'} (Pine)"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/import.gif" border="0" ALT="$lang_text{'importadd'} (Pine)"></a> |;
+   }
+   $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=exportabook&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" title="$lang_text{'exportadd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/export.gif" border="0" ALT="$lang_text{'exportadd'}"></a> |.
                 qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=clearaddress&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid" onclick="return confirm('$lang_text{'clearadd'}?')" title="$lang_text{'clearadd'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/clearaddress.gif" border="0" ALT="$lang_text{'clearadd'}"></a> &nbsp; |;
    if ($abook_keyword ne ''){
       $temphtml .= qq|<a href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=editaddresses&amp;sessionid=$thissession&amp;sort=$sort&amp;firstmessage=$firstmessage&amp;folder=$folder&amp;message_id=$escapedmessageid&amp;abook_keyword=" title="$lang_text{'refresh'}"><IMG SRC="$config{'ow_htmlurl'}/images/iconsets/$prefs{'iconset'}/refresh.gif" border="0" ALT="$lang_text{'refresh'}"></a>|;

@@ -11,11 +11,12 @@
 #############################################################################
 
 use vars qw($SCRIPT_DIR);
-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-]+\.pl! ) { $SCRIPT_DIR=$1; }
+if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
 if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
 push (@INC, $SCRIPT_DIR, ".");
 
 $ENV{PATH} = ""; # no PATH should be needed
+$ENV{ENV} = "";      # no startup script for sh
 $ENV{BASH_ENV} = ""; # no startup script for bash
 umask(0002); # make sure the openwebmail group can write
 
@@ -79,11 +80,11 @@ sub replyreceipt {
    my @attr;
    my %HDB;
 
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_SH);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_SH) if (!$config{'dbmopen_haslock'});
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", undef);
    @attr=split(/@@@/, $HDB{$messageid});
    dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
    if ($attr[$_SIZE]>0) {
       my $header;
@@ -131,7 +132,7 @@ sub replyreceipt {
          my $smtp;
          $smtp=Net::SMTP->new($config{'smtpserver'},
                               Port => $config{'smtpport'},
-                              Timeout => 30,
+                              Timeout => 120,
                               Hello => ${$config{'domainnames'}}[0]) or
             openwebmailerror("$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}:$config{'smtpport'}!");
 
@@ -376,6 +377,26 @@ sub composemessage {
             if (${$message{attachment}[0]}{contenttype} =~ /^text\/html/i) {
                $body= html2text($body);
             }
+
+            # handle mail with both text and html version
+            # rename html to other name so modified/forwarded text won't be overridden by html again
+            if ( defined(%{$message{attachment}[1]}) &&
+                 (${$message{attachment}[1]}{boundary} eq
+		  ${$message{attachment}[0]}{boundary}) ) {
+               # rename html attachment in the same alternative group
+               if ( (${$message{attachment}[0]}{subtype}=~/alternative/i &&
+                     ${$message{attachment}[1]}{subtype}=~/alternative/i &&
+                     ${$message{attachment}[1]}{contenttype}=~/^text/i   &&
+                     ${$message{attachment}[1]}{filename}=~/^Unknown\./ ) ||
+               # rename next if this=unknow.txt and next=unknow.html
+                    (${$message{attachment}[0]}{contenttype}=~/^text\/plain/i &&
+                     ${$message{attachment}[0]}{filename}=~/^Unknown\./       &&
+                     ${$message{attachment}[1]}{contenttype}=~/^text\/html/i  &&
+                     ${$message{attachment}[1]}{filename}=~/^Unknown\./ )  ) {
+                  ${$message{attachment}[1]}{filename}=~s/^Unknown/Original/;
+                  ${$message{attachment}[1]}{header}=~s!^Content-Type: \s*text/html;!Content-Type: text/html;\n   name="OriginalMsg.htm";!i;
+               }
+            }
             # remove this text attachment from the message's attachemnt list
             shift @{$message{attachment}};
          } else {
@@ -443,6 +464,7 @@ sub composemessage {
             $body = "> " . $body;
          }
          if ($prefs{replywithorigmsg} eq 'at_beginning') {
+            $body = "On $message{'date'}, ".(email2nameaddr($message{'from'}))[0]." wrote\n". $body;
             if (defined($prefs{'signature'})) {
                $body .= "\n\n\n".$prefs{'signature'};
             }
@@ -475,10 +497,14 @@ sub composemessage {
             ($attserial =~ /^(.+)$/) && ($attserial = $1);   # untaint ...
             foreach my $attnumber (0 .. $#{$message{attachment}}) {
                $attserial++;
-               open (ATTFILE, ">$config{'ow_etcdir'}/sessions/$thissession-att$attserial") or
-                  openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$thissession-att$attserial!");
-               print ATTFILE ${$message{attachment}[$attnumber]}{header}, "\n\n", ${${$message{attachment}[$attnumber]}{r_content}};
-               close ATTFILE;
+               if (${$message{attachment}[$attnumber]}{header} ne "" &&
+                   defined(${${$message{attachment}[$attnumber]}{r_content}}) ) {
+                  open (ATTFILE, ">$config{'ow_etcdir'}/sessions/$thissession-att$attserial") or
+                     openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions/$thissession-att$attserial!");
+                  print ATTFILE ${$message{attachment}[$attnumber]}{header}, "\n\n";
+                  print ATTFILE ${${$message{attachment}[$attnumber]}{r_content}};
+                  close ATTFILE;
+               }
             }
             ($savedattsize, $r_attnamelist, $r_attfilelist) = getattlistinfo();
          }
@@ -778,9 +804,13 @@ sub composemessage {
                          -override=>'1');
    $html =~ s/\@\@\@SUBJECTFIELD\@\@\@/$temphtml/g;
 
+   my $backupsent=$prefs{'backupsentmsg'};
+   if (defined(param("backupsent"))) {
+      $backupsent=param("backupsent");
+   }
    $temphtml = checkbox(-name=>'backupsentmsg',
                         -value=>'1',
-                        -checked=>$prefs{'backupsentmsg'},
+                        -checked=>$backupsent,
                         -label=>'');
 
    $html =~ s/\@\@\@BACKUPSENTMSGCHECKBOX\@\@\@/$temphtml/;
@@ -1042,7 +1072,7 @@ sub sendmessage {
 
          if ( !($smtp=Net::SMTP->new($config{'smtpserver'},
                               Port => $config{'smtpport'},
-                              Timeout => 30,
+                              Timeout => 120,
                               Hello => ${$config{'domainnames'}}[0],
                               Debug=>1)) ) {
             $send_errcount++;
@@ -1091,7 +1121,7 @@ sub sendmessage {
                my $messageid=param("message_id");
                my %HDB;
 
-               filelock("$savedb$config{'dbm_ext'}", LOCK_EX);
+               filelock("$savedb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
                dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", undef);
                if (defined($HDB{$messageid})) {
                   my @oldheaders=split(/@@@/, $HDB{$messageid});
@@ -1100,7 +1130,7 @@ sub sendmessage {
                   }
                }
                dbmclose(%HDB);
-               filelock("$savedb$config{'dbm_ext'}", LOCK_UN);
+               filelock("$savedb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
                if ($removeoldone) {
                   my @ids;
@@ -1129,8 +1159,7 @@ sub sendmessage {
          if ($save_errcount>0) {
             openwebmailerror($save_errstr);
          } else {
-            my $protocol=get_protocol();
-            print "Location: $protocol://$ENV{'HTTP_HOST'}$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+            print "Location: $config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
          }
       }
 
@@ -1148,7 +1177,15 @@ sub sendmessage {
       $tempcontent .= "From: $realname <$from>\n";
       $tempcontent .= "To: ".folding($to)."\n";
       $tempcontent .= "CC: ".folding($cc)."\n" if ($cc);
-      $tempcontent .= "Bcc: ".folding($bcc)."\n" if ($bcc);
+      $smtp->datasend($tempcontent) || $send_errcount++ if ($do_sendmsg && $send_errcount==0);
+      print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
+
+      if ($bcc) {	# put bcc header in folderfile only, not in SMTP session
+         $tempcontent = "Bcc: ".folding($bcc)."\n";
+         print FOLDER    $tempcontent  || $save_errcount++ if ($do_savemsg && $save_errcount==0);
+      }
+
+      $tempcontent="";
       $tempcontent .= "Reply-To: $replyto\n" if ($replyto);
       $tempcontent .= "Subject: $subject\n";
       $tempcontent .= "Date: $date\n";
@@ -1305,13 +1342,13 @@ sub sendmessage {
             $attr[$_SIZE]=$messagesize;
 
             my %HDB;
-            filelock("$savedb$config{'dbm_ext'}", LOCK_EX);
+            filelock("$savedb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
             dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", 0600);
             $HDB{$fakedid}=join('@@@', @attr);
             $HDB{'ALLMESSAGES'}++;
             $HDB{'METAINFO'}=metainfo($savefile);
             dbmclose(%HDB);
-            filelock("$savedb$config{'dbm_ext'}", LOCK_UN);
+            filelock("$savedb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
             filelock($savefile, LOCK_UN);
 
          } else {
@@ -1320,11 +1357,11 @@ sub sendmessage {
             close(FOLDER);
 
             my %HDB;
-            filelock("$savedb$config{'dbm_ext'}", LOCK_EX);
+            filelock("$savedb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
             dbmopen(%HDB, "$savedb$config{'dbmopen_ext'}", 0600);
             $HDB{'METAINFO'}=metainfo($savefile);
             dbmclose(%HDB);
-            filelock("$savedb$config{'dbm_ext'}", LOCK_UN);
+            filelock("$savedb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
             filelock($savefile, LOCK_UN);
          }
 
@@ -1357,12 +1394,12 @@ sub sendmessage {
             my (%HDB, $oldstatus, $found);
 
             dbmopen(%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
-            filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
+            filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
             if (defined($HDB{$inreplyto})) {
                $oldstatus = (split(/@@@/, $HDB{$inreplyto}))[$_STATUS];
                $found=1;
             }
-            filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+            filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
             dbmclose(%HDB);
 
             if ( $found ) {
@@ -1390,13 +1427,7 @@ sub sendmessage {
          # call getfolders to recalc used quota
          #getfolders(\@validfolders, \$folderusage);
          #displayheaders();
-
-         # we do redirect with hostname specified.
-         # Since if we do redirect with only url, the url line in browser will
-         # keep the same as refered_from url, which make the cgi with
-         # action=displayheaders invalid
-         my $protocol=get_protocol();
-         print "Location: $protocol://$ENV{'HTTP_HOST'}$config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
+         print "Location: $config{'ow_cgiurl'}/openwebmail-main.pl?action=displayheaders&sessionid=$thissession&sort=$sort&folder=$escapedfolder&firstmessage=$firstmessage\n\n";
       }
    }
 }
@@ -1443,16 +1474,17 @@ sub getattlistinfo {
 
 ##################### DELETEATTACHMENTS ############################
 sub deleteattachments {
-   my $currentfile;
+   my (@delfiles, $attfile);
    opendir (SESSIONSDIR, "$config{'ow_etcdir'}/sessions") or
       openwebmailerror("$lang_err{'couldnt_open'} $config{'ow_etcdir'}/sessions!");
-   while (defined($currentfile = readdir(SESSIONSDIR))) {
-      if ($currentfile =~ /^($thissession-att\d+)$/) {
-         $currentfile = $1;
-         unlink ("$config{'ow_etcdir'}/sessions/$currentfile");
+   while (defined($attfile = readdir(SESSIONSDIR))) {
+      if ($attfile =~ /^($thissession-att\d+)$/) {
+         $attfile = $1;
+         push(@delfiles, "$config{'ow_etcdir'}/sessions/$attfile");
       }
    }
    closedir (SESSIONSDIR);
+   unlink(@delfiles) if ($#delfiles>=0);
 }
 #################### END DELETEATTACHMENTS #########################
 

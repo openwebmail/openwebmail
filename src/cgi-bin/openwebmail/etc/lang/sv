@@ -10,7 +10,6 @@
    'sent-mail'      => 'SKICKAT',
    'saved-drafts'   => 'UTKAST',
    'mail-trash'     => 'PAPPERSKORG',
-   'all'            => 'All',
    DELETE => '--RADERA--'
    );
 
@@ -68,7 +67,7 @@
    isnot       => 'is not',
    startswith  => 'starts with',
    endswith    => 'ends with',
-   regexp      => 'matches regexp(insensitive)',
+   regexp      => 'matches regexp',
    );
 
 %lang_calendar = 
@@ -276,10 +275,8 @@
    del        => 'Del',
    noitemforthisday => 'No items for this day',
    today_only               => 'Today\'s date only',
-   the_wday_of_thismonth    => 'The',
-   the_wday_of_thismonth2   => 'of the month',
-   every_wday_of_thismonth  => 'Every',
-   every_wday_of_thismonth2 => 'this month'
+   the_wday_of_thismonth    => 'The @@@ORDER@@@ @@@WDAY@@@ of the month',
+   every_wday_of_thismonth  => 'Every @@@WDAY@@@ this month'
    );
 
 %lang_err =

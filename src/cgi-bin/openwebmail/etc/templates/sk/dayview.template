@@ -37,12 +37,12 @@
 @@@STARTADDITEMFORM@@@
 <tr><td colspan=2 align=center><B>Prida» polo¾ku do kalendára</B></td></tr>
 <tr><td colspan=2 nowrap>@@@STRINGFIELD@@@</td></tr>
-<tr><td width=25% nowrap>Start time</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
-<tr><td width=25% nowrap>End time</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Zaèiatok</td><td nowrap>@@@STARTHOURMINMENU@@@</td></tr>
+<tr><td width=25% nowrap>Koniec</td><td nowrap>@@@ENDHOURMINMENU@@@</td></tr>
 <tr><td colspan=2 nowrap>@@@FREQMENU@@@</td></tr>
-<tr><td colspan=2 nowrap>@@@TODAYANDNEXTNDAYSCHECKBOX@@@ Today and next @@@NDAYSFIELD@@@ days</td></tr>
-<tr><td colspan=2 nowrap>@@@EVERYMONTHCHECKBOX@@@ Every month this year</td></tr>
-<tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Every year</td></tr>
+<tr><td colspan=2 nowrap>@@@TODAYANDNEXTNDAYSCHECKBOX@@@ Dnes a nasledujúcich @@@NDAYSFIELD@@@ dní</td></tr>
+<tr><td colspan=2 nowrap>@@@EVERYMONTHCHECKBOX@@@ Ka¾dý mesiac v tomto roku</td></tr>
+<tr><td colspan=2 nowrap>@@@EVERYYEARCHECKBOX@@@ Ka¾dý rok</td></tr>
 <tr><td colspan=2 nowrap>Ulo¾i» túto polo¾ku ako hyperlinku na</td></tr>
 <tr><td colspan=2 nowrap>@@@LINKFIELD@@@</td></tr>
 <tr><td colspan=2 align=center>@@@SUBMITBUTTON@@@</td></tr>

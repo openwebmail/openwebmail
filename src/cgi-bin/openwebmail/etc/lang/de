@@ -11,7 +11,6 @@
    'sent-mail'      => 'GESENDET',
    'saved-drafts'   => 'ENTWÜRFE',
    'mail-trash'     => 'PAPIERKORB',
-   'all'            => 'Alle',
    DELETE => '--LÖSCHEN--'
    );
 
@@ -69,7 +68,7 @@
    isnot       => 'ist nicht',
    startswith  => 'beginnt mit',
    endswith    => 'endet mit',
-   regexp      => 'gleicht Regexp (ungenau)',
+   regexp      => 'gleicht Regexp',
    );
 
 %lang_calendar = 
@@ -277,10 +276,8 @@
    del        => 'Löschen',
    noitemforthisday => 'Kein Eintrag für diesen Tag',
    today_only               => 'Nur für diesen tag',
-   the_wday_of_thismonth    => 'Für den',
-   the_wday_of_thismonth2   => 'dieses Monats',
-   every_wday_of_thismonth  => 'Für jeden',
-   every_wday_of_thismonth2 => 'dieses Monats'
+   the_wday_of_thismonth    => 'Für den @@@ORDER@@@ @@@WDAY@@@ dieses Monats',
+   every_wday_of_thismonth  => 'Für jeden @@@WDAY@@@ dieses Monats'
    );
 
 %lang_err =

@@ -66,12 +66,11 @@ sub mailfilter {
 
    if ( ! -e "$folderdir/.filter.book$config{'dbm_ext'}" ) {
       dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", 0600);
-   } else {
-      dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", undef);
+      dbmclose(%FTDB);
    }
-   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX);
+   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
+   dbmopen (%FTDB, "$folderdir/.filter.book$config{'dbmopen_ext'}", undef);
 
-   ## open INBOX, since spool must exist => lock before open ##
    unless (filelock($folderfile, LOCK_EX|LOCK_NB)) {
       return -3; # $lang_err{'couldnt_lock'} $folder!
    }
@@ -81,8 +80,7 @@ sub mailfilter {
 
    @allmessageids=get_messageids_sorted_by_offset($headerdb);
 
-   ## open INBOX dbm => lock before open ##
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_EX);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
    dbmopen (%HDB, "$headerdb$config{'dbmopen_ext'}", 0600);
 
    my ($blockstart, $blockend, $writepointer)=(0,0,0);
@@ -609,7 +607,7 @@ sub mailfilter {
 
    $HDB{'METAINFO'}=metainfo($folderfile);
    dbmclose(%HDB);
-   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN);
+   filelock("$headerdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
    # remove repeated msgs with repeated count > $filter_repeatlimit
    my (@repeatedids, $fromsubject, $r_ids);
@@ -635,7 +633,7 @@ sub mailfilter {
    }
 
    dbmclose(%FTDB);
-   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN);
+   filelock("$folderdir/.filter.book$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
 
    filelock($folderfile, LOCK_UN);
 
@@ -682,13 +680,13 @@ sub append_message_to_folder {
 
    update_headerdb($dstdb, $dstfile);
 
-   filelock("$dstdb$config{'dbm_ext'}", LOCK_EX);
+   filelock("$dstdb$config{'dbm_ext'}", LOCK_EX) if (!$config{'dbmopen_haslock'});
 
    dbmopen (%HDB2, "$dstdb$config{'dbmopen_ext'}", 0600);
    if (! defined($HDB2{$messageid}) ) {	# append only if not found in dstfile
       if (! open(DEST, ">>$dstfile")) {
          dbmclose(%HDB2);
-         filelock("$dstdb$config{'dbm_ext'}", LOCK_UN);
+         filelock("$dstdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
          filelock($dstfile, LOCK_UN);
          return(-4);
       }
@@ -706,7 +704,7 @@ sub append_message_to_folder {
    }
    dbmclose(%HDB2);
 
-   filelock("$dstdb$config{'dbm_ext'}", LOCK_UN);
+   filelock("$dstdb$config{'dbm_ext'}", LOCK_UN) if (!$config{'dbmopen_haslock'});
    filelock($dstfile, LOCK_UN);
    return(0);
 }

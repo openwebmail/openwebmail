@@ -1,0 +1,22 @@
+<script language="JavaScript">
+<!--
+   // alert before session end
+   var remainingseconds=@@@REMAININGSECONDS@@@;
+   var url = "@@@PREFSURL@@@?action=timeoutwarning&sessionid=@@@SESSIONID@@@";
+
+   function timeoutwarning () {
+      var hWnd = window.open(url,"timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
+      hWnd.focus();
+   }
+   function timeoutcheck () {
+      remainingseconds=remainingseconds-1;
+      if (remainingseconds >= 65) {
+         setTimeout("timeoutcheck()", 1*1000);
+      } else if (remainingseconds > 0 ) {
+         timeoutwarning();
+      }
+   }
+
+   timeoutcheck();
+//-->
+</script>
