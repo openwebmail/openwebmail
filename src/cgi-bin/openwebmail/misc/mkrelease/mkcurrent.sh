@@ -71,11 +71,11 @@ echo fix permissions...
 
 cd cgi-bin/openwebmail
 for d in etc/sites.conf etc/users.conf etc/defaults etc/templates etc/styles etc/holidays etc/maps misc; do
-   chown -R 0.0 $d
+   chown -R 0:0 $d
    chmod -R 644 $d
    find $d -type d -exec chmod 755 {} \;
 done
-chown root.mail * auth/* quota/* modules/* shares/* misc/* etc/*
+chown root:mail * auth/* quota/* modules/* shares/* misc/* etc/*
 chmod 644 */*pl
 chmod 4755 openwebmail*.pl
 chmod 755 vacation.pl userstat.pl preload.pl
@@ -84,7 +84,7 @@ chmod 640 etc/smtpauth.conf
 cd ../..
 
 cd data/openwebmail
-chown -R 0.0 *
+chown -R 0:0 *
 chmod -R 644 *
 find ./ -type d -exec chmod 755 {} \;
 cd ../..

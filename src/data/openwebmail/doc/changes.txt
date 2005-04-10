@@ -1,3 +1,15 @@
+04/10/2005
+----------
+1. new mirror site at Munich, Germany
+   http://openwebmail.mirrorplus.org/
+   (thanks to A. Schweiss, admin.AT.mirrorplus.org)
+2. fix the bug that default sort for old user was not properly changed
+   from 'date' to 'date_rev'
+   (reported by James Briggs, james.AT.ActionMessage.com)
+3. new iconset: Jabo.Danish
+   (thanks to Jan Bothmann, jabo.AT.bothmann.biz)
+
+
 03/23/2005
 ----------
 1. fix a bug in preload.pl that some cgi url were hard coded instead of

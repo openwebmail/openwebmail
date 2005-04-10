@@ -523,7 +523,8 @@ sub monthview {
             my $i=0;
 
             $temphtml .= qq|<tr><td align="right">|;
-            if ($prefs{'charset'} eq "big5" || $prefs{'charset'} eq "gb2312") {
+            if ($prefs{'language'}=~ /^zh_TW.Big5/ ||
+                $prefs{'language'}=~ /^zh_CN.GB2312/) {
                $temphtml.=lunar_str($year, $month, $day, $prefs{'charset'});
             }
             my $daystr=$days[$x][$y]; $daystr=" ".$daystr if (length($daystr)<2);
@@ -736,9 +737,12 @@ sub weekview {
                                      year=>$year,
                                      month=>$month,
                                      day=>$day).
-                   qq|<tr><td align="right">|.
-                   lunar_str($year, $month, $day, $prefs{'charset'}).
-                   submit("$daystr").
+                   qq|<tr><td align="right">|;
+      if ($prefs{'language'}=~ /^zh_TW.Big5/ ||
+          $prefs{'language'}=~ /^zh_CN.GB2312/) {
+         $temphtml .= lunar_str($year, $month, $day, $prefs{'charset'});
+      }
+      $temphtml .= submit("$daystr").
                    qq|</td></tr>|.
                    end_form();
 
@@ -934,7 +938,8 @@ sub dayview {
    my $wdaynum=(ow::datetime::seconds2array($t))[6];
 
    $temphtml = formatted_date($year, $month, $day, $wdaynum);
-   if ($prefs{'charset'} eq "big5" || $prefs{'charset'} eq "gb2312") {
+   if ($prefs{'language'}=~ /^zh_TW.Big5/ ||
+       $prefs{'language'}=~ /^zh_CN.GB2312/) {
       $temphtml .= qq| &nbsp; |.lunar_str($year, $month, $day, $prefs{'charset'});
    }
    $html =~ s/\@\@\@CALTITLE\@\@\@/$temphtml/g;
@@ -1728,7 +1733,8 @@ sub listview {
                $temphtml.=sprintf("%02d/%02d", $month, $day);
             }
             $temphtml.=qq|</b></a>|;
-            if ($prefs{'charset'} eq "big5" || $prefs{'charset'} eq "gb2312") {
+            if ($prefs{'language'}=~ /^zh_TW.Big5/ ||
+                $prefs{'language'}=~ /^zh_CN.GB2312/) {
                $temphtml .= qq| &nbsp; |.lunar_str($year, $month, $day, $prefs{'charset'});
             }
             $temphtml .= qq|</td>|.
@@ -2585,18 +2591,14 @@ sub formatted_date {
 ########## END FORMATTED_DATE ####################################
 
 ########## LUNAR_MONTHDAY ########################################
-# convert gregorian date to lunar str in big5
+# get big5 lunar str from gregorian date, then convert it to target charset
 sub lunar_str {
    my ($year, $month, $day, $charset)=@_;
-   my $str="";
-   if ($charset eq "big5" || $charset eq "gb2312") {
-      $str=(solar2lunar($year, $month, $day))[1];
-      if ($str ne "") {
-         my $color="";
-         $color=qq|color="#aaaaaa"| if ($str!~/初一/ && $str!~/十五/);
-         $str=b2g($str) if ($charset eq "gb2312");
-         $str=qq|<font class="smalltext" $color>$str</font>|;
-      }
+   my $str=(solar2lunar($year, $month, $day))[1];
+   if ($str ne "") {
+      my $color="";  $color=qq|color="#aaaaaa"| if ($str!~/初一/ && $str!~/十五/);
+      $str=(iconv('big5', $charset, $str))[0];
+      $str=qq|<font class="smalltext" $color>$str</font>|;
    }
    return($str);
 }

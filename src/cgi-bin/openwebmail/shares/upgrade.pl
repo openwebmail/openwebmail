@@ -355,17 +355,6 @@ sub upgrade_all {	# called if user releasedate is too old
       }
    }
 
-   if ( $user_releasedate lt "20050308.1" ) {
-      my $rcfile=dotpath('openwebmailrc');
-      if (-f $rcfile) {
-         %prefs = readprefs();
-         $prefs{'sort'}='date_rev' if ($prefs{'sort'} eq 'date');
-         # $rcfile is written back in update_openwebmailrc()
-         writehistory("release upgrade - openwebmailrc by 20050308.1");
-         writelog("release upgrade - openwebmailrc by 20050308.1");
-      }
-   }
-
    if ( $user_releasedate lt "20050319" ) {
       my $calbookfile=dotpath('calendar.book');
       my $data;
@@ -382,6 +371,24 @@ sub upgrade_all {	# called if user releasedate is too old
             close(F);
             writehistory("release upgrade - $calbookfile charset by 20050319");
             writelog("release upgrade - $calbookfile charset by 20050319");
+         }
+      }
+   }
+
+   if ( $user_releasedate lt "20050410" ) {
+      my $rcfile=dotpath('openwebmailrc');
+      if (-f $rcfile) {
+         %prefs = readprefs();
+         if ($prefs{'sort'} eq 'date') {
+            $prefs{'sort'}='date_rev';
+            if (open(RC, ">$rcfile")) {
+               foreach my $key (@openwebmailrcitem) {
+                  print RC "$key=$prefs{$key}\n";
+               }
+               close (RC);
+               writehistory("release upgrade - openwebmailrc by 20050410");
+               writelog("release upgrade - openwebmailrc by 20050410");
+            }
          }
       }
    }
