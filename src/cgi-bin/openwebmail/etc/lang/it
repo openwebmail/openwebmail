@@ -55,6 +55,7 @@ package ow::it;
    (
    ALL => "Tutte le rubriche",
    global => "Rubrica generale",
+   ldapcache => "Rubrica generale - ldap",
    );
 
 %lang_onofflabels =

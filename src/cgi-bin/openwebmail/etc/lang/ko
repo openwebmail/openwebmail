@@ -57,6 +57,7 @@ package ow::ko;
    (
    ALL => "All Addressbooks",
    global => "Global Addressbook",
+   ldapcache => "Global Addressbook - ldap",
    );
 
 %lang_onofflabels =

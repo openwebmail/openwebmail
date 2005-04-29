@@ -1200,6 +1200,86 @@ Some proxy server also has size limit on POST operation, the size of your
 attachment will also be limited by that
 
 
+abook_maxsizeallbooks
+-----------------------------------------------------------------------
+This is the maximum size, in kilobytes, that all user's addressbooks can
+grow to. This avoids a user filling up your server's hard drive space
+by spamming garbage addressbook entries.
+
+Set this to 0 to disable the limit (not recommended).
+
+
+abook_globaleditable
+-----------------------------------------------------------------------
+If this option is set to 'yes', then all users will be allowed to edit
+the global addressbook. If this option is set to 'no', then users will
+only be allowed read-access to the global addressbook if it is defined.
+If it is undefined there will be no global addressbook.
+
+
+abook_importlimit
+-----------------------------------------------------------------------
+This limits the size of addressbooks that can be imported (in KB).
+
+Set this to 0 to disable the limit (not recommended).
+
+
+abook_attlimit
+-----------------------------------------------------------------------
+This is the limit on the size of addressbook attachment uploads (in KB).
+This limits the size of photos, sounds, logos, keys, and agents that can be
+added to contacts.
+
+Set this to 0 to disable the limit (not recommended).
+
+Some proxy server also has size limit on POST operation, the size of
+your upload will also be limited by that.
+
+
+enable_ldap_abook
+-----------------------------------------------------------------------
+If this option is set to yes, openwebmail cache LDAP entries to global
+addressbook ldap_cache.
+
+
+ldap_abook_host
+-----------------------------------------------------------------------
+the LDAP server that provide contact entries
+
+
+ldap_abook_user
+-----------------------------------------------------------------------
+the userid used to access LDAP server
+
+
+ldap_abook_password
+-----------------------------------------------------------------------
+the password of the above userid
+
+
+ldap_abook_base
+-----------------------------------------------------------------------
+the LDAP base DN
+
+
+ldap_abook_container
+-----------------------------------------------------------------------
+this option is optional, it is container relative name if the LDAP 
+tree contains multiple addressbook
+
+
+ldap_abook_prefix
+-----------------------------------------------------------------------
+the addressbook prefix, eg: ou, cn ...
+
+
+ldap_abook_cachelifetime
+-----------------------------------------------------------------------
+the lifetime of the ldap cache file. (unit: minute)
+openwebmail will refresh the cached local copy with data on LDAP server
+if the cached addressbook is older than the time specified here
+
+
 webdisk_rootpath
 -----------------------------------------------------------------------
 This is the additional path under user homedir to be used as the
@@ -1298,42 +1378,6 @@ ps: These programs can do decompression recursively.
     And we suggest sysadm should at least disable webdisk_allow_untar
     if the users are running in same uid, since the the user may untar
     files containing symbolic links to files other than his own.
-
-
-abook_maxsizeallbooks
------------------------------------------------------------------------
-This is the maximum size, in kilobytes, that all user's addressbooks can
-grow to. This avoids a user filling up your server's hard drive space
-by spamming garbage addressbook entries.
-
-Set this to 0 to disable the limit (not recommended).
-
-
-abook_globaleditable
------------------------------------------------------------------------
-If this option is set to 'yes', then all users will be allowed to edit
-the global addressbook. If this option is set to 'no', then users will
-only be allowed read-access to the global addressbook if it is defined.
-If it is undefined there will be no global addressbook.
-
-
-abook_importlimit
------------------------------------------------------------------------
-This limits the size of addressbooks that can be imported (in KB).
-
-Set this to 0 to disable the limit (not recommended).
-
-
-abook_attlimit
------------------------------------------------------------------------
-This is the limit on the size of addressbook attachment uploads (in KB).
-This limits the size of photos, sounds, logos, keys, and agents that can be
-added to contacts.
-
-Set this to 0 to disable the limit (not recommended).
-
-Some proxy server also has size limit on POST operation, the size of
-your upload will also be limited by that.
 
 
 spool_limit

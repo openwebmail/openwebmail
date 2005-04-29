@@ -55,6 +55,7 @@ package ow::ro_utf8;
    (
    ALL => "Toate Agendele",
    global => "Agenda Globală",
+   ldapcache => "Agenda Globală - ldap",
    );
 
 %lang_onofflabels =

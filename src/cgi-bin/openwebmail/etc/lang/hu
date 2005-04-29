@@ -2,7 +2,7 @@ package ow::hu;
 
 # Hungarian translation, charset: iso-8859-2
 # by Nagy Endre, gumo.AT.lucifer.kgt.bme.hu
-#    Posz Marton, ful_s.AT.fazekas.hu
+#    Pósz Márton, ful_s.AT.fazekas.hu
 
 %lang_folders =
    (
@@ -56,6 +56,7 @@ package ow::hu;
    (
    ALL => "Összes Telefonkönyv",
    global => "Globális Telefonkönyv",
+   ldapcache => "Globális Telefonkönyv - ldap",
    );
 
 %lang_onofflabels =
@@ -67,13 +68,13 @@ package ow::hu;
 
 %lang_bgfilterthresholdlabels =
    (
-     0 => 'No',
-     1 => 'Yes',
-    20 => 'Only if INBOX has more than 20 new messages',
-    50 => 'Only if INBOX has more than 50 new messages',
-   100 => 'Only if INBOX has more than 100 new messages',
-   200 => 'Only if INBOX has more than 200 new messages',
-   500 => 'Only if INBOX has more than 500 new messages',
+     0 => 'Nincs',
+     1 => 'Van',
+    20 => 'Csak, ha a BEJÖVÕ-ben több, mint 20 új üzenet van',
+    50 => 'Csak, ha a BEJÖVÕ-ben több, mint 50 új üzenet van',
+   100 => 'Csak, ha a BEJÖVÕ-ben több, mint 100 új üzenet van',
+   200 => 'Csak, ha a BEJÖVÕ-ben több, mint 200 új üzenet van',
+   500 => 'Csak, ha a BEJÖVÕ-ben több, mint 500 új üzenet van',
    );
 
 %lang_prioritylabels =
@@ -171,7 +172,7 @@ package ow::hu;
    '-0200' => 'Azores, South Sandwich Islands',
    '-0100' => 'West Africa',
    '+0000' => 'Greenwich Mean',
-   '+0100' => 'Central European',
+   '+0100' => 'Közép-Európa',
    '+0200' => 'Eastern European',
    '+0300' => 'Baghdad, Moscow, Nairobi',
    '+0330' => 'Tehran',
@@ -199,31 +200,31 @@ package ow::hu;
 
 %lang_satestfields =
    (
-   name       => 'Name',
-   desc       => 'Description',
-   type       => 'Test Type',
-   expression => 'Expression',
-   score      => 'Score',
+   name       => 'Név',
+   desc       => 'Leírás',
+   type       => 'Teszt typus',
+   expression => 'Kifejezés',
+   score      => 'Pontszám',
    );
 
 %lang_satesttypes =
    (
-   header  => 'Message Header',
-   body    => 'Text in Msgbody (HTML tag removed)',
-   uri     => 'Links in Message Body',
-   rawbody => 'Text in Msgbody and Attachments (HTML tag reserved)',
-   full    => 'Undecoded Msgbody and Attachments',
+   header  => 'Üzenetfejléc',
+   body    => 'Szöveg a levéltörzsben (HTML tag-ek nélkül)',
+   uri     => 'Linkek a levéltörzsben',
+   rawbody => 'Szöveg a fejlécben vagy a csatolmányban (HTML tag-ekkel együtt)',
+   full    => 'Dekódolatlan szövegtörzs és csatolmány',
    );
 
 %lang_satestheaderattrs =
    (
-   ALL        => 'All',
-   Subject    => 'Subject',
-   From       => 'From',
-   To         => 'To',
-   Cc         => 'Cc',
-   ToCc       => 'To and Cc',
-   MESSAGEID  => 'Message Id',
+   ALL        => 'Mind',
+   Subject    => 'Téma',
+   From       => 'Feladó',
+   To         => 'Címzett',
+   Cc         => 'Címzett másolatban',
+   ToCc       => 'Címzett és másolatban címzett',
+   MESSAGEID  => 'Üzenetazonosító (Id)',
    USERDEFINE => 'User Define',
    );
 
@@ -240,14 +241,14 @@ package ow::hu;
 
 %lang_searchdaterangelabels =
    (
-   all         => 'All',
-   today       => 'Today',
-   oneweek     => 'One week',
-   twoweeks    => 'Two weeks',
-   onemonth    => 'One month',
-   threemonths => 'Three months',
-   sixmonths   => 'Six months',
-   oneyear     => 'One year',
+   all         => 'Mind',
+   today       => 'Ma',
+   oneweek     => 'Egy hét',
+   twoweeks    => 'Két hét',
+   onemonth    => 'Egy hónap',
+   threemonths => 'Három hónap',
+   sixmonths   => 'Hat hónap',
+   oneyear     => 'Egy év',
    );
 
 %lang_sizes =
@@ -362,11 +363,11 @@ package ow::hu;
    userprefs  => 'Beállítások',
    addressbook=> 'Címjegyzék',
    folders    => 'Mappák',
-   emptyfolder=> 'Empty folder',
+   emptyfolder=> 'Mappa ürítése',
    emptytrash => 'Szemetes ürítése',
    totrash    => 'Szemetesbe',
    learnham   => 'TANULD: NEM SPAM',
-   learnspam  => 'Learn Spam',
+   learnspam  => 'TANULD: SPAM',
    forever    => 'örökre',
    delatlogout=> 'Kilépéskor töröl',
    userdef    => 'Felhasználó definiálja',
@@ -381,8 +382,8 @@ package ow::hu;
    markasunread => 'Újnak jelöl',
    dateformat => 'Dátum formátum',
    date       => 'Dátum',
-   sentdate   => 'Sent Date',
-   recvdate   => 'Received Date',
+   sentdate   => 'Küldés Dátuma',
+   recvdate   => 'Érkezés Dátuma',
    recipient  => 'Címzett',
    sender     => 'Küldõ',
    subject    => 'Tárgy',
@@ -562,13 +563,13 @@ package ow::hu;
    vdomain_localuser  => 'Helyi felhasználó',
    set_passwd         => 'Jelszó megadása',
    reset_passwd       => 'Jelszó törlése',
-   email_alias        => 'Emil Alias',
+   email_alias        => 'Emil Álnév',
    name       => 'Név',
    email      => 'Emil',
    note       => 'Megjegyzés',
    abooks => 'Címlisták',
-   abook_personal => 'Personal addressbook',
-   abook_global => 'Global addressbook',
+   abook_personal => 'Személyes címjegyzék',
+   abook_global => 'Központi címjegyzék',
    abook_converted => 'Konvertált',
    abook_group_member => 'Tag',
    abook_group_allmembers => 'Minden Tag',
@@ -618,7 +619,7 @@ package ow::hu;
    abook_listview_done => 'Vége',
    abook_listview_viewselected => 'A kijelölt címek listája',
    abook_listview_unselectall => 'Kijelölés törlése',
-   abook_showchecked_export => 'Checked And Ready For Exporting',
+   abook_showchecked_export => 'Ellenõrizve és készen áll az exportálásra',
    abook_editform_destination => 'Cél',
    abook_editform_new_agent => 'This New Agent',
    abook_editform_grouplabel => 'csoport',
@@ -629,11 +630,11 @@ package ow::hu;
    abook_editform_namelabel_GROUPNAME => 'Csoportnév @@@SOUND@@@',
    abook_editform_namelabel_NICKNAME => 'Álnév</b>@@@ADDMORELINK@@@<b>',
    abook_editform_valuelabel_NICKNAME => '&nbsp;',
-   'abook_editform_namelabel_SORT-STRING' => 'Last Name Sort Override',
+   'abook_editform_namelabel_SORT-STRING' => 'Vezeték Név Sort Override',
    'abook_editform_valuelabel_SORT-STRING' => 'last name:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;sort override:<i>Trapp</i>',
-   abook_editform_valuelabel_TITLE => 'v.p., research and development',
-   abook_editform_valuelabel_ROLE => 'manager, executive, etc',
-   abook_editform_valuelabel_ORGANIZATIONNAME => 'abc, Kft.',
+   abook_editform_valuelabel_TITLE => 'v.p., kutatás és fejlesztés',
+   abook_editform_valuelabel_ROLE => 'menedzser, ügyvezetõ stb',
+   abook_editform_valuelabel_ORGANIZATIONNAME => 'abc Kft.',
    abook_editform_valuelabel_ORGANIZATIONALUNITS => 'accounting, european division',
    abook_editform_namelabel_URL => 'Honlapok</b> @@@ADDMORELINK@@@<b>',
    abook_editform_valuelabel_URL => 'http://www.honlapom.hu',
@@ -672,8 +673,8 @@ package ow::hu;
    abook_editform_deletesound => 'Hangminta törlése',
    abook_editform_save_and_return => 'Save and return to parent',
    abook_editform_cancel_and_return => 'Cancel and return to parent',
-   abook_editform_new_agent_link => 'create',
-   sa_prefs         => 'SpamAssassin user preferences',
+   abook_editform_new_agent_link => 'létrehoz',
+   sa_prefs         => 'A SpamAssassin felhasználói beállításai',
    sa_edittest      => 'Edit Test Rules',
    sa_editblacklist => 'Edit Black List',
    sa_editwhitelist => 'Edit White List',
@@ -684,12 +685,12 @@ package ow::hu;
    has_illegal_chars => 'Illegális karakterek!',
    couldnt_readlock  => 'Nem sikerült olvasásra zárolni',
    couldnt_writelock => 'Nem zárolható',
-   couldnt_create    => 'Couldn\'t create',
-   couldnt_delete    => 'Couldn\'t delete',
+   couldnt_create    => 'Nem hozható létre',
+   couldnt_delete    => 'Nem törölhetõ',
    couldnt_open      => 'Nem nyitható meg',
-   couldnt_seek      => 'Couldn\'t seek in',
-   couldnt_read      => 'Couldn\'t read',
-   couldnt_write     => 'Couldn\'t write',
+   couldnt_seek      => 'Nem lehet benne seek-elni',
+   couldnt_read      => 'Nem olvasható',
+   couldnt_write     => 'Nem írható',
    couldnt_close     => 'Nem sikerült bezárni',
    couldnt_updatedb  => 'Nem sikerült az index db frissítése ',
    disallowed_pop3   => 'Tiltott POP3 szerver',
@@ -724,8 +725,8 @@ package ow::hu;
    pwd_tooshort      => 'A jelszó túl rövid (minimum @@@PASSWDMINLEN@@@ karakter)',
    pwd_toosimple     => 'A jelszó túl egyszerû (betûk és számok is kellenek bele)',
    network_server_error => 'szerverhiba',
-   sendmail_error    => 'Sorry, there was a problem sending your message.',
-   sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
+   sendmail_error    => 'Sajnálom, A leveled elküldése során valamilyen hiba lépett fel.',
+   sendmail_chkdraft => 'Kérlek nézzd meg a Piszkozat mappába elmentett üzenetet, és próbáld meg újra elküldeni.',
    at_char_not_allowed => 'A @ karakter nem engedélyezett ebben a mezõben. Kérem, hogy lépjen vissza egy oldalt a böngészõben, ellenõrizze az üzenetet, és próbálja újra.',
    badnum_in_days => 'hibás szám az egymást követõ napok mezõben',
    access_denied     => 'Hozzáférés megtagadva',

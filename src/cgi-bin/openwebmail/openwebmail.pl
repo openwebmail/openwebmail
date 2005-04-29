@@ -265,6 +265,7 @@ sub login {
    my $clientip=ow::tool::clientip();
 
    $loginname=param('loginname')||'';
+   $loginname=~s/\s//g; # remove space,\t,\n,\r
    $default_logindomain=safedomainname(param('logindomain')||'');
 
    ($logindomain, $loginuser)=login_name2domainuser($loginname, $default_logindomain);
@@ -403,7 +404,7 @@ sub login {
             mkdir($domainhome, 0750);
             openwebmailerror(__FILE__, __LINE__, "Couldn't create domain homedir $domainhome") if (! -d $domainhome);
             my $mailgid=getgrnam('mail');
-            chown($uuid, $mailgid, $domainhome);
+            chown($uuid, $mailgid, $domainhome) if ($>==0);
          }
       }
    }
@@ -413,8 +414,13 @@ sub login {
    # this must be done before changing to the user's uid.
    if ( !$config{'use_syshomedir'} || !$config{'use_syshomedir_for_dotdir'} ) {
       if (!-d $owuserdir) {
-         if (mkdir ($owuserdir, oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $owuserdir)) {
-            writelog("create owuserdir - $owuserdir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
+         if (mkdir($owuserdir, 0700)) {
+            if ($>==0) {
+               chown($uuid, (split(/\s+/,$ugid))[0], $owuserdir);
+               writelog("create owuserdir - $owuserdir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
+            } else {
+               writelog("create owuserdir - $owuserdir");
+            }
          } else {
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $owuserdir ($!)");
          }
@@ -424,8 +430,13 @@ sub login {
    # create the user's syshome directory if necessary.
    # this must be done before changing to the user's uid.
    if (!-d $homedir && $config{'create_syshomedir'}) {
-      if (mkdir ($homedir, oct(700)) && chown($uuid, (split(/\s+/,$ugid))[0], $homedir)) {
-         writelog("create homedir - $homedir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
+      if (mkdir($homedir, 0700)) {
+         if ($>==0) {
+            chown($uuid, (split(/\s+/,$ugid))[0], $homedir);
+            writelog("create homedir - $homedir, uid=$uuid, gid=".(split(/\s+/,$ugid))[0]);
+         } else {
+            writelog("create homedir - $homedir");
+         }
       } else {
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $homedir ($!)");
       }
@@ -482,7 +493,7 @@ sub login {
    my $spoolfile=ow::tool::untaint((get_folderpath_folderdb($user, 'INBOX'))[0]);
    if ( ! -f "$spoolfile" ) {
       open (F, ">>$spoolfile"); close(F);
-      chown($uuid, (split(/\s+/,$ugid))[0], $spoolfile);
+      chown($uuid, (split(/\s+/,$ugid))[0], $spoolfile) if ($>==0);
    }
 
    # create session file
@@ -686,8 +697,9 @@ sub ip2hostname {
 ########## AUTOLOGIN #############################################
 sub autologin {
    # auto login with cgi parm or cookie
-   $default_logindomain=safedomainname(param('logindomain')||cookie('ow-default_logindomain'));
    $loginname=param('loginname')||cookie('ow-loginname');
+   $loginname=~s/\s//g; # remove space,\t,\n,\r
+   $default_logindomain=safedomainname(param('logindomain')||cookie('ow-default_logindomain'));
    return loginmenu() if ($loginname eq '');
 
    ($logindomain, $loginuser)=login_name2domainuser($loginname, $default_logindomain);

@@ -56,6 +56,7 @@ package ow::nl;
    (
    ALL => "Alle Adresboeken",
    global => "Globale Adresboek",
+   ldapcache => "Globale Adresboek - ldap",
    );
 
 %lang_onofflabels =

@@ -55,6 +55,7 @@ package ow::bg;
    (
    ALL => "Всички адресни книги",
    global => "Обща адресна книга",
+   ldapcache => "Обща адресна книга - ldap",
    );
 
 %lang_onofflabels =

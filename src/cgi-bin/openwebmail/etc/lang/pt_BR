@@ -58,6 +58,7 @@ package ow::pt_BR;
    (
    ALL => "Todas Listas de Contatos",
    global => "Lista de Contatos Global",
+   ldapcache => "Lista de Contatos Global - ldap",
    );
 
 %lang_onofflabels =

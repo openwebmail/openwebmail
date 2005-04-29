@@ -987,7 +987,10 @@ sub composemessage {
 
    } else { # sendto or newmail
       $msgformat='text' if ($msgformat eq 'auto');
-      $cc = (iconv($prefs{'charset'}, $composecharset, $prefs{'autocc'}))[0] if (defined $prefs{'autocc'});
+      if (defined $prefs{'autocc'} && $prefs{'autocc'} ne '') {
+         $cc .= ', ' if ($cc ne '');
+         $cc .= (iconv($prefs{'charset'}, $composecharset, $prefs{'autocc'}))[0];
+      }
       $replyto = (iconv($prefs{'charset'}, $composecharset, $prefs{'replyto'}))[0] if (defined $prefs{'replyto'});
 
       my $n="\n"; $n="<br>" if ($msgformat ne 'text');

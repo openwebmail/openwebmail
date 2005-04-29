@@ -55,6 +55,7 @@ package ow::ar_CP1256;
    (
    ALL => "All Addressbooks",
    global => "Global Addressbook",
+   ldapcache => "Global Addressbook - ldap",
    );
 
 %lang_onofflabels =

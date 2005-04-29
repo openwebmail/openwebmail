@@ -55,6 +55,7 @@ package ow::sl;
    (
    ALL => "Vsi adresarji",
    global => "Globalni adresar",
+   ldapcache => "Globalni adresar - ldap",
    );
 
 %lang_onofflabels =

@@ -55,6 +55,7 @@ package ow::zh_TW_Big5;
    (
    ALL => "全部通訊錄",
    global => "公用通訊錄",
+   ldapcache => "公用通訊錄 - ldap",
    );
 
 %lang_onofflabels =

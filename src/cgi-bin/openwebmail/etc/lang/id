@@ -55,6 +55,7 @@ package ow::id;
    (
    ALL => "Semua Buku Alamat",
    global => "Buku Alamat Global ",
+   ldapcache => "Buku Alamat Global  - ldap",
    );
 
 %lang_onofflabels =
@@ -222,7 +223,7 @@ package ow::id;
    To         => 'Ke',
    Cc         => 'Cc',
    ToCc       => 'Ke dan Cc',
-   MESSAGEID  => 'Id Pesan',
+   MESSAGEID  => 'ID Pesan',
    USERDEFINE => 'Definisi Pengguna',
    );
 
@@ -364,7 +365,7 @@ package ow::id;
    emptyfolder=> 'Folder Kosong',
    emptytrash => 'Kotak Sampah Kosong',
    totrash    => 'Pindah ke Kotak Sampah',
-   learnham   => 'BELAJAR HAM',
+   learnham   => 'Belajar Ham',
    learnspam  => 'Belajar Spam',
    forever    => 'Tinggal Selamanya',
    delatlogout=> 'Dihapus saat Logout',
@@ -566,9 +567,9 @@ package ow::id;
    email      => 'Email',
    note       => 'Catatan',
    abooks => 'Buku Alamat',
-   abook_personal => 'Personal addressbook',
-   abook_global => 'Global addressbook',
-   abook_converted => 'Converted',
+   abook_personal => 'Buku Alamat Pribadi',
+   abook_global => 'Buku Alamat Global',
+   abook_converted => 'Diubah',
    abook_group_member => 'Pelanggan',
    abook_group_allmembers => 'Semua Pelanggan',
    abook_import => 'Impor Infomasi Buku Alamat',
@@ -658,7 +659,7 @@ package ow::id;
    abook_editform_GEO_photo => 'Perlihatkan foto satelit untuk lokasi ini',
    abook_editform_namelabel_CLASS => 'Klasifikasi Akses',
    abook_editform_namelabel_PRODID => 'Program Pembuat',
-   abook_editform_valuelabel_PRODID => 'Outlook, Openwebmail, dan lain-lain',
+   abook_editform_valuelabel_PRODID => 'Outlook, Open Webmail, dan lain-lain',
    abook_editform_namelabel_UID => 'ID Eksternal yang unik',
    abook_editform_valuelabel_UID => 'digunakan oleh program eksternal untuk mengidentifikasikan kartu ini',
    abook_editform_namelabel_SOURCE => 'vCard Source URL',
@@ -675,7 +676,7 @@ package ow::id;
    sa_prefs         => 'Pilihan Pengguna SpamAssassin',
    sa_edittest      => 'Ubah Aturan Tes',
    sa_editblacklist => 'Ubah Black List', #Ubah Buku alamat yang tidak diperbolehkan
-   sa_editwhitelist => 'Ubah White List', #Ubah Buku alamat
+   sa_editwhitelist => 'Ubah White List', #Ubah Buku alamat yang boleh
    );
 
 %lang_err =
@@ -683,12 +684,12 @@ package ow::id;
    has_illegal_chars => 'Ada karakter yang tidak bagus!',
    couldnt_readlock  => 'Tidak dapat dikunci waktu membaca',
    couldnt_writelock => 'Tidak dapat dikunci waktu menulis',
-   couldnt_create    => 'Couldn\'t create',
-   couldnt_delete    => 'Couldn\'t delete',
+   couldnt_create    => 'Tidak dapat dibuat',
+   couldnt_delete    => 'Tidak dapat dihapus',
    couldnt_open      => 'Tidak dapat dibuka',
-   couldnt_seek      => 'Couldn\'t seek in',
-   couldnt_read      => 'Couldn\'t read',
-   couldnt_write     => 'Couldn\'t write',
+   couldnt_seek      => 'Tidak dapat dicari',
+   couldnt_read      => 'Tidak dapat dibaca',
+   couldnt_write     => 'Tidak dapat ditulis',
    couldnt_close     => 'Tidak dapat menutup',
    couldnt_updatedb  => 'Tidak dapat meng-update index db ',
    disallowed_pop3   => 'Tidak dapat berhubungan dengan server POP3',
@@ -723,8 +724,8 @@ package ow::id;
    pwd_tooshort      => 'Sandi anda terlalu singkat (panjang minimum dari sandi anda adalah @@@PASSWDMINLEN@@@)',
    pwd_toosimple     => 'Sandi anda terlalu sederhana (boleh menggunakan huruf dan angka sangat diperlukan)',
    network_server_error => 'Jaringan server internet anda yang salah',
-   sendmail_error    => 'Sorry, there was a problem sending your message.',
-   sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
+   sendmail_error    => 'Maaf, ada masalah saat anda mengirimkan pesan.',
+   sendmail_chkdraft => 'Silakan memeriksa pesan yang tersimpan di folder Simpan Catatan dan mencoba lagi.',
    at_char_not_allowed => 'Karakter @ tidak diijinkan pada kolom ini. Silakan klik tombol kembali pada browser anda dan coba kembali',
    badnum_in_days => 'angka berurutan yang buruk di dalam kolom hari',
    access_denied     => 'Akses ditolak',

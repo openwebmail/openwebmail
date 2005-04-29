@@ -60,6 +60,7 @@ package ow::ja_JP_utf8;
    (
    ALL => "すべてのアドレス帳",
    global => "グローバルアドレス帳",
+   ldapcache => "グローバルアドレス帳 - ldap",
    );
 
 %lang_onofflabels =

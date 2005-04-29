@@ -55,6 +55,7 @@ package ow::zh_CN_GB2312;
    (
    ALL => "全部通讯录",
    global => "公用通讯录",
+   ldapcache => "公用通讯录 - ldap",
    );
 
 %lang_onofflabels =

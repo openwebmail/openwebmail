@@ -55,6 +55,7 @@ package ow::es;
    (
    ALL => "Todas las Libretas de Direcciones",
    global => "Libreta de Direcciones Global",
+   ldapcache => "Libreta de Direcciones Global - ldap",
    );
 
 %lang_onofflabels =

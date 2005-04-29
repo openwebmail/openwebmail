@@ -55,6 +55,7 @@ package ow::fr;
    (
    ALL => "Tous les carnets d'adresses",
    global => "Carnet d'adresses Global",
+   ldapcache => "Carnet d'adresses Global - ldap",
    );
 
 %lang_onofflabels =

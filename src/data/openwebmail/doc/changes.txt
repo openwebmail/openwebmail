@@ -1,3 +1,22 @@
+04/29/2005
+----------
+1. LDAP addressbook support
+   (thanks to Luigi Mazzieri, lmazzieri.AT.emerenzio.net for his code)
+2. Hungarion lang and template files translation update
+   (thanks to Posz Marton, ful_s.AY.fazekas.hu)
+3. fix a bug that when click on "Compose message from selected" in addresss
+   book with "Cc" checked, in the new message the "Cc" is always blank.
+   (thanks to Alex Teslik, alex.AT.acatysmoof.com for his fix)
+4. fix a but that openwebmail.pl will report directory creation error
+   when it is executed in not setuid root mode
+   (reported by Frederic TYNDIUK, tyndiuk.AT.webfutur.com)
+5. Indonesian language file translation update
+   Indonesian help tutorial translation
+   (thanks to James Briggs, james.AT.ActionMessage.com)
+6. always remove space, tab, \r, \n from loginname
+   (suggested by Frederic TYNDIUK, tyndiuk.AT.webfutur.com)
+
+
 04/10/2005
 ----------
 1. new mirror site at Munich, Germany

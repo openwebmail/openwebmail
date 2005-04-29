@@ -58,6 +58,7 @@ package ow::cs;
    (
    ALL => "V¹echny adresáøe",
    global => "Globální adresáø",
+   ldapcache => "Globální adresáø - ldap",
    );
 
 %lang_onofflabels =

@@ -61,6 +61,7 @@ package ow::pl;
    (
    ALL => "Wszystkie ksi±¿ki adresowe",
    global => "Globalna Ksi±¿ka Adresowa",
+   ldapcache => "Globalna Ksi±¿ka Adresowa - ldap",
    );
 
 %lang_onofflabels =

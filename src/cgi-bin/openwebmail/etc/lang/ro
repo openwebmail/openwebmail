@@ -57,6 +57,7 @@ package ow::ro;
    (
    ALL => "Toate Agendele",
    global => "Agenda Globala",
+   ldapcache => "Agenda Globala - ldap",
    );
 
 %lang_onofflabels =
