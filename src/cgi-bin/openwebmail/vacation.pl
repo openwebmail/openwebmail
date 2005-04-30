@@ -74,6 +74,8 @@
 #
 
 use strict;
+use Fcntl qw(:DEFAULT :flock);
+
 foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 
 my $myname = $0;
@@ -228,13 +230,13 @@ sub interactive_mode {
             if (@keys = sort { $VAC{$a} <=> $VAC{$b}; } keys %VAC) {
                require 'ctime.pl';
                print "While you were away, mail was sent to the following addresses:\n\n";
-               open (PAGER, "|$pager") or die "can't open $pager: $!";
+               open(PAGER, "|-") or do { exec(split(/\s+/, $pager)); exit 9 };
                foreach (@keys) {
                   my ($when) = unpack("L", $VAC{$_});
                   printf PAGER "%-20s %s", $_, ctime($when);
                }
                print PAGER "\n";
-               close PAGER;
+               close PAGER or die "$pager die unexpectedly: $!";;
             }
             dbmclose(%VAC);
          } else {
@@ -413,14 +415,10 @@ sub pipe_mode {
    }
    $msg=adjust_replymsg($msg, $from, $subject);
 
-   # remove ' in $from to prevent shell escape
-   $from=~s/'/ /g;
-   $to=~s/'/ /g;
-
-#   open(MAIL, "|$sendmail -oi -t '$from'") or die "Can't run sendmail: $!\n";
-   open(MAIL, "|$sendmail -oi -f '$to' '$from'") or die "Can't run sendmail: $!\n";
+   open(MAIL, "|-") or
+      do { open(STDERR, ">/dev/null"); exec($sendmail, "-oi", "-f $to", "$from"); exit 9 };
    print MAIL $msg;
-   close MAIL;
+   close MAIL or die "Sendmail died unexpectedly: $!\n";
 
    log_debug("Auto reply for message $subject is sent to $from\n") if ($opt_d);
 }
@@ -430,11 +428,11 @@ sub read_list_from_file {
    die "File $file doesn't exist!\n" if (! -f "$file");
 
    my @list=();
-   if ( open(FILE, $file) ) {
+   if ( sysopen(FILE, $file, O_RDONLY) ) {
       while (<FILE>) {
          push(@list, split);
       }
-      close (FILE);
+      close(FILE);
    }
    return(@list);
 }

@@ -6,6 +6,7 @@
 #
 # Since chinese conversion in iconv() is incomplete, we use this instead
 #
+
 use strict;
 use vars qw(%config);
 use Fcntl qw(:DEFAULT :flock);
@@ -15,7 +16,7 @@ sub mkdb_b2g {
    my $b2gdb=ow::tool::untaint("$config{'ow_mapsdir'}/b2g");
 
    ow::dbm::open(\%B2G, $b2gdb, LOCK_EX, 0644) or return -1;
-   open (T, $config{'b2g_map'});
+   sysopen(T, $config{'b2g_map'}, O_RDONLY);
    $_=<T>; $_=<T>;
    while (<T>) {
       /^(..)\s(..)/;
@@ -32,7 +33,7 @@ sub mkdb_g2b {
    my $g2bdb=ow::tool::untaint("$config{'ow_mapsdir'}/g2b");
 
    ow::dbm::open(\%G2B, $g2bdb, LOCK_EX, 0644) or return -1;
-   open (T, $config{'g2b_map'});
+   sysopen(T, $config{'g2b_map'}, O_RDONLY);
    $_=<T>; $_=<T>;
    while (<T>) {
       /^(..)\s(..)/;

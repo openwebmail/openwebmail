@@ -2622,14 +2622,14 @@ sub reset_notifycheck_for_newitem {
    if ( ${$r_item}{'email'} &&
         ($date=~/${$r_item}{'idate'}/ || $date2=~/${$r_item}{'idate'}/) ) {
       if ( -f $notifycheckfile ) {
-         open (NOTIFYCHECK, $notifycheckfile ) or return -1; # read err
+         sysopen(NOTIFYCHECK, $notifycheckfile, O_RDONLY) or return -1; # read err
          my $lastcheck=<NOTIFYCHECK>;
-         close (NOTIFYCHECK);
+         close(NOTIFYCHECK);
          if ($lastcheck=~/$date(\d\d\d\d)/) {
             if (${$r_item}{'starthourmin'} < $1) {
-               open (NOTIFYCHECK, ">$notifycheckfile" ) or return -1; # write err
+               sysopen(NOTIFYCHECK, $notifycheckfile, O_WRONLY|O_TRUNC|O_CREAT) or return -1; # write err
                print NOTIFYCHECK sprintf("%08d%04d", $date, ${$r_item}{'starthourmin'});
-               close (NOTIFYCHECK);
+               close(NOTIFYCHECK);
             }
          }
       }

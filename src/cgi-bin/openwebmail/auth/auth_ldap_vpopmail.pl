@@ -1,5 +1,4 @@
 package ow::auth_ldap_vpopmail;
-use strict;
 #
 # auth_ldap_vpopmail.pl - authenticate user with LDAP configured for vpopmail
 #
@@ -10,6 +9,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use Net::LDAP;
 require "modules/tool.pl";
 

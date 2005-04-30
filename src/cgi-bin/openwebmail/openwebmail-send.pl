@@ -120,7 +120,7 @@ sub replyreceipt {
       my $header;
 
       # get message header
-      open (FOLDER, "+<$folderfile") or
+      sysopen(FOLDER, $folderfile, O_RDWR) or
           openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($folderfile)."! ($!)");
       seek (FOLDER, $attr[$_OFFSET], 0) or
           openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} ".f2u($folderfile)."! ($!)");
@@ -289,7 +289,7 @@ sub composemessage {
    my @forwardids=();
    if ($composetype eq 'forwardids' || $composetype eq 'forwardids_delete') {
       # parameter passed with file from openwebmail-main.pl
-      open (FORWARDIDS, "$config{'ow_sessionsdir'}/$thissession-forwardids");
+      sysopen(FORWARDIDS, "$config{'ow_sessionsdir'}/$thissession-forwardids", O_RDONLY);
       while(<FORWARDIDS>) {
          chomp(); push(@forwardids, $_);
       }
@@ -399,7 +399,7 @@ sub composemessage {
             openwebmailerror(__FILE__, __LINE__, "$lang_text{'file'} $vpathstr $lang_err{'doesnt_exist'}") if (!-f "$webdiskrootdir/$vpath");
 
             $attachment=do { local *FH };
-            open($attachment, "$webdiskrootdir/$vpath") or
+            sysopen($attachment, "$webdiskrootdir/$vpath", O_RDONLY) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $lang_text{'webdisk'} $vpathstr! ($!)");
             $attname=$vpath; $attname=~s|/$||; $attname=~s|^.*/||;
             $attname=(iconv($prefs{fscharset}, $composecharset, $attname))[0];	# conv to composehcarset
@@ -413,7 +413,7 @@ sub composemessage {
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'att_overlimit'} $config{'attlimit'} $lang_sizes{'kb'}!");
             }
             my $attserial = time();
-            open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial");
+            sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$thissession-att$attserial", O_WRONLY|O_TRUNC|O_CREAT);
             print ATTFILE qq|Content-Type: $attcontenttype;\n|.
                           qq|\tname="|.ow::mime::encode_mimewords($attname, ('Charset'=>$composecharset)).qq|"\n|.
                           qq|Content-Id: <att$attserial>\n|.
@@ -576,7 +576,7 @@ sub composemessage {
                      my ($arc_attheader, $arc_r_content)=tnefatt2archive($r_attachment, $convfrom, $composecharset);
                      ($attheader, $r_content)=($arc_attheader, $arc_r_content) if ($arc_attheader ne '');
                   }
-                  open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
+                  sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$thissession-att$attserial", O_WRONLY|O_TRUNC|O_CREAT) or
                      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
                   print ATTFILE $attheader, "\n", ${$r_content};
                   close ATTFILE;
@@ -853,9 +853,9 @@ sub composemessage {
          $from=qq|$fromemail|;
       }
 
-      open(FOLDER, "$folderfile");
+      sysopen(FOLDER, $folderfile, O_RDONLY);
       my $attserial=time(); $attserial=ow::tool::untaint($attserial);
-      open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
+      sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$thissession-att$attserial", O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
       print ATTFILE qq|Content-Type: message/rfc822;\n|,
                     qq|Content-Transfer-Encoding: 8bit\n|,
@@ -914,12 +914,12 @@ sub composemessage {
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} ".f2u($folderdb));
       }
 
-      open(FOLDER, "$folderfile");
+      sysopen(FOLDER, $folderfile, O_RDONLY);
       my $attserial=time(); $attserial=ow::tool::untaint($attserial);
       for (my $i=0; $i<=$#forwardids; $i++) {
          $attserial++;
          my @attr=get_message_attributes($forwardids[$i], $folderdb);
-         open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-att$attserial") or
+         sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$thissession-att$attserial", O_WRONLY|O_TRUNC|O_CREAT) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
          print ATTFILE qq|Content-Type: message/rfc822;\n|,
                        qq|Content-Transfer-Encoding: 8bit\n|,
@@ -1465,7 +1465,7 @@ sub composemessage {
    # load css and js for html editor
    if ($msgformat ne 'text') {
       if ($_htmlarea_css_cache eq '') {
-         open(F, "$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/htmlarea.css") or
+         sysopen(F, "$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/htmlarea.css", O_RDONLY) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_htmldir'}/javascript/htmlarea.openwebmail/htmlarea.css! ($!)");
          local $/; undef $/; $_htmlarea_css_cache=<F>; # read whole file in once
          close(F);
@@ -1665,7 +1665,7 @@ sub sendmessage {
 
       # redirect stderr to smtperrfile
       $smtperrfile=ow::tool::untaint($smtperrfile);
-      open(STDERR, ">$smtperrfile");
+      sysopen(STDERR, $smtperrfile, O_WRONLY|O_TRUNC|O_CREAT);
       select(STDERR); local $| = 1; select(STDOUT);
 
       my $timeout=120; $timeout=180 if ($#recipients>=1); # more than 1 recipient
@@ -1709,8 +1709,8 @@ sub sendmessage {
       ($savefile, $savedb)=get_folderpath_folderdb($user, $savefolder);
 
       if ( ! -f $savefile) {
-         if (open ($folderhandle, ">$savefile")) {
-            close ($folderhandle);
+         if (open($folderhandle, ">$savefile")) {
+            close($folderhandle);
          } else {
             $saveerrstr="$lang_err{'couldnt_write'} $savefile!";
             $saveerr++;
@@ -1750,7 +1750,7 @@ sub sendmessage {
             }
          }
 
-         if (open ($folderhandle, "+<$savefile") ) {
+         if (open($folderhandle, "+<$savefile") ) {
             $messagestart=(stat($folderhandle))[7];
             seek($folderhandle, $messagestart, 0);	# seek end manually to cover tell() bug in perl 5.8
          } else {
@@ -2324,7 +2324,7 @@ sub dump_atts {
       my $attfile="$config{ow_sessionsdir}/${$r_att}{file}";
       my $referenced=${$r_att}{referencecount};
 
-      open(ATTFILE, $attfile);
+      sysopen(ATTFILE, $attfile, O_RDONLY);
       # print attheader line by line
       while (defined($s = <ATTFILE>)) {
          if ($s =~ /^Content\-Id: <?att\d\d\d\d\d\d\d\d/ && !$referenced) {
@@ -2381,9 +2381,9 @@ sub getattfilesinfo {
          $att{file}=$1;
 
          local $/="\n\n";	# read whole file until blank line
-         open (ATTFILE, "$config{'ow_sessionsdir'}/$currentfile");
+         sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$currentfile", O_RDONLY);
          $attheader=<ATTFILE>;
-         close (ATTFILE);
+         close(ATTFILE);
 
          $att{'content-type'}='application/octet-stream';	# assume attachment is binary
          ow::mailparse::parse_header(\$attheader, \%att);
@@ -2515,7 +2515,7 @@ sub fakemessageid {
 sub readsmtperr {
    my ($content, $linecount)=('', 0);
 
-   open(F, $_[0]);
+   sysopen(F, $_[0], O_RDONLY);
    while (<F>) {
       s/\s*$//;
       if (/(>>>.*$)/ || /(<<<.*$)/) {

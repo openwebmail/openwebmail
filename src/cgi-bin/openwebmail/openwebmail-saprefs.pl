@@ -464,7 +464,7 @@ sub read_saprefs {
    my (@lines, @datas, %rules, %whitelist_from, %blacklist_from);
 
    ow::filelock::lock($file, LOCK_SH);
-   if (!open(F, $file)) {
+   if (!sysopen(F, $file, O_RDONLY)) {
       ow::filelock::lock($file, LOCK_UN);
       return(\@datas, \%rules, \%whitelist_from, \%blacklist_from);
    }
@@ -542,7 +542,7 @@ sub write_saprefs {
    mkdir ($dir, 0700) if (!-d $dir);
 
    ow::filelock::lock($file, LOCK_EX|LOCK_NB);
-   if (!open(F, ">$file")) {
+   if (!sysopen(F, $file, O_WRONLY|O_TRUNC|O_CREAT)) {
       ow::filelock::lock($file, LOCK_UN);
       return -1;
    }

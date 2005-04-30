@@ -1,10 +1,11 @@
 package ow::htmltext;
-use strict;
 #
 # htmltext.pl - html/text transformation routine
 #
 # 2001/12/21 tung.AT.turtle.ee.ncku.edu.tw
 #
+
+use strict;
 
 sub html2text {
    my $t=$_[0];

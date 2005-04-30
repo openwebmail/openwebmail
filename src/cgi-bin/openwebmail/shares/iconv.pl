@@ -3,7 +3,9 @@
 #
 # It requires Text::Iconv perl module (Text-Iconv-1.2.tar.gz)
 #
+
 use strict;
+use Fcntl qw(:DEFAULT :flock);
 use Text::Iconv;
 require "modules/mime.pl";
 require "shares/iconv-chinese.pl";

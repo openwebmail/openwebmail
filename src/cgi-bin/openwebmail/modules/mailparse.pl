@@ -1,5 +1,4 @@
 package ow::mailparse;
-use strict;
 #
 # mailparse.pl - mail parser with mime multiple decoding
 #
@@ -18,6 +17,7 @@ use strict;
 #          only return attachment with the id
 #       }
 
+use strict;
 use MIME::Base64;
 use MIME::QuotedPrint;
 require "modules/tool.pl";

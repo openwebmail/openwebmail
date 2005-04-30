@@ -3,6 +3,7 @@
 #
 # The search supports full content search and caches results for repeated queries.
 #
+
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 use MIME::Base64;
@@ -77,7 +78,7 @@ sub getinfomessageids {
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} ".f2u($folderfile)."!");
 
-      open($folderhandle, $folderfile);
+      sysopen($folderhandle, $folderfile, O_RDONLY);
       $r_haskeyword=search_info_messages_for_keyword(
 			$keyword, $prefs{'charset'}, $searchtype, $folderdb, $folderhandle,
 			dotpath('search.cache'), $prefs{'hideinternal'}, $prefs{'regexmatch'});
@@ -135,7 +136,7 @@ sub search_info_messages_for_keyword {
       return(\%found);
 
    if ( -e $cachefile ) {
-      open(CACHE, $cachefile);
+      sysopen(CACHE, $cachefile, O_RDONLY);
       foreach ($cache_lstmtime, $cache_folderdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal) {
          $_=<CACHE>; chomp;
       }
@@ -297,7 +298,7 @@ sub search_info_messages_for_keyword {
 
       ow::dbm::close(\%FDB, $folderdb);
 
-      open(CACHE, ">$cachefile") or logtime("cache write error $!");
+      sysopen(CACHE, $cachefile, O_WRONLY|O_TRUNC|O_CREAT) or logtime("cache write error $!");
       foreach ($lstmtime, $folderdb, $keyword, $searchtype, $ignore_internal) {
          print CACHE $_, "\n";
       }
@@ -305,7 +306,7 @@ sub search_info_messages_for_keyword {
       close(CACHE);
 
    } else {
-      open(CACHE, $cachefile);
+      sysopen(CACHE, $cachefile, O_RDONLY);
       for (0..4) { $_=<CACHE>; }	# skip 5 lines
       while (<CACHE>) {
          chomp; $found{$_}=1;
@@ -367,7 +368,7 @@ sub get_messageids_sorted {
       return(\@messageids, \@messagedepths);
 
    if ( -e $cachefile ) {
-      open(CACHE, $cachefile);
+      sysopen(CACHE, $cachefile, O_RDONLY);
       foreach ($cache_lstmtime, $cache_folderdb, $cache_sort, $cache_ignore_internal) {
          $_=<CACHE>; chomp;
       }
@@ -382,7 +383,7 @@ sub get_messageids_sorted {
    if ( $cache_lstmtime ne $lstmtime || $cache_folderdb ne $folderdb ||
         $cache_sort ne $sort || $cache_ignore_internal ne $ignore_internal) {
       $cachefile=ow::tool::untaint($cachefile);
-      open(CACHE, ">$cachefile");
+      sysopen(CACHE, $cachefile, O_WRONLY|O_TRUNC|O_CREAT);
       print CACHE $lstmtime, "\n", $folderdb, "\n", $sort, "\n", $ignore_internal, "\n";
       if ( $sort eq 'sentdate') {
          ($r_messageids)=get_messageids_sorted_by_sentdate($folderdb, $ignore_internal);
@@ -416,7 +417,7 @@ sub get_messageids_sorted {
       }
 
    } else {
-      open(CACHE, $cachefile);
+      sysopen(CACHE, $cachefile, O_RDONLY);
       for (0..3) { $_=<CACHE>; }	# skip $lstmtime, $folderdb, $sort, $ignore_internal
       foreach ($messageids_size, $messagedepths_size) {
          $_=<CACHE>; chomp;

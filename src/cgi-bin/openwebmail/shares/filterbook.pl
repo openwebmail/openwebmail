@@ -1,6 +1,7 @@
 #
 # statbook.pl - read/write stationery book
 #
+
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 
@@ -48,7 +49,7 @@ sub read_filterbook {
    my ($filterbookfile, $r_filterrules)=@_;
 
    if ( -f $filterbookfile ) {
-      open (FILTER, $filterbookfile) or
+      sysopen(FILTER, $filterbookfile, O_RDONLY) or
          return (-1, "$lang_err{'couldnt_read'} $filterbookfile! ($!)");
       while (<FILTER>) {
          chomp($_);
@@ -60,7 +61,7 @@ sub read_filterbook {
             ${$r_filterrules}{$key}=\%rule;
          }
       }
-      close (FILTER) or
+      close(FILTER) or
          return(-2, "$lang_err{'couldnt_close'} $filterbookfile! ($!)");
    }
    return(0, '');
@@ -73,7 +74,7 @@ sub write_filterbook {
 
    my @sortedrules=sort_filterrules($r_filterrules);
 
-   open (FILTER, ">$filterbookfile") or
+   sysopen(FILTER, $filterbookfile, O_WRONLY|O_TRUNC|O_CREAT) or
       return (-1, "$lang_err{'couldnt_write'} $filterbookfile! ($!)");
    foreach (@sortedrules) {
       my %rule=%{${$r_filterrules}{$_}};
@@ -86,7 +87,7 @@ sub write_filterbook {
                                $rule{enable},
                                $rule{charset})."\n";
    }
-   close (FILTER) or
+   close(FILTER) or
       return(-2, "$lang_err{'couldnt_close'} $filterbookfile! ($!)");
 
    return(0, '');

@@ -1,3 +1,13 @@
+04/30/2005
+----------
+1. clean all pipe code with safer syntax like open(F, "|-") and open(F, "-|")
+   to eliminate shell escape char interpretation
+2. spam check and virus check which should be faster now
+   because of change 1, shll won't be invoked any more.
+3. replace most open(F, fname) statement with sysopen(F, fname, mode)
+   to avoid problem caused by shell escape char in filename
+
+
 04/29/2005
 ----------
 1. LDAP addressbook support

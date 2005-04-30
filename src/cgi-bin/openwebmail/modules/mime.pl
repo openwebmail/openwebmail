@@ -1,5 +1,4 @@
 package ow::mime;
-use strict;
 #
 # mime.pl - mime words encoding/decoding routines
 #
@@ -10,6 +9,8 @@ use strict;
 # Note: The encoding/decoding speed would be much faster if you install
 # MIME-Base64 with XS support
 #
+
+use strict;
 use MIME::Base64;
 use vars qw($NONPRINT $BIG5CHARS $WORDCHARS);
 

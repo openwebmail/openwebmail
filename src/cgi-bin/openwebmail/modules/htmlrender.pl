@@ -1,5 +1,4 @@
 package ow::htmlrender;
-use strict;
 #
 # htmlrender.pl - html page rendering routines
 #
@@ -10,6 +9,7 @@ use strict;
 # html4attachment, html4mailto, html2table
 #
 
+use strict;
 require "modules/tool.pl";
 
 # since this routine deals with base directive,

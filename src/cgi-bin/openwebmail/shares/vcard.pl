@@ -1,3 +1,4 @@
+#
 # vcard.pl - read/write address book vCard data
 #
 # Description:
@@ -12,6 +13,7 @@
 #
 # Versions:
 # 20040325 - Initial version.
+#
 
 use strict;
 use MIME::QuotedPrint;

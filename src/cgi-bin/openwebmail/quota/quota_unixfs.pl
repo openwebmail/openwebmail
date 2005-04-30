@@ -1,5 +1,4 @@
 package ow::quota_unixfs;
-use strict;
 #
 # quota_unixfs.pl - calc user quota by unix filesystem quota
 #
@@ -12,6 +11,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use Quota;
 
 #  0 : ok

@@ -97,7 +97,7 @@ if ($config{'logfile'}) {
    my $mailgid=getgrnam('mail');
    my ($fmode, $fuid, $fgid) = (stat($config{'logfile'}))[2,4,5];
    if ( !($fmode & 0100000) ) {
-      open (LOGFILE,">>$config{'logfile'}") or
+      sysopen(LOGFILE, $config{'logfile'}, O_WRONLY|O_APPEND|O_CREAT, 0660) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $lang_text{'file'} $config{'logfile'}! ($!)");
       close(LOGFILE);
    }
@@ -289,7 +289,7 @@ sub login {
       my $mailgid=getgrnam('mail');
       my ($fmode, $fuid, $fgid) = (stat($config{'logfile'}))[2,4,5];
       if ( !($fmode & 0100000) ) {
-         open (LOGFILE,">>$config{'logfile'}") or
+         sysopen(LOGFILE, $config{'logfile'}, O_WRONLY|O_APPEND|O_CREAT, 0660) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $lang_text{'file'} $config{'logfile'}! ($!)");
          close(LOGFILE);
       }
@@ -491,8 +491,8 @@ sub login {
 
    # create system spool file /var/mail/xxxx
    my $spoolfile=ow::tool::untaint((get_folderpath_folderdb($user, 'INBOX'))[0]);
-   if ( ! -f "$spoolfile" ) {
-      open (F, ">>$spoolfile"); close(F);
+   if ( !-f "$spoolfile" ) {
+      sysopen(F, $spoolfile, O_WRONLY|O_APPEND|O_CREAT, 0600); close(F);
       chown($uuid, (split(/\s+/,$ugid))[0], $spoolfile) if ($>==0);
    }
 
@@ -503,12 +503,12 @@ sub login {
    } else {						       # a brand new sesion?
       $sessionkey = crypt(rand(),'OW');
    }
-   open (SESSION, "> $config{'ow_sessionsdir'}/$thissession") or # create sessionid
+   sysopen(SESSION, "$config{'ow_sessionsdir'}/$thissession", O_WRONLY|O_TRUNC|O_CREAT) or # create sessionid
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $config{'ow_sessionsdir'}/$thissession! ($!)");
    print SESSION $sessionkey, "\n";
    print SESSION $clientip, "\n";
    print SESSION join("\@\@\@", $domain, $user, $userrealname, $uuid, $ugid, $homedir), "\n";
-   close (SESSION);
+   close(SESSION);
    writehistory("login - $thissession");
 
    # symbolic link ~/mbox to ~/mail/saved-messages if ~/mbox is not spoolfile
@@ -518,8 +518,8 @@ sub login {
       if (ow::filelock::lock("$folderdir/saved-messages", LOCK_EX|LOCK_NB)) {
          writelog("symlink mbox - $homedir/mbox -> $folderdir/saved-messages");
 
-         if (! -f "$folderdir/saved-messages") {
-            open(F,">>$folderdir/saved-messages"); close(F);
+         if (!-f "$folderdir/saved-messages") {
+            sysopen(F, "$folderdir/saved-messages", O_WRONLY|O_APPEND|O_CREAT); close(F);
          }
          if (open(F,"+<$folderdir/saved-messages")) {
             seek(F, 0, 2);	# seek to end;

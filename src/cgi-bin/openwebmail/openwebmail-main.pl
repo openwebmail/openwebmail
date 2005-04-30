@@ -98,7 +98,7 @@ if ($action eq "movemessage" ||
    $destination=ow::tool::untaint(safefoldername($destination));
 
    if ($destination eq 'FORWARD' && $#messageids>=0) {	# forwarding msgs
-      open (FORWARDIDS, ">$config{'ow_sessionsdir'}/$thissession-forwardids");
+      sysopen(FORWARDIDS, "$config{'ow_sessionsdir'}/$thissession-forwardids", O_WRONLY|O_TRUNC|O_CREAT);
       print FORWARDIDS join("\n", @messageids);
       close(FORWARDIDS);
       my $send_url = qq|$config{'ow_cgiurl'}/openwebmail-send.pl?|.
@@ -1207,7 +1207,7 @@ sub movemessage {
          ($counted, $errmsg)=operate_message_with_ids($op, $r_messageids, $folderfile, $folderdb);
       } else {
          if (!-f "$dstfile" ) {
-            if (!open (F,">>$dstfile")) {
+            if (!sysopen(F, $dstfile, O_WRONLY|O_APPEND|O_CREAT)) {
                my $err=$!;
                ow::filelock::lock($folderfile, LOCK_UN);
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $lang_err{'destination_folder'} ".f2u($dstfile)."! ($err)");
@@ -1437,10 +1437,10 @@ sub update_pop3check {
    my $ftime=(stat($pop3checkfile))[9];
 
    if (!$ftime) {	# create if not exist
-      open (F, "> $pop3checkfile") or
+      sysopen(F, $pop3checkfile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $pop3checkfile! ($!)");
       print F "pop3check timestamp file";
-      close (F);
+      close(F);
    }
    if ( $now-$ftime > $config{'fetchpop3interval'}*60 ) {
       utime($now-1, $now-1, ow::tool::untaint($pop3checkfile));	# -1 is trick for nfs
@@ -1480,10 +1480,10 @@ sub clean_trash_spamvirus {
    my $trashcheckfile=dotpath('trash.check');
    my $ftime=(stat($trashcheckfile))[9];
    if (!$ftime) {	# create if not exist
-      open (TRASHCHECK, ">$trashcheckfile" ) or
+      sysopen(TRASHCHECK, $trashcheckfile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($trashcheckfile)."! ($!)");
       print TRASHCHECK "trashcheck timestamp file";
-      close (TRASHCHECK);
+      close(TRASHCHECK);
    }
 
    my %reserveddays=('mail-trash' => $prefs{'trashreserveddays'},

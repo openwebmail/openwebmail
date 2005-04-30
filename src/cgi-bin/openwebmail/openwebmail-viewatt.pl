@@ -328,7 +328,7 @@ sub getattfile {
    }
 
    my (%att, $attheader, $attcontent);
-   open(ATTFILE, "$config{'ow_sessionsdir'}/$attfile") or
+   sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$attfile", O_RDONLY) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}/$attfile! ($!)");
    local $/="\n\n"; $attheader=<ATTFILE>;	# read until 1st blank line
    undef $/; $attcontent=<ATTFILE>;		# read until file end
@@ -396,7 +396,8 @@ sub savefile2webdisk {
    }
    $vpath=ow::tool::untaint($vpath);
 
-   if (!open(F, ">$webdiskrootdir/$vpath") ) {
+   ow::tool::rotatefilename("$webdiskrootdir/$vpath") if ( -f "$webdiskrootdir/$vpath");
+   if (!sysopen(F, "$webdiskrootdir/$vpath", O_WRONLY|O_TRUNC|O_CREAT) ) {
       autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpathstr: $!)");
    }
    ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX) or
@@ -421,7 +422,7 @@ sub msword2html {
 
    my $tmpfile=ow::tool::tmpname('msword2html.tmpfile');
    my $err=0;
-   open(F, ">$tmpfile") or return 0;
+   sysopen(F, $tmpfile, O_WRONLY|O_TRUNC|O_CREAT) or return 0;
    print F ${$r_content} or $err++;
    close(F);
    if ($err) {

@@ -4,6 +4,7 @@
 # routines in this file will do lock and db sync
 # before making access to folderfile/folderdb
 #
+
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 
@@ -49,7 +50,7 @@ sub lockget_message_header {
          return(-1, "Couldn't update index db $folderdb");
       }
    }
-   if (!open ($folderhandle, $folderfile)) {
+   if (!sysopen($folderhandle, $folderfile, O_RDONLY)) {
       ow::filelock::lock($folderfile, LOCK_UN) if (!$has_globallock);
       return(-1, "$folderfile read open error");
    }
@@ -79,7 +80,7 @@ sub lockget_message_block {
          return(-1, "Couldn't update index db $folderdb");
       }
    }
-   if (!open ($folderhandle, $folderfile)) {
+   if (!sysopen($folderhandle, $folderfile, O_RDONLY)) {
       ow::filelock::lock($folderfile, LOCK_UN) if (!$has_globallock);
       return(-1, "$folderfile read open error");
    }

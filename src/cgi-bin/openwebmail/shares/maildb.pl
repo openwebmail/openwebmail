@@ -118,7 +118,7 @@ sub update_folderindex {
                @i=(0..$#oldmessageids);
             }
             if ($#i>=0) {
-               open ($folderhandle, $folderfile);
+               sysopen($folderhandle, $folderfile, O_RDONLY);
                foreach $i (@i) {
                   #@attr=_get_validated_msgattr($folderhandle, \%FDB, $oldmessageids[$i]);
                   @attr = string2msgattr( $FDB{$oldmessageids[$i]} );
@@ -141,7 +141,7 @@ sub update_folderindex {
    my $totalsize=0;
    my ($newmessages, $internalmessages, $internalsize, $zapmessages, $zapsize) = (0, 0, 0, 0, 0);
 
-   open ($folderhandle, $folderfile);
+   sysopen($folderhandle, $folderfile, O_RDONLY);
    my $foldersize=(stat($folderhandle))[7];
 
    if ($is_db_reuseable==0) {		# new db
@@ -338,7 +338,7 @@ sub update_folderindex {
       $dberr=_update_index_with_msghash(\%FDB, $id, $r_message);
    }
 
-   close ($folderhandle);
+   close($folderhandle);
 
    if ( !$dberr ) {
       @FDB{'ALLMESSAGES', 'NEWMESSAGES', 'INTERNALMESSAGES', 'INTERNALSIZE', 'ZAPMESSAGES', 'ZAPSIZE'}
@@ -639,7 +639,7 @@ sub update_message_status {
    my @attr;
    my $i;
 
-   if (!open ($folderhandle, "+<$folderfile")) {
+   if (!sysopen($folderhandle, $folderfile, O_RDWR)) {
       ow::dbm::close(\%FDB, $folderdb);
       return -3;
    }
@@ -660,12 +660,12 @@ sub update_message_status {
          read ($folderhandle, $header, $headerlen);	# header ends with one \n
 
          if ($header!~/^From /) { # index not consistent with folder content
-            close ($folderhandle);
+            close($folderhandle);
 
             writelog("db warning - msg $messageid in $folderfile index inconsistence - ".__FILE__.':'.__LINE__);
             writehistory("db warning - msg $messageid in $folderfile index inconsistence - ".__FILE__.':'.__LINE__);
 
-            close ($folderhandle);
+            close($folderhandle);
             @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
             ow::dbm::close(\%FDB, $folderdb);
 
@@ -746,7 +746,7 @@ sub update_message_status {
          last;
       }
    }
-   close ($folderhandle);
+   close($folderhandle);
 
    writelog("db warning - msg $messageid in $folderfile index missing") if ($i>$#messageids);
 
@@ -793,7 +793,7 @@ sub operate_message_with_ids {
    }
 
    my $srchandle=FileHandle->new();
-   return (-2, "$lang_err{'couldnt_read'} $srcfile ($!)") if (!open($srchandle, $srcfile));
+   return (-2, "$lang_err{'couldnt_read'} $srcfile ($!)") if (!sysopen($srchandle, $srcfile, O_RDONLY));
    return (-1, "$lang_err{'couldnt_read'} $srcdb") if (!ow::dbm::open(\%FDB, $srcdb, LOCK_EX));
 
    my $dsthandle=FileHandle->new();
@@ -802,16 +802,16 @@ sub operate_message_with_ids {
    if ($op eq "move" || $op eq "copy") {
       if (update_folderindex($dstfile, $dstdb)<0) {
          ow::dbm::close(\%FDB, $srcdb);
-         close ($srchandle);
+         close($srchandle);
          writelog("db error - Couldn't update index db $dstdb");
          writehistory("db error - Couldn't update index db $dstdb");
          return (-1, "$lang_err{'couldnt_updatedb'} $dstdb");
       }
 
-      if (!open ($dsthandle, ">>$dstfile")) {
+      if (!sysopen($dsthandle, $dstfile, O_WRONLY|O_APPEND|O_CREAT)) {
          my $errmsg=$!;
          ow::dbm::close(\%FDB, $srcdb);
-         close ($srchandle);
+         close($srchandle);
          return (-2, "$lang_err{'couldnt_write'} $dstfile ($errmsg)");
       }
       $dstlength=(stat($dsthandle))[7];
@@ -819,9 +819,9 @@ sub operate_message_with_ids {
       eval { my $_dstvbuf; $dsthandle->setvbuf($_dstvbuf, _IOFBF,  $BUFF_blocksize) };
 
       if (!ow::dbm::open(\%FDB2,$dstdb, LOCK_EX)) {
-         close ($dsthandle);
+         close($dsthandle);
          ow::dbm::close(\%FDB, $srcdb);
-         close ($srchandle);
+         close($srchandle);
          writelog("db error - Couldn't open index db $dstdb");
          writehistory("db error - Couldn't open index db $dstdb");
          return (-1, "$lang_err{'couldnt_write'} $dstdb");
@@ -839,7 +839,7 @@ sub operate_message_with_ids {
          writelog("db warning - msg $messageid in $srcfile index inconsistence - ".__FILE__.':'.__LINE__);
          writehistory("db warning - msg $messageid in $srcfile index inconsistence - ".__FILE__.':'.__LINE__);
 
-         close ($srchandle);
+         close($srchandle);
          @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
          ow::dbm::close(\%FDB, $srcdb);
 
@@ -847,7 +847,7 @@ sub operate_message_with_ids {
          update_folderindex($srcfile, $srcdb);
 
          if ($opendst) {
-            close ($dsthandle);
+            close($dsthandle);
             @FDB2{'METAINFO', 'LSTMTIME'}=('ERR', -1);
             ow::dbm::close(\%FDB2,$dstdb);
             update_folderindex($dsthandle, $dstdb);	# ensure msg cp/mv to dst are correctly indexed
@@ -880,10 +880,10 @@ sub operate_message_with_ids {
 
                if ($dstioerr) {
                   writelog("data error - Couldn't write $dstfile, $!");
-                  close ($srchandle);
+                  close($srchandle);
                   ow::dbm::close(\%FDB, $srcdb);
                   truncate($dsthandle, ow::tool::untaint($dstlength));	# cut at last successful write
-                  close ($dsthandle);
+                  close($dsthandle);
                   @FDB2{'METAINFO', 'LSTMTIME'}=('ERR', -1);
                   ow::dbm::close(\%FDB2, $dstdb);
                   return (-3, "$lang_err{'couldnt_write'} $dstfile");;
@@ -920,12 +920,12 @@ sub operate_message_with_ids {
    }
 
    if ($opendst) {
-      close ($dsthandle);
+      close($dsthandle);
       $FDB2{'METAINFO'}=ow::tool::metainfo($dstfile);
       $FDB2{'LSTMTIME'}=time();
       ow::dbm::close(\%FDB2, $dstdb);
    }
-   close ($srchandle);
+   close($srchandle);
    ow::dbm::close(\%FDB, $srcdb);
 
    return($counted, '');
@@ -949,7 +949,7 @@ sub append_message_to_folder {
       _mark_duplicated_messageid(\%FDB, $messageid, $attr[$_SIZE]);
    }
    if (!defined $FDB{$messageid}) {	# append only if not found in dstfile
-      if (! open(DEST, "+<$dstfile")) {
+      if (! sysopen(DEST, $dstfile, O_RDWR)) {
          ow::dbm::close(\%FDB, $dstdb);
          return(-1, "$dstfile write open error");
       }
@@ -957,7 +957,7 @@ sub append_message_to_folder {
       seek(DEST, $attr[$_OFFSET], 0);
       $attr[$_SIZE]=length(${$r_message});
       print DEST ${$r_message} or $ioerr++;
-      close (DEST);
+      close(DEST);
 
       if (!$ioerr) {
          $FDB{$messageid}=msgattr2string(@attr);
@@ -1022,12 +1022,12 @@ sub folder_zapmessages {
    return 0 if ($zapsize==0);	# no zap messages in folder
 
    my $folderhandle=FileHandle->new();
-   return -3 if (!open ($folderhandle, "+<$srcfile"));
+   return -3 if (!sysopen($folderhandle, $srcfile, O_RDWR));
    # since setvbuf is only available before perl 5.8.0, we put this inside eval
    eval { my $_vbuf; $folderhandle->setvbuf($_vbuf, _IOFBF, $BUFF_blocksize) };
 
    if ( !ow::dbm::open(\%FDB, $srcdb, LOCK_EX) ) {
-      close ($folderhandle);
+      close($folderhandle);
       return -1;
    }
 
@@ -1047,7 +1047,7 @@ sub folder_zapmessages {
          writehistory("db warning - msg $messageid in $srcfile index inconsistence - ".__FILE__.':'.__LINE__);
          @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
          ow::dbm::close(\%FDB, $srcdb);
-         close ($folderhandle);
+         close($folderhandle);
 
          return -10;
       }
@@ -1091,7 +1091,7 @@ sub folder_zapmessages {
       }
    }
 
-   close ($folderhandle);
+   close($folderhandle);
 
    if (!$ioerr) {
       foreach (qw(ALLMESSAGES NEWMESSAGES INTERNALMESSAGES INTERNALSIZE ZAPMESSAGES ZAPSIZE)) {
@@ -1224,8 +1224,8 @@ sub rebuild_message_with_partialid {
    my $tmpdb=ow::tool::tmpname('rebuild.tmpdb');
 
    ow::filelock::lock($tmpfile, LOCK_EX) or return -5;
-   open (TMP,  ">$tmpfile");
-   open (FOLDER, "$folderfile");
+   sysopen(TMP, $tmpfile, O_WRONLY|O_TRUNC|O_CREAT);
+   sysopen(FOLDER, $folderfile, O_RDONLY);
 
    seek(FOLDER, $offset[1], 0);
    my $line = <FOLDER>;
@@ -1338,7 +1338,7 @@ sub shiftblock {
 sub empty_folder {
    my ($folderfile, $folderdb) = @_;
 
-   open (F, ">$folderfile") or return -1; close (F);
+   sysopen(F, $folderfile, O_WRONLY|O_TRUNC|O_CREAT) or return -1; close(F);
    ow::dbm::unlink($folderdb);
    return -2 if (update_folderindex($folderfile, $folderdb) <0);
 

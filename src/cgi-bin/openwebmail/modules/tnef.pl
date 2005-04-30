@@ -1,5 +1,4 @@
 package ow::tnef;
-use strict;
 #
 # tnef.pl - tnef -> zip/tar/tgz transformation routine
 #
@@ -12,22 +11,26 @@ use strict;
 # tnef program is available at http://tnef.sourceforge.net/,
 # it is written by Mark Simpson <verdammelt@users.sourceforge.net>
 #
+
+use strict;
+use Fcntl qw(:DEFAULT :flock);
 require "modules/tool.pl";
 require "modules/suid.pl";
 
 sub get_tnef_filelist {
    my ($tnefbin, $r_tnef)=@_;
+
+   local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
+   local $|=1; # flush all output
+
+   my $stdoutfile=ow::tool::tmpname('tnef.out');
+   open(F, "|-") or
+      do { open(STDERR, ">/dev/null"); open(STDOUT, ">$stdoutfile"); exec($tnefbin, "-t"); exit 9 };
+   print F ${$r_tnef};
+   close(F);
+
    my @filelist=();
-   my $tmpfile=ow::tool::tmpname('tnef.tmpfile');
-
-   # ensure tmpfile is owned by current euid but wll be writeable for forked pipe
-   open(F, ">$tmpfile"); close(F); chmod(0666, $tmpfile);
-
-   # the pipe forked by shell may use ruid/rgid(bash) or euid/egid(sh, tcsh)
-   # since that won't change the result, so we don't use fork to change ruid/rgid
-   open(F, "|$tnefbin -t > $tmpfile"); print F ${$r_tnef}; close(F);
-
-   open(F, $tmpfile); unlink $tmpfile;
+   sysopen(F, $stdoutfile, O_RDONLY); unlink $stdoutfile;
    while (<F>) { chomp; push(@filelist, $_) if ($_ ne ''); }
    close(F);
 
@@ -36,46 +39,52 @@ sub get_tnef_filelist {
 
 sub get_tnef_archive {
    my ($tnefbin, $tnefname, $r_tnef)=@_;
-   my ($arcname, $arcdata);
-   my @filelist=();
+
+   local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
+   local $|=1; # flush all output
+
+   # set umask so the dir/file created by tnefbin will be readable
+   # by uid/gid other than current euid/egid
+   # (eg: if the shell is bash and current ruid!=0, the following froked
+   #      tar/gzip may have ruid=euid=current ruid,
+   #      which is not the same as current euid)
+   my $oldumask=umask(0000);
    my $tmpdir=ow::tool::tmpname('tnef.tmpdir');
+   mkdir ($tmpdir, 0755);
+   open(F, "|-") or
+      do { open(STDERR,">/dev/null"); open(STDOUT,">/dev/null"); exec($tnefbin, "--overwrite", "-C", $tmpdir); exit 9 };
+   print F ${$r_tnef};
+   close(F);
+   umask($oldumask);
 
-   if ($<!=$> && $<!=0) {
-      local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
-      local $|=1; # flush all output
-
-      if (fork()==0) {
-         close(STDIN); close(STDOUT); close(STDERR);
-         # drop ruid/rgid to guarentee child ruid=euid=current euid, rgid=egid=current gid
-         # thus dir/files created by child will be owned by current euid/egid
-         ow::suid::drop_ruid_rgid();
-         _extract_files_from_tnef($tnefbin, $r_tnef, $tmpdir);
-         exit 0;
-      }
-      wait;
-   } else {
-      _extract_files_from_tnef($tnefbin, $r_tnef, $tmpdir);
-   }
-
+   my @filelist=();
    opendir(T, $tmpdir);
    while (defined($_=readdir(T))) {
       push(@filelist, $_) if ($_ ne '.' && $_ ne '..');
    }
    close(T);
+
+   my ($arcname, $arcdata);
    if ($#filelist<0) {
       return('', \$arcdata);
    } elsif ($#filelist==0) {
-      open(F, "$tmpdir/$filelist[0]"); $arcname=$filelist[0];
+      sysopen(F, "$tmpdir/$filelist[0]", O_RDONLY); $arcname=$filelist[0];
    } else {
       my ($zipbin, $tarbin, $gzipbin);
       $arcname=$tnefname; $arcname=~s/\.[\w\d]{0,4}$//;
       if (($zipbin=ow::tool::findbin('zip')) ne '') {
-         open(F, "$zipbin -ryqj - $tmpdir|"); $arcname.=".zip";
+         open(F, "-|") or
+            do { open(STDERR,">/dev/null"); exec($zipbin, "-ryqj", "-", $tmpdir); exit 9 };
+         $arcname.=".zip";
       } elsif (($tarbin=ow::tool::findbin('tar')) ne '') {
          if (($gzipbin=ow::tool::findbin('gzip')) ne '') {
-            open(F, "$tarbin -C $tmpdir -cf - .|$gzipbin -q -|"); $arcname.=".tgz";
+            open(F, "-|") or
+               do { open(STDERR,">/dev/null"); exec($tarbin, "-C", $tmpdir, "-zcf", "-", "."); exit 9 };
+            $arcname.=".tgz";
          } else {
-            open(F, "$tarbin -C $tmpdir -cf - .|"); $arcname.=".tar";
+            open(F, "-|") or
+               do { open(STDERR,">/dev/null"); exec($tarbin, "-C", $tmpdir, "-cf", "-", "."); exit 9 };
+            $arcname.=".tar";
          }
       } else {
          return('', \$arcdata);
@@ -89,21 +98,6 @@ sub get_tnef_archive {
    system($rmbin, '-Rf', $tmpdir) if ($rmbin ne '');
 
    return($arcname, \$arcdata, @filelist);
-}
-sub _extract_files_from_tnef {
-   my ($tnefbin, $r_tnef, $tmpdir)=@_;
-
-   # set umask so the dir/file created by tnefbin will be readable
-   # by uid/gid other than current euid/egid
-   # (eg: if the shell is bash and current ruid!=0, the following froked
-   #      tar/gzip may have ruid=euid=current ruid,
-   #      which is not the same as current euid)
-   my $oldumask=umask(0000);
-
-   mkdir ($tmpdir, 0755);
-   open(F, "|$tnefbin --overwrite -C $tmpdir"); print F ${$r_tnef}; close(F);
-
-   umask($oldumask);
 }
 
 1;

@@ -1,8 +1,9 @@
 package ow::auth;
-use strict;
 #
 # auth.pl - parent package of all auth modules
 #
+
+use strict;
 require "modules/suid.pl";
 require "modules/tool.pl";
 

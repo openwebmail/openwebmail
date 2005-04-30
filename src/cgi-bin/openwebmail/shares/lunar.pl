@@ -3,6 +3,7 @@
 #
 # 2002/11/15 tung.AT.turtle.ee.ncku.edu.tw
 #
+
 use strict;
 use vars qw(%config);
 use Fcntl qw(:DEFAULT :flock);
@@ -12,7 +13,7 @@ sub mkdb_lunar {
    my $lunardb=ow::tool::untaint("$config{'ow_mapsdir'}/lunar");
 
    ow::dbm::open(\%LUNAR, $lunardb, LOCK_EX, 0644) or return -1;
-   open (T, $config{'lunar_map'});
+   sysopen(T, $config{'lunar_map'}, O_RDONLY);
    $_=<T>; $_=<T>;
    while (<T>) {
       my @a=split(/,/, $_);

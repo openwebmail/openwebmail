@@ -1,10 +1,12 @@
 package ow::spamcheck;
-use strict;
 #
 # spamcheck.pl - routines to call external checker to detect spam
 #
 # 2004/07/01 tung.AT.turtle.ee.ncku.edu.tw
 #
+
+use strict;
+use Fcntl qw(:DEFAULT :flock);
 use IO::Socket;
 require "modules/tool.pl";
 require "modules/suid.pl";
@@ -83,43 +85,30 @@ sub pipecmd_msg {
 
    my $username=getpwuid($>);	# username of euid
    $pipecmd=~s/\@\@\@USERNAME\@\@\@/$username/g;
-   $pipecmd=ow::tool::untaint($pipecmd);
+   my @cmd=split(/\s+/, $pipecmd); foreach (@cmd) { (/^(.*)$/) && ($_=$1) };
 
-   # ensure tmpfile is owned by current euid but wll be writeable for forked pipe
-   my $tmpfile=ow::tool::tmpname('spamcheck.tmpfile');
-   open(F, ">$tmpfile"); close(F); chmod(0666, $tmpfile);
+   my $stdoutfile=ow::tool::tmpname('spamcheck.out');
+   my $stderrfile=ow::tool::tmpname('spamcheck.err');
 
    local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
    local $|=1; # flush all output
-   if (fork()==0) {
-      close(STDIN); close(STDOUT); close(STDERR);
-      # the pipe forked by shell may use ruid/rgid(bash) or euid/egid(sh, tcsh)
-      # drop ruid/rgid to guarentee child ruid=euid=current euid, rgid=egid=current gid
-      # thus dir/files created by child will be owned by current euid/egid
-      ow::suid::drop_ruid_rgid();
-      my $errmsg;
-      if (open(P, "|$pipecmd 2>/dev/null > $tmpfile")) {
-         if (ref($r_message) eq 'ARRAY') {
-            print P @{$r_message} or $errmsg=$!;
-         } else {
-            print P ${$r_message} or $errmsg=$!;
-         }
-         close(P);
-      } else {
-         $errmsg=$!;
-      }
-      # result/err in tmpfile for parent process
-      if ($errmsg ne '') {
-         open(F, ">$tmpfile"); print F $errmsg; close(F);
-      }
-      exit 0;
+
+   my ($stdout, $stderr, $errmsg);
+   open(P, "|-") or
+      do { open(STDERR, ">$stderrfile"); open(STDOUT, ">$stdoutfile"); exec(@cmd); exit 9 };
+   if (ref($r_message) eq 'ARRAY') {
+      print P @{$r_message} or $errmsg=$!;
+   } else {
+      print P ${$r_message} or $errmsg=$!;
    }
-   wait;
+   close(P) or $errmsg=$!;
 
-   open(F, $tmpfile); $_=<F>; close(F); $_=~s/[\r\n]//g;
-   unlink $tmpfile;
+   sysopen(F, $stderrfile, O_RDONLY); $stderr=<F>; close(F); unlink $stderrfile;
+   sysopen(F, $stdoutfile, O_RDONLY); $stdout=<F>; close(F); unlink $stdoutfile;
 
-   return $_;
+   foreach ($errmsg, $stderr, $stdout) {
+      s/[\r\n]//g; return $_ if ($_ ne '');
+   }
 }
 
 1;

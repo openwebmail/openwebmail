@@ -58,7 +58,7 @@ sub upgrade_all {	# called if user releasedate is too old
          $content="";
          ow::filelock::lock("$folderdir/.filter.book", LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $folderdir/.filter.book");
-         open(F, "$folderdir/.filter.book");
+         sysopen(F, "$folderdir/.filter.book", O_RDONLY);
          while (<F>) {
             chomp;
             my ($priority, $ruletype, $include, $text, $op, $destination, $enable) = split(/\@\@\@/);
@@ -73,7 +73,7 @@ sub upgrade_all {	# called if user releasedate is too old
          if ($content ne "") {
             writehistory("release upgrade - $folderdir/.filter.book by 20011101");
             writelog("release upgrade - $folderdir/.filter.book by 20011101");
-            open(F, ">$folderdir/.filter.book");
+            sysopen(F, "$folderdir/.filter.book", O_WRONLY|O_TRUNC|O_CREAT);
             print F $content;
             close(F);
          }
@@ -84,7 +84,7 @@ sub upgrade_all {	# called if user releasedate is too old
          $content="";
          ow::filelock::lock("$folderdir/.pop3.book", LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $folderdir/.pop3.book");
-         open(F, "$folderdir/.pop3.book");
+         sysopen(F, "$folderdir/.pop3.book", O_RDONLY);
          while (<F>) {
             chomp;
             my @a=split(/:/);
@@ -105,7 +105,7 @@ sub upgrade_all {	# called if user releasedate is too old
          if ($content ne "") {
             writehistory("release upgrade - $folderdir/.pop3.book by 20011101");
             writelog("release upgrade - $folderdir/.pop3.book by 20011101");
-            open(F, ">$folderdir/.pop3.book");
+            sysopen(F, "$folderdir/.pop3.book", O_WRONLY|O_TRUNC|O_CREAT);
             print F $content;
             close(F);
          }
@@ -119,7 +119,7 @@ sub upgrade_all {	# called if user releasedate is too old
             $content="";
             ow::filelock::lock("$folderdir/$book", LOCK_EX) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $folderdir/$book");
-            open(F, "$folderdir/$book");
+            sysopen(F, "$folderdir/$book", O_RDONLY);
             while (<F>) {
                last if (/\@\@\@/);
                s/:/\@\@\@/g;
@@ -129,7 +129,7 @@ sub upgrade_all {	# called if user releasedate is too old
             if ($content ne "") {
                writehistory("release upgrade - $folderdir/$book by 20011117");
                writelog("release upgrade - $folderdir/$book by 20011117");
-               open(F, ">$folderdir/$book");
+               sysopen(F, "$folderdir/$book", O_WRONLY|O_TRUNC|O_CREAT);
                print F $content;
                close(F);
             }
@@ -163,7 +163,7 @@ sub upgrade_all {	# called if user releasedate is too old
          my $content='';
          ow::filelock::lock("$folderdir/.calendar.book", LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $folderdir/.calendar.book");
-         open(F, "$folderdir/.calendar.book");
+         sysopen(F, "$folderdir/.calendar.book", O_RDONLY);
          while (<F>) {
             next if (/^#/);
             chomp;
@@ -184,7 +184,7 @@ sub upgrade_all {	# called if user releasedate is too old
          if ($content ne "") {
             writehistory("release upgrade - $folderdir/.calendar.book by 20021201");
             writelog("release upgrade - $folderdir/.calendar.book by 20021201");
-            open(F, ">$folderdir/.calendar.book");
+            sysopen(F, "$folderdir/.calendar.book", O_WRONLY|O_TRUNC|O_CREAT);
             print F $content;
             close(F);
          }
@@ -209,7 +209,7 @@ sub upgrade_all {	# called if user releasedate is too old
          $content="";
          ow::filelock::lock("$folderdir/.pop3.book", LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $folderdir/.pop3.book");
-         open(F, "$folderdir/.pop3.book");
+         sysopen(F, "$folderdir/.pop3.book", O_RDONLY);
          while (<F>) {
             chomp;
             my @a=split(/\@\@\@/);
@@ -227,7 +227,7 @@ sub upgrade_all {	# called if user releasedate is too old
          if ($content ne "") {
             writehistory("release upgrade - $folderdir/.pop3.book by 20030528");
             writelog("release upgrade - $folderdir/.pop3.book by 20030528");
-            open(F, ">$folderdir/.pop3.book");
+            sysopen(F, "$folderdir/.pop3.book", O_WRONLY|O_TRUNC|O_CREAT);
             print F $content;
             close(F);
          }
@@ -269,7 +269,7 @@ sub upgrade_all {	# called if user releasedate is too old
          $content="";
          ow::filelock::lock($pop3book, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $pop3book");
-         open(F, $pop3book);
+         sysopen(F, $pop3book, O_RDONLY);
          while (<F>) {
             chomp;
             my @a=split(/\@\@\@/);
@@ -285,7 +285,7 @@ sub upgrade_all {	# called if user releasedate is too old
          if ($content ne "") {
             writehistory("release upgrade - $pop3book by 20040111");
             writelog("release upgrade - $pop3book by 20040111");
-            open(F, ">$pop3book");
+            sysopen(F, $pop3book, O_WRONLY|O_TRUNC|O_CREAT);
             print F $content;
             close(F);
          }
@@ -385,7 +385,7 @@ sub upgrade_all {	# called if user releasedate is too old
                foreach my $key (@openwebmailrcitem) {
                   print RC "$key=$prefs{$key}\n";
                }
-               close (RC);
+               close(RC);
                writehistory("release upgrade - openwebmailrc by 20050410");
                writelog("release upgrade - openwebmailrc by 20050410");
             }
@@ -411,7 +411,7 @@ sub read_releasedatefile {
 
 sub update_releasedatefile {
    my $releasedatefile=dotpath('release.date');
-   open(D, ">$releasedatefile") or
+   sysopen(D, $releasedatefile, O_WRONLY|O_TRUNC|O_CREAT) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $releasedatefile ($!)");
    print D $config{'releasedate'};
    close(D);
@@ -429,12 +429,12 @@ sub update_openwebmailrc {
       $saverc=1 if ($config{'auto_createrc'});		# rc auto create
    }
    if ($saverc) {
-      open (RC, ">$rcfile") or
+      open(RC, ">$rcfile") or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $rcfile! ($!)");
       foreach my $key (@openwebmailrcitem) {
          print RC "$key=$prefs{$key}\n";
       }
-      close (RC) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $rcfile!");
+      close(RC) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $rcfile!");
    }
    return;
 }

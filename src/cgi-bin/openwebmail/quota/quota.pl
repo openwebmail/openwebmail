@@ -1,8 +1,9 @@
 package ow::quota;
-use strict;
 #
 # quota.pl - parent package of all quota modules
 #
+
+use strict;
 require "modules/suid.pl";
 require "modules/tool.pl";
 

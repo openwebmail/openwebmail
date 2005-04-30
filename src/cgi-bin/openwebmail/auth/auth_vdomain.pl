@@ -1,5 +1,4 @@
 package ow::auth_vdomain;
-use strict;
 #
 # auth_vdomain.pl - authenticate virtual user on vm-pop3d+postfix system
 #
@@ -8,6 +7,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use Fcntl qw(:DEFAULT :flock);
 require "modules/filelock.pl";
 require "modules/tool.pl";
@@ -120,7 +120,7 @@ sub check_userpassword {
 
    ow::filelock::lock($pwdfile, LOCK_SH) or
       return (-3, "Couldn't get read lock on $pwdfile");
-   if ( ! open (PASSWD, $pwdfile) ) {
+   if ( ! open(PASSWD, $pwdfile) ) {
       ow::filelock::lock($pwdfile, LOCK_UN);
       return (-3, "Couldn't open $pwdfile");
    }
@@ -130,7 +130,7 @@ sub check_userpassword {
       ($u, $p) = (split(/:/, $line))[0,1];
       last if ($u eq $user); # We've found the user in virtual domain passwd file
    }
-   close (PASSWD);
+   close(PASSWD);
    ow::filelock::lock($pwdfile, LOCK_UN);
 
    return(-4, "User $user_domain doesn't exist") if ($u ne $user);
@@ -159,7 +159,7 @@ sub change_userpassword {
 
    ow::filelock::lock($pwdfile, LOCK_EX) or
       return (-3, "Couldn't get write lock on $pwdfile");
-   if ( ! open (PASSWD, $pwdfile) ) {
+   if ( ! open(PASSWD, $pwdfile) ) {
       ow::filelock::lock($pwdfile, LOCK_UN);
       return (-3, "Couldn't open $pwdfile");
    }
@@ -168,7 +168,7 @@ sub change_userpassword {
       chomp($line);
       ($u, $p) = split(/:/, $line) if ($u ne $user);
    }
-   close (PASSWD);
+   close(PASSWD);
 
    if ($u ne $user) {
       ow::filelock::lock($pwdfile, LOCK_UN);
@@ -194,7 +194,7 @@ sub change_userpassword {
    }
 
    my $tmpfile=ow::tool::untaint("$pwdfile.tmp.$$.".rand());
-   open(TMP, ">$tmpfile") or goto authsys_error;
+   sysopen(TMP, $tmpfile, O_WRONLY|O_TRUNC|O_CREAT) or goto authsys_error;
    print TMP $content or goto authsys_error;
    close(TMP) or goto authsys_error;
 

@@ -401,7 +401,7 @@ sub markreadfolder {
    while (!$ioerr && $#unreadmsgids>=0) {
       my @markids=();
 
-      open(F, ">$tmpfile"); close(F);
+      sysopen(F, $tmpfile, O_WRONLY|O_TRUNC|O_CREAT); close(F);
       ow::filelock::lock($tmpfile, LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $tmpfile");
 
@@ -527,9 +527,9 @@ sub addfolder {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'folder_with_name'} ".f2u($foldertoadd)." $lang_err{'already_exists'}");
    }
 
-   open (FOLDERTOADD, ">$folderfile") or
+   sysopen(FOLDERTOADD, $folderfile, O_WRONLY|O_TRUNC|O_CREAT) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'} ".f2u($foldertoadd)."! ($!)");
-   close (FOLDERTOADD) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($foldertoadd)."! ($!)");
+   close(FOLDERTOADD) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($foldertoadd)."! ($!)");
 
    # create empty index dbm with mode 0600
    my %FDB;
@@ -622,29 +622,31 @@ sub renamefolder {
 ########## DOWNLOAD FOLDER #######################################
 sub downloadfolder {
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
-   my ($cmd, $contenttype, $filename);
-   my $buff;
 
-   if ( ($cmd=ow::tool::findbin("zip")) ne "" ) {
-      $cmd.=" -jrq - $folderfile |";
-      $contenttype='application/x-zip-compressed';
-      $filename="$folder.zip";
-
-   } elsif ( ($cmd=ow::tool::findbin("gzip")) ne "" ) {
-      $cmd.=" -c $folderfile |";
-      $contenttype='application/x-gzip-compressed';
-      $filename="$folder.gz";
-
-   } else {
-      $cmd="$folderfile";
-      $contenttype='text/plain';
-      $filename="$folder";
-   }
-
-   $filename=~s/\s+/_/g;
 
    ow::filelock::lock($folderfile, LOCK_EX) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile));
+
+   my ($cmd, $contenttype, $filename);
+   if ( ($cmd=ow::tool::findbin("zip")) ne "" ) {
+      $contenttype='application/x-zip-compressed';
+      $filename="$folder.zip";
+      open(T, "-|") or
+         do { open(STDERR,">/dev/null"); exec(ow::tool::untaint($cmd), "-jrq", "-", $folderfile); exit 9 };
+
+   } elsif ( ($cmd=ow::tool::findbin("gzip")) ne "" ) {
+      $contenttype='application/x-gzip-compressed';
+      $filename="$folder.gz";
+      open(T, "-|") or
+         do { open(STDERR,">/dev/null"); exec(ow::tool::untaint($cmd), "-c", $folderfile); exit 9 };
+
+   } else {
+      $contenttype='text/plain';
+      $filename=$folder;
+      sysopen(T, $folderfile, O_RDONLY);
+   }
+
+   $filename=~s/\s+/_/g;
 
    # disposition:attachment default to save
    print qq|Connection: close\n|,
@@ -656,11 +658,11 @@ sub downloadfolder {
    }
    print qq|\n|;
 
-   $cmd=ow::tool::untaint($cmd);
-   open (T, $cmd);
+   my $buff;
    while ( read(T, $buff,32768) ) {
      print $buff;
    }
+
    close(T);
 
    ow::filelock::lock($folderfile, LOCK_UN);

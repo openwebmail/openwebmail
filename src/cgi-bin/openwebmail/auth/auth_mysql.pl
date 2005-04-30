@@ -1,5 +1,4 @@
 package ow::auth_mysql;
-use strict;
 #
 # auth_mysql.pl - authenticate user with DBD::MySQL and Digest::MD5
 #
@@ -10,6 +9,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use DBI;
 use Digest::MD5;
 require "modules/tool.pl";

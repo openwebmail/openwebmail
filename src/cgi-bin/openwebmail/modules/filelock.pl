@@ -1,5 +1,4 @@
 package ow::filelock;
-use strict;
 #
 # filelock.pl - filelock routines for local or nfs server
 #
@@ -8,6 +7,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use Fcntl qw(:DEFAULT :flock);
 require "modules/tool.pl";
 
@@ -205,8 +205,8 @@ sub dotfile_lock {
          $status=1;
 
       } else { # create failed, assume lock file already exists
-         if ( ($lockflag & LOCK_SH) && open(L,"+<$filename.lock") ) {
-           seek(L, 0, 0);
+         if ( ($lockflag & LOCK_SH) && sysopen(L, "$filename.lock", O_RDWR) ) {
+            seek(L, 0, 0);
             $_=<L>; chop;
             ($mode, $count)=split(/:/);
             if ( $mode eq "READ" ) {

@@ -1,10 +1,11 @@
 package ow::enriched;
-use strict;
 #
 # enriched.pl - text/enriched -> text/html transformation routine
 #
 # 2004/05/12 tung.AT.turtle.ee.ncku.edu.tw
 #
+
+use strict;
 
 use vars qw($nofill_i @nofill_list);
 sub enriched2html {

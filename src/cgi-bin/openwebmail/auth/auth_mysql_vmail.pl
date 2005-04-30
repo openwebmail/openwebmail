@@ -1,5 +1,4 @@
 package ow::auth_mysql_vmail;
-use strict;
 #
 # auth_mysql_vmail.pl - authenticate user with MySQL, where required fields
 #                       are in more tables (like in vmail-sql).
@@ -9,6 +8,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use DBI;
 use Digest::MD5;
 require "modules/tool.pl";

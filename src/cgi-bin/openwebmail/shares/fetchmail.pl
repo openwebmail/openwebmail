@@ -1,4 +1,3 @@
-use strict;
 #
 # fetchmail.pl - fetch mail messages from pop3 server
 #
@@ -6,6 +5,7 @@ use strict;
 # 2002/03/19 eddie.AT.turtle.ee.ncku.edu.tw
 #
 
+use strict;
 use Fcntl qw(:DEFAULT :flock);
 use IO::Socket;
 use MIME::Base64;
@@ -303,10 +303,10 @@ sub append_pop3msg_to_folder {
    my ($faked_dilimeter, $viruscheck_xheader, $spamcheck_xheader, $r_lines, $folderfile)=@_;
 
    if (!-f $folderfile) {
-      open(F, ">>$folderfile"); close(F);
+      sysopen(F, $folderfile, O_WRONLY|O_APPEND|O_CREAT); close(F);
    }
    return 0 if (!ow::filelock::lock($folderfile, LOCK_EX));
-   if (!open(F,"+<$folderfile")) {
+   if (!sysopen(F, $folderfile, O_RDWR)) {
       ow::filelock::lock($folderfile, LOCK_UN);
       return 0;
    }

@@ -1766,20 +1766,20 @@ sub saveprefs {
    if ( !-f $signaturefile && -f "$homedir/.signature" ) {
       $signaturefile="$homedir/.signature";
    }
-   open (SIGNATURE,">$signaturefile") or
+   sysopen(SIGNATURE, $signaturefile, O_WRONLY|O_TRUNC|O_CREAT) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $signaturefile! ($!)");
    print SIGNATURE $newprefs{'signature'};
-   close (SIGNATURE) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $signaturefile! ($!)");
+   close(SIGNATURE) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $signaturefile! ($!)");
    chown($uuid, (split(/\s+/,$ugid))[0], $signaturefile) if ($signaturefile eq "$homedir/.signature");
 
    # save .openwebmailrc
    my $rcfile=dotpath('openwebmailrc');
-   open (RC, ">$rcfile") or
+   sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $rcfile! ($!)");
    foreach my $key (@openwebmailrcitem) {
       print RC "$key=$newprefs{$key}\n";
    }
-   close (RC) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $rcfile! ($!)");
+   close(RC) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $rcfile! ($!)");
 
    %prefs = readprefs();
    %style = readstyle($prefs{'style'});
@@ -1889,7 +1889,7 @@ sub writedotforward {
       }
    }
 
-   open(FOR, ">$homedir/.forward") or return -1;
+   sysopen(FOR, "$homedir/.forward", O_WRONLY|O_TRUNC|O_CREAT) or return -1;
    print FOR join("\n", @forwards), "\n";
    close FOR;
    chown($uuid, (split(/\s+/,$ugid))[0], "$homedir/.forward");
@@ -1985,7 +1985,7 @@ sub writedotvacationmsg {
       $text = substr($text, 0, 500);
    }
 
-   open(MSG, ">$homedir/.vacation.msg") or return -2;
+   sysopen(MSG, "$homedir/.vacation.msg", O_WRONLY|O_TRUNC|O_CREAT) or return -2;
    print MSG "From: $from\n".
              "Subject: $subject\n\n".
              "$text\n\n".
@@ -2170,7 +2170,7 @@ sub viewhistory {
    $temphtml="";
 
    my $historyfile=dotpath('history.log');
-   open (HISTORYLOG, $historyfile);
+   sysopen(HISTORYLOG, $historyfile, O_RDONLY);
 
    my $bgcolor = $style{"tablerow_light"};
    while (<HISTORYLOG>) {
@@ -2316,12 +2316,12 @@ sub modfrom {
          }
       }
 
-      open (FROMBOOK, ">$frombookfile" ) or
+      sysopen(FROMBOOK, $frombookfile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $frombookfile! ($!)");
       foreach $email (sort_emails_by_domainnames($config{'domainnames'}, keys %userfrom)) {
          print FROMBOOK "$email\@\@\@$userfrom{$email}\n";
       }
-      close (FROMBOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $frombookfile! ($!)");
+      close(FROMBOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $frombookfile! ($!)");
    }
 
    editfroms();

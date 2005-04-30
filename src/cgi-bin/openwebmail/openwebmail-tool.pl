@@ -125,7 +125,7 @@ if ($ARGV[0] eq "--") {		# called by inetd
       } elsif ($ARGV[$i] eq "--file" || $ARGV[$i] eq "-f") {
          $i++;
          if ( -f $ARGV[$i] ) {
-            open(F, $ARGV[$i]);
+            sysopen(F, $ARGV[$i], O_RDONLY);
             while (<F>) { chomp $_; push(@list, $_); }
             close(F);
          }
@@ -418,7 +418,7 @@ sub check_db_file_pm {
    my $dbfile_pm=$INC{'DB_File.pm'};
    if ($dbfile_pm) {
       my $t;
-      open(F, $dbfile_pm); while(<F>) {$t.=$_;} close(F);
+      sysopen(F, $dbfile_pm, O_RDONLY); while(<F>) {$t.=$_;} close(F);
       $t=~s/\s//gms;
       if ($t!~/\$arg\[3\]=0666unlessdefined\$arg\[3\];/sm
        && $t!~/\$arg\[3\]=0666if\@arg>=4&&!defined\$arg\[3\];/sm) {
@@ -557,7 +557,7 @@ sub langconv_file {
    print "langconv file $srcfile -> $dstfile\n";
 
    my @lines;
-   open(F, $srcfile) || die "$srcfile open error ($!)";
+   sysopen(F, $srcfile, O_RDONLY) || die "$srcfile open error ($!)";
    @lines=<F>;
    close(F);
 
@@ -584,7 +584,7 @@ sub langconv_file {
    ($content)=iconv($srccharset, $dstcharset, $content);
 
    $dstfile=ow::tool::untaint($dstfile);
-   open(F, ">$dstfile") || die "$dstfile open error ($!)";
+   sysopen(F, $dstfile, O_WRONLY|O_TRUNC|O_CREAT) || die "$dstfile open error ($!)";
    print F $content;
    close(F);
 
@@ -1071,7 +1071,7 @@ sub folderindex {
             ow::filelock::lock($folderfile, LOCK_UN);
             return -1;
          }
-         open (FOLDER, $folderfile);
+         sysopen(FOLDER, $folderfile, O_RDONLY);
 
          for(my $i=0; $i<=$#messageids; $i++) {
             @attr=get_message_attributes($messageids[$i], $folderdb);
@@ -1370,9 +1370,9 @@ sub checknotify {
 
    my $checkstart="0000";
    if ( -f $notifycheckfile ) {
-      open (NOTIFYCHECK, $notifycheckfile ) or return -1; # read err
+      sysopen(NOTIFYCHECK, $notifycheckfile, O_RDONLY) or return -1; # read err
       my $lastcheck=<NOTIFYCHECK>;
-      close (NOTIFYCHECK);
+      close(NOTIFYCHECK);
       $checkstart=$1 if ($lastcheck=~/$date(\d\d\d\d)/);
    }
 
@@ -1383,9 +1383,9 @@ sub checknotify {
 
    return 0 if ($checkend<=$checkstart);
 
-   open (NOTIFYCHECK, ">$notifycheckfile" ) or return -2; # write err
+   sysopen(NOTIFYCHECK, $notifycheckfile, O_WRONLY|O_TRUNC|O_CREAT) or return -2; # write err
    print NOTIFYCHECK "$date$checkend";
-   close (NOTIFYCHECK);
+   close(NOTIFYCHECK);
 
    my (%items, %indexes);
 
@@ -1440,9 +1440,9 @@ sub checknotify {
    }
 
    if ($future_items==0) { # today has no more item to notify, set checkend to 2400
-      if (open (NOTIFYCHECK, ">$notifycheckfile" )) {
+      if (open(NOTIFYCHECK, ">$notifycheckfile" )) {
          print NOTIFYCHECK $date."2400";
-         close (NOTIFYCHECK);
+         close(NOTIFYCHECK);
       }
    }
 
@@ -1542,7 +1542,7 @@ sub pop3_fetches {
    my ($spoolfile, $header)=get_folderpath_folderdb($user, 'INBOX');
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
-      open (F, ">>$spoolfile"); close(F);
+      sysopen(F, $spoolfile, O_WRONLY|O_APPEND|O_CREAT, 0600); close(F);
    }
 
    my %accounts=();

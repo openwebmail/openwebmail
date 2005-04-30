@@ -1,5 +1,4 @@
 package ow::auth_pop3;
-use strict;
 #
 # auth_pop3.pl - authenticate user with POP3 server
 #
@@ -8,6 +7,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use IO::Socket;
 use MIME::Base64;
 require "modules/tool.pl";

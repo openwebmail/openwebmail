@@ -234,7 +234,7 @@ sub addrbookadd {
          $msg =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/;
          openwebmailerror(__FILE__, __LINE__, $msg);
       } else {
-         open(NEWBOOK,">$abookfilenew") or
+         sysopen(NEWBOOK, $abookfilenew, O_WRONLY|O_TRUNC|O_CREAT) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'}! ($!)");
          close(NEWBOOK);
 
@@ -467,25 +467,27 @@ sub addrbookdownload {
    $abookfolder = ow::tool::untaint(safefoldername($abookfolder));
    my $abookfile=abookfolder2file($abookfolder);
 
+   ow::filelock::lock($abookfile, LOCK_EX|LOCK_NB) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($abookfile));
+
    my ($cmd, $contenttype, $filename);
    if ( ($cmd=ow::tool::findbin("zip")) ne "" ) {
-      $cmd.=" -qj - $abookfile |";
       $contenttype='application/x-zip-compressed';
       $filename="$abookfolder.vcf.zip";
+      open(T, "-|") or
+         do { open(STDERR,">/dev/null"); exec(ow::tool::untaint($cmd), "-qj", "-", $abookfile); exit 9 };
    } elsif ( ($cmd=ow::tool::findbin("gzip")) ne "" ) {
-      $cmd.=" -c $abookfile |";
       $contenttype='application/x-gzip-compressed';
       $filename="$abookfolder.vcf.gz";
+      open(T, "-|") or
+         do { open(STDERR,">/dev/null"); exec(ow::tool::untaint($cmd), "-c", $abookfile); exit 9 };
    } else {
-      $cmd="$abookfile";
       $contenttype='application/x-vcard';
       $filename="$abookfolder.vcf";
+      sysopen(T, $abookfile, O_RDONLY);
    }
 
    $filename=~s/\s+/_/g;
-
-   ow::filelock::lock($abookfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($abookfile));
 
    # disposition:attachment default to save
    print qq|Connection: close\n|,
@@ -498,11 +500,10 @@ sub addrbookdownload {
    print qq|\n|;
 
    my $buff;
-   $cmd=ow::tool::untaint($cmd);
-   open (T, $cmd);
    while ( read(T, $buff,32768) ) {
      print $buff;
    }
+
    close(T);
 
    ow::filelock::lock($abookfile, LOCK_UN);
@@ -2028,7 +2029,7 @@ sub addreditform {
                   if (param('EDITFORMUPLOAD') eq '' && param('webdisksel') eq '' && param('formchange') eq '') {
                      my $fileserial = time() . join("",map { int(rand(10)) }(1..9));
                      print "<pre>saving out the $propertyname index $index to fileserial $fileserial\n</pre>" if $addrdebug;
-                     open (FILE, ">$config{'ow_sessionsdir'}/$thissession-vcard$fileserial") or
+                     sysopen(FILE, "$config{'ow_sessionsdir'}/$thissession-vcard$fileserial", O_WRONLY|O_TRUNC|O_CREAT) or
                         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $config{'ow_sessionsdir'}/$thissession-vcard$fileserial ($!)\n");
                      binmode FILE; # to ensure images don't corrupt
                      if (exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{VCARD}) {
@@ -3436,7 +3437,7 @@ sub addredit {
             openwebmailerror(__FILE__, __LINE__, "$lang_text{'file'} $vpathstr $lang_err{'doesnt_exist'}") if (!-f "$webdiskrootdir/$vpath");
 
             $attachment=do { local *FH };
-            open($attachment, "$webdiskrootdir/$vpath") or
+            sysopen($attachment, "$webdiskrootdir/$vpath", O_RDONLY) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $lang_text{'webdisk'} $vpathstr! ($!)");
             $attname=$vpath; $attname=~s|/$||; $attname=~s|^.*/||;
             $attcontenttype=ow::tool::ext2contenttype($vpath);
@@ -3448,7 +3449,7 @@ sub addredit {
                openwebmailerror(__FILE__, __LINE__, "$lang_err{'att_overlimit'} $config{'abook_attlimit'} $lang_sizes{'kb'}!");
             }
             my $attserial = time() . join("",map { int(rand(10)) }(1..9));
-            open (ATTFILE, ">$config{'ow_sessionsdir'}/$thissession-vcard$attserial");
+            sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$thissession-vcard$attserial", O_WRONLY|O_TRUNC|O_CREAT);
             binmode ATTFILE; # to ensure images don't corrupt
             my ($buff, $attsize);
             while (read($attachment, $buff, 400*57)) {
@@ -3546,7 +3547,7 @@ sub addredit {
 
       if ($addrdebug) { # DEBUG DUMP
          my $outfile = "$config{'ow_sessionsdir'}/DUMP_BEFORE";
-         open (FILE, ">$outfile") || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $outfile ($!)\n");
+         sysopen(FILE, $outfile, O_WRONLY|O_TRUNC|O_CREAT) || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $outfile ($!)\n");
          print FILE Dumper(\%{$completevcard});
          close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $outfile ($!)\n");
       }
@@ -3626,7 +3627,7 @@ sub addredit {
                      if (exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{VCARD}) {
                         $contact->{$xowmuid}{$propertyname}[$index]{VALUE} = readadrbook("$targetfile",undef,undef); # attach vcard file
                      } else {
-                        open (FILE, "<$targetfile") || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $targetfile ($!)\n");
+                        sysopen(FILE, $targetfile, O_RDWR|O_CREAT) || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $targetfile ($!)\n");
                         $contact->{$xowmuid}{$propertyname}[$index]{VALUE} = do { local $/; <FILE> }; # attach binary file
                         close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $targetfile ($!)\n");
                      }
@@ -3695,7 +3696,8 @@ sub addredit {
 
       if ($addrdebug) { # DEBUG DUMP
          my $outfile = "$config{'ow_sessionsdir'}/DUMP_AFTER";
-         open (FILE, ">$outfile") || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $outfile ($!)\n");
+         sysopen(FILE, $outfile, O_WRONLY|O_TRUNC|O_CREAT) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $outfile ($!)\n");
          print FILE Dumper(\%{$completevcard});
          close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $outfile ($!)\n");
          print "<pre>addredit COMPLETEVCARD has been validated and is about to writeout:\n".Dumper(\%{$completevcard})."</pre>\n";
@@ -3714,7 +3716,7 @@ sub addredit {
       my $writeoutput = outputvfile('vcard',$completebook);
       ow::filelock::lock($abookfile, LOCK_EX|LOCK_NB) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($abookfile));
-      open(TARGET, ">$abookfile") or
+      sysopen(TARGET, $abookfile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($abookfile)." ($!)\n");
       print TARGET $writeoutput;
       close(TARGET) or
@@ -3842,7 +3844,7 @@ sub addrmovecopydelete {
 
          ow::filelock::lock($sourcefile, LOCK_EX|LOCK_NB) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($sourcefile));
-         open(TARGET, ">$sourcefile") or
+         sysopen(TARGET, $sourcefile, O_WRONLY|O_TRUNC|O_CREAT) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($sourcefile)." ($!)\n");
          print TARGET $writeoutput;
          close(TARGET) or
@@ -3865,7 +3867,7 @@ sub addrmovecopydelete {
 
       ow::filelock::lock($targetfile, LOCK_EX|LOCK_NB) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($targetfile));
-      open(TARGET, ">$targetfile") or
+      sysopen(TARGET, $targetfile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($targetfile)." ($!)\n");
       print TARGET $writeoutput;
       close(TARGET) or
@@ -4049,7 +4051,7 @@ sub addrviewatt {
    $ext = 'unknown' if ($ext eq 'bin');
 
    my $target = ow::tool::untaint("$config{'ow_sessionsdir'}/$thissession-vcard$file");
-   open (FILE, $target) || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $target! ($!)");
+   sysopen(FILE, $target, O_RDONLY) || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $target! ($!)");
    my $attbody = do {local $/; <FILE> }; # slurp
    close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $target! ($!)");
    my $length = length($attbody);
@@ -4643,7 +4645,7 @@ sub addrimport {
       # overwrite the targetfile with the new data
       ow::filelock::lock($targetfile, LOCK_EX|LOCK_NB) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($targetfile));
-      open(TARGET, ">$targetfile") or
+      sysopen(TARGET, $targetfile, O_WRONLY|O_TRUNC|O_CREAT) or
         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($targetfile)." ($!)\n");
       print TARGET $writeoutput;
       close(TARGET) or
@@ -5295,11 +5297,11 @@ sub exportldif {
 #   my $addrbookfile=dotpath('address.book');
 #
 #   if ( ! -f $addrbookfile ) {
-#      open (ABOOK, ">>$addrbookfile"); # Create if nonexistent
+#      sysopen(ABOOK, $addrbookfile, O_WRONLY|O_APPEND|O_CREAT); # Create if nonexistent
 #      close(ABOOK);
 #   }
 #
-#   if (open (PINEBOOK,"$homedir/.addressbook") ) {
+#   if (open(PINEBOOK,"$homedir/.addressbook") ) {
 #      my ($name, $email, $note);
 #      my (%addresses, %notes);
 #      my $abooktowrite='';
@@ -5318,7 +5320,7 @@ sub exportldif {
 #         $addresses{"$name"} = $email;
 #         $notes{"$name"}=$note;
 #      }
-#      close (PINEBOOK);
+#      close(PINEBOOK);
 #
 #      # replace the address book
 #      ($stat,$err)=write_abook($addrbookfile,$config{'maxbooksize'},\%addresses,\%notes);
@@ -5351,7 +5353,7 @@ sub exportldif {
 #      ow::filelock::lock("$homedir/.addressbook", LOCK_EX) or
 #         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $homedir/.addressbook!");
 #
-#      if (open (PINEBOOK, "$homedir/.addressbook")) {
+#      if (open(PINEBOOK, "$homedir/.addressbook")) {
 #         while (<PINEBOOK>) {
 #            my ($nickname, $name, $email, $fcc, $note) = (split(/\t/, $_,5))[1,2,4];
 #            foreach ($nickname, $name, $email, $fcc, $note) { chomp; }
@@ -5364,7 +5366,7 @@ sub exportldif {
 #         close(PINEBOOK);
 #      }
 #
-#      open (PINEBOOK,">$homedir/.addressbook") or
+#      sysopen(PINEBOOK,"$homedir/.addressbook", O_WRONLY|O_TRUNC|O_CREAT) or
 #         openwebmailerror(__FILE__, __LINE__, "couldnt_write $homedir/.address.book! ($!)");
 #
 #      foreach (sort keys %emails) {
@@ -5372,7 +5374,7 @@ sub exportldif {
 #                                     $emails{$_}, $fccs{$_}, $notes{$_})."\n";
 #      }
 #      print PINEBOOK $abooktowrite;
-#      close (PINEBOOK);
+#      close(PINEBOOK);
 #      ow::filelock::lock("$homedir/.addressbook", LOCK_UN);
 #
 #      writelog("emport addressbook to pine, $homedir/.addressbook");

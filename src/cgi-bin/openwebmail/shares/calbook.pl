@@ -1,6 +1,7 @@
 #
 # calbook.pl - read/write calbook.pl
 #
+
 use strict;
 use Fcntl qw(:DEFAULT :flock);
 
@@ -15,7 +16,7 @@ sub readcalbook {
 
    return 0 if (! -f $calbook);
 
-   open(CALBOOK, "$calbook") or return -1;
+   sysopen(CALBOOK, $calbook, O_RDONLY) or return -1;
 
    while (<CALBOOK>) {
       next if (/^#/);
@@ -55,12 +56,12 @@ sub writecalbook {
 
    $calbook=ow::tool::untaint($calbook);
    if (! -f "$calbook" ) {
-      open (CALBOOK,">$calbook") or return -1;
+      sysopen(CALBOOK, $calbook, O_WRONLY|O_TRUNC|O_CREAT) or return -1;
       close(CALBOOK);
    }
 
    ow::filelock::lock($calbook, LOCK_EX) or return -1;
-   open (CALBOOK, ">$calbook") or return -1;
+   sysopen(CALBOOK, $calbook, O_WRONLY|O_TRUNC|O_CREAT) or return -1;
    my $newindex=1;
    foreach (@indexlist) {
       print CALBOOK join('@@@', $newindex,

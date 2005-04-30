@@ -1,5 +1,4 @@
 package ow::auth_pg;
-use strict;
 #
 # auth_pgsql.pl - authenticate user with PostgreSQL
 #
@@ -8,6 +7,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use Pg;
 use Digest::MD5;
 require "modules/tool.pl";

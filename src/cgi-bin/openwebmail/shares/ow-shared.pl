@@ -642,7 +642,7 @@ sub readprefs {
    #     1. copy default from $config{default...}
    #     2. store prefs value back to openwebmailrc file
    if ( -f $rcfile ) {
-      open (RC, $rcfile) or
+      sysopen(RC, $rcfile, O_RDONLY) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $rcfile! ($!)");
       while (<RC>) {
          ($key, $value) = split(/=/, $_);
@@ -652,7 +652,7 @@ sub readprefs {
          }
          $prefshash{$key} = $value;
       }
-      close (RC);
+      close(RC);
    }
 
    # read .signature
@@ -662,12 +662,12 @@ sub readprefs {
    }
    if (-f $signaturefile) {
       $prefshash{"signature"} = '';
-      open (SIGNATURE, $signaturefile) or
+      sysopen(SIGNATURE, $signaturefile, O_RDONLY) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $signaturefile! ($!)");
       while (<SIGNATURE>) {
          $prefshash{"signature"} .= $_;
       }
-      close (SIGNATURE);
+      close(SIGNATURE);
    }
    $prefshash{"signature"}=~s/\s+$/\n/;
 
@@ -749,9 +749,9 @@ sub readtemplate {
       return $_templatecache{$file} if (defined $_templatecache{$file});
    }
    foreach my $file ($langfile, $commonfile) {
-      if (open (T, $file)) {
+      if (open(T, $file)) {
          local $/; undef $/; $_templatecache{$file}=<T>; # read whole file in once
-         close (T);
+         close(T);
          return $_templatecache{$file};
       }
    }
@@ -769,7 +769,7 @@ sub readstyle {
 
    if (!defined $_stylecache{"$config{'ow_stylesdir'}/$stylefile"}) {
       my (%hash, $key, $value);
-      open (STYLE,"$config{'ow_stylesdir'}/$stylefile") or
+      sysopen(STYLE, "$config{'ow_stylesdir'}/$stylefile", O_RDONLY) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_stylesdir'}/$stylefile! ($!)");
       while (<STYLE>) {
          if (/###STARTSTYLESHEET###/) {
@@ -783,7 +783,7 @@ sub readstyle {
             $hash{$key} = $value;
          }
       }
-      close (STYLE);
+      close(STYLE);
       $_stylecache{"$config{'ow_stylesdir'}/$stylefile"}=\%hash;
    }
 
@@ -914,14 +914,14 @@ sub sessioninfo {
    openwebmailerror(__FILE__, __LINE__, "Session ID $sessionid $lang_err{'doesnt_exist'}. <a href=\"$config{'ow_cgiurl'}/openwebmail.pl\">$lang_text{'loginagain'}?</a>") unless
       (-e "$config{'ow_sessionsdir'}/$sessionid");
 
-   if ( !open(F, "$config{'ow_sessionsdir'}/$sessionid") ) {
+   if ( !sysopen(F, "$config{'ow_sessionsdir'}/$sessionid", O_RDONLY) ) {
       writelog("session error - couldn't open $config{'ow_sessionsdir'}/$sessionid ($@)");
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}/$sessionid");
    }
    $sessionkey= <F>; chomp $sessionkey;
    $ip= <F>; chomp $ip;
    $userinfo = <F>; chomp $userinfo;
-   close (F);
+   close(F);
 
    return($sessionkey, $ip, $userinfo);
 }
@@ -962,7 +962,7 @@ sub update_virtuserdb {
    %DB=();	# ensure the virdb is empty
    %DBR=();
 
-   open (VIRT, $config{'virtusertable'});
+   sysopen(VIRT, $config{'virtusertable'}, O_RDONLY);
    while (<VIRT>) {
       s/^\s+//; s/\s+$//; s/#.*$//;
       s/(.*?)\@(.*?)%1/$1\@$2$1/;	# resolve %1 in virtusertable
@@ -1120,7 +1120,7 @@ sub get_userfrom {
    }
 
    # get user defined fromemail
-   if ($config{'enable_loadfrombook'} && open(FROMBOOK, $frombook)) {
+   if ($config{'enable_loadfrombook'} && sysopen(FROMBOOK, $frombook, O_RDONLY)) {
       while (<FROMBOOK>) {
          my ($_email, $_realname) = split(/\@\@\@/, $_, 2); chomp($_realname);
          $_realname=$config{'DEFAULT_realname'} if (defined $config{'DEFAULT_realname'});
@@ -1128,7 +1128,7 @@ sub get_userfrom {
              $from{"$_email"} = $_realname;
          }
       }
-      close (FROMBOOK);
+      close(FROMBOOK);
    }
 
    return(%from);
@@ -1240,7 +1240,7 @@ sub htmlheader {
 sub htmlplugin {
    my ($file, $fromcharset, $tocharset)=@_;
    my $html='';
-   if ($file ne '' && open(F, $file) ) {	# $file is plugin file
+   if ($file ne '' && sysopen(F, $file, O_RDONLY) ) {	# $file is plugin file
       local $/; undef $/; $html=<F>;	# no separator, read whole file in once
       close(F);
       $html=~s/\%THISSESSION\%/$thissession/;
@@ -1381,7 +1381,7 @@ sub writelog {
    if (open(LOGFILE,"+<$config{'logfile'}")) {
       seek(LOGFILE, 0, 2);	# seek to tail
       print LOGFILE "$timestamp - [$$] ($loggedip) $loggeduser - $_[0]\n";	# log
-      close (LOGFILE);
+      close(LOGFILE);
    } else {
       # show log error only if CGI mode
       if (defined $ENV{'GATEWAY_INTERFACE'}) {
@@ -1409,7 +1409,7 @@ sub writehistory {
       if ( $end > ($config{'maxbooksize'} * 1024) ) {
          my ($start, $buff);
          $start=$end-int($config{'maxbooksize'} * 1024 * 0.8);
-         open (HISTORYLOG,$historyfile) or
+         sysopen(HISTORYLOG, $historyfile, O_RDONLY) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $historyfile!($!)");
          seek(HISTORYLOG, $start, 0);
          $_=<HISTORYLOG>;
@@ -1417,11 +1417,11 @@ sub writehistory {
          read(HISTORYLOG, $buff, $end-$start);
          close(HISTORYLOG);
 
-         open (HISTORYLOG,">$historyfile") or
+         sysopen(HISTORYLOG, $historyfile, O_WRONLY|O_TRUNC|O_CREAT) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $historyfile!($!)");
          print HISTORYLOG $buff;
       } else {
-         open (HISTORYLOG,"+<$historyfile") or
+         sysopen(HISTORYLOG, $historyfile, O_RDWR) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $historyfile!($!)");
          seek(HISTORYLOG, $end, 0);	# seek to tail
       }
@@ -1430,7 +1430,7 @@ sub writehistory {
       ow::filelock::lock($historyfile, LOCK_UN);
 
    } else {
-      open(HISTORYLOG, ">$historyfile") or
+      sysopen(HISTORYLOG, $historyfile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $historyfile($!)");
       print HISTORYLOG "$timestamp - [$$] ($loggedip) $loggeduser - $_[0]\n";	# log
       close(HISTORYLOG);

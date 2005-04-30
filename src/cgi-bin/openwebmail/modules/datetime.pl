@@ -1,5 +1,4 @@
 package ow::datetime;
-use strict;
 #
 # datetime.pl - date/time routines supporting timezone and daylightsaving
 #
@@ -9,6 +8,7 @@ use strict;
 # so it can handle multiple timezones other than where the server is.
 #
 
+use strict;
 use Time::Local;
 use vars qw(%months @month_en @wday_en %tzoffset);
 

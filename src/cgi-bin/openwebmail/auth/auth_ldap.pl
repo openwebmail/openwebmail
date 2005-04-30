@@ -1,5 +1,4 @@
 package ow::auth_ldap;
-use strict;
 #
 # auth_ldap.pl - authenticate user with LDAP
 #
@@ -9,6 +8,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use Net::LDAP;
 require "modules/tool.pl";
 

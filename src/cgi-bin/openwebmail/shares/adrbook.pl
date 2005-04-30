@@ -91,7 +91,7 @@ sub convert_addressbook {
    }
 
    ow::filelock::lock($oldadrbookfile, LOCK_SH|LOCK_NB) or croak("$lang_err{'couldnt_readlock'} $oldadrbookfile");
-   open(F, "$oldadrbookfile"); my $firstline=<F>; close(F);
+   sysopen(F, $oldadrbookfile, O_RDONLY); my $firstline=<F>; close(F);
    ow::filelock::lock($oldadrbookfile, LOCK_UN);
    if ($firstline=~/^BEGIN:VCARD/) {	# oldadrbookfile is already in vcard format
       rename($oldadrbookfile, $newadrbookfile) if ($oldadrbookfile ne $newadrbookfile);
@@ -115,10 +115,10 @@ sub _convert_addressbook {
    my @entries = ();
    if (-s $old) { # file is not 0 bytes
       ow::filelock::lock($old, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_writelock'} $old");
-      open(ADRBOOK, "$old") or return -1;
+      sysopen(ADRBOOK, $old, O_RDONLY) or return -1;
 
       ow::filelock::lock($backup, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_writelock'} $backup");
-      open(ADRBOOKBACKUP, ">$backup") or return -1;
+      sysopen(ADRBOOKBACKUP, $backup, O_WRONLY|O_TRUNC|O_CREAT, $filemode) or return -1;
 
       my @chars = ( 'A' .. 'Z', 0 .. 9 );
       while (<ADRBOOK>) {
@@ -185,7 +185,7 @@ sub _convert_addressbook {
    } else {
       # old addressbook is 0 bytes. Write an empty backup.
       ow::filelock::lock($backup, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_writelock'} $backup");
-      open(ADRBOOKBACKUP, ">$backup") or return -1;
+      sysopen(ADRBOOKBACKUP, $backup, O_WRONLY|O_TRUNC|O_CREAT, $filemode) or return -1;
       print ADRBOOKBACKUP @entries;
       close(ADRBOOKBACKUP) or return -1;
       ow::filelock::lock($backup, LOCK_UN);
@@ -193,13 +193,13 @@ sub _convert_addressbook {
 
    # write out the new converted addressbook
    ow::filelock::lock($new, LOCK_EX|LOCK_NB) or croak("$lang_err{'couldnt_writelock'} $new");
-   open(ADRBOOKNEW, ">$new") or return -1;
+   sysopen(ADRBOOKNEW, $new, O_WRONLY|O_TRUNC|O_CREAT, $filemode) or return -1;
    print ADRBOOKNEW @entries;
    close(ADRBOOKNEW) or return -1;
    ow::filelock::lock($new, LOCK_UN);
 
    # permissions
-   chmod($filemode, $new) || croak("cant change permissions on $new");
+   #chmod($filemode, $new) || croak("cant change permissions on $new");
 
    writelog("convert addressbook - $old to vcard file $new");
 

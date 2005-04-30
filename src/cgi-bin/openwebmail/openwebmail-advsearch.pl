@@ -333,14 +333,14 @@ sub search_folders {
    ow::filelock::lock($cachefile, LOCK_EX) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($cachefile));
    if ( -e $cachefile ) {
-      open(CACHE, "$cachefile") or
+      sysopen(CACHE, $cachefile, O_RDONLY) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} ".f2u($cachefile)."! ($!)");
       $cache_metainfo=<CACHE>; chomp($cache_metainfo);
       close(CACHE);
    }
 
    if ( $cache_metainfo ne $metainfo ) {
-      open(CACHE, ">$cachefile");
+      sysopen(CACHE, $cachefile, O_WRONLY|O_TRUNC|O_CREAT);
       print CACHE $metainfo, "\n";
       $r_result=search_folders2($startserial, $endserial, $r_search, $r_folders);
       print CACHE $#{$r_result}+1, "\n";
@@ -352,7 +352,7 @@ sub search_folders {
 
    } else {
       my @result;
-      open(CACHE, $cachefile);
+      sysopen(CACHE, $cachefile, O_RDONLY);
       $_=<CACHE>;
       my $totalfound=<CACHE>;
       while (<CACHE>) {
@@ -398,7 +398,7 @@ sub search_folders2 {
 
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db ".f2u($folderdb));
-      open (FOLDER, "$folderfile"); # used in TEXTCONTENT search
+      sysopen(FOLDER, $folderfile, O_RDONLY); # used in TEXTCONTENT search
 
       foreach my $messageid (@{$r_messageids}) {
          # begin the search

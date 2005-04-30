@@ -266,7 +266,7 @@ sub editpdict {
    if (-f $pdicfile) {
       if ($dictword2delete) {
          my $pdicwordstr="";
-         open(PERSDICT, $pdicfile) or
+         sysopen(PERSDICT, $pdicfile, O_RDONLY) or
             openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
          while (<PERSDICT>) {
             chomp($_);
@@ -275,7 +275,7 @@ sub editpdict {
          }
          close(PERSDICT);
 
-         open(NEWPERSDICT,">$pdicfile.new") or
+         sysopen(NEWPERSDICT, $pdicfile.new, O_WRONLY|O_TRUNC|O_CREAT) or
             openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
          print NEWPERSDICT $pdicwordstr;
          close(NEWPERSDICT);
@@ -287,7 +287,7 @@ sub editpdict {
       my $count = 1;
       my $bgcolor = $style{"tablerow_light"};
 
-      open(PERSDICT, $pdicfile) or
+      sysopen(PERSDICT, $pdicfile, O_RDONLY) or
          openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
       while (<PERSDICT>) {
          my $dictword = $_;

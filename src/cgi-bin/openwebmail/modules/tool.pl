@@ -1,9 +1,10 @@
 package ow::tool;
-use strict;
 #
 # tool.pl - routines independent with openwebmail systems
 #
 
+use strict;
+use Fcntl qw(:DEFAULT :flock);
 use Digest::MD5 qw(md5);
 use POSIX qw(:sys_wait_h);	# for WNOHANG in waitpid()
 use Carp;
@@ -43,7 +44,7 @@ sub find_configfile {
 sub load_configfile {
    my ($configfile, $r_config)=@_;
 
-   open(CONFIG, $configfile) or return(-1, $!);
+   sysopen(CONFIG, $configfile, O_RDONLY) or return(-1, $!);
 
    my ($line, $key, $value, $blockmode);
    $blockmode=0;
@@ -109,7 +110,7 @@ sub hostname {
    return($hostname) if ($hostname=~/\./);
 
    my $domain="unknown";
-   open (R, "/etc/resolv.conf");
+   open(R, "/etc/resolv.conf");
    while (<R>) {
       chomp;
       if (/domain\s+\.?(.*)/i) {$domain=$1;last;}
@@ -239,6 +240,26 @@ sub tmpname {
       return untaint($fname) if (!-e $fname);
    }
    return untaint($fname);	# this should never be reached
+}
+
+# rename fname.ext   to fname.0.ext
+#        fname.0.ext to fname.1.ext
+#        .....
+#        fname.8.ext to fname.9.ext
+# so fname.ext won't be overwritten by uploaded file if duplicated name
+sub rotatefilename {
+   my ($base, $ext)=($_[0], ''); ($base,$ext)=($1,$2) if ($_[0]=~/(.*)(\..*)/);
+   my (%from, %to); $to{0}=1;
+   for my $i (0..9) {
+      $from{$i}=1 if (-f "$base.$i$ext");
+      $to{$i+1}=1 if ($to{$i} && $from{$i});
+   }
+   for (my $i=9; $i>=0; $i--) {
+      if ($from{$i} && $to{$i+1}) {
+         rename(ow::tool::untaint("$base.$i$ext"), ow::tool::untaint("$base.".($i+1).$ext));
+      }
+   }
+   rename(ow::tool::untaint("$base$ext"), ow::tool::untaint("$base.0$ext"));
 }
 
 sub ext2contenttype {

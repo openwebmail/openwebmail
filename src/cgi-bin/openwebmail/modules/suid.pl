@@ -1,11 +1,11 @@
 package ow::suid;
-use strict;
 #
 # suid.pl - set ruid/euid/egid of process
 #
 
 ########## No configuration required from here ###################
 
+use strict;
 require "modules/tool.pl";
 
 my %conf;

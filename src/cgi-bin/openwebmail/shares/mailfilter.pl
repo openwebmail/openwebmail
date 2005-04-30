@@ -50,13 +50,13 @@ sub filtermessage {
    # automic 'test & set' the metainfo value in filtercheckfile
    my $metainfo=ow::tool::metainfo($folderfile);
    if (!-f $filtercheckfile) {
-      open(F, ">>$filtercheckfile"); close(F);
+      sysopen(F, $filtercheckfile, O_WRONLY|O_APPEND|O_CREAT); close(F);
       $forced_recheck=1;	# new filterrule added?, so do filtering on all msg
    }
 
    ow::filelock::lock($filtercheckfile, LOCK_EX) or
       openwebmailerror("$lang_err{'couldnt_writelock'} $filtercheckfile");
-   if (!open(FILTERCHECK, $filtercheckfile)) {
+   if (!sysopen(FILTERCHECK, $filtercheckfile, O_RDONLY)) {
       ow::filelock::lock($filtercheckfile, LOCK_UN);
       openwebmailerror("$lang_err{'couldnt_read'} $filtercheckfile");
    }
@@ -66,12 +66,12 @@ sub filtermessage {
       ow::filelock::lock($filtercheckfile, LOCK_UN);
       return 0;
    }
-   if (!open(FILTERCHECK, ">$filtercheckfile")) {
+   if (!sysopen(FILTERCHECK, $filtercheckfile, O_WRONLY|O_TRUNC|O_CREAT)) {
       ow::filelock::lock($filtercheckfile, LOCK_UN);
       openwebmailerror("$lang_err{'couldnt_write'} $filtercheckfile");
    }
    print FILTERCHECK $metainfo;
-   close (FILTERCHECK);
+   close(FILTERCHECK);
    ow::filelock::lock($filtercheckfile, LOCK_UN);
 
    if (!ow::filelock::lock($folderfile, LOCK_EX)) {
@@ -149,7 +149,7 @@ sub filter_allmessageids {
    # so we update pid file to terminate any other bg filter process
    if (${$r_prefs}{'bgfilterthreshold'}>0) {
       $pidfile=dotpath('filter.pid');
-      open(F, ">$pidfile"); print F $$; close(F);
+      sysopen(F, $pidfile, O_WRONLY|O_TRUNC|O_CREAT); print F $$; close(F);
    }
 
    # get @filterrules
@@ -198,7 +198,7 @@ sub filter_allmessageids {
 
       if (!$has_globallock) {
          # terminated if other filter process is active on same folder
-         open(F, $pidfile); $_=<F>; close(F);
+         sysopen(F, $pidfile, O_RDONLY); $_=<F>; close(F);
          if ($_ ne $$) {
             my $m="mailfilter - bg process terminated - reason: another filter pid=$_ is avtive."; writelog($m);
             openwebmail_exit(0);
@@ -216,12 +216,12 @@ sub filter_allmessageids {
                my $m="mailfilter - reload $i msgids - reason: $folderfile is changed"; writelog($m);
             }
 
-            if (!open(FILTERCHECK, ">$filtercheckfile")) {
+            if (!sysopen(FILTERCHECK, $filtercheckfile, O_WRONLY|O_TRUNC|O_CREAT)) {
                my $m="mailfilter - $filtercheckfile open error"; writelog($m); writehistory($m);
                openwebmail_exit(0);
             }
             print FILTERCHECK $curr_metainfo;
-            close (FILTERCHECK);
+            close(FILTERCHECK);
             $metainfo=$curr_metainfo;
 
             next;
@@ -747,7 +747,7 @@ sub filter_allmessageids {
          ow::filelock::lock($filtercheckfile, LOCK_EX|LOCK_NB);
          if (open(FILTERCHECK, ">$filtercheckfile")) {
             print FILTERCHECK ow::tool::metainfo($folderfile);
-            close (FILTERCHECK);
+            close(FILTERCHECK);
          }
          ow::filelock::lock($filtercheckfile, LOCK_UN);
       }
@@ -816,8 +816,8 @@ sub append_filteredmsg_to_folder {
 
    my ($dstfile, $dstdb)=get_folderpath_folderdb($user, $destination);
    if (!-f $dstfile) {
-      open (DEST, ">$dstfile") or return(-1, "$dstfile write open error");
-      close (DEST);
+      sysopen(DEST, $dstfile, O_WRONLY|O_TRUNC|O_CREAT) or return(-1, "$dstfile write open error");
+      close(DEST);
    }
    ow::filelock::lock($dstfile, LOCK_EX) or return(-2, "$dstfile write lock error");
    my ($err, $errmsg)=append_message_to_folder($messageid, $r_attr, $r_currmessage, $dstfile, $dstdb);

@@ -1,5 +1,4 @@
 package openwebmail::auth_mysql_postnuke;
-use strict;
 #
 # auth_mysql_postnuke.pl - authenticate user with DBD::MySQL for PostNuke
 #
@@ -9,6 +8,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use DBI;
 require "modules/tool.pl";
 

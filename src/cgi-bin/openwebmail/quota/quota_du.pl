@@ -1,5 +1,4 @@
 package ow::quota_du;
-use strict;
 #
 # quota_du.pl - calc user quota by /usr/bin/du
 #
@@ -13,6 +12,8 @@ use strict;
 #
 # You may set $duinfo_lifetime to 0 to disable the cache
 #
+
+use strict;
 
 my $duinfo_db="/var/tmp/duinfo";
 my $duinfo_lifetime=60;
@@ -44,7 +45,7 @@ sub get_usage_limit {
    }
 
    if (!$uptodate && $duinfo_lifetime>0) {
-      ow::dbm::open (\%Q, $duinfo_db, LOCK_EX, 0664) or
+      ow::dbm::open(\%Q, $duinfo_db, LOCK_EX, 0664) or
          return(-2, "Quota db open error, $ow::dbm::errmsg");
       ($timestamp, $usage)=split(/\@\@\@/, $Q{"$user\@\@\@$homedir"}) if (defined $Q{"$user\@\@\@$homedir"});
       ow::dbm::close(\%Q, $duinfo_db);
@@ -59,7 +60,7 @@ sub get_usage_limit {
    $usage=(split(/\s/, $stdout))[0];
    return(0, "", $usage, -1) if ($duinfo_lifetime==0);
 
-   ow::dbm::open (\%Q, $duinfo_db, LOCK_EX, 0664) or
+   ow::dbm::open(\%Q, $duinfo_db, LOCK_EX, 0664) or
       return(-2, "Quota db open error, $ow::dbm::errmsg");
    $Q{"$user\@\@\@$homedir"}="$now\@\@\@$usage";
    ow::dbm::close(\%Q, $duinfo_db);

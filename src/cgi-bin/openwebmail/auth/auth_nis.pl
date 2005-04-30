@@ -1,5 +1,4 @@
 package ow::auth_nis;
-use strict;
 #
 # auth_nis.pl - authenticate user through yppoppassd on NIS/YP server
 #               To download yppoppassd by Ric Lister
@@ -10,6 +9,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use IO::Socket;
 require "modules/tool.pl";
 

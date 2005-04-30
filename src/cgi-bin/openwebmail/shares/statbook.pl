@@ -1,9 +1,9 @@
 #
 # statbook.pl - read/write stationery book
 #
+
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-
 use vars qw(%lang_err);
 
 ########## READ_STATIONERYBOOK ######################################
@@ -13,14 +13,14 @@ sub read_stationerybook {
    my ($ret, $errmsg)=(0, '');
 
    # read openwebmail addressbook
-   if ( open(STATBOOK, $file) ) {
+   if ( sysopen(STATBOOK, $file, O_RDONLY) ) {
       while (<STATBOOK>) {
          chomp();
          my ($name, $content, $charset) = split(/\@\@\@/, $_, 3);
          ${$r_stationery}{$name}{content} = ow::tool::unescapeURL($content);
          ${$r_stationery}{$name}{charset} = $charset||'';
       }
-      close (STATBOOK) or  ($ret, $errmsg)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
+      close(STATBOOK) or  ($ret, $errmsg)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
    } else {
       ($ret, $errmsg)=(-1, "$lang_err{'couldnt_read'} $file! ($!)");
    }
@@ -45,9 +45,9 @@ sub write_stationerybook {
       $lines .= "$name\@\@\@$content\@\@\@$charset\n";
    }
 
-   if ( open(STATBOOK, ">$file") ) {
+   if ( sysopen(STATBOOK, $file, O_WRONLY|O_TRUNC|O_CREAT) ) {
       print STATBOOK $lines;
-      close (STATBOOK) or  ($ret, $errmsg)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
+      close(STATBOOK) or  ($ret, $errmsg)=(-1, "$lang_err{'couldnt_close'} $file! ($!)");
    } else {
       ($ret, $errmsg)=(-1, "$lang_err{'couldnt_write'} $file! ($!)");
    }

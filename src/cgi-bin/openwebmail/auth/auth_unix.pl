@@ -1,5 +1,4 @@
 package ow::auth_unix;
-use strict;
 #
 # auth_unix.pl -  authenticate user with unix password
 #
@@ -10,6 +9,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use Fcntl qw(:DEFAULT :flock);
 require "modules/filelock.pl";
 require "modules/tool.pl";
@@ -104,7 +104,7 @@ sub check_userpassword {
       ow::filelock::lock($passwdfile_encrypted, LOCK_SH) or
          return (-3, "Couldn't get read lock on $passwdfile_encrypted");
    }
-   if ( ! open (PASSWD, $passwdfile_encrypted) ) {
+   if ( ! open(PASSWD, $passwdfile_encrypted) ) {
       ow::filelock::lock($passwdfile_encrypted, LOCK_UN) if ( -f $passwdfile_encrypted);
       return (-3, "Couldn't open $passwdfile_encrypted");
    }
@@ -121,7 +121,7 @@ sub check_userpassword {
       last if ($u eq $user); # We've found the user in /etc/passwd
    }
 
-   close (PASSWD);
+   close(PASSWD);
    ow::filelock::lock($passwdfile_encrypted, LOCK_UN) if ( -f $passwdfile_encrypted);
 
    return(-4, "User $user doesn't exist") if ($u ne $user);
@@ -173,7 +173,7 @@ sub change_userpassword {
 
    ow::filelock::lock($passwdfile_encrypted, LOCK_EX) or
       return (-3, "Couldn't get write lock on $passwdfile_encrypted");
-   if ( ! open (PASSWD, $passwdfile_encrypted) ) {
+   if ( ! open(PASSWD, $passwdfile_encrypted) ) {
       ow::filelock::lock($passwdfile_encrypted, LOCK_UN);
       return (-3, "Couldn't open $passwdfile_encrypted");
    }
@@ -182,7 +182,7 @@ sub change_userpassword {
       chomp($line);
       ($u, $p, $misc) = split(/:/, $line, 3) if ($u ne $user);
    }
-   close (PASSWD);
+   close(PASSWD);
 
    if ($u ne $user) {
       ow::filelock::lock($passwdfile_encrypted, LOCK_UN);
@@ -209,7 +209,7 @@ sub change_userpassword {
    }
 
    my $tmpfile=ow::tool::untaint("$passwdfile_encrypted.tmp.$$.".rand());
-   open(TMP, ">$tmpfile") or goto authsys_error;
+   sysopen(TMP, $tmpfile, O_WRONLY|O_TRUNC|O_CREAT) or goto authsys_error;
    print TMP $content or goto authsys_error;
    close(TMP) or goto authsys_error;
 
@@ -307,10 +307,11 @@ sub change_smbpasswd {
              '/usr/bin/smbpasswd') {
       my $cmd=$_; $cmd=ow::tool::untaint($cmd);
       if (-x $cmd) {
-         open(P, "|$cmd -L -a -s $user >/dev/null");
+         open(P, "|-") or
+           do { open(STDERR, ">/dev/null"); exec($cmd, "-L", "-a", "-s", "$user"); exit 9 };
          print P "$newpassword\n$newpassword\n";
-         close(P);
-         return 0 if ($?>>8);
+         close(P) || return 0;	# broken child pipe?
+         return 0 if ($?>>8);	# abnormal exit?
          return 1;
       }
    }

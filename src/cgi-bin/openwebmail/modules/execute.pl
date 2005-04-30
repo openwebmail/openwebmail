@@ -1,5 +1,4 @@
 package ow::execute;
-use strict;
 #
 # execute.pl - execute external command in a secure way
 #
@@ -8,6 +7,7 @@ use strict;
 # this is much secure than system() + shell redirect chars (|,>)
 #
 
+use strict;
 use IPC::Open3;
 use vars qw(*cmdOUT *cmdIN *cmdERR);
 sub execute {

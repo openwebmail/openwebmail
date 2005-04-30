@@ -1,5 +1,4 @@
 package ow::auth_pam;
-use strict;
 #
 # auth_pam.pl - authenticate user with PAM
 #
@@ -15,6 +14,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use Authen::PAM;
 use Fcntl qw(:DEFAULT :flock);
 require "modules/filelock.pl";

@@ -685,7 +685,7 @@ sub savefile {
    $content =~ s/\r\n/\n/g;
    $content =~ s/\r/\n/g;
 
-   if (!open(F, ">$webdiskrootdir/$vpath") ) {
+   if (!sysopen(F, "$webdiskrootdir/$vpath", O_WRONLY|O_TRUNC|O_CREAT) ) {
       autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'failed'} ($vpathstr: $!)", 60);
    }
    ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_EX) or
@@ -1241,7 +1241,7 @@ sub downloadfile {
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
 
-   open(F, "$webdiskrootdir/$vpath") or
+   sysopen(F, "$webdiskrootdir/$vpath", O_RDONLY) or
       return("$lang_err{'couldnt_read'} $vpathstr\n");
 
    my $dlname=safedlname($vpath);
@@ -1265,7 +1265,7 @@ sub downloadfile {
        is_http_compression_enabled()) {
       my $content;
       local $/; undef $/; $content=<F>; # no separator, read whole file at once
-      close (F);
+      close(F);
       $content=Compress::Zlib::memGzip($content);
       $length=length($content);
       print qq|Content-Encoding: gzip\n|,
@@ -1301,7 +1301,7 @@ sub previewfile {
    return("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
 
    if ($filecontent eq "") {
-      open(F, "$webdiskrootdir/$vpath") or return("$lang_err{'couldnt_read'} $vpath\n");
+      sysopen(F, "$webdiskrootdir/$vpath", O_RDONLY) or return("$lang_err{'couldnt_read'} $vpath\n");
       local $/; undef $/; $filecontent=<F>; # no separator, read whole file at once
       close(F);
    }
@@ -1420,9 +1420,8 @@ sub uploadfile {
    my $err=verify_vpath($webdiskrootdir, $vpath);
    return("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
 
-   renameoldfile("$webdiskrootdir/$vpath") if ( -f "$webdiskrootdir/$vpath");
-
-   open(UPLOAD, ">$webdiskrootdir/$vpath") or
+   ow::tool::rotatefilename("$webdiskrootdir/$vpath") if ( -f "$webdiskrootdir/$vpath");
+   sysopen(UPLOAD, "$webdiskrootdir/$vpath", O_WRONLY|O_TRUNC|O_CREAT) or
       return("$lang_wdbutton{'upload'} $vpathstr $lang_text{'failed'} ($!)\n");
    my $buff;
    if (defined $wgethandle) {
@@ -1442,27 +1441,6 @@ sub uploadfile {
    writehistory("webdisk upload - $vpath");
    return("$lang_wdbutton{'upload'} $vpathstr $lang_text{'succeeded'}\n");
 }
-
-# rename fname.ext   to fname.0.ext
-#        fname.0.ext to fname.1.ext
-#        .....
-#        fname.8.ext to fname.9.ext
-# so fname.ext won't be overwritten by uploaded file if duplicated name
-sub renameoldfile {
-   my ($base, $ext)=($_[0], ''); ($base,$ext)=($1,$2) if ($_[0]=~/(.*)(\..*)/);
-   my (%from, %to); $to{0}=1;
-   for my $i (0..9) {
-      $from{$i}=1 if (-f "$base.$i$ext");
-      $to{$i+1}=1 if ($to{$i} && $from{$i});
-   }
-   for (my $i=9; $i>=0; $i--) {
-      if ($from{$i} && $to{$i+1}) {
-         rename(ow::tool::untaint("$base.$i$ext"), ow::tool::untaint("$base.".($i+1).$ext));
-      }
-   }
-   rename(ow::tool::untaint("$base$ext"), ow::tool::untaint("$base.0$ext"));
-}
-
 ########## END UPLOADFILE ########################################
 
 ########## FILESELECT ############################################
@@ -2627,7 +2605,7 @@ sub filelist_of_search {
       return("$lang_err{'couldnt_writelock'} $cachefile\n");
 
    if ( -e $cachefile ) {
-      open(CACHE, "$cachefile") or  return("$lang_err{'couldnt_read'} $cachefile!");
+      sysopen(CACHE, $cachefile, O_RDONLY) or  return("$lang_err{'couldnt_read'} $cachefile!");
       $cache_metainfo=<CACHE>;
       chomp($cache_metainfo);
       close(CACHE);
@@ -2641,7 +2619,9 @@ sub filelist_of_search {
       my $findbin=ow::tool::findbin('find');
       return("$lang_text{'program'} find $lang_err{'doesnt_exist'}\n") if ($findbin eq '');
 
-      open(F, "$findbin . -print|"); my @f=<F>; close(F);
+      open(F, "-|") or
+         do { open(STDERR,">/dev/null"); exec($findbin, ".", "-print"); exit 9 };
+      my @f=<F>; close(F);
 
       foreach my $fname (@f) {
          $fname=~s|^\./||; $fname=~s/\s+$//;
@@ -2663,19 +2643,19 @@ sub filelist_of_search {
 
             } elsif ($contenttype=~/text/|| $ext eq '') {
                # only read leading 4MB
-               my $buff; open(F, "$webdiskrootdir/$vpath/$fname"); read(F, $buff, 4*1024*1024); close(F);
+               my $buff; sysopen(F, "$webdiskrootdir/$vpath/$fname", O_RDONLY); read(F, $buff, 4*1024*1024); close(F);
                push(@{$r_list}, $fname) if ($buff=~/$keyword_fs/i);
             }
          }
       }
 
-      open(CACHE, ">$cachefile");
+      sysopen(CACHE, $cachefile, O_WRONLY|O_TRUNC|O_CREAT);
       print CACHE join("\n", $metainfo, @{$r_list});
       close(CACHE);
 
    } else {
       my @result;
-      open(CACHE, $cachefile);
+      sysopen(CACHE, $cachefile, O_RDONLY);
       $_=<CACHE>;
       while (<CACHE>) {
          chomp;

@@ -5,6 +5,7 @@
 #
 # Since japan conversion in iconv() is incomplete, we use this instead
 #
+
 use strict;
 
 my $re_jis0208  = '\e\$\@|\e\$B|\e&\@\e\$B';

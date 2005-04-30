@@ -1,5 +1,4 @@
 package ow::dbm;
-use strict;
 #
 # dbm.pl - dbm routines that hides differences of various DBM implementations
 #
@@ -11,6 +10,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use Fcntl qw(:DEFAULT :flock);
 require "modules/filelock.pl";
 require "modules/tool.pl";
@@ -217,7 +217,9 @@ sub get_defaultdbtype {
 
 sub get_dbtype {
    my $f=ow::tool::tmpname('flist.tmpfile');
-   open(F, ">$f"); print F "$_[0]\n"; close(F);	# pass arg through file for safety
+   sysopen(F, $f, O_WRONLY|O_TRUNC|O_CREAT);
+   print F "$_[0]\n";
+   close(F);	# pass arg through file for safety
 
    my $dbtype=`/usr/bin/file -f $f`; unlink($f);
    $dbtype=~s/^.*?:\s*//; $dbtype=~s/\s*$//;

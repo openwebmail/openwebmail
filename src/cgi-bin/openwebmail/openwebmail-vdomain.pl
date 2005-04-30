@@ -680,7 +680,7 @@ sub change_vuser {
       # default a new release date file
       my $releasedatefile=_dotpath('release.date', $domain, $vuser, $vhomedir);
       writelog("vdomain $user: $vuser\@$domain  create release.date - $releasedatefile, uid=$vuid, gid=$vgid");
-      open(RD, ">$releasedatefile") or
+      sysopen(RD, $releasedatefile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $releasedatefile ($!)");
       print RD "$config{'releasedate'}\n";
       close(RD);
@@ -689,10 +689,10 @@ sub change_vuser {
       # CREATE USER .forward
       my $dotforward="$vhomedir/.forward";
       writelog("vdomain $user: $vuser\@$domain  create .forward - $dotforward, uid=$vuid, gid=$vgid");
-      open (DF, ">$dotforward") or
+      sysopen(DF, $dotforward, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $dotforward ($!)");
       print DF vdomain_userspool($vuser, $vhomedir)."\n";
-      close (DF);
+      close(DF);
       chmod(0700, $dotforward);
 
       # return to orignal uid
@@ -1068,7 +1068,7 @@ sub vuser_update {
          push @lines, $_;
       }
    }
-   close ( $fh );
+   close( $fh );
 
    if ($fnd < 2 and ! $delete) {
       push @lines,"$vuser\@$domain\t$vuser.$domain\n";
@@ -1079,7 +1079,7 @@ sub vuser_update {
       }
    }
 
-   open ($fh, ">$file") or
+   sysopen($fh, $file, O_WRONLY|O_TRUNC|O_CREAT) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $file ($!)");
 
    print $fh @lines;
@@ -1113,14 +1113,14 @@ sub from_update {
 
    ow::filelock::lock($frombook, LOCK_EX) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $frombook");
-   open (FB, ">$frombook") or
+   sysopen(FB, $frombook, O_WRONLY|O_TRUNC|O_CREAT) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $frombook ($!)");
 
    print FB "$vuser\@$domain\@\@\@$realnm\n" if ($realnm);
    foreach (sort keys %from_list) {
       print FB "$_\@\@\@$from_list{$_}\n";
    }
-   close (FB);
+   close(FB);
    ow::filelock::lock($frombook, LOCK_UN);
 
    ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
@@ -1148,13 +1148,13 @@ sub valias_update {
          push @lines, $_;
       }
    }
-   close ( $fh );
+   close( $fh );
    if (! $fnd) {
       push @lines, "$vuser.$domain:\t$entry\n";
       writelog("vdomain $user: $vuser\@$domain  add alias entry - $vuser.$domain: $entry");
    }
 
-   open ($fh, ">$file") or
+   sysopen($fh, $file, O_WRONLY|O_TRUNC|O_CREAT) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $file ($!)");
 
    print $fh @lines;
@@ -1216,14 +1216,14 @@ sub vpasswd_update {
          push @lines, $_;
       }
    }
-   close ( $fh );
+   close( $fh );
    if ( ! $fnd ) {
       push @lines, "$vuser:$encrypted\n";
       writelog("vdomain $user: $vuser\@$domain  create passwd entry");
    }
    writelog("vdomain $user: $vuser\@$domain  disable user login") if ($disable);
 
-   open ($fh, ">$file") or
+   sysopen($fh, $file, O_WRONLY|O_TRUNC|O_CREAT) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $file ($!)");
 
    print $fh @lines;
@@ -1308,7 +1308,7 @@ sub root_open {
       ow::filelock::lock($file, LOCK_SH|LOCK_NB) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} $file");
    }
-   open ($fh, "$action$file") or
+   sysopen($fh, "$action$file", O_RDONLY) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $file ($!)");
 
    return ($fh, $file, $origruid, $origeuid, $origegid);
@@ -1320,7 +1320,7 @@ sub root_open {
 sub root_close {
    my ($fh, $file, $origruid, $origeuid, $origegid)=@_;
 
-   close ($fh);
+   close($fh);
    ow::filelock::lock($file, LOCK_UN);
 
    # return to original user

@@ -1,5 +1,4 @@
 package ow::auth_pgsql;
-use strict;
 #
 # auth_pg.pl - authenticate user with DBD::Pg
 #
@@ -9,6 +8,7 @@ use strict;
 
 ########## No configuration required from here ###################
 
+use strict;
 use DBI;
 require "modules/tool.pl";
 

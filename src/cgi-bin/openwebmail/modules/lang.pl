@@ -1,8 +1,8 @@
 package ow::lang;
-use strict;
 #
 # language.pl - language tables and routines
 #
+
 use strict;
 use vars qw(%languagenames %languagecharsets %httpaccept2language %RTL);
 use vars qw(%is_charset_supported);
