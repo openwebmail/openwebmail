@@ -50,7 +50,7 @@ use vars qw(%lang_abookselectionlabels %lang_abookclasslabels
 use vars qw(%charset_convlist);	# defined in iconv.pl
 
 # local globals
-use vars qw($folder $messageid $sort $page $searchtype $keyword);
+use vars qw($folder $messageid $sort $msgdatetype $page $searchtype $keyword);
 use vars qw($escapedmessageid $escapedfolder $escapedkeyword);
 use vars qw($quotausage $quotalimit);
 use vars qw($abookfolder $abookpage $abooklongpage $abooksort $abooksearchtype $abookkeyword $abookcollapse);
@@ -96,6 +96,7 @@ convert_addressbook('user', $prefs{'charset'});
 $folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $page = param('page') || 1;
 $sort = param('sort') || $prefs{'sort'} || 'date_rev';
+$msgdatetype = param('msgdatetype') || $prefs{'msgdatetype'};
 $messageid = param('message_id') || '';
 $searchtype = param('searchtype') || '';
 $keyword = ow::tool::unescapeURL(param('keyword')) || '';
@@ -140,12 +141,14 @@ if ($abookfolder ne "ALL" && !-e abookfolder2file($abookfolder)) {
 $webmail_urlparm = qq|folder=$escapedfolder&amp;|.
                    qq|page=$page&amp;|.
                    qq|sort=$sort&amp;|.
+                   qq|msgdatetype=$msgdatetype&amp;|.
                    qq|searchtype=$searchtype&amp;|.
                    qq|keyword=$escapedkeyword&amp;|.
                    qq|message_id=$escapedmessageid|;
 $webmail_formparm=ow::tool::hiddens(folder=>$escapedfolder,
                                     page=>$page,
                                     sort=>$sort,
+                                    msgdatetype=>$msgdatetype,
                                     searchtype=>$searchtype,
                                     keyword=>$escapedkeyword,
                                     message_id=>$messageid);
@@ -1006,10 +1009,10 @@ sub addrlistview {
          my $folderstr=ow::htmltext::str2html($lang_folders{$folder}||f2u($folder));
          if ($messageid eq "") {
             $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} $folderstr",
-                                  qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder"|);
+                                  qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;$webmail_urlparm"|);
          } else {
             $temphtml .= iconlink("owm.gif", "$lang_text{'backto'} $folderstr",
-                                  qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid"|);
+                                  qq|accesskey="M" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;$webmail_urlparm"|);
          }
       }
       if ($config{'enable_calendar'}) {
@@ -1259,6 +1262,7 @@ sub addrlistview {
                                        abookfolder=>ow::tool::escapeURL($abookfolder),
                                        abookcollapse=>$abookcollapse,
                                        sort=>$sort,
+                                       msgdatetype=>$msgdatetype,
                                        page=>$page,
                                        folder=>$escapedfolder,
                                        message_id=>$messageid,
@@ -4326,105 +4330,124 @@ sub refresh_ldapcache_abookfile {
    return 0 if (!$config{'enable_ldap_abook'});
    return 0 if (!ow::tool::has_module('Net/LDAP.pm'));
 
-   my $modifyage=time()-(stat($ldapcachefile))[9];
-   return 0 if ($modifyage < $config{'ldap_abook_cachelifetime'}*60);	# file is up to date
+   if (-f $ldapcachefile) {
+      my $nowtime=time();
+      my $filetime=(stat($ldapcachefile))[9];
+      return 0 if ($nowtime-$filetime < $config{'ldap_abook_cachelifetime'}*60);	# file is up to date
 
-   my @ldaplist=();  # keep the order in global addressbook
-   my $ldap = Net::LDAP->new( $config{'ldap_host'} ) or return -1;
-   my $mesg = $ldap->bind($config{'ldap_user'},
-                          password => $config{'ldap_password'}) ;
-   if ($config{'ldap_abook_cont'} ne ""){
-      $mesg = $ldap->search( # perform a search
-                            base   => $config{'ldap_abook_cont'}.",".$config{'ldap_base'},
-                            filter => "($config{'ldap_abook_prefix'}=*)",
-                            scope  => 'one' );
-   } else {
-      $mesg = $ldap->search( # perform a search
-                            base   => $config{'ldap_base'},
-                            filter => "($config{'ldap_abook_prefix'}=*)",
-                            scope  => 'one' );
+      # mark file with current time, so no other process will try to update this file
+      my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
+      utime($nowtime, $nowtime, $ldapcachefile);
+      ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
    }
-   foreach my $ou ($mesg->sorted()) {
-      my $ouname = $ou->get_value($config{'ldap_abook_prefix'});
-      my $mesg2;
+
+   # below handler is not necessary, as we call zombie_cleaner at end of each request
+   #local $SIG{CHLD}=\&ow::tool::zombie_cleaner;
+
+   local $|=1; 			# flush all output
+   if ( fork() == 0 ) {		# child
+      close(STDIN); close(STDOUT); close(STDERR);
+      writelog("debug - refresh_ldapcache_abookfile process forked - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
+
+      my @ldaplist=();  # keep the order in global addressbook
+      my $ldap = Net::LDAP->new( $config{'ldap_host'} ) or openwebmail_exit(1);
+      my $mesg = $ldap->bind($config{'ldap_user'},
+                             password => $config{'ldap_password'}) ;
       if ($config{'ldap_abook_cont'} ne ""){
-         $mesg2 = $ldap->search( # perform a search
-                                base   => "$config{'ldap_abook_prefix'}=".$ou->get_value("$config{'ldap_abook_prefix'}").",".$config{'ldap_abook_cont'}.",".$config{'ldap_base'},
-                                filter => "(cn=*)" );
+         $mesg = $ldap->search( # perform a search
+                               base   => $config{'ldap_abook_cont'}.",".$config{'ldap_base'},
+                               filter => "($config{'ldap_abook_prefix'}=*)",
+                               scope  => 'one' );
       } else {
-         $mesg2 = $ldap->search( # perform a search
-                                base   => "$config{'ldap_abook_prefix'}=".$ou->get_value("$config{'ldap_abook_prefix'}").",".$config{'ldap_base'},
-                                filter => "(cn=*)" );
+         $mesg = $ldap->search( # perform a search
+                               base   => $config{'ldap_base'},
+                               filter => "($config{'ldap_abook_prefix'}=*)",
+                               scope  => 'one' );
+      }
+      foreach my $ou ($mesg->sorted()) {
+         my $ouname = $ou->get_value($config{'ldap_abook_prefix'});
+         my $mesg2;
+         if ($config{'ldap_abook_cont'} ne ""){
+            $mesg2 = $ldap->search( # perform a search
+                                   base   => "$config{'ldap_abook_prefix'}=".$ou->get_value("$config{'ldap_abook_prefix'}").",".$config{'ldap_abook_cont'}.",".$config{'ldap_base'},
+                                   filter => "(cn=*)" );
+         } else {
+            $mesg2 = $ldap->search( # perform a search
+                                   base   => "$config{'ldap_abook_prefix'}=".$ou->get_value("$config{'ldap_abook_prefix'}").",".$config{'ldap_base'},
+                                   filter => "(cn=*)" );
+         }
+
+         foreach my $entry ($mesg2->sorted()) {
+            my $name=$entry->get_value("cn");
+            my $email=$entry->get_value("mail");
+            my $note=$entry->get_value("note");
+            next if ($email=~/^\s*$/);	# skip if email is null
+            push(@ldaplist, [ $name, $email, $note ]);
+         }
       }
 
-      foreach my $entry ($mesg2->sorted()) {
-         my $name=$entry->get_value("cn");
-         my $email=$entry->get_value("mail");
-         my $note=$entry->get_value("note");
-         next if ($email=~/^\s*$/);	# skip if email is null
-         push(@ldaplist, [ $name, $email, $note ]);
+      undef $ldap;		# release LDAP connection
+
+      my @entries=();
+      foreach my $r_a (@ldaplist) {
+         my ($name, $email, $note)=@{$r_a}[0,1,2];
+
+         # X-OWM-ID
+         #my $x_owm_uid=make_x_owm_uid();
+
+         # generate deterministic x_owm_uid for entries on LDAP
+         # since ldapcache may be refreshed between user accesses
+         my $k=$name.$email; $k=ow::tool::calc_checksum(\$k); $k=~s/(.)/sprintf("%02x",ord($1))/eg; $k=uc($k.$k);
+         my $x_owm_uid=substr($k, 0,8).'-'.substr($k,8,6).'-'.substr($k,14,12).'-'.substr($k,26,4);
+
+         # REV
+         my ($uid_sec,$uid_min,$uid_hour,$uid_mday,$uid_mon,$uid_year) = gmtime(time);
+         my $rev = ($uid_year+1900).($uid_mon+1).$uid_mday."T".$uid_hour.$uid_min.$uid_sec."Z";
+
+         # Name MUST be defined
+         if ($name eq "" || $name =~ m/^\s+$/) {
+            $name = $lang_text{'name'};
+         }
+
+         # Start output
+         my ($first, $mid, $last, $nick)=_parse_username($name);
+         foreach ($first, $mid, $last, $nick) { $_.=' ' if ($_=~/\\$/); }
+         push(@entries, qq|BEGIN:VCARD\r\n|.
+                        qq|VERSION:3.0\r\n|.
+                        qq|N:$last;$first;$mid;;\r\n|);
+         push(@entries,"NICKNAME:$nick\r\n") if ($nick ne '');
+
+         # get all the emails
+         my @emails = split(/,/,$email);
+         foreach my $e (sort @emails) {
+            $e =~ s/\\$//; # chop off trailing slash that escaped comma char
+            push(@entries,"EMAIL:$e\r\n") if defined $e;
+         }
+         # how we handle distribution lists
+         if (@emails > 1) {
+            push(@entries, "X-OWM-GROUP:$name\r\n");
+         }
+
+         push(@entries, "NOTE:$note\r\n") if ($note ne '');
+         push(@entries, qq|REV:$rev\r\n|.
+                        qq|X-OWM-UID:$x_owm_uid\r\n|.
+                        qq|END:VCARD\r\n\r\n|);
       }
+
+      # write out the new converted addressbook
+      my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
+      if (ow::filelock::lock($ldapcachefile, LOCK_EX|LOCK_NB)) {
+         if (open(ADRBOOK, ">$ldapcachefile")) {
+            print ADRBOOK @entries;
+            close(ADRBOOK);
+         }
+         ow::filelock::lock($ldapcachefile, LOCK_UN);
+      }
+      chmod(0444, $ldapcachefile);	# set it to readonly
+      ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
+
+      openwebmail_exit(0);
    }
-
-   undef $ldap;		# release LDAP connection
-
-   my @entries=();
-   foreach my $r_a (@ldaplist) {
-      my ($name, $email, $note)=@{$r_a}[0,1,2];
-
-      # X-OWM-ID
-      #my $x_owm_uid=make_x_owm_uid();
-
-      # generate deterministic x_owm_uid for entries on LDAP
-      # since ldapcache may be refreshed between user accesses
-      my $k=$name.$email; $k=ow::tool::calc_checksum(\$k); $k=~s/(.)/sprintf("%02x",ord($1))/eg; $k=uc($k.$k);
-      my $x_owm_uid=substr($k, 0,8).'-'.substr($k,8,6).'-'.substr($k,14,12).'-'.substr($k,26,4);
-
-      # REV
-      my ($uid_sec,$uid_min,$uid_hour,$uid_mday,$uid_mon,$uid_year) = gmtime(time);
-      my $rev = ($uid_year+1900).($uid_mon+1).$uid_mday."T".$uid_hour.$uid_min.$uid_sec."Z";
-
-      # Name MUST be defined
-      if ($name eq "" || $name =~ m/^\s+$/) {
-         $name = $lang_text{'name'};
-      }
-
-      # Start output
-      my ($first, $mid, $last, $nick)=_parse_username($name);
-      foreach ($first, $mid, $last, $nick) { $_.=' ' if ($_=~/\\$/); }
-      push(@entries, qq|BEGIN:VCARD\r\n|.
-                     qq|VERSION:3.0\r\n|.
-                     qq|N:$last;$first;$mid;;\r\n|);
-      push(@entries,"NICKNAME:$nick\r\n") if ($nick ne '');
-
-      # get all the emails
-      my @emails = split(/,/,$email);
-      foreach my $e (sort @emails) {
-         $e =~ s/\\$//; # chop off trailing slash that escaped comma char
-         push(@entries,"EMAIL:$e\r\n") if defined $e;
-      }
-      # how we handle distribution lists
-      if (@emails > 1) {
-         push(@entries, "X-OWM-GROUP:$name\r\n");
-      }
-
-      push(@entries, "NOTE:$note\r\n") if ($note ne '');
-      push(@entries, qq|REV:$rev\r\n|.
-                     qq|X-OWM-UID:$x_owm_uid\r\n|.
-                     qq|END:VCARD\r\n\r\n|);
-   }
-
-   # write out the new converted addressbook
-   my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
-   if (ow::filelock::lock($ldapcachefile, LOCK_EX|LOCK_NB)) {
-      if (open(ADRBOOK, ">$ldapcachefile")) {
-         print ADRBOOK @entries;
-         close(ADRBOOK);
-      }
-      ow::filelock::lock($ldapcachefile, LOCK_UN);
-   }
-   chmod(0444, $ldapcachefile);	# set it to readonly
-   ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
    return 1;
 }
 ########## END REFRESH_LDAPCACHE_ABOOKFILE #######################

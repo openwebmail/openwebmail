@@ -64,7 +64,7 @@ use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
 
 # local globals
 use vars qw($folder);
-use vars qw($sort $page $longpage $msgdatetimestamp);
+use vars qw($sort $msgdatetype $page $longpage);
 use vars qw($searchtype $keyword);
 use vars qw($escapedfolder $escapedkeyword);
 
@@ -78,10 +78,10 @@ if (!$config{'enable_webmail'} && $action ne "logout") {
 }
 
 $folder = ow::tool::unescapeURL(param('folder'))||'INBOX';
+$sort = param('sort') || $prefs{'sort'} || 'date_rev';
+$msgdatetype = param('msgdatetype') || $prefs{'msgdatetype'};
 $page = param('page') || 1;
 $longpage = param('longpage') || 0;
-$sort = param('sort') || $prefs{'sort'} || 'date_rev';
-$msgdatetimestamp = param('msgdatetimestamp') || $prefs{'msgdatetimestamp'};
 
 $searchtype = param('searchtype') || 'subject';
 $keyword = param('keyword') || ''; $keyword=~s/^\s*//; $keyword=~s/\s*$//;
@@ -104,7 +104,7 @@ if ($action eq "movemessage" ||
       my $send_url = qq|$config{'ow_cgiurl'}/openwebmail-send.pl?|.
                      qq|sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
                      qq|page=$page&amp;longpage=$longpage&amp;|.
-                     qq|sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
+                     qq|sort=$sort&amp;msgdatetype=$msgdatetype&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
                      qq|compose_caller=main&amp;action=composemessage|;
       if (defined param('movebutton')) {
          print redirect(-location=>"$send_url&amp;composetype=forwardids_delete");
@@ -118,7 +118,7 @@ if ($action eq "movemessage" ||
          my $attmode = param('attmode') || 'simple';
          my $escapedmessageid=ow::tool::escapeURL(param('message_id')||'');
          $escapedmessageid=ow::tool::escapeURL($messageids[0]) if (defined param('copybutton')); # copy button pressed, msg not moved
-         print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-read.pl?sessionid=$thissession&folder=$escapedfolder&page=$page&longpage=$longpage&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&message_id=$escapedmessageid&action=readmessage&headers=$headers&attmode=$attmode");
+         print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-read.pl?sessionid=$thissession&folder=$escapedfolder&page=$page&longpage=$longpage&sort=$sort&msgdatetype=$msgdatetype&keyword=$escapedkeyword&searchtype=$searchtype&message_id=$escapedmessageid&action=readmessage&headers=$headers&attmode=$attmode");
       } else {
          listmessages();
       }
@@ -241,7 +241,7 @@ sub listmessages {
    $folder='INBOX' if (!$is_validfolder);
 
    my ($totalsize, $newmessages, $r_messageids, $r_messagedepths)=
-      getinfomessageids($user, $folder, $sort, $searchtype, $keyword);
+      getinfomessageids($user, $folder, $sort, $msgdatetype, $searchtype, $keyword);
    my $msgsperpage=$prefs{'msgsperpage'}||10; $msgsperpage=1000 if ($longpage);
    my $totalmessage=$#{$r_messageids}+1; $totalmessage=0 if ($totalmessage<0);
    my $totalpage=int($totalmessage/$msgsperpage+0.999999); $totalpage=1 if ($totalpage==0);
@@ -255,7 +255,7 @@ sub listmessages {
    my $main_url = "$config{'ow_cgiurl'}/openwebmail-main.pl";
    my $urlparmstr="sessionid=$thissession&amp;folder=$escapedfolder&amp;".
                   "page=$page&amp;longpage=$longpage&amp;".
-                  "sort=$sort&amp;msgdatetimestamp=$msgdatetimestamp&amp;";
+                  "sort=$sort&amp;msgdatetype=$msgdatetype&amp;";
    my $urlparmstr_keyword=$urlparmstr."keyword=$escapedkeyword&amp;searchtype=$searchtype";
 
    my ($html, $temphtml);
@@ -353,17 +353,17 @@ sub listmessages {
 
    $temphtml = '';
    if (!$limited) {
-      $temphtml .= iconlink("compose.gif", $lang_text{'composenew'}, qq|accesskey="C" href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;compose_caller=main"|);
+      $temphtml .= iconlink("compose.gif", $lang_text{'composenew'}, qq|accesskey="C" href="$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;sessionid=$thissession&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;compose_caller=main"|);
       $temphtml .= qq|&nbsp;\n|;
    }
 
-   $temphtml .= iconlink("folder.gif", $lang_text{'folders'}, qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-folder.pl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+   $temphtml .= iconlink("folder.gif", $lang_text{'folders'}, qq|accesskey="F" href="$config{'ow_cgiurl'}/openwebmail-folder.pl?action=editfolders&amp;sessionid=$thissession&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
 
    if ($config{'enable_userfilter'}) {
-      $temphtml .= iconlink("filtersetup.gif", $lang_text{'filterbook'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+      $temphtml .= iconlink("filtersetup.gif", $lang_text{'filterbook'}, qq|accesskey="I" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
    }
    if ($config{'enable_saprefs'} && !$config{'enable_preference'}) {
-      $temphtml .= iconlink("saprefs.gif", $lang_text{'sa_prefs'}, qq|href="$config{'ow_cgiurl'}/openwebmail-saprefs.pl?action=edittest&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+      $temphtml .= iconlink("saprefs.gif", $lang_text{'sa_prefs'}, qq|href="$config{'ow_cgiurl'}/openwebmail-saprefs.pl?action=edittest&amp;sessionid=$thissession&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
    }
 
    $temphtml .= qq|&nbsp;\n|;
@@ -427,7 +427,7 @@ sub listmessages {
                ow::tool::hiddens(action=>'listmessages',
                                  sessionid=>$thissession,
                                  sort=>$sort,
-                                 msgdatetimestamp=>$msgdatetimestamp,
+                                 msgdatetype=>$msgdatetype,
                                  folder=>$escapedfolder);
    $html =~ s/\@\@\@STARTPAGEFORM\@\@\@/$temphtml/;
 
@@ -465,23 +465,23 @@ sub listmessages {
    $temphtml = qq|<td width="6%" bgcolor=$style{'columnheader'} align="center">$temphtml</td>\n|;
    $linehtml =~ s/\@\@\@STATUS\@\@\@/$temphtml/;
 
-   if ($msgdatetimestamp eq 'recvdate') {
+   if ($msgdatetype eq 'recvdate') {
       if ($sort eq "date") {
-         $temphtml = qq|<a href="$sort_url&amp;sort=date&amp;msgdatetimestamp=sentdate">$lang_text{'recvdate'}</a> |.
-                     iconlink("up.gif", "^", qq|href="$sort_url&amp;sort=date_rev&amp;msgdatetimestamp=recvdate"|);
+         $temphtml = qq|<a href="$sort_url&amp;sort=date&amp;msgdatetype=sentdate">$lang_text{'recvdate'}</a> |.
+                     iconlink("up.gif", "^", qq|href="$sort_url&amp;sort=date_rev&amp;msgdatetype=recvdate"|);
       } elsif ($sort eq "date_rev") {
-         $temphtml = qq|<a href="$sort_url&amp;sort=date_rev&amp;msgdatetimestamp=sentdate">$lang_text{'recvdate'}</a> |.
-                     iconlink("down.gif", "v", qq|href="$sort_url&amp;sort=date&amp;msgdatetimestamp=recvdate"|);
+         $temphtml = qq|<a href="$sort_url&amp;sort=date_rev&amp;msgdatetype=sentdate">$lang_text{'recvdate'}</a> |.
+                     iconlink("down.gif", "v", qq|href="$sort_url&amp;sort=date&amp;msgdatetype=recvdate"|);
       } else {
          $temphtml = qq|<a href="$sort_url&amp;sort=date_rev">$lang_text{'recvdate'}</a>|;
       }
    } else {
       if ($sort eq "date") {
-         $temphtml = qq|<a href="$sort_url&amp;sort=date&amp;msgdatetimestamp=recvdate">$lang_text{'sentdate'}</a> |.
-                     iconlink("up.gif", "^", qq|href="$sort_url&amp;sort=date_rev&amp;msgdatetimestamp=sentdate"|);
+         $temphtml = qq|<a href="$sort_url&amp;sort=date&amp;msgdatetype=recvdate">$lang_text{'sentdate'}</a> |.
+                     iconlink("up.gif", "^", qq|href="$sort_url&amp;sort=date_rev&amp;msgdatetype=sentdate"|);
       } elsif ($sort eq "date_rev") {
-         $temphtml = qq|<a href="$sort_url&amp;sort=date_rev&amp;msgdatetimestamp=recvdate">$lang_text{'sentdate'}</a> |.
-                     iconlink("down.gif", "v", qq|href="$sort_url&amp;sort=date&amp;msgdatetimestamp=sentdate"|);
+         $temphtml = qq|<a href="$sort_url&amp;sort=date_rev&amp;msgdatetype=recvdate">$lang_text{'sentdate'}</a> |.
+                     iconlink("down.gif", "v", qq|href="$sort_url&amp;sort=date&amp;msgdatetype=sentdate"|);
       } else {
          $temphtml = qq|<a href="$sort_url&amp;sort=date_rev">$lang_text{'sentdate'}</a>|;
       }
@@ -617,7 +617,7 @@ sub listmessages {
       $linehtml =~ s/\@\@\@STATUS\@\@\@/$temphtml/;
 
       # DATE, convert dateserial(GMT) to localtime
-      my $serial=($msgdatetimestamp eq 'recvdate')?$attr[$_RECVDATE]:$attr[$_DATE];
+      my $serial=($msgdatetype eq 'recvdate')?$attr[$_RECVDATE]:$attr[$_DATE];
       my %t=( sign => '+');
       $t{sec}=ow::datetime::dateserial2gmtime($attr[$_RECVDATE])-ow::datetime::dateserial2gmtime($attr[$_DATE]);
       if ($t{sec}<0) {
@@ -671,12 +671,12 @@ sub listmessages {
       if ($prefs{'useminisearchicon'}) {
          $searchstr=iconlink("search.s.gif", "$lang_text{'search'} $from2_address",
                             qq|href="$main_url?sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
-                            qq|action=listmessages&amp;sort=$sort&amp;msgdatetimestamp=$msgdatetimestamp&amp;|.
+                            qq|action=listmessages&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;|.
                             qq|searchtype=$from2_searchtype&amp;keyword=|.ow::tool::escapeURL($from2_keyword).qq|"| );
       }
       if ($config{'enable_addressbook'} &&
           defined ${$r_abookemailhash}{lc($from2_address)}) {	# case insensitive lookup
-         $friendstr=iconlink("friend.gif", "$lang_text{'search'} $lang_text{'addressbook'}", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;abookkeyword=$from2_address&amp;abooksearchtype=email&amp;abookfolder=ALL&amp;sessionid=$thissession&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
+         $friendstr=iconlink("friend.gif", "$lang_text{'search'} $lang_text{'addressbook'}", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;abookkeyword=$from2_address&amp;abooksearchtype=email&amp;abookfolder=ALL&amp;sessionid=$thissession&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
       }
 
       my $from2str=qq|<a $linkstr title="$from_address -> $to_address">$from2_name </a>|;
@@ -707,7 +707,7 @@ sub listmessages {
       $temphtml = qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?|.
                   qq|sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
                   qq|page=$page&amp;longpage=$longpage&amp;|.
-                  qq|sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
+                  qq|sort=$sort&amp;msgdatetype=$msgdatetype&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;|.
                   qq|message_id=$escapedmessageid&amp;action=readmessage&amp;|.
                   qq|headers=$prefs{'headers'}&amp;attmode=simple|;
       $temphtml.= qq|&amp;db_chkstatus=1| if ($status!~/R/i);
@@ -732,7 +732,7 @@ sub listmessages {
          my $subject2 = $subject; $subject2 =~ s/Res?:\s*//ig; $subject2=~s/\[.*?\]//g;
          my $searchstr = iconlink("search.s.gif", "$lang_text{'search'} $subject2 ",
                                   qq|href="$main_url?sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
-                                  qq|action=listmessages&amp;sort=$sort&amp;msgdatetimestamp=$msgdatetimestamp&amp;|.
+                                  qq|action=listmessages&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;|.
                                   qq|searchtype=subject&amp;keyword=|.ow::tool::escapeURL($subject2).qq|"| ).
                                   qq|&nbsp;|;
          $temphtml = qq|<td $td_bgcolorstr>|.
@@ -777,7 +777,7 @@ sub listmessages {
 
    my $page_url="$main_url?sessionid=$thissession&amp;folder=$escapedfolder&amp;".
                 "action=listmessages&amp;longpage=$longpage&amp;".
-                "sort=$sort&amp;msgdatetimestamp=$msgdatetimestamp&amp;".
+                "sort=$sort&amp;msgdatetype=$msgdatetype&amp;".
                 "keyword=$escapedkeyword&amp;searchtype=$searchtype";
    my $gif;
    $temphtml=qq|<table cellpadding="0" cellspacing="0" border="0"><tr><td>|;
@@ -848,7 +848,7 @@ sub listmessages {
 
    my $longpage_url="$main_url?sessionid=$thissession&amp;folder=$escapedfolder&amp;".
                     "action=listmessages&amp;page=$page&amp;".
-                    "sort=$sort&amp;msgdatetimestamp=$msgdatetimestamp&amp;".
+                    "sort=$sort&amp;msgdatetype=$msgdatetype&amp;".
                     "keyword=$escapedkeyword&amp;searchtype=$searchtype";
    if ($longpage) {
       my $str=$lang_text{'msgsperpage'}; $str=~s/\@\@\@MSGCOUNT\@\@\@/$prefs{'msgsperpage'}/;
@@ -1005,7 +1005,7 @@ sub listmessages {
       $unread_messages_info = "$lang_folders{INBOX}: $now_inbox_newmessages $lang_text{'messages'} $lang_text{'unread'}";
    }
 
-   httpprint([-Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=INBOX&action=listmessages&page=1&session_noupdate=1"],
+   httpprint([-Refresh=>"$refreshinterval;URL=$relative_url?sessionid=$thissession&sort=$sort&msgdatetype=$msgdatetype&keyword=$escapedkeyword&searchtype=$searchtype&folder=INBOX&action=listmessages&page=1&session_noupdate=1"],
              [htmlheader($unread_messages_info),
               htmlplugin($config{'header_pluginfile'}, $config{'header_pluginfile_charset'}, $prefs{'charset'}),
               $html,

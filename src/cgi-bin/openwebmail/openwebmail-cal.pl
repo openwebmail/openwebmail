@@ -2594,7 +2594,9 @@ sub formatted_date {
 # get big5 lunar str from gregorian date, then convert it to target charset
 sub lunar_str {
    my ($year, $month, $day, $charset)=@_;
-   my $str=(solar2lunar($year, $month, $day))[1];
+   my ($lyear, $lmonth, $lday)=solar2lunar($year, $month, $day);
+
+   my $str=lunar2big5str( (solar2lunar($year, $month, $day))[1,2] );
    if ($str ne "") {
       my $color="";  $color=qq|color="#aaaaaa"| if ($str!~/ªì¤@/ && $str!~/¤Q¤­/);
       $str=(iconv('big5', $charset, $str))[0];

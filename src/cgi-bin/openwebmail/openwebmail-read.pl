@@ -65,7 +65,7 @@ use vars qw($_SIZE $_HEADERSIZE $_HEADERCHKSUM $_STATUS);			# defined in maildb.
 
 # local globals
 use vars qw($folder);
-use vars qw($sort $page $longpage);
+use vars qw($sort $msgdatetype $page $longpage);
 use vars qw($searchtype $keyword);
 use vars qw($escapedfolder $escapedkeyword);
 use vars qw($urlparm);
@@ -123,9 +123,11 @@ if (!$config{'enable_webmail'}) {
 }
 
 $folder = ow::tool::unescapeURL(param('folder'))||'INBOX';
+$sort = param('sort') || $prefs{'sort'} || 'date_rev';
+$msgdatetype = param('msgdatetype') || $prefs{'msgdatetype'};
 $page = param('page') || 1;
 $longpage = param('longpage') || 0;
-$sort = param('sort') || $prefs{'sort'} || 'date_rev';
+
 $searchtype = param('searchtype') || 'subject';
 $keyword = param('keyword') || '';
 
@@ -134,7 +136,7 @@ $escapedkeyword = ow::tool::escapeURL($keyword);
 
 $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;".
          "page=$page&amp;longpage=$longpage&amp;".
-         "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
+         "sort=$sort&amp;msgdatetype=$msgdatetype&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
 
 my $action = param('action')||'';
 writelog("debug - request read begin, action=$action, folder=$folder - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
@@ -197,7 +199,7 @@ sub readmessage {
    my $escapedmessageid = ow::tool::escapeURL($messageid);
 
    # Determine message's number and previous and next message IDs.
-   my ($totalsize, $newmessages, $r_messageids)=getinfomessageids($user, $folder, $sort, $searchtype, $keyword);
+   my ($totalsize, $newmessages, $r_messageids)=getinfomessageids($user, $folder, $sort, $msgdatetype, $searchtype, $keyword);
    my ($message_num, $message_total, $messageid_prev, $messageid_next)=(-1, 0, '', '');
    foreach my $i (0..$#{$r_messageids}) {
       if (${$r_messageids}[$i] eq $messageid) {
@@ -209,7 +211,7 @@ sub readmessage {
       }
    }
    if ($message_num<0) {	# message id not found
-      print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&page=$page&sessionid=$thissession&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder");
+      print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&page=$page&sessionid=$thissession&sort=$sort&msgdatetype=$msgdatetype&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder");
       return;
    }
 
@@ -472,7 +474,7 @@ sub readmessage {
       }
    }
    if ( $config{'enable_preference'}) {
-      $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page&amp;prefs_caller=read"|);
+      $temphtml .= iconlink("prefs.gif", $lang_text{'userprefs'}, qq|accesskey="O" href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;page=$page&amp;prefs_caller=read"|);
    }
    $temphtml .= iconlink("logout.gif","$lang_text{'logout'} $prefs{'email'}", qq|accesskey="Q" href="$main_url&amp;action=logout"|) . qq| \n|;
 
@@ -629,7 +631,7 @@ sub readmessage {
                              -onChange=>'JavaScript:document.ReplyWith.submit();',
                              -override=>'1').
                   qq|</td><td>|.
-                  iconlink("editst.s.gif", $lang_text{'editstat'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editstat&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;page=$page"|).
+                  iconlink("editst.s.gif", $lang_text{'editstat'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editstat&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;page=$page"|).
                   qq|</td>|.end_form().qq|</tr></table>|;
    }
 
@@ -772,15 +774,15 @@ sub readmessage {
             if ($is_writableabook_found) {
                my $fullname=(iconv($message{charset}, $prefs{charset}, $ename))[0];
                my ($firstname, $lastname) = split(/\s+/, $fullname, 2);
-               $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  "$lang_text{'importadd'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;N.0.VALUE.GIVENNAME=|.ow::tool::escapeURL($firstname).qq|&amp;N.0.VALUE.FAMILYNAME=|.ow::tool::escapeURL($lastname).qq|&amp;FN.0.VALUE=|.ow::tool::escapeURL($fullname).qq|&amp;EMAIL.0.VALUE=|.ow::tool::escapeURL($eaddr).qq|&amp;formchange=1" onclick="return confirm('$lang_text{importadd} $eaddr ?');"|) . qq|\n|;
+               $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  "$lang_text{'importadd'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;sessionid=$thissession&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;N.0.VALUE.GIVENNAME=|.ow::tool::escapeURL($firstname).qq|&amp;N.0.VALUE.FAMILYNAME=|.ow::tool::escapeURL($lastname).qq|&amp;FN.0.VALUE=|.ow::tool::escapeURL($fullname).qq|&amp;EMAIL.0.VALUE=|.ow::tool::escapeURL($eaddr).qq|&amp;formchange=1" onclick="return confirm('$lang_text{importadd} $eaddr ?');"|) . qq|\n|;
             } else {
-               $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  "$lang_text{'importadd'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookedit&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid" onclick="return confirm('$lang_err{abook_all_readonly}');"|) . qq|\n|;
+               $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  "$lang_text{'importadd'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrbookedit&amp;sessionid=$thissession&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid" onclick="return confirm('$lang_err{abook_all_readonly}');"|) . qq|\n|;
             }
          }
          if ($config{'enable_userfilter'}) {
-            $temphtml .= qq|&nbsp;|. iconlink("blockemail.gif", "$lang_text{'blockemail'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;priority=20&amp;ruletype=from&amp;include=include&amp;text=$eaddr&amp;destination=mail-trash&amp;enable=1" onclick="return confirm('$lang_text{blockemail} $eaddr ?');"|) . qq|\n|;
+            $temphtml .= qq|&nbsp;|. iconlink("blockemail.gif", "$lang_text{'blockemail'} $eaddr", qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;priority=20&amp;ruletype=from&amp;include=include&amp;text=$eaddr&amp;destination=mail-trash&amp;enable=1" onclick="return confirm('$lang_text{blockemail} $eaddr ?');"|) . qq|\n|;
             if ($message{smtprelay} !~ /^\s*$/) {
-               $temphtml .= qq|&nbsp; |.iconlink("blockrelay.gif", "$lang_text{'blockrelay'} $message{smtprelay}", qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;priority=20&amp;ruletype=smtprelay&amp;include=include&amp;text=$message{smtprelay}&amp;destination=mail-trash&amp;enable=1" onclick="return confirm('$lang_text{blockrelay} $message{smtprelay} ?');"|) . qq|\n|;
+               $temphtml .= qq|&nbsp; |.iconlink("blockrelay.gif", "$lang_text{'blockrelay'} $message{smtprelay}", qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=addfilter&amp;sessionid=$thissession&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;priority=20&amp;ruletype=smtprelay&amp;include=include&amp;text=$message{smtprelay}&amp;destination=mail-trash&amp;enable=1" onclick="return confirm('$lang_text{blockrelay} $message{smtprelay} ?');"|) . qq|\n|;
             }
          }
       }
@@ -1151,7 +1153,7 @@ sub html_att2table {
       $temphtml = ow::htmlrender::html4attachments($temphtml, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
       $temphtml = ow::htmlrender::html4mailto($temphtml, "$config{'ow_cgiurl'}/openwebmail-send.pl",
                   "sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page&amp;".
-                  "sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;".
+                  "sort=$sort&amp;msgdatetype=$msgdatetype&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;".
                   "action=composemessage&amp;message_id=$escapedmessageid&amp;compose_caller=read");
    }
    $temphtml = ow::htmlrender::html2table($temphtml);

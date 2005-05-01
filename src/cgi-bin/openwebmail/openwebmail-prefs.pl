@@ -706,12 +706,12 @@ sub editprefs {
                                 defined($config_raw{'DEFAULT_msgsort'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@SORTMENU\@\@\@/$temphtml/;
 
-         $temphtml = popup_menu(-name=>'msgdatetimestamp',
+         $temphtml = popup_menu(-name=>'msgdatetype',
                                 -values=>['sentdate', 'recvdate'],
-                                -default=>$prefs{'msgdatetimestamp'} || 'sentdate',
+                                -default=>$prefs{'msgdatetype'} || 'sentdate',
                                 -labels=>{ sentdate => $lang_text{sentdate}, recvdate => $lang_text{recvdate} },
                                 -override=>'1',
-                                defined($config_raw{'DEFAULT_msgdatetimestamp'})?('-disabled'=>'1'):());
+                                defined($config_raw{'DEFAULT_msgdatetype'})?('-disabled'=>'1'):());
          $html =~ s/\@\@\@MSGDATETIMESTAMPMENU\@\@\@/$temphtml/;
 
          $temphtml = iconlink("search.s.gif", '', '');

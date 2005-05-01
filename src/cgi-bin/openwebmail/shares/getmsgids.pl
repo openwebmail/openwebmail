@@ -16,8 +16,14 @@ use vars qw(%lang_folders %lang_err);
 
 use vars qw($_index_complete);
 sub getinfomessageids {
-   my ($user, $folder, $sort, $searchtype, $keyword)=@_;
+   my ($user, $folder, $sort, $msgdatetype, $searchtype, $keyword)=@_;
    my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
+
+   if ($sort eq 'date') {
+      $sort=$msgdatetype || $prefs{'msgdatetype'};
+   } elsif ($sort eq 'date_rev') {
+      $sort=($msgdatetype || $prefs{'msgdatetype'}).'_rev';
+   }
 
    # do new indexing in background if folder > 10 M && empty db
    if (!ow::dbm::exist($folderdb) && (-s $folderfile) >= 10485760) {

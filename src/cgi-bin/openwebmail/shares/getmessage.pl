@@ -1,9 +1,9 @@
 #
 # getmessage.pl - get and parse a message
 #
+
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-
 use vars qw(%config %lang_err);
 
 sub getmessage {

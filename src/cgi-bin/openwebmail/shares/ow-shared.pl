@@ -132,7 +132,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
 @openwebmailrcitem=qw(
    language charset timeoffset daylightsaving email replyto
    style iconset bgurl bgrepeat fontsize dateformat hourformat
-   ctrlposition_folderview msgsperpage fieldorder sort msgdatetimestamp useminisearchicon
+   ctrlposition_folderview msgsperpage fieldorder sort msgdatetype useminisearchicon
    ctrlposition_msgread headers readwithmsgcharset usefixedfont usesmileicon
    disablejs disableembcode disableemblink showhtmlastext showimgaslink sendreceipt
    confirmmsgmovecopy defaultdestination smartdestination

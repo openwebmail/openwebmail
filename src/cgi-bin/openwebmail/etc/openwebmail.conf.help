@@ -1818,9 +1818,9 @@ ps: date is oldest first, date_rev is newest first
     the default value for this option is date_rev
 
 
-default_msgdatetimestamp
+default_msgdatetype
 -----------------------------------------------------------------------
-default timestamp used for date field in message list
+default datetype used for date field in message list
 values:  sentdate or recvdate
 
 

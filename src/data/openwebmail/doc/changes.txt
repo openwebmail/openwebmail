@@ -1,3 +1,18 @@
+05/01/2005
+----------
+1. rename preference option msgdatetimestamp to msgdatetype
+2. fix the problem that messages are always sorted by sent date even the
+   "sort by received date" is choosed and displayed
+   (reported by Dominic Lu, dominic.AT.dominic.idv.tw)
+3. do ldap cache abook update in background
+4. change format of lunar map so it can be matched with numbers
+ps:The new routine maintains compatibility with old lunar db format,
+   however, we suggest sysadm upgrade their lunar db to avoid comparibility
+   problem in the future by
+   a. remove the cgi-bin/openwebmail/etc/maps/lunar.db
+   b. redo openwebmail-tool.pl --init
+
+
 04/30/2005
 ----------
 1. clean all pipe code with safer syntax like open(F, "|-") and open(F, "-|")

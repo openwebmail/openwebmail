@@ -64,7 +64,7 @@ use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
 
 # local globals
 use vars qw($folder $messageid $mymessageid);
-use vars qw($sort $page);
+use vars qw($sort $msgdatetype $page);
 use vars qw($searchtype $keyword);
 use vars qw($escapedfolder $escapedmessageid $escapedkeyword);
 
@@ -81,6 +81,8 @@ $messageid = param('message_id')||'';		# the orig message to reply/forward
 $mymessageid = param('mymessageid')||'';		# msg we are editing
 $page = param('page') || 1;
 $sort = param('sort') || $prefs{'sort'} || 'date_rev';
+$msgdatetype = param('msgdatetype') || $prefs{'msgdatetype'};
+
 $searchtype = param('searchtype') || 'subject';
 $keyword = param('keyword') || '';
 
@@ -1026,7 +1028,7 @@ sub composemessage {
    }
 
    my $compose_caller=param('compose_caller')||'';
-   my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
+   my $urlparm="sessionid=$thissession&amp;folder=$escapedfolder&amp;page=$page&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype";
    my $folderstr=$lang_folders{$folder}||(iconv($prefs{'fscharset'}, $composecharset, $folder))[0];
    if ($compose_caller eq "read") {
       $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $folderstr",
@@ -1771,7 +1773,7 @@ sub sendmessage {
       if ($saveerr) {
          openwebmailerror(__FILE__, __LINE__, $saveerrstr);
       } else {
-         print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page");
+         print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&msgdatetype=$msgdatetype&folder=$escapedfolder&page=$page");
       }
    }
 
@@ -2233,7 +2235,7 @@ sub sendmessage {
 
          my ($sentsubject)=iconv($composecharset, $prefs{'charset'}, $subject||'N/A');
          $sentsubject=ow::tool::escapeURL($sentsubject);
-         print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&folder=$escapedfolder&page=$page&sentsubject=$sentsubject");
+         print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-main.pl?action=listmessages&sessionid=$thissession&sort=$sort&msgdatetype=$msgdatetype&folder=$escapedfolder&page=$page&sentsubject=$sentsubject");
       } else {
          # save draft, call getfolders to recalc used quota
          if ($quotalimit>0 && $quotausage+$messagesize>$quotalimit) {
