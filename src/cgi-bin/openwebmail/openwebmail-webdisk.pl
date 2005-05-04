@@ -414,7 +414,7 @@ sub createfile {
       return("$lang_text{'dir'} $vpathstr $lang_err{'already_exists'}\n") if (-d _);
       return("$lang_text{'file'} $vpathstr $lang_err{'already_exists'}\n");
    } else {
-      if (open(F, ">$webdiskrootdir/$vpath")) {
+      if (sysopen(F, "$webdiskrootdir/$vpath", O_WRONLY|O_TRUNC|O_CREAT)) {
          print F ''; close(F);
          writelog("webdisk createfile - $vpath");
          writehistory("webdisk createfile - $vpath");
@@ -598,7 +598,7 @@ sub editfile {
 
       ow::filelock::lock("$webdiskrootdir/$vpath", LOCK_SH|LOCK_NB) or
          autoclosewindow($lang_text{'edit'}, "$lang_err{'couldnt_readlock'} $vpathstr!");
-      if (open(F, "$webdiskrootdir/$vpath")) {
+      if (sysopen(F, "$webdiskrootdir/$vpath", O_RDONLY)) {
          local $/; undef $/;
          $content=<F>; close(F);
       } else {

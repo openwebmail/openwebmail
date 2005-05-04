@@ -122,8 +122,8 @@ sub replyreceipt {
       my $header;
 
       # get message header
-      sysopen(FOLDER, $folderfile, O_RDWR) or
-          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($folderfile)."! ($!)");
+      sysopen(FOLDER, $folderfile, O_RDONLY) or
+          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} ".f2u($folderfile)."! ($!)");
       seek (FOLDER, $attr[$_OFFSET], 0) or
           openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_seek'} ".f2u($folderfile)."! ($!)");
       $header="";
@@ -1629,8 +1629,11 @@ sub sendmessage {
    my $saveerr=0;
 
    my $smtp;
-   my $smtperrfile=ow::tool::tmpname('smtp.err');
-   local (*STDERR);	# localize stderr to a new global variable
+   my ($smtperrfh, $smtperrfile)=ow::tool::mktmpfile('smtp.err');
+
+   # redirect stderr to filehandle $smtperrfh
+   open(SAVEERR,">&STDERR"); open(STDERR,">&=".fileno($smtperrfh)); close($smtperrfh);
+   select(STDERR); local $| = 1; select(STDOUT);
 
    my ($savefolder, $savefile, $savedb);
    my $messagestart=0;
@@ -1666,9 +1669,6 @@ sub sendmessage {
       }
 
       # redirect stderr to smtperrfile
-      $smtperrfile=ow::tool::untaint($smtperrfile);
-      sysopen(STDERR, $smtperrfile, O_WRONLY|O_TRUNC|O_CREAT);
-      select(STDERR); local $| = 1; select(STDOUT);
 
       my $timeout=120; $timeout=180 if ($#recipients>=1); # more than 1 recipient
       if ( !($smtp=Net::SMTP->new($config{'smtpserver'},
@@ -1711,7 +1711,7 @@ sub sendmessage {
       ($savefile, $savedb)=get_folderpath_folderdb($user, $savefolder);
 
       if ( ! -f $savefile) {
-         if (open($folderhandle, ">$savefile")) {
+         if (sysopen($folderhandle, $savefile, O_WRONLY|O_TRUNC|O_CREAT)) {
             close($folderhandle);
          } else {
             $saveerrstr="$lang_err{'couldnt_write'} $savefile!";
@@ -1752,7 +1752,7 @@ sub sendmessage {
             }
          }
 
-         if (open($folderhandle, "+<$savefile") ) {
+         if (sysopen($folderhandle, $savefile, O_RDWR) ) {
             $messagestart=(stat($folderhandle))[7];
             seek($folderhandle, $messagestart, 0);	# seek end manually to cover tell() bug in perl 5.8
          } else {
@@ -2075,7 +2075,8 @@ sub sendmessage {
    if ($do_send) {
       if (!$senderr) {
          $smtp->quit();
-         close(STDERR);
+         open(STDERR,">&SAVEERR"); close(SAVEERR);	# redirect stderr back
+
          my @r;
          push(@r, "to=$to") if ($to);
          push(@r, "cc=$cc") if ($cc);
@@ -2084,18 +2085,20 @@ sub sendmessage {
          writelog($m); writehistory($m);
       } else {
          $smtp->close() if ($smtp); # close smtp if it was sucessfully opened
+         open(STDERR,">&SAVEERR"); close(SAVEERR);	# redirect stderr back
+
          if ($senderrstr eq "") {
             $senderrstr= qq|$lang_err{'sendmail_error'}|;
 
             if ($do_save && $savefolder eq 'saved-drafts') {
                my $draft_url = qq|$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&amp;|.
                                qq|action=composemessage&amp;composetype=editdraft&amp;|.
-                               qq|folder=$escapedfolder&amp;message_id=|.ow::tool::escapeURL($mymessageid);
+                               qq|folder=$savefolder&amp;message_id=|.ow::tool::escapeURL($mymessageid);
                $senderrstr.= qq|<br>\n<a href="$draft_url">$lang_err{'sendmail_chkdraft'}</a>|;
             }
 
             my $smtperr=readsmtperr($smtperrfile);
-            $senderrstr.=qq|<form>|.
+            $senderrstr.=qq|<br><br>\n<form>|.
                          textarea(-name=>'smtperror',
                                   -default=>$smtperr,
                                   -rows=>'10',
@@ -2108,9 +2111,10 @@ sub sendmessage {
             writehistory("send message error - smtp error");
          }
       }
-      close(STDERR);
-      unlink($smtperrfile);
+   } else {
+      open(STDERR,">&SAVEERR"); close(SAVEERR);	# redirect stderr back
    }
+   unlink($smtperrfile);
 
    if ($do_save) {
       if (!$saveerr) {

@@ -148,9 +148,9 @@ sub unlink {
 sub guessoptions {
    my (%DB, @filelist, @delfiles);
    my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock);
-   my $testdir=ow::tool::tmpname('dbmtest.tmpdir');
 
-   mkdir ($testdir, 0755);
+   my $testdir=ow::tool::mktmpdir('dbmtest.tmpdir');
+   return($dbm_ext, $dbmopen_ext, $dbmopen_haslock) if ($testdir eq '');
 
    dbmopen(%DB, "$testdir/test", 0600); dbmclose(%DB);
    @delfiles=();
@@ -216,20 +216,18 @@ sub get_defaultdbtype {
 }
 
 sub get_dbtype {
-   my $f=ow::tool::tmpname('flist.tmpfile');
-   sysopen(F, $f, O_WRONLY|O_TRUNC|O_CREAT);
-   print F "$_[0]\n";
-   close(F);	# pass arg through file for safety
-
-   my $dbtype=`/usr/bin/file -f $f`; unlink($f);
-   $dbtype=~s/^.*?:\s*//; $dbtype=~s/\s*$//;
+   open(F, "-|") or
+      do { open(STDERR,">/dev/null"); exec(ow::tool::findbin("file"), $_[0]); exit 9 };
+   local $/; undef $/;
+   my $dbtype=<F>; $dbtype=~s/^.*?:\s*//; $dbtype=~s/\s*$//;
+   close(F);
 
    return($dbtype);
 }
 
 sub dblist2dbfiles {
    my @dbfiles=();
-   foreach (@_) {	# @_ is list of db to be deleted
+   foreach (@_) {	# @_ is list of db name
       my $db=ow::tool::untaint($_);
       if ($dbm_ext eq '.dir' || $dbm_ext eq '.pag') {
          push(@dbfiles, "$db.dir", "$db.pag");

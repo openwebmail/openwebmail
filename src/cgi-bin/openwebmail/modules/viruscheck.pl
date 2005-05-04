@@ -44,15 +44,17 @@ sub pipecmd_msg {
    $pipecmd=~s/\@\@\@USERNAME\@\@\@/$username/g;
    my @cmd=split(/\s+/, $pipecmd); foreach (@cmd) { (/^(.*)$/) && ($_=$1) };
 
-   my $stdoutfile=ow::tool::tmpname('viruscheck.out');
-   my $stderrfile=ow::tool::tmpname('viruscheck.err');
+   my ($outfh, $outfile)=ow::tool::mktmpfile('viruscheck.out');
+   my ($errfh, $errfile)=ow::tool::mktmpfile('viruscheck.err');
 
    local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
    local $|=1; # flush all output
 
-   my ($stdout, $stderr, $errmsg);
    open(P, "|-") or
-      do { open(STDERR, ">$stderrfile"); open(STDOUT, ">$stdoutfile"); exec(@cmd); exit 9 };
+      do { open(STDERR,">&=".fileno($errfh)); open(STDOUT,">&=".fileno($outfh)); exec(@cmd); exit 9 };
+   close($errfh); close($outfh);
+
+   my ($out, $err, $errmsg);
    if (ref($r_message) eq 'ARRAY') {
       print P @{$r_message} or $errmsg=$!;
    } else {
@@ -60,10 +62,10 @@ sub pipecmd_msg {
    }
    close(P) or $errmsg=$!;
 
-   sysopen(F, $stderrfile, O_RDONLY); $stderr=<F>; close(F); unlink $stderrfile;
-   sysopen(F, $stdoutfile, O_RDONLY); $stdout=<F>; close(F); unlink $stdoutfile;
+   sysopen(F, $errfile, O_RDONLY); $err=<F>; close(F); unlink $errfile;
+   sysopen(F, $outfile, O_RDONLY); $out=<F>; close(F); unlink $outfile;
 
-   foreach ($errmsg, $stderr, $stdout) {
+   foreach ($errmsg, $err, $out) {
       s/[\r\n]//g; return $_ if ($_ ne '');
    }
 }

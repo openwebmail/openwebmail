@@ -370,12 +370,6 @@ sub do_test {
             "please update to 3.00 or later.\n\n\n";
    }
 
-# disable this warning to make user happy...
-#   if ($in_init && check_tell_bug() <0) {
-#      print qq|Please hit 'Enter' to continue or Ctrl-C to break.\n|;
-#      $_=<STDIN> if (!$opt{'yes'} && !$opt{'no'});
-#   }
-
    my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock)=ow::dbm::guessoptions();
 
    print_dbm_module() if (!$in_init);
@@ -385,25 +379,6 @@ sub do_test {
    $err-- if (check_savedsuid_support()<0);
 
    return $err;
-}
-
-sub check_tell_bug {
-   my $offset;
-   my $testfile=ow::tool::tmpname('test.tmpfile');
-
-   open(F, ">$testfile"); print F "test"; close(F);
-   open(F, ">>$testfile"); $offset=tell(F); close(F);
-   unlink($testfile);
-
-   if ($offset==0) {
-      print qq|WARNING!\n\n|.
-            qq|The perl on your system has serious bug in routine tell()!\n|.
-            qq|While openwebmail can work properly with this bug, other perl application\n|.
-            qq|may not function properly and thus cause data loss.\n\n|.
-            qq|We suggest that you should patch your perl as soon as possible.\n\n\n|;
-      return -1;
-   }
-   return 0;
 }
 
 sub print_dbm_module {
@@ -895,7 +870,7 @@ sub usertool {
       if (!$config{'use_syshomedir'} || !$config{'use_syshomedir_for_dotdir'} ) {
          if (!-d $owuserdir) {
             my $fgid=(split(/\s+/,$ugid))[0];
-            if (mkdir ($owuserdir, oct(700)) && chown($uuid, $fgid, $owuserdir)) {
+            if (mkdir ($owuserdir, 0700) && chown($uuid, $fgid, $owuserdir)) {
                writelog("create owuserdir - $owuserdir, uid=$uuid, gid=$fgid");
                print "D create owuserdir $owuserdir, uid=$uuid, gid=$fgid\n" if ($opt{'debug'});
             } else {
@@ -1440,7 +1415,7 @@ sub checknotify {
    }
 
    if ($future_items==0) { # today has no more item to notify, set checkend to 2400
-      if (open(NOTIFYCHECK, ">$notifycheckfile" )) {
+      if (sysopen(NOTIFYCHECK, $notifycheckfile, O_WRONLY|O_TRUNC|O_CREAT)) {
          print NOTIFYCHECK $date."2400";
          close(NOTIFYCHECK);
       }

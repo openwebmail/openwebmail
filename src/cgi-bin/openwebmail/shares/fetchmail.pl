@@ -306,7 +306,7 @@ sub append_pop3msg_to_folder {
       sysopen(F, $folderfile, O_WRONLY|O_APPEND|O_CREAT); close(F);
    }
    return 0 if (!ow::filelock::lock($folderfile, LOCK_EX));
-   if (!sysopen(F, $folderfile, O_RDWR)) {
+   if (!sysopen(F, $folderfile, O_WRONLY|O_APPEND|O_CREAT)) {
       ow::filelock::lock($folderfile, LOCK_UN);
       return 0;
    }

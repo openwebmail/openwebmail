@@ -171,7 +171,7 @@ sub dotfile_lock {
 
       if ( $lockflag & LOCK_UN ) {
          if ( -f "$filename.lock") {
-            if (open(L, "+<$filename.lock") ) {
+            if (sysopen(L, "$filename.lock", O_RDWR)) {
                seek(L, 0, 0);
                $_=<L>; chop;
                ($mode,$count)=split(/:/);
@@ -251,7 +251,7 @@ sub _lock {
    if ( my $t=(stat("$filename.lock"))[9] ) {
       unlink("$filename.lock") if (time()-$t > $staletimeout);
    }
-   if ( sysopen(LL, "$filename.lock", O_RDWR|O_CREAT|O_EXCL) ) {
+   if (sysopen(LL, "$filename.lock", O_RDWR|O_CREAT|O_EXCL)) {
       close(LL);
       return 1
    } else {

@@ -749,7 +749,7 @@ sub readtemplate {
       return $_templatecache{$file} if (defined $_templatecache{$file});
    }
    foreach my $file ($langfile, $commonfile) {
-      if (open(T, $file)) {
+      if (sysopen(T, $file, O_RDONLY)) {
          local $/; undef $/; $_templatecache{$file}=<T>; # read whole file in once
          close(T);
          return $_templatecache{$file};
@@ -1378,7 +1378,7 @@ sub writelog {
    $loggeduser .= "\@$logindomain" if ($config{'auth_withdomain'});
    $loggeduser .= "($user)" if ($user && $loginuser ne $user);
 
-   if (open(LOGFILE,"+<$config{'logfile'}")) {
+   if (sysopen(LOGFILE, $config{'logfile'}, O_WRONLY|O_APPEND|O_CREAT)) {
       seek(LOGFILE, 0, 2);	# seek to tail
       print LOGFILE "$timestamp - [$$] ($loggedip) $loggeduser - $_[0]\n";	# log
       close(LOGFILE);
@@ -1421,7 +1421,7 @@ sub writehistory {
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $historyfile!($!)");
          print HISTORYLOG $buff;
       } else {
-         sysopen(HISTORYLOG, $historyfile, O_RDWR) or
+         sysopen(HISTORYLOG, $historyfile, O_WRONLY|O_APPEND|O_CREAT) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $historyfile!($!)");
          seek(HISTORYLOG, $end, 0);	# seek to tail
       }
@@ -1795,9 +1795,9 @@ sub find_and_move_dotdir {
    }
 
    # try 'mv' first, then 'cp+rm'
-   if (system(ow::tool::untaint(ow::tool::findbin('mv')), '-f', $src, $dst)==0 or
-       (system(ow::tool::untaint(ow::tool::findbin('cp')), '-Rp', $src, $dst)==0 and
-        system(ow::tool::untaint(ow::tool::findbin('rm')), '-Rf', $src)==0) ) {
+   if (system(ow::tool::findbin('mv'), '-f', $src, $dst)==0 or
+       (system(ow::tool::findbin('cp'), '-Rp', $src, $dst)==0 and
+        system(ow::tool::findbin('rm'), '-Rf', $src)==0) ) {
       writelog("move dotdir - $src -> $dst");
    }
 }
@@ -2043,7 +2043,7 @@ sub get_abookemailhash {
    }
 
    foreach my $abookfile (@userabookfiles, @globalabookfiles) {
-      if (open(F, $abookfile)) {
+      if (sysopen(F, $abookfile, O_RDONLY)) {
          while (<F>) {
             # stored in lower case for case insensitive lookup
             $emails{lc($2)}=1 if (/^EMAIL(;TYPE=PREF)?:(.+?)\s*$/);

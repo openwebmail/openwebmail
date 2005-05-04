@@ -111,6 +111,7 @@ my $htmlmode = param('htmlmode');
 my $form = param('form')||'';
 my $field = param('field')||'';
 my $dictionary = param('dictionary') || $prefs{'dictionary'} || 'english';
+$dictionary=~s!\.\.+!!g; $dictionary=~s![\s\`\|\<\>/;&]+!_!g;
 my $dicletters=$dictionary_letters{'english'};
 $dicletters=$dictionary_letters{$dictionary} if (defined $dictionary_letters{$dictionary});
 
@@ -275,7 +276,7 @@ sub editpdict {
          }
          close(PERSDICT);
 
-         sysopen(NEWPERSDICT, $pdicfile.new, O_WRONLY|O_TRUNC|O_CREAT) or
+         sysopen(NEWPERSDICT, "$pdicfile.new", O_WRONLY|O_TRUNC|O_CREAT) or
             openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
          print NEWPERSDICT $pdicwordstr;
          close(NEWPERSDICT);

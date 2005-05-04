@@ -518,14 +518,11 @@ sub login {
       if (ow::filelock::lock("$folderdir/saved-messages", LOCK_EX|LOCK_NB)) {
          writelog("symlink mbox - $homedir/mbox -> $folderdir/saved-messages");
 
-         if (!-f "$folderdir/saved-messages") {
-            sysopen(F, "$folderdir/saved-messages", O_WRONLY|O_APPEND|O_CREAT); close(F);
-         }
-         if (open(F,"+<$folderdir/saved-messages")) {
+         if (sysopen(F, "$folderdir/saved-messages", O_WRONLY|O_APPEND|O_CREAT)) {
             seek(F, 0, 2);	# seek to end;
             rename("$homedir/mbox", "$homedir/mbox.old.$$");
             symlink("$folderdir/saved-messages", "$homedir/mbox");
-            if (open(T,"$homedir/mbox.old.$$")) {
+            if (sysopen(T, "$homedir/mbox.old.$$", O_RDONLY)) {
                while(<T>) { print F $_; }
                close(T);
                unlink("$homedir/mbox.old.$$");

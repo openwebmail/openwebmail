@@ -1255,7 +1255,7 @@ sub get_uid_home_release {
    $releasedatefile=ow::tool::untaint($releasedatefile);
 
    # the release date file may very well not exist!
-   if (open(D, $releasedatefile)) {
+   if (sysopen(D, $releasedatefile, O_RDONLY)) {
       $releasedate=<D>;
       chomp($releasedate);
       close(D);

@@ -420,14 +420,12 @@ sub msword2html {
    my $antiwordbin=ow::tool::findbin('antiword');
    return 0 if ($antiwordbin eq '');
 
-   my $tmpfile=ow::tool::tmpname('msword2html.tmpfile');
    my $err=0;
-   sysopen(F, $tmpfile, O_WRONLY|O_TRUNC|O_CREAT) or return 0;
-   print F ${$r_content} or $err++;
-   close(F);
+   my ($tmpfh, $tmpfile)=ow::tool::mktmpfile('msword2html.tmpfile');
+   print $tmpfh ${$r_content} or $err++;
+   close($tmpfh);
    if ($err) {
-      unlink($tmpfile);
-      return 0;
+      unlink($tmpfile); return 0;
    }
    my ($stdout, $stderr, $exit, $sig)=ow::execute::execute($antiwordbin, '-m', 'UTF-8.txt', $tmpfile);
    unlink($tmpfile);

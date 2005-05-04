@@ -15,15 +15,24 @@ require "modules/tool.pl";
 sub get_handle {
    my ($wgetbin, $url)=@_;
 
-   my $datafile=ow::tool::tmpname('wget.tmpfile');
-   my $errfile=ow::tool::tmpname('wget.err');
-   sysopen(ERR, $errfile, O_WRONLY|O_TRUNC|O_CREAT); close(ERR);
+   my ($outfh, $outfile)=ow::tool::mktmpfile('wget.tmpfile');
+   my ($errfh, $errfile)=ow::tool::mktmpfile('wget.err');
 
-   my $wgetcmd=ow::tool::untaint("$wgetbin -l0 -O- -o$errfile $url");
+   open(SAVEERR,">&STDERR"); open(STDERR,">&=".fileno($errfh)); close($errfh);
+   open(SAVEOUT,">&STDOUT"); open(STDOUT,">&=".fileno($outfh)); close($outfh);
+   select(STDERR); $|=1; select(STDOUT); $|=1;
 
-   my @cmd=($wgetbin, "-l0", "-O$datafile", "-o$errfile", $url);
-   my ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
-   return(-1, $stderr) if ($exit!=0 && !-f $errfile);	# fork err?
+   local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
+   system($wgetbin, "-l0", "-O-", ow::tool::untaint($url));
+
+   open(STDERR,">&SAVEERR"); close(SAVEERR);
+   open(STDOUT,">&SAVEOUT"); close(SAVEOUT);
+
+   my $exit=$?>>8;
+   if ( $exit!=0 && (-s $errfile)==0) {
+      unlink($outfile, $errfile);
+      return(-1, "fork error?");
+   }
 
    my ($contenttype, $errmsg)=('', '');
    sysopen(ERR, $errfile, O_RDONLY);
@@ -35,13 +44,13 @@ sub get_handle {
    unlink($errfile);
 
    if ($exit!=0) {
-      unlink($datafile);
+      unlink($outfile);
       $errmsg=~s/^\d\d:\d\d:\d\d\s*//; $errmsg=~s/[\r\n]//g;
       return(-2, $errmsg);
    } else {
       my $handle=do { local *FH };
-      sysopen($handle, $datafile, O_RDONLY);
-      unlink($datafile);
+      sysopen($handle, $outfile, O_RDONLY);
+      unlink($outfile);
       $contenttype=ow::tool::ext2contenttype($url) if ($contenttype eq '');
       return(0, '', $contenttype, $handle);
    }

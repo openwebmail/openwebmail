@@ -745,7 +745,7 @@ sub filter_allmessageids {
       }
       if ($is_allmessageids_checked) {
          ow::filelock::lock($filtercheckfile, LOCK_EX|LOCK_NB);
-         if (open(FILTERCHECK, ">$filtercheckfile")) {
+         if (sysopen(FILTERCHECK, $filtercheckfile, O_WRONLY|O_TRUNC|O_CREAT)) {
             print FILTERCHECK ow::tool::metainfo($folderfile);
             close(FILTERCHECK);
          }

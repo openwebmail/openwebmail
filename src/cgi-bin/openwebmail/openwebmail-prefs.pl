@@ -1826,7 +1826,7 @@ sub saveprefs {
 sub readdotforward {
    my $forwardtext;
 
-   if (open(FOR, "$homedir/.forward")) {
+   if (sysopen(FOR, "$homedir/.forward", O_RDONLY)) {
       local $/; undef $/; $forwardtext=<FOR>; # read whole file at once
       close(FOR);
    }
@@ -1899,7 +1899,7 @@ sub writedotforward {
 sub readdotvacationmsg {
    my ($subject, $text)=("", "");
 
-   if (open(MSG, "$homedir/.vacation.msg")) {
+   if (sysopen(MSG, "$homedir/.vacation.msg", O_RDONLY)) {
       my $inheader=1;
       while (<MSG>) {
          chomp($_);

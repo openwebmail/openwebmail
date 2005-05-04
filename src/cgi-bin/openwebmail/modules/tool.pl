@@ -14,7 +14,7 @@ use vars qw(%_bincache);
 sub findbin {
    return $_bincache{$_[0]} if (defined $_bincache{$_[0]});
    foreach my $p ('/usr/local/bin', '/usr/bin', '/bin', '/usr/X11R6/bin/', '/opt/bin') {
-      return($_bincache{$_[0]}="$p/$_[0]") if (-x "$p/$_[0]");
+      return(untaint($_bincache{$_[0]}="$p/$_[0]")) if (-x "$p/$_[0]");
    }
    return ($_bincache{$_[0]}='');
 }
@@ -23,7 +23,7 @@ use vars qw(%_sbincache);
 sub findsbin {
    return $_sbincache{$_[0]} if (defined $_sbincache{$_[0]});
    foreach my $p ('/usr/local/sbin', '/usr/sbin', '/sbin', '/usr/X11R6/sbin/', '/opt/sbin') {
-      return($_sbincache{$_[0]}="$p/$_[0]") if (-x "$p/$_[0]");
+      return(untaint($_sbincache{$_[0]}="$p/$_[0]")) if (-x "$p/$_[0]");
    }
    return ($_sbincache{$_[0]}='');
 }
@@ -232,14 +232,34 @@ sub zh_dospath2fname {
    return $buff;
 }
 
+sub _tmpname {
+   my $n=rand(); $n=~s/^0.0*//; $n=substr($n,0,8);
+   return untaint("/tmp/.ow.$_[0].$$-$n");
+}
+
 sub tmpname {
-   my ($basename)=@_;
-   my $fname;
    for (1..5) {
-      my $n=rand(); $n=~s/^0.0*//; $fname="/tmp/.ow.$basename.$$-".substr($n,0,8);
+      my $fname=_tmpname($_[0]);
       return untaint($fname) if (!-e $fname);
    }
-   return untaint($fname);	# this should never be reached
+   return;	# this should never be reached
+}
+
+sub mktmpfile {
+   my $fh= do { local *FH };
+   for (1..5) {
+      my $fname=_tmpname($_[0]);
+      return($fh, $fname) if (sysopen($fh, $fname, O_RDWR|O_CREAT|O_EXCL));
+   }
+   return;
+}
+
+sub mktmpdir {
+   for (1..5) {
+      my $dirname=_tmpname($_[0]);
+      return($dirname) if (mkdir($dirname, 0700));
+   }
+   return;
 }
 
 # rename fname.ext   to fname.0.ext

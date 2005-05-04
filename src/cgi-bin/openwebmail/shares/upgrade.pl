@@ -318,7 +318,7 @@ sub upgrade_all {	# called if user releasedate is too old
    if ( $user_releasedate lt "20041107" ) {
       my $calbookfile=dotpath('calendar.book');
       my $data;
-      if (open(F, $calbookfile)) {
+      if (sysopen(F, $calbookfile, O_RDONLY)) {
          while (<F>) {
             chomp;
             my @a=split(/\@\@\@/, $_);
@@ -326,7 +326,7 @@ sub upgrade_all {	# called if user releasedate is too old
             $data.=join('@@@', @a)."\n";
          }
          close(F);
-         if (open(F, ">$calbookfile")) {
+         if (sysopen(F, $calbookfile, O_WRONLY|O_TRUNC|O_CREAT)) {
             print F $data;
             close(F);
             writehistory("release upgrade - $calbookfile charset by 20041107");
@@ -338,7 +338,7 @@ sub upgrade_all {	# called if user releasedate is too old
    if ( $user_releasedate lt "20050206" ) {
       my $filterbookfile=dotpath('filter.book');
       my $data;
-      if (open(F, $filterbookfile)) {
+      if (sysopen(F, $filterbookfile, O_RDONLY)) {
          while (<F>) {
             chomp;
             my @a=split(/\@\@\@/, $_);
@@ -346,7 +346,7 @@ sub upgrade_all {	# called if user releasedate is too old
             $data.=join('@@@', @a)."\n";
          }
          close(F);
-         if (open(F, ">$filterbookfile")) {
+         if (sysopen(F, $filterbookfile, O_WRONLY|O_TRUNC|O_CREAT)) {
             print F $data;
             close(F);
             writehistory("release upgrade - $filterbookfile charset by 20050206");
@@ -358,7 +358,7 @@ sub upgrade_all {	# called if user releasedate is too old
    if ( $user_releasedate lt "20050319" ) {
       my $calbookfile=dotpath('calendar.book');
       my $data;
-      if (open(F, $calbookfile)) {
+      if (sysopen(F, $calbookfile, O_RDONLY)) {
          while (<F>) {
             chomp;
             my @a=split(/\@\@\@/, $_);
@@ -366,7 +366,7 @@ sub upgrade_all {	# called if user releasedate is too old
             $data.=join('@@@', @a)."\n";
          }
          close(F);
-         if (open(F, ">$calbookfile")) {
+         if (sysopen(F, $calbookfile, O_WRONLY|O_TRUNC|O_CREAT)) {
             print F $data;
             close(F);
             writehistory("release upgrade - $calbookfile charset by 20050319");
@@ -381,7 +381,7 @@ sub upgrade_all {	# called if user releasedate is too old
          %prefs = readprefs();
          if ($prefs{'sort'} eq 'date') {
             $prefs{'sort'}='date_rev';
-            if (open(RC, ">$rcfile")) {
+            if (sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT)) {
                foreach my $key (@openwebmailrcitem) {
                   print RC "$key=$prefs{$key}\n";
                }
@@ -403,7 +403,7 @@ sub read_releasedatefile {
    $releasedatefile="$homedir/.release.date" if (! -f $releasedatefile);
 
    my $d;
-   if (open(D, $releasedatefile)) {
+   if (sysopen(D, $releasedatefile, O_RDONLY)) {
       $d=<D>; chomp($d); close(D);
    }
    return($d);

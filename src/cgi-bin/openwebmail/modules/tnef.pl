@@ -23,14 +23,15 @@ sub get_tnef_filelist {
    local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
    local $|=1; # flush all output
 
-   my $stdoutfile=ow::tool::tmpname('tnef.out');
+   my ($outfh, $outfile)=ow::tool::mktmpfile('tnef.out');
    open(F, "|-") or
-      do { open(STDERR, ">/dev/null"); open(STDOUT, ">$stdoutfile"); exec($tnefbin, "-t"); exit 9 };
+      do { open(STDERR,">/dev/null"); open(STDOUT,">&=".fileno($outfh)); exec($tnefbin, "-t"); exit 9 };
+   close($outfh);
    print F ${$r_tnef};
    close(F);
 
    my @filelist=();
-   sysopen(F, $stdoutfile, O_RDONLY); unlink $stdoutfile;
+   sysopen(F, $outfile, O_RDONLY); unlink $outfile;
    while (<F>) { chomp; push(@filelist, $_) if ($_ ne ''); }
    close(F);
 
@@ -39,6 +40,7 @@ sub get_tnef_filelist {
 
 sub get_tnef_archive {
    my ($tnefbin, $tnefname, $r_tnef)=@_;
+   my ($arcname, $arcdata);
 
    local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
    local $|=1; # flush all output
@@ -49,8 +51,9 @@ sub get_tnef_archive {
    #      tar/gzip may have ruid=euid=current ruid,
    #      which is not the same as current euid)
    my $oldumask=umask(0000);
-   my $tmpdir=ow::tool::tmpname('tnef.tmpdir');
-   mkdir ($tmpdir, 0755);
+   my $tmpdir=ow::tool::mktmpdir('tnef.tmpdir');
+   return('', \$arcdata) if ($tmpdir eq '');
+
    open(F, "|-") or
       do { open(STDERR,">/dev/null"); open(STDOUT,">/dev/null"); exec($tnefbin, "--overwrite", "-C", $tmpdir); exit 9 };
    print F ${$r_tnef};
@@ -64,8 +67,8 @@ sub get_tnef_archive {
    }
    close(T);
 
-   my ($arcname, $arcdata);
    if ($#filelist<0) {
+      rmdir($tmpdir);
       return('', \$arcdata);
    } elsif ($#filelist==0) {
       sysopen(F, "$tmpdir/$filelist[0]", O_RDONLY); $arcname=$filelist[0];
@@ -87,6 +90,7 @@ sub get_tnef_archive {
             $arcname.=".tar";
          }
       } else {
+         rmdir($tmpdir);
          return('', \$arcdata);
       }
    }
@@ -94,9 +98,7 @@ sub get_tnef_archive {
    close(F);
 
    my $rmbin=ow::tool::findbin('rm');
-   # cmd passed as array, so no shell in used, thus the rm is using current euid/egid
    system($rmbin, '-Rf', $tmpdir) if ($rmbin ne '');
-
    return($arcname, \$arcdata, @filelist);
 }
 

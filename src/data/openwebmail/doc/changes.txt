@@ -1,3 +1,16 @@
+05/04/2005
+----------
+1. replace more open(F, fname) statement with sysopen(F, fname, mode)
+   to avoid possible shell escape char in filename
+2. fix a typo error in spellcheck which was introduced by 20050430 fix 3
+3. use mktmpfile to create tmp file to avoid possible race condition
+   (suggested by Javier Fernandez-Sanguino Pena, jfs.AT.computer.org)
+4. remove dnagerous chars from the dictionary parameter in spellcheck
+   (suggested by Matej Vela, vela.AT.debian.org)
+5. fix the several typo error in LDAP config name in openwebmail-abook.pl
+   (thanks to Alex Teslik, alex.AT.acatysmoof.com for his fix)
+
+
 05/01/2005
 ----------
 1. rename preference option msgdatetimestamp to msgdatetype

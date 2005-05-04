@@ -4350,30 +4350,33 @@ sub refresh_ldapcache_abookfile {
       writelog("debug - refresh_ldapcache_abookfile process forked - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
 
       my @ldaplist=();  # keep the order in global addressbook
-      my $ldap = Net::LDAP->new( $config{'ldap_host'} ) or openwebmail_exit(1);
-      my $mesg = $ldap->bind($config{'ldap_user'},
-                             password => $config{'ldap_password'}) ;
-      if ($config{'ldap_abook_cont'} ne ""){
+      my $ldap = Net::LDAP->new( $config{'ldap_abook_host'} ) or openwebmail_exit(1);
+      my $mesg = $ldap->bind($config{'ldap_abook_user'},
+                             password => $config{'ldap_abook_password'}) ;
+      if ($config{'ldap_abook_container'} ne ""){
          $mesg = $ldap->search( # perform a search
-                               base   => $config{'ldap_abook_cont'}.",".$config{'ldap_base'},
+                               base   => $config{'ldap_abook_container'}.",".$config{'ldap_abook_base'},
                                filter => "($config{'ldap_abook_prefix'}=*)",
                                scope  => 'one' );
       } else {
          $mesg = $ldap->search( # perform a search
-                               base   => $config{'ldap_base'},
+                               base   => $config{'ldap_abook_base'},
                                filter => "($config{'ldap_abook_prefix'}=*)",
                                scope  => 'one' );
       }
       foreach my $ou ($mesg->sorted()) {
          my $ouname = $ou->get_value($config{'ldap_abook_prefix'});
          my $mesg2;
-         if ($config{'ldap_abook_cont'} ne ""){
+         if ($config{'ldap_abook_container'} ne ""){
             $mesg2 = $ldap->search( # perform a search
-                                   base   => "$config{'ldap_abook_prefix'}=".$ou->get_value("$config{'ldap_abook_prefix'}").",".$config{'ldap_abook_cont'}.",".$config{'ldap_base'},
+                                   base   => "$config{'ldap_abook_prefix'}=".$ou->get_value($config{'ldap_abook_prefix'}).",".
+                                             $config{'ldap_abook_container'}.",".
+                                             $config{'ldap_abook_base'},
                                    filter => "(cn=*)" );
          } else {
             $mesg2 = $ldap->search( # perform a search
-                                   base   => "$config{'ldap_abook_prefix'}=".$ou->get_value("$config{'ldap_abook_prefix'}").",".$config{'ldap_base'},
+                                   base   => "$config{'ldap_abook_prefix'}=".$ou->get_value($config{'ldap_abook_prefix'}).",".
+                                             $config{'ldap_abook_base'},
                                    filter => "(cn=*)" );
          }
 
@@ -4437,7 +4440,7 @@ sub refresh_ldapcache_abookfile {
       # write out the new converted addressbook
       my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
       if (ow::filelock::lock($ldapcachefile, LOCK_EX|LOCK_NB)) {
-         if (open(ADRBOOK, ">$ldapcachefile")) {
+         if (sysopen(ADRBOOK, $ldapcachefile, O_WRONLY|O_TRUNC|O_CREAT)) {
             print ADRBOOK @entries;
             close(ADRBOOK);
          }
@@ -4642,7 +4645,7 @@ sub addrimport {
 
       my $writeoutput = outputvfile('vcard',$newaddrinfo);
 
-      if (open(IMPORT, ">$newbookfile")) {
+      if (sysopen(IMPORT, $newbookfile, O_WRONLY|O_TRUNC|O_CREAT)) {
          print IMPORT $writeoutput;
          close(IMPORT);
          writelog("import addressbook - upload new book $fname");
@@ -5324,7 +5327,7 @@ sub exportldif {
 #      close(ABOOK);
 #   }
 #
-#   if (open(PINEBOOK,"$homedir/.addressbook") ) {
+#   if (sysopen(PINEBOOK,"$homedir/.addressbook", O_RDONLY) ) {
 #      my ($name, $email, $note);
 #      my (%addresses, %notes);
 #      my $abooktowrite='';
@@ -5376,7 +5379,7 @@ sub exportldif {
 #      ow::filelock::lock("$homedir/.addressbook", LOCK_EX) or
 #         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $homedir/.addressbook!");
 #
-#      if (open(PINEBOOK, "$homedir/.addressbook")) {
+#      if (sysopen(PINEBOOK, "$homedir/.addressbook", O_RDONLY)) {
 #         while (<PINEBOOK>) {
 #            my ($nickname, $name, $email, $fcc, $note) = (split(/\t/, $_,5))[1,2,4];
 #            foreach ($nickname, $name, $email, $fcc, $note) { chomp; }
