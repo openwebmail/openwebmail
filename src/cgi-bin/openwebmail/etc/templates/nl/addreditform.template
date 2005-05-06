@@ -225,11 +225,13 @@
 </table>
 
 <style type="text/css">
+<!--
 #bdaycalpopupDiv{ position: absolute;
                   visibility: hidden;
                   background-color: @@@MENUBAR@@@;
                   layer-background-color: @@@MENUBAR@@@;
                 }
+// -->
 </style>
 <div id="bdaycalpopupDiv"></div>
 

@@ -111,7 +111,7 @@ my $htmlmode = param('htmlmode');
 my $form = param('form')||'';
 my $field = param('field')||'';
 my $dictionary = param('dictionary') || $prefs{'dictionary'} || 'english';
-$dictionary=~s!\.\.+!!g; $dictionary=~s![\s\`\|\<\>/;&]+!_!g;
+$dictionary=~s!\.\.+!!g; $dictionary=~s![^A-Za-z0-9\.]!!;
 my $dicletters=$dictionary_letters{'english'};
 $dicletters=$dictionary_letters{$dictionary} if (defined $dictionary_letters{$dictionary});
 

@@ -297,3 +297,12 @@ function changeFormDate(changeYear,changeMonth,changeDay,formName,validationScri
 // -->
 </script>
 
+<style type="text/css">
+.stylecal { font-size: 9pt; color: #000000; }
+A.notmonth:link { font-size: 9pt; color: #cccccc; }
+A.notmonth:visited { font-size: 9pt; color: #cccccc; }
+A.notmonth:hover { font-size: 9pt; color: #ff0000; }
+A.stylecal:link { font-size: 9pt; color: #000000; }
+A.stylecal:visited { font-size: 9pt; color: #000000; }
+A.stylecal:hover { font-size: 9pt; color: #ff0000; }
+</style>

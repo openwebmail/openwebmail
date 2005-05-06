@@ -1,3 +1,19 @@
+05/06/2005
+----------
+1. fix the bug that addressbook import lets user upload any kind of file
+   (thanks to Alex Teslik, alex.AT.acatysmoof.com for his fix)
+2. fix the bug that addressbook import can would fail if the FullName
+   field is choosed
+   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his fix)
+3. move the popup calendar stylesheets into the templates/COMMON files
+   and out of the templates/$lang files
+   (thanks to Alex Teslik, alex.AT.acatysmoof.com for his code)
+4. more strict check on dictionary parameter in openwebmail-abook.pl
+   (thanks to Matej Vela, vela.AT.debian.org for his fix)
+5. new iconset: Cool3D.Polish
+   (thanks to Tomasz Wieckowski, t.wieckowski.AT.amp.edu.pl)
+
+
 05/04/2005
 ----------
 1. replace more open(F, fname) statement with sysopen(F, fname, mode)

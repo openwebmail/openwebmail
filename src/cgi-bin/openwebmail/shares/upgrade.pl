@@ -429,7 +429,7 @@ sub update_openwebmailrc {
       $saverc=1 if ($config{'auto_createrc'});		# rc auto create
    }
    if ($saverc) {
-      open(RC, ">$rcfile") or
+      sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $rcfile! ($!)");
       foreach my $key (@openwebmailrcitem) {
          print RC "$key=$prefs{$key}\n";

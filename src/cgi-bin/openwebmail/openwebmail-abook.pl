@@ -75,12 +75,12 @@ if (!$config{'enable_addressbook'}) {
 
 # supported import and export formats
 my %supportedimportexportformat = (
-                                   'vcard3.0' => [\&importvcard,\&exportvcard,'vCard v3.0 (vFile)'],
-                                   'vcard2.1' => [\&importvcard,\&exportvcard,'vCard v2.1 (vFile)'],
-                                   'csv'      => [\&importcsv,\&exportcsv,'CSV (Comma Separated Value)'],
-                                   'csv auto' => [\&importcsv,\&exportcsv,'CSV (first line contains field names)'],
-                                   'tab'      => [\&importtab,\&exporttab,'Tab Delimited File'],
-                                   'tab auto' => [\&importtab,\&exporttab,'Tab Delimited File (first line contains field names)'],
+                                   'vcard3.0' => [\&importvcard,\&exportvcard,'vCard v3.0 (vFile .vcf)','vcf'],
+                                   'vcard2.1' => [\&importvcard,\&exportvcard,'vCard v2.1 (vFile .vcf)','vcf'],
+                                   'csv'      => [\&importcsv,\&exportcsv,'CSV (Comma Separated Value .csv)','csv'],
+                                   'csv auto' => [\&importcsv,\&exportcsv,'CSV (first line contains field names .csv)','csv'],
+                                   'tab'      => [\&importtab,\&exporttab,'Tab Delimited File (.tab)','tab'],
+                                   'tab auto' => [\&importtab,\&exporttab,'Tab Delimited File (first line contains field names .tab)','tab'],
                                    # NOT SUPPORTED...YET
                                    # 'pine'   => [\&importpine,'\&exportpine','Pine Addressbook Format'],
                                    # 'ldif'   => [\&importldif,'\&exportldif','LDIF (LDAP Directory Interchange Format)'],
@@ -4579,6 +4579,14 @@ sub addrimport {
    my $importfilesize = (-s $importfile);
    my $importformat = param('importformat') ||
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_import_noformat'}! ($!)");
+   if (!exists $supportedimportexportformat{$importformat}) {
+      $lang_err{'abook_import_unsupfmt'} =~ s/\@\@\@FORMAT\@\@\@/$importformat/;
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_import_unsupfmt'}! ($!)");
+   }
+   my ($importfileext) = $importfile =~ m/\.(\S+)$/;
+   if (lc($importfileext) ne $supportedimportexportformat{$importformat}[3]) {
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_ext_notsupported'} $supportedimportexportformat{$importformat}[2]!");
+   }
    my $importdest = param('importdest') ||
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_import_nodest'}! ($!)");
 
@@ -4603,20 +4611,15 @@ sub addrimport {
       openwebmailerror(__FILE__, __LINE__,"$lang_wdbutton{'upload'} $lang_text{'failed'} ($!)\n");
    }
 
-
-   my $newaddrinfo = '';
-   if (!exists $supportedimportexportformat{$importformat}) {
-      $lang_err{'abook_import_unsupfmt'} =~ s/\@\@\@FORMAT\@\@\@/$importformat/;
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_import_unsupfmt'}! ($!)");
-   } else {
-      # get the imported data into a string. This slurps the whole upload file into memory :(
-      my $importfilecontents = '';
-      while (<$importfile>) {
-         $importfilecontents .= $_;
-      }
-      # translate the uploaded data into our preferred data structure
-      $newaddrinfo = $supportedimportexportformat{$importformat}[0]->($importfilecontents);
+   # get the imported data into a string. This slurps the whole upload file into memory. :(
+   my $importfilecontents = '';
+   while (<$importfile>) {
+      $importfilecontents .= $_;
    }
+
+   # translate the uploaded data into our preferred data structure
+   my $newaddrinfo = '';
+   $newaddrinfo = $supportedimportexportformat{$importformat}[0]->($importfilecontents);
 
    # remember old settings so we can change them
    my $oldabookfolder = $abookfolder;
@@ -4919,7 +4922,20 @@ sub make_vcard {
        }
    } keys(%fieldmap);
 
-   $data{'first'} = $lang_text{'none'} if ($data{'prefix'}.$data{'title'}.$data{'first'}.$data{'middle'}.$data{'last'}.$data{'suffix'} eq '');
+   if ($data{'first'}.$data{'middle'}.$data{'last'} eq '') {
+      if ($data{'fullname'} ne '') {
+         # Split Full Name if First, Middle, Last not provided
+         my @splitname = split(/ /, $data{'fullname'});
+         $data{'first'} = shift(@splitname);
+         if ($#splitname > -1) {
+            $data{'last'} = pop(@splitname);
+            $data{'middle'} = join(" ", @splitname) if ($#splitname > -1);
+         } else {
+            # If Full Name was not provided either, nor Prefix, Title, Suffix, something must be there
+            $data{'first'} = $lang_text{'none'} if ($data{'prefix'}.$data{'title'}.$data{'suffix'} eq '');
+         }
+      }
+   }
 
    if ($data{'birthday'} && !($data{'birthday'} =~ /0.0.00/) && ($data{'birthday'} =~ /(\d{1,2})\D(\d{1,2})\D(\d{2,4})/)) {
       my ($m, $d, $y) = ($1, $2, $3);
