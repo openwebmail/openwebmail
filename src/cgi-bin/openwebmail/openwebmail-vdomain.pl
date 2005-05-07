@@ -672,7 +672,7 @@ sub change_vuser {
       }
 
       # switch to virtual user
-      ow::suid::set_euid_egids($vuid,$vgid);
+      ow::suid::set_euid_egids($vuid, split(/\s+/,$vgid));
 
       # create dot directory structure
       check_and_create_dotdir(_dotpath('/', $domain, $vuser, $vhomedir));
@@ -1097,7 +1097,7 @@ sub vuser_update {
 sub from_update {
    my ($vuser, $vhomedir, $releasedate, $vuid, $vgid, $realnm, %from_list)=@_;
    my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
-   ow::suid::set_euid_egids($vuid,$vgid);
+   ow::suid::set_euid_egids($vuid, split(/\s+/,$vgid));
 
    my $frombook=_dotpath('from.book', $domain, $vuser, $vhomedir);
 

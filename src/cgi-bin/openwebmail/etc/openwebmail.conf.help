@@ -1264,8 +1264,8 @@ the LDAP base DN
 
 ldap_abook_container
 -----------------------------------------------------------------------
-this option is optional, it is container relative name if the LDAP 
-tree contains multiple addressbook
+it is container relative name if the LDAP tree contains multiple addressbook
+if this option is set to 'none', then it won't be used at all.
 
 
 ldap_abook_prefix

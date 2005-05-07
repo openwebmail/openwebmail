@@ -22,10 +22,19 @@ my $has_savedsuid_support = $conf{'has_savedsuid_support'} || 'no';
 # so we can give up euid root temporarily and get it back later.
 sub set_euid_egids {
    my ($euid, @egids)=@_;
-   # trick: 2nd parm will be ignore, so we repeat parm 1 twice
+
+   # set RGID, 2nd parm will be ignore, so we repeat parm 1 twice, tricky!
    $) = join(" ", $egids[0], @egids);
+   # set EGID, always set rgid=egids[0];
+   $( = $egids[0];
    if ($> != $euid) {
-      $<=$> if ($has_savedsuid_support ne 'yes' && $>==0);
+      # set RUID, backup euid0 here if system doesn't support savedsuid
+      if ($has_savedsuid_support ne 'yes') {
+         $< = 0 if ($>==0);	# keep euid0 in ruid before drop euid0
+      } else {
+         $< = $euid;		# switch to new euid
+      }
+      # set EUID
       $> = $euid;
    }
    return;
@@ -36,7 +45,7 @@ sub set_euid_egids {
 sub set_uid_to_root {
    my ($origruid, $origeuid, $origegid)=( $<, $>, $) );
    $> = 0; 	# first set the user to root
-   $) = 0; 	# set effective group to root
+   $) = "0 0"; 	# set effective group to root
    $< = $>;	# set real user to root,
                 # since 1. some cmds checks ruid even euid is already root
                 #       2. some shells(eg:bash) switch euid back to ruid before execution
@@ -73,7 +82,8 @@ sub restore_uid_from_root {
 #
 sub drop_ruid_rgid {
    my $euid=$>;
-   $>=0; $(=$); $<=$euid; $>=$euid;
+   my @egids=split(/\s+/,$));
+   $>=0; $(=$egids[0]; $<=$euid; $>=$euid;
    return
 }
 

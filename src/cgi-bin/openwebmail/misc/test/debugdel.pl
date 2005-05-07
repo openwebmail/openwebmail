@@ -22,7 +22,7 @@ foreach my $script (@ARGV) {
       if ($line=~/^sub .*{\s*/) {
          $content.=$line;
          while ((my $nextline=<F>)) {
-            if ($nextline !~ /^\s*log_time/) {
+            if ($nextline !~ /^\s*ow::tool::log_time/) {
                $content.=$nextline; last;
             } else {
                $removal++;

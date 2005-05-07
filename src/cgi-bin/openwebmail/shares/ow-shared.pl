@@ -75,6 +75,7 @@ foreach (qw(
    allowed_serverdomain allowed_clientdomain allowed_clientip
    allowed_receiverdomain allowed_autologinip allowed_rootloginip
    localusers vdomain_mailbox_command
+   ldap_abook_container
    default_realname default_bgurl
    default_abook_defaultkeyword default_abook_defaultsearchtype
    default_categorizedfolders_fs
@@ -208,15 +209,17 @@ sub openwebmail_clearall {
 
    undef($quotausage)	if (defined $quotausage);
    undef($quotalimit)	if (defined $quotalimit);
-
-   # back euid to root if possible, required for setuid under persistent perl
-   $>=0;
 }
 
 # routine used at CGI request begin
 sub openwebmail_requestbegin {
-#   ow::tool::zombie_cleaner();			# clear pending zombies
+   # init euid/egid to nobody to drop uid www as early as possible
+   if ($>==0) { $<=65534; $(=65534; $)="65534 65534"; }
+
+   # ow::tool::zombie_cleaner();			# clear pending zombies
    openwebmail_clearall() if ($_vars_used);	# clear global
+   # back euid to root if possible, required for setuid under persistent perl
+   $>=0; if ($>==0) { $<=65534; $(=65534; $)="65534 65534"; }
    $_vars_used=1;
    $SIG{PIPE}=\&openwebmail_exit;		# for user stop
    $SIG{TERM}=\&openwebmail_exit;		# for user stop
@@ -228,6 +231,9 @@ sub openwebmail_requestend {
    openwebmail_clearall() if ($_vars_used);	# clear global
    $_vars_used=0;
    $persistence_count++;
+
+   # back euid to root if possible, required for setuid under persistent perl
+   $>=0; if ($>==0) { $<=65534; $(=65534; $)="65534 65534"; }
 }
 
 # routine used at exit
@@ -332,7 +338,7 @@ sub userenv_init {
    umask(0077);
    if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
       my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-      ow::suid::set_euid_egids($uuid, $mailgid, $ugid);
+      ow::suid::set_euid_egids($uuid, split(/\s+/,$ugid), $mailgid);
       if ( $)!~/\b$mailgid\b/) { # group mail doesn't exist?
          openwebmailerror(__FILE__, __LINE__, "Set effective gid to mail($mailgid) failed!");
       }
@@ -1240,7 +1246,7 @@ sub htmlheader {
 sub htmlplugin {
    my ($file, $fromcharset, $tocharset)=@_;
    my $html='';
-   if ($file ne '' && sysopen(F, $file, O_RDONLY) ) {	# $file is plugin file
+   if ($file ne '' && open(F, $file) ) {	# $file is defined in config file, which may be a pipe
       local $/; undef $/; $html=<F>;	# no separator, read whole file in once
       close(F);
       $html=~s/\%THISSESSION\%/$thissession/;

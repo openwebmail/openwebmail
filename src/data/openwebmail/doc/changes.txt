@@ -1,3 +1,16 @@
+05/07/2005
+----------
+1. fix the problem that option ldap_abook_container with null value
+   in openwebmail.conf will be always overridden by option in
+   openwebmail.conf.default
+   (thanks to Luigi Mazzieri, lmazzieri.AT.emerenzio.net for his fix)
+2. a. use mktmpdir to make temporary dir for non-automic tmp file creation
+      to avoid race condition
+   b. release the ruid/euid/egid www immediately after script start for
+      better security
+   (thanks to Matej Vela, vela.AT.debian.org for his suggestion)
+
+
 05/06/2005
 ----------
 1. fix the bug that addressbook import lets user upload any kind of file

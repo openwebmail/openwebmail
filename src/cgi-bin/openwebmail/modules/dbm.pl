@@ -149,7 +149,7 @@ sub guessoptions {
    my (%DB, @filelist, @delfiles);
    my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock);
 
-   my $testdir=ow::tool::mktmpdir('dbmtest.tmpdir');
+   my $testdir=ow::tool::mktmpdir('dbmtest.tmp');
    return($dbm_ext, $dbmopen_ext, $dbmopen_haslock) if ($testdir eq '');
 
    dbmopen(%DB, "$testdir/test", 0600); dbmclose(%DB);
@@ -205,12 +205,14 @@ sub guessoptions {
 use vars qw($_defaultdbtype);
 sub get_defaultdbtype {
    if ($_defaultdbtype eq '') {
-      my $t=ow::tool::tmpname('dbmtest.tmpfile');
-      my %t; dbmopen(%t, "$t$dbmopen_ext", 0600); dbmclose(%t);
+      my $tmpdir=ow::tool::mktmpdir("dbmtest.tmp");
+      my $t=ow::tool::untaint("$tmpdir/t");
 
+      my %t; dbmopen(%t, "$t$dbmopen_ext", 0600); dbmclose(%t);
       $_defaultdbtype=get_dbtype("$t$dbm_ext");
 
       unlink ("$t$dbm_ext", "$t.dir", "$t.pag");
+      rmdir($tmpdir);
     }
     return($_defaultdbtype);
 }

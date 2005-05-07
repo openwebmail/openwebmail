@@ -51,7 +51,7 @@ sub get_tnef_archive {
    #      tar/gzip may have ruid=euid=current ruid,
    #      which is not the same as current euid)
    my $oldumask=umask(0000);
-   my $tmpdir=ow::tool::mktmpdir('tnef.tmpdir');
+   my $tmpdir=ow::tool::mktmpdir('tnef.tmp');
    return('', \$arcdata) if ($tmpdir eq '');
 
    open(F, "|-") or

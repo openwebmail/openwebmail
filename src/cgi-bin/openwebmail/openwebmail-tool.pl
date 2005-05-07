@@ -883,7 +883,7 @@ sub usertool {
       umask(0077);
       if ( $>==0 ) { # switch to uuid:mailgid if process is setuid to root
          my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-         ow::suid::set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
+         ow::suid::set_euid_egids($uuid, split(/\s+/,$ugid), $mailgid);
          if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
             print "Set effective gid to mail($mailgid) failed!"; openwebmail_exit(0);
          }

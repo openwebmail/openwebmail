@@ -395,8 +395,9 @@ sub markreadfolder {
    ow::dbm::close(\%FDB, $folderdb);
    my @unreadmsgids=(sort { $offset{$a}<=>$offset{$b} } keys %offset);
 
-   my $tmpfile=ow::tool::tmpname("markread.tmpfile");
-   my $tmpdb=ow::tool::tmpname("markread.tmpdb");
+   my $tmpdir=ow::tool::mktmpdir("markread.tmp"); $ioerr++ if ($tmpdir eq '');
+   my $tmpfile=ow::tool::untaint("$tmpdir/folder");
+   my $tmpdb=ow::tool::untaint("$tmpdir/db");
 
    while (!$ioerr && $#unreadmsgids>=0) {
       my @markids=();
@@ -409,6 +410,7 @@ sub markreadfolder {
          ow::filelock::lock($tmpfile, LOCK_UN);
          ow::dbm::unlink($tmpdb);
          unlink($tmpfile);
+         rmdir($tmpdir);
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db $tmpdb");
       }
 
@@ -443,6 +445,7 @@ sub markreadfolder {
       ow::dbm::unlink($tmpdb);
       ow::filelock::lock("$tmpfile", LOCK_UN);
       unlink($tmpfile);
+      rmdir($tmpdir);
    }
 
    ow::filelock::lock($folderfile, LOCK_UN);

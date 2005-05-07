@@ -232,23 +232,11 @@ sub zh_dospath2fname {
    return $buff;
 }
 
-sub _tmpname {
-   my $n=rand(); $n=~s/^0.0*//; $n=substr($n,0,8);
-   return untaint("/tmp/.ow.$_[0].$$-$n");
-}
-
-sub tmpname {
-   for (1..5) {
-      my $fname=_tmpname($_[0]);
-      return untaint($fname) if (!-e $fname);
-   }
-   return;	# this should never be reached
-}
-
 sub mktmpfile {
    my $fh= do { local *FH };
    for (1..5) {
-      my $fname=_tmpname($_[0]);
+      my $n=rand(); $n=~s/^0.0*//; $n=substr($n,0,8);
+      my $fname=untaint("/tmp/.ow.$_[0].$$-$n");
       return($fh, $fname) if (sysopen($fh, $fname, O_RDWR|O_CREAT|O_EXCL));
    }
    return;
@@ -256,7 +244,8 @@ sub mktmpfile {
 
 sub mktmpdir {
    for (1..5) {
-      my $dirname=_tmpname($_[0]);
+      my $n=rand(); $n=~s/^0.0*//; $n=substr($n,0,8);
+      my $dirname=untaint("/tmp/.ow.$_[0].$$-$n");
       return($dirname) if (mkdir($dirname, 0700));
    }
    return;

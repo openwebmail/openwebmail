@@ -461,7 +461,7 @@ sub listmessages {
    my $headershtml='';
    my $linehtml=$linetemplate;
 
-   $temphtml = iconlink("unread.gif", $lang_sortlabels{'status'}, qq|href="$sort_url&amp;sort=status_rev"|);
+   $temphtml = iconlink("unread.gif", $lang_sortlabels{'status'}, qq|href="$sort_url&amp;sort=status"|);
    $temphtml = qq|<td width="6%" bgcolor=$style{'columnheader'} align="center">$temphtml</td>\n|;
    $linehtml =~ s/\@\@\@STATUS\@\@\@/$temphtml/;
 

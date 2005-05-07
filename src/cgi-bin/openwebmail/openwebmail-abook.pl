@@ -4370,8 +4370,7 @@ sub refresh_ldapcache_abookfile {
          if ($config{'ldap_abook_container'} ne ""){
             $mesg2 = $ldap->search( # perform a search
                                    base   => "$config{'ldap_abook_prefix'}=".$ou->get_value($config{'ldap_abook_prefix'}).",".
-                                             $config{'ldap_abook_container'}.",".
-                                             $config{'ldap_abook_base'},
+                                             $config{'ldap_abook_container'}.",".$config{'ldap_abook_base'},
                                    filter => "(cn=*)" );
          } else {
             $mesg2 = $ldap->search( # perform a search

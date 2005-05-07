@@ -1220,10 +1220,15 @@ sub rebuild_message_with_partialid {
       }
    }
 
-   my $tmpfile=ow::tool::tmpname('rebuild.tmpfile');
-   my $tmpdb=ow::tool::tmpname('rebuild.tmpdb');
+   my $tmpdir=ow::tool::mktmpdir("rebuild.tmp"); return -5 if ($tmpdir eq '');
+   my $tmpfile=ow::tool::untaint("$tmpdir/folder");
+   my $tmpdb=ow::tool::untaint("$tmpdir/db");
 
-   ow::filelock::lock($tmpfile, LOCK_EX) or return -5;
+   if (!ow::filelock::lock($tmpfile, LOCK_EX)) {
+      rmdir($tmpdir);
+      return -6;
+   }
+
    sysopen(TMP, $tmpfile, O_WRONLY|O_TRUNC|O_CREAT);
    sysopen(FOLDER, $folderfile, O_RDONLY);
 
@@ -1253,11 +1258,11 @@ sub rebuild_message_with_partialid {
 
    close(TMP);
    close(FOLDER);
-   ow::filelock::lock($tmpfile, LOCK_EX) or return -6;
 
    # index tmpfile, get the msgid
    if (update_folderindex($tmpfile, $tmpdb)<0) {
       ow::filelock::lock($tmpfile, LOCK_UN);
+      unlink($tmpfile); ow::dbm::unlink($tmpdb); rmdir($tmpdir);
       writelog("db error - Couldn't update index db $tmpdb");
       writehistory("db error - Couldn't update index db $tmpdb");
       return -7;
@@ -1266,21 +1271,21 @@ sub rebuild_message_with_partialid {
    # check the rebuild integrity
    my @rebuildmsgids=get_messageids_sorted_by_offset($tmpdb);
    if ($#rebuildmsgids!=0) {
-      unlink($tmpfile);
-      ow::dbm::unlink($tmpdb);
+      ow::filelock::lock($tmpfile, LOCK_UN);
+      unlink($tmpfile); ow::dbm::unlink($tmpdb); rmdir($tmpdir);
       return -8;
    }
    my $rebuildsize=(get_message_attributes($rebuildmsgids[0], $tmpdb))[$_SIZE];
    if ($writtensize!=$rebuildsize) {
-      unlink($tmpfile);
-      ow::dbm::unlink($tmpdb);
+      ow::filelock::lock($tmpfile, LOCK_UN);
+      unlink($tmpfile); ow::dbm::unlink($tmpdb); rmdir($tmpdir);
       return -9;
    }
 
    operate_message_with_ids("move", \@rebuildmsgids, $tmpfile, $tmpdb, $folderfile, $folderdb);
 
-   unlink($tmpfile);
-   ow::dbm::unlink($tmpdb);
+   ow::filelock::lock($tmpfile, LOCK_UN);
+   unlink($tmpfile); ow::dbm::unlink($tmpdb); rmdir($tmpdir);
 
    return(0, $rebuildmsgids[0], @partialmsgids);
 }

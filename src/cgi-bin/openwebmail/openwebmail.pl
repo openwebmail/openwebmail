@@ -365,7 +365,7 @@ sub login {
       umask(0077);
       if ( $>==0 ) {	# switch to uuid:mailgid if script is setuid root.
          my $mailgid=getgrnam('mail');
-         ow::suid::set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
+         ow::suid::set_euid_egids($uuid, split(/\s+/,$ugid), $mailgid);
       }
       my $historyfile=ow::tool::untaint(dotpath('history.log'));
       if (-f $historyfile ) {
@@ -463,7 +463,7 @@ sub login {
    umask(0077);
    if ( $>==0 ) {
       my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-      ow::suid::set_euid_egids($uuid, $mailgid, split(/\s+/,$ugid));
+      ow::suid::set_euid_egids($uuid, split(/\s+/,$ugid), $mailgid);
       if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
          openwebmailerror(__FILE__, __LINE__, "Set effective gid to mail($mailgid) failed!");
       }
@@ -823,7 +823,7 @@ sub search_clean_oldsessions {
       unlink ow::tool::untaint("$config{'ow_sessionsdir'}/$sessfile");
    }
 
-   # clear stale files for ow::tool::tmpname
+   # clear stale file for ow::tool::mktmpdir ow::tool:mktmpfile
    @delfiles=();
    if (opendir(D, "/tmp")) {
       my @tmpfiles=readdir(D); closedir(D);
@@ -831,7 +831,10 @@ sub search_clean_oldsessions {
          next if ($tmpfile!~/^\.ow\./);
          push(@delfiles, ow::tool::untaint("/tmp/$tmpfile")) if ($t-(stat("/tmp/$tmpfile"))[9]>3600);
       }
-      unlink @delfiles;
+      if ($#delfiles>=0) {
+         my $rmbin=ow::tool::findbin("rm");
+         system($rmbin, "-Rf", @delfiles);
+      }
    }
 
    return($oldsessionid, @sessioncount);

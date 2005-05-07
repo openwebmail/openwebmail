@@ -26,10 +26,10 @@ foreach my $script (@ARGV) {
          $debugline=~s/^sub //;
          $debugline=~s/\s*{.*$//g;
          chomp($debugline);
-         $debugline=qq|log_time('$debugline :', \@_);\n|;
+         $debugline=qq|ow::tool::log_time('$debugline :', \@_);\n|;
          $content.=$debugline;
          $insertion++;
-      } elsif ($line=~/^package openwebmail::/) {
+      } elsif ($line=~/^package ow::/) {
          $package=1;
          $content.=$line;
       } else {

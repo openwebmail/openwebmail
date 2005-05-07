@@ -527,8 +527,8 @@ sub get_messageids_sorted_by_status {
       $status{$key}++ if ($status=~/i/i);
    }
    my @messageids=sort {
-                       $status{$a} <=> $status{$b} or
-                       ${${$r_msgid2attrs}{$a}}[0]<=>${${$r_msgid2attrs}{$b}}[0]
+                       $status{$b} <=> $status{$a} or
+                       ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0]
                        } keys %status;
    return(\@messageids);
 }
