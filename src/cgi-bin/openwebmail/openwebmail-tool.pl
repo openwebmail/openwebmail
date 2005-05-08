@@ -78,18 +78,17 @@ use vars qw($POP3_TIMEOUT %opt);
 
 
 ########## main ##################################################
-openwebmail_requestbegin();
-
 $POP3_TIMEOUT=20;
 
 %opt=('null'=>1);
 $default_logindomain="";
 
-my @list=();
-
 # set to ruid for secure access, this will be set to euid $>
 # if operation is from inetd or -m (query mail status ) or -e(query event status)
 my $euid_to_use=$<;
+my @list=();
+
+openwebmail_requestbegin();
 
 # no buffer on stdout
 local $|=1;
@@ -304,7 +303,6 @@ sub init {
          if ( !ow::dbm::exist($tabledb)) {
             die "$config{$table.'_map'} not found" if (!-f $config{$table.'_map'});
             print "creating db $config{'ow_mapsdir'}/$table ...";
-
             $err=-2 if ($table eq 'b2g' and mkdb_b2g()<0);
             $err=-3 if ($table eq 'g2b' and mkdb_g2b()<0);
             $err=-4 if ($table eq 'lunar' and mkdb_lunar()<0);
@@ -883,7 +881,7 @@ sub usertool {
       umask(0077);
       if ( $>==0 ) { # switch to uuid:mailgid if process is setuid to root
          my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-         ow::suid::set_euid_egids($uuid, split(/\s+/,$ugid), $mailgid);
+         ow::suid::set_euid_egids($uuid, $ugid, $mailgid);
          if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
             print "Set effective gid to mail($mailgid) failed!"; openwebmail_exit(0);
          }

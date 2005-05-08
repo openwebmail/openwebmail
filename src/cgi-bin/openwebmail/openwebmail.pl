@@ -365,7 +365,7 @@ sub login {
       umask(0077);
       if ( $>==0 ) {	# switch to uuid:mailgid if script is setuid root.
          my $mailgid=getgrnam('mail');
-         ow::suid::set_euid_egids($uuid, split(/\s+/,$ugid), $mailgid);
+         ow::suid::set_euid_egids($uuid, $ugid, $mailgid);
       }
       my $historyfile=ow::tool::untaint(dotpath('history.log'));
       if (-f $historyfile ) {
@@ -463,7 +463,7 @@ sub login {
    umask(0077);
    if ( $>==0 ) {
       my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-      ow::suid::set_euid_egids($uuid, split(/\s+/,$ugid), $mailgid);
+      ow::suid::set_euid_egids($uuid, $ugid, $mailgid);
       if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
          openwebmailerror(__FILE__, __LINE__, "Set effective gid to mail($mailgid) failed!");
       }

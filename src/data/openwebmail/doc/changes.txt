@@ -1,3 +1,13 @@
+05/08/2005
+----------
+1. fix a bug that openwebmail-tool.pl --init will have db creation error
+   (this is introduced by change 2 b in 20050507)
+2. fix a bug that number in $) may be lost after being copied to and from
+   a variable
+ps:this was due to a strange behavior that
+   the 2nd number in a string will be always ignored by $)
+
+
 05/07/2005
 ----------
 1. fix the problem that option ldap_abook_container with null value

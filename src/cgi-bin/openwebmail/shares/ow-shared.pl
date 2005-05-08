@@ -218,8 +218,6 @@ sub openwebmail_requestbegin {
 
    # ow::tool::zombie_cleaner();			# clear pending zombies
    openwebmail_clearall() if ($_vars_used);	# clear global
-   # back euid to root if possible, required for setuid under persistent perl
-   $>=0; if ($>==0) { $<=65534; $(=65534; $)="65534 65534"; }
    $_vars_used=1;
    $SIG{PIPE}=\&openwebmail_exit;		# for user stop
    $SIG{TERM}=\&openwebmail_exit;		# for user stop
@@ -338,7 +336,7 @@ sub userenv_init {
    umask(0077);
    if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
       my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
-      ow::suid::set_euid_egids($uuid, split(/\s+/,$ugid), $mailgid);
+      ow::suid::set_euid_egids($uuid, $ugid, $mailgid);
       if ( $)!~/\b$mailgid\b/) { # group mail doesn't exist?
          openwebmailerror(__FILE__, __LINE__, "Set effective gid to mail($mailgid) failed!");
       }
