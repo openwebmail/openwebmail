@@ -1,3 +1,10 @@
+05/10/2005
+----------
+1. new iconset: Default.Polish
+   (thanks to Tomasz Wieckowski, t.wieckowski.AT.amp.edu.pl)
+2. minor change to advsearch output layout
+
+
 05/08/2005
 ----------
 1. fix a bug that openwebmail-tool.pl --init will have db creation error

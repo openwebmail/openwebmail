@@ -254,6 +254,8 @@ sub advsearch {
    $html =~ s/\@\@\@DATE\@\@\@/$temphtml/g;
    $temphtml = $lang_text{'sender'};
    $html =~ s/\@\@\@SENDER\@\@\@/$temphtml/g;
+   $temphtml = $lang_text{'recipient'};
+   $html =~ s/\@\@\@RECIPIENT\@\@\@/$temphtml/g;
    $temphtml = $lang_text{'subject'};
    $html =~ s/\@\@\@SUBJECT\@\@\@/$temphtml/g;
    $temphtml = $lang_text{'size'};
@@ -600,9 +602,25 @@ sub genline {
    }
 
    my ($from, $to, $subject)=iconv($msgcharset, $prefs{'charset'}, ${$r_attr}[$_FROM], ${$r_attr}[$_TO], ${$r_attr}[$_SUBJECT]);
+
    my ($from_name, $from_address)=ow::tool::email2nameaddr($from);
    my $escapedfrom=ow::tool::escapeURL($from);
    $from = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedfrom" title="$from_address">$from_name </a>|;
+
+   my @recvlist = ow::tool::str2list($to,0);
+   my (@namelist, @addrlist);
+   foreach my $recv (@recvlist) {
+      my ($n, $a)=ow::tool::email2nameaddr($recv);
+      # if $n or $a has ", $recv may be an incomplete addr
+      push(@namelist, $n) if ($n!~/"/);
+      push(@addrlist, $a) if ($a!~/"/);;
+   }
+   my ($to_name, $to_address)=(join(",", @namelist), join(",", @addrlist));
+   $to_name=substr($to_name, 0, 29)."..." if (length($to_name)>32);
+   $to_address=substr($to_address, 0, 61)."..." if (length($to_address)>64);
+   my $escapedto=ow::tool::escapeURL($to);
+   $to = qq|<a href="$config{'ow_cgiurl'}/openwebmail-send.pl\?action=composemessage&amp;sessionid=$thissession&amp;composetype=sendto&amp;to=$escapedto" title="$to_address">$to_name </a>|;
+
    my $friendstr;
    if ($config{'enable_addressbook'} &&
        defined ${$r_abookemailhash}{$from_address}) {
@@ -615,7 +633,7 @@ sub genline {
    }
 
    # Round message size and change to an appropriate unit for display
-   my $sizestr=lenstr(${$r_attr}[$_SIZE],1);
+   my $sizestr=lenstr(${$r_attr}[$_SIZE],0);
    # convert dateserial(GMT) to localtime
    my $datestr=ow::datetime::dateserial2str(${$r_attr}[$_DATE],
                                $prefs{'timeoffset'}, $prefs{'daylightsaving'},
@@ -625,11 +643,12 @@ sub genline {
           qq|<td nowrap bgcolor=$bgcolor>$folderstr&nbsp;</td>\n|.
           qq|<td bgcolor=$bgcolor>$datestr</td>\n|.
           qq|<td bgcolor=$bgcolor>$friendstr $from</td>\n|.
+          qq|<td bgcolor=$bgcolor>$to</td>\n|.
           qq|<td bgcolor=$bgcolor>|.
           qq|<a href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;|.
           qq|sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
           qq|headers=|.($prefs{'headers'} || 'simple').qq|&amp;|.
-          qq|message_id=$escapedmessageid">\n$subject \n</a></td>|.
+          qq|message_id=$escapedmessageid" title="$lang_text{'charset'}: $msgcharset ">\n$subject \n</a></td>|.
           qq|<td bgcolor=$bgcolor>$sizestr</td>\n|.
           qq|</tr>\n|;
 }
