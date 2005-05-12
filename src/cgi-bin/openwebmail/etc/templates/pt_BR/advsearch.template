@@ -22,10 +22,10 @@
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@COLUMNHEADER@@@ colspan=2>
-<B>Date Range</B>
+<B>Intervalo de Data</B>
 </td></tr>
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
-Start @@@STARTDATE@@@ &nbsp; end @@@ENDDATE@@@
+Inicial @@@STARTDATE@@@ &nbsp; final @@@ENDDATE@@@
 </td><td bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@DATERANGEMENU@@@
 </td></tr>
@@ -35,7 +35,7 @@ Start @@@STARTDATE@@@ &nbsp; end @@@ENDDATE@@@
 
 <table border="0" width="100%" cellpadding="0" cellspacing="0">
 <tr>
-<td bgcolor=@@@COLUMNHEADER@@@><B>Onde</B></td>
+<td bgcolor=@@@COLUMNHEADER@@@><B>Pesquisar em</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@><B>Tipo da pesquisa</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@><B>Texto a pesquisar</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@ align=center><B>Linhas do Resultado</B></td>
@@ -66,12 +66,10 @@ Start @@@STARTDATE@@@ &nbsp; end @@@ENDDATE@@@
 <tr><td colspan="5"><B>Resultados: @@@TOTALFOUND@@@</B></td></tr>
 <tr><td width="10%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@FOLDER@@@</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@>
+<td width="18%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@DATE@@@</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@>
+<td width="25%" bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SENDER@@@</B></td>
-<td bgcolor=@@@COLUMNHEADER@@@>
-<B>@@@RECIPIENT@@@</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@>
 <B>@@@SUBJECT@@@</B></td>
 <td bgcolor=@@@COLUMNHEADER@@@>

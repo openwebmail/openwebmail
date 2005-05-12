@@ -47,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Endereço de Email</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Endereço de E-mail</b>&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();">+</a></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -182,7 +182,7 @@
       <td width="5">&nbsp;</td>
       <td><input class="mono" type="file" name="UPLOAD.FILE" size="25"></td>
       <td width="5">&nbsp;</td>
-      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Add"></td>
+      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Adicionar"></td>
       <td width="5">&nbsp;</td>
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
@@ -308,11 +308,11 @@ function popupNotice (msgOption) {
 function savecheck (formName) {
    if (document.forms[formName].elements['N.0.VALUE.GIVENNAME'].value == '' &&
        document.forms[formName].elements['N.0.VALUE.FAMILYNAME'].value == '') {
-      alert("Please fill in the firstname or lastname field first.");
+      alert("Por favor, primeiro preencha o campo nome ou sobrenome.");
       return false;
    }
    if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {
-      return(confirm("Email address is empty, are you sure to save this contact?"));
+      return(confirm("Endereço de E-mail está vazio, tem certeza que quer salvar este contato?"));
    }
    return true
 }

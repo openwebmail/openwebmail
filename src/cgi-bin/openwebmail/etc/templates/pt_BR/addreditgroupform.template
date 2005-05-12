@@ -67,7 +67,7 @@
       <td width="5">&nbsp;</td>
       <td><input class="mono" type="file" name="UPLOAD.FILE" size="25"></td>
       <td width="5">&nbsp;</td>
-      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Add"></td>
+      <td><input class="medtext" type="submit" name="EDITFORMUPLOAD" value="Adicionar"></td>
       <td width="5">&nbsp;</td>
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>

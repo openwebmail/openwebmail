@@ -34,7 +34,7 @@
       if (remainingseconds>0) {
          return true;
       } else {
-         alert("Sorry, your session is timeouted, please login again.");
+         alert("Lamento, sua sessão expirou, favor logar novamente.");
          return false;
       }
    }

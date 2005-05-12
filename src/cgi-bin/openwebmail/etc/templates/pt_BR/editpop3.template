@@ -12,15 +12,15 @@
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
 <B>Servidor POP3</B> (clique para editar)</td>
 <td nowrap bgcolor=@@@COLUMNHEADER@@@>
-<B>Port</B></td>
+<B>Porta</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@USEPOP3SSLSTART@@@<B>Use SSL</B>@@@USEPOP3SSLEND@@@</td>
+@@@USEPOP3SSLSTART@@@<B>Usar SSL</B>@@@USEPOP3SSLEND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Id</B> (clique para receber)</td>
+<B>ID</B> (clique para receber)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Senha</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-@@@DELPOP3STRSTART@@@<B>Apg correio remoto</B>@@@DELPOP3STREND@@@</td>
+@@@DELPOP3STRSTART@@@<B>Apagar mensagens ao receber</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Ativo</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>

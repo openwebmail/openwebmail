@@ -1,3 +1,12 @@
+05/12/2005
+----------
+1. Portuguese Brazil language and template files translation update
+   (thanks to Julio Cesar Cunha, julio.AT.cnm.org.br)
+2. fix a bug that openwebmail-tool.pl always say
+   "operation is only available to root" in persistence mode
+   (this bug is introduced by change 2 b 20050507)
+
+
 05/10/2005
 ----------
 1. new iconset: Default.Polish

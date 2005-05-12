@@ -75,7 +75,7 @@
 
 @@@UPLOADSTART@@@
 <table border="0" width="100%" cellpadding="1" cellspacing="1"><tr>
-<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Upload</B> ( filename or URL )</td>
+<td nowrap bgcolor=@@@COLUMNHEADER@@@><B>Upload</B> ( nome de arquivo ou URL )</td>
 </tr><tr>
 <td nowrap bgcolor=@@@MENUBAR@@@>@@@UPLOADFILEFIELD@@@</td>
 </tr></table>
@@ -170,7 +170,7 @@
          alert("Escolha o arquivo para upload primeiro.");
          return false;
       } else {
-         document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
+         document.dirform.msg.value = 'Fazendo Upload do arquivo '+document.dirform.upload.value+', aguarde...';
          return true;
       }
    }
@@ -184,10 +184,10 @@
    function chmodinput() {
       var oldperm=document.dirform.permission.value;
       var newperm;
-      newperm=prompt('Please enter the permission for selected items ( '+selectedstr()+' )\n\n'+
-                     'Permission examples:\n'+
-                     '0755 for shared directories , 0644 for shared files\n'+
-                     '0700 for private directories , 0600 for private files', oldperm);
+      newperm=prompt('Favor entrar com a permissão para os ítens selecionados ( '+selectedstr()+' )\n\n'+
+                     'Exemplos de Permissão:\n'+
+                     '0755 para diretório compartilhado, 0644 para arquivos compartilhados\n'+
+                     '0700 para diretório privativo,     0600 para arquivo privativo', oldperm);
       if ( newperm==oldperm ||
            newperm==null ) {
          return false;

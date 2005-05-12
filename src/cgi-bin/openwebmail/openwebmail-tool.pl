@@ -74,8 +74,15 @@ use vars qw(%is_config_option);		# from ow-shared.pl
 use vars qw(%is_internal_dbkey);	# from maildb.pl
 
 # local globals
-use vars qw($POP3_TIMEOUT %opt);
+use vars qw($POP3_TIMEOUT %opt $startup_ruid);
 
+# used to remember ruid of user who executes this script
+$startup_ruid=$< if (!defined $startup_ruid);
+#
+# speedycgi guarentees a persistennt copy is used again
+# only if the script is executed by same user(ruid),
+# since routine openwebmail_requestbegin() clears ruid of persistence copy,
+# we store the ruid in $startup_ruid.
 
 ########## main ##################################################
 $POP3_TIMEOUT=20;
@@ -83,9 +90,9 @@ $POP3_TIMEOUT=20;
 %opt=('null'=>1);
 $default_logindomain="";
 
-# set to ruid for secure access, this will be set to euid $>
-# if operation is from inetd or -m (query mail status ) or -e(query event status)
-my $euid_to_use=$<;
+# by default, the $startup_ruid (ruid of the user running this script) is used as runtime euid
+# but euid $> is used if operation is either from inetd, -m (query mail status ) or -e(query event status)
+my $euid_to_use=$startup_ruid;
 my @list=();
 
 openwebmail_requestbegin();

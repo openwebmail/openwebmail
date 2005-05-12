@@ -7,10 +7,12 @@
 <table width=85%><tr><td align="center">
 <BR>Bem-vindo ao @@@NAME@@@!  Esta é a primeira vez
 que está utilizando este serviço de correio via web. 
-Para conhecê-lo melhor, vamos configurar o seu perfil
-(Nome, encaminhamento, estilo, etc). Depois da configuração esta
-mensagem não será mais exibida. Por favor clique no botão
-continuar, para ir à página de configuração.
+Para conhecê-lo melhor, vamos configurar o seu perfil com seus
+dados pessoais. Após esta configuração esta mensagem não será
+mais exibida.   Por favor clique no botão continuar, para ir à
+página de configuração dos dados pessoais.
+Configurações adicionais poderão ser feitas posteriormente usando
+o botão Preferências do Usuário.
 @@@CONTINUEBUTTON@@@
 </td></tr></table>
 </td></tr></table>

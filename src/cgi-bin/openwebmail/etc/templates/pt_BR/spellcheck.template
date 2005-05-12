@@ -7,7 +7,7 @@
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Um conjunto de sugestões é fornecida para cada palavra ortograficamente incorreta
+<BR>Um conjunto de sugestões é fornecido para cada palavra ortograficamente incorreta
 e você pode escolher uma para substituir a palavra original.
 Se não for encontrada nenhuma sugestão ou você escolher "--Corrigir manualmente--" e
 pressionar o botão [Corrigir Novamente], um campo de texto ficará disponível para

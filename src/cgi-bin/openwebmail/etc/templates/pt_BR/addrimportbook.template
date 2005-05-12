@@ -4,7 +4,7 @@
     <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Importar Informações de Contatos</b></font>
   </td>
   <td bgcolor=@@@TITLEBAR@@@ align="right">
-    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ Available</b></font>
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ Disponível</b></font>
   </td>
 </tr>
 <tr>
@@ -21,7 +21,7 @@
       <td><br><b>Descrição:</b></td>
     </tr>
     <tr>
-      <td>Muitos programas que têm listas de contatos podem exportar seus dados para arquivos. @@@NAME@@@ porde importar alguns destes formatos de arquivos, evitando o trabalho de copiá-los manualmente. Os passos abaixo descrevem como importar as informações de contatos. O limite de tamanho de arquivo para importar é de  @@@ABOOKIMPORTLIMIT@@@ .</td>
+      <td>Muitos programas que têm listas de contatos podem exportar seus dados para arquivos. @@@NAME@@@ pode importar alguns destes formatos de arquivos, evitando o trabalho de copiá-los manualmente. Os passos abaixo descrevem como importar as informações de contatos. O limite de tamanho de arquivo para importar é de  @@@ABOOKIMPORTLIMIT@@@ .</td>
     </tr>
     @@@STARTIMPORTFORM@@@
     <tr>
@@ -115,5 +115,3 @@ function importOptionsToggle(fileFormat, sourceForm) {
 }
 //-->
 </script>
-
-
