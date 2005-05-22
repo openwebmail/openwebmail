@@ -1,5 +1,5 @@
 #
-# cut.pl - routines to cut size of webmail or webdisk fpr quota
+# cut.pl - routines to cut size of webmail or webdisk for quota
 #
 
 use strict;

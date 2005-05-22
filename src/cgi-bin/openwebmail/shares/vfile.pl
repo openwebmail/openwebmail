@@ -63,7 +63,6 @@ sub readvfilesfromfile {
       }
 
       my $currentline = $_;
-
       print "readvfilesfromfile: reading line:\"$currentline\"\n" if $vfiledebug;
 
       $currentline = decodeUTF($currentline);
@@ -209,7 +208,6 @@ sub readvfilesfromstring {
       }
 
       my $currentline = "$_\r\n";
-
       print "readvfilesfromSTRING: reading line:\"$currentline\"\n" if $vfiledebug;
 
       $currentline = decodeUTF($currentline);

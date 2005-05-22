@@ -1071,7 +1071,7 @@ sub makepdfps {		# ps2pdf or pdf2ps
    my @cmd;
    my $outputfile="$webdiskrootdir/$vpath";
 
-   if ($mktype eq 'mkpdf' && $outputfile=~s/^(.*)\.ps$/$1\.pdf/i) {
+   if ($mktype eq 'mkpdf' && $outputfile=~s/^(.*)\.e?ps$/$1\.pdf/i) {
       @cmd=($gsbin, '-q', '-dNOPAUSE', '-dBATCH', '-dSAFER',
 		'-dCompatibilityLevel=1.3', '-dPDFSETTINGS=/printer',
 		'-sDEVICE=pdfwrite', "-sOutputFile=$outputfile",
@@ -2230,7 +2230,7 @@ sub showdir {
             $namestr.=ow::htmltext::str2html(f2u($flink{$p})) if (defined $flink{$p});
             $namestr.=qq|</a>|;
 
-            if ($p=~/\.(?:pdf|ps)$/i ) {
+            if ($p=~/\.(?:pdf|e?ps)$/i ) {
                if (!$config{'webdisk_readonly'} &&
                    (!$quotalimit||$quotausage<$quotalimit) ) {
                   my $mk='mkpdf'; $mk='mkps' if ($p=~/\.pdf$/i);

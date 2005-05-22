@@ -1,3 +1,11 @@
+05/22/2005
+----------
+1. mirrorsite change
+   from http://openwebmail.kkellas.com.my
+   to   http://openwebmail.opusplc.com
+   (thanks to Ramli Mohd, meli.AT.opusplc.com)
+
+
 05/12/2005
 ----------
 1. Portuguese Brazil language and template files translation update
