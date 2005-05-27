@@ -1,4 +1,4 @@
-package ow::zh_TW_Big5_utf8;
+package ow::zh_TW_utf8;
 
 # Traditional Chinese translation, charset: utf-8
 # by openwebmail team

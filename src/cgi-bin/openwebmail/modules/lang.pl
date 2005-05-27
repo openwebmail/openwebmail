@@ -50,9 +50,9 @@ use vars qw(%is_charset_supported);
    'uk'                => 'Ukrainian',
    'ur'                => 'Urdu',
    'zh_CN.GB2312'      => 'Chinese - Simplified',
-   'zh_CN.GB2312.utf8' => 'Chinese - Simplified - Unicode',
+   'zh_CN.utf8'        => 'Chinese - Simplified - Unicode',
    'zh_TW.Big5'        => 'Chinese - Traditional ',
-   'zh_TW.Big5.utf8'   => 'Chinese - Traditional - Unicode'
+   'zh_TW.utf8'        => 'Chinese - Traditional - Unicode'
 );
 
 # the language charset for each language abbreviation
@@ -98,9 +98,9 @@ use vars qw(%is_charset_supported);
    'uk'                => 'koi8-u',
    'ur'                => 'utf-8',
    'zh_CN.GB2312'      => 'gb2312',
-   'zh_CN.GB2312.utf8' => 'utf-8',
+   'zh_CN.utf8'        => 'utf-8',
    'zh_TW.Big5'        => 'big5',
-   'zh_TW.Big5.utf8'   => 'utf-8',
+   'zh_TW.utf8'        => 'utf-8',
 );
 
 # Right-to-Left language table, used to siwtch direct of arrow

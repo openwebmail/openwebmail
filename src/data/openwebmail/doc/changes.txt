@@ -1,6 +1,13 @@
+05/27/2005
+----------
+1. change language name to more official ones (language_area.encoding)
+   zh_TW.Big5.utf8   -> zh_TW.utf8
+   zh_CN.GB2312.utf8 -> zh_CN.utf8
+
+
 05/22/2005
 ----------
-1. mirrorsite change
+1. mirror site change
    from http://openwebmail.kkellas.com.my
    to   http://openwebmail.opusplc.com
    (thanks to Ramli Mohd, meli.AT.opusplc.com)

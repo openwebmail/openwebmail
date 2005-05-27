@@ -63,7 +63,7 @@ rm    cgi-bin/openwebmail/etc/addressbooks/* cgi-bin/openwebmail/etc/address.boo
 touch cgi-bin/openwebmail/etc/addressbooks/global cgi-bin/openwebmail/etc/calendar.book
 
 cd cgi-bin/openwebmail
-patch -R -f -p1 -s < /usr/local/www/cgi-bin/openwebmail/misc/patches/suidperl2speedy_suidperl.patch
+patch -R -f -p1 -s < /usr/local/www/cgi-bin/openwebmail/misc/patches/suidperl2speedy_suidperl.notmp.patch
 rm *.orig
 cd ../..
 

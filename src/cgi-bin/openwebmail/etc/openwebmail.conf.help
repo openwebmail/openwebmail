@@ -1667,9 +1667,9 @@ supported language including: (defined in modules/lang.pl)
    'uk'                => 'Ukrainian',
    'ur'                => 'Urdu',
    'zh_CN.GB2312'      => 'Chinese - Simplified',
-   'zh_CN.GB2312.utf8' => 'Chinese - Simplified - Unicode',
+   'zh_CN.utf8'        => 'Chinese - Simplified - Unicode',
    'zh_TW.Big5'        => 'Chinese - Traditional ',
-   'zh_TW.Big5.utf8'   => 'Chinese - Traditional - Unicode'
+   'zh_TW.utf8'        => 'Chinese - Traditional - Unicode'
 
 If this option is set to 'auto', openwebmail will choose the language
 based on the language that is prefered by the client browser

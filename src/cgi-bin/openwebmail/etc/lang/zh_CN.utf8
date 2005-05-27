@@ -1,4 +1,4 @@
-package ow::zh_CN_GB2312_utf8;
+package ow::zh_CN_utf8;
 
 # Simplified Chinese Translation, charset: utf-8
 # by Wang Jun, wjun.AT.mail.iap.ac.cn
