@@ -2427,14 +2427,15 @@ sub deleteattachments {
 ########## END DELETEATTACHMENTS #################################
 
 ########## FOLDING ###############################################
-# folding the to, cc, bcc field in case it violates the 998 char limit
-# defined in RFC 2822 2.2.3
+# folding the to, cc, bcc field so it won't violate the 998 char
+# limit (defined in RFC 2822 2.2.3) after base64/qp encoding
+# ps: since qp may extend strlen for 3 times, we use 998/3=332 as limit
 sub folding {
-   return($_[0]) if (length($_[0])<960);
+   return($_[0]) if (length($_[0])<330);
 
    my ($folding, $line)=('', '');
    foreach my $token (ow::tool::str2list($_[0],0)) {
-      if (length($line)+length($token) <960) {
+      if (length($line)+length($token) <330) {
          $line.=",$token";
       } else {
          $folding.="$line,\n   ";

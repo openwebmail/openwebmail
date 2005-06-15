@@ -1,3 +1,12 @@
+06/15/2005
+----------
+1. fix a bug that delmail_ifquotahit option will delete newest mails
+   if overquota, this bug was introduced since 20050308
+   (reported by Yang Yao-Strong, ysyang.AT.visionnext.com)
+2. folding the to, cc, bcc fields with length limit 330 so they won't
+   violated the 998 limit (defined in rfc RFC 2822 2.2.3) after qp encoding
+
+
 05/27/2005
 ----------
 1. change language name to more official ones (language_area.encoding)

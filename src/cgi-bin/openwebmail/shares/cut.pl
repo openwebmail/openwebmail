@@ -136,7 +136,7 @@ sub _cutfoldermail {	# reduce folder size by $cutpercent
       return -3;
    }
    my $totalsize=(stat($folderfile))[7];
-   foreach my $id  (reverse @{$r_messageids}) {
+   foreach my $id  (@{$r_messageids}) {
       push(@delids, $id);
       $cutsize += (string2msgattr($FDB{$id}))[$_SIZE];
       last if ($cutsize+$FDB{'ZAPSIZE'} > $totalsize*$cutpercent);
