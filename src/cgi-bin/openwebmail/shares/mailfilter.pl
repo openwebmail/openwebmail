@@ -75,7 +75,7 @@ sub filtermessage {
    ow::filelock::lock($filtercheckfile, LOCK_UN);
 
    if (!ow::filelock::lock($folderfile, LOCK_EX)) {
-      openwebmailerror("$lang_err{'mailfilter_error'} (".f2u($folderfile)." read lock error)");
+      openwebmailerror("$lang_err{'mailfilter_error'} (".f2u($folderfile)." write lock error)");
    }
    if (!update_folderindex($folderfile, $folderdb)<0) {
       ow::filelock::lock($folderfile, LOCK_UN);
@@ -705,7 +705,7 @@ sub filter_allmessageids {
       $i--;
    } # end of messageids loop
 
-   if (ow::filelock::lock($folderfile, LOCK_EX)) {
+   if ( $has_globallock || ow::filelock::lock($folderfile, LOCK_EX) ) {
       # remove repeated msgs with repeated count > ${$r_prefs}{'filter_repeatlimit'}
       my (@repeatedids, $fromsubject, $r_ids);
       while ( ($fromsubject,$r_ids) = each %repeatlists) {
@@ -752,7 +752,7 @@ sub filter_allmessageids {
          ow::filelock::lock($filtercheckfile, LOCK_UN);
       }
 
-      ow::filelock::lock($folderfile, LOCK_UN);
+      ow::filelock::lock($folderfile, LOCK_UN) if (!$has_globallock);
    }
 }
 

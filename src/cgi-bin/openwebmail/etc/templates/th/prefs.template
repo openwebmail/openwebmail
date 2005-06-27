@@ -120,9 +120,9 @@
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Messages Listing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>การแสดงจดหมาย</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in messages list:</B>
+<B>ตำแหน่งของแถบเครื่องมือ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -142,7 +142,7 @@
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Timestamp used for message date:</B>
+<B>เวลาที่แสดงในจดหมาย:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGDATETIMESTAMPMENU@@@
 </td></tr>
@@ -182,12 +182,12 @@
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Put mail filter at background:</B>
+<B>กลั่นกรองจดหมายในฉากหลัง:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERTHRESHOLDMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Wait time for background mail filtering:</B>
+<B>เวลาที่รอการกลั่นกรองจดหมายแบบฉากหลัง:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERWAITMENU@@@ seconds
 </td></tr>
@@ -212,7 +212,7 @@
 @@@HEADERSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Read with message charset:</B>
+<B>อ่านจดหมายโดยใช้รหัสตัวอักษรตามจดหมาย:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@READWITHMSGCHARSET@@@
 </td></tr>
@@ -285,7 +285,7 @@
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Automatic CC:</B>
+<B>สำเนาแบบซ่อนโดยอัตโนมัติไปที่:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOCCFIELD@@@
 </td></tr>
@@ -375,39 +375,39 @@
 
 @@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>AddressBook Options</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ตัวเลือกสมุดรายชื่อ</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Size for addressbook window:</B>
+<B>ขนาดของหน้าต่างสมุดรายชื่อ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+กว้าง @@@ABOOKWIDTHMENU@@@ สูง @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook button position:</B>
+<B>ตำแหน่งปุ่มในสมุดรายชื่อ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addressbook default filter:</B>
+<B>การกลั่นกรองรายชื่อโดยปกติ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Addresses displayed per page:</B>
+<B>จำนวนรายชื่อต่อหน้า:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Display only one line per contact:</B>
+<B>แสดงแต่ละรายชื่อเพียงบรรทัดเดียวเท่านั้น:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRCOLLAPSE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default addressbook sort order:</B>
+<B>ลำดับการเรียงโดยปกติ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Listview field order:</B>
+<B>ข้อมูลที่แสดงในการดูรายชื่อ:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@ABOOKLISTVIEWFIELDORDERMENU@@@
 </td></tr>
@@ -503,12 +503,12 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>ตัวเลือกอื่นๆ</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Default charset for file system:</B>
+<B>รหัสตัวอักษรปกติของระบบไฟล์:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FSCHARSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Use lightbar for selection:</B>
+<B>ใช้การเน้นสีสำหรับการเลือก:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USELIGHTBARCHECKBOX@@@
 </td></tr>
@@ -524,9 +524,9 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Categorized Folders list:</B>
+<B>แสดงโฟลเดอร์แยกชนิด:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@CATEGORIZEDFOLDERS@@@ &nbsp;( Category-Folder Separator @@@CATEGORIZEDFOLDERS_FS@@@ )
+@@@CATEGORIZEDFOLDERS@@@ &nbsp;( แบ่งชนิดของโฟลเดอร์โดยใช้ @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>เสียงเตือนเมื่อมีจดหมายใหม่:</B>
@@ -557,9 +557,9 @@ Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 @@@SPAMVIRUSSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Spam/Virus mail reserved day(s):</B>
+<B>เก็บ Spam/Virus ไว้:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@SPAMVIRUSRESERVEDDAYSMENU@@@
+@@@SPAMVIRUSRESERVEDDAYSMENU@@@ วัน
 </td></tr>
 @@@SPAMVIRUSEND@@@
 @@@WEBMAILEND@@@

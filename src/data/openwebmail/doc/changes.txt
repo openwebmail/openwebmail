@@ -1,3 +1,13 @@
+06/24/2005
+----------
+1. fix a bug in mailfilter that folder filelock wasn't correctly released
+   if dotfile lock was used.
+2. hongkong holiday file update
+   (thanks to faifai.AT.users.sourceforge.net)
+3. Thai language and template files translation update
+   (thanks to Atsawin Chaowanakritsanakul, joke.AT.nakhon.net)
+
+
 06/15/2005
 ----------
 1. fix a bug that delmail_ifquotahit option will delete newest mails
