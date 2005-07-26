@@ -1342,7 +1342,7 @@ sub pop3_fetch {
                                 $pop3user, $pop3passwd, $pop3del);
    if ($ret<0) {
       writelog("pop3 error - $errmsg at $pop3user\@$pop3host:$pop3port");
-      writehistory("pop3 error - $errmsg at $pop3user\@$pop3host:pop3port");
+      writehistory("pop3 error - $errmsg at $pop3user\@$pop3host:$pop3port");
    }
    return($ret, $errmsg);
 }

@@ -229,7 +229,7 @@ sub replyreceipt {
                                    $prefs{'timeoffset'}, $prefs{'daylightsaving'},
                                    $prefs{'dateformat'}, $prefs{'hourformat'}).
                   "\n\n".
-                  "was read on".
+                  "was read on ".
                   ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial(),
                                    $prefs{'timeoffset'}, $prefs{'daylightsaving'},
                                    $prefs{'dateformat'}, $prefs{'hourformat'});
