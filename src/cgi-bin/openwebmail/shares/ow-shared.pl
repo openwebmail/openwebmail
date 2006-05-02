@@ -1280,6 +1280,7 @@ sub htmlfooter {
 ########## OPENWEBMAILERROR ######################################
 sub openwebmailerror {
    my ($file, $linenum, $msg)=@_;
+   $msg = ow::htmltext::str2html($msg);
    my $mailgid=getgrnam('mail');
    my $stackdump='';
    $file=~s!.*/!!;

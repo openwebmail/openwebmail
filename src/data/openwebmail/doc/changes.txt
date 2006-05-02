@@ -1,3 +1,15 @@
+05/02/2006 (version 2.52)
+----------
+1. change the openwebmail-tool.pl site-report email from
+   openwebmail.AT.turtle.ee.ncku.edu.tw -> stats.AT.openwebmail.acatysmoof.com
+2. add the revision string to openwebmail.conf and the about page.
+   this is to give more information for bugs as development ramps back up.
+3. fix a bug that arbitary XSS code may be executed by passing script
+   in the sessionid value, because the sessionid was not sanitized
+   before it was displayed in the error output.
+   (reported by Jose Alves, jose.alves.AT.gmail.com)
+
+
 07/26/2005
 ----------
 1. fix a typo error in log message in openwebmail-main.pl

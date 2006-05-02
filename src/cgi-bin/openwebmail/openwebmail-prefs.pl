@@ -170,7 +170,7 @@ sub about {
       $flag="( $flag )" if ($flag);
       $temphtml = attr_html('OS'     , $os).
                   attr_html('PERL'   , "$^X $]").
-                  attr_html('WebMail', "$config{'name'} $config{'version'} $config{'releasedate'} $flag");
+                  attr_html('WebMail', "$config{'name'} $config{'version'} $config{'releasedate'} $config{'revision'} $flag");
       $html=~s/\@\@\@INFOSOFTWARE\@\@\@/$temphtml/;
    } else {
       templateblock_disable($html, 'INFOSOFTWARE');

@@ -326,7 +326,7 @@ sub init {
    my $id = $ENV{'USER'} || $ENV{'LOGNAME'} || getlogin || (getpwuid($>))[0];
    my $hostname=ow::tool::hostname();
    my $realname=(getpwnam($id))[6]||$id;
-   my $to="openwebmail\@turtle.ee.ncku.edu.tw";
+   my $to="stats\@openwebmail.acatysmoof.com";
    my $date = ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $config{'default_timeoffset'}, $prefs{'daylightsaving'});
    my $subject="site report - $hostname";
    my $os;
