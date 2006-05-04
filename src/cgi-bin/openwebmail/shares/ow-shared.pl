@@ -1294,7 +1294,7 @@ sub openwebmailerror {
    if (defined $ENV{'GATEWAY_INTERFACE'}) {	# in CGI mode
       # load prefs if possible, or use default value
       my $background = $style{"background"}||"#FFFFFF"; $background =~ s/"//g;
-      my $bgurl=$prefs{'bgurl'}||"/openwebmail/images/backgrounds/Globe.gif";
+      my $bgurl=$prefs{'bgurl'}||$config{'default_bgurl'};
       my $css = $style{"css"}||
                 qq|<!--\n|.
                 qq|body {\n|.

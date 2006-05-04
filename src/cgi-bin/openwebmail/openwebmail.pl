@@ -73,7 +73,7 @@ use vars qw(%action_redirect @actions);
    calyear                 => [6, 'enable_calendar',    'openwebmail-cal.pl',     ['year']],
    calday                  => [7, 'enable_calendar',    'openwebmail-cal.pl',     ['year', 'month', 'day']],
    readmessage             => [8, 'enable_webmail',     'openwebmail-read.pl',    ['folder', 'message_id']],
-   composemessage          => [9, 'enable_webmail',     'openwebmail-send.pl',    ['to', 'cc', 'bcc', 'subject']],
+   composemessage          => [9, 'enable_webmail',     'openwebmail-send.pl',    ['to', 'cc', 'bcc', 'subject', 'body']],
 );
 @actions = sort { ${$action_redirect{$a}}[0] <=> ${$action_redirect{$b}}[0] } keys (%action_redirect);
 

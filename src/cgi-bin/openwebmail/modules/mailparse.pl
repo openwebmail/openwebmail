@@ -32,7 +32,7 @@ sub parse_header {
    ${$r_message}{delimiter}=shift(@lines) if ($lines[0]=~/^From /);
    foreach (@lines) {
       last if (! /(.+?):\s*(.*)/);
-      next if ($1 eq 'Received');
+      next if ($1 =~ /^(?:received|body|attachment)$/i);
       ${$r_message}{lc($1)}=$2;
    }
    return;

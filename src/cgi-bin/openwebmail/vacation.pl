@@ -453,6 +453,10 @@ sub adjust_replymsg {
       if (/^Subject: /i) {
          $has_subject=1;
          $header.="$_\n";
+      } elsif (/^X\-Spam\-Level\:\ \*\*\*\*\*\*/) {
+         # don't reply to this spammy spam message
+         log_debug("Abort message $subject due to X-Spam-Level header threshold exceeded.\n") if ($opt_d);
+         exit 0; # exit success status
       } elsif (/^To: /i) {
          $has_to=1;
          $header.="$_\n";
