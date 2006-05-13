@@ -1,10 +1,10 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr>
   <td bgcolor=@@@TITLEBAR@@@>
-    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Import Addressbook Information</b></font>
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Εισαγωγή Διευθύνσεων</b></font>
   </td>
   <td bgcolor=@@@TITLEBAR@@@ align="right">
-    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ Available</b></font>
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ Διαθέσιμα</b></font>
   </td>
 </tr>
 <tr>
@@ -18,26 +18,26 @@
   <td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
     <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
     <tr>
-      <td><br><b>Overview</b></td>
+      <td><br><b>Γενική Επισκόπηση</b></td>
     </tr>
     <tr>
-      <td>Many addressbook programs can export their addressbook data to files. @@@NAME@@@ can import some of these file formats, saving you hours of tediously typing them in by hand. The steps below will guide you through importing addressbook information. The file size limit on addressbook uploads is currently set to @@@ABOOKIMPORTLIMIT@@@ .</td>
+      <td>Πολλά προγράμματα έχουν τη δυνατότητα εξαγωγής των καταχωρημένων διευθύνσεων σε αρχεία δεδομένων. Η δυνατότητα εισαγωγής μπορεί να διαβάσει κάποια αρχεία έτσι ώστε να μην τα περάσετε με το χέρι. Η ακόλουθη διαδικασία θα σας καθοδηγήσει στην εισαγωγή δεδομένων. Το όριο μεγέθους εισαγωγής είναι @@@ABOOKIMPORTLIMIT@@@.</td>
     </tr>
     @@@STARTIMPORTFORM@@@
     <tr>
-      <td><br><br><b>1. Browse for the file you are importing:</b></td>
+      <td><br><br><b>1. Αναζήτηση αρχείου προς εισαγωγή:</b></td>
     </tr>
     <tr>
       <td>@@@IMPORTFILEFIELD@@@</td>
     </tr>
     <tr>
-      <td><br><b>2. Choose the format of your import file:</b></td>
+      <td><br><b>2. Επιλογή τύπου δεδομένων:</b></td>
     </tr>
     <tr>
       <td>@@@FORMATSMENU@@@&nbsp;@@@IMPORTCHARSETMENU@@@</td>
     </tr>
     <tr>
-      <td><br><b>3. Choose the order of the fields in your import file (if applicable):</b></td>
+      <td><br><b>3. Επιλογή θέσης των πεδίων στο αρχείο (αν εφαρμόζετε):</b></td>
     </tr>
     <tr>
       <td>
@@ -49,7 +49,7 @@
       </td>
     </tr>
     <tr>
-      <td><br><b>4. Choose a destination addressbook for the imported data:</b></td>
+      <td><br><b>4. Επιλογή καταλόγου διευθύνσεων:</b></td>
     </tr>
     <tr>
       <td>@@@ADDRBOOKSMENU@@@</td>

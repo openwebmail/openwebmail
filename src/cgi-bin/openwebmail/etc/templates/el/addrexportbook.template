@@ -6,7 +6,7 @@
   <td colspan="@@@TOTALSPAN@@@" bgcolor=@@@WINDOW_LIGHT@@@ align="center">
     <table cellpadding="0" cellspacing="0" border="0" width="80%">
     <tr>
-      <td><br><p><b>Overview</b><br>The export system will help you download addresses to your local computer. If you want to download an entire addressbook please use the addressbook "books" page where you can click to download an entire addressbook at one time.</p><p><b>1. Select the addresses that you want to download from above.</b><br><br></p></td>
+      <td><br><p><b>Γενική Επισκόπηση</b><br>The export system will help you download addresses to your local computer. If you want to download an entire addressbook please use the addressbook "books" page where you can click to download an entire addressbook at one time.</p><p><b>1. Select the addresses that you want to download from above.</b><br><br></p></td>
     </tr>
     </table>
   </td>

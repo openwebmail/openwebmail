@@ -1,3 +1,25 @@
+05/12/2006
+----------
+1. fix error that ow::htmltext::str2html is not available to display
+   some error messages because it needs to be require'd in ow-shared.pl
+   (thanks to Chris Hare, CISSP, CISA, CISM, chare.AT.labr.net)
+2. modify some additional openwebmailerror calls that need to display
+   HTML, to make them XSS attack safe.
+3. fix typo in openwebmail-send.pl to correct formatting of read-reciepts
+   to messages that are not of the same charset as the users charset
+   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his patch)
+4. fix bug that email addressed to an unknown local user will not create
+   an error if that user is the second or higher addressee
+   (thanks to Dominique Fournier, dominique.fournier.AT.grenoble.cnrs.fr)
+5. fix additional XSS possible exploits caused by the To and From name and
+   address not being sanitized before display
+   (thanks to Kelson Vibber, kelson.AT.speed.net for his code)
+6. Romanian templates and language files translation update
+   (thanks to Gabriel Hojda, gabriel.hojda.AT.gmail.com)
+7. Hellenic/Greek templates and language files translation update
+   (thanks to Dimitrios 'sehh' Michelinakis, sehh.AT.altered.com)
+
+
 05/04/2006
 ----------
 1. fix mailparse.pl so the "attachment" and "body" keys of %message are

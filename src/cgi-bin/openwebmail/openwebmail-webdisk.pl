@@ -87,7 +87,7 @@ $webdiskrootdir=ow::tool::untaint($homedir.absolute_vpath("/", $config{'webdisk_
 $webdiskrootdir=~s!/+$!!; # remove tail /
 if (! -d $webdiskrootdir) {
    mkdir($webdiskrootdir, 0755) or
-      openwebmailerror(__FILE__, __LINE__, "lang_text{'couldnt_create'} $webdiskrootdir ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_text{'couldnt_create'} $webdiskrootdir ($!)");
 }
 
 my $action = param('action')||'';

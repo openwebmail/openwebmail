@@ -23,8 +23,8 @@ package ow::ro_utf8;
    status      => 'Stare (Întâi cele necitite)',
    date        => 'Data (Întâi cele mai vechi)',
    date_rev    => 'Data (Întâi cele mai noi)',
-   sender      => 'Expeditor (Ascending)',
-   sender_rev  => 'Expeditor (Descending)',
+   sender      => 'Expeditor (Ordonat ascendent)',
+   sender_rev  => 'Expeditor (Ordonat descendent)',
    subject     => 'Subiect (Întâi cele mai vechi)',
    subject_rev => 'Subiect (Întâi cele mai noi)',
    size        => 'Mărime (Întâi cele mai mici)',
@@ -100,7 +100,7 @@ package ow::ro_utf8;
 
 %lang_receiptlabels =
    (
-   ask => 'Întreaba',
+   ask => 'Întreabă',
    yes => 'Da',
    no  => 'Nu'
    );
@@ -381,8 +381,8 @@ package ow::ro_utf8;
    markasunread => 'Marchează ca necitit',
    dateformat => 'Format Dată',
    date       => 'Data',
-   sentdate   => 'Sent Date',
-   recvdate   => 'Received Date',
+   sentdate   => 'Data Expediere',
+   recvdate   => 'Data Recepţie',
    recipient  => 'Destinatar',
    sender     => 'Expeditor',
    subject    => 'Subiect',

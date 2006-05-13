@@ -69,7 +69,7 @@ Subiect:
 </td></tr>
 @@@AUTOREPLYEND@@@
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Semnatura (maxim 500 caractere)</B><BR>
+<B>Semnătura (maxim 500 caractere)</B><BR>
 @@@SIGAREA@@@
 <br>&nbsp;
 </td></tr>
@@ -115,7 +115,7 @@ Subiect:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Format oră:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@HOURFORMATMENU@@@ ora
+@@@HOURFORMATMENU@@@ ore
 </td></tr>
 
 @@@WEBMAILSTART@@@
@@ -142,7 +142,7 @@ Subiect:
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Timestamp used for message date:</B>
+<B>Data afişată pentru mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGDATETIMESTAMPMENU@@@
 </td></tr>
@@ -189,11 +189,11 @@ Subiect:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Timp de aşteptare la filtrare email în fundal:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@BGFILTERWAITMENU@@@ seconds
+@@@BGFILTERWAITMENU@@@ secunde
 </td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Mută mesaje vechi în SAVED la ieşire:</B>
+<B>Mută mesaje vechi în SALVATE la ieşire:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>

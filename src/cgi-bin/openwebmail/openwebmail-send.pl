@@ -169,7 +169,7 @@ sub replyreceipt {
          if ($config{'smtpauth'}) {
             my $auth = $smtp->supports("AUTH");
             $smtp->auth($config{'smtpauth_username'}, $config{'smtpauth_password'}) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'network_server_error'}!<br>($config{'smtpserver'} - ".$smtp->message.")");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'network_server_error'}!<br>($config{'smtpserver'} - ".$smtp->message.")", "passthrough");
          }
 
          $smtp->mail($from);
@@ -232,7 +232,7 @@ sub replyreceipt {
                   "was read on ".
                   ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial(),
                                    $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                   $prefs{'dateformat'}, $prefs{'hourformat'});
+                                   $prefs{'dateformat'}, $prefs{'hourformat'}).
                   ".\n\n";
          }
          $s .= str2str($config{'mailfooter'}, "text")."\n" if ($config{'mailfooter'}=~/[^\s]/);
@@ -1655,6 +1655,7 @@ sub sendmessage {
 
    if ($do_send) {
       my @recipients=();
+
       foreach my $recv ($to, $cc, $bcc) {
          next if ($recv eq "");
          foreach (ow::tool::str2list($recv,0)) {
@@ -1696,7 +1697,7 @@ sub sendmessage {
       $smtp->mail($from) or $senderr++ if (!$senderr);
       if (!$senderr) {
          my @ok=$smtp->recipient(@recipients, { SkipBad => 1 });
-         $senderr++ if ($#ok<0);
+         $senderr++ if ($#ok<$#recipients);
       }
       $smtp->data()      or $senderr++ if (!$senderr);
 
@@ -2091,13 +2092,17 @@ sub sendmessage {
             $senderrstr= qq|$lang_err{'sendmail_error'}|;
 
             if ($do_save && $savefolder eq 'saved-drafts') {
-               my $draft_url = qq|$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=$thissession&amp;|.
-                               qq|action=composemessage&amp;composetype=editdraft&amp;|.
-                               qq|folder=$savefolder&amp;message_id=|.ow::tool::escapeURL($mymessageid);
+               my $draft_url = qq|$config{'ow_cgiurl'}/openwebmail-send.pl?sessionid=|.
+                               ow::htmltext::str2html($thissession) .
+                               qq|&amp;action=composemessage&amp;composetype=editdraft&amp;folder=|.
+                               ow::htmltext::str2html($savefolder) .
+                               qq|&amp;message_id=|.ow::tool::escapeURL($mymessageid);
                $senderrstr.= qq|<br>\n<a href="$draft_url">$lang_err{'sendmail_chkdraft'}</a>|;
             }
 
             my $smtperr=readsmtperr($smtperrfile);
+            # any user input in recipient names is automatically html-entity
+            # encoded from smtperr by CGI.pm textarea
             $senderrstr.=qq|<br><br>\n<form>|.
                          textarea(-name=>'smtperror',
                                   -default=>$smtperr,
@@ -2228,7 +2233,7 @@ sub sendmessage {
    }
 
    if ($senderr) {
-      openwebmailerror(__FILE__, __LINE__, $senderrstr);
+      openwebmailerror(__FILE__, __LINE__, $senderrstr, "passthrough");
    } elsif ($saveerr) {
       openwebmailerror(__FILE__, __LINE__, $saveerrstr);
    } else {

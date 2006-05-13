@@ -2309,7 +2309,8 @@ sub modfrom {
          delete $userfrom{$email};
       } else {
          if ( (-s $frombookfile) >= ($config{'maxbooksize'} * 1024) ) {
-            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&amp;$urlparmstr">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
+            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="| . ow::htmltext::str2html("$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editfroms&sessionid=$thissession&folder=$escapedfolder&message_id=$escapedmessageid&sort=$sort&page=$page&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . qq|">$lang_err{'back'}</a>$lang_err{'tryagain'}|, "passthrough");
+
          }
          if (!$config{'frombook_for_realname_only'} || defined $userfrom{$email}) {
             $userfrom{$email} = $realname;
@@ -2535,7 +2536,7 @@ sub modpop3 {
          delete $accounts{"$pop3host:$pop3port\@\@\@$pop3user"};
       } else {
          if ( (-s $pop3bookfile) >= ($config{'maxbooksize'} * 1024) ) {
-            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&amp;$urlparmstr">$lang_err{'back'}</a> $lang_err{'tryagain'}|);
+            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="| . ow::htmltext::str2html("$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editpop3&sessionid=$thissession&folder=$escapedfolder&message_id=$escapedmessageid&sort=$sort&page=$page&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . qq|">$lang_err{'back'}</a>$lang_err{'tryagain'}|, "passthrough");
          }
          foreach ( @{$config{'pop3_disallowed_servers'}} ) {
             if ($pop3host eq $_) {
@@ -2830,7 +2831,7 @@ sub modfilter {
       if ( -f $filterbookfile ) {
          if ($mode ne 'delete' &&
              (-s $filterbookfile) >= ($config{'maxbooksize'}*1024) ) {
-            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editaddresses&amp;$urlparmstr">$lang_err{'back'}</a>$lang_err{'tryagain'}|);
+            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{'abook_toobig'} <a href="| . ow::htmltext::str2html("$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editaddresses&sessionid=$thissession&folder=$escapedfolder&message_id=$escapedmessageid&sort=$sort&page=$page&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . qq|">$lang_err{'back'}</a>$lang_err{'tryagain'}|, "passthrough");
          }
          # read personal filter and update it
          ow::filelock::lock($filterbookfile, LOCK_EX) or

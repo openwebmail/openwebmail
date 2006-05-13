@@ -662,6 +662,14 @@ sub listmessages {
          ($from2_searchtype, $from2_keyword)=('from', $from_address);
       }
 
+      # XSS safety - turns & and < > into html entities. No other chars are changed,
+      # so in normal cases this won't mess up anything
+      $to_name = ow::htmltext::str2html($to_name);
+      $to_address = ow::htmltext::str2html($to_address);
+      $from2 = ow::htmltext::str2html($from2);
+      $from2_name = ow::htmltext::str2html($from2_name);
+      $from2_address = ow::htmltext::str2html($from2_address);
+
       my ($linkstr, $searchstr, $friendstr);
       if (!$limited) {
          $linkstr=qq|href="$config{'ow_cgiurl'}/openwebmail-send.pl?$urlparmstr_keyword&amp;|.

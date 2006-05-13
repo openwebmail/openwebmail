@@ -134,7 +134,7 @@ sub getattachment {
 
    ($msgsize, $errmsg)=lockget_message_block($messageid, $folderfile, $folderdb, \$block);
    if ( $msgsize<=0 ) {
-      openwebmailerror(__FILE__, __LINE__, "What the heck? Message ".ow::htmltext::str2html($messageid)." seems to be gone!");
+      openwebmailerror(__FILE__, __LINE__, "What the heck? Message $messageid seems to be gone!");
    }
 
    my @attr=get_message_attributes($messageid, $folderdb);
@@ -283,7 +283,7 @@ sub getattachment {
 
          return($filename, $length, \$attheader, \$content);
       } else {
-         openwebmailerror(__FILE__, __LINE__, "What the heck? Message ".ow::htmltext::str2html($messageid)." $nodeid seems to be gone!");
+         openwebmailerror(__FILE__, __LINE__, "What the heck? Message $messageid $nodeid seems to be gone!");
       }
    }
    # never reach

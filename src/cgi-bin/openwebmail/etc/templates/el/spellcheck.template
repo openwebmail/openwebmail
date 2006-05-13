@@ -1,19 +1,13 @@
 <table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Spell Check for @@@DICTIONARY@@@</B></font>
+<B>Ορθογραφικός Έλεγχος για @@@DICTIONARY@@@</B></font>
 </td></tr>
 <tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>A set of suggested replacements will be provided for each mis-spelled word.
-The user can choose one from them to replace the original word.
-If no suggested replacement is found or the user chooses "-manually fix-"
-and then clicks [Check Again], a text field will be available for user to
-input manually.
-If the user chooses "--Add to Dictionary--" and then clicks [Check Again], 
-the original word will be added to the user's personal dictionary.
+<BR>Για κάθε άγνωστη λέξη υποδεικνύετε ένα σύνολο από πιθανές σωστές λέξεις. Ο χρήστης έχει την δυνατότητα να διαλέξει μία από αυτές για να αντικαταστήσει την αρχική λέξη.  Αν δεν βρεθούν πιθανές αντικαταστάσεις ή ο χρήστης διαλέξει την επιλογή "--Χειροκίνητη διόρθωση--" και πατήσει [Επανέλεγχος], ένα πεδίο κειμένου θα είναι διαθέσιμο για τον χρήστη. Αν ο χρήστης διαλέξει "--Πρόσθεση στο Λεξικό--" και πατήσει [Επανέλεγχος], η γνήσια λέξη θα προστεθεί στο προσωπικό λεξικό του χρήστη.
 </td></tr>
 </table>
 <br>

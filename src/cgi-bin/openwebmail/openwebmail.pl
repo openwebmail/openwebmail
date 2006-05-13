@@ -335,12 +335,12 @@ sub login {
       openwebmailerror(__FILE__, __LINE__, "Service is not available for $loginuser at '$logindomain'");
 
    matchlist_fromhead('allowed_clientip', $clientip) or
-      openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}."<br> ( ip: $clientip )");
+      openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}." ( ip: $clientip )");
 
    if (!matchlist_all('allowed_clientdomain')) {
       my $clientdomain=ip2hostname($clientip);
       matchlist_fromtail('allowed_clientdomain', $clientdomain) or
-         openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}."<br> ( host: $clientdomain )");
+         openwebmailerror(__FILE__, __LINE__, $lang_err{'disallowed_client'}." ( host: $clientdomain )");
    }
 
    # keep this for later use

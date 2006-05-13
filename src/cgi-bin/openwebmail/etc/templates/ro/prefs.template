@@ -115,7 +115,7 @@ Subiect:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Format ora:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@HOURFORMATMENU@@@ ora
+@@@HOURFORMATMENU@@@ ore
 </td></tr>
 
 @@@WEBMAILSTART@@@
@@ -142,7 +142,7 @@ Subiect:
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Timestamp used for message date:</B>
+<B>Data afisata pentru mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGDATETIMESTAMPMENU@@@
 </td></tr>
@@ -189,11 +189,11 @@ Subiect:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Timp de asteptare la filtrare email in fundal:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@BGFILTERWAITMENU@@@ seconds
+@@@BGFILTERWAITMENU@@@ secunde
 </td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Muta mesaje vechi in SAVED la iesire:</B>
+<B>Muta mesaje vechi in SALVATE la iesire:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>

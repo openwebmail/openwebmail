@@ -21,6 +21,8 @@ use vars qw(%is_config_option);
 use vars qw(@openwebmailrcitem);
 use vars qw(%fontsize);
 
+require "modules/htmltext.pl";
+
 # yes no type config options
 foreach (qw(
    smtpauth use_hashedmailspools use_homedirspools
@@ -915,7 +917,7 @@ sub sessioninfo {
    my $sessionid=$_[0];
    my ($sessionkey, $ip, $userinfo);
 
-   openwebmailerror(__FILE__, __LINE__, "Session ID $sessionid $lang_err{'doesnt_exist'}. <a href=\"$config{'ow_cgiurl'}/openwebmail.pl\">$lang_text{'loginagain'}?</a>") unless
+   openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html("Session ID $sessionid $lang_err{'doesnt_exist'}") . qq|<a href="$config{'ow_cgiurl'}/openwebmail.pl">$lang_text{'loginagain'}?</a>|, "passthrough") unless
       (-e "$config{'ow_sessionsdir'}/$sessionid");
 
    if ( !sysopen(F, "$config{'ow_sessionsdir'}/$sessionid", O_RDONLY) ) {
@@ -1279,12 +1281,19 @@ sub htmlfooter {
 
 ########## OPENWEBMAILERROR ######################################
 sub openwebmailerror {
-   my ($file, $linenum, $msg)=@_;
-   $msg = ow::htmltext::str2html($msg);
-   my $mailgid=getgrnam('mail');
-   my $stackdump='';
+   my ($file, $linenum, $msg, $passthrough)=@_;
+
    $file=~s!.*/!!;
+
+   # to avoid XSS attacks, all output needs to be converted to html entities
+   # unless it is told to passthrough unconverted. Passthrough material should
+   # already be converted to html entities before arriving here.
+   $msg = ow::htmltext::str2html($msg) unless $passthrough;
    $msg="Unknown error $msg at $file:$linenum" if (length($msg)<5);
+
+   my $mailgid=getgrnam('mail');
+
+   my $stackdump='';
    if ($config{'error_with_debuginfo'}) {
       $msg.=qq|<br><font class="medtext">( $file:$linenum, pid=$$, ruid=$<, euid=$>, egid=$), mailgid=$mailgid )</font>\n|;
       $stackdump=ow::tool::stacktrace();

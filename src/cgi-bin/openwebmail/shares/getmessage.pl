@@ -18,7 +18,7 @@ sub getmessage {
    # -2 msg not found in db
    # -3 size in db invalid, -4 read size mismatch, -5 folder index inconsistence
    if ($msgsize==-1) {
-      openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html($errmsg));
+      openwebmailerror(__FILE__, __LINE__, $errmsg);
    } elsif ($msgsize==-2) {
       my $m="db warning - $errmsg"; writelog($m); writehistory($m);
       return \%message;
@@ -32,7 +32,7 @@ sub getmessage {
       ow::dbm::close(\%FDB, $folderdb);
 
       ($msgsize, $errmsg)=lockget_message_block($messageid, $folderfile, $folderdb, \$block);
-      openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html($errmsg)) if ($msgsize<0 && $msgsize!=-2);
+      openwebmailerror(__FILE__, __LINE__, $errmsg) if ($msgsize<0 && $msgsize!=-2);
    }
    return \%message if ($msgsize<=0);
    $message{size}=$msgsize;

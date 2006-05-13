@@ -55,10 +55,10 @@ sub filtermessage {
    }
 
    ow::filelock::lock($filtercheckfile, LOCK_EX) or
-      openwebmailerror("$lang_err{'couldnt_writelock'} $filtercheckfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $filtercheckfile");
    if (!sysopen(FILTERCHECK, $filtercheckfile, O_RDONLY)) {
       ow::filelock::lock($filtercheckfile, LOCK_UN);
-      openwebmailerror("$lang_err{'couldnt_read'} $filtercheckfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $filtercheckfile");
    }
    $_=<FILTERCHECK>;
    close(FILTERCHECK);
@@ -68,18 +68,18 @@ sub filtermessage {
    }
    if (!sysopen(FILTERCHECK, $filtercheckfile, O_WRONLY|O_TRUNC|O_CREAT)) {
       ow::filelock::lock($filtercheckfile, LOCK_UN);
-      openwebmailerror("$lang_err{'couldnt_write'} $filtercheckfile");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $filtercheckfile");
    }
    print FILTERCHECK $metainfo;
    close(FILTERCHECK);
    ow::filelock::lock($filtercheckfile, LOCK_UN);
 
    if (!ow::filelock::lock($folderfile, LOCK_EX)) {
-      openwebmailerror("$lang_err{'mailfilter_error'} (".f2u($folderfile)." write lock error)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'mailfilter_error'} (".f2u($folderfile)." write lock error)");
    }
    if (!update_folderindex($folderfile, $folderdb)<0) {
       ow::filelock::lock($folderfile, LOCK_UN);
-      openwebmailerror("$lang_err{'mailfilter_error'} (Couldn't update index db ".f2u($folderdb).")");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'mailfilter_error'} (Couldn't update index db ".f2u($folderdb).")");
    }
 
    my @allmessageids=();

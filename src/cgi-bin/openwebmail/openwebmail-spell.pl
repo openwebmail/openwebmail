@@ -117,7 +117,7 @@ $dicletters=$dictionary_letters{$dictionary} if (defined $dictionary_letters{$di
 
 my $spellbin=(split(/\s+/, $config{'spellcheck'}))[0];
 if (! -x $spellbin) {
-   openwebmailerror(__FILE__, __LINE__, "Spellcheck is not available.<br>( $spellbin not found )");
+   openwebmailerror(__FILE__, __LINE__, "Spellcheck is not available. ( $spellbin not found )");
 }
 
 writelog("debug - request spell begin - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
@@ -268,7 +268,7 @@ sub editpdict {
       if ($dictword2delete) {
          my $pdicwordstr="";
          sysopen(PERSDICT, $pdicfile, O_RDONLY) or
-            openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "Could not open personal dictionary $pdicfile! ($!)");
          while (<PERSDICT>) {
             chomp($_);
             next if ($_ eq $dictword2delete);
@@ -277,7 +277,7 @@ sub editpdict {
          close(PERSDICT);
 
          sysopen(NEWPERSDICT, "$pdicfile.new", O_WRONLY|O_TRUNC|O_CREAT) or
-            openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
+            openwebmailerror(__FILE__, __LINE__, "Could not open personal dictionary $pdicfile! ($!)");
          print NEWPERSDICT $pdicwordstr;
          close(NEWPERSDICT);
 
@@ -289,7 +289,7 @@ sub editpdict {
       my $bgcolor = $style{"tablerow_light"};
 
       sysopen(PERSDICT, $pdicfile, O_RDONLY) or
-         openwebmailerror(__FILE__, __LINE__, "Couldn't open personal dictionary $pdicfile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "Could not open personal dictionary $pdicfile! ($!)");
       while (<PERSDICT>) {
          my $dictword = $_;
          chomp($dictword);
