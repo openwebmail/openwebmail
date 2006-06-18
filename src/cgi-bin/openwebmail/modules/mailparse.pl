@@ -380,6 +380,24 @@ sub parse_attblock {
                                $nodeid) );
       }
 
+   } elsif ($att{'content-type'}=~m/^application\/octet\-stream/i) {
+      # Apple-Mail is known to encapsulate html in application/octet-stream instead of text/html (duh)
+      # all in all, it would be nice to handle application/octet-streams that are html inline
+      # bad things like script are stripped out later before display in the browser
+      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
+         my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
+         my $testpiece = substr($attcontent, 0, ($attcontentlength>500?500:$attcontentlength));
+         my $numberoftags = () = $testpiece =~ m/<(?:html|head|meta|style|script|title|body|p|br|font|table|tr|td|tbody|div)/igs;
+         if ($numberoftags >= 5) {
+            # save att since it seems to be html (5 known tags in first 500 bytes)
+            $att{'content-type'} = 'text/html';
+            $att{'content-disposition'} = 'attachment; filename=Unknown.htm';
+            push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength, @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'}, $nodeid) );
+         } elsif ($attcontent=~/\S/ ) { # not html - save att if contains chars other than \s
+            push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength, @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'}, $nodeid) );
+         }
+      }
+
    } else {
       if ( $searchid eq "all" || $searchid=~/^$nodeid/ ) {
          my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);

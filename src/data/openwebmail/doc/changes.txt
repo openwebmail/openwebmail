@@ -1,3 +1,18 @@
+06/18/2006
+----------
+1. German help files translation
+   (thanks to Helmut Grund, Helmut.Grund.AT.fh-furtwangen.de)
+2. update the welcome/copyright date from 2005 to 2006
+3. fix additional XSS exploits in openwebmail-read.pl due to the
+   from address not being sanitized properly
+4. fix bug that clicking user name for compose will pass escaped
+   values to the form field instead of proper email address
+   (due to fix 20060512 #5)
+5. support application/octet-stream attachments that are really
+   text/html. Detect them and display them inline. Apple-Mail
+   incorrectly sends text/html attachments in this way.
+
+
 05/12/2006
 ----------
 1. fix error that ow::htmltext::str2html is not available to display
@@ -5,7 +20,7 @@
    (thanks to Chris Hare, CISSP, CISA, CISM, chare.AT.labr.net)
 2. modify some additional openwebmailerror calls that need to display
    HTML, to make them XSS attack safe.
-3. fix typo in openwebmail-send.pl to correct formatting of read-reciepts
+3. fix typo in openwebmail-send.pl to correct formatting of read-receipts
    to messages that are not of the same charset as the users charset
    (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his patch)
 4. fix bug that email addressed to an unknown local user will not create

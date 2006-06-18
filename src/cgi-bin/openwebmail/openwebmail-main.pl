@@ -666,7 +666,6 @@ sub listmessages {
       # so in normal cases this won't mess up anything
       $to_name = ow::htmltext::str2html($to_name);
       $to_address = ow::htmltext::str2html($to_address);
-      $from2 = ow::htmltext::str2html($from2);
       $from2_name = ow::htmltext::str2html($from2_name);
       $from2_address = ow::htmltext::str2html($from2_address);
 
@@ -701,6 +700,7 @@ sub listmessages {
 
       # SUBJECT, cut subject to less than 64
       $subject=substr($subject, 0, 64)."..." if (length($subject)>67);
+      my $subject2 = $subject; # for searching later
       $subject = ow::htmltext::str2html($subject);
       $subject = "N/A" if ($subject !~ /[^\s]/); # Make sure there's SOMETHING clickable
       my $accesskeystr=($messnum-$firstmessage)%10+1;	# 1..10
@@ -737,7 +737,7 @@ sub listmessages {
          $subject_end = qq|</td></tr></table>|;
       }
       if ($prefs{'useminisearchicon'}) {
-         my $subject2 = $subject; $subject2 =~ s/Res?:\s*//ig; $subject2=~s/\[.*?\]//g;
+         $subject2 =~ s/Res?:\s*//ig; $subject2=~s/\[.*?\]//g;
          my $searchstr = iconlink("search.s.gif", "$lang_text{'search'} $subject2 ",
                                   qq|href="$main_url?sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
                                   qq|action=listmessages&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;|.
