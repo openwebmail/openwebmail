@@ -1476,7 +1476,7 @@ sub send_mail {
    my $smtpserver;
    foreach $smtpserver (@{$config{'smtpserver'}}) {
       my $connectmsg = "send message - trying to connect to smtp server $smtpserver:$config{'smtpport'}";
-      writelog($connectmsg); writehistory($connectmsg);
+      writelog($connectmsg);
 
       $smtp=Net::SMTP->new($smtpserver,
                            Port => $config{'smtpport'},
@@ -1485,11 +1485,11 @@ sub send_mail {
 
       if ($smtp) {
          $connectmsg = "send message - connected to smtp server $smtpserver:$config{'smtpport'}";
-         writelog($connectmsg); writehistory($connectmsg);
+         writelog($connectmsg);
          last;
       } else {
          $connectmsg = "send message - error connecting to smtp server $smtpserver:$config{'smtpport'}";
-         writelog($connectmsg); writehistory($connectmsg);
+         writelog($connectmsg);
       }
    }
 

@@ -1,5 +1,11 @@
 07/21/2006
 ----------
+1. a forth commit to fix a minor bug in the openwebmail-tool.pl
+   new SMTP code (writehistory is not available at that time).
+
+
+07/21/2006
+----------
 1. a third commit to further update the en_US templates,
    as is sometimes necessary for large commits to SVN.
 
