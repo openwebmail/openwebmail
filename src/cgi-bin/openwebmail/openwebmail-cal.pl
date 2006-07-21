@@ -254,12 +254,12 @@ sub yearview {
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    my $prev_year = $year - 1;
-   my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'language'}});
+   my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'locale'}});
    $temphtml=iconlink($gif, formatted_date($prev_year), qq|accesskey="U" href="$cal_url&amp;action=calyear&amp;year=$prev_year"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
    my $next_year = $year + 1;
-   $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'language'}});
+   $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'locale'}});
    $temphtml=iconlink($gif, formatted_date($next_year), qq|accesskey="D" href="$cal_url&amp;action=calyear&amp;year=$next_year"|). qq| \n|;
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
@@ -271,7 +271,7 @@ sub yearview {
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
       if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
       } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
          readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
       }
@@ -446,7 +446,7 @@ sub monthview {
    if ($month == 1) {
       ($prev_year, $prev_month) = ($year-1, 12);
    }
-   my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'language'}});
+   my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'locale'}});
    $temphtml=iconlink($gif, formatted_date($prev_year,$prev_month), qq|accesskey="U" href="$cal_url&amp;action=calmonth&amp;year=$prev_year&amp;month=$prev_month"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
@@ -454,7 +454,7 @@ sub monthview {
    if ($month == 12) {
       ($next_year, $next_month) = ($year+1, 1);
    }
-   $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'language'}});
+   $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'locale'}});
    $temphtml=iconlink($gif, formatted_date($next_year,$next_month), qq|accesskey="D" href="$cal_url&amp;action=calmonth&amp;year=$next_year&amp;month=$next_month"|). qq| \n|;
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
@@ -477,7 +477,7 @@ sub monthview {
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
       if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
       } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
          readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
       }
@@ -523,8 +523,7 @@ sub monthview {
             my $i=0;
 
             $temphtml .= qq|<tr><td align="right">|;
-            if ($prefs{'language'}=~ /^zh_TW.Big5/ ||
-                $prefs{'language'}=~ /^zh_CN.GB2312/) {
+            if ($prefs{'locale'} =~ m/^(?:zh_TW\.Big5|zh_CN\.GB2312)/) {
                $temphtml.=lunar_str($year, $month, $day, $prefs{'charset'});
             }
             my $daystr=$days[$x][$y]; $daystr=" ".$daystr if (length($daystr)<2);
@@ -672,13 +671,13 @@ sub weekview {
 
    my ($prev_year, $prev_month, $prev_day)=(ow::datetime::seconds2array($time-86400*7))[5,4,3];
    $prev_year+=1900; $prev_month++;
-   my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'language'}});
+   my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'locale'}});
    $temphtml=iconlink($gif, "$lang_calendar{'weekview'} ".formatted_date($prev_year,$prev_month,$prev_day), qq|href="$cal_url&amp;action=calweek&amp;year=$prev_year&amp;month=$prev_month&amp;day=$prev_day"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
    my ($next_year, $next_month, $next_day)=(ow::datetime::seconds2array($time+86400*7))[5,4,3];
    $next_year+=1900; $next_month++;
-   $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'language'}});
+   $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'locale'}});
    $temphtml=iconlink($gif, "$lang_calendar{'weekview'} ".formatted_date($next_year,$next_month,$next_day), qq|href="$cal_url&amp;action=calweek&amp;year=$next_year&amp;month=$next_month&amp;day=$next_day"|). qq| \n|;
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
@@ -705,7 +704,7 @@ sub weekview {
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
       if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
       } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
          readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
       }
@@ -738,8 +737,7 @@ sub weekview {
                                      month=>$month,
                                      day=>$day).
                    qq|<tr><td align="right">|;
-      if ($prefs{'language'}=~ /^zh_TW.Big5/ ||
-          $prefs{'language'}=~ /^zh_CN.GB2312/) {
+      if ($prefs{'locale'} =~ m/^(?:zh_TW\.Big5|zh_CN\.GB2312)/) {
          $temphtml .= lunar_str($year, $month, $day, $prefs{'charset'});
       }
       $temphtml .= submit("$daystr").
@@ -909,13 +907,13 @@ sub dayview {
 
    my ($prev_year, $prev_month, $prev_day)=(ow::datetime::seconds2array($time-86400))[5,4,3];
    $prev_year+=1900; $prev_month++;
-   my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'language'}});
+   my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'locale'}});
    $temphtml=iconlink($gif, formatted_date($prev_year,$prev_month,$prev_day), qq|accesskey="U" href="$cal_url&amp;action=calday&amp;year=$prev_year&amp;month=$prev_month&amp;day=$prev_day"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
    my ($next_year, $next_month, $next_day)=(ow::datetime::seconds2array($time+86400))[5,4,3];
    $next_year+=1900; $next_month++;
-   $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'language'}});
+   $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'locale'}});
    $temphtml=iconlink($gif, formatted_date($next_year,$next_month,$next_day), qq|accesskey="D" href="$cal_url&amp;action=calday&amp;year=$next_year&amp;month=$next_month&amp;day=$next_day"|). qq| \n|;
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
@@ -928,7 +926,7 @@ sub dayview {
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
       if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
       } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
          readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
       }
@@ -938,8 +936,7 @@ sub dayview {
    my $wdaynum=(ow::datetime::seconds2array($t))[6];
 
    $temphtml = formatted_date($year, $month, $day, $wdaynum);
-   if ($prefs{'language'}=~ /^zh_TW.Big5/ ||
-       $prefs{'language'}=~ /^zh_CN.GB2312/) {
+   if ($prefs{'locale'} =~ /^(?:zh_TW\.Big5|zh_CN\.GB2312)/) {
       $temphtml .= qq| &nbsp; |.lunar_str($year, $month, $day, $prefs{'charset'});
    }
    $html =~ s/\@\@\@CALTITLE\@\@\@/$temphtml/g;
@@ -1648,12 +1645,12 @@ sub listview {
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    my $prev_year = $year - 1;
-   my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'language'}});
+   my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'locale'}});
    $temphtml=iconlink($gif, formatted_date($prev_year), qq|accesskey="U" href="$cal_url&amp;action=callist&amp;year=$prev_year"|). qq| \n|;
    $html =~ s/\@\@\@PREV_LINK\@\@\@/$temphtml/g;
 
    my $next_year = $year + 1;
-   $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'language'}});
+   $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'locale'}});
    $temphtml=iconlink($gif, formatted_date($next_year), qq|accesskey="D" href="$cal_url&amp;action=callist&amp;year=$next_year"|). qq| \n|;
    $html =~ s/\@\@\@NEXT_LINK\@\@\@/$temphtml/g;
 
@@ -1665,7 +1662,7 @@ sub listview {
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
       if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
       } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
          readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
       }
@@ -1733,8 +1730,7 @@ sub listview {
                $temphtml.=sprintf("%02d/%02d", $month, $day);
             }
             $temphtml.=qq|</b></a>|;
-            if ($prefs{'language'}=~ /^zh_TW.Big5/ ||
-                $prefs{'language'}=~ /^zh_CN.GB2312/) {
+            if ($prefs{'locale'} =~ /^(?:zh_TW\.Big5|zh_CN\.GB2312)/) {
                $temphtml .= qq| &nbsp; |.lunar_str($year, $month, $day, $prefs{'charset'});
             }
             $temphtml .= qq|</td>|.

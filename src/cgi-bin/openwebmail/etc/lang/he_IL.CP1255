@@ -1,0 +1,773 @@
+package ow::he_IL_CP1255;
+
+# Hebrew translation, charset: windows-1255
+# by Yehuda Drori
+# Fixed for Visual by Shay Sevet
+
+%lang_folders =
+   (
+   INBOX            => 'דואר נכנס',
+   'saved-messages' => 'הודעות שמורות',
+   'sent-mail'      => 'דואר שנשלח',
+   'saved-drafts'   => 'טיוטה',
+   'mail-trash'     => 'סל מיחזור',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LEARN SPAM--',
+   LEARNHAM         => '--LEARN HAM--',
+   FORWARD          => '--FORWARD--',
+   DELETE           => '--מחיקה--'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'סטטוס (שלא נפתחו קודם)',
+   date        => 'תאריך (ישנים קודם)',
+   date_rev    => 'תאריך (חדשים קודם)',
+   sender      => 'שולח (Ascending)',
+   sender_rev  => 'שולח (Descending)',
+   subject     => 'נושא (ישנים קודם)',
+   subject_rev => 'נושא (חדשים קודם)',
+   size        => 'גודל (קטנים קודם)',
+   size_rev    => 'גודל (גדולים קודם)',
+   );
+
+%lang_abooksortlabels =
+   (
+   fullname     => 'Full Name (A to Z)',
+   fullname_rev => 'Full Name (Z to A)',
+   prefix       => 'Name Prefix (A to Z)',
+   prefix_rev   => 'Name Prefix (Z to A)',
+   first        => 'First Name (A to Z)',
+   first_rev    => 'First Name (Z to A)',
+   middle       => 'Middle Name (A to Z)',
+   middle_rev   => 'Middle Name (Z to A)',
+   last         => 'Last Name (A to Z)',
+   last_rev     => 'Last Name (Z to A)',
+   suffix       => 'Name Suffix (A to Z)',
+   suffix_rev   => 'Name Suffix (Z to A)',
+   email        => 'First Email Address (A to Z)',
+   email_rev    => 'First Email Address (Z to A)',
+   phone        => 'First Phone Number (ascending numeric)',
+   phone_rev    => 'First Phone Number (descending numeric)',
+   );
+
+%lang_abookselectionlabels =
+   (
+   ALL => "All Addressbooks",
+   global => "Global Addressbook",
+   ldapcache => "Global Addressbook - ldap",
+   );
+
+%lang_onofflabels =
+   (
+   auto => 'מופעל אוטומטית',
+   on   => 'פעיל',
+   off  => 'מבוטל'
+   );
+
+%lang_bgfilterthresholdlabels =
+   (
+     0 => 'No',
+     1 => 'Yes',
+    20 => 'Only if INBOX has more than 20 new messages',
+    50 => 'Only if INBOX has more than 50 new messages',
+   100 => 'Only if INBOX has more than 100 new messages',
+   200 => 'Only if INBOX has more than 200 new messages',
+   500 => 'Only if INBOX has more than 500 new messages',
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'רגיל',
+   urgent      => 'דחוף',
+   'non-urgent'=> 'לא דחוף'
+   );
+
+%lang_msgformatlabels =
+   (
+   auto => 'בחירה אוטומטית',
+   text => 'טקסט',
+   html => 'HTML',
+   both => 'טקסט ו-HTML'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'בתחילה',
+   at_end       => 'בסוף',
+   none         => 'ללא'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'שאל לוודא',
+   yes => 'כן',
+   no  => 'לא'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'ללא ביטול',
+   cgionly => 'CGI בלבד',
+   all     => 'כל ה"היפר קישורים"'
+   );
+
+%lang_ctrlpositionlabels =
+   (
+   top    => 'בראש',
+   bottom => 'בתחתית'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'לפני אזור עריכת דואר',
+   after  => 'לאחר אזור עריכת דואר',
+   both   => 'ערוך איזור לפני ואחרי משלוח'
+   );
+
+%lang_abookbuttonpositionlabels =
+   (
+   before => 'לפני הרשומות בספר הכתובות',
+   after  => 'אחרי הרשומות בספר הכתובות',
+   both   => 'לפני ואחרי הרשומות בספר הכתובות'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'All new messages in INBOX',
+   pop3 => 'Only messages from pop3 server',
+   none => 'None'
+   );
+
+%lang_timelabels =
+   (
+      3 => '3 דקות',
+      5 => '5 דקות',
+     10 => '10 דקות',
+     20 => '20 דקות',
+     30 => '30 דקות',
+     60 => '60 דקות',
+    120 => 'שעתיים',
+    180 => '3 שעות',
+    360 => '6 שעות',
+    720 => '12 שעות',
+   1440 => '24 שעות'
+   );
+
+%lang_timezonelabels =
+   (
+   '-1200' => 'International Date Line West',
+   '-1100' => 'Nome, Anadyr',
+   '-1000' => 'Alaska-Hawaii Standard',
+   '-0900' => 'Yukon Standard',
+   '-0800' => 'Pacific Standard',
+   '-0700' => 'Mountain Standard',
+   '-0600' => 'Central Standard',
+   '-0500' => 'Eastern Standard',
+   '-0400' => 'Atlantic Standard',
+   '-0330' => 'Newfoundland Standard',
+   '-0300' => 'Atlantic Daylight',
+   '-0230' => 'Newfoundland Daylight',
+   '-0200' => 'Azores, South Sandwich Islands',
+   '-0100' => 'West Africa',
+   '+0000' => 'Greenwich Mean',
+   '+0100' => 'Central European',
+   '+0200' => 'Eastern European',
+   '+0300' => 'Baghdad, Moscow, Nairobi',
+   '+0330' => 'Tehran',
+   '+0400' => 'Abu Dhabi, Volgograd, Kabul',
+   '+0500' => 'Karachi',
+   '+0530' => 'India',
+   '+0600' => 'Dhaka',
+   '+0630' => 'Rangoon',
+   '+0700' => 'Bangkok, Jakarta',
+   '+0800' => 'China Coast',
+   '+0900' => 'Japan Standard',
+   '+0930' => 'Australia Central Standard',
+   '+1000' => 'Australia Eastern Standard',
+   '+1030' => 'Lord Howe Island',
+   '+1100' => 'Australia Eastern Summer',
+   '+1200' => 'International Date Line East',
+   '+1300' => 'New Zealand Daylight',
+   );
+
+%lang_abookclasslabels =
+   (
+   PRIVATE => 'Private',
+   PUBLIC => 'Public',
+   );
+
+%lang_satestfields =
+   (
+   name       => 'Name',
+   desc       => 'Description',
+   type       => 'Test Type',
+   expression => 'Expression',
+   score      => 'Score',
+   );
+
+%lang_satesttypes =
+   (
+   header  => 'Message Header',
+   body    => 'Text in Msgbody (HTML tag removed)',
+   uri     => 'Links in Message Body',
+   rawbody => 'Text in Msgbody and Attachments (HTML tag reserved)',
+   full    => 'Undecoded Msgbody and Attachments',
+   );
+
+%lang_satestheaderattrs =
+   (
+   ALL        => 'All',
+   Subject    => 'Subject',
+   From       => 'From',
+   To         => 'To',
+   Cc         => 'Cc',
+   ToCc       => 'To and Cc',
+   MESSAGEID  => 'Message Id',
+   USERDEFINE => 'User Define',
+   );
+
+%lang_searchtypelabels =
+   (
+   contains    => 'מכיל',
+   notcontains => 'אינו מכיל',
+   is          => 'הינו',
+   isnot       => 'איננו',
+   startswith  => '-מתחיל ב',
+   endswith    => '-מסתיים ב',
+   regexp      => 'תואם'
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'All',
+   today       => 'Today',
+   oneweek     => 'One week',
+   twoweeks    => 'Two weeks',
+   onemonth    => 'One month',
+   threemonths => 'Three months',
+   sixmonths   => 'Six months',
+   oneyear     => 'One year',
+   );
+
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
+%lang_calendar =
+   (
+   yearview  => 'שנתי',
+   monthview => 'חודשי',
+   weekview  => 'שבועי',
+   dayview   => 'יומי',
+   listview  => 'אחרון'
+   );
+
+%lang_month =
+   (
+   1  => 'ינואר',
+   2  => 'פברואר',
+   3  => 'מרץ',
+   4  => 'אפריל',
+   5  => 'מאי',
+   6  => 'יוני',
+   7  => 'יולי',
+   8  => 'אוגוסט',
+   9  => 'ספטמבר',
+   10 => 'אוקטובר',
+   11 => 'נובמבר',
+   12 => 'דצמבר'
+   );
+
+%lang_wday =
+   (
+   0 => 'ראשון',
+   1 => 'שני',
+   2 => 'שלישי',
+   3 => 'רביעי',
+   4 => 'חמישי',
+   5 => 'שישי',
+   6 => 'שבת'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'WK',
+   0 => 'א',
+   1 => 'ב',
+   2 => 'ג',
+   3 => 'ד',
+   4 => 'ה',
+   5 => 'ו',
+   6 => 'ש'
+   );
+
+%lang_order =
+   (
+   1 => 'ראשון',
+   2 => 'שני',
+   3 => 'שלישי',
+   4 => 'רביעי',
+   5 => 'אחרון'
+   );
+
+%lang_wdbutton =
+   (
+   refresh  => 'רענן',
+   preview  => 'תצוגה מקדימה',
+   edit     => 'ערוך',
+   listarchive => 'רשימה',
+   decompress => 'דחס',
+   extract  => 'חלץ',
+   mkpdf    => 'Make Pdf',
+   mkps     => 'Make Ps',
+   chdir    => 'שנה סיפריה',
+   mkdir    => 'צור סיפריה',
+   newfile  => 'קובץ חדש',
+   copy     => 'העתק',
+   move     => 'הזז',
+   symlink  => 'Symlink',
+   delete   => 'מחק',
+   chmod    => 'Chmod',
+   gzip     => 'gzCompress',
+   mkzip    => 'MkZip',
+   mktgz    => 'MkTgz',
+   mkthumbnail => 'MkThumb',
+   download => 'הורד',
+   upload   => 'העלה',
+   );
+
+%lang_text =
+   (
+   loading    => 'מעלה, נא לחכות...',
+   help       => 'עזרה',
+   login      => 'כניסה',
+   clear      => 'נקה',
+   webmail    => 'WebMail',
+   msglist    => 'Message List',
+   point      => 'נקודה',
+   pixel      => 'פיקסל',
+   changepwd  => 'שנה סיסמא',
+   viewhistory=> 'הצג היסטוריה',
+   of         => 'מתוך',
+   messages   => 'הודעות',
+   unread     => 'לא נקראו',
+   nomessages => 'אין הודעות',
+   inmessages => 'הודעות נכנסות',
+   composenew => 'חבר הודעה חדשה',
+   refresh    => 'רענן',
+   userprefs  => 'הגדרות משתמש',
+   addressbook=> 'ספר כתובות',
+   folders    => 'מחיצות',
+   emptyfolder=> 'Empty folder',
+   emptytrash => 'נקה סל מיחזור',
+   totrash    => 'העבר לסל מיחזור',
+   learnham   => 'Learn Ham',
+   learnspam  => 'Learn Spam',
+   forever    => 'תמיד',
+   delatlogout=> 'מחק ביציאה',
+   userdef    => 'הגדרת משתמש',
+   logout     => 'יציאה',
+   page       => 'עמוד',
+   msgsperpage=> '@@@MSGCOUNT@@@ messages per page',
+   msgcopyconf=> '\'האם הינך בטוח לגבי העתקת ההודעות שנבחרו\'',
+   copy       => 'העתק',
+   msgmoveconf=> '\'?האם הינך בטוח לגבי העברת ההודעות שנבחרו\'',
+   move       => 'העבר',
+   markasread => 'סמן כנקרא',
+   markasunread => 'סמן כלא נקרא',
+   dateformat => 'תבנית תאריך',
+   date       => 'תאריך',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
+   recipient  => 'נמען',
+   sender     => 'שולח',
+   subject    => 'נושא',
+   thread     => 'פתיל',
+   size       => 'גודל',
+   backto     => 'חזור ל',
+   reply      => 'השב',
+   replyall   => 'השב לכולם',
+   forward    => 'העבר',
+   forwardasatt=> 'העבר כנספח',
+   forwardasorig=> 'העבר כמקורי',
+   printfriendly=> 'ידידותי למדפסת',
+   msgformat  => 'פורמט הודעה',
+   from       => 'מאת',
+   replyto    => 'השב ל',
+   to         => 'אל',
+   cc         => 'לידיעה',
+   bcc        => 'נסתר',
+   simplehead => 'כותרות פשוטות',
+   allhead    => 'כל הכותרות',
+   simpleattmode => 'נספחים פשוטים',
+   allattmode    => 'כל הנספחים',
+   attachment => 'נספח',
+   type       => 'סוג',
+   filename   => 'שם קובץ',
+   encoding   => 'קידוד',
+   description=> 'תאור',
+   download   => 'הורדה',
+   charset    => 'סט אותיות',
+   sameascomposecharset => 'זהה לסוג האותיות בהודעה',
+   thisispartialmsg => 'זוהי הודעה חלקית',
+   msgrebuild => 'בנית הודעה מחדש',
+   editdraft  => 'ערוך טיוטה',
+   savedraft  => 'שמור טיוטה',
+   draftsaved => 'Draft @@@SUBJECT@@@ has been saved successfully',
+   send       => 'שלח',
+   msgsent    => 'Message @@@SUBJECT@@@ has been sent successfully',
+   about      => 'על',
+   close      => 'סגור',
+   cancel     => 'ביטול',
+   ok         => 'אישור',
+   continue   => 'המשך',
+   loginagain => 'כניסה חוזרת',
+   exit       => 'יציאה',
+   yourname   => 'שמך',
+   save       => 'שמור',
+   add        => 'הוסף',
+   folderrenprop => '\'הכנס שם חדש למחיצה זו\'',
+   rename     => 'שנה שם',
+   folderdelconf => '\'?האם הינך משוכנע שברצונך למחוק מחיצה זו על תכולתה\'',
+   markread   => 'סמן כנקרא',
+   foldermarkreadconf => '\'?האם הינך רוצה לסמן את כל ההודעות במחיצה זו כנקראו\'',
+   chkindex   => 'בדוק אינדקס',
+   folderchkindexconf => '\'?האם הינך בטוח שברצונך לבדוק אינדקס לספריה זו\'',
+   reindex    => 'ReIndex',
+   folderreindexconf => '\'?האם הינך בטוח שברצונך לבצע אידקס חוזר לסיפריה זו\'',
+   total      => 'סך-הכל',
+   edit       => 'ערוך',
+   delete     => 'מחק',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
+   reserve    => 'שחרר',
+   clearadd   => 'מחק את כל הכתובות',
+   importadd  => 'ייבא כתובות',
+   exportadd  => 'ייצא כתובות',
+   import     => 'ייבא',
+   export     => 'Export',
+   addmod     => 'ערוך/שנה',
+   modify     => 'שנה',
+   max        => 'מקסימום',
+   group      => 'קבוצה',
+   quotausage => 'שימוש מההגבלה',
+   quotalimit => 'הגבלת גודל',
+   quotahit   => 'מגבלת מקום',
+   tzmap      => 'מפת שמן עולמית',
+   testsound  => 'בדוק צליל',
+   editfroms  => 'ערוך כתובת דוא"ל אישית',
+   pop3book   => 'POP3 הגדר',
+   retr_pop3s => 'משוך דואר POP3',
+   filterbook => 'הגדרת מסנני דואר',
+   include    => 'כלול',
+   exclude    => 'הוצא',
+   smtprelay  => 'SMTP Relay',
+   header     => 'כותרת',
+   body       => 'גוף',
+   attfilename=> 'קובץ מצורף',
+   all        => 'הכל',
+   enable     => 'אפשר',
+   disable    => 'בטל',
+   yes        => 'כן',
+   no         => 'לא',
+   filtered   => 'מסונן',
+   blockrelay => 'חסום שרת דואר',
+   blockemail => 'חסום כתובת דואר',
+   read       => 'קרא',
+   yourmsg    => 'ההודעה שלך',
+   delivered  => '-נשלח ב',
+   wasreadon1 => '-נקרא ב',
+   wasreadon2 => '.',
+   globalfilterrule => 'חוקי סינון כללים',
+   readonly   => 'קריאה בלבד',
+   textcontent=> 'תכולת טקסט',
+   search     => 'חיפוש',
+   advsearch  => 'חיפוש מתקדם',
+   folder     => 'מחיצה',
+   nofoldersel=> 'לא נבחרה מחיצה',
+   showall    => 'הראה הכול',
+   spellcheck => 'בדוק איות',
+   checkagain => 'בדוק שוב',
+   finishchecking => 'סיים בדיקה',
+   editpdict  => 'עריכת מילון אישי',
+   addtodict  => 'הוסף למילון',
+   manuallyfix=> 'תיקון ידני',
+   editstat   => 'ערוך "נייר מכתבים"',
+   savestat   => 'שמור "נייר מכתבים"',
+   clearstat  => 'נקה את כל "ניירות המכתבים"',
+   statreply  => '-- נייר מכתבים למענה על הודעה --',
+   calendar   => 'לוח שנה',
+   allday     => 'כל היום',
+   today      => 'Today',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => '@@@YEAR@@@ שנה',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@MONTH_STR@@@ @@@DAY@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'בחירה אוטומטית',
+   none       => 'ללא',
+   moreitems  => 'פרטים נוספים',
+   multieditconf => 'פריט זה מוגדר למספר מועדים. שינוי בו ישפיע על כל המועדים. להמשיך בשינויn\\n\\?',
+   multidelconf  => 'פריט זה מוגדר למספר מועדים. מחיקתו יסיר את הופעתו בכל המועדים. להמשיך במחיקהn\\n\\?',
+   caldelconf => 'האם הנכך בטוח שברצונך למחוק קובץ זה?',
+   noitemforthisday => 'אין פריטים ליום זה',
+   thisday_only          => 'יום זה בלבד',
+   the_wday_of_thismonth => 'יום @@@WDAY@@@ ה@@@ORDER@@@ בחודש',
+   every_wday_thismonth  => 'כל יום @@@WDAY@@@ בחודש זה',
+   thismonth_only           => 'חודש זה בלבד',
+   every_oddmonth_thisyear  => 'כל חודש אי-זוגי השנה',
+   every_evenmonth_thisyear => 'כל חודש זוגי השנה',
+   every_month_thisyear     => 'כל חודש השנה',
+   webdisk      => 'דיסק רשת',
+   sshterm      => 'טרמינל מאובטח',
+   dir          => 'סיפריה',
+   dirs         => 'סיפריות',
+   file         => 'קובץ',
+   files        => 'קבצים',
+   program      => 'תוכנית',
+   dest_of_chdir  => 'סיפרית היעד',
+   name_of_newdir => 'שם ליצירת סיפריה',
+   name_of_newfile=> 'שם ליצירת קובץ',
+   dest_of_thecopy=> 'הקובץ או הספריה המיועדת להעתקה',
+   dest_of_themove=> 'הקובץ או הספריה להעברה',
+   dest_of_thezip=> '(zip) שם הקובץ המיועד לדחיסה',
+   dest_of_thetgz=> '(tgz) שם הקובץ המיועד לדחיסה',
+   homedir      => 'סיפרית הבית',
+   showthumbnail    => 'הראה תמונה מוקטנת',
+   showhidden   => 'הראה קבצים נסתרים',
+   lastmodified => 'תאריך שינוי אחרון',
+   perm         => 'הרשאה',
+   permission   => 'הרשאות גישה',
+   noitemfound  => 'לא נמצא פריט',
+   savefile     => 'שמור קובץ',
+   succeeded    => 'הפעולה הצליחה',
+   failed       => 'הפעולה נכשלה',
+   savefile_towd=> 'שמור קובץ לסיפרית רשת',
+   saveatt_towd => 'שמור נספח לסיפרית רשת',
+   addatt_fromwd=> 'הוסף נספח מספרית רשת',
+   vdomain_usermgr    => 'ניהול משתמשי דומיין ורטואלי',
+   vdomain_createuser => 'צור חשבון משתמש',
+   vdomain_changeuser => 'שנה חשבון משתמש',
+   vdomain_deleteuser => 'מחק חשבון משתמש',
+   vdomain_changeview => 'שנה תצוגה ל',
+   vdomain_usersonly  => 'משתמשים בלבד',
+   vdomain_useralias  => 'משתמשים/כינויים',
+   vdomain_fmtuseralias => 'משתמשים/כינויים מעוצבים',
+   vdomain_admin      => 'מנהל',
+   vdomain_localuser  => 'משתמש מקומי',
+   set_passwd         => 'קבע סיסמא',
+   reset_passwd       => 'אפס סיסמא',
+   email_alias        => 'כינוי E-mail',
+   name       => 'Name',
+   email      => 'Email',
+   note       => 'Note',
+   abooks => 'Addressbooks',
+   abook_personal => 'Personal addressbook',
+   abook_global => 'Global addressbook',
+   abook_converted => 'Converted',
+   abook_group_member => 'Member',
+   abook_group_allmembers => 'All Members',
+   abook_import => 'Import Addressbook Information',
+   abook_importdest => 'Import to new addressbook...',
+   abook_export => 'Export Addressbook Information',
+   abook_exportnow => 'Export Now',
+   abook_newcontact => 'New Contact',
+   abook_noconversion => 'No Conversion',
+   abook_newgroup => 'New Group',
+   abook_listview_addrperpage => '@@@ADDRCOUNT@@@ addresses per page',
+   abook_listview_writemailto => 'Write mail to',
+   abook_listview_edit => 'Edit',
+   abook_listview_move => 'Move',
+   abook_listview_copy => 'Copy',
+   abook_listview_compose => 'Compose message from selected',
+   abook_listview_composemode => 'Select Addresses for Compose',
+   abook_listview_fullname => 'Full Name',
+   abook_listview_prefix   => 'Prefix',
+   abook_listview_first    => 'First',
+   abook_listview_middle   => 'Middle',
+   abook_listview_last     => 'Last',
+   abook_listview_suffix   => 'Suffix',
+   abook_listview_email    => 'Email',
+   abook_listview_phone    => 'Phone',
+   abook_listview_note     => 'Note',
+   abook_listview_none     => 'None',
+   abook_listview_telpref  => 'Pref',
+   abook_listview_telhome  => 'Home',
+   abook_listview_telwork  => 'Work',
+   abook_listview_telcell  => 'Cell',
+   abook_listview_telcar   => 'Car',
+   abook_listview_telfax   => 'Fax',
+   abook_listview_telpager => 'Pager',
+   abook_listview_telvoice => 'Voice',
+   abook_listview_telvideo => 'Video',
+   abook_listview_telmsg   => 'Msg',
+   abook_listview_telbbs   => 'BBS',
+   abook_listview_telisdn  => 'ISDN',
+   abook_listview_telmodem => 'Modem',
+   abook_listview_categories => 'Categories',
+   abook_listview_quickadd => 'Quick Add',
+   abook_listview_expandall => 'expand all',
+   abook_listview_collapseall => 'collapse all',
+   abook_listview_noaddresses => '-- No contacts in this addressbook --',
+   abook_listview_nomatch => '-- Your search returns no matches --',
+   abook_listview_done => 'Done',
+   abook_listview_viewselected => 'View list of selected addresses',
+   abook_listview_unselectall => 'Unselect all selected addresses',
+   abook_showchecked_export => 'Checked And Ready For Exporting',
+   abook_editform_destination => 'Destination',
+   abook_editform_new_agent => 'This New Agent',
+   abook_editform_grouplabel => 'group',
+   abook_editform_valuelabel => 'value',
+   abook_editform_namelabel_FN => 'Full Name @@@SOUND@@@',
+   abook_editform_valuelabel_FN => '&nbsp;',
+   abook_editform_namelabel_EMAIL => 'Email Addresses In This Group',
+   abook_editform_namelabel_GROUPNAME => 'Group Name @@@SOUND@@@',
+   abook_editform_namelabel_NICKNAME => 'Nickname</b>@@@ADDMORELINK@@@<b>',
+   abook_editform_valuelabel_NICKNAME => '&nbsp;',
+   'abook_editform_namelabel_SORT-STRING' => 'Last Name Sort Override',
+   'abook_editform_valuelabel_SORT-STRING' => 'last name:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;sort override:<i>Trapp</i>',
+   abook_editform_valuelabel_TITLE => 'v.p., research and development',
+   abook_editform_valuelabel_ROLE => 'manager, executive, etc',
+   abook_editform_valuelabel_ORGANIZATIONNAME => 'abc, inc.',
+   abook_editform_valuelabel_ORGANIZATIONALUNITS => 'accounting, european division',
+   abook_editform_namelabel_URL => 'Websites</b> @@@ADDMORELINK@@@<b>',
+   abook_editform_valuelabel_URL => 'http://www.mysite.com',
+   abook_editform_namelabel_TZ => 'Timezone',
+   abook_editform_namelabel_MAILER => 'EMail Program',
+   abook_editform_valuelabel_MAILER => 'openwebmail, outlook, etc',
+   abook_editform_namelabel_NOTE => 'Note',
+   abook_editform_namelabel_KEY => 'Privacy Keys',
+   abook_editform_undef_KEY => 'no keys exist for this contact.',
+   abook_editform_view_KEY => 'view this privacy key',
+   abook_editform_unknown_KEY => 'unknown key type',
+   abook_editform_x509_KEY => 'X.509 Public Key Certificate',
+   abook_editform_pgp_KEY => 'IETF Pretty Good Privacy PGP Key',
+   abook_editform_gpg_KEY => 'GNU Privacy Guard GPG Key',
+   abook_editform_namelabel_AGENT => 'Agents',
+   abook_editform_undef_AGENT => 'no one acts on behalf of this contact.',
+   abook_editform_download_AGENT => 'download this agent\'s vcard information',
+   abook_editform_unknown_AGENT => 'unknown agent type',
+   abook_editform_vcf_AGENT => 'Versit Card File',
+   abook_editform_GEO_find => 'Find your geographic position',
+   abook_editform_GEO_findurl => 'http://www.multimap.com/map/home.cgi?client=public&lang=&advanced=&db=US',
+   abook_editform_GEO_map => 'Show a map of this location',
+   abook_editform_GEO_photo => 'Show a satellite photo of this location',
+   abook_editform_namelabel_CLASS => 'Access Classification',
+   abook_editform_namelabel_PRODID => 'Creator Program',
+   abook_editform_valuelabel_PRODID => 'outlook, openwebmail, etc',
+   abook_editform_namelabel_UID => 'External Unique ID',
+   abook_editform_valuelabel_UID => 'used by external programs to identify this card',
+   abook_editform_namelabel_SOURCE => 'vCard Source URL',
+   abook_editform_valuelabel_SOURCE => 'http://www.mysite.com/mycard.vcf',
+   abook_editform_namelabel_NAME => 'vCard Source Name',
+   abook_editform_valuelabel_NAME => 'a description of the source url',
+   abook_editform_valuelabel_CUSTOMNAME => 'a custom name',
+   abook_editform_valuelabel_CUSTOMVALUES => 'custom values',
+   abook_editform_playsound => 'Play Sound',
+   abook_editform_deletesound => 'Delete Sound',
+   abook_editform_save_and_return => 'Save and return to parent',
+   abook_editform_cancel_and_return => 'Cancel and return to parent',
+   abook_editform_new_agent_link => 'create',
+   sa_prefs         => 'SpamAssassin user preferences',
+   sa_edittest      => 'Edit Test Rules',
+   sa_editblacklist => 'Edit Black List',
+   sa_editwhitelist => 'Edit White List',
+   );
+
+%lang_err =
+   (
+   has_illegal_chars => '!תווים חוקיים',
+   couldnt_readlock  => 'לא ננעל לקריאה',
+   couldnt_writelock => 'לא ננעל לכתיבה',
+   couldnt_create    => 'Couldn\'t create',
+   couldnt_delete    => 'Couldn\'t delete',
+   couldnt_open      => 'לא נפתח',
+   couldnt_seek      => 'Couldn\'t seek in',
+   couldnt_read      => 'Couldn\'t read',
+   couldnt_write     => 'Couldn\'t write',
+   couldnt_close     => 'לא נסגר',
+   couldnt_updatedb  => 'לא עודכן אינדקס',
+   disallowed_pop3   => 'לא מורשה POP3  שרת',
+   disallowed_client => 'אינך מורשה להתחבר מתחנה זו',
+   disallowed_receiverdomain => 'אינך מורשה לשלוח דואר לכתובת זו',
+   norootlogin       => 'מצטערים, חשבון ה-root לא מאופשר מטעמי אבטחה.',
+   shouldnt_move_here=> '!אינך אמור להעביר הודעות לכאן',
+   destination_folder=> 'מחיצת יעד',
+   doesnt_exist      => '!לא קיים',
+   foldername_long   => '!שם מחיצה אינו יכול לעלות על @@@FOLDERNAME_MAXLEN@@@ תווים',
+   folder_with_name  => 'מחיצה בעלת השם',
+   already_exists    => '!כבר קיים',
+   cant_create_folder=> '!לא מצליח ליצור מחיצה',
+   under_indexing    => 'עדיין בתהליך אינדקס נסה מאוחר יותר',
+   back              => 'חזור',
+   tryagain          => '.ונסה שנית',
+   mailfilter_error  => 'Mail Filter Error',
+   att_overlimit     => 'מצטער, הינך חורג ממגבלת גודל ה"סיפוח" המורשה',
+   inv_msg_op        => 'פעולה חריגה להודעה',
+   sess_cookieerr    => 'בקשתך לא מכילה "עוגית" זיהוי מתאימה. הגישה נחסמה !!!',
+   sess_iperr        => 'בקשתך לא התקבלה מכתובת ה IP של התקשרות המקורית. הגישה נחסמה !!!',
+   no_endpart        => 'החלק האחרון לא נמצא',
+   part_missing      => 'מספר חלקים חסרים',
+   rebuild_fmterr    => 'שגיאת עיצוב בהודעה החדשה',
+   rebuild_sizeerr   => 'גודל ההודעה החדשה איננו מתאים',
+   user_not_exist    => 'משתמש לא קיים',
+   func_notsupported => 'תכונה לא נתמכת',
+   auth_syserr       => 'שגיאה במערכת האישרור',
+   param_fmterr      => 'פרמטר עיצוב שגוי',
+   pwd_incorrect     => 'סיסמא שגויה',
+   pwd_confirmmismatch=>'סיסמא לווידוא לא תואמת לסיסמא החדשה',
+   pwd_tooshort      => 'סיסמא קצרה מדיי (אורך סיסמא מינימלי הוא @@@PASSWDMINLEN@@@ תווים)',
+   pwd_toosimple     => 'סיסמא פשוטה מדיי (דרושים אותיות ומספרים בסיסמה)',
+   network_server_error => 'שגיאה בשירותי הרשת',
+   sendmail_error    => 'Sorry, there was a problem sending your message.',
+   sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
+   at_char_not_allowed => 'התו @ איננו מורשה בשדה זה. נא לחץ על "חזור" בדפדפן שלך ונסה שנית',
+   badnum_in_days => 'bad number in consecutive days field',
+   access_denied     => 'גישה לא אושרה',
+   couldnt_chdirto   => 'לא הצליח לשנות סיפריה ל',
+   isnt_a_dir        => 'הוא לא סיפרייה',
+   edit_notfordir    => 'אינך יכול ךערוך ספריה זו',
+   onefileonly       => 'רק קובץ אחד מורשה לפעולה זו',
+   no_file_todownload=> 'אף קובץ לא מסומן להורדה',
+   upload_overlimit  => 'קובץ להעלאה גדול מהגודל המותר',
+   decomp_notsupported =>'פעולת "חילוץ" לא נתמכת עבור קובץ זה',
+   filefmt_notsupported =>'The file format is not supported.',
+   webdisk_readonly  => 'מצטער, גישתך לדיסק הרשת הינה לקריאה בלבד',
+   quota_syserr      => 'שגיאה במערכת הקצבאות',
+   quotahit_alert    => 'מצטער, הגעת לגבול הקיבולת המוקצבת לך. נא פנה הודעות מספריות הדואר שלך או מחק קבצים מדיסק הרשת שלך',
+   quotahit_delmail  => 'אזהרה! בשל הגעה למגבלת ההקצבה(@@@QUOTALIMIT@@@), ההודעות הישנות שלך הוסרו באופן אוטומטי',
+   quotahit_delfile  => 'אזהרה! בשל הגעה למגבלת ההקצבה(@@@QUOTALIMIT@@@), מספר קבצים מדיסק הרשת שלך נמחקו אוטומטית',
+   spool_overlimit   => 'מצטער, ה INBOX שלך עבר את מכסת ה spool (@@@SPOOLLIMIT@@@). נא העבר הודעות לספריות דואר אחרות.',
+   vdomain_toomanyuser  => 'מצטער, מספר המשתמשים הרשומים הגיע לגבול המכסה',
+   vdomain_toomanyalias => 'Sorry, the E-MAIL alias count of this user has reached its maximum limit',
+   vdomain_userrequired => 'דרוש שם משתמש',
+   vdomain_fwdrequired => 'כתובת E-mail חוקית להעברה נדרשת',
+   all_module_disabled => 'כל המודולים בוטלו',
+   abook_all_readonly => 'All addressbooks are readonly, please create a new one',
+   abook_import_nofile => 'A file must be selected for import',
+   abook_import_noformat => 'A import format MUST be chosen',
+   abook_import_nodest => 'An import destination MUST be chosen',
+   abook_import_unsupfmt => 'The "@@@FORMAT@@@" addressbook format is not supported at this time. Please choose another format for import',
+   abook_export_unsupfmt => 'The "@@@FORMAT@@@" addressbook format is not supported at this time. Please choose another format for export',
+   abook_export_undef => 'At least one address MUST be checked for export. No addresses were checked',
+   abook_delete_xowmuid => 'Delete failed. No unique id defined',
+   abook_delete_book => 'Unable to delete addressbook @@@ADDRESSBOOK@@@',
+   abook_doesnt_exist => 'The addressbook @@@ADDRESSBOOK@@@ does not exist',
+   abook_already_exists => 'The addressbook @@@ADDRESSBOOK@@@ already exists. Please choose a different name',
+   abook_name_too_long => 'The addressbook name @@@ADDRESSBOOK@@@ is too long. The limit is @@@FOLDERNAME_MAXLEN@@@',
+   abook_cant_rename => 'Rename of addressbook failed',
+   abook_ext_notsupported => 'The filetype uploaded is not supported as a ',
+   abook_toobig => 'Sorry, this would exceed the total size limit for all your addressbooks.  Please go',
+   abook_delete_first => 'already exists. Please delete it before trying to add another one.',
+   abook_global_denied => 'You don\'t have permission to edit the global addressbook',
+   abook_editform_no_N => 'A contact cannot be saved until a name is defined. Please go back and enter a name for this contact.',
+   abook_agent_one_contact => 'An Agent upload may only contain one contact.',
+   );
+
+1;

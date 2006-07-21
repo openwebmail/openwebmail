@@ -1071,19 +1071,19 @@ sub addrlistview {
 
    # page selection arrows
    if ($abookpage > 1) {
-      $temphtml = iconlink(($ow::lang::RTL{$prefs{'language'}}?"right.gif":"left.gif"), "&lt;",
+      $temphtml = iconlink(($ow::lang::RTL{$prefs{'locale'}}?"right.gif":"left.gif"), "&lt;",
                            qq|accesskey="B" href="javascript:document.contactsForm.abookpage.value=|.($abookpage-1).qq|; document.contactsForm.submit();"|
                           );
    } else {
-      $temphtml = iconlink(($ow::lang::RTL{$prefs{'language'}}?"right-grey.gif":"left-grey.gif"), "-", "");
+      $temphtml = iconlink(($ow::lang::RTL{$prefs{'locale'}}?"right-grey.gif":"left-grey.gif"), "-", "");
    }
    $temphtml.=qq|$abookpage/$totalpage|;
    if ($abookpage < $totalpage) {
-      $temphtml .= iconlink(($ow::lang::RTL{$prefs{'language'}}?"left.gif":"right.gif"), "&gt;",
+      $temphtml .= iconlink(($ow::lang::RTL{$prefs{'locale'}}?"left.gif":"right.gif"), "&gt;",
                             qq|accesskey="F" href="javascript:document.contactsForm.abookpage.value=|.($abookpage+1).qq|; document.contactsForm.submit();"|
                            );
    } else {
-      $temphtml .= iconlink(($ow::lang::RTL{$prefs{'language'}}?"left-grey.gif":"right-grey.gif"), "-", "");
+      $temphtml .= iconlink(($ow::lang::RTL{$prefs{'locale'}}?"left-grey.gif":"right-grey.gif"), "-", "");
    }
    $html =~ s/\@\@\@PAGECONTROL\@\@\@/$temphtml/g;
 
@@ -1743,7 +1743,7 @@ sub addrlistview {
       $html =~ s/\@\@\@EXPORTMODEFORMFORMATSMENU\@\@\@/$temphtml/;
 
       my @charset = ($lang_text{'abook_noconversion'});
-      push @charset, sort keys %ow::lang::is_charset_supported;
+      push @charset, sort map { $ow::lang::charactersets{$_}[1] } keys %ow::lang::charactersets;
       my $defaultcharset = $prefs{'charset'};
       $temphtml = "$lang_text{'charset'}:";
       $temphtml .= popup_menu(-name=>'exportcharset',
@@ -1751,7 +1751,7 @@ sub addrlistview {
                               -default=>$defaultcharset,
                               -onChange=>"javascript:document.forms['exportForm'].elements['exportcharset'].value=document.forms['exportformatForm'].elements['exportcharset'].options[document.forms['exportformatForm'].elements['exportcharset'].selectedIndex].value;",
                               -override=>1,
-                              -disabled=>'1');
+                              -disabled=>'1'); # javascript enabled when user chooses a .csv or .tab export format
       $temphtml .= end_form();
       $html =~ s/\@\@\@EXPORTCHARSETMENU\@\@\@/$temphtml/;
 
@@ -1974,7 +1974,7 @@ sub addreditform {
 
    # Align $contact so it is pointing to the completevcard data we want to modify.
    my $target = \%{$completevcard->{$xowmuid}};
-   my $nextgif="right.s.gif"; $nextgif="left.s.gif" if ($ow::lang::RTL{$prefs{'language'}});
+   my $nextgif="right.s.gif"; $nextgif="left.s.gif" if ($ow::lang::RTL{$prefs{'locale'}});
 
    my @agentpath=($target->{FN}[0]{VALUE});
    my @agentpath_charset=($target->{'X-OWM-CHARSET'}[0]{VALUE}||'');
@@ -2079,14 +2079,14 @@ sub addreditform {
 
    # find out composecharset
    my $composecharset = $contact->{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE} || $prefs{'charset'};
-   # switch lang/charset from user prefs to en/composecharset temporarily
-   # so we can load proper language and template file for the current contact
+   # switch lang/charset from user prefs to en_US.UTF-8 temporarily, then display in $composecharset,
+   # whatever that may be, so we can properly display the current contact
    my @tmp;
    if ($composecharset ne $prefs{'charset'}) {
-      @tmp=($prefs{'language'}, $prefs{'charset'});
-      ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
-      loadlang($prefs{'language'});
-      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
+      @tmp=($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'});
+      ($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'})=('en_US', $composecharset, 'en_US.UTF-8');
+      loadlang($prefs{'locale'});
+      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);  # setup charset of CGI module
    }
 
    # convert the contact vcard data structure to html
@@ -2195,7 +2195,7 @@ sub addreditform {
    my %ctlabels=( $composecharset => "$composecharset *" );
    my @ctlist=($composecharset);
    my %allsets;
-   foreach (keys %ow::lang::is_charset_supported, keys %charset_convlist) {
+   foreach ((map { $ow::lang::charactersets{$_}[1] } keys %ow::lang::charactersets), keys %charset_convlist) {
       $allsets{$_}=1 if (!defined $allsets{$_});
    }
    delete $allsets{$composecharset};
@@ -2315,7 +2315,7 @@ sub addreditform {
 
    # switch lang/charset back to user prefs
    if ($#tmp>=1) {
-      ($prefs{'language'}, $prefs{'charset'})=@tmp;
+      ($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'})=@tmp;
    }
 }
 ########## END ADDREDITFORM ######################################
@@ -4509,7 +4509,7 @@ sub addrimportform {
                           -override=>1);
    $html =~ s/\@\@\@FORMATSMENU\@\@\@/$temphtml/;
 
-   my @charset=sort keys %ow::lang::is_charset_supported;
+   my @charset = sort map { $ow::lang::charactersets{$_}[1] } keys %ow::lang::charactersets;
    my $defaultcharset = $prefs{'charset'};
    $temphtml = "$lang_text{'charset'}:";
    $temphtml .= popup_menu(-name=>'importcharset',

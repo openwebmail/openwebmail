@@ -575,9 +575,10 @@ sub listmessages {
       my $charset=$attr[$_CHARSET];
       if ($charset eq '' && $prefs{'charset'} eq 'utf-8') {
          # assume msg is from sender using same language as the recipient's browser
-         $charset=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
+         my $browserlocale = ow::lang::guess_browser_locale($config{available_locales});
+         $charset=(ow::lang::localeinfo($browserlocale))[6];
       }
-      # convert from mesage charset to current user charset
+      # convert from message charset to current user charset
       my ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
 
       $linehtml=$linetemplate;
@@ -790,18 +791,18 @@ sub listmessages {
    my $gif;
    $temphtml=qq|<table cellpadding="0" cellspacing="0" border="0"><tr><td>|;
    if ($page > 1) {
-      $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'language'}});
+      $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'locale'}});
       $temphtml .= iconlink($gif, "&lt;", qq|accesskey="U" href="$page_url&amp;page=|.($page-1).qq|"|);
    } else {
-      $gif="left-grey.gif"; $gif="right-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
+      $gif="left-grey.gif"; $gif="right-grey.gif" if ($ow::lang::RTL{$prefs{'locale'}});
       $temphtml .= iconlink($gif, "-", "");
    }
    $temphtml.=qq|</td><td>$page/$totalpage</td><td>|;
    if ($page < $totalpage) {
-      $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'language'}});
+      $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'locale'}});
       $temphtml .= iconlink($gif, "&gt;", qq|accesskey="D" href="$page_url&amp;page=|.($page+1) .qq|"|);
    } else {
-      $gif="right-grey.gif"; $gif="left-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
+      $gif="right-grey.gif"; $gif="left-grey.gif" if ($ow::lang::RTL{$prefs{'locale'}});
       $temphtml .= iconlink($gif, "-", "");
    }
    $temphtml.=qq|</td></tr></table>|;
@@ -823,7 +824,7 @@ sub listmessages {
    }
    $htmlsearch = qq|<table cellspacing="0" cellpadding="0"><tr><td>|.
                  popup_menu(-name=>'searchtype',
-                            -default=>'subject',
+                            -default=>$searchtype,
                             -values=>['from', 'to', 'subject', 'date', 'attfilename', 'header', 'textcontent' ,'all'],
                             -labels=>\%searchtypelabels).
                  qq|</td><td>|.
@@ -1039,7 +1040,7 @@ sub eventreminder_html {
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
       if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
       } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
          readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
       }

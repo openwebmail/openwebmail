@@ -143,7 +143,7 @@ sub getattachment {
       if ( is_convertible($attr[$_CHARSET], $prefs{'charset'}) ) {
          $convfrom=lc($attr[$_CHARSET]);
       } else {
-         $convfrom='none.prefscharset';
+         $convfrom="none\.$prefs{'charset'}";
       }
    }
 

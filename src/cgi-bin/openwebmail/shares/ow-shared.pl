@@ -86,14 +86,14 @@ foreach (qw(
 # auto type config options
 foreach (qw(
    auth_domain domainnames domainselectmenu_list
-   default_language default_charset default_msgformat
+   default_locale default_msgformat
    default_fromemails default_autoreplysubject
    default_timeoffset default_daylightsaving default_calendar_holidaydef
 )) { $is_config_option{'auto'}{$_}=1}
 
 # list type config options
 foreach (qw(
-   domainnames domainselectmenu_list spellcheck_dictionaries
+   smtpserver domainnames domainselectmenu_list spellcheck_dictionaries
    allowed_serverdomain allowed_clientdomain allowed_clientip
    allowed_receiverdomain allowed_autologinip allowed_rootloginip
    pop3_disallowed_servers localusers
@@ -103,7 +103,7 @@ foreach (qw(
 
 # untaint path config options
 foreach (qw(
-    domainnames default_language
+    domainnames default_locale
     smtpserver auth_module virtusertable
     mailspooldir homedirspoolname homedirfolderdirname logfile
     ow_cgidir ow_htmldir ow_etcdir
@@ -120,7 +120,7 @@ foreach (qw(
 
 # require type config options
 foreach (qw(
-   default_language auth_module
+   default_locale auth_module
 )) { $is_config_option{'require'}{$_}=1}
 
 # set type for DEFAULT_ options (the forced defaults for default_ options)
@@ -133,7 +133,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
 }
 
 @openwebmailrcitem=qw(
-   language charset timeoffset daylightsaving email replyto
+   locale language charset timeoffset daylightsaving email replyto
    style iconset bgurl bgrepeat fontsize dateformat hourformat
    ctrlposition_folderview msgsperpage fieldorder sort msgdatetype useminisearchicon
    ctrlposition_msgread headers readwithmsgcharset usefixedfont usesmileicon
@@ -251,8 +251,7 @@ sub userenv_init {
    read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
 
    # so %lang... can be displayed with right charset in error msg
-   loadlang($config{'default_language'});
-   $prefs{'charset'}=$ow::lang::languagecharsets{$config{'default_language'}};
+   loadlang($config{'default_locale'});
 
    if ($config{'smtpauth'}) {	# load smtp auth user/pass
       read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/smtpauth.conf");
@@ -316,7 +315,7 @@ sub userenv_init {
    $userconf="$config{'ow_usersconfdir'}/$domain/$user" if ($config{'auth_withdomain'});
    read_owconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
 
-   # override auto guessing domainanmes if loginam has domain or domainselectmenu enabled
+   # override auto guessing domainanmes if loginname has domain or domainselectmenu enabled
    if (${$config_raw{'domainnames'}}[0] eq 'auto' &&
        ($loginname=~/\@/ || $config{'enable_domainselectmenu'})) {
       $config{'domainnames'}=[ $logindomain ];
@@ -346,8 +345,8 @@ sub userenv_init {
 
    %prefs = readprefs();
    %style = readstyle($prefs{'style'});
-   loadlang($prefs{'language'});
-   charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
+   loadlang($prefs{'locale'});
+   charset((ow::lang::localeinfo($prefs{'locale'}))[6]) if ($CGI::VERSION>=2.58); # setup charset of CGI module
 
    verifysession();
 
@@ -403,7 +402,7 @@ sub login_name2domainuser {
 ########## END LOGINNAME 2 LOGINDOMAIN LOGINUSER #################
 
 ########## READCONF ##############################################
-# read openwebmail.conf into a hash with %symbo% resolved
+# read openwebmail.conf into a hash with %symbol% resolved
 # the hash is 'called by reference' since we want to do 'untaint' on it
 sub read_owconf {
    my ($r_config, $r_config_raw, $configfile)=@_;
@@ -459,8 +458,8 @@ sub read_owconf {
          next if (${$r_config}{$key} ne 'auto');
          if ($key eq 'default_timeoffset') {
             ${$r_config}{$key}=ow::datetime::gettimeoffset();
-         } elsif ($key eq 'default_language') {
-            ${$r_config}{$key}=ow::lang::guess_browser_language();
+         } elsif ($key eq 'default_locale') {
+            ${$r_config}{$key}=ow::lang::guess_browser_locale(available_locales());
          }
       }
    }
@@ -480,6 +479,9 @@ sub read_owconf {
       }
    }
 
+   # add system wide vars to minimize disk access lookups
+   $r_config->{available_locales} = available_locales();
+
    return;
 }
 
@@ -497,7 +499,7 @@ sub load_owconf {
 
    foreach (keys %{$_rawconfcache{$configfile}{'c'}}) {
       ${$r_config_raw}{$_}=${$_rawconfcache{$configfile}{'c'}}{$_};
-      # remove DEFAULT_ restirction when default_ is overridden
+      # remove DEFAULT_ restriction when default_ is overridden
       delete ${$r_config_raw}{'DEFAULT_'.$1} if (/^default_(.*)/);
    }
    return;
@@ -567,7 +569,7 @@ sub fmt_subvars {
    while ($iterate and $value =~ s/\%([\w\d_]+)\%/${$r_config}{$1}/msg) {
       $iterate--;
    }
-   openwebmailerror(__FILE__, __LINE__, "Looping config file %var% expansion, $key $configfile!") if (! $iterate);
+   openwebmailerror(__FILE__, __LINE__, "Too recursive config file \%var\% expansion, $key $configfile!") if ($iterate == 0);
    return $value;
 }
 sub fmt_yesno {	# translate yes/no text into 1/0  (true/false)
@@ -629,12 +631,22 @@ sub matchlist_fromtail {
 }
 ########## END MATCHLIST_... #####################################
 
+################### AVAILABLE LOCALES ##########################
+sub available_locales {
+   my $available_locales;
+   opendir(LANGDIR, "$config{ow_langdir}") or
+     openwebmailerror(__FILE__, __LINE__, "Cannot read $config{ow_langdir}! ($!)");
+   $available_locales->{$_}++ for grep { !m/^\.+/ && !m#[/\\]# && -f "$config{ow_langdir}/$_" } readdir(LANGDIR);
+   closedir(LANGDIR) or
+     openwebmailerror(__FILE__, __LINE__, "Cannot close $config{ow_langdir}! ($!)");
+   return $available_locales;
+}
+################# END AVAILABLE LOCALES ########################
+
 ########## LOADLANG ##############################################
 sub loadlang {
-   my $lang=$_[0]; $lang='en' if ($lang eq 'en.utf8' or !-f "$config{'ow_langdir'}/$lang");
-   ow::tool::loadmodule("main",
-                        $config{'ow_langdir'}, $lang);
-                        # null list, load all symbos
+   my $locale = $_[0];
+   ow::tool::loadmodule("main", $config{'ow_langdir'}, $locale, ()); # null list, load all symbols
 }
 ########## END LOADLANG ##########################################
 
@@ -711,7 +723,7 @@ sub readprefs {
    }
 
    # remove / and .. from variables that will be used in require statement for security
-   $prefshash{'language'}=~s|/||g; $prefshash{'language'}=~s|\.\.||g;
+   $prefshash{'locale'}=~s|/||g; $prefshash{'locale'}=~s|\.\.||g;
    $prefshash{'iconset'}=~s|/||g;  $prefshash{'iconset'}=~s|\.\.||g;
 
    # adjust bgurl in case the OWM has been reinstalled in different place
@@ -722,12 +734,11 @@ sub readprefs {
    }
 
    # entries related to ondisk dir or file
-   $prefshash{'language'}=$config{'default_language'} if (!-f "$config{'ow_langdir'}/$prefshash{'language'}");
+   $prefshash{'locale'}=$config{'default_locale'} if (!-f "$config{'ow_langdir'}/$prefshash{'locale'}");
    $prefshash{'style'}=$config{'default_style'} if (!-f "$config{'ow_stylesdir'}/$prefshash{'style'}");
    $prefshash{'iconset'}=$config{'default_iconset'} if (!-d "$config{'ow_htmldir'}/images/iconsets/$prefshash{'iconset'}");
 
    $prefshash{'refreshinterval'}=$config{'min_refreshinterval'} if ($prefshash{'refreshinterval'} < $config{'min_refreshinterval'});
-   $prefshash{'charset'}=$ow::lang::languagecharsets{$prefshash{'language'}} if ($prefshash{'charset'} eq 'auto');
 
    # rentries related to spamcheck or viruscheck limit
    $prefshash{'viruscheck_source'}='pop3' if ($prefshash{'viruscheck_source'} eq 'all' && $config{'viruscheck_source_allowed'} eq 'pop3');
@@ -744,11 +755,10 @@ sub readprefs {
 ########## READTEMPLATE ##########################################
 use vars qw(%_templatecache);
 sub readtemplate {
-   my ($templatename, $lang)=@_;
-   $lang=$prefs{'language'}||'en' if ($lang eq '');
-   $lang='en' if ($lang eq 'en.utf8');
+   my ($templatename, $locale)=@_;
+   $locale = $prefs{'locale'} if ($locale eq '');
 
-   my $langfile="$config{'ow_templatesdir'}/$lang/$templatename";
+   my $langfile="$config{'ow_templatesdir'}/$locale/$templatename";
    my $commonfile="$config{'ow_templatesdir'}/COMMON/$templatename";
 
    foreach my $file ($langfile, $commonfile) {
@@ -761,7 +771,7 @@ sub readtemplate {
          return $_templatecache{$file};
       }
    }
-   openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_templatesdir'}/$lang/$templatename! ($!)");
+   openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_templatesdir'}/$locale/$templatename! ($!)");
 }
 ########## END READTEMPLATE ######################################
 
@@ -816,7 +826,6 @@ sub readstyle {
 ########## APPLYSTYLE ############################################
 sub applystyle {
    my $template = shift;
-   my $url;
 
    $template =~ s/\@\@\@NAME\@\@\@/$config{'name'}/g;
    $template =~ s/\@\@\@VERSION\@\@\@/$config{'version'}/g;
@@ -825,12 +834,29 @@ sub applystyle {
    $template =~ s/\@\@\@PAGE_FOOTER\@\@\@/$config{'page_footer'}/g;
    $template =~ s/\@\@\@SESSIONID\@\@\@/$thissession/g;
 
-   if ( -d "$config{'ow_htmldir'}/help/$prefs{'language'}" ) {
-      $url="$config{'ow_htmlurl'}/help/$prefs{'language'}/index.html";
+   my $url;
+   my $helpdir = "$config{'ow_htmldir'}/help";
+   my $helpurl = "$config{'ow_htmlurl'}/help";
+   if ( -d "$helpdir/$prefs{'locale'}" ) {
+      # choose help in the correct locale if available
+      $url = "$helpurl/$prefs{'locale'}";
    } else {
-      $url="$config{'ow_htmlurl'}/help/en/index.html";
+      # choose help in the correct language if available
+      my $language = substr($prefs{'locale'}, 0, 2);
+
+      my $firstmatch = undef;
+      if (-d "$helpdir") {
+         opendir(HELPDIR, "$helpdir") or
+           openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} ".f2u($helpdir)."! ($!)");
+         $firstmatch = (map { "$helpurl/$_" } grep { !m/^\.+/ && m/^$language/ } readdir(HELPDIR))[0] || undef;
+         closedir(HELPDIR) or
+           openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($helpdir)."! ($!)");
+      }
+
+
+      $url = $firstmatch || "$helpurl/en_US.ISO8859-1"; # or default to en_US.ISO8859-1
    }
-   $template =~ s/\@\@\@HELP_URL\@\@\@/$url/g;
+   $template =~ s#\@\@\@HELP_URL\@\@\@#$url/index.html#g;
    $template =~ s/\@\@\@HELP_TEXT\@\@\@/$lang_text{'help'}/g;
 
    $url=$config{'start_url'};
@@ -939,7 +965,9 @@ sub update_virtuserdb {
    my (%DB, %DBR, $metainfo);
 
    # convert file name and path into a simple file name
-   my $virtname=$config{'virtusertable'}; $virtname=~s!/!.!g; $virtname=~s/^\.+//;
+   my $virtname=$config{'virtusertable'};
+   $virtname=~s!/!.!g;  # remove slashes
+   $virtname=~s/^\.+//; # remove leading dots
    my $virtdb=ow::tool::untaint(("$config{'ow_mapsdir'}/$virtname"));
 
    if (! -e $config{'virtusertable'}) {
@@ -968,14 +996,18 @@ sub update_virtuserdb {
    %DB=();	# ensure the virdb is empty
    %DBR=();
 
+   # parse the virtusertable
    sysopen(VIRT, $config{'virtusertable'}, O_RDONLY);
    while (<VIRT>) {
-      s/^\s+//; s/\s+$//; s/#.*$//;
-      s/(.*?)\@(.*?)%1/$1\@$2$1/;	# resolve %1 in virtusertable
+      s/^\s+//;                         # remove leading whitespace
+      s/\s+$//;                         # remove trailing whitespace
+      s/#.*$//;                         # remove comment lines
+      s/(.*?)\@(.*?)%1/$1\@$2$1/;       # resolve %1 in virtusertable
+                                        # user@domain.com     %1@example.com
 
       my ($vu, $u)=split(/[\s\t]+/);
       next if ($vu eq "" || $u eq "");
-      next if ($vu =~ /^@/);	# don't care entries for whole domain mapping
+      next if ($vu =~ /^@/);            # ignore entries for whole domain mapping
 
       $DB{$vu}=$u;
       if (defined $DBR{$u}) {
@@ -1190,7 +1222,7 @@ sub httpprint {
 
 sub httpheader {
    my %headers=@_;
-   $headers{'-charset'}=$prefs{'charset'} if ($CGI::VERSION>=2.57);
+   $headers{'-charset'} = $prefs{'charset'} if ($CGI::VERSION>=2.57);
    if (!defined $headers{'-Cache-Control'} &&
        !defined $headers{'-Expires'} ) {
       $headers{'-Pragma'}='no-cache';
@@ -1210,10 +1242,12 @@ sub htmlheader {
    $mode.='z' if (is_http_compression_enabled());
    $mode="($mode)" if ($mode);
 
+   my $charset = $prefs{'charset'};
+
    $html =~ s/\@\@\@MODE\@\@\@/$mode/g;
    $html =~ s/\@\@\@ICO_LINK\@\@\@/$config{'ico_url'}/g;
    $html =~ s/\@\@\@BG_URL\@\@\@/$prefs{'bgurl'}/g;
-   $html =~ s/\@\@\@CHARSET\@\@\@/$prefs{'charset'}/g;
+   $html =~ s/\@\@\@CHARSET\@\@\@/$charset/g;
 
    my $info = $extra_info?"$extra_info - ":"";
    if ($user ne '') {
@@ -1235,7 +1269,7 @@ sub htmlheader {
    } else {
       $info.="$prefs{'timeoffset'} -";
    }
-   $info.=" $prefs{'charset'} -";
+   $info.=" $prefs{'locale'} -";
    $html =~ s/\@\@\@USERINFO\@\@\@/$info/g;
 
    $html = qq|<!-- $$:$persistence_count -->\n|.$html;
@@ -1304,6 +1338,7 @@ sub openwebmailerror {
       # load prefs if possible, or use default value
       my $background = $style{"background"}||"#FFFFFF"; $background =~ s/"//g;
       my $bgurl=$prefs{'bgurl'}||$config{'default_bgurl'};
+      my $charset = (ow::lang::localeinfo($prefs{'locale'}))[6] || (ow::lang::localeinfo($config{'default_locale'}))[6];
       my $css = $style{"css"}||
                 qq|<!--\n|.
                 qq|body {\n|.
@@ -1323,7 +1358,7 @@ sub openwebmailerror {
 
       $stackdump=qq|<pre>$stackdump</pre>| if ($stackdump ne '');
 
-      my $html = start_html(-title=>"$prefs{'charset'} - $config{'name'}",
+      my $html = start_html(-title=>"$prefs{'locale'} - $config{'name'}",
                             -bgcolor=>$background,
                             -background=>$bgurl);
       $html.=qq|<style type="text/css">\n|.
@@ -2071,11 +2106,13 @@ sub get_abookemailhash {
 ########## END GET_ABOOKEMAILHASH ################################
 
 ########## F2U/U2F ###############################################
-sub f2u { # convert str from userprefs charset to filesystem charset
-   return (iconv($prefs{'fscharset'}, $prefs{'charset'}, $_[0]))[0];
+sub f2u { # convert str from filesystem charset to userprefs charset
+   my $localecharset = (ow::lang::localeinfo($prefs{'locale'}))[6];
+   return (iconv($prefs{'fscharset'}, $localecharset, $_[0]))[0];
 }
-sub u2f { # convert str from filesystem charset to userprefs charset
-   return (iconv($prefs{'charset'}, $prefs{'fscharset'}, $_[0]))[0];
+sub u2f { # convert str from userprefs charset to filesystem charset
+   my $localecharset = (ow::lang::localeinfo($prefs{'locale'}))[6];
+   return (iconv($localecharset, $prefs{'fscharset'}, $_[0]))[0];
 }
 ########## END F2U/U2F ###########################################
 

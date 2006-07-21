@@ -24,12 +24,19 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname);
    'iso-2022-kr'   => [ 'ISO-2022-KR' ],
    'iso-8859-1'    => [ 'ISO-8859-1', '8859-1', 'ISO8859-1', 'ISO_8859-1' ],
    'iso-8859-2'    => [ 'ISO-8859-2', '8859-2', 'ISO8859-2', 'ISO_8859-2' ],
+   'iso-8859-3'    => [ 'ISO-8859-3', '8859-3', 'ISO8859-3', 'ISO_8859-3' ],
+   'iso-8859-4'    => [ 'ISO-8859-4', '8859-4', 'ISO8859-4', 'ISO_8859-4' ],
    'iso-8859-5'    => [ 'ISO-8859-5', '8859-5', 'ISO8859-5', 'ISO_8859-5' ],
    'iso-8859-6'    => [ 'ISO-8859-6', '8859-6', 'ISO8859-6', 'ISO_8859-6' ],
    'iso-8859-7'    => [ 'ISO-8859-7', '8859-7', 'ISO8859-7', 'ISO_8859-7' ],
    'iso-8859-8'    => [ 'ISO-8859-9', '8559-8', 'ISO8859-8', 'ISO_8859-8' ],
    'iso-8859-9'    => [ 'ISO-8859-9', '8859-9', 'ISO8859-9', 'ISO_8859-9' ],
+   'iso-8859-10'   => [ 'ISO-8859-10', '8859-10', 'ISO8859-10', 'ISO_8859-10' ],
+   'iso-8859-11'   => [ 'ISO-8859-11', '8859-11', 'ISO8859-11', 'ISO_8859-11' ],
    'iso-8859-13'   => [ 'ISO-8859-13', '8859-13', 'ISO8859-13', 'ISO_8859-13' ],
+   'iso-8859-14'   => [ 'ISO-8859-14', '8859-14', 'ISO8859-14', 'ISO_8859-14' ],
+   'iso-8859-15'   => [ 'ISO-8859-15', '8859-15', 'ISO8859-15', 'ISO_8859-15' ],
+   'iso-8859-16'   => [ 'ISO-8859-16', '8859-16', 'ISO8859-16', 'ISO_8859-16' ],
    'koi8-r'        => [ 'KOI8-R' ],
    'koi8-u'        => [ 'KOI8-U' ],
    'ksc5601'       => [ 'KSC5601' ],
@@ -44,19 +51,9 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname);
    'windows-1255'  => [ 'WINDOWS-1255', 'CP1255' ],
    'windows-1256'  => [ 'WINDOWS-1256', 'CP1256' ],
    'windows-1257'  => [ 'WINDOWS-1257', 'CP1257' ],
+   'windows-1258'  => [ 'WINDOWS-1258', 'CP1258' ],
    );
 
-# map old/unofficial charset name to official charset name
-%charset_equiv=
-   (
-   'big-5'          => 'big5',
-   'chinesebig5'    => 'big5',
-   'gbk'            => 'gb2312',
-   'iso-8859'       => 'iso-8859-1',
-   'us-ascii'       => 'iso-8859-1',
-   'ks_c_5601-1987' => 'ksc5601',
-   'utf8'           => 'utf-8'
-   );
 
 # convertible list of WWW charset, the definition is:
 # charset in the left can be converted from the charsets in right list
@@ -71,12 +68,19 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname);
    'iso-2022-jp'   => [ 'utf-8', 'shift_jis', 'euc-jp' ],
    'iso-8859-1'    => [ 'utf-8', 'windows-1252' ],
    'iso-8859-2'    => [ 'utf-8', 'windows-1250' ],
-   'iso-8859-5'    => [ 'utf-8', 'winodws-1251', 'koi8-r' ],
-   'iso-8859-6'    => [ 'utf-8', 'winodws-1256' ],
-   'iso-8859-7'    => [ 'utf-8', 'winodws-1253' ],
-   'iso-8859-8'    => [ 'utf-8', 'winodws-1255' ],
-   'iso-8859-9'    => [ 'utf-8', 'windows-1254' ],
+   'iso-8859-3'    => [ 'utf-8', 'iso-8859-9', 'windows-1254' ],
+   'iso-8859-4'    => [ 'utf-8', 'iso-8859-10', 'windows-1254' ],
+   'iso-8859-5'    => [ 'utf-8', 'windows-1251', 'koi8-r' ],
+   'iso-8859-6'    => [ 'utf-8', 'windows-1256' ],
+   'iso-8859-7'    => [ 'utf-8', 'windows-1253' ],
+   'iso-8859-8'    => [ 'utf-8', 'windows-1255' ],
+   'iso-8859-9'    => [ 'utf-8', 'iso-8859-3', 'windows-1254' ],
+   'iso-8859-10'   => [ 'utf-8', 'iso-8859-4', 'windows-1254' ],
+   'iso-8859-11'   => [ 'utf-8' ],
    'iso-8859-13'   => [ 'utf-8', 'windows-1257' ],
+   'iso-8859-14'   => [ 'utf-8' ],
+   'iso-8859-15'   => [ 'utf-8' ],
+   'iso-8859-16'   => [ 'utf-8' ],
    'koi8-r'        => [ 'utf-8', 'windows-1251', 'iso-8859-5' ],
    'koi8-u'        => [ 'utf-8' ],
    'shift_jis'     => [ 'utf-8', 'iso-2022-jp', 'euc-jp' ],
@@ -89,15 +93,30 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname);
    'windows-1255'  => [ 'utf-8', 'iso-8859-8' ],
    'windows-1256'  => [ 'utf-8', 'iso-8859-6' ],
    'windows-1257'  => [ 'utf-8', 'iso-8859-13' ],
+   'windows-1258'  => [ 'utf-8' ],
    'utf-8'         => [ 'big5', 'euc-jp', 'euc-kr', 'gb2312',
 			'iso-2022-jp', 'iso-2022-kr',
 			'iso-8859-1', 'iso-8859-2', 'iso-8859-5', 'iso-8859-6',
-			'iso-8859-7', 'iso-8859-9', 'iso-8859-13',
+			'iso-8859-7', 'iso-8859-9', 'iso-8859-10', 'iso-8859-11',
+			'iso-8859-13', 'iso-8859-14', 'iso-8859-15', 'iso-8859-16',
 			'koi8-r', 'koi8-u', 'ksc5601',
 			'shift_jis', 'tis-620',
 			'windows-1250', 'windows-1251', 'windows-1252',
 			'windows-1253', 'windows-1254', 'windows-1255',
-			'windows-1256', 'windows-1257' ]
+			'windows-1256', 'windows-1257', 'windows-1258'
+                      ]);
+
+
+# map old/unofficial charset name to official charset name
+%charset_equiv=
+   (
+   'big-5'          => 'big5',
+   'chinesebig5'    => 'big5',
+   'gbk'            => 'gb2312',
+   'iso-8859'       => 'iso-8859-1',
+   'us-ascii'       => 'iso-8859-1',
+   'ks_c_5601-1987' => 'ksc5601',
+   'utf8'           => 'utf-8'
    );
 
 
@@ -113,7 +132,7 @@ use vars qw(%is_convertible_cache);
 %is_convertible_cache=(
    'big5#gb2312' => 1,
    'gb2312#big5' => 1,
-   'shift_jis#isp-2022-jp' => 1,
+   'shift_jis#iso-2022-jp' => 1,
    'iso-2022-jp#euc-jp' => 1,
    'euc-jp#shift_jis' => 1
 );
@@ -157,17 +176,29 @@ sub iconv {
 
       # try convertion routine in iconv-chinese, iconv-japan first
       if ($from  eq 'big5' && $to eq 'gb2312' ) {
-         $text[$i]=b2g($text[$i]); next;
+         $text[$i]=b2g($text[$i]);
+         next;
+
       } elsif ($from eq 'gb2312' && $to eq 'big5' ) {
-         $text[$i]=g2b($text[$i]); next;
+         $text[$i]=g2b($text[$i]);
+         next;
+
       } elsif ($from eq 'shift_jis' && $to eq 'iso-2022-jp' ) {
-         sjis2jis(\$text[$i]); next;
+         sjis2jis(\$text[$i]);
+         next;
+
       } elsif ($from eq 'iso-2022-jp' && $to eq 'shift_jis' ) {
-         jis2sjis(\$text[$i]); next;
+         jis2sjis(\$text[$i]);
+         next;
+
       } elsif ($from eq 'shift_jis' && $to eq 'euc-jp' ) {
-         sjis2euc(\$text[$i]); next;
+         sjis2euc(\$text[$i]);
+         next;
+
       } elsif ($from eq 'euc-jp' && $to eq 'shift_jis' ) {
-         euc2sjis(\$text[$i]); next;
+         euc2sjis(\$text[$i]);
+         next;
+
       } else {
          $text[$i]=~s/(\S+)/_iconv($from, $to, $1)/egis;
       }

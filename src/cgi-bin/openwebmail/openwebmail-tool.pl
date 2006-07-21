@@ -107,12 +107,12 @@ if ($ARGV[0] eq "--") {		# called by inetd
    for (my $i=0; $i<=$#ARGV; $i++) {
       if ($ARGV[$i] eq "--init") {
          $opt{'init'}=1;
-      } elsif ($ARGV[$i] eq "--test") {
+      } elsif ($ARGV[$i] eq "--test" || $ARGV[$i] eq "-w") {
          $opt{'test'}=1;
-      } elsif ($ARGV[$i] eq "--langconv") {
+      } elsif ($ARGV[$i] eq "--langconv" || $ARGV[$i] eq "-v") {
          $opt{'langconv'}=1;
-         $i++; $opt{'srclang'}=$ARGV[$i];
-         $i++; $opt{'dstlang'}=$ARGV[$i];
+         $i++; $opt{'srclocale'}=$ARGV[$i];
+         $i++; $opt{'dstlocale'}=$ARGV[$i];
 
       } elsif ($ARGV[$i] eq "--yes" || $ARGV[$i] eq "-y") {
          $opt{'yes'}=1;
@@ -196,7 +196,7 @@ if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
 }
 
 %prefs = readprefs();
-loadlang($prefs{'language'});	# for converted filename $lang_text{abook_converted}
+loadlang("$prefs{'locale'}"); # for converted filename $lang_text{abook_converted}
 
 writelog("debug - request tool begin, argv=".join(' ',@ARGV)." - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 my $retval=0;
@@ -205,13 +205,13 @@ if ($opt{'init'}) {
 } elsif ($opt{'test'}) {
    $retval=do_test();
 } elsif ($opt{'langconv'}) {
-   $retval=langconv($opt{'srclang'}, $opt{'dstlang'});
+   $retval=langconv($opt{'srclocale'}, $opt{'dstlocale'});
 } elsif ($opt{'thumbnail'}) {
    $retval=makethumbnail(\@list);
 } else {
    if ($opt{'convert_addressbooks'} && $>==0) {	# only allow root to convert globalbook
       print "converting GLOBAL addressbook..." if (!$opt{'quiet'});
-      $retval=convert_addressbook('global', $prefs{'charset'});
+      $retval=convert_addressbook('global', (ow::lang::localeinfo($prefs{'locale'}))[6]);
       if ($retval<0) {
          print "error:$@. EXITING\n";
          openwebmail_exit($retval);
@@ -238,10 +238,10 @@ openwebmail_exit($retval);
 
 ########## showhelp ##############################################
 sub showhelp {
-   print "
+   print qq|
 Syntax: openwebmail-tool.pl --init [options]
         openwebmail-tool.pl --test
-        openwebmail-tool.pl --langconv srclang dstlang
+        openwebmail-tool.pl --langconv srclocale dstlocale
         openwebmail-tool.pl -t [options] [image1 image2 ...]
         openwebmail-tool.pl [options] [user1 user2 ...]
 
@@ -276,9 +276,14 @@ mail/calendar options:
  -z, --zaptrash\t remove stale messages from trash folder
  -c, --convert_addressbooks\t convert addressbookglobal (and all users with -a) addressbooks to vcard format
 
+miscellanous options:
+ --init        \t create the initial files and directories needed for openwebmail to operate
+ -v, --langconv\t convert src locale files to dst locale to begin new translation
+ -w, --test    \t run openwebmail-tool but don't write any files or make changes
+
 ps: <folder> can be INBOX, ALL or folder filename
 
-";
+|;
    return 1;
 }
 
@@ -475,36 +480,34 @@ sub check_savedsuid_support {
 
 ########## langconv routines #####################################
 sub langconv {
-   my ($srclang, $dstlang)=@_;
+   my ($srclocale, $dstlocale)=@_;
 
-   print "langconv $srclang -> $dstlang\n";
+   print "langconv $srclocale -> $dstlocale\n";
 
-   if (!defined $ow::lang::languagecharsets{$srclang}) {
-      die "src lang $srclang is not defined in lang.pl";
+   unless (-e "$config{ow_langdir}/$srclocale" && -d "$config{ow_langdir}/$srclocale") {
+      die "src locale $srclocale does not exist in $config{ow_langdir}";
    }
-   if (!defined $ow::lang::languagecharsets{$dstlang}) {
-      die "dst lang $dstlang is not defined in lang.pl";
-   }
-   my $srccharset=$ow::lang::languagecharsets{$srclang};
-   my $dstcharset=$ow::lang::languagecharsets{$dstlang};
+   my $srccharset = (ow::lang::localeinfo($srclocale))[6];
+   my $dstcharset = (ow::lang::localeinfo($dstlocale))[6];
+
    if (!is_convertible($srccharset, $dstcharset)) {
-      die "lang $srclang -> $dstlang is not convertible";
+      die "src locale charset $srclocale -> dst locale charset $dstlocale is not convertible";
    }
 
-   langconv_file("$config{'ow_langdir'}/$srclang", $srclang,
-                 "$config{'ow_langdir'}/$dstlang", $dstlang, 1);
+   langconv_file("$config{'ow_langdir'}/$srclocale", $srclocale,
+                 "$config{'ow_langdir'}/$dstlocale", $dstlocale, 1);
 
-   langconv_dir("$config{'ow_templatesdir'}/$srclang", $srclang,
-                "$config{'ow_templatesdir'}/$dstlang", $dstlang);
+   langconv_dir("$config{'ow_templatesdir'}/$srclocale", $srclocale,
+                "$config{'ow_templatesdir'}/$dstlocale", $dstlocale);
 
-   langconv_dir("$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$srclang", $srclang,
-                "$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$dstlang", $dstlang);
+   langconv_dir("$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$srclocale", $srclocale,
+                "$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$dstlocale", $dstlocale);
 
    return 0;
 }
 
 sub langconv_dir {
-   my ($srcdir, $srclang, $dstdir, $dstlang)=@_;
+   my ($srcdir, $srclocale, $dstdir, $dstlocale)=@_;
 
    print "langconv dir $srcdir -> $dstdir\n";
 
@@ -526,13 +529,13 @@ sub langconv_dir {
    closedir(D);
 
    foreach my $f (@files) {
-      langconv_file("$srcdir/$f", $srclang,
-                    "$dstdir/$f", $dstlang, 0);
+      langconv_file("$srcdir/$f", $srclocale,
+                    "$dstdir/$f", $dstlocale, 0);
    }
 }
 
 sub langconv_file {
-   my ($srcfile, $srclang, $dstfile, $dstlang, $check_pkgname)=@_;
+   my ($srcfile, $srclocale, $dstfile, $dstlocale, $check_pkgname)=@_;
 
    print "langconv file $srcfile -> $dstfile\n";
 
@@ -541,13 +544,13 @@ sub langconv_file {
    @lines=<F>;
    close(F);
 
-   my $srccharset=$ow::lang::languagecharsets{$srclang};
-   my $srcpkg=$srclang; $srcpkg=~s/[\.\-]/_/g;
-
-   my $dstcharset=$ow::lang::languagecharsets{$dstlang};
-   my $dstpkg=$dstlang; $dstpkg=~s/[\.\-]/_/g;
-
    if ($check_pkgname) {
+      my $srcpkg = $srclocale;
+      $srcpkg=~s/[\.\-]/_/g; # en_US_ISO8859_1
+
+      my $dstpkg = $dstlocale;
+      $dstpkg=~s/[\.\-]/_/g;
+
       if ($lines[0] ne "package ow::$srcpkg;\n") {
          die "$srcfile 1st line is not 'package ow::$srcpkg;'";
       }
@@ -555,6 +558,9 @@ sub langconv_file {
    }
 
    # change charset name in html file
+   my $srccharset = (ow::lang::localeinfo($srclocale))[6];
+   my $dstcharset = (ow::lang::localeinfo($dstlocale))[6];
+
    foreach (@lines) {
       s!content="text/html; charset=$srccharset"!content="text/html; charset=$dstcharset"!ig;
       s!charset: $srccharset!charset: $dstcharset!ig;
@@ -994,9 +1000,9 @@ sub usertool {
          print "unlockfiles() return $ret\n" if (!$opt{'quiet'} && $ret!=0);
       }
       if ($opt{'convert_addressbooks'}) {
-         loadlang($prefs{'language'});	# for converted filename $lang_text{abook_converted}
+         loadlang("$prefs{'locale'}"); # for converted filename $lang_text{abook_converted}
          print "converting user $user addressbook..." if (!$opt{'quiet'});
-         my $ret=convert_addressbook('user', $prefs{'charset'});
+         my $ret=convert_addressbook('user', (ow::lang::localeinfo($prefs{'locale'}))[6]);
          print "done.\n" if (!$opt{'quiet'});
       }
 
@@ -1299,7 +1305,7 @@ sub checknewevent {
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
       if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
       } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
          readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
       }
@@ -1375,7 +1381,7 @@ sub checknotify {
    if ($prefs{'calendar_reminderforglobal'}) {
       readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
       if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'language'}", \%items, \%indexes, 1E7);
+         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
       } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
          readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
       }
@@ -1404,7 +1410,7 @@ sub checknotify {
             } else {
                $itemstr=hourmin($items{$index}{'starthourmin'})."-".hourmin($items{$index}{'endhourmin'})."\n";
             }
-            $itemstr.=(iconv($items{$index}{'charset'}, $prefs{'charset'}, $items{$index}{'string'}))[0]."\n";
+            $itemstr.=(iconv($items{$index}{'charset'}, (ow::lang::localeinfo($prefs{'locale'}))[6], $items{$index}{'string'}))[0]."\n";
             $itemstr.=$items{$index}{'link'}."\n" if ($items{$index}{'link'});
 
             if (defined $message{$items{$index}{'email'}}) {
@@ -1466,17 +1472,41 @@ sub send_mail {
    $fakedid="<$fakedid".'@'."${$config{'domainnames'}}[0]>";
 
    my $smtp;
-   $smtp=Net::SMTP->new($config{'smtpserver'},
-                        Port => $config{'smtpport'},
-                        Timeout => 120,
-                        Hello => ${$config{'domainnames'}}[0]) or
-      die "Couldn't connect SMTP server $config{'smtpserver'}:$config{'smtpport'}!";
+   # try to connect to one of the smtp servers available
+   my $smtpserver;
+   foreach $smtpserver (@{$config{'smtpserver'}}) {
+      my $connectmsg = "send message - trying to connect to smtp server $smtpserver:$config{'smtpport'}";
+      writelog($connectmsg); writehistory($connectmsg);
+
+      $smtp=Net::SMTP->new($smtpserver,
+                           Port => $config{'smtpport'},
+                           Timeout => 60,
+                           Hello => ${$config{'domainnames'}}[0]);
+
+      if ($smtp) {
+         $connectmsg = "send message - connected to smtp server $smtpserver:$config{'smtpport'}";
+         writelog($connectmsg); writehistory($connectmsg);
+         last;
+      } else {
+         $connectmsg = "send message - error connecting to smtp server $smtpserver:$config{'smtpport'}";
+         writelog($connectmsg); writehistory($connectmsg);
+      }
+   }
+
+   unless ($smtp) {
+      # we didn't connect to any smtp servers successfully
+      die(
+           qq|Couldn't open SMTP servers |.
+           join(", ", @{$config{'smtpserver'}}).
+           qq| at port $config{'smtpport'}!|
+         );
+   }
 
    # SMTP SASL authentication (PLAIN only)
    if ($config{'smtpauth'}) {
       my $auth = $smtp->supports("AUTH");
       $smtp->auth($config{'smtpauth_username'}, $config{'smtpauth_password'}) or
-         die "SMTP server $config{'smtpserver'} error - ".$smtp->message;
+         die "SMTP server $smtpserver error - ".$smtp->message;
    }
 
    $smtp->mail($from);
@@ -1493,17 +1523,19 @@ sub send_mail {
       return -1;
    }
 
-   $smtp->data();
-   $smtp->datasend("From: ".ow::mime::encode_mimewords("$realname <$from>", ('Charset'=>$prefs{'charset'}))."\n",
-                   "To: ".ow::mime::encode_mimewords($to, ('Charset'=>$prefs{'charset'}))."\n");
-   $smtp->datasend("Reply-To: ".ow::mime::encode_mimewords($prefs{'replyto'}, ('Charset'=>$prefs{'charset'}))."\n") if ($prefs{'replyto'});
+   my $prefcharset = (ow::lang::localeinfo($prefs{'locale'}))[6];
 
-   $smtp->datasend("Subject: ".ow::mime::encode_mimewords($subject, ('Charset'=>$prefs{'charset'}))."\n",
+   $smtp->data();
+   $smtp->datasend("From: ".ow::mime::encode_mimewords("$realname <$from>", ('Charset'=>"$prefcharset"))."\n",
+                   "To: ".ow::mime::encode_mimewords($to, ('Charset'=>"$prefcharset"))."\n");
+   $smtp->datasend("Reply-To: ".ow::mime::encode_mimewords($prefs{'replyto'}, ('Charset'=>"$prefcharset"))."\n") if ($prefs{'replyto'});
+
+   $smtp->datasend("Subject: ".ow::mime::encode_mimewords($subject, ('Charset'=>"$prefcharset"))."\n",
                    "Date: $date\n",
                    "Message-Id: $fakedid\n",
                    safexheaders($config{'xheaders'}),
                    "MIME-Version: 1.0\n",
-                   "Content-Type: text/plain; charset=$prefs{'charset'}\n\n",
+                   "Content-Type: text/plain; charset=$prefcharset\n\n",
                    $body, "\n\n");
    $smtp->datasend($config{'mailfooter'}, "\n") if ($config{'mailfooter'}=~/[^\s]/);
 

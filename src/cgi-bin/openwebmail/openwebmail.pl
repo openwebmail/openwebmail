@@ -1,10 +1,10 @@
 #!/usr/bin/suidperl -T
 #################################################################
 #                                                               #
-# Open WebMail - Provides a web interface to user mailboxes     #
+# OpenWebMail - Provides a web interface to user mailboxes      #
 #                                                               #
 # Copyright (C) 2001-2005                                       #
-# The Open Webmail Team                                         #
+# The OpenWebmail Team                                          #
 #                                                               #
 # Copyright (C) 2000                                            #
 # Ernie Miller  (original GPL project: Neomail)                 #
@@ -82,7 +82,7 @@ openwebmail_requestbegin();
 
 load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
 read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
-loadlang($config{'default_language'});	# so %lang... can be used in error msg
+loadlang($config{'default_locale'}); # so %lang... can be used in error msg
 
 # check & create mapping table for solar/lunar, b2g, g2b convertion
 foreach my $table ('b2g', 'g2b', 'lunar') {
@@ -162,11 +162,21 @@ sub loginmenu {
         $config{'mailspooldir'} eq "/var/spool/mail")) {
       print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
    }
-
+#
+#use Data::Dumper;
+#use CGI qw(:standard);
+#$Data::Dumper::Sortkeys++;
+#print header();
+#print Dumper(\%prefs, \%config);
+#exit 0;
+#
+#
    %prefs = readprefs();
    %style = readstyle($prefs{'style'});
-   loadlang($prefs{'language'});
-   charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
+   loadlang($prefs{'locale'});
+   $prefs{'charset'} = (ow::lang::localeinfo($prefs{'locale'}))[6];
+   $prefs{'language'} = join("_", (ow::lang::localeinfo($prefs{'locale'}))[0,2]);
+   charset($prefs{'charset'}) if ($CGI::VERSION>=2.58); # setup charset of CGI module
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("login.template"));
@@ -301,8 +311,10 @@ sub login {
 
    %prefs = readprefs();
    %style = readstyle($prefs{'style'});
-   loadlang($prefs{'language'});
-   charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
+   loadlang($prefs{'locale'});
+#   $prefs{'charset'} = (ow::lang::localeinfo($prefs{'locale'}))[6];
+#   $prefs{'language'} = join("_", (ow::lang::localeinfo($prefs{'locale'}))[0,2]);
+   charset($prefs{'charset'}) if ($CGI::VERSION>=2.58); # setup charset of CGI module
 
    ($domain, $user, $userrealname, $uuid, $ugid, $homedir)
 				=get_domain_user_userinfo($logindomain, $loginuser);
@@ -392,8 +404,10 @@ sub login {
    if ($>==0 || $>== $uuid) {
       %prefs = readprefs();
       %style = readstyle($prefs{'style'});
-      loadlang($prefs{'language'});
-      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
+      loadlang($prefs{'locale'});
+#      $prefs{'charset'} = (ow::lang::localeinfo($prefs{'locale'}))[6];
+#      $prefs{'language'} = join("_", (ow::lang::localeinfo($prefs{'locale'}))[0,2]);
+      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58); # setup charset of CGI module
    }
 
    # create domainhome for stuff not put in syshomedir
@@ -561,7 +575,8 @@ sub login {
       $refreshurl="http://$ENV{'HTTP_HOST'}$refreshurl" if ($refreshurl!~s!^https?://!http://!i);
    }
 
-   my @header=(-Charset=>$prefs{'charset'});
+   my $prefscharset = (ow::lang::localeinfo($prefs{'locale'}))[6];
+   my @header=(-Charset=>$prefscharset);
    my @cookies=();
    # cookie for autologin switch, expired until 1 month later
    my $autologin=param('autologin')||0;
@@ -638,7 +653,7 @@ sub login {
 	qq|<html>\n|.
 	qq|<head>\n|.
 	qq|<title>$config{'name'} - Copyright</title>\n|.
-	qq|<meta http-equiv="Content-Type" content="text/html; charset=$prefs{'charset'}">\n|.
+	qq|<meta http-equiv="Content-Type" content="text/html; charset=$prefscharset">\n|.
 	qq|</head>\n|.
 	qq|<body bgcolor="#ffffff" background="$prefs{'bgurl'}">\n|.
 	qq|<style type="text/css"><!--\n|.

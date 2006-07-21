@@ -270,13 +270,31 @@ sub userfirsttime {
 
 ########## EDITPREFS #############################################
 sub editprefs {
-   if (param('language') =~ /^([\d\w\.\-_]+)$/ ) {
-      my $language=$1;
-      if ( -f "$config{'ow_langdir'}/$language" ) {
-         $prefs{'language'}=$language;
-         $prefs{'charset'}=$ow::lang::languagecharsets{$language};
-         loadlang($language);
-         charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
+   if (defined param('language')) {
+      if ( param('language') =~ /^([_A-Za-z]+)$/ ) { # safety
+         # set the prefs page to the selected language and its first match charset or chosen charset
+         my $selected_language = $1;
+
+         $prefs{'language'} = $selected_language;
+         $prefs{'locale'}= (grep { m/^$selected_language/ } sort keys %{$config{available_locales}})[0];
+         $prefs{'charset'} = (ow::lang::localeinfo($prefs{'locale'}))[6]; # first match charset
+
+         if (defined param('charset')) {
+            my $selected_charset = uc(param('charset'));
+            $selected_charset =~ s/[-_\s]+//g;
+            if ( exists $ow::lang::charactersets{$selected_charset} ) {
+               my $newlocale = "$selected_language\.$ow::lang::charactersets{$selected_charset}[0]";
+               if ( exists $config{'available_locales'}{$newlocale} ) {
+                  $prefs{'locale'} = $newlocale;
+                  $prefs{'charset'} = $ow::lang::charactersets{$selected_charset}[1];
+               }
+            }
+         }
+
+         loadlang($prefs{'locale'});
+         charset($prefs{'charset'}) if ($CGI::VERSION>=2.58); # setup charset of CGI module
+      } else {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'param_fmterr'} \'language\' $lang_err{'has_illegal_chars'}");
       }
    }
 
@@ -392,12 +410,15 @@ sub editprefs {
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/;
 
 
-   my $defaultlanguage=$prefs{'language'};
-   my $defaultcharset=$prefs{'charset'}||$ow::lang::languagecharsets{$prefs{'language'}};
-   my $defaultsendcharset=$prefs{'sendcharset'}||'sameascomposing';
-   if (param('language') =~ /^([\d\w\.\-_]+)$/ ) {
+   my $defaultlanguage    = join("_", (ow::lang::localeinfo($prefs{'locale'}))[0,2]);
+   my $defaultcharset     = (ow::lang::localeinfo($prefs{'locale'}))[6];
+   my $defaultsendcharset = $prefs{'sendcharset'}||'sameascomposing';
+
+   if (param('language') =~ /^([A-Za-z_]+)$/ ) {
       $defaultlanguage=$1;
-      $defaultcharset=$ow::lang::languagecharsets{$1};
+      $defaultcharset=( map { (ow::lang::localeinfo($_))[6] }
+                       grep { m/^$defaultlanguage/ }
+                       sort keys %{$config{available_locales}})[0]; # 1st match
       if ($defaultlanguage =~ /^ja_JP/ ) {
          $defaultsendcharset='iso-2022-jp';
       } else {
@@ -405,25 +426,39 @@ sub editprefs {
       }
    }
 
-   my @availablelanguages = sort {
-                                 $ow::lang::languagenames{$a} cmp $ow::lang::languagenames{$b}
-                                 } keys(%ow::lang::languagenames);
+   my %unique = ();
+   my @availablelanguages = grep { !$unique{$_}++ }                            # eliminate duplicates
+                             map { join("_",(ow::lang::localeinfo($_))[0,2]) } # en_US
+                            sort keys %{$config{available_locales}};
+
+   my %langlabels = map { m/^(..)_(..)/; $_, "$ow::lang::languagecodes{$1}/$ow::lang::countrycodes{$2} [$1_$2]" } @availablelanguages;
+
+   # sort @availablelanguages according to the label
+   @availablelanguages =  map { $_ }
+                         sort { $langlabels{$a} cmp $langlabels{$b} }
+                         keys %langlabels;
+
    $temphtml = popup_menu(-name=>'language',
                           -values=>\@availablelanguages,
                           -default=>$defaultlanguage,
-                          -labels=>\%ow::lang::languagenames,
+                          -labels=>\%langlabels,
                           -onChange=>"javascript:if (this.value != null) { window.location.href='$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr&amp;language='+this.value; }",
                           -accesskey=>'1',
                           -override=>'1',
-                          defined($config_raw{'DEFAULT_language'})?('-disabled'=>'1'):());
+                          defined($config_raw{'DEFAULT_locale'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@LANGUAGEMENU\@\@\@/$temphtml/;
 
-   my @allcharsets=sort keys %ow::lang::is_charset_supported;
+
+   my @selectedlanguagecharsets =  map { (ow::lang::localeinfo($_))[6] }
+                                  grep { m/^$defaultlanguage/ }
+                                  sort keys %{$config{available_locales}}; # all matching charsets
+
    $temphtml = popup_menu(-name=>'charset',
-                          -values=>\@allcharsets,
-                          -default=>$defaultcharset,
+                          -values=>\@selectedlanguagecharsets,
+                          -default=>$prefs{'charset'} || $defaultcharset,
+                          -onChange=>"javascript:if (this.value != null) { window.location.href='$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editprefs&amp;$urlparmstr&amp;language='+document.forms['prefsform'].elements['language'].options[document.forms['prefsform'].elements['language'].selectedIndex].value+'&amp;charset='+this.value; }",
                           -override=>'1',
-                          defined($config_raw{'DEFAULT_charset'})?('-disabled'=>'1'):());
+                          defined($config_raw{'DEFAULT_locale'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@CHARSETMENU\@\@\@/$temphtml/;
 
    my @timeoffsets=qw( -1200 -1100 -1000 -0900 -0800 -0700
@@ -964,10 +999,11 @@ sub editprefs {
             templateblock_disable($html, 'BACKUPSENT');
          }
 
+         my $selectedlocalecharset = (ow::lang::localeinfo($prefs{locale}))[6];
          my %ctlabels=( 'sameascomposing' => $lang_text{'sameascomposecharset'} );
-         my @ctlist=('sameascomposing', $prefs{charset});
-         foreach my $ct (@{$charset_convlist{$prefs{charset}}}) {
-            push(@ctlist, $ct) if (is_convertible($prefs{charset}, $ct));
+         my @ctlist=('sameascomposing', $selectedlocalecharset);
+         foreach my $ct (@{$charset_convlist{$selectedlocalecharset}}) {
+            push(@ctlist, $ct) if (is_convertible($selectedlocalecharset, $ct));
          }
          $temphtml = popup_menu(-name=>'sendcharset',
                                 -values=>\@ctlist,
@@ -1324,22 +1360,33 @@ sub editprefs {
          $html =~ s/\@\@\@DEFAULTVIEWMENU\@\@\@/$temphtml/;
 
          # Get a list of valid holiday files
-         my @holidays;
          opendir(HOLIDAYSDIR, "$config{'ow_holidaysdir'}") or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_holidaysdir'}! ($!)");
-         while (defined(my $currholiday = readdir(HOLIDAYSDIR))) {
-            if ($currholiday =~ /^([^\.].*)$/) {
-               push (@holidays, $1);
-            }
-         }
+         my @holidays = grep { !m/^\.+/ } readdir(HOLIDAYSDIR);
          closedir(HOLIDAYSDIR) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $config{'ow_holidaysdir'}! ($!)");
-         @holidays = ('auto', sort(@holidays), 'none');
+
+         my %holidaylabels = map {
+                                   m/^(..)_(..)\.(.*)/;            # extract parts from holiday file like en_US.ISO8859-1
+                                   my ($l,$c,$cs)=($1,$2,uc($3));
+                                   $cs=~s#[-_]+##g;                # ISO8859-1 -> ISO88591
+                                   $_, "$ow::lang::countrycodes{$c}/$ow::lang::languagecodes{$l} ($ow::lang::charactersets{$cs}[1])"
+                                 } @holidays;
+
+         # sort holidays by the label
+         @holidays = map { $_ }
+                     sort { $holidaylabels{$a} cmp $holidaylabels{$b} }
+                     keys %holidaylabels;
+
+         unshift(@holidays, 'auto');
+         $holidaylabels{'auto'} = $lang_text{'autosel'};
+
+         push(@holidays, 'none');
+         $holidaylabels{'none'} = $lang_text{'none'};
 
          $temphtml = popup_menu(-name=>'calendar_holidaydef',
                                 -values=>\@holidays,
-                                -labels=>{ 'auto'=>$lang_text{'autosel'},
-                                           'none'=>$lang_text{'none'} },
+                                -labels=>\%holidaylabels,
                                 -default=>$prefs{'calendar_holidaydef'},
                                 -override=>'1',
                                 defined($config_raw{'DEFAULT_calendar_holidaydef'})?('-disabled'=>'1'):());
@@ -1472,8 +1519,10 @@ sub editprefs {
       }
 
 
+      # TODO: mabye we should always write to the file system in utf-8 and not have this be a user choice.
+      # hmm...more thinking required...
       $temphtml = popup_menu(-name=>'fscharset',
-                             -values=>['none', @allcharsets],
+                             -values=>['none', map { $ow::lang::charactersets{$_}[1] } sort keys %ow::lang::charactersets],
                              -labels=>{ 'none'=>$lang_text{'none'} },
                              -default=>$prefs{'fscharset'},
                              -override=>'1',
@@ -1698,9 +1747,10 @@ sub saveprefs {
       $value =~ s/\.\.+//g;
       $value =~ s/[=\n\/\`\|\<\>;]//g; # remove dangerous char
       if ($key eq 'language') {
-         foreach my $currlanguage (sort keys %ow::lang::languagenames) {
-            if ($value eq $currlanguage) {
-               $newprefs{$key}=$value; last;
+         foreach my $availablelanguage (map { m/(.._..)/; $1 } sort keys %{$config{available_locales}}) {
+            if ($value eq $availablelanguage) {
+               $newprefs{$key}=$value;
+               last;
             }
          }
       } elsif ($key eq 'sort') {
@@ -1710,7 +1760,8 @@ sub saveprefs {
       } elsif ($key eq 'dictionary') {
          foreach my $currdictionary (@{$config{'spellcheck_dictionaries'}}) {
             if ($value eq $currdictionary) {
-               $newprefs{$key}=$value; last;
+               $newprefs{$key}=$value;
+               last;
             }
          }
       } elsif ($key eq 'filter_repeatlimit') {
@@ -1726,6 +1777,11 @@ sub saveprefs {
          $newprefs{$key}=$value;
       }
    }
+
+   # compile the locale
+   my $localecharset = uc($newprefs{charset}); # iso-8859-1 -> ISO-8859-1
+   $localecharset =~ s/[-_]//g;                # ISO-8859-1 -> ISO88591
+   $newprefs{locale} = "$newprefs{language}." . $ow::lang::charactersets{$localecharset}[0];
 
    if ( ($newprefs{'filter_fakedsmtp'} && !$prefs{'filter_fakedsmtp'} ) ||
         ($newprefs{'filter_fakedfrom'} && !$prefs{'filter_fakedfrom'} ) ||
@@ -1783,8 +1839,8 @@ sub saveprefs {
 
    %prefs = readprefs();
    %style = readstyle($prefs{'style'});
-   loadlang($prefs{'language'});
-   charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
+   loadlang($prefs{'locale'});
+   charset((ow::lang::localeinfo($prefs{'locale'}))[6]) if ($CGI::VERSION>=2.58); # setup charset of CGI module
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("prefssaved.template"));
@@ -2651,8 +2707,7 @@ sub editfilter {
    my (@validfolders, $inboxusage, $folderusage);
    getfolders(\@validfolders, \$inboxusage, \$folderusage);
 
-   my @foldervalues=iconv($prefs{fscharset}, $prefs{charset},
-                          @validfolders, 'DELETE');
+   my @foldervalues=iconv($prefs{fscharset}, $prefs{charset}, @validfolders, 'DELETE');
    $temphtml = popup_menu(-name=>'destination',
                           -values=>\@foldervalues,
                           -default=>'mail-trash',

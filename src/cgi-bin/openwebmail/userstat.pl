@@ -48,7 +48,7 @@ if (!defined $ENV{'GATEWAY_INTERFACE'}) {	# cmd mode
          qq|\nor\n\n|.
          qq|<table cellspacing=0 cellpadding=0><tr><td>\n|.
          qq|<script language="JavaScript"\n|.
-         qq|src="http://you_server_domainname/cgi-bin/openwebmail/userstat.pl?logionname=someuser">\n|.
+         qq|src="http://you_server_domainname/cgi-bin/openwebmail/userstat.pl?loginname=someuser">\n|.
          qq|</script>\n|.
          qq|</td></tr></table>\n\n|;
    exit 1;

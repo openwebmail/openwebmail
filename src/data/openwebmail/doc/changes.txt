@@ -1,3 +1,21 @@
+07/21/2006
+----------
+1. switch from languages/charsets to full locale names globally.
+   OpenWebMail is now standardized on ISO-3066 for locale names
+   across templates, language, holiday, help files, and popups.
+   user preferences are automatically updated. Systems admins
+   should update the 'calendar_holiday' settings in openwebmail.conf
+   to call for a locale specific holiday file.
+2. multiple SMTP servers are now supported for 'smtpserver' setting to
+   provide redundancy in case of primary SMTP failure.
+   (suggested by Michael Mansour, mic.AT.npgx.com.au)
+3. Hellenic translations have been renamed to Greek.
+   (suggested by Dimitrios 'sehh' Michelinakis, sehh.AT.altered.com)
+4. fix bug in iconv.pl where some windows charsets were misspelled
+   as winodws, breaking some charset conversion support.
+5. minor code clean and comment spelling fixes.
+
+
 06/18/2006
 ----------
 1. German help files translation

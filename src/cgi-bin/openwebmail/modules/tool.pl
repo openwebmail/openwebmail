@@ -79,26 +79,28 @@ sub load_configfile {
 }
 
 # use 'require' to load the package ow::$file
-# then alias ow::$file::symbo to $newpkg::symbo
+# then alias ow::$file::symbol to $newpkg::symbol
 # through Glob and 'tricky' symbolic reference feature
 sub loadmodule {
    my ($newpkg, $moduledir, $modulefile, @symlist)=@_;
-   $modulefile=~s|/||g; $modulefile=~s|\.\.||g; # remove / and .. to anti path hack
+   $modulefile=~s|/||g; $modulefile=~s|\.\.||g; # remove / and .. for path safety
 
    # this would be done only once because of %INC
    my $modulepath=ow::tool::untaint("$moduledir/$modulefile");
    require $modulepath;
 
    # . - is not allowed for package name
-   my $modulepkg='ow::'.$modulefile; $modulepkg=~s/\.pl//; $modulepkg=~s/[\.\-]/_/g;
+   my $modulepkg='ow::'.$modulefile;
+   $modulepkg=~s/\.pl//;
+   $modulepkg=~s/[\.\-]/_/g;
 
    # release strict refs until block end
    no strict 'refs';
-   # use symbo table of package $modulepkg if no symbo passed in
+   # use symbol table of package $modulepkg if no symbol passed in
    @symlist=keys %{$modulepkg.'::'} if ($#symlist<0);
 
    foreach my $sym (@symlist) {
-      # alias symbo of sub routine into current package
+      # alias symbol of sub routine into current package
       *{$newpkg.'::'.$sym}=*{$modulepkg.'::'.$sym};
    }
 

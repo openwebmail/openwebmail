@@ -2,7 +2,7 @@ This is the directory for authentication modules.
 The config file for these module is located in ../etc.
 For example, the config for auth_unix.pl will be ../etc/auth_unix.conf
 
-If you are running openwebmail with SpeedyCGi,
+If you are running openwebmail with SpeedyCGI,
 each module will be loaded for most once
 and any modification to the config file won't be seen
 after program starts up.

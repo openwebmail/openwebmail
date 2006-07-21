@@ -170,7 +170,8 @@ sub search_info_messages_for_keyword {
          my $msgcharset=$attr[$_CHARSET];
          if ($msgcharset eq '' && $prefs_charset eq 'utf-8') {
             # assume msg is from sender using same language as the recipient's browser
-            $msgcharset=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
+            my $browserlocale = ow::lang::guess_browser_locale($config{'available_locales'});
+            $msgcharset = (ow::lang::localeinfo($browserlocale))[6];
          }
          ($attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT])=
                iconv($msgcharset, $prefs_charset, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);

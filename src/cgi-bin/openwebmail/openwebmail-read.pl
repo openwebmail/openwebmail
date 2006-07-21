@@ -235,30 +235,36 @@ sub readmessage {
       $convfrom=official_charset($message{'charset'});
       if ($convfrom eq '' && $prefs{'charset'} eq 'utf-8') {
          # assume msg is from sender using same language as the recipient's browser
-         $convfrom=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
+         my $browserlocale = ow::lang::guess_browser_locale($config{available_locales});
+         $convfrom = (ow::lang::localeinfo($browserlocale))[6];
       }
-      $convfrom="none.$convfrom" if ($prefs{'readwithmsgcharset'} &&
-                                     defined $ow::lang::is_charset_supported{$convfrom});
+      $convfrom="none.$convfrom" if ($prefs{'readwithmsgcharset'} && ow::lang::is_charset_supported($convfrom));
    }
-   $convfrom="none.$prefs{'charset'}" if ($convfrom!~/^none\./ && !is_convertible($convfrom, $prefs{'charset'}));
-   my $readcharset=$prefs{'charset'};	# charset choosed by user to read current message
-   $readcharset=$1 if ($convfrom=~/^none\.(.+)$/);	# read msg with no conversion
+   $convfrom="none.$prefs{'charset'}" if ($convfrom !~ m/^none\./ && !is_convertible($convfrom, $prefs{'charset'}));
+   my $readcharset=$prefs{'charset'};               # charset choosed by user to read current message
+   $readcharset=$1 if ($convfrom=~/^none\.(.+)$/);  # read msg with no conversion
 
 
    my ($html, $temphtml, @tmp);
    my $templatefile="readmessage.template";
    $templatefile="printmessage.template" if ($printfriendly eq 'yes');
 
-   # temporarily switch lang/charset if user want original charset
+   # temporarily switch lang/charset if user want original charset.
+   # we switch to an English UTF-8 interface because it shows correctly in all charsets.
+   # we tried converting the message to UTF-8 and using the user's language UTF-8 locale,
+   # but it turns out that iconv does not convert everything to UTF-8 correctly. So, we
+   # use UTF-8 for the interface and display the page in the native charset of the message.
    if ($readcharset ne $prefs{'charset'}) {
-      @tmp=($prefs{'language'}, $prefs{'charset'});
-      ($prefs{'language'}, $prefs{'charset'})=('en', $readcharset);
-      loadlang($prefs{'language'});
-      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
+      @tmp=($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'});
+      ($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'}) = ("en_US", $readcharset, "en_US.UTF-8");
+      loadlang($prefs{'locale'});
+      charset($prefs{'charset'}) if ($CGI::VERSION>=2.58); # setup charset of CGI module
    }
+
    $html=applystyle(readtemplate($templatefile));
+
    if ($#tmp>=1) {
-      ($prefs{'language'}, $prefs{'charset'})=@tmp;
+      ($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'})=@tmp;
    }
 
    $temphtml = end_form();
@@ -450,6 +456,8 @@ sub readmessage {
                       iconlink("forward.gif",      $lang_text{'forward'},      qq|accesskey="F" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forward&amp;convfrom=$convfrom"|).
                       iconlink("forwardasatt.gif", $lang_text{'forwardasatt'}, qq|accesskey="M" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasatt"|).
                       iconlink("forwardasorig.gif",$lang_text{'forwardasorig'},qq|accesskey="O" href="$send_url_with_id&amp;action=composemessage&amp;composetype=forwardasorig&amp;convfrom=$convfrom"|);
+                      # TODO: this is stub code for a future feature that allows editing any received message
+                      # iconlink("editdraft.gif",    $lang_text{'editdraft'},    qq|accesskey="E" href="$send_url_with_id&amp;action=composemessage&amp;composetype=editdraft&amp;convfrom=$convfrom"|).
       }
       $temphtml .= "&nbsp;\n";
    }
@@ -513,18 +521,18 @@ sub readmessage {
    my $gif;
    $temphtml='';
    if ($messageid_prev ne '') {
-      $gif="left.s.gif"; $gif="right.s.gif" if ($ow::lang::RTL{$prefs{'language'}});
+      $gif="left.s.gif"; $gif="right.s.gif" if ($ow::lang::RTL{$prefs{'locale'}});
       $temphtml .= iconlink($gif, "&lt;", qq|accesskey="U" href="$read_url&amp;message_id=|.ow::tool::escapeURL($messageid_prev).qq|&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode"|);
    } else {
-      $gif="left-grey.s.gif"; $gif="right-grey.s.gif" if ($ow::lang::RTL{$prefs{'language'}});
+      $gif="left-grey.s.gif"; $gif="right-grey.s.gif" if ($ow::lang::RTL{$prefs{'locale'}});
       $temphtml .= iconlink($gif, "-", "");
    }
    $temphtml.=qq|$message_num/|.($#{$r_messageids}+1);
    if ($messageid_next ne '') {
-      my $gif="right.s.gif"; $gif="left.s.gif" if ($ow::lang::RTL{$prefs{'language'}});
+      my $gif="right.s.gif"; $gif="left.s.gif" if ($ow::lang::RTL{$prefs{'locale'}});
       $temphtml .= iconlink($gif, "&gt;", qq|accesskey="D" href="$read_url&amp;message_id=|.ow::tool::escapeURL($messageid_next).qq|&amp;action=readmessage&amp;headers=$headers&amp;attmode=$attmode"|);
    } else {
-      my $gif="right-grey.s.gif"; $gif="left-grey.s.gif" if ($ow::lang::RTL{$prefs{'language'}});
+      my $gif="right-grey.s.gif"; $gif="left-grey.s.gif" if ($ow::lang::RTL{$prefs{'locale'}});
       $temphtml .= iconlink($gif, "-", "");
    }
    $html =~ s/\@\@\@MESSAGECONTROL\@\@\@/$temphtml/g;
@@ -536,35 +544,39 @@ sub readmessage {
    my ($htmlconv, $htmlstat, $htmlmove);
 
    # charset conversion menu
-   if(defined $charset_convlist{$prefs{'charset'}} ) {
+   if(defined $ow::lang::charactersets{(ow::lang::localeinfo($prefs{'locale'}))[4]} ) {
       my (@cflist, %cflabels, %allsets, $cf);
-      foreach (keys %ow::lang::is_charset_supported, keys %charset_convlist) {
+      foreach ((map { $ow::lang::charactersets{$_}[1] } keys %ow::lang::charactersets), keys %charset_convlist) {
          $allsets{$_}=1 if (!defined $allsets{$_});
       }
 
       $cf="none.".lc($message{'charset'}); # readmsg with orig charset and no conversion
-      push(@cflist, $cf); $cflabels{$cf}=(lc($message{'charset'})||$lang_text{'none'})." *";
+      push(@cflist, $cf);
+      $cflabels{$cf}=(lc($message{'charset'})||$lang_text{'none'})." *";
       delete $allsets{$cf};
 
-      $cf="none.$prefs{'charset'}";	# readmsg with prefs charset and no conversion
+      $cf="none.$prefs{'charset'}";        # readmsg with prefs charset and no conversion
       if (!defined $cflabels{$cf}) {
-         push(@cflist, $cf); $cflabels{$cf}=$prefs{'charset'};
+         push(@cflist, $cf);
+         $cflabels{$cf}=$prefs{'charset'};
          delete $allsets{$prefs{'charset'}};
       }
 
-      $cf=lc($message{'charset'});	# readmsg with prefs charset and conversion
+      $cf=lc($message{'charset'});         # readmsg with prefs charset and conversion
       if (is_convertible($cf, $prefs{'charset'})) {
-         push(@cflist, $cf); $cflabels{$cf}="$cf > $prefs{'charset'}";
+         push(@cflist, $cf);
+         $cflabels{$cf}="$cf > $prefs{'charset'}";
          delete $allsets{$cf};
       }
       foreach $cf (@{$charset_convlist{$prefs{'charset'}}}) {
          if (!defined $cflabels{$cf}) {
-            push(@cflist, $cf); $cflabels{$cf}="$cf > $prefs{'charset'}";
+            push(@cflist, $cf);
+            $cflabels{$cf}="$cf > $prefs{'charset'}";
             delete $allsets{$cf};
          }
       }
 
-      foreach (sort keys %allsets) {	# readmsg with other charset and no conversion
+      foreach (sort keys %allsets) {       # readmsg with other charset and no conversion
          $cf="none.$_";
          next if (defined $cflabels{$cf});
          push(@cflist, $cf); $cflabels{$cf}=$_;
@@ -1067,8 +1079,8 @@ sub readmessage {
 
    @tmp=();
    if ($readcharset ne $prefs{'charset'}) {
-      @tmp=($prefs{'language'}, $prefs{'charset'});
-      ($prefs{'language'}, $prefs{'charset'})=('en', $readcharset);
+      @tmp=($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'});
+      ($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'})=('en_US', $readcharset, 'en_US.UTF-8');
    }
 
    # show unread inbox messages count in titlebar
@@ -1079,7 +1091,7 @@ sub readmessage {
    httpprint([], [htmlheader($unread_messages_info), $html, htmlfooter($footermode)]);
 
    if ($#tmp>=1) {
-      ($prefs{'language'}, $prefs{'charset'})=@tmp;
+      ($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'})=@tmp;
    }
 
    # fork a child to do the status update and folderdb update
@@ -1304,7 +1316,7 @@ sub image_att2table {
    my $nodeid=${$r_attachment}{nodeid};
    my $disposition=substr(${$r_attachment}{'content-disposition'},0,1);
    my $escapedfilename = ow::tool::escapeURL($filename);
-   my $jsfilename=$filename; $jsfilename=~ s/'/\\'/g;	# escaep ' with \'
+   my $jsfilename=$filename; $jsfilename=~ s/'/\\'/g;	# escape ' with \'
 
    my $temphtml .= qq|<table border="0" align="center" cellpadding="2">|.
                    qq|<tr><td bgcolor=$style{"attachment_dark"} align="center">|.

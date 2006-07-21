@@ -393,6 +393,71 @@ sub upgrade_all {	# called if user releasedate is too old
       }
    }
 
+   if ( $user_releasedate lt "20060721" ) {
+      # users preferences need to be updated to reflect move to locales instead of just lang/charset
+      my $rcfile=dotpath('openwebmailrc');
+      if (-f $rcfile) {
+         %prefs = readprefs();
+
+         my $prefscharset = uc($prefs{'charset'});                   # utf-8 -> UTF-8
+         $prefscharset =~ s#[-_\s]+##g;                              # UTF-8 -> UTF8
+         $prefscharset = $ow::lang::charactersets{$prefscharset}[0]; # OWM Locale style
+
+         my $prefslanguage = substr(lc($prefs{'language'}), 0, 2);   # en.utf8 -> en
+
+         # find locale by matching language and character set, or just by language, or default to en_US.ISO8859-1
+         my $locale = (grep { m/^$prefslanguage/ && m/\Q$prefscharset\E$/ } sort keys %{$config{'available_locales'}})[0] ||
+                      (grep { m/^$prefslanguage/ } sort keys %{$config{'available_locales'}})[0] ||
+                      'en_US.ISO8859-1';
+
+         # add locale support
+         $prefs{'language'} = join("_", (ow::lang::localeinfo($locale))[0,2]);
+         $prefs{'charset'}  = (ow::lang::localeinfo($locale))[6];
+         $prefs{'locale'} = $locale;
+
+         # update holidays
+         my %holidays = (
+                          'at'              => 'de_AT.ISO8859-1',
+                          'cs'              => 'cs_CZ.ISO8859-2',
+                          'de'              => 'de_DE.ISO8859-1',
+                          'de_CH'           => 'de_CH.ISO8859-1',
+                          'el'              => 'el_GR.ISO8859-7',
+                          'en'              => 'en_US.ISO8859-1',
+                          'en_GB'           => 'en_GB.ISO8859-1',
+                          'en_HK'           => 'en_HK.ISO8859-1',
+                          'en_US'           => 'en_US.ISO8859-1',
+                          'es'              => 'es_ES.ISO8859-1',
+                          'es_AR'           => 'es_AR.ISO8859-1',
+                          'fi'              => 'fi_FI.ISO8859-1',
+                          'hu'              => 'hu_HU.ISO8859-2',
+                          'it'              => 'it_IT.ISO8859-1',
+                          'ja_JP.Shift_JIS' => 'ja_JP.Shift_JIS',
+                          'ja_JP.utf8'      => 'ja_JP.UTF-8',
+                          'nl'              => 'nl_NL.ISO8859-1',
+                          'pl'              => 'pl_PL.ISO8859-2',
+                          'pt'              => 'pt_PT.ISO8859-1',
+                          'pt_BR'           => 'pt_BR.ISO8859-1',
+                          'sk'              => 'sk_SK.ISO8859-2',
+                          'sl'              => 'sl_SL.CP1250',
+                          'uk'              => 'uk_UA.KOI8-U',
+                          'ur'              => 'ur_PK.UTF-8',
+                          'zh_CN.GB2312'    => 'zh_CN.GB2312',
+                          'zh_HK.Big5'      => 'zh_HK.Big5',
+                          'zh_TW.Big5'      => 'zh_TW.Big5',
+                        );
+         $prefs{'calendar_holidaydef'} = $holidays{$prefs{'calendar_holidaydef'}} if exists $holidays{$prefs{'calendar_holidaydef'}};
+
+         if (sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT)) {
+            foreach my $key (@openwebmailrcitem) {
+               print RC "$key=$prefs{$key}\n";
+            }
+            close(RC);
+            writehistory("release upgrade - openwebmailrc by 20060721");
+            writelog("release upgrade - openwebmailrc by 20060721");
+         }
+      }
+   }
+
    return;
 }
 

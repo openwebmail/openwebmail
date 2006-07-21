@@ -1,0 +1,772 @@
+package ow::sl_SL_CP1250;
+
+# Slovenian translation, charset: windows-1250
+# by Uroš Sajko, November 15, 2004
+
+%lang_folders =
+   (
+   INBOX            => 'PREJETO',
+   'saved-messages' => 'Shranjeno',
+   'sent-mail'      => 'Poslano',
+   'saved-drafts'   => 'Osnutek',
+   'mail-trash'     => 'Koš',
+   'spam-mail'      => 'Oglaševanje',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--OZNAÈI SPAM--',
+   LEARNHAM         => '--OZNAÈI HAM--',
+   FORWARD          => '--POSREDUJ--',
+   DELETE           => '--ZBRIŠI--'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Stanje (Najprej neprebrana)',
+   date        => 'Datum (Najprej starejša)',
+   date_rev    => 'Datum (Najprej novejša)',
+   sender      => 'Pošiljatelj (Ascending)',
+   sender_rev  => 'Pošiljatelj (Descending)',
+   subject     => 'Predmet (Od Ž do A)',
+   subject_rev => 'Predmet (Od A do Ž)',
+   size        => 'Velikost (Najprej najmanjša)',
+   size_rev    => 'Velikost (Najprej najveèja)',
+   );
+
+%lang_abooksortlabels =
+   (
+   fullname     => 'Polno ime (od A do Ž)',
+   fullname_rev => 'Polno ime (od Ž do A)',
+   prefix       => 'Imenska predpona (od A do Ž)',
+   prefix_rev   => 'Imenska predpona (od Ž do A)',
+   first        => 'Ime (od A do Ž)',
+   first_rev    => 'Ime (od Ž do A)',
+   middle       => 'Drugo ime (od A do Ž)',
+   middle_rev   => 'Drugo ime (od Ž do A)',
+   last         => 'Priimek (od A do Ž)',
+   last_rev     => 'Priimek (od Ž do A)',
+   suffix       => 'Imenska pripona (od A do Ž)',
+   suffix_rev   => 'Imenska pripona (od Ž do A)',
+   email        => 'Prvi e-naslov (od A do Ž)',
+   email_rev    => 'Prvi e-naslov (od Ž do A)',
+   phone        => 'Prva telefonska številka (narašèajoèe številke)',
+   phone_rev    => 'Prva telefonska številka (padajoèe številke)',
+   );
+
+%lang_abookselectionlabels =
+   (
+   ALL => "Vsi adresarji",
+   global => "Globalni adresar",
+   ldapcache => "Globalni adresar - ldap",
+   );
+
+%lang_onofflabels =
+   (
+   auto => 'Avtomatsko preklapljanje',
+   on   => 'Vkljuèeno',
+   off  => 'Izkljuèeno',
+   );
+
+%lang_bgfilterthresholdlabels =
+   (
+     0 => 'Ne',
+     1 => 'Da',
+    20 => 'Samo èe PREJETO vsebuje veè kot 20 novih sporoèil',
+    50 => 'Samo èe PREJETO vsebuje veè kot 50 novih sporoèil',
+   100 => 'Samo èe PREJETO vsebuje veè kot 100 novih sporoèil',
+   200 => 'Samo èe PREJETO vsebuje veè kot 200 novih sporoèil',
+   500 => 'Samo èe PREJETO vsebuje veè kot 500 novih sporoèil',
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Navadno sporoèilo',
+   urgent      => 'Nujno sporoèilo',
+   'non-urgent'=> 'Nepomembno sporoèilo'
+   );
+
+%lang_msgformatlabels =
+   (
+   auto => 'Avtomatska izbira',
+   text => 'Tekst',
+   html => 'HTML',
+   both => 'HTML in Tekst'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'na zaèetku',
+   at_end       => 'na koncu',
+   none         => 'niè'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Vprašaj za potrditev',
+   yes => 'Da',
+   no  => 'Ne'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'niè',
+   cgionly => 'le CGI',
+   all     => 'vse povezave'
+   );
+
+%lang_ctrlpositionlabels =
+   (
+   top    => 'Na vrhu',
+   bottom => 'Na dnu'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'Pred prostorom za pisanje sporoèila',
+   after  => 'Za prostorom za pisanje sporoèila',
+   both   => 'Pred in za prostorom za pisanje sporoèila'
+   );
+
+%lang_abookbuttonpositionlabels =
+   (
+   before => 'Pred prostorom za pisanje sporoèila',
+   after  => 'Za prostorom za pisanje sporoèila',
+   both   => 'Pred in za prostorom za pisanje sporoèila'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'Vsa nova sporoèila v mapi Prejeto',
+   pop3 => 'Le sporoèila in strežnika pop3',
+   none => 'niè'
+   );
+
+%lang_timelabels =
+   (
+      3 => '3 minute',
+      5 => '5 minut',
+     10 => '10 minut',
+     20 => '20 minut',
+     30 => '30 minut',
+     60 => '60 minut',
+    120 => '2 uri',
+    180 => '3 ure',
+    360 => '6 ur',
+    720 => '12 ur',
+   1440 => '24 ur'
+   );
+
+%lang_timezonelabels =
+   (
+   '-1200' => 'Mednarodna zahodna datumska meja',
+   '-1100' => 'Nome, Anadyr',
+   '-1000' => 'Aljaska-Havaji',
+   '-0900' => 'Yukon',
+   '-0800' => 'Pacifik',
+   '-0700' => 'Gorski èas (Kanada)',
+   '-0600' => 'Centralni pas',
+   '-0500' => 'Vzhodni pas (standardni)',
+   '-0400' => 'Atlantik (standardni)',
+   '-0330' => 'Newfoundland (standardni)',
+   '-0300' => 'Atlantik (svit)',
+   '-0230' => 'Newfoundland',
+   '-0200' => 'Azori',
+   '-0100' => 'Zahodna Afrika',
+   '+0000' => 'Greenwich srednji',
+   '+0100' => 'Centralna Evropa',
+   '+0200' => 'Vzhodna Evropa',
+   '+0300' => 'Bagdad, Moskva, Nairobi',
+   '+0330' => 'Teheran',
+   '+0400' => 'Abu Dabi, Volgograd, Kabul',
+   '+0500' => 'Karaèi',
+   '+0530' => 'Indija',
+   '+0600' => 'Novosibirsk, Dhaka',
+   '+0630' => 'Rangoon',
+   '+0700' => 'Bangkok, Džakarta',
+   '+0800' => 'Kitajska obala',
+   '+0900' => 'Japonska',
+   '+0930' => 'Avstralija (centralna)',
+   '+1000' => 'Avstralija (vzhodna)',
+   '+1030' => 'Lord Howe Island',
+   '+1100' => 'Avstralija (vzhodna - poleti)',
+   '+1200' => 'Mednarodna vzhodna datumska meja',
+   '+1300' => 'Nova Zelandija',
+   );
+
+%lang_abookclasslabels =
+   (
+   PRIVATE => 'Zaseben',
+   PUBLIC => 'Javen',
+   );
+
+%lang_satestfields =
+   (
+   name       => 'ime',
+   desc       => 'Opis',
+   type       => 'Poskusni tip',
+   expression => 'Izraz',
+   score      => 'Toèke',
+   );
+
+%lang_satesttypes =
+   (
+   header  => 'Glava sporoèila',
+   body    => 'Besedilo sporoèila (HTML dodatki odstranjeni)',
+   uri     => 'Povezave v sporoèilu',
+   rawbody => 'Besedilo sporoèila in priponke (HTML dodatki ohranjeni)',
+   full    => 'Nedekodirano besedilo sporoèila in priponke',
+   );
+
+%lang_satestheaderattrs =
+   (
+   ALL        => 'Vse',
+   Subject    => 'Predmet',
+   From       => 'Pošiljatelj (Od)',
+   To         => 'Naslovnik (Za)',
+   Cc         => 'Kopija (Kp)',
+   ToCc       => 'Za in Kp',
+   MESSAGEID  => 'Št. sporoèila',
+   USERDEFINE => 'Uporabniško definirano',
+   );
+
+%lang_searchtypelabels =
+   (
+   contains    => 'vsebuje',
+   notcontains => 'ne vsebuje',
+   is          => 'je',
+   isnot       => 'ni',
+   startswith  => 'se zaène',
+   endswith    => 'se konèa',
+   regexp      => 'ustreza regularnemu izrazu (regexp)',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'Vse',
+   today       => 'Danes',
+   oneweek     => 'En teden',
+   twoweeks    => 'Dva tedna',
+   onemonth    => 'En mesec',
+   threemonths => 'Tri mesece',
+   sixmonths   => 'Šest mesecev',
+   oneyear     => 'Eno leto',
+   );
+
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
+%lang_calendar =
+   (
+   yearview  => 'Letni prikaz',
+   monthview => 'Meseèni prikaz',
+   weekview  => 'Tedenski prikaz',
+   dayview   => 'Dnevni prikaz',
+   listview  => 'Seznamski prikaz'
+   );
+
+%lang_month =
+   (
+   1  => 'Januar',
+   2  => 'Februar',
+   3  => 'Marec',
+   4  => 'April',
+   5  => 'Maj',
+   6  => 'Junij',
+   7  => 'Julij',
+   8  => 'Avgust',
+   9  => 'September',
+   10 => 'Oktober',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Nedelja',
+   1 => 'Ponedeljek',
+   2 => 'Torek',
+   3 => 'Sreda',
+   4 => 'Èetrtek',
+   5 => 'Petek',
+   6 => 'Sobota'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'TD',
+   0 => 'N',
+   1 => 'P',
+   2 => 'T',
+   3 => 'S',
+   4 => 'È',
+   5 => 'P',
+   6 => 'S'
+   );
+
+%lang_order =
+   (
+   1 => 'Prvi(a)',
+   2 => 'Drugi(a)',
+   3 => 'Tretji(a)',
+   4 => 'Èetrti(a)',
+   5 => 'Zadnji(a)'
+   );
+
+%lang_wdbutton =
+   (
+   refresh  => 'Osveži',
+   preview  => 'Predogled',
+   edit     => 'Uredi',
+   listarchive => 'Seznam',
+   decompress => 'Razširi',
+   extract  => 'Izvleèi',
+   mkpdf    => 'Naredi PDF',
+   mkps     => 'Naredi PS',
+   chdir    => 'Zamenjaj mapo',
+   mkdir    => 'Ustvari mapo',
+   newfile  => 'Ustvari datoteko',
+   copy     => 'Kopiraj',
+   move     => 'Premakni',
+   symlink  => 'Bližnjica',
+   delete   => 'Zbriši',
+   chmod    => 'Chmod',
+   gzip     => 'Ustvari gz',
+   mkzip    => 'Ustvari zip',
+   mktgz    => 'Ustvari tgz',
+   mkthumbnail => 'Ustvari slièico',
+   download => 'Prenesi s strežnika',
+   upload   => 'Prenesi na strežnik',
+   );
+
+%lang_text =
+   (
+   loading    => 'Berem, prosim poèakajte',
+   help       => 'Pomoè',
+   login      => 'Prijava',
+   clear      => 'Oèisti',
+   webmail    => 'Spletna pošta',
+   msglist    => 'Seznam sporoèil',
+   point      => 'toèk',
+   pixel      => 'pikslov',
+   changepwd  => 'Sprememba gesla',
+   viewhistory=> 'Pregled zgodovine',
+   of         => 'od',
+   messages   => 'sporoèil',
+   unread     => 'neprebranih',
+   nomessages => 'Ni sporoèil',
+   inmessages => 'Prejeta sporoèila',
+   composenew => 'Napiši novo sporoèilo',
+   refresh    => 'Osveži',
+   userprefs  => 'Uporabniške nastavitve',
+   addressbook=> 'Adresar',
+   folders    => 'Mape',
+   emptyfolder=> 'Izprazni mapo',
+   emptytrash => 'Izprazni koš',
+   totrash    => 'Premakni v koš',
+   learnham   => 'Oznaèi ham',
+   learnspam  => 'Oznaèi spam',
+   forever    => 'Za vedno',
+   delatlogout=> 'Izbriši ob odjavi',
+   userdef    => 'Uporabniško definirano',
+   logout     => 'Odjava',
+   page       => 'Stran',
+   msgsperpage=> '@@@MSGCOUNT@@@ sporoèil na stran',
+   msgcopyconf=> '\'Ali ste preprièani, da želite kopirati izbrana sporoèila?\'',
+   copy       => 'Kopiraj',
+   msgmoveconf=> '\'Ali ste preprièani, da želite premakniti izbrana sporoèila?\'',
+   move       => 'Premakni',
+   markasread => 'Oznaèi kot prebrano',
+   markasunread => 'Oznaèi kot neprebrano',
+   dateformat => 'Format datuma',
+   date       => 'Datum',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
+   recipient  => 'Prejemnik',
+   sender     => 'Pošiljatelj',
+   subject    => 'Predmet',
+   thread     => 'Glava',
+   size       => 'Velikost',
+   backto     => 'Nazaj v',
+   reply      => 'Odgovori',
+   replyall   => 'Odgovori vsem',
+   forward    => 'Posreduj',
+   forwardasatt=>'Posreduj kot prilogo',
+   forwardasorig=>'Posreduj kot original',
+   printfriendly=> 'Prijazno tiskanje',
+   msgformat  => 'Format sporoèila',
+   from       => 'Pošiljatelj (Od)',
+   replyto    => 'Odgovori-na',
+   to         => 'Naslovnik (Za)',
+   cc         => 'Kopija (Kp)',
+   bcc        => 'Slepa kopija (SKp)',
+   simplehead => 'Enostavni prikaz glave',
+   allhead    => 'Celotni prikaz glave',
+   simpleattmode => 'Enostavni prikaz prilog',
+   allattmode    => 'Celotni prikaz prilog',
+   attachment => 'Priloga',
+   type       => 'Tip',
+   filename   => 'Ime datoteke',
+   encoding   => 'Kodiranje',
+   description=> 'Opis',
+   download   => 'Prenesi s strežnika',
+   charset    => 'Kodni zapis',
+   sameascomposecharset => 'Isti kodni zapis kot pri novem sporoèilu',
+   thisispartialmsg => 'To je nepopolno sporoèilo',
+   msgrebuild => 'Popravek sporoèila',
+   editdraft  => 'Uredi osnutek',
+   savedraft  => 'Shrani osnutek',
+   draftsaved => 'Osnutek @@@SUBJECT@@@ je uspešno shranjen',
+   send       => 'Pošlji',
+   msgsent    => 'Sporoèilo @@@SUBJECT@@@ je bilo uspešno poslano',
+   about      => 'O programu',
+   close      => 'Zapri',
+   cancel     => 'Preklièi',
+   ok         => 'Potrdi',
+   continue   => 'Nadaljuj',
+   loginagain => 'Ponovna prijava',
+   exit       => 'Izhod',
+   yourname   => 'Vaše ime',
+   save       => 'Shrani',
+   add        => 'Dodaj',
+   folderrenprop => '\'Prosim vnesite novo ime za to mapo\'',
+   rename     => 'Preimenuj',
+   folderdelconf => '\'Ali ste preprièani, da želite izbrisati mapo s celotno vsebino vred?\'',
+   markread   => 'Oznaèi prebrano',
+   foldermarkreadconf => '\'Ali želite oznaèiti vsa sporoèila v tej mapi kot prebrana?\'',
+   chkindex   => 'Preveri indeks',
+   folderchkindexconf => '\'Ali želite preveriti indeks te mape?\'',
+   reindex    => 'Ponovno indeksiraj',
+   folderreindexconf => '\'Ali ste preprièani, da želite ponovno indeksirati to mapo?\'',
+   total      => 'Skupaj',
+   edit       => 'Uredi',
+   delete     => 'Zbriši',
+   delete_nontextatt => 'Delete all non-text attachment(s)',
+   reserve    => 'Rezerviraj',
+   clearadd   => 'Oèisti vse naslove',
+   importadd  => 'Uvozi naslove',
+   exportadd  => 'Izvozi naslove',
+   import     => 'Uvozi',
+   export     => 'Izvozi',
+   addmod     => 'Dodaj/Spremeni',
+   modify     => 'Spremeni',
+   max        => 'Maksimum',
+   group      => 'Skupina',
+   quotausage => 'Uporabljena kvota',
+   quotalimit => 'Razpoložljiva kvota',
+   quotahit   => 'KVOTA PRESEŽENA',
+   tzmap      => 'Zemljevid èasovnih pasov',
+   testsound  => 'Preizkusi zvok',
+   editfroms  => 'Uredi osebne elektronske naslove',
+   pop3book   => 'POP3 nastavitve',
+   retr_pop3s => 'Prenesi POP3 sporoèila',
+   filterbook => 'Nastavite filtrov sporoèil',
+   include    => 'Vkljuèi',
+   exclude    => 'Izkljuèi',
+   smtprelay  => 'SMTP prenos',
+   header     => 'Glava',
+   body       => 'Telo',
+   attfilename=> 'Ime priloge',
+   all        => 'Vse',
+   enable     => 'Omogoèi',
+   disable    => 'Onemogoèi',
+   yes        => 'Da',
+   no         => 'Ne',
+   filtered   => 'Filtrirano',
+   blockrelay => 'Blokiraj SMTP prenos',
+   blockemail => 'Blokiraj e-naslov',
+   read       => 'Preberi',
+   yourmsg    => 'Vaše sporoèilo',
+   delivered  => 'Dostavljena',
+   wasreadon1 => 'prebrana',
+   wasreadon2 => '.',
+   globalfilterrule => 'Globalna filtrirna pravila',
+   readonly   => 'Samo za branje',
+   textcontent=> 'Tekstovna vsebina',
+   search     => 'Išèi',
+   advsearch  => 'Napredno iskanje',
+   folder     => 'Mapa',
+   nofoldersel=> 'Niste izbrali mape',
+   showall    => 'Prikaži vse',
+   spellcheck => 'Èrkovalnik',
+   checkagain => 'Ponovno preveri',
+   finishchecking => 'Zakljuèi preverjanje',
+   editpdict  => 'Uredi osebni slovar',
+   addtodict  => 'Dodaj v slovar',
+   manuallyfix=> 'Roèno popravi',
+   editstat   => 'Uredi predlogo',
+   savestat   => 'Shrani predlogo',
+   clearstat  => 'Pobriši vse predloge',
+   statreply  => '-- Predloga za odgovor --',
+   calendar   => 'Koledar',
+   allday     => 'Ves dan',
+   today      => 'danes',
+   am         => ' dopoldne',
+   pm         => ' popoldne',
+   calfmt_year          => 'Leto @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@ @@@WEEKDAY_STR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Avtomatska izbira',
+   none       => 'Niè',
+   moreitems  => 'Veè zapisov',
+   multieditconf => 'Ta zapis je dodan za veè datumov.\\nSprememba zapisa bo povzroèila spremembo na vseh datumih.\\nNadaljujem z urejanjem?',
+   multidelconf  => 'Ta zapis je dodan za veè datumov.\\nBrisanje zapisa bo povzroèilo izbris na vseh datumih.\\nNadaljujem z brisanjem?',
+   caldelconf => 'Ali ste preprièani, da želite izbrisati ta zapis?',
+   noitemforthisday => 'Za ta dan ni nobenega zapisa',
+   thisday_only          => 'Samo datumi tega dne',
+   the_wday_of_thismonth => '@@@ORDER@@@ @@@WDAY@@@ meseca',
+   every_wday_thismonth  => 'Vsak(o) @@@WDAY@@@(o) tega meseca',
+   thismonth_only           => 'Samo ta mesec',
+   every_oddmonth_thisyear  => 'Vsak lihi mesec tega leta',
+   every_evenmonth_thisyear => 'Vsak sodi mesec tega leta',
+   every_month_thisyear     => 'Vsak mesec tega leta',
+   webdisk      => 'Spletni disk',
+   sshterm      => 'SSH terminal',
+   dir          => 'mapa',
+   dirs         => 'mape',
+   file         => 'datoteka',
+   files        => 'datoteke',
+   program      => 'program',
+   dest_of_chdir  => 'ciljna mapa',
+   name_of_newdir => 'ime nove mape',
+   name_of_newfile=> 'ime nove datoteke',
+   dest_of_thecopy=> 'ciljna mapa ali ime kopije datoteke',
+   dest_of_themove=> 'ciljna mapa ali ime premaknjene datoteke',
+   dest_of_thezip=> 'ime nove zip datoteke',
+   dest_of_thetgz=> 'ime nove tgz datoteke',
+   homedir      => 'Domaèa mapa',
+   showthumbnail    => 'Slièice',
+   showhidden   => 'Prikaži skrite datoteke',
+   lastmodified => 'Èas zadnje spremembe',
+   perm         => 'Dovoljenja',
+   permission   => 'Dovoljenja za dostop',
+   noitemfound  => 'Ni nobene datoteke',
+   savefile     => 'Shrani kot',
+   succeeded    => 'uspelo',
+   failed       => 'neuspelo',
+   savefile_towd=> 'Shrani datoteko na spletni disk',
+   saveatt_towd => 'Shrani prilogo na spletni disk',
+   addatt_fromwd=> 'Dodaj prilogo s spletnega diska',
+   vdomain_usermgr    => 'Upravljanje z uporabniki virtualnih domen',
+   vdomain_createuser => 'Novi uporabnik',
+   vdomain_changeuser => 'Spremeni uporabnika',
+   vdomain_deleteuser => 'Izbriši uporabnika',
+   vdomain_changeview => 'Sprememba pregleda v',
+   vdomain_usersonly  => 'samo uporabniki',
+   vdomain_useralias  => 'uporabniki/vzdevki',
+   vdomain_fmtuseralias => 'urejeni uporabniki/vzdevki',
+   vdomain_admin      => 'Administrator',
+   vdomain_localuser  => 'Lokalni uporabnik',
+   set_passwd         => 'Nastavi geslo',
+   reset_passwd       => 'Zbriši geslo',
+   email_alias        => 'vzdevek e-naslova',
+   name       => 'Ime',
+   email      => 'E-naslov',
+   note       => 'Opomba',
+   abooks => 'Adresarji',
+   abook_personal => 'Osebni adresar',
+   abook_global => 'Globalni adresar',
+   abook_converted => 'Preoblikovano:',
+   abook_group_member => 'Èlan',
+   abook_group_allmembers => 'Vsi èlani',
+   abook_import => 'Uvozi podatke adresarja',
+   abook_importdest => 'Uvozi v novi adresar ...',
+   abook_export => 'Izvozi podatke adresarja',
+   abook_exportnow => 'Izvozi sedaj',
+   abook_newcontact => 'Novi stik',
+   abook_newgroup => 'Nova skupina',
+   abook_noconversion => 'Brez pretvorbe',
+   abook_listview_addrperpage => '@@@ADDRCOUNT@@@ naslovov na stran',
+   abook_listview_writemailto => 'Napisi sporoèilo',
+   abook_listview_edit => 'Uredi',
+   abook_listview_move => 'Premakni',
+   abook_listview_copy => 'Kopiraj',
+   abook_listview_compose => 'Napiši sporoèilo iz izbranih',
+   abook_listview_composemode => 'Izberi naslove za sporoèilo',
+   abook_listview_fullname => 'Polno ime',
+   abook_listview_prefix   => 'Predpona',
+   abook_listview_first    => 'Ime',
+   abook_listview_middle   => 'Drugo ime',
+   abook_listview_last     => 'Priimek',
+   abook_listview_suffix   => 'Pripona',
+   abook_listview_email    => 'E-naslov',
+   abook_listview_phone    => 'Telefon',
+   abook_listview_note     => 'Opomba',
+   abook_listview_none     => 'Niè',
+   abook_listview_telpref  => 'Obmoèje',
+   abook_listview_telhome  => 'Doma',
+   abook_listview_telwork  => 'Služba',
+   abook_listview_telcell  => 'Mobilna',
+   abook_listview_telcar   => 'Avto',
+   abook_listview_telfax   => 'Faks',
+   abook_listview_telpager => 'Pozivnik',
+   abook_listview_telvoice => 'Glasovna',
+   abook_listview_telvideo => 'Video',
+   abook_listview_telmsg   => 'Sporoèila',
+   abook_listview_telbbs   => 'BBS',
+   abook_listview_telisdn  => 'ISDN',
+   abook_listview_telmodem => 'Modem',
+   abook_listview_categories => 'Kategorije',
+   abook_listview_quickadd => 'Hitro dodajanje',
+   abook_listview_expandall => 'razširi vse',
+   abook_listview_collapseall => 'združi vse',
+   abook_listview_noaddresses => '-- V tem adresarju ni stikov --',
+   abook_listview_nomatch => '-- Iskanje ni vrnilo nobenega zadetka --',
+   abook_listview_done => 'Vredu',
+   abook_listview_viewselected => 'Pregled izbranih naslovov',
+   abook_listview_unselectall => 'Ne izberi vse izbrane naslove',
+   abook_showchecked_export => 'Preverjeno in pripravljeno za izvoz',
+   abook_editform_destination => 'cilj',
+   abook_editform_new_agent => 'Novi agent',
+   abook_editform_grouplabel => 'skupina',
+   abook_editform_valuelabel => 'vrednost',
+   abook_editform_namelabel_FN => 'Polno ime @@@SOUND@@@',
+   abook_editform_valuelabel_FN => '&nbsp;',
+   abook_editform_namelabel_EMAIL => 'E-naslovov v tej skupini',
+   abook_editform_namelabel_GROUPNAME => 'Ime skupine @@@SOUND@@@',
+   abook_editform_namelabel_NICKNAME => 'Vzdevek</b>@@@ADDMORELINK@@@<b>',
+   abook_editform_valuelabel_NICKNAME => '&nbsp;',
+   'abook_editform_namelabel_SORT-STRING' => 'Razveljavljena razvrstitev po priimku',
+   'abook_editform_valuelabel_SORT-STRING' => 'priimek:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;razvrstitev razveljevljena:<i>Trapp</i>',
+   abook_editform_valuelabel_TITLE => 'Predsednik, raziskovalec in razvijalec',
+   abook_editform_valuelabel_ROLE => 'vodja, izvršitelj, itd.',
+   abook_editform_valuelabel_ORGANIZATIONNAME => 'abc, itd.',
+   abook_editform_valuelabel_ORGANIZATIONALUNITS => 'raèunovodstvo, evropska enota',
+   abook_editform_namelabel_URL => 'Spletna stran</b> @@@ADDMORELINK@@@<b>',
+   abook_editform_valuelabel_URL => 'http://www.mojprostor.si',
+   abook_editform_namelabel_TZ => 'Èasovni pas',
+   abook_editform_namelabel_MAILER => 'Programska oprema',
+   abook_editform_valuelabel_MAILER => 'openwebmail, outlook, itd.',
+   abook_editform_namelabel_NOTE => 'Opomba',
+   abook_editform_namelabel_KEY => 'Osebne tipke',
+   abook_editform_undef_KEY => 'Za ta stik ni doloèenih tipk.',
+   abook_editform_view_KEY => 'Preglej to osebno tipko',
+   abook_editform_unknown_KEY => 'Neznana vrsta tipke',
+   abook_editform_x509_KEY => 'X.509 Certifikat javnega kljuèa',
+   abook_editform_pgp_KEY => 'IETF Dokaj dober zasebni kljuè',
+   abook_editform_gpg_KEY => 'GNU Zasebna zašèita',
+   abook_editform_namelabel_AGENT => 'Agenti',
+   abook_editform_undef_AGENT => 'noben ne igra v prid tega stika.',
+   abook_editform_download_AGENT => 'prenesi s strežnika to virtulano vizitko agenta',
+   abook_editform_unknown_AGENT => 'neznana vrsta agenta',
+   abook_editform_vcf_AGENT => 'Datoteka z virtualno vizitko',
+   abook_editform_GEO_find => 'Poišèi svojo geografsko lokacijo',
+   abook_editform_GEO_findurl => 'http://www.multimap.com/map/home.cgi?client=public&lang=&advanced=&db=US',
+   abook_editform_GEO_map => 'Poglej zemljevid te lokacije',
+   abook_editform_GEO_photo => 'Poglej satelitsko sliko te lokacije',
+   abook_editform_namelabel_CLASS => 'Dostopna razvrstitev',
+   abook_editform_namelabel_PRODID => 'Ustvarjeno s programsko opremo',
+   abook_editform_valuelabel_PRODID => 'outlook, openwebmail, itd.',
+   abook_editform_namelabel_UID => 'Zunanji unikatni ID',
+   abook_editform_valuelabel_UID => 'je povezan z zunanjim programom za vizitke',
+   abook_editform_namelabel_SOURCE => 'URL naslov virtualne vizitke',
+   abook_editform_valuelabel_SOURCE => 'http://www.mojprostor.si/mojavizitka.vcf',
+   abook_editform_namelabel_NAME => 'Izvorno ime virtulane vizitke',
+   abook_editform_valuelabel_NAME => 'opis izvornega url naslova',
+   abook_editform_valuelabel_CUSTOMNAME => 'poljubna imena',
+   abook_editform_valuelabel_CUSTOMVALUES => 'poljubne vrednosti',
+   abook_editform_playsound => 'Zaigraj zvok',
+   abook_editform_deletesound => 'Izbriši zvok',
+   abook_editform_save_and_return => 'Shrani in se vrni k prejšnjemu',
+   abook_editform_cancel_and_return => 'Preklièi in se vrni k prejšnjemu',
+   abook_editform_new_agent_link => 'ustvari',
+   sa_prefs         => 'Nastavitve odstranjevanja oglasne pošte',
+   sa_edittest      => 'Uredi poskusna pravila',
+   sa_editblacklist => 'Uredi èrni seznam',
+   sa_editwhitelist => 'uredi beli seznam',
+   );
+
+%lang_err =
+   (
+   has_illegal_chars => 'vsebuje nedovoljene znake!',
+   couldnt_readlock  => 'Ne morem zakleniti datoteke za branje',
+   couldnt_writelock => 'Ne morem zakleniti datoteke za pisanje',
+   couldnt_create    => 'Ne morem ustvariti',
+   couldnt_delete    => 'Ne morem zbrisati',
+   couldnt_open      => 'Ne morem odpreti',
+   couldnt_seek      => 'Ne morem dostopiti',
+   couldnt_read      => 'Ne morem brati',
+   couldnt_write     => 'Na morem brisati',
+   couldnt_close     => 'Ne morem zapreti',
+   couldnt_updatedb  => 'Ne morem posodobiti indeksov podatkovne baze ',
+   disallowed_pop3   => 'Nedovoljen POP3 strežnik',
+   disallowed_client => 'Na tem odjemalcu nimate dovoljenja, da bi se povezali',
+   disallowed_receiverdomain => 'Nimate dovoljenja, da bi poslali sporoèilo na ta naslov',
+   norootlogin       => 'Žal je prijava s takšnimi privilegiji onemogoèena iz varnostnih razlogov',
+   shouldnt_move_here=> 'Raje ne poskušajte premakniti sporoèil tja!',
+   destination_folder=> 'Ciljna mapa',
+   doesnt_exist      => 'ne obstaja!',
+   foldername_long   => 'Ime mape ne sme vsebovati veè kot @@@FOLDERNAME_MAXLEN@@@ znakov!',
+   folder_with_name  => 'Mapa z imenom',
+   already_exists    => 'že obstaja!',
+   cant_create_folder=> 'Ne morem ustvariti mape!',
+   under_indexing    => 'se še vedno indeksira, prosim poskusite znova kasneje',
+   back              => 'nazaj',
+   tryagain          => 'in poskusite znova.',
+   mailfilter_error  => 'Napaka filtra sporoèil',
+   att_overlimit     => 'Žal so vaše priloge presegle dodeljeno kvoto, ki je',
+   inv_msg_op        => 'Nepravilna operacija za sporoèilo',
+   sess_cookieerr    => 'Vaša zahteva ni vsebovala ustreznega piškotka seje -- dostop ni dovoljen!',
+   sess_iperr        => 'Vaša zahteva ni prišla iz istega IP naslova kot seja -- dostop ni dovoljen!',
+   no_endpart        => 'Ne najdem konca',
+   part_missing      => 'Nekateri deli manjkajo',
+   rebuild_fmterr    => 'Napaka pri oblikovanju novega sporoèila',
+   rebuild_sizeerr   => 'Velikost novega sporoèila ne nepravilna',
+   user_not_exist    => 'uporabnik ne obstaja',
+   func_notsupported => 'funkcija ni podprta',
+   auth_syserr       => 'Napaka na sistemu za potrditev verodostojnosti',
+   param_fmterr      => 'napaka pri formatiranju parametrov',
+   pwd_incorrect     => 'Napaèno geslo',
+   pwd_confirmmismatch=>'Novo geslo in potrditev se ne ujemata',
+   pwd_tooshort      => 'Geslo je prekratko (minimalna dolžina @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Geslo je preveè enostavno (zahtevane so številke in èrke)',
+   network_server_error => 'napaka mrežnega strežnika',
+   sendmail_error    => 'Oprostite, prišlo je do napake pri posiljanu vašega sporoèila.',
+   sendmail_chkdraft => 'Prosim preverite sporoèilo, ki je shranjeno v mapi osnutki in poskusite znova.',
+   at_char_not_allowed => 'Znak @ v tem polju ni dovoljen.  Pritisnite gumb "nazaj" na vašem brskalniku in poskusite znova.',
+   badnum_in_days => 'napaèno število v zaporedju zastopanih dnevov',
+   access_denied     => 'Vstop zavrnjen',
+   couldnt_chdirto   => 'Ne morem zamenjati mape na',
+   isnt_a_dir        => 'ni mapa',
+   edit_notfordir    => 'Ne morete urejati mape',
+   onefileonly       => 'Pri tej operaciji je dovoljena samo ena datoteka',
+   no_file_todownload=> 'Niste doloèili datotek za prenos s strežnika',
+   upload_overlimit  => 'Velikost datotek za prenos na strežnik je prevelika',
+   decomp_notsupported =>'Datoteko te vrste ni mogoèe razširiti.',
+   filefmt_notsupported =>'Format datoteke ni podprt.',
+   webdisk_readonly  => 'Oprostite, na vaš spletni disk ni mogoèe pisati.',
+   quota_syserr      => 'Sistemska napaka glede kvot',
+   quotahit_alert    => 'Oprostite, dosegli ste dodeljeno kvoto. Prosim zbrišite nekaj sporoèil iz map na strežniku ali nekaj datotek iz spletnega diska, da bi pridobili nekaj praznega prostora.',
+   quotahit_delmail  => 'Opozorilo, glede na to, da ste dosegli kvoto (@@@QUOTALIMIT@@@), sem avtomatièno pobrisal najstarejša sporoèila v mapah',
+   quotahit_delfile  => 'Opozorilo, glede na to, da ste dosegli kvoto (@@@QUOTALIMIT@@@), sem avtomatièno pobrisal nekaj datotek iz spletnega diska',
+   spool_overlimit   => 'Oprostite, vaša PREJETA sporoèila so presegla omejitev (@@@SPOOLLIMIT@@@). Prosim premaknite nekaj sporoèil iz PREJETO v ostale mape.',
+   vdomain_toomanyuser  => 'Oprostite, dosegli ste dovoljeno število uporabnikov za to domeno',
+   vdomain_toomanyalias => 'Oprostite, dosegli ste dovoljeno število vzdevkov uporabniških e-naslovov',
+   vdomain_userrequired => 'Uporabniško ime je zahtevano',
+   vdomain_fwdrequired => 'Veljaven e-naslov za posredovanje je zahtevan',
+   all_module_disabled => 'Vsi moduli so zahtevani',
+   abook_all_readonly => 'Vsi adresarji so samo za branje, Prosim ustvarite novega',
+   abook_import_nofile => 'Z uvoz morate izbrati datoteko',
+   abook_import_noformat => 'Izbrati morate obliko datoteke, ki jo uvažate',
+   abook_import_nodest => 'Izbrati morate Cilj uvoza',
+   abook_import_unsupfmt => 'Oblika "@@@FORMAT@@@" adresarja trenutno ni podprt. Prosim izberitie drug format za uvoz',
+   abook_export_unsupfmt => 'Oblika "@@@FORMAT@@@" adresarja trenutno ni podprt. Prosim izberitie drug format za izvoz',
+   abook_export_undef => 'Izbrati morate najmanj en naslov za izvoz. Niste izbrali naslova za izvoz',
+   abook_delete_xowmuid => 'Brisanje ni uspelo. Niste doloèili unikatnega id',
+   abook_delete_book => 'Ne morem izbrisati adresarja @@@ADDRESSBOOK@@@',
+   abook_doesnt_exist => 'Adresar @@@ADDRESSBOOK@@@ ne obstaja',
+   abook_already_exists => 'Adresar @@@ADDRESSBOOK@@@ že obstaja. Prosim izberite drugo ime',
+   abook_name_too_long => 'Ime adresarja @@@ADDRESSBOOK@@@ je predolgo. Omenitev je @@@FOLDERNAME_MAXLEN@@@ èrk',
+   abook_cant_rename => 'Preimenovanje adresarja ni uspelo',
+   abook_ext_notsupported => 'Prenesen tip datoteke ni podprt kot ',
+   abook_toobig => 'Oprostite, s tem boste presegli skupno dovoljeno velikost vaših adresarjev.  Prosim pojdite',
+   abook_delete_first => 'že obstaja. Prosim izbrišite jih predno boste dodali novega',
+   abook_global_denied => 'Nimate dovoljenj, da bi urejali globalni adresar',
+   abook_editform_no_N => 'Stika ne morete shraniti dokler je ime doloèeno. Prosim pojdite nazaj in vpišite ime tega stika',
+   abook_agent_one_contact => 'Prenesen agent lahko vsebuje le en stik',
+   );
+
+1;

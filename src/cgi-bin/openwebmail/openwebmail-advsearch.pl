@@ -409,7 +409,7 @@ sub search_folders2 {
          my $msgcharset=$attr[$_CHARSET];
          if ($msgcharset eq '' && $prefs{'charset'} eq 'utf-8') {
             # assume msg is from sender using same language as the recipient's browser
-            $msgcharset=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
+            $msgcharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{'available_locales'})))[6];
          }
 
          # skip this msg if is not within date range
@@ -595,10 +595,10 @@ sub genline {
    my $escapedmessageid = ow::tool::escapeURL($messageid);
 
    my $msgcharset=${$r_attr}[$_CHARSET];
-   # convert from mesage charset to current user charset
+   # convert from message charset to current user charset
    if ($msgcharset eq '' && $prefs{'charset'} eq 'utf-8') {
       # assume msg is from sender using same language as the recipient's browser
-      $msgcharset=$ow::lang::languagecharsets{ow::lang::guess_browser_language()};
+      $msgcharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{'available_locales'})))[6];
    }
 
    my ($from, $to, $subject)=iconv($msgcharset, $prefs{'charset'}, ${$r_attr}[$_FROM], ${$r_attr}[$_TO], ${$r_attr}[$_SUBJECT]);

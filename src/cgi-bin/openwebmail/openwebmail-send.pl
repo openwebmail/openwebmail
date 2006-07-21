@@ -158,18 +158,44 @@ sub replyreceipt {
          $mymessageid=fakemessageid($from) if ($mymessageid eq '');
 
          my $smtp;
-         my $timeout=120; $timeout=180 if ($#recipients>=1); # more than 1 recipient
-         $smtp=Net::SMTP->new($config{'smtpserver'},
-                              Port => $config{'smtpport'},
-                              Timeout => $timeout,
-                              Hello => ${$config{'domainnames'}}[0]) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}:$config{'smtpport'}!");
+         my $timeout=120;
+         $timeout = 30 if (scalar @{$config{'smtpserver'}} > 1); # cycle through available smtp servers faster
+         $timeout += 60 if ($#recipients>=1);                    # more than 1 recipient
+
+         # try to connect to one of the smtp servers available
+         my $smtpserver;
+         foreach $smtpserver (@{$config{'smtpserver'}}) {
+            my $connectmsg = "send message - trying to connect to smtp server $smtpserver:$config{'smtpport'}";
+            writelog($connectmsg); writehistory($connectmsg);
+
+            $smtp=Net::SMTP->new($smtpserver,
+                                 Port => $config{'smtpport'},
+                                 Timeout => $timeout,
+                                 Hello => ${$config{'domainnames'}}[0]);
+
+            if ($smtp) {
+               $connectmsg = "send message - connected to smtp server $smtpserver:$config{'smtpport'}";
+               writelog($connectmsg); writehistory($connectmsg);
+               last;
+            } else {
+               $connectmsg = "send message - error connecting to smtp server $smtpserver:$config{'smtpport'}";
+               writelog($connectmsg); writehistory($connectmsg);
+            }
+         }
+
+         unless ($smtp) {
+            # we didn't connect to any smtp servers successfully
+            openwebmailerror(__FILE__, __LINE__,
+                             qq|$lang_err{'couldnt_open'} SMTP servers |.
+                             join(", ", @{$config{'smtpserver'}}).
+                             qq| at port $config{'smtpport'}!|);
+         }
 
          # SMTP SASL authentication (PLAIN only)
          if ($config{'smtpauth'}) {
             my $auth = $smtp->supports("AUTH");
             $smtp->auth($config{'smtpauth_username'}, $config{'smtpauth_password'}) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'network_server_error'}!<br>($config{'smtpserver'} - ".$smtp->message.")", "passthrough");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{'network_server_error'}!<br>($smtpserver - ".$smtp->message.")", "passthrough");
          }
 
          $smtp->mail($from);
@@ -317,15 +343,14 @@ sub composemessage {
 
    # composecharset is the charset choosed by user for current composing
    my $composecharset= $prefs{'charset'};
-   if (defined $ow::lang::is_charset_supported{param('composecharset')} ||
-       defined $charset_convlist{param('composecharset')}) {
+   if (ow::lang::is_charset_supported(param('composecharset')) || exists $charset_convlist{param('composecharset')}) {
       $composecharset=param('composecharset');
    }
 
    # convfrom is the charset choosed by user in last reading message
    my $convfrom=param('convfrom')||'';
    if ($convfrom =~/^none\.(.*)$/) {
-      $composecharset=$1 if (defined $ow::lang::is_charset_supported{$1});
+      $composecharset=$1 if ow::lang::is_charset_supported($1);
    }
 
    my ($attfiles_totalsize, $r_attfiles);
@@ -974,8 +999,7 @@ sub composemessage {
       ($body, $subject, $from, $to, $cc, $bcc, $replyto)=
          iconv($composecharset, $convto, $body,$subject,$from,$to,$cc,$bcc,$replyto);
 
-      if (defined $ow::lang::is_charset_supported{$convto} ||
-          defined $charset_convlist{$convto}) {
+      if (ow::lang::is_charset_supported($convto) || exists $charset_convlist{$convto}) {
          $composecharset=$convto;
       }
 
@@ -1017,14 +1041,14 @@ sub composemessage {
    my ($html, $temphtml, @tmp);
 
    if ($composecharset ne $prefs{'charset'}) {
-      @tmp=($prefs{'language'}, $prefs{'charset'});
-      ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
-      loadlang($prefs{'language'});
+      @tmp=($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'});
+      ($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'})=('en_US', $composecharset, 'en_US.UTF-8');
+      loadlang($prefs{'locale'});
       charset($prefs{'charset'}) if ($CGI::VERSION>=2.58);	# setup charset of CGI module
    }
    $html = applystyle(readtemplate("composemessage.template"));
    if ($#tmp>=1) {
-      ($prefs{'language'}, $prefs{'charset'})=@tmp;
+      ($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'})=@tmp;
    }
 
    my $compose_caller=param('compose_caller')||'';
@@ -1107,7 +1131,7 @@ sub composemessage {
    my %ctlabels=( 'none' => "$composecharset *" );
    my @ctlist=('none');
    my %allsets=();
-   foreach (keys %ow::lang::is_charset_supported, keys %charset_convlist) {
+   foreach ((map { $ow::lang::charactersets{$_}[1] } keys %ow::lang::charactersets), keys %charset_convlist) {
       $allsets{$_}=1 if (!defined $allsets{$_});
    }
    delete $allsets{$composecharset};
@@ -1472,19 +1496,27 @@ sub composemessage {
          local $/; undef $/; $_htmlarea_css_cache=<F>; # read whole file in once
          close(F);
       }
-      my $css=$_htmlarea_css_cache; $css=~s/\@\@\@BGCOLOR\@\@\@/$style{'window_light'}/g; $css=~s/"//g;
-      my $lang=$prefs{'language'}; $lang='en' if ($composecharset ne $prefs{'charset'});
-      my $direction="ltr"; $direction="rtl" if ($composecharset eq $prefs{'charset'} && $ow::lang::RTL{$prefs{'language'}});
+
+      my $css = $_htmlarea_css_cache;
+      $css =~ s/\@\@\@BGCOLOR\@\@\@/$style{'window_light'}/g;
+      $css =~ s/"//g;
+
+      my $htmlarealocale = $prefs{'locale'};
+      $htmlarealocale='en_US.UTF-8' if ($composecharset ne $prefs{'charset'});
+
+      my $direction="ltr";
+      $direction="rtl" if ($composecharset eq $prefs{'charset'} && $ow::lang::RTL{$prefs{'locale'}});
+
       $html= qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/htmlarea.openwebmail/htmlarea.js"></script>\n|.
              qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/htmlarea.openwebmail/dialog.js"></script>\n|.
-             qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/htmlarea.openwebmail/popups/$lang/htmlarea-lang.js"></script>\n|.
+             qq|<script language="JavaScript" src="$config{'ow_htmlurl'}/javascript/htmlarea.openwebmail/popups/$htmlarealocale/htmlarea-lang.js"></script>\n|.
              $html.
              qq|<style type="text/css">\n$css\n</style>\n|.
              qq|<script language="JavaScript">\n<!--\n|.
              qq|   var editor=new HTMLArea("body");\n|.
              qq|   editor.config.editorURL = "$config{'ow_htmlurl'}/javascript/htmlarea.openwebmail/";\n|.
              qq|   editor.config.imgURL = "images/";\n|.
-             qq|   editor.config.popupURL = "popups/$lang/";\n|.
+             qq|   editor.config.popupURL = "popups/$htmlarealocale/";\n|.
              qq|   editor.config.bodyDirection = "$direction";\n|.
              qq|   editor.config.attlist = {\n$htmlarea_attlist_js};\n|.
              qq|   editor.config.attlist = {\n$htmlarea_attlist_js};\n|.
@@ -1494,8 +1526,8 @@ sub composemessage {
 
    @tmp=();
    if ($composecharset ne $prefs{'charset'}) {
-      @tmp=($prefs{'language'}, $prefs{'charset'});
-      ($prefs{'language'}, $prefs{'charset'})=('en', $composecharset);
+      @tmp=($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'});
+      ($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'})=('en_US', $composecharset, 'en_US.UTF-8');
    }
    my $session_noupdate=param('session_noupdate')||'';
    if (defined param('savedraftbutton') && !$session_noupdate) {
@@ -1519,7 +1551,7 @@ sub composemessage {
       httpprint([], [htmlheader(), $html, htmlfooter(2, $jscode)]);
    }
    if ($#tmp>=1) {
-      ($prefs{'language'}, $prefs{'charset'})=@tmp;
+      ($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'})=@tmp;
    }
    return;
 }
@@ -1671,15 +1703,41 @@ sub sendmessage {
 
       # redirect stderr to smtperrfile
 
-      my $timeout=120; $timeout=180 if ($#recipients>=1); # more than 1 recipient
-      if ( !($smtp=Net::SMTP->new($config{'smtpserver'},
-                           Port => $config{'smtpport'},
-                           Timeout => $timeout,
-                           Hello => ${$config{'domainnames'}}[0],
-                           Debug=>1)) ) {
+      my $timeout=120;
+      $timeout = 30 if (scalar @{$config{'smtpserver'}} > 1); # cycle through available smtp servers faster
+      $timeout += 60 if ($#recipients>=1);                    # more than 1 recipient
+
+      # try to connect to one of the smtp servers available
+      my $smtpserver;
+      foreach $smtpserver (@{$config{'smtpserver'}}) {
+         my $connectmsg = "send message - trying to connect to smtp server $smtpserver:$config{'smtpport'}";
+         writelog($connectmsg); writehistory($connectmsg);
+
+         $smtp=Net::SMTP->new($smtpserver,
+                              Port => $config{'smtpport'},
+                              Timeout => $timeout,
+                              Hello => ${$config{'domainnames'}}[0],
+                              Debug=>1);
+
+         if ($smtp) {
+            $connectmsg = "send message - connected to smtp server $smtpserver:$config{'smtpport'}";
+            writelog($connectmsg); writehistory($connectmsg);
+            last;
+         } else {
+            $connectmsg = "send message - error connecting to smtp server $smtpserver:$config{'smtpport'}";
+            writelog($connectmsg); writehistory($connectmsg);
+         }
+      }
+
+      unless ($smtp) {
+         # we didn't connect to any smtp servers successfully
          $senderr++;
-         $senderrstr="$lang_err{'couldnt_open'} SMTP server $config{'smtpserver'}:$config{'smtpport'}!";
-         my $m="send message error - couldn't open SMTP server $config{'smtpserver'}:$config{'smtpport'}";
+         $senderrstr = qq|$lang_err{'couldnt_open'} any SMTP servers |.
+                       join(", ", @{$config{'smtpserver'}}).
+                       qq| at port $config{'smtpport'}|;
+         my $m = qq|send message error - couldn't open any SMTP servers |.
+                 join(", ", @{$config{'smtpserver'}}).
+                 qq| at port $config{'smtpport'}|;
          writelog($m); writehistory($m);
       }
 
@@ -1688,8 +1746,8 @@ sub sendmessage {
          my $auth = $smtp->supports("AUTH");
          if (! $smtp->auth($config{'smtpauth_username'}, $config{'smtpauth_password'}) ) {
             $senderr++;
-            $senderrstr="$lang_err{'network_server_error'}!<br>($config{'smtpserver'} - ".$smtp->message.")";
-            my $m="send message error - SMTP server $config{'smtpserver'} error - ".$smtp->message;
+            $senderrstr="$lang_err{'network_server_error'}!<br>($smtpserver - ".$smtp->message.")";
+            my $m="send message error - SMTP server $smtpserver error - ".$smtp->message;
             writelog($m); writehistory($m);
          }
       }

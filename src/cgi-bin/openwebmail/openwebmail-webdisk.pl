@@ -1691,7 +1691,7 @@ sub dirfilesel {
             $onclickstr=qq|onClick="filldestname('$vpathstr', '$escapedvpath')"|;
          }
 
-         my $right='right'; $right='left' if ($ow::lang::RTL{$prefs{'language'}});
+         my $right='right'; $right='left' if ($ow::lang::RTL{$prefs{'locale'}});
          $namestr=qq|<table width="100%" border=0 cellspacing=0 cellpadding=0><tr>|.
                   qq|<td>$namestr</td>\n<td align="$right" nowrap>$opstr</td></tr></table>|;
 
@@ -1737,19 +1737,19 @@ sub dirfilesel {
       my $wd_url_page=qq|$wd_url&amp;action=$action&amp;gotodir=$escapedcurrentdir&amp;showhidden=$showhidden&amp;singlepage=$singlepage&amp;filesort=$filesort&amp;page|;
 
       if ($page>1) {
-         my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'language'}});
+         my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'locale'}});
          $temphtml = iconlink($gif, "&lt;", qq|accesskey="U" href="$wd_url_page=|.($page-1).qq|"|).qq|\n|;
       } else {
-         my $gif="left-grey.gif"; $gif="right-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
+         my $gif="left-grey.gif"; $gif="right-grey.gif" if ($ow::lang::RTL{$prefs{'locale'}});
          $temphtml = iconlink($gif, "-", "").qq|\n|;
       }
       $html =~ s/\@\@\@LEFTPAGECONTROL\@\@\@/$temphtml/g;
 
       if ($page<$totalpage) {
-         my $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'language'}});
+         my $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'locale'}});
          $temphtml = iconlink($gif, "&gt;", qq|accesskey="D" href="$wd_url_page=|.($page+1).qq|"|).qq|\n|;
       } else {
-         my $gif="right-grey.gif"; $gif="left-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
+         my $gif="right-grey.gif"; $gif="left-grey.gif" if ($ow::lang::RTL{$prefs{'locale'}});
          $temphtml = iconlink($gif, "-", "").qq|\n|;
       }
       $html =~ s/\@\@\@RIGHTPAGECONTROL\@\@\@/$temphtml/g;
@@ -2315,7 +2315,7 @@ sub showdir {
             }
          }
 
-         my $right='right'; $right='left' if ($ow::lang::RTL{$prefs{'language'}});
+         my $right='right'; $right='left' if ($ow::lang::RTL{$prefs{'locale'}});
          $namestr=qq|<table width="100%" border=0 cellspacing=0 cellpadding=0><tr>|.
                   qq|<td>$namestr</td>\n<td align="$right" nowrap>$opstr</td></tr></table>|;
 
@@ -2379,19 +2379,19 @@ sub showdir {
    if (!$singlepage) {
       my $wd_url_page=qq|$wd_url&amp;action=showdir&amp;gotodir=$escapedcurrentdir&amp;filesort=$filesort&amp;searchtype=$searchtype&amp;keyword=$escapedkeyword&amp;page|;
       if ($page>1) {
-         my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'language'}});
+         my $gif="left.gif"; $gif="right.gif" if ($ow::lang::RTL{$prefs{'locale'}});
          $temphtml = iconlink($gif, "&lt;", qq|accesskey="U" href="$wd_url_page=|.($page-1).qq|"|).qq|\n|;
       } else {
-         my $gif="left-grey.gif"; $gif="right-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
+         my $gif="left-grey.gif"; $gif="right-grey.gif" if ($ow::lang::RTL{$prefs{'locale'}});
          $temphtml = iconlink($gif, "-", "").qq|\n|;
       }
       $html =~ s/\@\@\@LEFTPAGECONTROL\@\@\@/$temphtml/g;
 
       if ($page<$totalpage) {
-         my $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'language'}});
+         my $gif="right.gif"; $gif="left.gif" if ($ow::lang::RTL{$prefs{'locale'}});
          $temphtml = iconlink($gif, "&gt;", qq|accesskey="D" href="$wd_url_page=|.($page+1).qq|"|).qq|\n|;
       } else {
-         my $gif="right-grey.gif"; $gif="left-grey.gif" if ($ow::lang::RTL{$prefs{'language'}});
+         my $gif="right-grey.gif"; $gif="left-grey.gif" if ($ow::lang::RTL{$prefs{'locale'}});
          $temphtml = iconlink($gif, "-", "").qq|\n|;
       }
       $html =~ s/\@\@\@RIGHTPAGECONTROL\@\@\@/$temphtml/g;

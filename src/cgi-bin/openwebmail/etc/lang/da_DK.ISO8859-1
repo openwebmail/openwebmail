@@ -1,0 +1,773 @@
+package ow::da_DK_ISO8859_1;
+
+# Danish translation, charset: iso-8859-1
+# by Frank, frank.AT.post12.tele.dk
+# Updatet by Gunner Poulsen, gp.AT.lyngbjerggaardskolen.dk
+
+%lang_folders =
+   (
+   INBOX            => 'Indbakke',
+   'saved-messages' => 'Gemt mail',
+   'sent-mail'      => 'Sendt mail',
+   'saved-drafts'   => 'Kladder',
+   'mail-trash'     => 'Papirkurv',
+   'spam-mail'      => 'Spam',
+   'virus-mail'     => 'Virus',
+   LEARNSPAM        => '--LÆR SPAM--',
+   LEARNHAM         => '--LÆR IKKESPAM--',
+   FORWARD          => '--VIDERESEND--',
+   DELETE           => '--Slet permanent--'
+   );
+
+%lang_sortlabels =
+   (
+   status      => 'Status (Ulæst mail først)',
+   date        => 'Dato (nyeste først)',
+   date_rev    => 'Dato (ældste først)',
+   sender      => 'Afsender (nyeste først)',
+   sender_rev  => 'Afsender (ældste først)',
+   subject     => 'Emne (nyeste først)',
+   subject_rev => 'Emne (ældste først)',
+   size        => 'Størrelse (største først)',
+   size_rev    => 'Størrelse (mindste først)'
+   );
+
+%lang_abooksortlabels =
+   (
+   fullname     => 'Fulde navn (A til Å)',
+   fullname_rev => 'Fulde navn (Å til A)',
+   prefix       => 'Name Prefix (A til Å)',
+   prefix_rev   => 'Name Prefix (Å til A)',
+   first        => 'Fornavn (A til Å)',
+   first_rev    => 'Fornavn (Å til A)',
+   middle       => 'Mellemnavn (A til Å)',
+   middle_rev   => 'Mellemnavn (Å til A)',
+   last         => 'Efternavn (A til Å)',
+   last_rev     => 'Efternavn (Å til A)',
+   suffix       => 'Name Suffix (A til Å)',
+   suffix_rev   => 'Name Suffix (Å til A)',
+   email        => 'Første e-mail-adresse (A til Å)',
+   email_rev    => 'Første e-mail-adresse (Å til A)',
+   phone        => 'Første telefonnummer (højeste nummer først)',
+   phone_rev    => 'Første telefonnummer (laveste nummer først)',
+   );
+
+%lang_abookselectionlabels =
+   (
+   ALL => "Alle adressebøger",
+   global => "Global adressbog",
+   ldapcache => "Global adressbog - ldap",
+   );
+
+%lang_onofflabels =
+   (
+   auto => 'Automatisk',
+   on   => 'Til',
+   off  => 'Fra',
+   );
+
+%lang_bgfilterthresholdlabels =
+   (
+     0 => 'Nej',
+     1 => 'Ja',
+    20 => 'Kun hvis indbakken har mere end 20 nye meddelelser',
+    50 => 'Kun hvis indbakken har mere end 50 nye meddelelser',
+   100 => 'Kun hvis indbakken har mere end 100 nye meddelelser',
+   200 => 'Kun hvis indbakken har mere end 200 nye meddelelser',
+   500 => 'Kun hvis indbakken har mere end 500 nye meddelelser',
+   );
+
+%lang_prioritylabels =
+   (
+   normal      => 'Normal',
+   urgent      => 'Høj',
+   'non-urgent'=> 'Lav'
+   );
+
+%lang_msgformatlabels =
+   (
+   auto => 'Automatisk valgt',
+   text => 'Ren tekst',
+   html => 'HTML',
+   both => 'Både HTML og tekst'
+   );
+
+%lang_withoriglabels =
+   (
+   at_beginning => 'i starten',
+   at_end       => 'i slutningen',
+   none         => 'undlad'
+   );
+
+%lang_receiptlabels =
+   (
+   ask => 'Spørg',
+   yes => 'Ja',
+   no  => 'Nej'
+   );
+
+%lang_disableemblinklabels =
+   (
+   none    => 'Ingen',
+   cgionly => 'Kun CGI',
+   all     => 'Alle indeholdte URL-er'
+   );
+
+%lang_ctrlpositionlabels =
+   (
+   top    => 'i toppen',
+   bottom => 'i bunden'
+   );
+
+%lang_sendpositionlabels =
+   (
+   before => 'over meddelelsen',
+   after  => 'under meddelelsen',
+   both   => 'både over og under meddelelsen'
+   );
+
+%lang_abookbuttonpositionlabels =
+   (
+   before => 'over optagelserne',
+   after  => 'under optagelserne',
+   both   => 'både over og under optagelserne'
+   );
+
+%lang_checksourcelabels =
+   (
+   all  => 'Alle nye meddelelser i Indbakken',
+   pop3 => 'Kun meddelelser fra pop3-servere',
+   none => 'Ingen'
+   );
+
+%lang_timelabels =
+   (
+      3 => '3 minutter',
+      5 => '5 minutter',
+     10 => '10 minutter',
+     20 => '20 minutter',
+     30 => '30 minutter',
+     60 => '60 minutter',
+    120 => '2 timer',
+    180 => '3 timer',
+    360 => '6 timer',
+    720 => '12 timer',
+   1440 => '24 timer'
+   );
+
+%lang_timezonelabels =
+   (
+   '-1200' => 'International Date Line West',
+   '-1100' => 'Nome, Anadyr',
+   '-1000' => 'Alaska-Hawaii Standard',
+   '-0900' => 'Yukon Standard',
+   '-0800' => 'Pacific Standard',
+   '-0700' => 'Mountain Standard',
+   '-0600' => 'Central Standard',
+   '-0500' => 'Eastern Standard',
+   '-0400' => 'Atlantic Standard',
+   '-0330' => 'Newfoundland Standard',
+   '-0300' => 'Atlantic Daylight',
+   '-0230' => 'Newfoundland Daylight',
+   '-0200' => 'Azores, South Sandwich Islands',
+   '-0100' => 'West Africa',
+   '+0000' => 'Greenwich',
+   '+0100' => 'Centraleuropæisk - Danmark',
+   '+0200' => 'Østeuropæisk',
+   '+0300' => 'Baghdad, Moscow, Nairobi',
+   '+0330' => 'Tehran',
+   '+0400' => 'Abu Dhabi, Volgograd, Kabul',
+   '+0500' => 'Karachi',
+   '+0530' => 'India',
+   '+0600' => 'Dhaka',
+   '+0630' => 'Rangoon',
+   '+0700' => 'Bangkok, Jakarta',
+   '+0800' => 'China Coast',
+   '+0900' => 'Japan Standard',
+   '+0930' => 'Australia Central Standard',
+   '+1000' => 'Australia Eastern Standard',
+   '+1030' => 'Lord Howe Island',
+   '+1100' => 'Australia Eastern Summer',
+   '+1200' => 'International Date Line East',
+   '+1300' => 'New Zealand Daylight',
+   );
+
+%lang_abookclasslabels =
+   (
+   PRIVATE => 'Privat',
+   PUBLIC => 'Offentlig',
+   );
+
+%lang_satestfields =
+   (
+   name       => 'Navn',
+   desc       => 'Beskrivelse',
+   type       => 'Test type',
+   expression => 'Udtryk',
+   score      => 'Score',
+   );
+
+%lang_satesttypes =
+   (
+   header  => 'Meddelelsens hoved',
+   body    => 'Tekst i Msgbody (undtagen HTML-mærker)',
+   uri     => 'Links i selve meddelelsen',
+   rawbody => 'Tekst i Msgbody og vedhæftede filer (undtagen HTML-mærker)',
+   full    => 'Undecoded Msgbody og vedhæftede filer',
+   );
+
+%lang_satestheaderattrs =
+   (
+   ALL        => 'Alle',
+   Subject    => 'Emne',
+   From       => 'Fra',
+   To         => 'Til',
+   Cc         => 'Kopi til',
+   ToCc       => 'Til og Kopi til',
+   MESSAGEID  => 'Message Id',
+   USERDEFINE => 'Brugerdefineret',
+   );
+
+%lang_searchtypelabels =
+   (
+   contains    => 'indeholder',
+   notcontains => 'indeholder ikke',
+   is          => 'er',
+   isnot       => 'er ikke',
+   startswith  => 'starter med',
+   endswith    => 'ender med',
+   regexp      => 'matcher regexp.',
+   );
+
+%lang_searchdaterangelabels =
+   (
+   all         => 'Alle',
+   today       => 'I dag',
+   oneweek     => 'En uge',
+   twoweeks    => 'To uger',
+   onemonth    => 'En måned',
+   threemonths => 'Tre måneder',
+   sixmonths   => 'Seks måneder',
+   oneyear     => 'Et år',
+   );
+
+%lang_sizes =
+   (
+   mb   => 'MB',	# mega bytes
+   kb   => 'KB',	# kilo bytes
+   byte => 'Byte'
+   );
+
+%lang_calendar =
+   (
+   yearview  => 'Årsoversigt',
+   monthview => 'Månedsoversigt',
+   weekview  => 'Ugeoversigt',
+   dayview   => 'Dagsoversigt',
+   listview  => 'Aftaleoversigt'
+   );
+
+%lang_month =
+   (
+   1  => 'Januar',
+   2  => 'Februar',
+   3  => 'Marts',
+   4  => 'April',
+   5  => 'Maj',
+   6  => 'Juni',
+   7  => 'Juli',
+   8  => 'August',
+   9  => 'September',
+   10 => 'Oktober',
+   11 => 'November',
+   12 => 'December'
+   );
+
+%lang_wday =
+   (
+   0 => 'Søndag',
+   1 => 'Mandag',
+   2 => 'Tirsdag',
+   3 => 'Onsdag',
+   4 => 'Torsdag',
+   5 => 'Fredag',
+   6 => 'Lørdag'
+   );
+
+%lang_wday_abbrev =
+   (
+   week => 'Uge',
+   0 => 'S',
+   1 => 'M',
+   2 => 'T',
+   3 => 'O',
+   4 => 'T',
+   5 => 'F',
+   6 => 'L'
+   );
+
+%lang_order =
+   (
+   1 => 'første',
+   2 => 'anden',
+   3 => 'tredie',
+   4 => 'fjerde',
+   5 => 'sidste'
+   );
+
+%lang_wdbutton =
+   (
+   refresh  => 'Opdater',
+   preview  => 'Forhåndsvisning',
+   edit     => 'Rediger',
+   listarchive => 'List',
+   decompress => 'Pak ud',
+   extract  => 'Udpak',
+   mkpdf    => 'Lav Pdf-fil',
+   mkps     => 'Lav Ps-fil',
+   chdir    => 'Skift mappe',
+   mkdir    => 'Ny mappe',
+   newfile  => 'Ny fil',
+   copy     => 'Kopier',
+   move     => 'Flyt',
+   symlink  => 'Symlink',
+   delete   => 'Slet',
+   chmod    => 'Chmod',
+   gzip     => 'Pak m. gz',
+   mkzip    => 'Pak m. Zip',
+   mktgz    => 'Pak m. Tgz',
+   mkthumbnail => 'Lav miniature',
+   download => 'Hent',
+   upload   => 'Overfør',
+   );
+
+%lang_text =
+   (
+   loading    => 'Indlæser - vent',
+   help       => 'Hjælp',
+   login      => 'Log ind',
+   clear      => 'Ryd',
+   webmail    => 'WebMail',
+   msglist    => 'Meddelelsesliste',
+   point      => 'punkt',
+   pixel      => 'Pixel',
+   changepwd  => 'Ændre adgangskode',
+   viewhistory=> 'Vis historik',
+   of         => 'af',
+   messages   => 'meddelelser',
+   unread     => 'ulæste',
+   nomessages => 'Ingen meddelelser',
+   inmessages => 'Indkommende besked',
+   composenew => 'Skriv ny meddelelse',
+   refresh    => 'Opdater',
+   userprefs  => 'Standardindstillinger',
+   addressbook=> 'Adressebog',
+   folders    => 'Mappe-oversigt',
+   emptyfolder=> 'Tøm mappen',
+   emptytrash => 'Tøm papirkurven',
+   totrash    => 'Flyt til papirkurv',
+   learnham   => 'Lær ikkespam',
+   learnspam  => 'Lær spam',
+   forever    => 'Aldrig',
+   delatlogout=> 'Når webmail afsluttes',
+   userdef    => 'Brugerdefineret',
+   logout     => 'Afslut webmail',
+   page       => 'Side',
+   msgsperpage=> '@@@MSGCOUNT@@@ meddelelser per side',
+   msgcopyconf=> '\'Er du sikker på du vil kopiere de(n) valgte meddelelser?\'',
+   copy       => 'Kopier',
+   msgmoveconf=> '\'Er du sikker på, at du vil flytte de(n) valgte meddelelser?\'',
+   move       => 'Flyt',
+   markasread => 'Marker som læst',
+   markasunread => 'Marker som ulæst',
+   dateformat => 'Dato format',
+   date       => 'Dato',
+   sentdate   => 'Sent Date',
+   recvdate   => 'Received Date',
+   recipient  => 'Modtager',
+   sender     => 'Afsender',
+   subject    => 'Emne',
+   thread     => 'Tråd',
+   size       => 'Størrelse',
+   backto     => 'Tilbage til',
+   reply      => 'Svar',
+   replyall   => 'Svar alle',
+   forward    => 'Videresend',
+   forwardasatt=>'Videresend som vedhæftet fil',
+   forwardasorig=>'Videresend som ny',
+   printfriendly=> 'Vis printervenlig udgave',
+   msgformat  => 'MsgFormat',
+   from       => 'Fra',
+   replyto    => 'Svar til',
+   to         => 'Til',
+   cc         => 'Kopi til',
+   bcc        => 'Skjult kopi til',
+   simplehead => 'forkortet',
+   allhead    => 'alle linier',
+   simpleattmode => 'Simpel vedhæng',
+   allattmode    => 'Alle vedhæng',
+   attachment => 'Vedhæft fil',
+   type       => 'Type',
+   filename   => 'Filnavn',
+   encoding   => 'Indkodning',
+   description=> 'Beskrivelse',
+   download   => 'Gem',
+   charset    => 'Tegnsæt',
+   sameascomposecharset => 'samme tegnsæt som da meddelelsen blev skrevet',
+   thisispartialmsg => 'Dette er en del af en meddelelse.',
+   msgrebuild => 'Besked genopbygget',
+   editdraft  => 'Rediger kladde',
+   savedraft  => 'Gem kladde',
+   draftsaved => '@@@SUBJECT@@@ er blevet gemt som kladde',
+   send       => 'Send',
+   msgsent    => '@@@SUBJECT@@@ er blevet sendt uden problemer',
+   about      => 'Om',
+   close      => 'Luk',
+   cancel     => 'Fortryd',
+   ok         => 'O.k.',
+   continue   => 'Fortsæt',
+   loginagain => 'Log ind igen',
+   exit       => 'Luk browseren',
+   yourname   => 'Dit navn',
+   save       => 'Gem',
+   add        => 'Tilføj',
+   folderrenprop => '\'Skriv venligst mappens navn\'',
+   rename     => 'Omdøb',
+   folderdelconf => '\'Er du sikker på, at du vil slette denne mappe og hele dens indhold?\'',
+   markread   => 'Marker som læst',
+   foldermarkreadconf => '\'Vil du markere alle meddelelser i denne mappe som læst?\'',
+   chkindex   => 'Kontroller indeks',
+   folderchkindexconf => '\'Vil du have denne mappes indeks kontrolleret?\'',
+   reindex    => 'Genindekser',
+   folderreindexconf => '\'Er du sikker på du vil genindeksere denne mappe?\'',
+   total      => 'Total',
+   edit       => 'Rediger',
+   delete     => 'Slet',
+   delete_nontextatt => 'Slet alle vedhæftninger der ikke er ren tekst',
+   reserve    => 'Efterlad',
+   clearadd   => 'Slet alle mail-adresser',
+   importadd  => 'Importer mail-adresser til adressebog',
+   exportadd  => 'Exporter mail-adresser',
+   import     => 'Importer',
+   export     => 'Ekporter',
+   addmod     => 'Tilføj/Rediger',
+   modify     => 'Rediger',
+   max        => 'Maksimum',
+   group      => 'Gruppe',
+   quotausage => 'Brug kvota',
+   quotalimit => 'Kvotagrænse',
+   quotahit   => 'ADVARSEL, din postkasse er fuld',
+   tzmap      => 'Verdenskort med tidszoner',
+   testsound  => 'Afspil denne lyd',
+   editfroms  => 'Rediger personlige mail-adresser',
+   pop3book   => 'Opsæt mail-afhentning fra ekstern POP3-server',
+   retr_pop3s => 'Hent mail fra ekstern POP3-server',
+   filterbook => 'Filterregler',
+   include    => 'Indeholder',
+   exclude    => 'Indeholder ikke',
+   smtprelay  => 'SMTP-server',
+   header     => 'Brevhoved',
+   body       => 'Brevtekst',
+   attfilename=> 'Filnavn',
+   all        => 'Alle felter',
+   enable     => 'Aktiver',
+   disable    => 'Deaktiver',
+   yes        => 'Ja',
+   no         => 'Nej',
+   filtered   => 'Filtreret',
+   blockrelay => 'Bloker SMTP-Server:',
+   blockemail => 'Bloker mail-adressen:',
+   read       => 'Læst',
+   yourmsg    => 'Din besked',
+   delivered  => 'Leveret',
+   wasreadon1 => 'blev læst d.',
+   wasreadon2 => '.',
+   globalfilterrule => 'Globale filterregler',
+   readonly   => 'Skrivebeskyttet',
+   textcontent=> 'Tekstens indhold',
+   search     => 'Søg',
+   advsearch  => 'Avanceret søgning',
+   folder     => 'Mappe',
+   nofoldersel=> 'Du skal vælge mindst én mappe at søge i',
+   showall    => 'Vis alle',
+   spellcheck => 'Stavekontrol',
+   checkagain => 'Kontroller igen',
+   finishchecking => 'Afslut stavekontrol',
+   editpdict  => 'Rediger perspnlig ordbog',
+   addtodict  => 'Tilføj til ordbog',
+   manuallyfix=> 'Manuel rettelse',
+   editstat   => 'Ret signatur',
+   savestat   => 'Gem signatur',
+   clearstat  => 'Slet alle signaturer',
+   statreply  => '-- Signatur til svar --',
+   calendar   => 'Kalender',
+   allday     => 'Hele dagen',
+   today      => 'I dag',
+   am         => 'am',
+   pm         => 'pm',
+   calfmt_year          => 'År @@@YEAR@@@',
+   calfmt_yearmonth     => '@@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthday  => '@@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_yearmonthdaywday => '@@@WEEKDAY_STR@@@ @@@DAY@@@ @@@MONTH_STR@@@ @@@YEAR@@@',
+   calfmt_hourminampm => '@@@HOURMIN@@@ @@@AMPM@@@',
+   autosel    => 'Automatisk valgt',
+   none       => 'Ingen',
+   moreitems  => 'flere aftaler',
+   multieditconf => 'Dette er en tilbagevendende aftale. Ændringer af denne\\naftale, vil også ændre alle de tilbagevendende aftaler.\\nØnsker du at fortsætte?',
+   multidelconf  => 'Dette er en tilbagevendende aftale. Hvis du sletter denne\\naftale, sletter du også de tilbagevendende aftaler.\\nØnsker du at fortsætte?',
+   caldelconf => 'Er du sikker på at du vil slette denne aftale?',
+   noitemforthisday => 'Ingen aftaler i dag',
+   thisday_only          => 'Kun dags dato',
+   the_wday_of_thismonth => 'Den @@@ORDER@@@ @@@WDAY@@@ i hver måned',
+   every_wday_thismonth  => 'Hver @@@WDAY@@@ i denne måned',
+   thismonth_only           => 'Kun denne måned',
+   every_oddmonth_thisyear  => 'Hver ulige måneder dette år',
+   every_evenmonth_thisyear => 'Hver lige måneder dette år',
+   every_month_thisyear     => 'Hver måned dette år',
+   webdisk      => 'WebDisk',
+   sshterm      => 'SSH-terminal',
+   dir          => 'Mappe',
+   dirs         => 'Mapper',
+   file         => 'Fil',
+   files        => 'Filer',
+   program      => 'Program',
+   dest_of_chdir  => 'mappen',
+   name_of_newdir => 'navn på den mappe der skal oprettes',
+   name_of_newfile=> 'navn på den fil der skal oprettes',
+   dest_of_thecopy=> 'den mappe eller fil kopien skal placeres i',
+   dest_of_themove=> 'den mappe eller fil der skal flyttes til',
+   dest_of_thezip=> 'den zippede fils filnavn',
+   dest_of_thetgz=> 'navnet på den fil der bliver lavet med tgz',
+   homedir      => 'Hjemmemappe',
+   showthumbnail    => 'Miniaturer',
+   showhidden   => 'Vis skjulte filter',
+   lastmodified => 'Sidst ændret',
+   perm         => 'Rettigheder',
+   permission   => 'Adgangsrettigheder',
+   noitemfound  => 'Ingen aftaler fundet',
+   savefile     => 'Gem fil',
+   succeeded    => 'lykkedes',
+   failed       => 'mislykkedes',
+   savefile_towd=> 'Gem fil på WebDisk',
+   saveatt_towd => 'Gem vedhæftede filer på WebDisk',
+   addatt_fromwd=> 'Vedhæft fil fra WebDisk',
+   vdomain_usermgr    => 'Brugeradministration for virtuelt domæne',
+   vdomain_createuser => 'Opret bruger',
+   vdomain_changeuser => 'Skift bruger',
+   vdomain_deleteuser => 'Slet bruger',
+   vdomain_changeview => 'Skift visningen til',
+   vdomain_usersonly  => 'kun brugere',
+   vdomain_useralias  => 'brugere/aliaser',
+   vdomain_fmtuseralias => 'formaterede brugere/aliaser',
+   vdomain_admin      => 'Admin',
+   vdomain_localuser  => 'Lokal bruger',
+   set_passwd         => 'Angiv adgangskode',
+   reset_passwd       => 'Nulstil adgangskode',
+   email_alias        => 'E-mail-alias',
+   name       => 'Navn',
+   email      => 'E-mail-adresse',
+   note       => 'Note',
+   abooks => 'Adressebøger',
+   abook_personal => 'Personlig adressebog',
+   abook_global => 'Global adressebog',
+   abook_converted => 'Konverteret',
+   abook_group_member => 'Medlem',
+   abook_group_allmembers => 'Alle medlemmer',
+   abook_import => 'Importer adressebogsoplysninger',
+   abook_importdest => 'Importer ny adressebog...',
+   abook_export => 'Eksporter adressebogen',
+   abook_exportnow => 'Eksporter nu',
+   abook_newcontact => 'Ny adresse',
+   abook_newgroup => 'Ny gruppe',
+   abook_noconversion => 'Ingen konvertering',
+   abook_listview_addrperpage => '@@@ADDRCOUNT@@@ adresser per side',
+   abook_listview_writemailto => 'Skriv meddelelse til',
+   abook_listview_edit => 'Rediger',
+   abook_listview_move => 'Flyt',
+   abook_listview_copy => 'Kopiér',
+   abook_listview_compose => 'Ny meddelelse med disse modtagere',
+   abook_listview_composemode => 'Marker modtageradresser',
+   abook_listview_fullname => 'Fulde navn',
+   abook_listview_prefix   => 'Prefix',
+   abook_listview_first    => 'Fornavn',
+   abook_listview_middle   => 'Mellemnavn',
+   abook_listview_last     => 'Efternavn',
+   abook_listview_suffix   => 'Suffix',
+   abook_listview_email    => 'E-mail',
+   abook_listview_phone    => 'Telefon',
+   abook_listview_note     => 'Note',
+   abook_listview_none     => 'Ingen',
+   abook_listview_telpref  => 'Pref',
+   abook_listview_telhome  => 'Hjemme',
+   abook_listview_telwork  => 'Arbejde',
+   abook_listview_telcell  => 'Mobil',
+   abook_listview_telcar   => 'Bil',
+   abook_listview_telfax   => 'Fax',
+   abook_listview_telpager => 'Personsøger',
+   abook_listview_telvoice => 'Stemme',
+   abook_listview_telvideo => 'Video',
+   abook_listview_telmsg   => 'Msg',
+   abook_listview_telbbs   => 'BBS',
+   abook_listview_telisdn  => 'ISDN',
+   abook_listview_telmodem => 'Modem',
+   abook_listview_categories => 'Kategorier',
+   abook_listview_quickadd => 'Tilføj hurtigt',
+   abook_listview_expandall => 'udfold alle',
+   abook_listview_collapseall => 'sammenklap alle',
+   abook_listview_noaddresses => '-- Ingen adresser i denne adressebog --',
+   abook_listview_nomatch => '-- Din søgning fandt ingenting --',
+   abook_listview_done => 'Færdig',
+   abook_listview_viewselected => 'Vis listen over markerede adresser',
+   abook_listview_unselectall => 'Fjern markeringen af alle markerede adresser',
+   abook_showchecked_export => 'Markeret og klar til eksportering',
+   abook_editform_destination => 'Destination',
+   abook_editform_new_agent => 'Denne nye agent',
+   abook_editform_grouplabel => 'gruppe',
+   abook_editform_valuelabel => 'værdi',
+   abook_editform_namelabel_FN => 'Fulde navn @@@SOUND@@@',
+   abook_editform_valuelabel_FN => '&nbsp;',
+   abook_editform_namelabel_EMAIL => 'E-mail-adresser i denne gruppe',
+   abook_editform_namelabel_GROUPNAME => 'Gruppenavne @@@SOUND@@@',
+   abook_editform_namelabel_NICKNAME => 'Kaldenavn</b>@@@ADDMORELINK@@@<b>',
+   abook_editform_valuelabel_NICKNAME => '&nbsp;',
+   'abook_editform_namelabel_SORT-STRING' => 'Last Name Sort Override',
+   'abook_editform_valuelabel_SORT-STRING' => 'efternavn:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;sort override:<i>Trapp</i>',
+   abook_editform_valuelabel_TITLE => 'v.p., forskning og udvikling',
+   abook_editform_valuelabel_ROLE => 'direktør, arbejdsleder, etc',
+   abook_editform_valuelabel_ORGANIZATIONNAME => 'abc, inc.',
+   abook_editform_valuelabel_ORGANIZATIONALUNITS => 'bogholderi, europæisk division',
+   abook_editform_namelabel_URL => 'Web-steder</b> @@@ADDMORELINK@@@<b>',
+   abook_editform_valuelabel_URL => 'http://www.minside.dk',
+   abook_editform_namelabel_TZ => 'Tidszone',
+   abook_editform_namelabel_MAILER => 'E-mail-program',
+   abook_editform_valuelabel_MAILER => 'openwebmail, outlook, etc',
+   abook_editform_namelabel_NOTE => 'Note',
+   abook_editform_namelabel_KEY => 'Private nøgler',
+   abook_editform_undef_KEY => 'der er ingen nøgler for denne adresse.',
+   abook_editform_view_KEY => 'vis denne private nøgle',
+   abook_editform_unknown_KEY => 'ukendt nøgletype',
+   abook_editform_x509_KEY => 'X.509 Public Key Certificate',
+   abook_editform_pgp_KEY => 'IETF Pretty Good Privacy PGP nøgle',
+   abook_editform_gpg_KEY => 'GNU Privacy Guard GPG nøgle',
+   abook_editform_namelabel_AGENT => 'Agenter',
+   abook_editform_undef_AGENT => 'ingen optræder på vegne af denne adresse.',
+   abook_editform_download_AGENT => 'hent denne agents visitkort',
+   abook_editform_unknown_AGENT => 'ukendt agenttype',
+   abook_editform_vcf_AGENT => 'Visitkortfil',
+   abook_editform_GEO_find => 'Find din geografiske placering',
+   abook_editform_GEO_findurl => 'http://www.multimap.com/map/home.cgi?client=public&lang=&advanced=&db=DK',
+   abook_editform_GEO_map => 'Vis et kort over dette sted',
+   abook_editform_GEO_photo => 'Vis et satelitfoto af dette sted',
+   abook_editform_namelabel_CLASS => 'Adgangsklassifikation',
+   abook_editform_namelabel_PRODID => 'Benyttet program',
+   abook_editform_valuelabel_PRODID => 'outlook, openwebmail, etc',
+   abook_editform_namelabel_UID => 'Ekstern unik ID',
+   abook_editform_valuelabel_UID => 'bruges af eksterne programmer for at identificere dette kort',
+   abook_editform_namelabel_SOURCE => 'Visitkortets kilde-URL',
+   abook_editform_valuelabel_SOURCE => 'http://www.minside.dk/mycard.vcf',
+   abook_editform_namelabel_NAME => 'Visitkortets kildenavn',
+   abook_editform_valuelabel_NAME => 'en beskrivelse af kildens url',
+   abook_editform_valuelabel_CUSTOMNAME => 'et brugerdefineret navn',
+   abook_editform_valuelabel_CUSTOMVALUES => 'brugerdefinerede værdier',
+   abook_editform_playsound => 'Afspil lyd',
+   abook_editform_deletesound => 'Slet lyd',
+   abook_editform_save_and_return => 'Gem og gå et niveau op',
+   abook_editform_cancel_and_return => 'Annuler og gå et niveau op',
+   abook_editform_new_agent_link => 'opret',
+   sa_prefs         => 'SpamAssassin brugeropsætning',
+   sa_edittest      => 'Redider testregler',
+   sa_editblacklist => 'Rediger sortliste',
+   sa_editwhitelist => 'Rediger hvidliste',
+   );
+
+%lang_err =
+   (
+   has_illegal_chars => 'indeholder ugyldige tegn!',
+   couldnt_readlock  => 'Kunne ikke låse filen før læsning',
+   couldnt_writelock => 'Kunne ikke låse',
+   couldnt_create    => 'Kunne ikke oprette',
+   couldnt_delete    => 'Kunne ikke slette',
+   couldnt_open      => 'Kunne ikke åbne',
+   couldnt_seek      => 'Kunne ikke søge i',
+   couldnt_read      => 'Kunne ikke læse',
+   couldnt_write     => 'Kunne ikke skrive',
+   couldnt_close     => 'Kunne ikke lukke',
+   couldnt_updatedb  => 'Det var ikke muligt at opdatere indeks db ',
+   disallowed_pop3   => 'Ugyldig POP3-server',
+   disallowed_client => 'Du har ikke tilladelse til at forbinde fra denne pc',
+   disallowed_receiverdomain => 'Du har ikke tilladelse til at sende mail til denne mail-adresse',
+   norootlogin       => 'Beklager, rootlogin er slået fra af sikkerheds hensyn.',
+   shouldnt_move_here=> 'Du kan ikke flytte meddelelser hertil!',
+   destination_folder=> 'Destinationsmappe',
+   doesnt_exist      => 'findes ikke!',
+   foldername_long   => 'Mappenavne kan ikke være længere end @@@FOLDERNAME_MAXLEN@@@ tegn!',
+   folder_with_name  => 'En mappe ved navn',
+   already_exists    => 'eksisterer allerede!',
+   cant_create_folder=> 'Kan ikke oprette mappe!',
+   under_indexing    => 'er igang med at indeksere, prøv venligst senere',
+   back              => 'tilbage',
+   tryagain          => 'og forsøg igen.',
+   mailfilter_error  => 'Fejl i filtreringen',
+   att_overlimit     => 'Dine vedhæftede filer er større end tilladt',
+   inv_msg_op        => 'Ugyldig handling for besked',
+   sess_cookieerr    => 'Din forespørgsel indeholdt ikke et gyldigt sessions ID - Ingen adgang!',
+   sess_iperr        => 'Din forespørgsel kom ikke fra samme ip som de andre i denne session -- adgang nægtet!',
+   no_endpart        => 'Slutbesked ikke fundet',
+   part_missing      => 'Flere dele blev ikke fundet',
+   rebuild_fmterr    => 'Ny besked formatteret forkert',
+   rebuild_sizeerr   => 'Ny besked størrelse passer ikke',
+   user_not_exist    => 'bruger findes ikke',
+   func_notsupported => 'funktion er ikke understøttet',
+   auth_syserr       => 'godkendelse af systemet fejlede',
+   param_fmterr      => 'parameter format fejlede',
+   pwd_incorrect     => 'Ugyldig brugernavn eller adgangskode',
+   pwd_confirmmismatch=>'Ny adgangskode matcher ikke den gamle',
+   pwd_tooshort      => 'Adgangskoden er for kort (minimum længde @@@PASSWDMINLEN@@@)',
+   pwd_toosimple     => 'Adgangskoden er for simplel (der skal benyttes både bogstaver og tal)',
+   network_server_error => 'netværksfejl på serveren',
+   sendmail_error    => 'Der opstod et problem under afsendelsen af din meddelelse.',
+   sendmail_chkdraft => 'Kontroller filen i kladdemappen og prøv igen.',
+   at_char_not_allowed => 'Du kan ikke benyttet @ i dette felt. Tryk på tilbage i din browser og prøv igen.',
+   badnum_in_days => 'ugyldigt antal dage, for tilbagevendende aftale',
+   access_denied     => 'Adgang nægtet',
+   couldnt_chdirto   => 'Kunne ikke gå til',
+   isnt_a_dir        => 'er ikke en mappe',
+   edit_notfordir    => 'Du kan ikke redigere en mappe',
+   onefileonly       => 'Denne handling kan kun udføres på en fil af gangen',
+   no_file_todownload=> 'Der er ikke markeret nogen fil der skal hentes',
+   upload_overlimit  => 'Filen er større end grænsen for overførsel',
+   decomp_notsupported =>'Udpakning er ikke understøttet for denne fil.',
+   filefmt_notsupported =>'Dette filformat er ikke understøttet.',
+   webdisk_readonly  => 'Du har ikke skriveadgang til din webdisk.',
+   quota_syserr      => 'Fejl i kvotasystemet',
+   quotahit_alert    => 'Du har nået kvotagrænsen. Slet nogle meddelelse i dine postmapper eller nogle filer på din webdisk for at frigøre plads.',
+   quotahit_delmail  => 'Advarsel, da din kvotagrænse (@@@QUOTALIMIT@@@) er overskredet er de ændste meddelelser i mapperne slettet automatisk',
+   quotahit_delfile  => 'Advarsel, da din kvotagrænse (@@@QUOTALIMIT@@@) er overskredet er nogle filer på din webdisk blevet slettet automatisk',
+   spool_overlimit   => 'Din Indbakke har overskredet køgrænsen(@@@SPOOLLIMIT@@@). Flyt nogle meddelelser fra Indbakken til andre mapper.',
+   vdomain_toomanyuser  => 'Antallet af brugere i dette domæne har nået maksimumgrænsen',
+   vdomain_toomanyalias => 'Antallet af e-mail-alias har nået maksimumgrænsen',
+   vdomain_userrequired => 'Der kræves et brugernavn',
+   vdomain_fwdrequired => 'En gyldig videresendelsesadresse kræves',
+   all_module_disabled => 'Alle moduler er slået fra',
+   abook_all_readonly => 'Alle adressebøger er skrivebeskyttede, opret en ny adressebog',
+   abook_import_nofile => 'Du skal markere en fil der skal importeres',
+   abook_import_noformat => 'Du SKAL vælge et input-format',
+   abook_import_nodest => 'Du SKAL vælge en input-placering',
+   abook_import_unsupfmt => 'Adressebogsformatet "@@@FORMAT@@@" er ikke understøttet. Vælg et andet format',
+   abook_export_unsupfmt => 'Adressebogsformatet "@@@FORMAT@@@" er ikke understøttet. Vælg et andet format',
+   abook_export_undef => 'Du skal markere mindst en adresse der skal eksporteres. Du har ikke markeret nogen adresser',
+   abook_delete_xowmuid => 'Fejl under sletning. Ingen unik id defineret',
+   abook_delete_book => 'Kunne ikke slette adressebogen @@@ADDRESSBOOK@@@',
+   abook_doesnt_exist => 'Adressebogen @@@ADDRESSBOOK@@@ eksisterer ikke',
+   abook_already_exists => 'Der findes allerede en adressebog med navnet @@@ADDRESSBOOK@@@. Find et andet navn',
+   abook_name_too_long => 'Adressebogsnavnet @@@ADDRESSBOOK@@@ er for langt. Det må ikke være længere end @@@FOLDERNAME_MAXLEN@@@',
+   abook_cant_rename => 'Omdøbningen af adressebogen mislykkedes',
+   abook_ext_notsupported => 'Den overførte filtype er ikke understøttet som en ',
+   abook_toobig => 'Dette ville overskride størrelsesgrænsen for dine samlede adressebøger. Gå til',
+   abook_delete_first => 'eksisterer allerede. Slet den før du prøver at tilføje en til.',
+   abook_global_denied => 'Du har ikke lov til at redigere i den globale adressebog',
+   abook_editform_no_N => 'En adresse kan ikke gemmes uden et navn. Gå tilbage og tilføj et navn til denne adresse.',
+   abook_agent_one_contact => 'En agentoverførsel må kun indeholde en adresse.',
+   );
+
+1;

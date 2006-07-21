@@ -31,10 +31,13 @@ ps: domains specified in this option should be equivalent ones,
 
 smtpserver
 -----------------------------------------------------------------------
-The SMTP server will be relayed by openwebmail for outgoing mail
+The SMTP servers will be relayed by openwebmail for outgoing mail
 If you are running smtp daemon(ex: sendmail) on this host, you can set
 this to '127.0.0.1', or you can set this to either a hostname.domain or
-ip address of a remote server that will do relay for you
+ip address of a remote server that will do relay for you.
+You may list more than one smtpserver here. If the first server is
+unavailable, the next server will be tried and so on. Each server should
+be separated by a comma: 127.0.0.1, 198.168.2.1, etc
 
 
 smtpport
@@ -263,7 +266,7 @@ ow_templatesdir
 the directory for html templates of different languages
 
 
-ow_hodidaysdir
+ow_holidaysdir
 -----------------------------------------------------------------------
 the directory for calendar book of holidays of different languages
 
@@ -1619,68 +1622,15 @@ openwebmail
 # Please change the prefix default_ to DEFAULT_ in the openwebmail.conf.
 #
 
-default_language
+default_locale
 -----------------------------------------------------------------------
-This is the language used for the login screen or for the new user
-that hasn't saved his own language preference yet.
-
-supported language including: (defined in modules/lang.pl)
-
-   'ar.CP1256'         => 'Arabic - Windows',
-   'ar.ISO8859-6'      => 'Arabic - ISO 8859-6',
-   'bg'                => 'Bulgarian',
-   'ca'                => 'Catalan',
-   'cs'                => 'Czech',
-   'da'                => 'Danish',
-   'de'                => 'Deutsch',		# German
-   'el'                => 'Hellenic',		# Hellenic/Greek
-   'en'                => 'English',
-   'en.utf8'           => 'English - Unicode',	# utf8
-   'es'                => 'Spanish',		# Espanol
-   'fi'                => 'Finnish',
-   'fr'                => 'French',
-   'he.ISO8859-8'      => 'Hebrew - ISO 8859-8',
-   'he.CP1255'         => 'Hebrew - Windows',
-   'hr'                => 'Croatian',
-   'hu'                => 'Hungarian',
-   'id'                => 'Indonesian',
-   'it'                => 'Italiano',
-   'ja_JP.eucJP'       => 'Japanese - eucJP',
-   'ja_JP.Shift_JIS'   => 'Japanese - ShiftJIS',
-   'ja_JP.utf8'        => 'Japanese - Unicode', # utf8
-   'ko'                => 'Korean',
-   'lt'                => 'Lithuanian',
-   'nl'                => 'Nederlands',
-   'no'                => 'Norwegian',
-   'pl'                => 'Polish',
-   'pt'                => 'Portuguese',
-   'pt_BR'             => 'Portuguese Brazil',
-   'ro'                => 'Romanian - ISO 8859-2',
-   'ro.utf8'           => 'Romanian - Unicode',
-   'ru'                => 'Russian',
-   'sk'                => 'Slovak',
-   'sl'                => 'Slovene',
-   'sr'                => 'Serbian',
-   'sv'                => 'Swedish',		# Svenska
-   'th'                => 'Thai',
-   'tr'                => 'Turkish',
-   'uk'                => 'Ukrainian',
-   'ur'                => 'Urdu',
-   'zh_CN.GB2312'      => 'Chinese - Simplified',
-   'zh_CN.utf8'        => 'Chinese - Simplified - Unicode',
-   'zh_TW.Big5'        => 'Chinese - Traditional ',
-   'zh_TW.utf8'        => 'Chinese - Traditional - Unicode'
-
-If this option is set to 'auto', openwebmail will choose the language
-based on the language that is prefered by the client browser
-
-
-default_charset
------------------------------------------------------------------------
-The charset used by the above language.
-Please refer to ow-shared.pl for supported charsets.
-If this option is set to 'auto', openwebmail will choose the charset
-based on the language automatcially.
+This option specifies which locale openwebmail will use in the case that
+the user's preferred locale is not defined. The locale is made of a
+language and character set, such as en_US.UTF-8. The list of available
+locales can be found by listing the etc/lang directory.
+If this option is set to 'auto', openwebmail will choose the locale
+based on the language and character sets that are prefered by the client
+browser.
 
 ps: If you are using Apache 2.0 or higher, don't forget to set
     'AddDefaultCharset' to 'off' in httpd.conf
@@ -2331,10 +2281,11 @@ Valid values: calyear, calmonth, calweek, calday, callist
 
 default_calendar_holidaydef
 -----------------------------------------------------------------------
-the default holiday definition file to use
-If this option is set to auto, then the definition file will be choosed
-based on the user language. If this option is set to none, then no
-holiday definition file will be used.
+the default holiday definition file to use. This should be set to a
+locale such as 'en_US.UTF-8'. If this option is set to auto, then the
+definition file will be chosen based on the users locale preference
+setting. If this option is set to none, then no holiday definition file
+will be used.
 
 
 default_calendar_monthviewnumitems
