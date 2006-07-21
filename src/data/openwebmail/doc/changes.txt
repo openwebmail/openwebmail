@@ -1,5 +1,11 @@
 07/21/2006
 ----------
+1. a third commit to further update the en_US templates,
+   as is sometimes necessary for large commits to SVN.
+
+
+07/21/2006
+----------
 1. a second commit to update the en_US templates
 
 

@@ -1,0 +1,58 @@
+<tr>
+  <td>
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td colspan="6"><b>Name Attributes<font color="#ff0000"><super>*</super></font></b></td>
+    </tr>
+    <tr>
+      <td>@@@GROUP@@@</td>
+      <td><input class="mono" type="text" name="@@@NAMEPREFIX.NAME@@@" value="@@@NAMEPREFIX.VALUE@@@" size="4" onBlur="makeFullName('editForm');">&nbsp;&nbsp;</td>
+      <td><input class="mono" type="text" name="@@@GIVENNAME.NAME@@@" value="@@@GIVENNAME.VALUE@@@" size="10" onBlur="makeFullName('editForm');">&nbsp;&nbsp;</td>
+      <td><input class="mono" type="text" name="@@@ADDITIONALNAMES.NAME@@@" value="@@@ADDITIONALNAMES.VALUE@@@" size="10" onBlur="makeFullName('editForm');">&nbsp;&nbsp;</td>
+      <td><input class="mono" type="text" name="@@@FAMILYNAME.NAME@@@" value="@@@FAMILYNAME.VALUE@@@" size="10" onBlur="makeFullName('editForm');">&nbsp;&nbsp;</td>
+      <td><input class="mono" type="text" name="@@@NAMESUFFIX.NAME@@@" value="@@@NAMESUFFIX.VALUE@@@" size="4" onBlur="makeFullName('editForm');">&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="smalltext">@@@GROUPLABEL@@@</td>
+      <td class="smalltext">prefix</td>
+      <td class="smalltext">first</td>
+      <td class="smalltext">middle</td>
+      <td class="smalltext">last</td>
+      <td class="smalltext">suffix</td>
+    </tr>
+    <tr>
+      <td colspan="6">@@@TYPES@@@&nbsp;</td>
+    </tr>
+    </table>
+  <td>
+<tr>
+
+<script type="text/javascript" language="javascript">
+<!--
+function makeFullName(formName) {
+   var fullName = '';
+   // Chinese Japan Korean unicode regex
+   var re = /^[\u2e80-\u9fff\uac00-\ud7ff\uf900-\ufaff]/;
+
+   if (document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value != '' &&
+       document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value != '' &&
+       document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value.match(re)) {
+      fullName += document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value == ''?'':' ';
+      fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value;
+   } else {
+      fullName += document.forms[formName].elements['@@@NAMEPREFIX.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@NAMEPREFIX.NAME@@@'].value == ''?'':' ';
+      fullName += document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@GIVENNAME.NAME@@@'].value == ''?'':' ';
+      fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@ADDITIONALNAMES.NAME@@@'].value == ''?'':' ';
+      fullName += document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value;
+      fullName += document.forms[formName].elements['@@@FAMILYNAME.NAME@@@'].value == ''?'':' ';
+      fullName += document.forms[formName].elements['@@@NAMESUFFIX.NAME@@@'].value;
+   }
+   document.forms[formName].elements['@@@FN.NAME@@@'].value = fullName;
+}
+//-->
+</script>

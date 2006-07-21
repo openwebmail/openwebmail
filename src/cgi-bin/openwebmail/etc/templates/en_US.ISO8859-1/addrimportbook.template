@@ -1,0 +1,119 @@
+<table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
+<tr>
+  <td bgcolor=@@@TITLEBAR@@@>
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Import Addressbook Information</b></font>
+  </td>
+  <td bgcolor=@@@TITLEBAR@@@ align="right">
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ Available</b></font>
+  </td>
+</tr>
+<tr>
+  <td bgcolor=@@@MENUBAR@@@ colspan="2">@@@MENUBARLINKS@@@ </td>
+</tr>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+
+<tr>
+  <td colspan="2" align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+    <table border="0" align="center" width="85%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td><br><b>Overview</b></td>
+    </tr>
+    <tr>
+      <td>Many addressbook programs can export their addressbook data to files. @@@NAME@@@ can import some of these file formats, saving you hours of tediously typing them in by hand. The steps below will guide you through importing addressbook information. The file size limit on addressbook uploads is currently set to @@@ABOOKIMPORTLIMIT@@@ .</td>
+    </tr>
+    @@@STARTIMPORTFORM@@@
+    <tr>
+      <td><br><br><b>1. Browse for the file you are importing:</b></td>
+    </tr>
+    <tr>
+      <td>@@@IMPORTFILEFIELD@@@</td>
+    </tr>
+    <tr>
+      <td><br><b>2. Choose the format of your import file:</b></td>
+    </tr>
+    <tr>
+      <td>@@@FORMATSMENU@@@&nbsp;@@@IMPORTCHARSETMENU@@@</td>
+    </tr>
+    <tr>
+      <td><br><b>3. Choose the order of the fields in your import file (if applicable):</b></td>
+    </tr>
+    <tr>
+      <td>
+        <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          @@@FIELDCHOICESMENU@@@
+        </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td><br><b>4. Choose a destination addressbook for the imported data:</b></td>
+    </tr>
+    <tr>
+      <td>@@@ADDRBOOKSMENU@@@</td>
+    </tr>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td nowrap>
+        <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td nowrap>@@@IMPORTBUTTON@@@</td>
+          @@@ENDIMPORTFORM@@@
+
+          @@@STARTCANCELFORM@@@
+          <td nowrap>&nbsp;@@@CANCELBUTTON@@@<td>
+          @@@ENDCANCELFORM@@@
+        </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td><br><br><br></td>
+    </tr>
+    </table>
+  </td>
+</tr>
+</table>
+
+<script type="text/javascript" language="javascript">
+<!--
+function importOptionsToggle(fileFormat, sourceForm) {
+   if (fileFormat == 'csv' || fileFormat == 'tab') {
+     for(i=0; i<document.forms[sourceForm].elements.length; i++) {
+        var e = document.forms[sourceForm].elements[i];
+        if (e.name.substring(0, 16) == 'importfieldorder') {
+           e.disabled = 0;
+        }
+     }
+   } else {
+     for(i=0; i<document.forms[sourceForm].elements.length; i++) {
+        var e = document.forms[sourceForm].elements[i];
+        if (e.name.substring(0, 16) == 'importfieldorder') {
+           e.disabled = 1;
+        }
+     }
+   }
+   if (fileFormat.substring(0,3) == 'csv' || fileFormat.substring(0,3) == 'tab') {
+     for(i=0; i<document.forms[sourceForm].elements.length; i++) {
+        var e = document.forms[sourceForm].elements[i];
+        if (e.name == 'importcharset') {
+           e.disabled = 0;
+        }
+     }
+   } else {
+     for(i=0; i<document.forms[sourceForm].elements.length; i++) {
+        var e = document.forms[sourceForm].elements[i];
+        if (e.name == 'importcharset') {
+           e.disabled = 1;
+        }
+     }
+   }
+}
+//-->
+</script>
+
+
