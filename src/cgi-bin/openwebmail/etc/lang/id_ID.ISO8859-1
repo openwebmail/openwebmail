@@ -56,6 +56,7 @@ package ow::id_ID_ISO8859_1;
    ALL => "Semua Buku Alamat",
    global => "Buku Alamat Global ",
    ldapcache => "Buku Alamat Global  - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

@@ -58,6 +58,7 @@ package ow::ko_KR_eucKR;
    ALL => "All Addressbooks",
    global => "Global Addressbook",
    ldapcache => "Global Addressbook - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

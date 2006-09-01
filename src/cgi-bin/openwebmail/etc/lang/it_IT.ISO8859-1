@@ -56,6 +56,7 @@ package ow::it_IT_ISO8859_1;
    ALL => "Tutte le rubriche",
    global => "Rubrica generale",
    ldapcache => "Rubrica generale - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

@@ -61,6 +61,7 @@ package ow::ja_JP_eucJP;
    ALL => "すべてのアドレス帳",
    global => "グローバルアドレス帳",
    ldapcache => "グローバルアドレス帳 - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

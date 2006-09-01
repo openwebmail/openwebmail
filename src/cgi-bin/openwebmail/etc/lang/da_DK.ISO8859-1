@@ -57,6 +57,7 @@ package ow::da_DK_ISO8859_1;
    ALL => "Alle adressebøger",
    global => "Global adressbog",
    ldapcache => "Global adressbog - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

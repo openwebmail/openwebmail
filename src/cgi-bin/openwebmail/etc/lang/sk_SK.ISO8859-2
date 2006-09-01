@@ -57,6 +57,7 @@ package ow::sk_SK_ISO8859_2;
    ALL => "All Addressbooks",
    global => "Global Addressbook",
    ldapcache => "Global Addressbook - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

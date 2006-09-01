@@ -11,7 +11,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
    $_=<F>; close(F); if ( $_=~/^(\S*)/) { local $1; $SCRIPT_DIR=$1 }
 }
 if ($SCRIPT_DIR eq '') {
-   print qq|\nOpen WebMail is unable to locate itself on this system,\n|.
+   print qq|\nOpenWebMail is unable to locate itself on this system,\n|.
          qq|please put 'the path of openwebmail CGI directory' to\n|.
          qq|the first line of file /etc/openwebmail_path.conf\n\n|.
          qq|For example, if the script is\n\n|.
@@ -179,6 +179,7 @@ if ($ARGV[0] eq "--") {		# called by inetd
 $>=$euid_to_use;
 
 load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
+read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
 if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
    read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
    print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
@@ -352,7 +353,7 @@ sub init {
       print qq|$content\n|.
              qq|No site report sent.\n|;
    } else {
-      print qq|Welcome to the Open WebMail!\n\n|.
+      print qq|Welcome to the OpenWebMail!\n\n|.
             qq|This program is going to send a short message back to the developer,\n|.
             qq|so we could have the idea that who is installing and how many sites are\n|.
             qq|using this software, the content to be sent is:\n\n|.

@@ -62,6 +62,7 @@ package ow::pl_PL_ISO8859_2;
    ALL => "Wszystkie ksi±¿ki adresowe",
    global => "Globalna Ksi±¿ka Adresowa",
    ldapcache => "Globalna Ksi±¿ka Adresowa - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

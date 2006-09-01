@@ -57,6 +57,7 @@ package ow::hu_HU_ISO8859_2;
    ALL => "Összes Telefonkönyv",
    global => "Globális Telefonkönyv",
    ldapcache => "Globális Telefonkönyv - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

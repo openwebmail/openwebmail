@@ -58,6 +58,7 @@ package ow::de_DE_ISO8859_1;
    ALL => "Alle Adressbücher",
    global => "Globales Adressbuch",
    ldapcache => "Globales Adressbuch - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

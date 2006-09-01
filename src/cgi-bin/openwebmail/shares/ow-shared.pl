@@ -943,7 +943,7 @@ sub sessioninfo {
    my $sessionid=$_[0];
    my ($sessionkey, $ip, $userinfo);
 
-   openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html("Session ID $sessionid $lang_err{'doesnt_exist'}") . qq|<a href="$config{'ow_cgiurl'}/openwebmail.pl">$lang_text{'loginagain'}?</a>|, "passthrough") unless
+   openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html("Session ID $sessionid $lang_err{'doesnt_exist'}") . qq|&nbsp;<a href="$config{'ow_cgiurl'}/openwebmail.pl">$lang_text{'loginagain'}?</a>|, "passthrough") unless
       (-e "$config{'ow_sessionsdir'}/$sessionid");
 
    if ( !sysopen(F, "$config{'ow_sessionsdir'}/$sessionid", O_RDONLY) ) {

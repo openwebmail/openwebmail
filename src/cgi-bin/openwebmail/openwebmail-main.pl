@@ -965,7 +965,7 @@ sub listmessages {
       $msg=~s!\@\@\@SUBJECT\@\@\@!$sentsubject!;
       $msg =~ s!\\!\\\\!g; $msg =~ s!'!\\'!g;	# escape ' for javascript
       $temphtml.=qq|<script language="JavaScript">\n<!--\n|.
-                 qq|showmsg('$prefs{"charset"}', '$lang_text{'send'}', '$msg', '$lang_text{"close"}', '_msgsent', 300, 100, $prefs{'mailsentwindowtime'});\n|.
+                 qq|showmsg('$prefs{"charset"}', '$lang_text{"send"}', '$msg', '$lang_text{"close"}', '_msgsent', 300, 100, $prefs{"mailsentwindowtime"});\n|.
                  qq|//-->\n</script>\n|;
    }
    # popup stat of incoming msgs

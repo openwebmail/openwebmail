@@ -57,6 +57,7 @@ package ow::nl_NL_ISO8859_1;
    ALL => "Alle Adresboeken",
    global => "Globale Adresboek",
    ldapcache => "Globale Adresboek - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

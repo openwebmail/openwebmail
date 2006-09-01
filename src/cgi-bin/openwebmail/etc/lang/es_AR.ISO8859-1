@@ -1,7 +1,7 @@
 package ow::es_AR_ISO8859_1;
 
 # Spanish translation, charset: iso-8859-1
-# by Miguel Angel Fernandez Roiz, roiz.AT.lobocom.es, 03-17-2005
+# by Javier Smaldone, javier.AT.smaldone.com.ar 05-23-2006
 
 %lang_folders =
    (
@@ -55,7 +55,8 @@ package ow::es_AR_ISO8859_1;
    (
    ALL => "Todas las Libretas de Direcciones",
    global => "Libreta de Direcciones Global",
-   ldapcache => "Libreta de Direcciones Global - ldap",
+   ldapcache => "Libreta de Direcciones Global - LDAP",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

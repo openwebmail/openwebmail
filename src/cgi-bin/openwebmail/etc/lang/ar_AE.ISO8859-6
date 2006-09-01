@@ -56,6 +56,7 @@ package ow::ar_AE_ISO8859_6;
    ALL => "All Addressbooks",
    global => "Global Addressbook",
    ldapcache => "Global Addressbook - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

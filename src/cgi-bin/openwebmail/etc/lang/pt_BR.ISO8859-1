@@ -59,6 +59,7 @@ package ow::pt_BR_ISO8859_1;
    ALL => "Todas Listas de Contatos",
    global => "Lista de Contatos Global",
    ldapcache => "Lista de Contatos Global - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

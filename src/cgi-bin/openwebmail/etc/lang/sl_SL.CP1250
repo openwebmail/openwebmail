@@ -56,6 +56,7 @@ package ow::sl_SL_CP1250;
    ALL => "Vsi adresarji",
    global => "Globalni adresar",
    ldapcache => "Globalni adresar - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

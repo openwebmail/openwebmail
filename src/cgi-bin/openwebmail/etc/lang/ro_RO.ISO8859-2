@@ -58,6 +58,7 @@ package ow::ro_RO_ISO8859_2;
    ALL => "Toate Agendele",
    global => "Agenda Globala",
    ldapcache => "Agenda Globala - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =

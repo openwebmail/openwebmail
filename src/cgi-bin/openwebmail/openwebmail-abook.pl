@@ -1418,7 +1418,7 @@ sub addrlistview {
                     qq|rootxowmuid=$xowmuid&amp;|.
                     qq|abookfolder=$escapedaddrbook&amp;|.
                     qq|editformcaller=$escapedabookfolder&amp;|.
-                    $webmail_urlparm.
+                    qq|$webmail_urlparm&amp;|.
                     $abook_urlparm;
       my $composeurl = qq|$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;|.
                        qq|composetype=sendto&amp;|.
@@ -2127,7 +2127,9 @@ sub addreditform {
    # menubar links
    my $editformcallerstr=ow::htmltext::str2html($lang_abookselectionlabels{$editformcaller}||(iconv($prefs{'fscharset'}, $composecharset, $editformcaller))[0]);
    $temphtml = iconlink("backtofolder.gif", "$lang_text{'backto'} $editformcallerstr",
-                        qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=$escapededitformcaller&amp;$abook_urlparm"|);
+                        ($editformcaller eq 'readmessage' ?
+                        qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;$webmail_urlparm"| :
+                        qq|accesskey="B" href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;sessionid=$thissession&amp;abookfolder=$escapededitformcaller&amp;$abook_urlparm"|));
    $html =~ s/\@\@\@MENUBARLINKS\@\@\@/$temphtml/g;
 
    # start the form
@@ -2291,11 +2293,14 @@ sub addreditform {
    }
 
    # cancel form
-   $temphtml = start_form(-action=>"$config{'ow_cgiurl'}/openwebmail-abook.pl",
-                          -name=>'cancelEditForm').
-               ow::tool::hiddens(action=>'addrlistview',
-                                 sessionid=>$thissession,
-                                 abookfolder=>ow::tool::escapeURL($editformcaller),
+   $temphtml = start_form(
+                          -action => ( $editformcaller eq 'readmessage' ?
+                                       "$config{'ow_cgiurl'}/openwebmail-read.pl" :
+                                       "$config{'ow_cgiurl'}/openwebmail-abook.pl" ),
+                          -name   => 'cancelEditForm').
+               ow::tool::hiddens(action      => ( $editformcaller eq 'readmessage' ? 'readmessage' : 'addrlistview' ),
+                                 sessionid   => $thissession,
+                                 abookfolder => ow::tool::escapeURL($editformcaller),
                                 ). $abook_formparm.$webmail_formparm.
                submit(-name=>"$lang_text{'cancel'}",
                       -class=>"medtext").
@@ -2728,9 +2733,9 @@ sub addreditform_EMAIL {
       my $template = $EMAILtemplate;
       # VALUE
       my $valuehtml = textfield(-name=>"$name.$index.VALUE", -default=>$r_data->[$index]{VALUE}, -size=>"35", -override=>"1", -class=>"mono").
-                      qq|&nbsp;<input type="radio" name="$name.PREF" value="$index" |.(exists($r_data->[$index]{TYPES})?exists($r_data->[$index]{TYPES}{PREF})?'checked':():());
+                      qq|&nbsp;<input type="radio" name="$name.PREF" value="$index" |.(exists($r_data->[$index]{TYPES})?exists($r_data->[$index]{TYPES}{PREF})?'checked':():()).qq|>|;
       if (@{$r_data} > 1) {
-         $valuehtml .= qq|>&nbsp;&nbsp;| . iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|);
+         $valuehtml .= qq|&nbsp;&nbsp;| . iconlink("cal-delete.gif", "$lang_text{'delete'}", qq|href="javascript:document.editForm.formchange.value='$name,$index,-1'; document.editForm.submit();"|);
       }
       $template =~ s/\@\@\@VALUE\@\@\@/$valuehtml/;
       $template =~ s/\@\@\@VALUELABEL\@\@\@//;
@@ -2864,7 +2869,7 @@ sub addreditform_ADR {
          my $value = exists($r_data->[$index]{VALUE}{$field})?ow::htmltext::str2html($r_data->[$index]{VALUE}{$field}):'';
          $template =~ s/\@\@\@$field.VALUE\@\@\@/$value/;
       }
-      my $pref = qq|<input type="radio" name="$name.PREF" value="$index" |.(exists($r_data->[$index]{TYPES})?exists($r_data->[$index]{TYPES}{PREF})?'checked':():());
+      my $pref = qq|<input type="radio" name="$name.PREF" value="$index" |.(exists($r_data->[$index]{TYPES})?exists($r_data->[$index]{TYPES}{PREF})?'checked':():()).qq|>|;
       $template =~ s/\@\@\@PREF\@\@\@/$pref/;
       my $delete;
       if (@{$r_data} > 1) {
@@ -3302,6 +3307,8 @@ sub addredit {
 
    my $formchange = param('formchange');
 
+   my $editformcaller = safefoldername(ow::tool::unescapeURL(param('editformcaller')));
+
    print header() if $addrdebug;
    if ($formchange ne '') {
       #################################################
@@ -3735,8 +3742,11 @@ sub addredit {
          print "<pre>WE'RE TRAVERSING AGENTS - GOING TO THE ADDREDITFORM...\n</pre>" if $addrdebug;
          addreditform(); # continue on to display that targetagent now that this level is saved.
       } else {
-         print "<pre>GOING TO THE ADDR LIST VIEW\n</pre>" if $addrdebug;
-         addrlistview();
+         if ($editformcaller eq 'readmessage') {
+            print redirect(-location=>"$config{'ow_cgiurl'}/openwebmail-read.pl?action=readmessage&amp;sessionid=$thissession&amp;$webmail_urlparm");
+         } else {
+            addrlistview();
+         }
       }
    }
 }

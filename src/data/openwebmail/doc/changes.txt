@@ -1,3 +1,19 @@
+08/31/2006
+----------
+1. fix bug so addressbook now returns to the correct list page
+   after a contact has been edited
+   (thanks to Moke Tsing, moke.AT.amcpl.net for his patch)
+2. fix missing html closing syntax in email and tel parms of
+   addressbook
+3. Spanish templates and language files translation update
+   (thanks to Javier Smaldone, javier.AT.smaldone.com.ar)
+4. fix a bug that openwebmail-tool does not load default config
+   unless a custom config also exists
+   (thanks to John M. Victory, ergon.AT.users.sourceforge.net)
+5. adding a new contact from readmessage now returns back to
+   readmessage instead of addressbook listview
+
+
 07/21/2006
 ----------
 1. a forth commit to fix a minor bug in the openwebmail-tool.pl

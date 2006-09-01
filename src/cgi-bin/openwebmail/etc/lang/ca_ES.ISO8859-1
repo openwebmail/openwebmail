@@ -57,6 +57,7 @@ package ow::ca_ES_ISO8859_1;
    ALL => "Totes les llibretes d\'adreces",
    global => "Llibreta d\'adreces global",
    ldapcache => "Llibreta d\'adreces global - ldap",
+   readmessage => "reading the message",
    );
 
 %lang_onofflabels =
