@@ -178,11 +178,17 @@ if ($ARGV[0] eq "--") {		# called by inetd
 
 $>=$euid_to_use;
 
+# load the default config, but don't merge it into the config hash yet
+# because there may be paths that get changed in the custom config
 load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
-read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
+
 if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
+   # load the custom config over the default config and merge everything
    read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
    print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
+} else {
+   # there is no custom config, so just do the merge with the default config
+   read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
 }
 
 $logindomain=$default_logindomain||ow::tool::hostname();

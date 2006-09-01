@@ -1,5 +1,10 @@
 08/31/2006
 ----------
+1. fix bug for wrong logic in #4 from the last commit
+
+
+08/31/2006
+----------
 1. fix bug so addressbook now returns to the correct list page
    after a contact has been edited
    (thanks to Moke Tsing, moke.AT.amcpl.net for his patch)
