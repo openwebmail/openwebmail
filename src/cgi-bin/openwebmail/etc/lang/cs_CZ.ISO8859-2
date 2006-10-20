@@ -1,7 +1,8 @@
 package ow::cs_CZ_ISO8859_2;
 
 # Czech translation, charset: iso-8859-2
-# by Michal Drapak, michal.AT.stavlib.hiedu.cz, 2001-NOV-8
+# by Pavel Schauer, schauer.AT.dp.fce.vutbr.cz, 2006-OCT-12
+#    Michal Drapak, michal.AT.stavlib.hiedu.cz, 2001-NOV-8
 #    Jan Bilik, jan.AT.bilik.org, 2002-JUN-6, 2003-JAN-5
 #    Pavel Schauer, schauer.AT.dp.fce.vutbr.cz, 2003-DEC-3
 #    Milan Kerslager, kerslage.AT.linux.cz, 2004-APR-13
@@ -351,7 +352,7 @@ package ow::cs_CZ_ISO8859_2;
    login      => 'Pøihlásit',
    clear      => 'Smazat',
    webmail    => 'WebMail',
-   msglist    => 'Message List',
+   msglist    => 'Seznam zpráv',
    point      => 'Bodù',
    pixel      => 'Pixelù',
    changepwd  => 'Zmìnit pøístupové heslo',
@@ -370,7 +371,7 @@ package ow::cs_CZ_ISO8859_2;
    emptytrash => 'Vysypat Ko¹',
    totrash    => 'Pøesunout zprávy do Ko¹e',
    learnham   => 'NAUÈIT HAM',
-   learnspam  => 'Learn Spam',
+   learnspam  => 'Nauèit spam',
    forever    => 'Napoøád',
    delatlogout=> 'Smazat pøi odhlá¹ení',
    userdef    => 'U¾iv.def.',
@@ -385,8 +386,8 @@ package ow::cs_CZ_ISO8859_2;
    markasunread => 'Oznaèit jako nepøeètená',
    dateformat => 'Formát datumu',
    date       => 'Datum',
-   sentdate   => 'Sent Date',
-   recvdate   => 'Received Date',
+   sentdate   => 'Datum odeslání',
+   recvdate   => 'Datum pøijetí',
    recipient  => 'Pøíjemce',
    sender     => 'Odesílatel',
    subject    => 'Pøedmìt',
@@ -658,7 +659,7 @@ package ow::cs_CZ_ISO8859_2;
    abook_editform_unknown_AGENT => 'neznámý typ zástupce (agenta)',
    abook_editform_vcf_AGENT => 'Versit Card File',
    abook_editform_GEO_find => 'Nalézt zemìpisné souøadnice',
-   abook_editform_GEO_findurl => 'http://www.multimap.com/map/home.cgi?client=public&lang=&advanced=&db=US',
+   abook_editform_GEO_findurl => 'http://www.multimap.com/map/home.cgi?client=public&lang=&advanced=&db=CZ',
    abook_editform_GEO_map => 'Zobrazit zemìpisnou mapu tohoto místa',
    abook_editform_GEO_photo => 'Zobrazit satelitní fotografii tohoto místa',
    abook_editform_namelabel_CLASS => 'Klasifikace pøístupu',
@@ -674,8 +675,8 @@ package ow::cs_CZ_ISO8859_2;
    abook_editform_valuelabel_CUSTOMVALUES => 'vlastní hodnota',
    abook_editform_playsound => 'Pøehrát zvuk',
    abook_editform_deletesound => 'Smazat zvuk',
-   abook_editform_save_and_return => 'Ulo¾it a vrátit se zpìt (k rodièi)',
-   abook_editform_cancel_and_return => 'Zru¹it a vrátit se zpìt (k rodièi)',
+   abook_editform_save_and_return => 'Ulo¾it a vrátit se zpìt (k nadøazenému)',
+   abook_editform_cancel_and_return => 'Zru¹it a vrátit se zpìt (k nadøazenému)',
    abook_editform_new_agent_link => 'vytvoøit',
    sa_prefs         => 'U¾ivatelská nastavení pro SpamAssassin',
    sa_edittest      => 'Upravit testovací pravidla',

@@ -2439,7 +2439,7 @@ sub getattfilesinfo {
 
    opendir(SESSIONSDIR, "$config{'ow_sessionsdir'}") or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}! ($!)");
-      @sessfiles=readdir(SESSIONSDIR);
+      @sessfiles = sort readdir(SESSIONSDIR);
    closedir(SESSIONSDIR);
 
    foreach my $currentfile (@sessfiles) {

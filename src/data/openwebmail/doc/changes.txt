@@ -1,3 +1,23 @@
+10/19/2006
+----------
+1. fix bug so compose message attachments are now displayed in the
+   order uploaded
+   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his code)
+2. fix bug that subjects with quote characters did not link to
+   openwebmail-read correctly in IE due to HTML syntax errors
+   (thanks to Moke Tsing, moke.AT.amcpl.net for his report)
+3. fix bug that etc/default/openwebmail.conf domainselmenu_list
+   option was not updated to domainselectmenu_list at 11/14/2004 #1
+   (thanks to Michael Mansour, mic.AT.npgx.com.au for his report)
+4. fix minor HTML syntax errors in addressbook forms
+   (thanks to Pavel Schauer, schauer.AT.dp.fyz.fce.vutbr.cz)
+5. Czech templates and language files translation update
+   (thanks to Pavel Schauer, schauer.AT.dp.fyz.fce.vutbr.cz)
+6. rewrite the pipecmd code in spamcheck and viruscheck modules.
+   the new code has much better error reporting and should help
+   troubleshoot pipe issues better.
+
+
 08/31/2006
 ----------
 1. fix bug for wrong logic in #4 from the last commit

@@ -687,7 +687,7 @@ sub listmessages {
          $friendstr=iconlink("friend.gif", "$lang_text{'search'} $lang_text{'addressbook'}", qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrlistview&amp;abookkeyword=$from2_address&amp;abooksearchtype=email&amp;abookfolder=ALL&amp;sessionid=$thissession&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page"|);
       }
 
-      my $from2str=qq|<a $linkstr title="$from_address -> $to_address">$from2_name </a>|;
+      my $from2str=qq|<a $linkstr title="|.ow::htmltext::str2html($from_address).qq| -&gt; |.ow::htmltext::str2html($to_address).qq|">$from2_name</a>|;
       if ($searchstr ne '' || $friendstr ne '') {
          $temphtml = qq|<td $td_bgcolorstr>|.
                      qq|<table cellspacing="0" cellpadding="0"><tr>\n|.
@@ -739,7 +739,7 @@ sub listmessages {
       }
       if ($prefs{'useminisearchicon'}) {
          $subject2 =~ s/Res?:\s*//ig; $subject2=~s/\[.*?\]//g;
-         my $searchstr = iconlink("search.s.gif", "$lang_text{'search'} $subject2 ",
+         my $searchstr = iconlink("search.s.gif", "$lang_text{'search'} $subject",
                                   qq|href="$main_url?sessionid=$thissession&amp;folder=$escapedfolder&amp;|.
                                   qq|action=listmessages&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;|.
                                   qq|searchtype=subject&amp;keyword=|.ow::tool::escapeURL($subject2).qq|"| ).
@@ -1242,6 +1242,7 @@ sub movemessage {
       #local $SIG{CHLD}=\&ow::tool::zombie_cleaner;
 
       local $|=1; 			# flush all output
+
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
          writelog("debug - $learntype process forked - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});

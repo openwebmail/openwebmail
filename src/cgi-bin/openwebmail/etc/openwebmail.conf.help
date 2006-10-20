@@ -999,8 +999,12 @@ This option enables external spam checker (spamassassin)
 
 spamcheck_pipe
 -----------------------------------------------------------------------
-The location of the spam check program with parmeters to read a
-message from the stdin
+The location of the spam check program, with parameters to read a
+message from the STDIN. Admins should test this command on the
+commandline using a single raw message. Spamassassin spamc must be able
+to correctly connect to spamd to process the message. Make sure you are
+also connecting to the correct spamd port. Spamd must be running for
+OpenWebMail to process spam properly.
 
 
 spamcheck_source_allowed
@@ -1065,7 +1069,7 @@ learned message will be moved to. (default: INBOX)
 
 enable_saprefs
 -----------------------------------------------------------------------
-If this option is set to yes, user will be allowed to edit their 
+If this option is set to yes, user will be allowed to edit their
 SpamAssassin user_prefs file (~/.spamassassin/user_prefs) in openwebmail.
 
 
@@ -1392,7 +1396,7 @@ from INBOX to other folder until the size of INBOX is under this limit.
 
 quota_limit
 -----------------------------------------------------------------------
-Basically, openwebmail will get the use quota usage and quota limit from 
+Basically, openwebmail will get the use quota usage and quota limit from
 module defined in option quota_module. However, if quota module doesn't
 support quota limit (eg:quota_du.pl always return the limit as -1),
 the value defined in this option will be used as quota limit
@@ -1762,7 +1766,7 @@ Available value: date from subject size
 
 default_sort
 -----------------------------------------------------------------------
-default message sorting, available values: date, date_rev, 
+default message sorting, available values: date, date_rev,
 sender, sender_rev, subject, subject_rev, size, size_rev
 ps: date is oldest first, date_rev is newest first
     the default value for this option is date_rev
@@ -1820,8 +1824,8 @@ default_bgfilterthreshold
 -----------------------------------------------------------------------
 This defines when openwebmail should do mail filtering at background.
 If this option is set to 0, mail filtering is always done at foreground.
-If this option is set to equal or more than 1, the mail filtering is 
-put into background only if the number of new messages in INBOX is more 
+If this option is set to equal or more than 1, the mail filtering is
+put into background only if the number of new messages in INBOX is more
 than this threshold.
 
 
@@ -1832,12 +1836,12 @@ filtering before returning the folder message listing or message
 content to user
 
 ps: Forgroung mail filtering guarentees that all messages are checked
-    and filtered before the message list is shown to user, but the 
+    and filtered before the message list is shown to user, but the
     user have to wait to see the message list until the filter finishes.
 
-    On the other hand, backgound mail filtering returns if the mail 
+    On the other hand, backgound mail filtering returns if the mail
     filtering is not finished in a certain period of time, but the user
-    may see some spam/virus mails that are actually going to be 
+    may see some spam/virus mails that are actually going to be
     checked and filtered later by the backgound mail filter.
 
 
@@ -1886,10 +1890,10 @@ link of network.
 
 default_readwithmsgcharset
 -----------------------------------------------------------------------
-If this option is set to 'yes', openwebmail will display message with 
+If this option is set to 'yes', openwebmail will display message with
 the message charset rather than the preference charset by default
 
-ps: However, english template will be used to guarantee the user can 
+ps: However, english template will be used to guarantee the user can
     operate the openwebmail UI no matter what charset the message is
 
 
@@ -2001,9 +2005,9 @@ filename between user preference charset and the fscharset.
 If this is set to 'none', no conversion will be issued.
 Please refer to modules/lang.pl for supported charsets.
 
-ps: It is highly recommended to set this option to the most frequently 
-    used charset on the filesystem, which would allow openwebmail to 
-    always interpret the filename correctly when the user switches 
+ps: It is highly recommended to set this option to the most frequently
+    used charset on the filesystem, which would allow openwebmail to
+    always interpret the filename correctly when the user switches
     between different charsets.
 
 
@@ -2028,7 +2032,7 @@ default_categorizedfolders
 default_categorizedfolders_fs
 -----------------------------------------------------------------------
 If this option is enabled, the foldernames listed in folders menu
-will be categroized by their prefix, which is the string in foldername 
+will be categroized by their prefix, which is the string in foldername
 before categorizedfolders_fs (fs means field separator)
 
 

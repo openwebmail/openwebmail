@@ -120,9 +120,9 @@ Pøedmìt:
 
 @@@WEBMAILSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Messages Listing</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Prohlí¾ení zpráv</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Controlbar position in messages list:</B>
+<B>Poloha øídícího panelu pøi prohlí¾ení zpráv:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
@@ -142,7 +142,7 @@ Pøedmìt:
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Timestamp used for message date:</B>
+<B>Datum pou¾ívaný jako datum zprávy:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGDATETIMESTAMPMENU@@@
 </td></tr>
@@ -379,7 +379,7 @@ Pøedmìt:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Velikost okna adresáøe:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Width @@@ABOOKWIDTHMENU@@@ Height @@@ABOOKHEIGHTMENU@@@
+©íøka @@@ABOOKWIDTHMENU@@@ Vý¹ka @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Pozice tlaèítka adresáøe:</B>
