@@ -1,3 +1,10 @@
+10/30/2006
+----------
+1. change the spellcheck() function name to owmspellcheck() to
+   workaround conflict with Firefox 2.0 which prevented the
+   spellcheck to work.
+
+
 10/19/2006
 ----------
 1. fix bug so compose message attachments are now displayed in the

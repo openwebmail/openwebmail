@@ -1370,7 +1370,7 @@ sub composemessage {
                  button(-name=>'spellcheckbutton',
                         -value=> $lang_text{'spellcheck'},
                         -title=> $chkname,
-                        -onClick=>'spellcheck(); return (sessioncheck() && document.spellcheckform.submit());',
+                        -onClick=>'owmspellcheck(); return (sessioncheck() && document.spellcheckform.submit());',
                         -override=>'1').
                  qq|</td></tr></table>|.
                  qq|<!--spellcheckend-->\n|.
