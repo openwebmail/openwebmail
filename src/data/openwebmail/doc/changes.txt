@@ -1,8 +1,15 @@
+06/01/2007
+1. fix addressbook csv/tab export routine to avoid errors while
+   trying to export contacts containing the properties PHOTO, 
+   LOGO, SOUND, KEY, and AGENT. These fields are now skipped.
+   (Joao S Veiga, openwebmail.AT.rf.com.br)
+
 10/30/2006
 ----------
 1. change the spellcheck() function name to owmspellcheck() to
    workaround conflict with Firefox 2.0 which prevented the
    spellcheck to work.
+   (Joao S Veiga, openwebmail.AT.rf.com.br)
 
 
 10/19/2006

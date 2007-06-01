@@ -5210,6 +5210,7 @@ sub make_flathash {
    my $vcard = $_[0];
 
    foreach my $propertyname (keys %{ $vcard }) {
+      next if ($propertyname =~ /^(?:PHOTO|LOGO|SOUND|KEY|AGENT)$/);
       my @instances = @{ ${ $vcard }{$propertyname} };
       for (my $i = 0; $i <= $#instances; $i++) {
          my $index = ($#instances > 0)?'_'.sprintf("%02d", $i):'';
