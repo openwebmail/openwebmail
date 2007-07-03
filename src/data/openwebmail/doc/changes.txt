@@ -6,6 +6,8 @@
 2. denies adding attachments over the attlimit without discarding
    the message being composed.
    (Joao S Veiga, openwebmail.AT.rf.com.br)
+3. uses the system zoneinfo database for timezone/dst handling.
+   (Joao S Veiga, openwebmail.AT.rf.com.br)
 
 06/01/2007
 ----------

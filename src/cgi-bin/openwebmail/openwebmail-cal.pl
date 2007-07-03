@@ -207,7 +207,7 @@ openwebmail_requestend();
 sub yearview {
    my $year=$_[0];
 
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($current_year, $current_month, $current_day)=(ow::datetime::seconds2array($localtime))[5,4,3];
    $current_year+=1900; $current_month++;
 
@@ -385,7 +385,7 @@ sub yearview {
 sub monthview {
    my ($year, $month)=@_;
 
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($current_year, $current_month, $current_day)=(ow::datetime::seconds2array($localtime))[5,4,3];
    $current_year+=1900; $current_month++;
 
@@ -584,7 +584,7 @@ sub monthview {
 sub weekview {
    my ($year, $month, $day)=@_;
 
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($current_year, $current_month, $current_day)=(ow::datetime::seconds2array($localtime))[5,4,3];
    $current_year+=1900; $current_month++;
 
@@ -829,7 +829,7 @@ sub month_week_item {
 sub dayview {
    my ($year, $month, $day)=@_;
 
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($current_year, $current_month, $current_day)=(ow::datetime::seconds2array($localtime))[5,4,3];
    $current_year+=1900; $current_month++;
 
@@ -1602,7 +1602,7 @@ sub listview {
    my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
    $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
 
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($current_year, $current_month, $current_day)=(ow::datetime::seconds2array($localtime))[5,4,3];
    $current_year+=1900; $current_month++;
 
@@ -2607,7 +2607,7 @@ sub lunar_str {
 # if any item added with date before the lastcheck date
 sub reset_notifycheck_for_newitem {
    my $r_item=$_[0];
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($wdaynum, $year, $month, $day, $hour, $min)=(ow::datetime::seconds2array($localtime))[6,5,4,3,2,1];
    $year+=1900; $month++;
 

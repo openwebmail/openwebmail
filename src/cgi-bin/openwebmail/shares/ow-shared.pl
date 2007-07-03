@@ -115,7 +115,7 @@ foreach (qw(
     authpop3_server authpop3_port
     vdomain_vmpop3_pwdpath vdomain_vmpop3_pwdname vdomain_vmpop3_mailpath
     vdomain_postfix_postalias vdomain_postfix_postmap
-    vdomain_postfix_aliases vdomain_postfix_virtual
+    vdomain_postfix_aliases vdomain_postfix_virtual zonetabfile
 )) { $is_config_option{'untaint'}{$_}=1}
 
 # require type config options
@@ -133,7 +133,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
 }
 
 @openwebmailrcitem=qw(
-   locale language charset timeoffset daylightsaving email replyto
+   locale language charset timeoffset timezone daylightsaving email replyto
    style iconset bgurl bgrepeat fontsize dateformat hourformat
    ctrlposition_folderview msgsperpage fieldorder sort msgdatetype useminisearchicon
    ctrlposition_msgread headers readwithmsgcharset usefixedfont usesmileicon
@@ -1261,10 +1261,10 @@ sub htmlheader {
    my $t=time();
    $info.= " ".ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial($t),
                                $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                               $prefs{'dateformat'}, $prefs{'hourformat'})." ";
+                               $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'})." ";
    if ($prefs{'daylightsaving'} eq 'on' ||
        ($prefs{'daylightsaving'} eq 'auto' &&
-        ow::datetime::is_dst($t, $prefs{'timeoffset'})) ) {
+        ow::datetime::is_dst($t, $prefs{'timeoffset'}, $prefs{'timezone'})) ) {
       $info.=ow::datetime::seconds2timeoffset(ow::datetime::timeoffset2seconds($prefs{'timeoffset'})+3600)." -";
    } else {
       $info.="$prefs{'timeoffset'} -";

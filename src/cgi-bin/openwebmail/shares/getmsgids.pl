@@ -179,7 +179,7 @@ sub search_info_messages_for_keyword {
          if ($searchtype eq 'all' || $searchtype eq 'date') {
             $date=ow::datetime::dateserial2str($attr[$_DATE],
                                                $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                               $prefs{'dateformat'}, $prefs{'hourformat'});
+                                               $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
          }
 
          # check subject, from, to, date

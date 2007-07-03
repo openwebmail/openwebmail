@@ -2942,7 +2942,7 @@ sub addreditform_BDAY {
 sub addreditform_BDAY2AGE() {
    my ($bdayyear,$bdaymonth,$bdayday) = @_;
 
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($currentyear, $currentmonth, $currentday)=(ow::datetime::seconds2array($localtime))[5,4,3];
    $currentyear+=1900; $currentmonth++;
 
@@ -4909,7 +4909,7 @@ sub make_vcard {
    my ($ref, $x_owm_uid) = @_;
    my %data = %{$ref};  #just for easier typing on the structure...
    my ($rev_sec,$rev_min,$rev_hour,$rev_mday,$rev_mon,$rev_year) =
-            gmtime(ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}));
+            gmtime(ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'}));
 
    # Field mapping: Key is the 'foreign' field name, value is the local, used on the $vcard assignment below.
    # If new csv/tab sources are to be supported, and there are foreign field names to be associated to ones

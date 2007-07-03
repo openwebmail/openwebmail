@@ -339,7 +339,7 @@ sub init {
    my $hostname=ow::tool::hostname();
    my $realname=(getpwnam($id))[6]||$id;
    my $to="stats\@openwebmail.acatysmoof.com";
-   my $date = ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $config{'default_timeoffset'}, $prefs{'daylightsaving'});
+   my $date = ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $config{'default_timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my $subject="site report - $hostname";
    my $os;
    if ( -f "/usr/bin/uname") {
@@ -1296,7 +1296,7 @@ sub checknewmail {
 sub checknewevent {
    my ($newevent, $oldevent);
 
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($wdaynum, $year, $month, $day, $hour, $min)=(ow::datetime::seconds2array($localtime))[6,5,4,3,2,1];
    $year+=1900; $month++;
    my $hourmin=sprintf("%02d%02d", $hour, $min);
@@ -1351,7 +1351,7 @@ sub checknewevent {
 sub checknotify {
    my %message=();
 
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($wdaynum, $year, $month, $day, $hour, $min)=(ow::datetime::seconds2array($localtime))[6,5,4,3,2,1];
    $year+=1900; $month++;
 
@@ -1447,7 +1447,7 @@ sub checknotify {
    my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, dotpath('from.book'));
    my $realname=$userfrom{$from};
    foreach my $email (keys %message) {
-      my $date = ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+      my $date = ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
       my $ret=send_mail($from, $realname, $email, $date, "calendar notification", $title.$message{$email});
       if (!$opt{'quiet'}) {
          print "mailing notification to $email for $loginname";

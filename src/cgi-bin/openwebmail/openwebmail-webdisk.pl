@@ -1183,7 +1183,7 @@ sub downloadfiles {	# through zip or tgz
    if ($#filelist==0) {
       $dlname=safedlname($filelist[0]);
    } else {
-      my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+      my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
       my @t=ow::datetime::seconds2array($localtime);
       $dlname=sprintf("%4d%02d%02d-%02d%02d", $t[5]+1900,$t[4]+1,$t[3], $t[2],$t[1]);
    }
@@ -1701,7 +1701,7 @@ sub dirfilesel {
          if (defined $fdate{$fname}) {
             $datestr=ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial($fdate{$fname}),
                                       $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                      $prefs{'dateformat'}, $prefs{'hourformat'});
+                                      $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
          }
 
          my ($tr_bgcolorstr, $td_bgcolorstr);
@@ -2325,7 +2325,7 @@ sub showdir {
          if (defined $fdate{$p}) {
             $datestr=ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial($fdate{$p}),
                                       $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                      $prefs{'dateformat'}, $prefs{'hourformat'});
+                                      $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
          }
 
          $fperm{$p}=~/^(.)(.)(.)$/;

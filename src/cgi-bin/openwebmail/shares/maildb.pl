@@ -473,7 +473,7 @@ sub _prepare_msghash {
 
    # msg dateserial
    $$r_message{date}=ow::datetime::datefield2dateserial($$r_message{date});
-   $$r_message{recvdate}=ow::datetime::delimiter2dateserial($$r_message{delimiter}, $config{'deliver_use_gmt'}, $prefs{'daylightsaving'}) ||
+   $$r_message{recvdate}=ow::datetime::delimiter2dateserial($$r_message{delimiter}, $config{'deliver_use_gmt'}, $prefs{'daylightsaving'}, $prefs{'timezone'}) ||
                          ow::datetime::gmtime2dateserial();
    $$r_message{date}=$$r_message{recvdate} if ($$r_message{date} eq "");
 

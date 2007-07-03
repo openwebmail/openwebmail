@@ -306,7 +306,7 @@ sub editprefs {
       $html =~ s/\@\@\@DESCWIDTH\@\@\@/width="40%"/;
 
       my (%is_firsttimercitem, %hiddenvalue);
-      foreach (qw(language charset timeoffset daylightsaving email replyto signature)) { $is_firsttimercitem{$_}=1 }
+      foreach (qw(language charset timeoffset timezone daylightsaving email replyto signature)) { $is_firsttimercitem{$_}=1 }
       foreach (@openwebmailrcitem) {
          next if ($is_firsttimercitem{$_});
          if ($_ eq 'bgurl') {
@@ -461,18 +461,28 @@ sub editprefs {
                           defined($config_raw{'DEFAULT_locale'})?('-disabled'=>'1'):());
    $html =~ s/\@\@\@CHARSETMENU\@\@\@/$temphtml/;
 
-   my @timeoffsets=qw( -1200 -1100 -1000 -0900 -0800 -0700
-                       -0600 -0500 -0400 -0330 -0300 -0230 -0200 -0100
-                       +0000 +0100 +0200 +0300 +0330 +0400 +0500 +0530 +0600 +0630
-                       +0700 +0800 +0900 +0930 +1000 +1030 +1100 +1200 +1300 );
-   my %timeoffsetlabels = map { $_ => "$_ -  $lang_timezonelabels{$_}"} keys %lang_timezonelabels;
-   $temphtml = popup_menu(-name=>'timeoffset',
-                          -values=>\@timeoffsets,
-                          -labels=>\%timeoffsetlabels,
-                          -default=>$prefs{'timeoffset'},
-                          -override=>'1',
-                          defined($config_raw{'DEFAULT_timeoffset'})?('-disabled'=>'1'):()).
-               qq|&nbsp;|. iconlink("earth.gif", $lang_text{'tzmap'}, qq|href="$config{'ow_htmlurl'}/images/timezone.jpg" target="_timezonemap"|). qq|\n|;
+   if (($config{'zonetabfile'} ne 'no') && (my @zones = ow::datetime::makezonelist($config{'zonetabfile'}))) { 
+      @zones = sort(@zones);
+      $temphtml = popup_menu(-name=>'timezone',
+                             -values=>\@zones,
+                             -default=>"$prefs{'timeoffset'} $prefs{'timezone'}",
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_timezone'})?('-disabled'=>'1'):()).
+                  qq|&nbsp;|. iconlink("earth.gif", $lang_text{'tzmap'}, qq|href="$config{'ow_htmlurl'}/images/timezone.jpg" target="_timezonemap"|). qq|\n|;
+   } else {
+      my @timeoffsets=qw( -1200 -1100 -1000 -0900 -0800 -0700
+                          -0600 -0500 -0400 -0330 -0300 -0230 -0200 -0100
+                          +0000 +0100 +0200 +0300 +0330 +0400 +0500 +0530 +0600 +0630
+                          +0700 +0800 +0900 +0930 +1000 +1030 +1100 +1200 +1300 );
+      my %timeoffsetlabels = map { $_ => "$_ -  $lang_timezonelabels{$_}"} keys %lang_timezonelabels;
+      $temphtml = popup_menu(-name=>'timeoffset',
+                             -values=>\@timeoffsets,
+                             -labels=>\%timeoffsetlabels,
+                             -default=>$prefs{'timeoffset'},
+                             -override=>'1',
+                             defined($config_raw{'DEFAULT_timeoffset'})?('-disabled'=>'1'):()).
+                  qq|&nbsp;|. iconlink("earth.gif", $lang_text{'tzmap'}, qq|href="$config{'ow_htmlurl'}/images/timezone.jpg" target="_timezonemap"|). qq|\n|;
+   }
    $html =~ s/\@\@\@TIMEOFFSETMENU\@\@\@/$temphtml/;
 
    $temphtml = popup_menu(-name=>'daylightsaving',
@@ -1135,7 +1145,7 @@ sub editprefs {
             if ($matchdate) {
                $matchdate=ow::datetime::dateserial2str($matchdate,
                                            $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                           $prefs{'dateformat'}, $prefs{'hourformat'});
+                                           $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
                $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
             }
             $html =~ s/\@\@\@FILTERREPEATLIMIT\@\@\@/$temphtml/;
@@ -1150,7 +1160,7 @@ sub editprefs {
             if ($matchdate) {
                $matchdate=ow::datetime::dateserial2str($matchdate,
                                            $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                           $prefs{'dateformat'}, $prefs{'hourformat'});
+                                           $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
                $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
             }
             $html =~ s/\@\@\@FILTERBADADDRFORMAT\@\@\@/$temphtml/;
@@ -1165,7 +1175,7 @@ sub editprefs {
             if ($matchdate) {
                $matchdate=ow::datetime::dateserial2str($matchdate,
                                            $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                           $prefs{'dateformat'}, $prefs{'hourformat'});
+                                           $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
                $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
             }
             $html =~ s/\@\@\@FILTERFAKEDSMTP\@\@\@/$temphtml/;
@@ -1180,7 +1190,7 @@ sub editprefs {
             if ($matchdate) {
                $matchdate=ow::datetime::dateserial2str($matchdate,
                                            $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                           $prefs{'dateformat'}, $prefs{'hourformat'});
+                                           $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
                $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
             }
             $html =~ s/\@\@\@FILTERFAKEDFROM\@\@\@/$temphtml/;
@@ -1195,7 +1205,7 @@ sub editprefs {
             if ($matchdate) {
                $matchdate=ow::datetime::dateserial2str($matchdate,
                                            $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                           $prefs{'dateformat'}, $prefs{'hourformat'});
+                                           $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
                $temphtml .= "&nbsp;(<a title='$matchdate'>$lang_text{'filtered'}: $matchcount</a>)";
             }
             $html =~ s/\@\@\@FILTERFAKEDEXECONTENTTYPE\@\@\@/$temphtml/;
@@ -1750,7 +1760,12 @@ sub saveprefs {
          $value =~ s/[=\n\`]//g; # remove dangerous char
          $newprefs{$key}=$value;
          next;
+      } elsif (($config{'zonetabfile'} ne 'no') && ($key eq 'timezone') && ($value =~ /(\S+) (\S+)/)) {
+         $newprefs{$key} = $2;
+         $newprefs{'timeoffset'} = $1;
+         next;
       }
+         
 
       $value =~ s/\.\.+//g;
       $value =~ s/[=\n\/\`\|\<\>;]//g; # remove dangerous char
@@ -2762,7 +2777,7 @@ sub editfilter {
       if ($matchdate) {
          $matchdate=ow::datetime::dateserial2str($matchdate,
                                      $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                     $prefs{'dateformat'}, $prefs{'hourformat'});
+                                     $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
          $temphtml .= "<td bgcolor=$bgcolor align=center><a title='$matchdate'>$matchcount</a></font></td>\n";
       } else {
          $temphtml .= "<td bgcolor=$bgcolor align=center>0</font></td>\n";
@@ -2825,7 +2840,7 @@ sub editfilter {
       if ($matchdate) {
          $matchdate=ow::datetime::dateserial2str($matchdate,
                                      $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                     $prefs{'dateformat'}, $prefs{'hourformat'});
+                                     $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
          $temphtml .= "<td bgcolor=$bgcolor align=center><a title='$matchdate'>$matchcount</a></font></td>\n";
       } else {
          $temphtml .= "<td bgcolor=$bgcolor align=center>0</font></td>\n";

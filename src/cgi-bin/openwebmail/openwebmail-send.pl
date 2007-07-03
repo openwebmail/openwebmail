@@ -137,7 +137,7 @@ sub replyreceipt {
       if ($header=~/^Disposition-Notification-To:\s?(.*?)$/im ) {
          my $to=$1;
          my $from=$prefs{'email'};
-         my $date=ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+         my $date=ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
          my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, dotpath('from.book'));
          foreach (keys %userfrom) {
             if ($header=~/$_/) {
@@ -238,12 +238,12 @@ sub replyreceipt {
                   "  $lang_text{'delivered'}: ".
                   ow::datetime::dateserial2str($attr[$_DATE],
                                    $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                   $prefs{'dateformat'}, $prefs{'hourformat'}).
+                                   $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'}).
                   "\n\n".
                   "$lang_text{'wasreadon1'} ".
                   ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial(),
                                    $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                   $prefs{'dateformat'}, $prefs{'hourformat'}).
+                                   $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'}).
                   " $lang_text{'wasreadon2'}\n\n";
          } else {
             $s .= "Content-Type: text/plain; charset=iso-8859-1\n\n".
@@ -253,12 +253,12 @@ sub replyreceipt {
                   "  Delivered: ".
                   ow::datetime::dateserial2str($attr[$_DATE],
                                    $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                   $prefs{'dateformat'}, $prefs{'hourformat'}).
+                                   $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'}).
                   "\n\n".
                   "was read on ".
                   ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial(),
                                    $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                   $prefs{'dateformat'}, $prefs{'hourformat'}).
+                                   $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'}).
                   ".\n\n";
          }
          $s .= str2str($config{'mailfooter'}, "text")."\n" if ($config{'mailfooter'}=~/[^\s]/);
@@ -1580,7 +1580,7 @@ sub sendmessage {
    $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
 
    my $dateserial=ow::datetime::gmtime2dateserial();
-   my $date=ow::datetime::dateserial2datefield($dateserial, $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $date=ow::datetime::dateserial2datefield($dateserial, $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
 
    my $to = param('to')||'';
    my $cc = param('cc')||'';
@@ -1844,10 +1844,10 @@ sub sendmessage {
    # Add a 'From ' as delimeter for local saved msg
    $s = "From $user ";
    if ($config{'delimiter_use_GMT'}) {
-      $s.=ow::datetime::dateserial2delimiter(ow::datetime::gmtime2dateserial(), "", $prefs{'daylightsaving'})."\n";
+      $s.=ow::datetime::dateserial2delimiter(ow::datetime::gmtime2dateserial(), "", $prefs{'daylightsaving'}, $prefs{'timezone'})."\n";
    } else {
       # use server localtime for delimiter
-      $s.=ow::datetime::dateserial2delimiter(ow::datetime::gmtime2dateserial(), ow::datetime::gettimeoffset(), $prefs{'daylightsaving'})."\n";
+      $s.=ow::datetime::dateserial2delimiter(ow::datetime::gmtime2dateserial(), ow::datetime::gettimeoffset(), $prefs{'daylightsaving'}, $prefs{'timezone'})."\n";
    }
    print $folderhandle $s or $saveerr++ if ($do_save && !$saveerr);
    $messageheader.=$s;

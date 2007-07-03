@@ -173,9 +173,9 @@ sub fetchmail {
             $dateserial=$dateserial_gm;	# use current time if msg time is newer than now for 1 day
          }
          if ($config{'deliver_use_gmt'}) {
-            $msgdate=ow::datetime::dateserial2delimiter($dateserial, "", $prefs{'daylightsaving'});
+            $msgdate=ow::datetime::dateserial2delimiter($dateserial, "", $prefs{'daylightsaving'}, $prefs{'timezone'});
          } else {
-            $msgdate=ow::datetime::dateserial2delimiter($dateserial, ow::datetime::gettimeoffset(), $prefs{'daylightsaving'});
+            $msgdate=ow::datetime::dateserial2delimiter($dateserial, ow::datetime::gettimeoffset(), $prefs{'daylightsaving'}, $prefs{'timezone'});
          }
          $faked_dilimeter="From $msgfrom $msgdate\n";
       }

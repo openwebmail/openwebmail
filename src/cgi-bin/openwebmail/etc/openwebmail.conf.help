@@ -210,8 +210,11 @@ Set this to 'yes' if you mail deliver uses GMT time in the delimiter
 line when writing new messages to mailspool.
 eg: Qmail is know to use GMT time in mail delivery.
 
-
-
+zonetabfile
+-----------------------------------------------------------------------
+Points to the zone.tab list of timezones, normally 
+/usr/share/zoneinfo/zone.tab
+Set to 'no' for simple timezone handling (old behaviour).
 
 
 ##############################################################################

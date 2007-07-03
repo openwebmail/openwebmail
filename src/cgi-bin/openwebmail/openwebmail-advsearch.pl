@@ -121,7 +121,7 @@ sub advsearch {
    $html =~ s/\@\@\@STARTADVSEARCHFORM\@\@\@/$temphtml/;
 
 
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($current_year, $current_month, $current_day)=(ow::datetime::seconds2array($localtime))[5,4,3];
    $current_year+=1900; $current_month++;
 
@@ -175,14 +175,14 @@ sub advsearch {
    } else {
       $seconds=ow::datetime::array2seconds(0,0,0, 1,0,90);	# 1990/1/1
    }
-   $startserial=ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm($seconds, $prefs{'timeoffset'}, $prefs{'daylighsaving'}));
+   $startserial=ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm($seconds, $prefs{'timeoffset'}, $prefs{'daylighsaving'}, $prefs{'timezone'}));
 
    if (defined param('year2')) {
       $seconds=ow::datetime::array2seconds(59,59,23, param('day2'),param('month2')-1,param('year2')-1900);
    } else {
       $seconds=ow::datetime::array2seconds(59,59,23, $current_day,$current_month-1,$current_year-1900);
    }
-   $endserial=ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm($seconds, $prefs{'timeoffset'}, $prefs{'daylighsaving'}));
+   $endserial=ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm($seconds, $prefs{'timeoffset'}, $prefs{'daylighsaving'}, $prefs{'timezone'}));
 
    for(my $i=0; $i<=2; $i++) {
       my %labels = ('from'=>$lang_text{'from'},
@@ -637,7 +637,7 @@ sub genline {
    # convert dateserial(GMT) to localtime
    my $datestr=ow::datetime::dateserial2str(${$r_attr}[$_DATE],
                                $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                               $prefs{'dateformat'}, $prefs{'hourformat'});
+                               $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
 
    return qq|<tr>|.
           qq|<td nowrap bgcolor=$bgcolor>$folderstr&nbsp;</td>\n|.

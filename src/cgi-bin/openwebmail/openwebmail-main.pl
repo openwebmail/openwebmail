@@ -630,7 +630,7 @@ sub listmessages {
                   qq|<a title="|.sprintf("%s %dh %dm %ds ", $t{sign}, $t{hour}, $t{min}, $t{sec}).qq|">|.
                   ow::datetime::dateserial2str($serial,
 						$prefs{'timeoffset'}, $prefs{'daylightsaving'},
-						$prefs{'dateformat'}, $prefs{'hourformat'}).
+						$prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'}).
                   qq|</a>$boldoff</td>\n|;
       $linehtml =~ s/\@\@\@DATE\@\@\@/$temphtml/;
 
@@ -1027,7 +1027,7 @@ sub listmessages {
 sub eventreminder_html {
    my ($reminderdays)=@_;
 
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'});
+   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($year, $month, $day, $hour, $min)=(ow::datetime::seconds2array($localtime))[5,4,3,2,1];
    $year+=1900; $month++;
    my $hourmin=sprintf("%02d%02d", $hour, $min);
