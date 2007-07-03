@@ -3,6 +3,9 @@
 1. adds an option to backup sent/replied messages on the current 
    folder if the current folder is not Drafts nor Inbox.
    (Joao S Veiga, openwebmail.AT.rf.com.br)
+2. denies adding attachments over the attlimit without discarding
+   the message being composed.
+   (Joao S Veiga, openwebmail.AT.rf.com.br)
 
 06/01/2007
 ----------

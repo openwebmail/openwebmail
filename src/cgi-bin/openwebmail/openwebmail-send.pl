@@ -295,6 +295,7 @@ use vars qw($_htmlarea_css_cache);
 sub composemessage {
    my %message;
    my $attnumber;
+   my $atterror;
    my $from ='';
    my $replyto = param('replyto') || '';
    my $subject = param('subject') || '';
@@ -437,30 +438,31 @@ sub composemessage {
             if ( ($config{'attlimit'}) &&
                  ( ($attfiles_totalsize + (-s $attachment)) > ($config{'attlimit'}*1024) ) ) {
                close($attachment);
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'att_overlimit'} $config{'attlimit'} $lang_sizes{'kb'}!");
-            }
-            my $attserial = time();
-            sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$thissession-att$attserial", O_WRONLY|O_TRUNC|O_CREAT);
-            print ATTFILE qq|Content-Type: $attcontenttype;\n|.
+               $atterror = "$lang_err{'att_overlimit'} $config{'attlimit'} $lang_sizes{'kb'}!";
+            } else {
+               my $attserial = time();
+               sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$thissession-att$attserial", O_WRONLY|O_TRUNC|O_CREAT);
+               print ATTFILE qq|Content-Type: $attcontenttype;\n|.
                           qq|\tname="|.ow::mime::encode_mimewords($attname, ('Charset'=>$composecharset)).qq|"\n|.
                           qq|Content-Id: <att$attserial>\n|.
                           qq|Content-Disposition: attachment; filename="|.ow::mime::encode_mimewords($attname, ('Charset'=>$composecharset)).qq|"\n|.
                           qq|Content-Transfer-Encoding: base64\n\n|;
-            my ($buff, $attsize);
-            while (read($attachment, $buff, 400*57)) {
-               $buff=encode_base64($buff);
-               $attsize += length($buff);
-               print ATTFILE $buff;
-            }
-            close ATTFILE;
-            close($attachment);	# close tmpfile created by CGI.pm
+               my ($buff, $attsize);
+               while (read($attachment, $buff, 400*57)) {
+                  $buff=encode_base64($buff);
+                  $attsize += length($buff);
+                  print ATTFILE $buff;
+               }
+               close ATTFILE;
+               close($attachment);	# close tmpfile created by CGI.pm
 
-            push(@{$r_attfiles}, { 'content-id' => "att$attserial",
-                                   name         => $attname,
-                                   namecharset  => $composecharset,
-                                   file         => "$thissession-att$attserial",
-                                   size         => $attsize} );
-            $attfiles_totalsize+=$attsize;
+               push(@{$r_attfiles}, { 'content-id' => "att$attserial",
+                                      name         => $attname,
+                                      namecharset  => $composecharset,
+                                      file         => "$thissession-att$attserial",
+                                      size         => $attsize} );
+               $attfiles_totalsize+=$attsize;
+            }
          }
       }
 
