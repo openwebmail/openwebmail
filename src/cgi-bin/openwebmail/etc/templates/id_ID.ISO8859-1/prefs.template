@@ -297,6 +297,11 @@ Ubah Lebar Kolom @@@EDITCOLUMNSMENU@@@ Ubah Tinggi Kolom @@@EDITROWSMENU@@@
 </td></tr>
 @@@BACKUPSENTEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Backup to current folder (if not Inbox/Draft):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKUPSENTONCURRFOLDER@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Set Karakter untuk Pesan yang dikirim:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@

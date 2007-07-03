@@ -297,6 +297,11 @@ Emne:
 </td></tr>
 @@@BACKUPSENTEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Backup to current folder (if not Inbox/Draft):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKUPSENTONCURRFOLDER@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Benyt f&oslash;lgende tegns&aelig;t ved afsendelse af meddelelser:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@

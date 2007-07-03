@@ -297,6 +297,11 @@ Tema:
 </td></tr>
 @@@BACKUPSENTEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Backup to current folder (if not Inbox/Draft):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKUPSENTONCURRFOLDER@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Skup znakova za odlazeæe poruke:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@

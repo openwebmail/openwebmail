@@ -297,6 +297,11 @@ Szeroko¶æ @@@EDITCOLUMNSMENU@@@ Wysoko¶æ @@@EDITROWSMENU@@@
 </td></tr>
 @@@BACKUPSENTEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Backup to current folder (if not Inbox/Draft):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKUPSENTONCURRFOLDER@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Zestaw znaków dla wiadomo¶ci wychodz±cej:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@

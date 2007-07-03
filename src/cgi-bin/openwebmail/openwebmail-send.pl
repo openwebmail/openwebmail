@@ -1679,7 +1679,8 @@ sub sendmessage {
       $do_save=0 if ($quotalimit>0 && $quotausage>=$quotalimit ||
                      !$config{'enable_savedraft'});
    } else {					     # save msg to sent folder && send
-      $savefolder = 'sent-mail';
+      $savefolder = $folder;
+		$savefolder = 'sent-mail' if (!$prefs{'backupsentoncurrfolder'} || ($folder eq '') || ($folder =~ /INBOX|saved-drafts/));
       $do_save=0 if (($quotalimit>0 && $quotausage>=$quotalimit) ||
                      param('backupsentmsg')==0 ||
                      !$config{'enable_backupsent'});

@@ -297,6 +297,11 @@
 </td></tr>
 @@@BACKUPSENTEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Backup to current folder (if not Inbox/Draft):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKUPSENTONCURRFOLDER@@@
+</td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Кодування для вих╕дних пов╕домлень:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDCHARSETMENU@@@

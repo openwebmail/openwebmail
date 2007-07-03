@@ -1987,6 +1987,12 @@ default_backupsentmsg
 backup outgoing messages to SENT folder
 
 
+default_backupsentoncurrfolder
+-----------------------------------------------------------------------
+backup outgoing messages to current folder, if the current folder is 
+not INBOX or DRAFT
+
+
 default_sendcharset
 -----------------------------------------------------------------------
 whether to convert the message charset to another before sending

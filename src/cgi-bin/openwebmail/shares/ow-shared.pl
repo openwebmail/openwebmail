@@ -61,7 +61,7 @@ foreach (qw(
    default_readwithmsgcharset default_usefixedfont default_usesmileicon
    default_showhtmlastext default_showimgaslink
    default_disablejs default_disableembcode
-   default_reparagraphorigmsg default_backupsentmsg
+   default_reparagraphorigmsg default_backupsentmsg default_backupsentoncurrfolder
    default_filter_badaddrformat default_filter_fakedsmtp
    default_filter_fakedfrom default_filter_fakedexecontenttype
    default_abook_defaultfilter default_abook_collapse
@@ -142,7 +142,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
    viewnextaftermsgmovecopy autopop3 autopop3wait
    bgfilterthreshold bgfilterwait moveoldmsgfrominbox
    msgformat editcolumns editrows sendbuttonposition
-   reparagraphorigmsg replywithorigmsg autocc backupsentmsg sendcharset
+   reparagraphorigmsg replywithorigmsg autocc backupsentmsg backupsentoncurrfolder sendcharset
    viruscheck_source viruscheck_maxsize viruscheck_minbodysize
    spamcheck_source spamcheck_maxsize spamcheck_threshold
    filter_repeatlimit filter_badaddrformat

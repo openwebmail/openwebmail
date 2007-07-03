@@ -279,6 +279,11 @@
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr>
+<tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
+<B>Backup to current folder (if not Inbox/Draft):</B>
+</td><td bgcolor=@@@WINDOW_DARK@@@>
+@@@BACKUPSENTONCURRFOLDER@@@
+</td></tr>
 <tr><td align="left" bgcolor=@@@WINDOW_DARK@@@>
 <B>תירוקמה העדוהה ףורצב בשה:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>

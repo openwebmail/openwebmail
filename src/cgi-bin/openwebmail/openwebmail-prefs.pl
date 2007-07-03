@@ -995,6 +995,14 @@ sub editprefs {
                                  -override=>'1',
                                  defined($config_raw{'DEFAULT_backupsentmsg'})?('-disabled'=>'1'):());
             $html =~ s/\@\@\@BACKUPSENTMSG\@\@\@/$temphtml/;
+
+				$temphtml = checkbox(-name=>'backupsentoncurrfolder',
+					                  -value=>'1',
+					                  -checked=>$prefs{'backupsentoncurrfolder'},
+					                  -label=>'',
+					                  defined($config_raw{'DEFAULT_backupsentoncurrfolder'})?('-disabled'=>'1'):());
+				$html =~ s/\@\@\@BACKUPSENTONCURRFOLDER\@\@\@/$temphtml/;
+
          } else {
             templateblock_disable($html, 'BACKUPSENT');
          }
