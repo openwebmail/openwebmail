@@ -1531,6 +1531,12 @@ sub composemessage {
       @tmp=($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'});
       ($prefs{'language'}, $prefs{'charset'}, $prefs{'locale'})=('en_US', $composecharset, 'en_US.UTF-8');
    }
+   if ($atterror) { 
+      $html.= readtemplate('showmsg.js').
+              qq|<script language="JavaScript">\n<!--\n|.
+              qq|showmsg('$prefs{charset}', '$lang_text{attachment}', '$atterror', '$lang_text{"close"}', '_attlimit', 300, 100, 5);\n|.
+              qq|//-->\n</script>\n|;
+   }
    my $session_noupdate=param('session_noupdate')||'';
    if (defined param('savedraftbutton') && !$session_noupdate) {
       # savedraft from user clicking, show show some msg for notifitcaiton

@@ -1,3 +1,10 @@
+
+07/06/2007
+----------
+1. complements the attachment limit patch with a pop-up message
+   informing the user that the limit was reached.
+   (Joao S Veiga, openwebmail.AT.rf.com.br)
+
 07/03/2007
 ----------
 1. adds an option to backup sent/replied messages on the current 
