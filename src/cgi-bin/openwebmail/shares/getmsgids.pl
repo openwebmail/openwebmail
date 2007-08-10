@@ -174,7 +174,7 @@ sub search_info_messages_for_keyword {
             $msgcharset = (ow::lang::localeinfo($browserlocale))[6];
          }
          ($attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT])=
-               iconv($msgcharset, $prefs_charset, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
+               iconv('utf-8', $prefs_charset, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
 
          if ($searchtype eq 'all' || $searchtype eq 'date') {
             $date=ow::datetime::dateserial2str($attr[$_DATE],
@@ -225,9 +225,8 @@ sub search_info_messages_for_keyword {
                $header.=$_;
                last if ($_ eq "\n");
             }
-            $header = decode_mimewords_iconv($header, $msgcharset);
+            $header = decode_mimewords_iconv($header, $prefs_charset);
             $header=~s/\n / /g;	# handle folding roughly
-            ($header)=iconv($msgcharset, $prefs_charset, $header);
 
             if ( ($regexmatch && $header =~ /$keyword/im) ||
                  $header =~ /\Q$keyword\E/im ) {

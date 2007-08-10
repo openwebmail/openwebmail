@@ -579,7 +579,7 @@ sub listmessages {
          $charset=(ow::lang::localeinfo($browserlocale))[6];
       }
       # convert from message charset to current user charset
-      my ($from, $to, $subject)=iconv($charset, $prefs{'charset'}, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
+      my ($from, $to, $subject)=iconv('utf-8' , $prefs{'charset'}, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
 
       $linehtml=$linetemplate;
       if ($prefs{'uselightbar'}) {

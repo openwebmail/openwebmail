@@ -715,6 +715,8 @@ sub composemessage {
 
          if ($prefs{replywithorigmsg} eq 'at_beginning') {
             my $h="On $message{'date'}, ".(ow::tool::email2nameaddr($message{'from'}))[0]." wrote";
+            ($h)=iconv('utf-8', $composecharset, $h);
+            ($body)=iconv($convfrom, $composecharset, $body);
             if ($msgformat eq 'text') {
                $body = $h."\n".$body if ($body=~/[^\s]/);
             } else {
@@ -726,6 +728,8 @@ sub composemessage {
             $h .= "Cc: $message{'cc'}\n" if ($message{'cc'} ne "");
             $h .= "Sent: $message{'date'}\n".
                   "Subject: $message{'subject'}\n";
+            ($h)=iconv('utf-8', $composecharset, $h);
+            ($body)=iconv($convfrom, $composecharset, $body);
             if ($msgformat eq 'text') {
                $body = "---------- Original Message -----------\n".
                        "$h\n$body\n".
@@ -736,13 +740,13 @@ sub composemessage {
                        "<b>------- End of Original Message -------</b><br>\n";
             }
          }
-         ($body, $subject, $to, $cc)=iconv($convfrom, $composecharset, $body,$subject,$to,$cc);
+         ($subject, $to, $cc)=iconv('utf-8',$composecharset,$subject,$to,$cc);
 
          if (defined $prefs{'autocc'} && $prefs{'autocc'} ne '') {
             $cc .= ', ' if ($cc ne '');
-            $cc .= (iconv($convfrom, $composecharset, $prefs{'autocc'}))[0];
+            $cc .= (iconv($prefs{'charset'}, $composecharset, $prefs{'autocc'}))[0];
          }
-         $replyto = (iconv($convfrom, $composecharset, $prefs{'replyto'}))[0] if (defined $prefs{'replyto'});
+         $replyto = (iconv($prefs{'charset'}, $composecharset, $prefs{'replyto'}))[0] if (defined $prefs{'replyto'});
          $inreplyto = $message{'message-id'};
          if ($message{'references'} =~ /\S/) {
             $references = $message{'references'}." ".$message{'message-id'};
@@ -788,6 +792,8 @@ sub composemessage {
          $h .= "Cc: $message{'cc'}\n" if ($message{'cc'} ne "");
          $h .= "Sent: $message{'date'}\n".
                "Subject: $message{'subject'}\n";
+         ($h, $subject)=iconv('utf-8', $composecharset, $h, $subject);
+         ($body)=iconv($convfrom, $composecharset, $body);
 
          if ($msgformat eq 'text') {
             # remove odds space or blank lines from body
@@ -803,7 +809,6 @@ sub composemessage {
                     ow::htmltext::text2html($h)."<br>$body<br>".
                     "<b>------- End of Forwarded Message -------</b><br>\n";
          }
-         ($body, $subject)=iconv($convfrom, $composecharset, $body,$subject);
 
          my $n="\n"; $n="<br>" if ($msgformat ne 'text');
          $body .= $n.$n;
@@ -824,7 +829,8 @@ sub composemessage {
       } elsif ($composetype eq "forwardasorig") {
          $subject = $message{'subject'} || '';
          $replyto = $message{'from'};
-         ($body, $subject, $replyto)=iconv($convfrom, $composecharset, $body,$subject,$replyto);
+         ($subject, $replyto)=iconv('utf-8',$composecharset,$subject,$replyto);
+         ($body)=iconv($convfrom, $composecharset, $body);
 
          $references = $message{'references'};
          $priority = $message{'priority'} if (defined $message{'priority'});
@@ -844,13 +850,14 @@ sub composemessage {
          $cc = $message{'cc'} if (defined $message{'cc'});
          $bcc = $message{'bcc'} if (defined $message{'bcc'});
          $replyto = $message{'reply-to'} if (defined $message{'reply-to'});
-         ($body, $subject, $to, $cc, $bcc, $replyto)=
-            iconv($convfrom, $composecharset, $body,$subject,$to,$cc,$bcc,$replyto);
+         ($subject, $to, $cc, $bcc, $replyto)=
+            iconv('utf-8', $composecharset, $subject,$to,$cc,$bcc,$replyto);
+         ($body)= iconv($convfrom, $composecharset, $body);
 
          $inreplyto = $message{'in-reply-to'};
          $references = $message{'references'};
          $priority = $message{'priority'} if (defined $message{'priority'});
-         $replyto = (iconv($convfrom, $composecharset, $prefs{'replyto'}))[0] if ($replyto eq '' && defined $prefs{'replyto'});
+         $replyto = (iconv($prefs{'charset'}, $composecharset, $prefs{'replyto'}))[0] if ($replyto eq '' && defined $prefs{'replyto'});
 
          # we prefer to use the messageid in a draft message if available
          $mymessageid = $messageid if ($messageid);
@@ -913,7 +920,7 @@ sub composemessage {
 
       $subject = $attr[$_SUBJECT];
       $subject = "Fw: " . $subject unless ($subject =~ /^fw:/i);
-      ($subject)=iconv($attr[$_CHARSET], $composecharset, $subject);
+      ($subject)=iconv('utf-8', $composecharset, $subject);
 
       $inreplyto = $message{'message-id'};
       if ($message{'references'} =~ /\S/) {
@@ -2214,6 +2221,8 @@ sub sendmessage {
          $attr[$_RECVDATE]=$dateserial;
          $attr[$_SUBJECT]=$subject;
          $attr[$_CONTENT_TYPE]=$contenttype;
+
+         ($attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT])=iconv($composecharset, 'utf-8', $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT] );
 
          $attr[$_STATUS]="R";
          $attr[$_STATUS].="I" if ($priority eq 'urgent');

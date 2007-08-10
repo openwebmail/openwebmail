@@ -103,7 +103,7 @@ sub getmessage {
    $message{charset}=official_charset($message{charset});
 
    foreach (qw(from reply-to to cc bcc subject)) {
-      $message{$_}=decode_mimewords_iconv($message{$_}, $message{charset}) if ($message{$_} ne 'N/A');
+      $message{$_}=decode_mimewords_iconv($message{$_}, 'utf-8') if ($message{$_} ne 'N/A');
    }
 
    return \%message;

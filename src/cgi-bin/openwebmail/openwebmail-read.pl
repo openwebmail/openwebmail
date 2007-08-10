@@ -376,8 +376,9 @@ sub readmessage {
       }
    }
 
-   ($from,$replyto,$to,$cc,$bcc,$subject,$body)
-	=iconv($convfrom, $readcharset, $from,$replyto,$to,$cc,$bcc,$subject,$body);
+   ($from,$replyto,$to,$cc,$bcc,$subject)
+	=iconv('utf-8', $readcharset, $from,$replyto,$to,$cc,$bcc,$subject);
+   ($body) = iconv($convfrom, $readcharset, $body);
 
    # web-ified headers
    foreach ($from, $replyto, $to, $cc, $bcc, $subject) { $_=ow::htmltext::str2html($_); }
@@ -691,8 +692,8 @@ sub readmessage {
    } else {
       my $smartdestination;
       if ($prefs{'smartdestination'}) {
-         my $subject=(iconv($message{'charset'}, $readcharset, $message{'subject'}))[0]; $subject=~s/\s//g;
-         my $from=(iconv($message{'charset'}, $readcharset, $message{'from'}))[0];
+         my $subject=(iconv('utf-8', $readcharset, $message{'subject'}))[0]; $subject=~s/\s//g;
+         my $from=(iconv('utf-8', $readcharset, $message{'from'}))[0];
          foreach (@validfolders) {	# use validfolders instead of movefolders because validfolders are real folders and it is not escaped
             if ($subject=~/\Q$_\E/i || $from=~/\Q$_\E/i) {
                $smartdestination=$_; last;
@@ -744,12 +745,7 @@ sub readmessage {
    }
 
    if ($headers eq "all") {
-      if ($convfrom=~/none\.(.*)/) {
-         $temphtml = decode_mimewords_iconv($message{header}, $1);
-      } else {
-         $temphtml = decode_mimewords_iconv($message{header}, $convfrom);
-      }
-      ($temphtml)=iconv($convfrom, $readcharset, $temphtml);
+      $temphtml = decode_mimewords_iconv($message{header}, $readcharset);
       $temphtml = ow::htmltext::text2html($temphtml);
       $temphtml =~ s/\n([-\w]+?:)/\n<B>$1<\/B>/g;
    } else {
@@ -785,7 +781,7 @@ sub readmessage {
             }
 
             if ($is_writableabook_found) {
-               my $fullname=(iconv($message{charset}, $prefs{charset}, $ename))[0];
+               my $fullname=(iconv('utf-8', $prefs{charset}, $ename))[0];
                my ($firstname, $lastname) = split(/\s+/, $fullname, 2);
                $temphtml .= qq|&nbsp;|. iconlink("import.s.gif",  qq|$lang_text{'importadd'} |.ow::htmltext::str2html($eaddr), qq|href="$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addreditform&amp;editformcaller=readmessage&amp;sessionid=$thissession&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;page=$page&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;N.0.VALUE.GIVENNAME=|.ow::tool::escapeURL($firstname).qq|&amp;N.0.VALUE.FAMILYNAME=|.ow::tool::escapeURL($lastname).qq|&amp;FN.0.VALUE=|.ow::tool::escapeURL($fullname).qq|&amp;EMAIL.0.VALUE=|.ow::tool::escapeURL($eaddr).qq|&amp;formchange=1" onclick="return confirm('$lang_text{importadd} |.ow::htmltext::str2html($jseaddr).qq| ?');"|) . qq|\n|;
             } else {
@@ -1258,6 +1254,7 @@ sub message_att2table {
    my %msg;
    $msg{'content-type'}='N/A';	# assume msg is simple text
    ow::mailparse::parse_header(\$header, \%msg);
+   $attcharset=$1 if ($msg{'content-type'}=~/charset="?([^\s"';]*)"?\s?/i);
 
    $header=simpleheader($header);
    $header=ow::htmltext::text2html($header);

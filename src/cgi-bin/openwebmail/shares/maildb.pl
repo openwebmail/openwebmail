@@ -31,7 +31,7 @@ use vars qw(%config %prefs %lang_err);
 
 # define the version of the mail index database
 use vars qw($_DBVERSION);
-$_DBVERSION=20050308.1;
+$_DBVERSION=20070808.1;
 
 # globals, message attribute number constant
 use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
@@ -485,7 +485,7 @@ sub _prepare_msghash {
 
    # decode mime and convert from/to/subject to msg charset with iconv
    foreach (qw(from to subject)) {
-      $$r_message{$_} = decode_mimewords_iconv($$r_message{$_}, $$r_message{'charset'});
+      $$r_message{$_} = decode_mimewords_iconv($$r_message{$_}, 'utf-8');
    }
 
    # in most case, a msg references field should already contain

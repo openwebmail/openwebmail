@@ -439,7 +439,7 @@ sub search_folders2 {
                             to      => $_TO,
                             date    => $_DATE
                             );
-                  my ($data)=iconv($msgcharset, $prefs{'charset'}, $attr[$index{$where}]);
+                  my ($data)=iconv('utf-8', $prefs{'charset'}, $attr[$index{$where}]);
 
                   if ( ($type eq 'contains' && $data=~/\Q$keyword\E/i) ||
                        ($type eq 'notcontains' && $data!~/\Q$keyword\E/i) ||
@@ -460,9 +460,8 @@ sub search_folders2 {
                      $header.=$_;
                      last if ($_ eq "\n");
                   }
-                  $header = decode_mimewords_iconv($header, $msgcharset);
+                  $header = decode_mimewords_iconv($header, $prefs{'charset'});
                   $header=~s/\n / /g;   # handle folding roughly
-                  ($header)=iconv($msgcharset, $prefs{'charset'}, $header);
 
                   if (($type eq 'contains' && $header=~/\Q$keyword\E/im) ||
                       ($type eq 'notcontains' && $header!~/\Q$keyword\E/im) ||
@@ -601,7 +600,7 @@ sub genline {
       $msgcharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{'available_locales'})))[6];
    }
 
-   my ($from, $to, $subject)=iconv($msgcharset, $prefs{'charset'}, ${$r_attr}[$_FROM], ${$r_attr}[$_TO], ${$r_attr}[$_SUBJECT]);
+   my ($from, $to, $subject)=iconv('utf-8', $prefs{'charset'}, ${$r_attr}[$_FROM], ${$r_attr}[$_TO], ${$r_attr}[$_SUBJECT]);
 
    my ($from_name, $from_address)=ow::tool::email2nameaddr($from);
    my $escapedfrom=ow::tool::escapeURL($from);
