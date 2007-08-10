@@ -893,10 +893,11 @@ sub composemessage {
       my $attserial=time(); $attserial=ow::tool::untaint($attserial);
       sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$thissession-att$attserial", O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
+      my $attdesc=ow::mime::encode_mimewords($attr[$_SUBJECT], ('Charset'=>$composecharset));
       print ATTFILE qq|Content-Type: message/rfc822;\n|,
                     qq|Content-Transfer-Encoding: 8bit\n|,
                     qq|Content-Disposition: attachment; filename="Forward.msg"\n|,
-                    qq|Content-Description: $attr[$_SUBJECT]\n\n|;
+                    qq|Content-Description: $attdesc\n\n|;
 
       # copy message to be forwarded
       my $left=$attr[$_SIZE];
@@ -957,10 +958,11 @@ sub composemessage {
          my @attr=get_message_attributes($forwardids[$i], $folderdb);
          sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$thissession-att$attserial", O_WRONLY|O_TRUNC|O_CREAT) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $config{'ow_sessionsdir'}/$thissession-att$attserial! ($!)");
+         my $attdesc=ow::mime::encode_mimewords($attr[$_SUBJECT], ('Charset'=>$composecharset));
          print ATTFILE qq|Content-Type: message/rfc822;\n|,
                        qq|Content-Transfer-Encoding: 8bit\n|,
                        qq|Content-Disposition: attachment; filename="Forward$i.msg"\n|,
-                       qq|Content-Description: $attr[$_SUBJECT]\n\n|;
+                       qq|Content-Description: $attdesc\n\n|;
 
          # copy message to be forwarded
          my $left=$attr[$_SIZE];
