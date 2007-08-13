@@ -219,12 +219,13 @@ sub replyreceipt {
 
          # reply with english if sender has different charset than us
          my $is_samecharset=0;
-         $is_samecharset=1 if ( $attr[$_CONTENT_TYPE]=~/charset="?\Q$prefs{'charset'}\E"?/i);
+         # replies in local language currently disabled, utf-8 is whole world
+         # $is_samecharset=1 if ( $attr[$_CONTENT_TYPE]=~/charset="?\Q$prefs{'charset'}\E"?/i);
 
          if ($is_samecharset) {
             $s .= "Subject: ".ow::mime::encode_mimewords("$lang_text{'read'} - $attr[$_SUBJECT]",('Charset'=>$prefs{'charset'}))."\n";
          } else {
-            $s .= "Subject: ".ow::mime::encode_mimewords("Read - $attr[$_SUBJECT]", ('Charset'=>$prefs{'charset'}))."\n";
+            $s .= "Subject: ".ow::mime::encode_mimewords("Read - $attr[$_SUBJECT]", ('Charset'=>'utf-8'))."\n";
          }
          $s .= "Date: $date\n".
                "Message-Id: $mymessageid\n".
@@ -246,7 +247,7 @@ sub replyreceipt {
                                    $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'}).
                   " $lang_text{'wasreadon2'}\n\n";
          } else {
-            $s .= "Content-Type: text/plain; charset=iso-8859-1\n\n".
+            $s .= "Content-Type: text/plain; charset=utf-8\n\n".
                   "Your message\n\n".
                   "  To: $attr[$_TO]\n".
                   "  Subject: $attr[$_SUBJECT]\n".
