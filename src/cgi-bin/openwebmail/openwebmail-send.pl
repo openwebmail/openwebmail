@@ -1118,7 +1118,7 @@ sub composemessage {
    my @fromlist=();
    foreach (sort_emails_by_domainnames($config{'domainnames'}, keys %userfrom)) {
       if ($userfrom{$_} ne '') {
-         push(@fromlist, qq|"$userfrom{$_}" <$_>|);
+         push(@fromlist, iconv($prefs{'charset'}, $composecharset, qq|"$userfrom{$_}" <$_>|));
       } else {
          push(@fromlist, qq|$_|);
       }
@@ -1654,8 +1654,8 @@ sub sendmessage {
 
    # convert message to prefs{'sendcharset'}
    if ($prefs{'sendcharset'} ne 'sameascomposing') {
-      ($from,$replyto,$to,$cc,$subject,$body)=
-         iconv($composecharset, $prefs{'sendcharset'}, $from,$replyto,$to,$cc,$subject,$body);
+      ($realname,$replyto,$to,$cc,$subject,$body)=
+         iconv($composecharset, $prefs{'sendcharset'}, $realname,$replyto,$to,$cc,$subject,$body);
       $composecharset=$prefs{'sendcharset'};
    }
 
