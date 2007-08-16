@@ -366,7 +366,7 @@ package ow::ar_AE_CP1256;
    emptyfolder=> 'דÌבÏ ÝÇÑÛ',
    emptytrash => 'ÊÝÑםÛ ÓבÉ ÇבדודבÇÊ',
    totrash    => 'ÇהÞב Åבל ÓבÉ ÇבדודבÇÊ',
-   learnham   => 'LEARN HAM',
+   learnham   => 'Learn Ham',
    learnspam  => 'Learn Spam',
    forever    => 'Åבל ÇבÃÈÏ',
    delatlogout=> 'ÍÐÝ ÚהÏ ÊÓÌםב ÇבÎÑזÌ',

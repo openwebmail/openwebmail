@@ -212,7 +212,7 @@ if ($opt{'init'}) {
 } elsif ($opt{'test'}) {
    $retval=do_test();
 } elsif ($opt{'langconv'}) {
-   $retval=langconv($opt{'srclocale'}, $opt{'dstlocale'});
+   $retval=langconv($opt{'srclocale'}, $opt{'dstlocale'}, 1);
 } elsif ($opt{'thumbnail'}) {
    $retval=makethumbnail(\@list);
 } else {
@@ -335,6 +335,19 @@ sub init {
 
    %prefs = readprefs();	# send_mail() uses $prefs{...}
 
+   print "\nCreating UTF-8 locales...\n";
+   my $available_locales=available_locales();
+   foreach my $srclocale (sort keys %{$available_locales}) {
+      next if $srclocale =~ 'UTF-8';
+      next if $srclocale =~ 'ja_JP';
+      next if $srclocale =~ 'zh_';
+      next if $srclocale =~ 'he_IL.ISO8859-8'; # he_IL.CP1255 is more complete 
+      my $dstlocale=$srclocale;
+      $dstlocale=~s/[.].*$/.UTF-8/g;
+      langconv($srclocale, $dstlocale, 0);
+   }
+   print "...done.\n\n";
+             
    my $id = $ENV{'USER'} || $ENV{'LOGNAME'} || getlogin || (getpwuid($>))[0];
    my $hostname=ow::tool::hostname();
    my $realname=(getpwnam($id))[6]||$id;
@@ -487,11 +500,11 @@ sub check_savedsuid_support {
 
 ########## langconv routines #####################################
 sub langconv {
-   my ($srclocale, $dstlocale)=@_;
+   my ($srclocale, $dstlocale, $verbose)=@_;
 
    print "langconv $srclocale -> $dstlocale\n";
 
-   unless (-e "$config{ow_langdir}/$srclocale" && -d "$config{ow_langdir}/$srclocale") {
+   unless (-f "$config{ow_langdir}/$srclocale") {
       die "src locale $srclocale does not exist in $config{ow_langdir}";
    }
    my $srccharset = (ow::lang::localeinfo($srclocale))[6];
@@ -502,21 +515,21 @@ sub langconv {
    }
 
    langconv_file("$config{'ow_langdir'}/$srclocale", $srclocale,
-                 "$config{'ow_langdir'}/$dstlocale", $dstlocale, 1);
+                 "$config{'ow_langdir'}/$dstlocale", $dstlocale, 1, $verbose);
 
    langconv_dir("$config{'ow_templatesdir'}/$srclocale", $srclocale,
-                "$config{'ow_templatesdir'}/$dstlocale", $dstlocale);
+                "$config{'ow_templatesdir'}/$dstlocale", $dstlocale, $verbose);
 
    langconv_dir("$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$srclocale", $srclocale,
-                "$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$dstlocale", $dstlocale);
+                "$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$dstlocale", $dstlocale, $verbose);
 
    return 0;
 }
 
 sub langconv_dir {
-   my ($srcdir, $srclocale, $dstdir, $dstlocale)=@_;
+   my ($srcdir, $srclocale, $dstdir, $dstlocale, $verbose)=@_;
 
-   print "langconv dir $srcdir -> $dstdir\n";
+   print "langconv dir $srcdir -> $dstdir\n" if ($verbose);
 
    die "srcdir $srcdir doesn't exist" if (!-d $srcdir);
    if (!-d $dstdir) {
@@ -537,14 +550,14 @@ sub langconv_dir {
 
    foreach my $f (@files) {
       langconv_file("$srcdir/$f", $srclocale,
-                    "$dstdir/$f", $dstlocale, 0);
+                    "$dstdir/$f", $dstlocale, 0, $verbose);
    }
 }
 
 sub langconv_file {
-   my ($srcfile, $srclocale, $dstfile, $dstlocale, $check_pkgname)=@_;
+   my ($srcfile, $srclocale, $dstfile, $dstlocale, $check_pkgname, $verbose)=@_;
 
-   print "langconv file $srcfile -> $dstfile\n";
+   print "langconv file $srcfile -> $dstfile\n" if ($verbose);
 
    my @lines;
    sysopen(F, $srcfile, O_RDONLY) || die "$srcfile open error ($!)";
