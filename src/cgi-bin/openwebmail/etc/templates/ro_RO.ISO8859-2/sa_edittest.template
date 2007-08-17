@@ -13,7 +13,7 @@
 <table bgcolor=@@@TABLEROW_DARK@@@ border="0" cellspacing="1" cellpadding="2" align="center" width="100%">
 @@@STARTADDTESTFORM@@@
 <tr><td><B>Nume Test:</B></td>
-<td colspan="2">@@@TESTNAMEFIELD@@@&nbsp;(doar litere, cifre si subliniere)</td></tr>
+<td colspan="2">@@@TESTNAMEFIELD@@@&nbsp;(doar litere, cifre ºi subliniere)</td></tr>
 <tr><td><B>Descriere:</B></td>
 <td colspan="2">@@@TESTDESCFIELD@@@</td></tr>
 
@@ -32,9 +32,9 @@
 </td></tr>
 
 <tr><td><B>Expresie:</B></td>
-<td colspan="2">@@@PATTERNFIELD@@@ &nbsp; Ignora majuscule@@@IGNORECASECHECKBOX@@@ &nbsp; Potrivire linie@@@SINGLELINECHECKBOX@@@</td></tr>
+<td colspan="2">@@@PATTERNFIELD@@@ &nbsp; Ignorã majuscule@@@IGNORECASECHECKBOX@@@ &nbsp; Potrivire linie@@@SINGLELINECHECKBOX@@@</td></tr>
 <tr><td><B>Scor:</B></td>
-<td>@@@SCOREMENU@@@  (setati scor>0 pentru Spam, scor<0 pentru Ham)</td><td align="right">@@@ADDBUTTON@@@ &nbsp; </td></tr>
+<td>@@@SCOREMENU@@@  (setaþi scor>0 pentru Spam, scor<0 pentru Ham)</td><td align="right">@@@ADDBUTTON@@@ &nbsp; </td></tr>
 @@@ENDFORM@@@
 </table>
 
@@ -109,11 +109,11 @@
    function addcheck()
    {
       if (document.addtest.testname.value  == "") {
-         alert("Va rog sa specificati numele testului.");
+         alert("Vã rog sã specificaþi numele testului.");
          return false;
       }
       if (document.addtest.pattern.value  == "") {
-         alert("Va rog sa specificati expresia de testare.");
+         alert("Vã rog sã specificaþi expresia de testare.");
          return false;
       }
       return true;

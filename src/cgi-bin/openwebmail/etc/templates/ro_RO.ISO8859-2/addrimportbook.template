@@ -1,7 +1,7 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr>
   <td bgcolor=@@@TITLEBAR@@@>
-    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Import Informatii Agenda</b></font>
+    <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Import Informaþii Agendã</b></font>
   </td>
   <td bgcolor=@@@TITLEBAR@@@ align="right">
     <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@AVAILFREESPACE@@@ disponibili</b></font>
@@ -21,23 +21,23 @@
       <td><br><b>Descriere</b></td>
     </tr>
     <tr>
-      <td>Majoritatea agendelor pot exporta adresele in fisiere. @@@NAME@@@ poate importa anumite astfel de fisiere, eliminand astfel introducerea manuala a informatiilor. Pasii urmatori va vor ghida in importul informatiilor in agenda. Dimensiunea maxima permisa e acum @@@ABOOKIMPORTLIMIT@@@ .</td>
+      <td>Majoritatea agendelor pot exporta adresele în fiºiere. @@@NAME@@@ poate importa anumite astfel de fiºiere, eliminând astfel introducerea manualã a informaþiilor. Paºii urmãtori vã vor ghida în importul informaþiilor în agendã. Dimensiunea maximã permisã e acum @@@ABOOKIMPORTLIMIT@@@ .</td>
     </tr>
     @@@STARTIMPORTFORM@@@
     <tr>
-      <td><br><br><b>1. Selectati fisierul din care doriti sa importati:</b></td>
+      <td><br><br><b>1. Selectaþi fiºierul din care doriþi sã importaþi:</b></td>
     </tr>
     <tr>
       <td>@@@IMPORTFILEFIELD@@@</td>
     </tr>
     <tr>
-      <td><br><b>2. Selectati formatul fisierului dvs. de import:</b></td>
+      <td><br><b>2. Selectaþi formatul fiºierului dvs. de import:</b></td>
     </tr>
     <tr>
       <td>@@@FORMATSMENU@@@&nbsp;@@@IMPORTCHARSETMENU@@@</td>
     </tr>
     <tr>
-      <td><br><b>3. Daca e necesar selectati ordinea campurilor din fisierul de import:</b></td>
+      <td><br><b>3. Dacã e necesar selectaþi ordinea câmpurilor din fiºierul de import:</b></td>
     </tr>
     <tr>
       <td>
@@ -49,7 +49,7 @@
       </td>
     </tr>
     <tr>
-      <td><br><b>4. Selectati agenda ca destinatie a informatiilor importate:</b></td>
+      <td><br><b>4. Selectaþi agenda ca destinaþie a informaþiilor importate:</b></td>
     </tr>
     <tr>
       <td>@@@ADDRBOOKSMENU@@@</td>

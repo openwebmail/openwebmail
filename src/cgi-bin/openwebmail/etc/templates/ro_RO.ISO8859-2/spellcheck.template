@@ -7,12 +7,12 @@
 
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr><td bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Vor fi propuse cateva sugestii pentru cuvantul solicitat.
-Utilizatorul poate inlocui cuvantul incorect.
-Daca nu au fost gasite variante pentru cuvantul solicitat, utilizatorul poate folosi "--Corectarea manuala--"
-Pentru a corecta manual trebuie apasat pe [Verifica din nou].
-Daca utilizatorul alege optiunea "--Adauga in dictionar--" si apasa pe [Verifica din nou], cuvantul original
-va fi adaugat in dictionarul personal.
+<BR>Vor fi propuse câteva sugestii pentru cuvântul solicitat.
+Utilizatorul poate înlocui cuvântul incorect.
+Dacã nu au fost gãsite variante pentru cuvântul solicitat, utilizatorul poate folosi "--Corectarea manualã--"
+Pentru a corecta manual trebuie apãsat pe [Verificã din nou].
+Dacã utilizatorul alege opþiunea "--Adaugã în dicþionar--" ºi apasã pe [Verificã din nou], cuvântul original
+va fi adãugat în dicþionarul personal.
 </td></tr>
 </table>
 <br>

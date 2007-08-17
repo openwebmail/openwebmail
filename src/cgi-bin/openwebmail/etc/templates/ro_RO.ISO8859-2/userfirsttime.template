@@ -5,9 +5,9 @@
 <B>BUN VENIT IN @@@NAME@@@!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
 <table width=85%><tr><td align="center">
-<BR>Bine ati venit in @@@NAME@@@!  Este prima data cand intrati in sistem,
-asa ca va trebui sa completati cateva informatii pentru a configura @@@NAME@@@ 
-Apasati pe 'Continua' pentru a intra in meniul de configurare al @@@NAME@@@.
+<BR>Bine aþi venit în @@@NAME@@@!  Este prima datã când intraþi în sistem,
+aºa cã va trebui sã completaþi câteva informaþii pentru a configura @@@NAME@@@ 
+Apãsaþi pe 'Continuã' pentru a intra în meniul de configurare al @@@NAME@@@.
 @@@CONTINUEBUTTON@@@
 </td></tr></table>
 </td></tr></table>

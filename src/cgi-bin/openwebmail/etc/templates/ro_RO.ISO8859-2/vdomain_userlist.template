@@ -2,14 +2,14 @@
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
 <tr><td colspan="2" bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Lista conturi pentru domeniul @@@DOMAINNAME@@@</B></font>
+<B>Listã conturi pentru domeniul @@@DOMAINNAME@@@</B></font>
 <tr><td colspan="2" bgcolor=@@@MENUBAR@@@>
 @@@MENUBARLINKS@@@
 </td></tr>
 </table>
 <table border="0" cols="4" align="center" width="90%" cellpadding="1" cellspacing="1">
 <tr><td colspan="4" bgcolor=@@@COLUMNHEADER@@@>
-<B>Lista conturi</B> ( afiseaza dupa: @@@VIEWFMT@@@ )
+<B>Listã conturi</B> ( afiºeazã dupã: @@@VIEWFMT@@@ )
 </td></tr>
 @@@USERS@@@
 </table>

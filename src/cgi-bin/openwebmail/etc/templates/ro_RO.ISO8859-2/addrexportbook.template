@@ -6,7 +6,7 @@
   <td colspan="@@@TOTALSPAN@@@" bgcolor=@@@WINDOW_LIGHT@@@ align="center">
     <table cellpadding="0" cellspacing="0" border="0" width="80%">
     <tr>
-      <td><br><p><b>Descriere</b><br>Sistemul de export va ajuta sa descarcati adrese pe calculatorul local. Daca doriti sa descarcati o agenda intreaga, folositi pagina "agende" in care puteti descarca o intreaga agenda deoadata.</p><p><b>1. Selectati adresele care doriti sa le descarcati din lista de mai sus.</b><br><br></p></td>
+      <td><br><p><b>Descriere</b><br>Sistemul de export vã ajutã sã descãrcaþi adrese pe calculatorul local. Dacã doriþi sã descãrcaþi o agendã întreagã, folosiþi pagina "agende" în care puteþi descãrca o întreagã agendã deoadatã.</p><p><b>1. Selectaþi adresele care doriþi sã le descãrcaþi din lista de mai sus.</b><br><br></p></td>
     </tr>
     </table>
   </td>
@@ -15,7 +15,7 @@
   <td colspan="@@@TOTALSPAN@@@" bgcolor=@@@WINDOW_LIGHT@@@ align="center">
     <table cellpadding="0" cellspacing="0" border="0" width="80%">
     <tr>
-      <td><b>2. Selectati un format de export:</b></td>
+      <td><b>2. Selectaþi un format de export:</b></td>
     </tr>
     <tr>
       <td>

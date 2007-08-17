@@ -3,7 +3,7 @@
 <tr>
 <td nowrap bgcolor=@@@TITLEBAR@@@ width="30%">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>CONFIGURARE PREFERINTE</B></font>
+<B>CONFIGURARE PREFERINÞE</B></font>
 <td nowrap bgcolor=@@@TITLEBAR@@@ align="center">
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
 <B>@@@QUOTAUSAGE@@@</B></font>
@@ -17,7 +17,7 @@
 </table>
 &nbsp;
 <table border="0" align="center" width="90%" cellpadding="1" cellspacing="1" bgcolor=@@@BACKGROUND@@@>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Informatii personale</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Informaþii personale</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ @@@DESCWIDTH@@@>
 <B>Limba:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -29,7 +29,7 @@
 @@@TIMEOFFSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Orar de vara/iarna:</B>
+<B>Orar de varã/iarnã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DAYLIGHTSAVINGMENU@@@
 </td></tr>
@@ -40,7 +40,7 @@
 @@@FROMEMAILMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Raspuns pe adresa:</B>
+<B>Rãspuns pe adresa:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYTOFIELD@@@
 </td></tr>
@@ -51,12 +51,12 @@
 @@@FORWARDADDRESS@@@
 &nbsp;
 @@@KEEPLOCALCOPY@@@
-Lasa o copie pe server
+Lasã o copie pe server
 </td></tr>
 @@@FORWARDEND@@@
 @@@AUTOREPLYSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Raspuns automat:</B>
+<B>Rãspuns automat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@AUTOREPLYCHECKBOX@@@
 &nbsp;
@@ -64,12 +64,12 @@ Subiect:
 @@@AUTOREPLYSUBJECT@@@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Text raspuns automat (maxim 500 caractere)</B><BR>
+<B>Text rãspuns automat (maxim 500 caractere)</B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr>
 @@@AUTOREPLYEND@@@
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>Semnatura (maxim 500 caractere)</B><BR>
+<B>Semnãtura (maxim 500 caractere)</B><BR>
 @@@SIGAREA@@@
 <br>&nbsp;
 </td></tr>
@@ -77,7 +77,7 @@ Subiect:
 
 @@@FULLPREFSSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Preferinte la afisare</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Preferinþe la afiºare</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Stil culori:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -98,22 +98,22 @@ Subiect:
 </tr></table>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Imaginea de fundal se repeta:</B>
+<B>Imaginea de fundal se repetã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGREPEATCHECKBOX@@@<br>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Marime font:</B>
+<B>Mãrime font:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FONTSIZEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Format data:</B>
+<B>Format datã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DATEFORMATMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Format ora:</B>
+<B>Format orã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOURFORMATMENU@@@ ore
 </td></tr>
@@ -122,87 +122,87 @@ Subiect:
 <tr><td colspan="2">&nbsp;</td></tr>
 <tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Navigare mesaje</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pozitie bara de control in afisare mesaje:</B>
+<B>Poziþie barã de control în afiºare mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONFOLDERVIEWMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Numar mesaje pe pagina:</B>
+<B>Numãr mesaje pe paginã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HEADERSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ordinea campurilor:</B>
+<B>Ordinea câmpurilor:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FIELDORDERMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ordonare implicita:</B>
+<B>Ordonare implicitã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Data afisata pentru mesaje:</B>
+<B>Data afiºatã pentru mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGDATETIMESTAMPMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Afiseaza mini icoana de cautare@@@MINISEARCHICON@@@:</B>
+<B>Afiºeazã mini icoanã de cãutare@@@MINISEARCHICON@@@:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEMINISEARCHICONCHECKBOX@@@<br>
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Operatii cu mesaje</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Operaþii cu mesaje</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirmare la copiere/stergere:</B>
+<B>Confirmare la copiere/ºtergere:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMMSGMOVECOPY@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Destinatie implicita:</B>
+<B>Destinaþie implicitã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTDESTINATIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Destinatie inteligenta:</B>
+<B>Destinaþie inteligentã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SMARTDESTINATION@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Arata urmatorul mesaj dupa copiere/stergere:</B>
+<B>Aratã urmatorul mesaj dupã copiere/ºtergere:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIEWNEXTAFTERMSGMOVECOPY@@@
 </td></tr>
 @@@AUTOPOP3START@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Descarca automat POP3 la autentificare:</B>
+<B>Descarcã automat POP3 la autentificare:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@AUTOPOP3CHECKBOX@@@ (asteapta @@@AUTOPOP3WAITMENU@@@ secunde)
+@@@AUTOPOP3CHECKBOX@@@ (asteaptã @@@AUTOPOP3WAITMENU@@@ secunde)
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pune filtru email in fundal:</B>
+<B>Pune filtru email în fundal:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERTHRESHOLDMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Timp de asteptare la filtrare email in fundal:</B>
+<B>Timp de aºteptare la filtrare email în fundal:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERWAITMENU@@@ secunde
 </td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Muta mesaje vechi in SALVATE la iesire:</B>
+<B>Mutã mesaje vechi în SALVATE la ieºire:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>
 @@@MOVEOLDEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Optiuni citire mesaje</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opþiuni citire mesaje</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pozitie bara control la citire mesaje:</B>
+<B>Poziþie barã control la citire mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CTRLPOSITIONMSGREADMENU@@@
 </td></tr>
@@ -217,7 +217,7 @@ Subiect:
 @@@READWITHMSGCHARSET@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Folosire font de marime fixa la citire mesaje:</B>
+<B>Folosire font de mãrime fixã la citire mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USEFIXEDFONT@@@
 </td></tr>
@@ -227,27 +227,27 @@ Subiect:
 @@@USESMILEICON@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Dezactivare JavaScript in mesaje:</B>
+<B>Dezactivare JavaScript în mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEJS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Dezactivare tag embed/object/applet in mesaje:</B>
+<B>Dezactivare tag embed/object/applet în mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCODE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Dezactivare CGI incapsulat:</B>
+<B>Dezactivare CGI încapsulat:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DISABLEEMBCGI@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Arata mesaje HTML ca text simplu:</B>
+<B>Aratã mesaje HTML ca text simplu:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWHTMLASTEXT@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Arata atasamente cu imagini ca scurtaturi:</B>
+<B>Aratã ataºamente cu imagini ca scurtãturi:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWIMGASLINK@@@
 </td></tr>
@@ -258,7 +258,7 @@ Subiect:
 </td></tr>
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Optiuni raspuns mesaje</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opþiuni rãspuns mesaje</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Format mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
@@ -267,20 +267,20 @@ Subiect:
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Dimensiune arie de redactare:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
+Lãþime @@@EDITCOLUMNSMENU@@@ Înãlþime @@@EDITROWSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pozitie buton redactare:</B>
+<B>Poziþie buton redactare:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SENDBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Reparagrafare mesaj inaintea raspunsului:</B>
+<B>Reparagrafare mesaj înaintea rãspunsului:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPARAGRAPHORIGMSG@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Raspuns cu mesajul original:</B>
+<B>Rãspuns cu mesajul original:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REPLYWITHORIGMSGMENU@@@
 </td></tr>
@@ -291,7 +291,7 @@ Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 </td></tr>
 @@@BACKUPSENTSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Salvare mesaj trimis in TRIMISE:</B>
+<B>Salvare mesaj trimis în TRIMISE:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
@@ -309,19 +309,19 @@ Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 
 @@@VIRUSCHECKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Verificare virusi</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Verificare viruºi</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Mesaje ce vor fi verificate:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Dimensiune maxima la verificare mesaje:</B>
+<B>Dimensiune maximã la verificare mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKMAXSIZEMENU@@@ KB
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Dimensiune minima la verificare mesaje:</B>
+<B>Dimensiune minimã la verificare mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@VIRUSCHECKMINBODYSIZEMENU@@@ KB
 </td></tr>
@@ -336,7 +336,7 @@ Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 @@@SPAMCHECKSOURCEMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Dimensiune maxima la verificare mesaje:</B>
+<B>Dimensiune maximã la verificare mesaje:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMCHECKMAXSIZEMENU@@@ KB
 </td></tr>
@@ -349,14 +349,14 @@ Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 
 @@@FILTERSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Optiuni filtrare mesaje</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opþiuni filtrare mesaje</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Limita pentru mesaje repetate:</B>
+<B>Limitã pentru mesaje repetate:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-@@@FILTERREPEATLIMIT@@@ &nbsp;( 0 inseamna Nu se verifica )
+@@@FILTERREPEATLIMIT@@@ &nbsp;( 0 înseamnã Nu se verificã )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtrare mesaje cu adresa email eronata:</B>
+<B>Filtrare mesaje cu adresa email eronatã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERBADADDRFORMAT@@@
 </td></tr>
@@ -366,12 +366,12 @@ Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 @@@FILTERFAKEDSMTP@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtrare mesaje cu campul From fals:</B>
+<B>Filtrare mesaje cu câmpul From fals:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDFROM@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtrare mesaje cu continut exe fals:</B>
+<B>Filtrare mesaje cu conþinut exe fals:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FILTERFAKEDEXECONTENTTYPE@@@
 </td></tr>
@@ -380,39 +380,39 @@ Latime @@@EDITCOLUMNSMENU@@@ Inaltime @@@EDITROWSMENU@@@
 
 @@@WEBADDRSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Optiuni Agenda</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opþiuni Agendã</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Marime fereastra agenda:</B>
+<B>Mãrime fereastrã agendã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Latime @@@ABOOKWIDTHMENU@@@ Inaltime @@@ABOOKHEIGHTMENU@@@
+Lãþime @@@ABOOKWIDTHMENU@@@ Înãlþime @@@ABOOKHEIGHTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Pozitie buton agenda:</B>
+<B>Poziþie buton agendã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKBUTTONPOSITIONMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Filtru agenda implicit:</B>
+<B>Filtru agendã implicit:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKDEFAULTFILTER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Numar de adrese afisate per pagina:</B>
+<B>Numãr de adrese afiºate per paginã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSPERPAGE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Afiseaza doar o linie per adresa:</B>
+<B>Afiºeazã doar o linie per adresã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRCOLLAPSE@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Sortare implicita agenda:</B>
+<B>Sortare implicitã agendã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ABOOKADDRSORTORDER@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ordine campuri la afisare adrese:</B>
+<B>Ordine câmpuri la afiºare adrese:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@ nowrap>
 @@@ABOOKLISTVIEWFIELDORDERMENU@@@
 </td></tr>
@@ -420,44 +420,44 @@ Latime @@@ABOOKWIDTHMENU@@@ Inaltime @@@ABOOKHEIGHTMENU@@@
 
 @@@CALENDARSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Optiuni Calendar</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opþiuni Calendar</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Afisare implicita calendar:</B>
+<B>Afiºare implicitã calendar:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DEFAULTVIEWMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Definire vacante:</B>
+<B>Definire vacanþe:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@HOLIDAYDEFMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Numar de evenimente in afisare luna:</B>
+<B>Numãr de evenimente în afiºare lunã:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MONTHVIEWNUMITEMSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Saptamana incepe:</B>
+<B>Sãptãmâna începe:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@WEEKSTARTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ora inceput:</B>
+<B>Ora început:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@STARTHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Ora sfarsit:</B>
+<B>Ora sfârºit:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ENDHOURMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Interval de timp in afisare zi:</B>
+<B>Interval de timp în afiºare zi:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@INTERVALMENU@@@ minute
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Arata ore fara evenimente:</B>
+<B>Aratã ore fãrã evenimente:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SHOWEMPTYHOURSCHECKBOX@@@
 </td></tr>
@@ -477,49 +477,49 @@ Latime @@@ABOOKWIDTHMENU@@@ Inaltime @@@ABOOKHEIGHTMENU@@@
 
 @@@WEBDISKSTART@@@
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Optiuni WebDisk</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Opþiuni WebDisk</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Numar de elemente in lista de directoare:</B>
+<B>Numãr de elemente în lista de directoare:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DIRNUMITEMSMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirmare la mutare/copiere director/fisier:</B>
+<B>Confirmare la mutare/copiere director/fiºier:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEMOVECOPY@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirmare la stergere director/fisier:</B>
+<B>Confirmare la ºtergere director/fiºier:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILEDEL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Confirmare la arhivare director/fisier:</B>
+<B>Confirmare la arhivare director/fiºier:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CONFIRMFILECOMPRESS@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Marime fereastra editare:</B>
+<B>Mãrime fereastrã editare:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-Latime @@@FILEEDITCOLUMNSMENU@@@ Inaltime @@@FILEEDITROWSMENU@@@
+Lãþime @@@FILEEDITCOLUMNSMENU@@@ Înãlþime @@@FILEEDITROWSMENU@@@
 </td></tr>
 @@@WEBDISKEND@@@
 
 <tr><td colspan="2">&nbsp;</td></tr>
-<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Alte Optiuni</B></td></tr>
+<tr><td colspan="2" bgcolor=@@@COLUMNHEADER@@@><B>Alte Opþiuni</B></td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Set caractere implicit pentru fisiere:</B>
+<B>Set caractere implicit pentru fiºiere:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@FSCHARSETMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Foloseste bara de selectie:</B>
+<B>Foloseºte bara de selecþie:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@USELIGHTBARCHECKBOX@@@
 </td></tr>
 @@@WEBMAILSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Foloseste Regex in cautare si reguli de filtrare:</B>
+<B>Foloseºte Regex în cãutare ºi reguli de filtrare:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REGEXMATCH@@@
 </td></tr>
@@ -529,47 +529,47 @@ Latime @@@FILEEDITCOLUMNSMENU@@@ Inaltime @@@FILEEDITROWSMENU@@@
 @@@HIDEINTERNAL@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Liste directoare dupa categorii:</B>
+<B>Liste directoare dupã categorii:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@CATEGORIZEDFOLDERS@@@ &nbsp;( Separator categorii @@@CATEGORIZEDFOLDERS_FS@@@ )
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Notificare sonora la mesaje noi:</B>
+<B>Notificare sonorã la mesaje noi:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@NEWMAILSOUNDMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Fereastra de notificare la mesaje noi:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-ramase @@@NEWMAILWINDOWTIMEMENU@@@ secunde &nbsp;(0 inseamna - nici o notificare)
+rãmase @@@NEWMAILWINDOWTIMEMENU@@@ secunde &nbsp;(0 înseamnã - nici o notificare)
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
 <B>Fereastra de notificare la mesaje trimise:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
-ramase @@@MAILSENTWINDOWTIMEMENU@@@ secunde &nbsp;(0 inseamna - nici o notificare)
+rãmase @@@MAILSENTWINDOWTIMEMENU@@@ secunde &nbsp;(0 înseamnã - nici o notificare)
 </td></tr>
 @@@SPELLCHECKSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Dictionar pentru corector gramatical:</B>
+<B>Dicþionar pentru corector gramatical:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@DICTIONARYMENU@@@
 </td></tr>
 @@@SPELLCHECKEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Golire mesaje din STERSE la</B>
+<B>Golire mesaje din ªTERSE la</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TRASHRESERVEDDAYSMENU@@@ zile.
 </td></tr>
 @@@SPAMVIRUSSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Zile de gratie pentru mesaje Spam/Virus:</B>
+<B>Zile de graþie pentru mesaje Spam/Virus:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@SPAMVIRUSRESERVEDDAYSMENU@@@
 </td></tr>
 @@@SPAMVIRUSEND@@@
 @@@WEBMAILEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Interval de reimprospatare:</B>
+<B>Interval de reîmprospãtare:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@REFRESHINTERVALMENU@@@
 </td></tr>

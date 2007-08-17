@@ -5,7 +5,7 @@
   <td bgcolor=@@@TITLEBAR@@@>
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
-      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Editare Informatii Grup</b></font></td>
+      <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Editare Informaþii Grup</b></font></td>
       <td bgcolor=@@@TITLEBAR@@@ align="right"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@ABOOKNAME@@@</b></font></td>
     </tr>
     </table>
@@ -31,7 +31,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Informatii Grup</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Informaþii Grup</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -47,7 +47,7 @@
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td bgcolor=@@@COLUMNHEADER@@@><b>Adauga fisiere la contact - @@@AVAILABLEATTSPACE@@@ disponibili</b></td>
+  <td bgcolor=@@@COLUMNHEADER@@@><b>Adaugã fiºiere la contact - @@@AVAILABLEATTSPACE@@@ disponibili</b></td>
 </tr>
 <tr>
   <td bgcolor=@@@WINDOW_DARK@@@>
@@ -58,8 +58,8 @@
     <tr>
       <td>
         <select name="UPLOAD.FILE.TYPE" class="mono">
-        <option value="PHOTO" selected>Poza</option>
-        <option value="SOUND">Transcriere fonetica</option>
+        <option value="PHOTO" selected>Pozã</option>
+        <option value="SOUND">Transcriere foneticã</option>
         </select>
       </td>
       <td width="5">&nbsp;</td>
@@ -72,9 +72,9 @@
       <td>@@@UPLOADWEBDISKLINK@@@</td>
     </tr>
     <tr>
-      <td colspan="2" class="smalltext" nowrap>alegeti tipul fisierului de adaugat</td>
-      <td colspan="2" class="smalltext" nowrap>introduceti adresa fisierului (http://...)</td>
-      <td colspan="5" class="smalltext" nowrap>sau incarcati fisierul direct</td>
+      <td colspan="2" class="smalltext" nowrap>alegeþi tipul fiºierului de adãugat</td>
+      <td colspan="2" class="smalltext" nowrap>introduceþi adresa fiºierului (http://...)</td>
+      <td colspan="5" class="smalltext" nowrap>sau încãrcaþi fiºierul direct</td>
     </tr>
     <tr>
       <td  colspan="9" height="10">&nbsp;</td>
@@ -117,9 +117,9 @@ function check_toggle(target) {
 
 function popupNotice (msgOption) {
    if (msgOption == 'agentmustsave') {
-      return(confirm('Trebuie sa salvati inainte de a crea sau vizualiza o carte de vizita pentru agent.\nSalvati si continuati?'));
+      return(confirm('Trebuie sã salvaþi înainte de a crea sau vizualiza o carte de vizitã pentru agent.\nSalvaþi ºi continuaþi?'));
    } else if (msgOption == 'cancelchanges') {
-      return(confirm('Toate modificarile la acest agent se vor pierde, continuati?'));
+      return(confirm('Toate modificãrile la acest agent se vor pierde, continuaþi?'));
    }
 }
 

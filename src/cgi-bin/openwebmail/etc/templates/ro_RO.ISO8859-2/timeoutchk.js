@@ -13,9 +13,9 @@
          tid=setTimeout("timeoutcheck()", 1*1000);
          if (remainingseconds<65) {
             if (remainingseconds>6) {
-               window.defaultStatus="durata sesiune : "+ (remainingseconds-5) +" secunde ramase";
+               window.defaultStatus="duratã sesiune : "+ (remainingseconds-5) +" secunde rãmase";
             } else if (remainingseconds>=5) {
-               window.defaultStatus="durata sesiune : "+ (remainingseconds-5) +" secunde ramase";
+               window.defaultStatus="duratã sesiune : "+ (remainingseconds-5) +" secunde rãmase";
             }
             if (!warn) {
                warn=1;
@@ -25,7 +25,7 @@
             }
          }
       } else {
-         window.defaultStatus="sesiune expirata";
+         window.defaultStatus="sesiune expiratã";
          clearTimeout(tid);
       }
    }
@@ -34,7 +34,7 @@
       if (remainingseconds>0) {
          return true;
       } else {
-         alert("Ne pare rau dar sesiunea dvs. a expirat. Va rugam sa va autentificati din nou.");
+         alert("Ne pare rãu dar sesiunea dvs. a expirat. Vã rugãm sã vã autentificaþi din nou.");
          return false;
       }
    }

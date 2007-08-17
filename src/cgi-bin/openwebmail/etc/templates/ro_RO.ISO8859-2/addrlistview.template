@@ -147,7 +147,7 @@ function showCheckedList(sourceForm) {
 
 function popupNotice (msgOption) {
    if (msgOption == 'deletecontact') {
-      return(confirm('Sunteti sigur ca doriti sa stergeti acest contact?'));
+      return(confirm('Sunteþi sigur cã doriþi sã ºtergeþi acest contact?'));
    }
 }
 

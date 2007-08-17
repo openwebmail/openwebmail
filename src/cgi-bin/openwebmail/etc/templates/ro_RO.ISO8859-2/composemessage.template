@@ -24,7 +24,7 @@
 </tr></table>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Catre:</B>
+<B>Cãtre:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@TOFIELD@@@
 </td></tr>
@@ -34,12 +34,12 @@
 @@@CCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>BCC: (copie oarba)</B>
+<B>BCC: (copie oarbã)</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Raspunde-mi pe adresa:</B>
+<B>Rãspunde-mi pe adresa:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@REPLYTOFIELD@@@&nbsp;&nbsp;</td>
@@ -48,7 +48,7 @@
 </tr></table>
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Atasament:</B>
+<B>Ataºament:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@ATTACHMENTFIELD@@@
 </td></tr>
@@ -58,7 +58,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
 @@@BACKUPSENTSTART@@@
-<td><B>Salveaza mesaj trimis</B></td>
+<td><B>Salveazã mesaj trimis</B></td>
 <td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
 @@@BACKUPSENTEND@@@
 </tr></table>
@@ -120,7 +120,7 @@
       if ((document.composeform.msgformat.value == "html" ||
            document.composeform.msgformat.value == "both") &&
           document.composeform.newmsgformat.value == "text" ) {
-         if (confirm("Informatiile HTML se vor pierde dupa conversie, sunteti sigur ca doriti sa treceti in mod Text?")) {
+         if (confirm("Informaþiile HTML se vor pierde dupã conversie, sunteþi sigur cã doriþi sã treceti în mod Text?")) {
             bodygethtml();
             document.composeform.submit();
             return true;
@@ -172,12 +172,12 @@
       if (document.composeform.to.value == ""
        && document.composeform.cc.value == ""
        && document.composeform.bcc.value == "" ) {
-         alert("Va rugam specificati destinatarul inainte de trimitere.");
+         alert("Vã rugãm specificaþi destinatarul înainte de trimitere.");
          return false;
       }
       if (document.composeform.subject.value == "" 
        || document.composeform.subject.value == "N/A" ) {
-         return(confirm("Nu ati specificat subiectul mesajului, doriti sa-l trimiteti fara subiect?"));
+         return(confirm("Nu aþi specificat subiectul mesajului, doriþi sã-l trimiteþi fãrã subiect?"));
       }
       return true;
    }

@@ -10,7 +10,7 @@
 </td></tr><tr><td colspan="9">&nbsp;</td></tr>
 <tr>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Numar</B>&nbsp;</td>
+<B>Numãr</B>&nbsp;</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Prioritate</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -20,13 +20,13 @@
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Text</B> (click pentru editare)</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Actiune</B></td>
+<B>Acþiune</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Destinatar</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Activeaza</B></td>
+<B>Activeazã</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Actiune</B>
+<B>Acþiune</B>
 </td></tr>
 @@@STARTFILTERFORM@@@
 <tr>

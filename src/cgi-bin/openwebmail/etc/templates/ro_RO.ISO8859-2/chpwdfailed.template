@@ -2,8 +2,8 @@
 <table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Schimbarea parolei nu a reusit.</B></font>
+<B>Schimbarea parolei nu a reuºit.</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@, nu a fost efectuata nici o schimbare.<BR>
+<BR>@@@ERRORMSG@@@, nu a fost efectuatã nici o schimbare.<BR>
 @@@CONTINUEBUTTON@@@
 </td></tr></table>

@@ -22,9 +22,9 @@
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 @@@DELPOP3STRSTART@@@<B>Sterge cont</B>@@@DELPOP3STREND@@@</td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Activeaza</B></td>
+<B>Activeazã</B></td>
 <td nowrap align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Actiune</B>
+<B>Acþiune</B>
 </td></tr>
 @@@STARTPOP3FORM@@@
 <tr>
