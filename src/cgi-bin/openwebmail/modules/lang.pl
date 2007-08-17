@@ -492,14 +492,25 @@ use vars qw(%languagecodes %countrycodes %charactersets %RTL);
    'UTF8'      => [ 'UTF-8',            'utf-8'],
    'UTF16'     => [ 'UTF-16',          'utf-16'],
    'UTF32'     => [ 'UTF-32',          'utf-32'],
+   'WINDOWS1250' => [ 'CP1250',  'windows-1250'],
+   'WINDOWS1251' => [ 'CP1251',  'windows-1251'],
+   'WINDOWS1252' => [ 'CP1252',  'windows-1252'],
+   'WINDOWS1253' => [ 'CP1253',  'windows-1253'],
+   'WINDOWS1254' => [ 'CP1254',  'windows-1254'],
+   'WINDOWS1255' => [ 'CP1255',  'windows-1255'],
+   'WINDOWS1256' => [ 'CP1256',  'windows-1256'],
+   'WINDOWS1257' => [ 'CP1257',  'windows-1257'],
+   'WINDOWS1258' => [ 'CP1258',  'windows-1258'],
 );
 
 # Right-to-Left language table, used to switch direction of text and arrows
 %RTL = (
    'ar_AE.CP1256'    => 1, # arabic
    'ar_AE.ISO8859-6' => 1,
+   'ar_AE.UTF-8'     => 1,
    'he_IL.CP1255'    => 1, # hebrew
    'he_IL.ISO8859-8' => 1,
+   'he_IL.UTF-8'     => 1,
    'ur_PK.UTF-8'     => 1, # urdu
 );
 
@@ -518,6 +529,9 @@ sub guess_browser_locale {
    $ENV{HTTP_ACCEPT_CHARSET} = "ISO8859-1"
      unless defined $ENV{HTTP_ACCEPT_CHARSET} && $ENV{HTTP_ACCEPT_CHARSET} =~ m#^[A-Za-z0-9-._*,;=\s]+$#gs;
 
+   # Internet Explorer doesn't send HTTP_ACCEPT_CHARSET
+   $ENV{HTTP_ACCEPT_CHARSET} = "UTF-8"
+     if defined $ENV{HTTP_USER_AGENT} && $ENV{HTTP_USER_AGENT} =~ /MSIE/;
 
    foreach my $lang (parse_http_accept($ENV{HTTP_ACCEPT_LANGUAGE})) {
       next if $lang eq '*';
@@ -531,6 +545,10 @@ sub guess_browser_locale {
                                          sort keys %{$available_locales};
 
       foreach my $available_language (@available_matching_languages) {
+         if ($ENV{HTTP_ACCEPT_CHARSET} =~ /UTF-8/i) {
+            my $locale = "$available_language\.UTF-8";
+            return $locale if (exists $available_locales->{$locale});
+         }
          foreach my $charset (parse_http_accept($ENV{HTTP_ACCEPT_CHARSET})) {
             next if $charset eq '*';
             $charset = $charactersets{$charset}[0] if exists $charactersets{$charset}; # ISO88591 -> ISO8859-1
@@ -547,6 +565,10 @@ sub guess_browser_locale {
       }
    }
 
+   # we don't have any locale for the desired language - return en_US
+   if ($ENV{HTTP_ACCEPT_CHARSET} =~ /UTF-8/i) {
+      return "en_US.UTF-8"
+   }
    return "en_US.ISO8859-1";
 }
 

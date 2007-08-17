@@ -276,8 +276,11 @@ sub editprefs {
          my $selected_language = $1;
 
          $prefs{'language'} = $selected_language;
-         $prefs{'locale'}= (grep { m/^$selected_language/ } sort keys %{$config{available_locales}})[0];
-         $prefs{'charset'} = (ow::lang::localeinfo($prefs{'locale'}))[6]; # first match charset
+         $prefs{'locale'}="$selected_language\.UTF-8";
+         if (!exists $config{available_locales}->{$prefs{'locale'}}) {
+            $prefs{'locale'}= (grep { m/^$selected_language/ } sort keys %{$config{available_locales}})[0]; # first match charset
+         }
+         $prefs{'charset'} = (ow::lang::localeinfo($prefs{'locale'}))[6];
 
          if (defined param('charset')) {
             my $selected_charset = uc(param('charset'));
@@ -416,9 +419,11 @@ sub editprefs {
 
    if (param('language') =~ /^([A-Za-z_]+)$/ ) {
       $defaultlanguage=$1;
-      $defaultcharset=( map { (ow::lang::localeinfo($_))[6] }
-                       grep { m/^$defaultlanguage/ }
-                       sort keys %{$config{available_locales}})[0]; # 1st match
+      my $defaultlocale="$defaultlanguage\.UTF-8";
+      if (!exists $config{available_locales}->{$defaultlocale}) {
+         $defaultlocale= (grep { m/^$defaultlanguage/ } sort keys %{$config{available_locales}})[0]; # first match charset
+      }
+      $defaultcharset = (ow::lang::localeinfo($defaultlocale))[6];
       if ($defaultlanguage =~ /^ja_JP/ ) {
          $defaultsendcharset='iso-2022-jp';
       } else {
