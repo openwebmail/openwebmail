@@ -39,7 +39,7 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname);
    'iso-8859-16'   => [ 'ISO-8859-16', '8859-16', 'ISO8859-16', 'ISO_8859-16' ],
    'koi8-r'        => [ 'KOI8-R' ],
    'koi8-u'        => [ 'KOI8-U' ],
-   'ksc5601'       => [ 'KSC5601' ],
+   'ksc5601'       => [ 'KSC5601', 'KSC_5601', 'MSCP949' ],
    'shift_jis'     => [ 'SJIS', 'SHIFT_JIS', 'SHIFT-JIS' ],
    'tis-620'       => [ 'TIS-620', 'TIS620' ],
    'utf-8'         => [ 'UTF-8', 'UTF8' ],
