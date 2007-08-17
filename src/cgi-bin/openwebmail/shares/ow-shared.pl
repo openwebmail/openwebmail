@@ -1338,7 +1338,9 @@ sub openwebmailerror {
       # load prefs if possible, or use default value
       my $background = $style{"background"}||"#FFFFFF"; $background =~ s/"//g;
       my $bgurl=$prefs{'bgurl'}||$config{'default_bgurl'};
-      my $charset = (ow::lang::localeinfo($prefs{'locale'}))[6] || (ow::lang::localeinfo($config{'default_locale'}))[6];
+      my $locale = ($prefs{'locale'} || $config{'default_locale'});
+      my $charset = (ow::lang::localeinfo($locale))[6];
+      charset ($charset) if ($CGI::VERSION>=2.58);
       my $css = $style{"css"}||
                 qq|<!--\n|.
                 qq|body {\n|.
@@ -1358,7 +1360,8 @@ sub openwebmailerror {
 
       $stackdump=qq|<pre>$stackdump</pre>| if ($stackdump ne '');
 
-      my $html = start_html(-title=>"$prefs{'locale'} - $config{'name'}",
+      my $html = start_html(-title=>"$locale - $config{'name'}",
+                            -encoding=>$charset,
                             -bgcolor=>$background,
                             -background=>$bgurl);
       $html.=qq|<style type="text/css">\n|.
