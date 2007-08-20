@@ -438,7 +438,7 @@ sub upgrade_all {	# called if user releasedate is too old
                           'pt'              => 'pt_PT.ISO8859-1',
                           'pt_BR'           => 'pt_BR.ISO8859-1',
                           'sk'              => 'sk_SK.ISO8859-2',
-                          'sl'              => 'sl_SL.CP1250',
+                          'sl'              => 'sl_SI.CP1250',
                           'uk'              => 'uk_UA.KOI8-U',
                           'ur'              => 'ur_PK.UTF-8',
                           'zh_CN.GB2312'    => 'zh_CN.GB2312',
