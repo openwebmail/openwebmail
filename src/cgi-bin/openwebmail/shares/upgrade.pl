@@ -414,6 +414,7 @@ sub upgrade_all {	# called if user releasedate is too old
          $prefs{'language'} = join("_", (ow::lang::localeinfo($locale))[0,2]);
          $prefs{'charset'}  = (ow::lang::localeinfo($locale))[6];
          $prefs{'locale'} = $locale;
+         loadlang ($locale);
 
          # update holidays
          my %holidays = (

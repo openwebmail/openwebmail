@@ -405,8 +405,8 @@ sub login {
       %prefs = readprefs();
       %style = readstyle($prefs{'style'});
       loadlang($prefs{'locale'});
-#      $prefs{'charset'} = (ow::lang::localeinfo($prefs{'locale'}))[6];
-#      $prefs{'language'} = join("_", (ow::lang::localeinfo($prefs{'locale'}))[0,2]);
+      $prefs{'charset'} = (ow::lang::localeinfo($prefs{'locale'}))[6];
+      $prefs{'language'} = join("_", (ow::lang::localeinfo($prefs{'locale'}))[0,2]);
       charset($prefs{'charset'}) if ($CGI::VERSION>=2.58); # setup charset of CGI module
    }
 
