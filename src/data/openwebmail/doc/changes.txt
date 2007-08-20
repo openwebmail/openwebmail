@@ -51,11 +51,18 @@
 ----------
 1. decode RFC2047 headers always into UTF-8 charset and convert
    into display/compose charset in one step. Ensures proper decoding
-   of international headers even if message charset is US-ASCII
+   of international headers even if message charset is US-ASCII.
+   Updated the maildb version to accomodate this change.
    (Marian Ďurkovič, md.AT.bts.sk)
 2. always encode 8-bit names in Content-Description header
    according to RFC2047
    (Marian Ďurkovič, md.AT.bts.sk)
+
+ps: The maildb will be upgraded to new format automatically on access.
+    However, Sysadm may upgrade the maildb for all users explicitly so
+    the users won't be waiting for the db conversion when they login:
+
+       /path_to.../openwebmail-tool.pl -i -a
 
 
 07/06/2007
