@@ -509,7 +509,6 @@ use vars qw(%languagecodes %countrycodes %charactersets %RTL);
    'ar_AE.ISO8859-6' => 1,
    'ar_AE.UTF-8'     => 1,
    'he_IL.CP1255'    => 1, # hebrew
-   'he_IL.ISO8859-8' => 1,
    'he_IL.UTF-8'     => 1,
    'ur_PK.UTF-8'     => 1, # urdu
 );

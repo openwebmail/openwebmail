@@ -64,12 +64,12 @@
 @@@AUTOREPLYSUBJECT@@@
 </td></tr>
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>(עד 005 תווים) טקסט תשובה אוטומטי</B><BR>
+<B>(עד 500 תווים) טקסט תשובה אוטומטי</B><BR>
 @@@AUTOREPLYTEXT@@@
 </td></tr>
 @@@AUTOREPLYEND@@@
 <tr><td colspan="2" align="center" bgcolor=@@@WINDOW_DARK@@@ class=msgbody>
-<B>(עד 005 תווים) חתימה</B><BR>
+<B>(עד 500 תווים) חתימה</B><BR>
 @@@SIGAREA@@@
 <br>&nbsp;
 </td></tr>

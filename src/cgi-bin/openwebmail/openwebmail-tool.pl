@@ -341,7 +341,7 @@ sub init {
       next if $srclocale =~ 'UTF-8';
       next if $srclocale =~ 'ja_JP';
       next if $srclocale =~ 'zh_';
-      next if $srclocale =~ 'he_IL.ISO8859-8'; # he_IL.CP1255 is more complete 
+      next if $srclocale =~ 'ISO8859-8'; # Visual Hebrew is not supported
       my $dstlocale=$srclocale;
       $dstlocale=~s/[.].*$/.UTF-8/g;
       langconv($srclocale, $dstlocale, 0);
