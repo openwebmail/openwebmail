@@ -1,3 +1,10 @@
+10/04/2007
+----------
+1. changed the default zonetabfile to 'no', to avoid confusion when
+   upgrading without setting the existing users' timezone; 
+   added timezone settings documentation on openwebmail.conf.help
+   (Joao S Veiga, openwebmail.AT.it.eng.br)
+
 08/20/2007
 ----------
 1. re-sync the data/openwebmail/doc/changes.txt file
@@ -69,19 +76,19 @@ ps: The maildb will be upgraded to new format automatically on access.
 ----------
 1. complements the attachment limit patch with a pop-up message
    informing the user that the limit was reached.
-   (Joao S Veiga, openwebmail.AT.rf.com.br)
+   (Joao S Veiga, openwebmail.AT.it.eng.br)
 
 
 07/03/2007
 ----------
 1. adds an option to backup sent/replied messages on the current
    folder if the current folder is not Drafts nor Inbox.
-   (Joao S Veiga, openwebmail.AT.rf.com.br)
+   (Joao S Veiga, openwebmail.AT.it.eng.br)
 2. denies adding attachments over the attlimit without discarding
    the message being composed.
-   (Joao S Veiga, openwebmail.AT.rf.com.br)
+   (Joao S Veiga, openwebmail.AT.it.eng.br)
 3. uses the system zoneinfo database for timezone/dst handling.
-   (Joao S Veiga, openwebmail.AT.rf.com.br)
+   (Joao S Veiga, openwebmail.AT.it.eng.br)
 
 
 06/01/2007
@@ -89,7 +96,7 @@ ps: The maildb will be upgraded to new format automatically on access.
 1. fix addressbook csv/tab export routine to avoid errors while
    trying to export contacts containing the properties PHOTO,
    LOGO, SOUND, KEY, and AGENT. These fields are now skipped.
-   (Joao S Veiga, openwebmail.AT.rf.com.br)
+   (Joao S Veiga, openwebmail.AT.it.eng.br)
 
 
 10/30/2006
@@ -97,14 +104,14 @@ ps: The maildb will be upgraded to new format automatically on access.
 1. change the spellcheck() function name to owmspellcheck() to
    workaround conflict with Firefox 2.0 which prevented the
    spellcheck to work.
-   (Joao S Veiga, openwebmail.AT.rf.com.br)
+   (Joao S Veiga, openwebmail.AT.it.eng.br)
 
 
 10/19/2006
 ----------
 1. fix bug so compose message attachments are now displayed in the
    order uploaded
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his code)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br for his code)
 2. fix bug that subjects with quote characters did not link to
    openwebmail-read correctly in IE due to HTML syntax errors
    (thanks to Moke Tsing, moke.AT.amcpl.net for his report)
@@ -200,7 +207,7 @@ ps: The maildb will be upgraded to new format automatically on access.
    HTML, to make them XSS attack safe.
 3. fix typo in openwebmail-send.pl to correct formatting of read-receipts
    to messages that are not of the same charset as the users charset
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his patch)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br for his patch)
 4. fix bug that email addressed to an unknown local user will not create
    an error if that user is the second or higher addressee
    (thanks to Dominique Fournier, dominique.fournier.AT.grenoble.cnrs.fr)
@@ -217,7 +224,7 @@ ps: The maildb will be upgraded to new format automatically on access.
 ----------
 1. fix mailparse.pl so the "attachment" and "body" keys of %message are
    not overwritten by parse_header
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his fix)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br for his fix)
 2. add Hungarian help and tutorial translation
    (thanks to Harka Győző, carlos.AT.gamma.ttk.pte.hu)
 3. add 'body' recognition to openwebmail.pl for compatibility with
@@ -245,7 +252,7 @@ ps: The maildb will be upgraded to new format automatically on access.
 07/26/2005
 ----------
 1. fix a typo error in log message in openwebmail-main.pl
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his fix)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br for his fix)
 2. fix a typo error in receipt messaage in openwebmail-send.pl
    (thanks to tigeli, pasi.sjoholm.AT.tieto-x.fi for his fix)
 
@@ -329,7 +336,7 @@ ps:this was due to a strange behavior that
    (thanks to Alex Teslik, alex.AT.acatysmoof.com for his fix)
 2. fix the bug that addressbook import can would fail if the FullName
    field is choosed
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his fix)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br for his fix)
 3. move the popup calendar stylesheets into the templates/COMMON files
    and out of the templates/$lang files
    (thanks to Alex Teslik, alex.AT.acatysmoof.com for his code)
@@ -412,7 +419,7 @@ ps:The new routine maintains compatibility with old lunar db format,
 ----------
 1. fix a bug in preload.pl that some cgi url were hard coded instead of
    $cgiurl variable
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his fix)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br for his fix)
 
 
 03/22/2005
@@ -821,7 +828,7 @@ Why: When owm opens a pipe to the spamcheck/viruscheck client cmd (spamc/clamdsc
 1. fix the bug that search by date in messagelist only matches with YYYYMMYY
    Now the date will match with the the dateformat selected by users in their
    user preference
-   (suggested by Joao S Veiga, openwebmail.AT.rf.com.br)
+   (suggested by Joao S Veiga, openwebmail.AT.it.eng.br)
 2. Arabic language and prefs.template file translation update
    (thanks to Isam Ishaq, isam.AT.planet.edu)
 3. Indonesian language and template files translation update
@@ -832,7 +839,7 @@ Why: When owm opens a pipe to the spamcheck/viruscheck client cmd (spamc/clamdsc
 ----------
 1. use random number to generate tmp filename for security
 2. clear all user related info in login error message
-   (suggested by Joao S Veiga, openwebmail.AT.rf.com.br)
+   (suggested by Joao S Veiga, openwebmail.AT.it.eng.br)
 
 
 01/21/2005
@@ -891,7 +898,7 @@ ps: This is due to the iconv mapping table in libiconv-1.9 (used by FreeBSD)
    may be parsed incorrectly, this was introduced by a fix in 20041030
 2. add the categorized folder setarator support
    add description of categorzied folder to help tutorial
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his code)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br for his code)
 
 
 01/15/2005
@@ -980,7 +987,7 @@ ps: This would simplify the job for sysadm when he determines to change option
 01/06/2005 (version 2.50)
 ----------
 1. categroized folders display in openwebmail-folder.pl
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his code)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br for his code)
 
 
 01/05/2005
@@ -1282,7 +1289,7 @@ ps: This function requires the program 'lsof',
 11/10/2004
 ----------
 1. the import/export support for csv and tab-separated addressbook!
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his code)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br for his code)
 2. add option webmail_middle_plugfile to plugin content between menubar
    and messagelist in webmail
 3. remove redundant file etc/vcard.pl
@@ -1432,7 +1439,7 @@ ps: If you are upgrading from older openwebmail, don't forget to convert
 
 2. Welcome Alex Teslik to the openwebmail develope team :)
 3. Portuguese Brazil language and template files translation ipdate
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br)
 4. remove stale iconsets from data/images/iconsets/
 5. move javascript in templates/*/addreditform_BDAY.template
    to templates/COMMON/, so the js cached in memory could be shared
@@ -1500,7 +1507,7 @@ ps:If you encounter any problem with mail filtering,
 1. fix a bug in addressbook csv export routine which didn't check if the
    exported fields contain commas, so the resulting csv may be misunderstood
    by other programs.
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his fix)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br for his fix)
 2. fix bugs in pine addressbook import routine
    a. entries across multiple lines were not parsed properly
    b. mime encoded strings were not decoded properly
@@ -1613,7 +1620,7 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
 08/23/2004
 ----------
 1. recover lost files in data/openwebmail/help/pt_BR/tutorial/
-   (reported by Joao S Veiga, openwebmail.AT.rf.com.br)
+   (reported by Joao S Veiga, openwebmail.AT.it.eng.br)
 
 
 08/22/2004
@@ -1625,7 +1632,7 @@ ps: This wrong size/count summary bug won't hurt the consistence of mail
    b. corrects multiple appearances of
       "Open Webmail Ajuda e Tutorial e Tutorial" to
       "Open Webmail Ajuda e Tutorial" on the pt_BR help pages.
-   (thanks to Joao S Veiga, openwebmail.AT.rf.com.br for his patch)
+   (thanks to Joao S Veiga, openwebmail.AT.it.eng.br for his patch)
 
 
 08/20/2004

@@ -212,9 +212,15 @@ eg: Qmail is know to use GMT time in mail delivery.
 
 zonetabfile
 -----------------------------------------------------------------------
-Points to the zone.tab list of timezones, normally 
-/usr/share/zoneinfo/zone.tab
-Set to 'no' for simple timezone handling (old behaviour).
+Points to the zone.tab, usually /usr/share/zoneinfo/zone.tab. 
+This will correctly handle DST. Set to 'no' for simple timezone 
+handling (old behaviour).
+NOTE: If you are upgrading from the old timezone handling, existing 
+users will not have the 'timezone' set in their openwebmailrc files 
+(setting the default_timezone in openwebmail.conf only affects new
+users).  In this case, it has to be configured either on their 
+openwebmailrc, or through the user settings page. See default_timezone 
+setting description.
 
 
 ##############################################################################
@@ -1645,9 +1651,16 @@ ps: If you are using Apache 2.0 or higher, don't forget to set
 
 default_timeoffset
 -----------------------------------------------------------------------
-This is the default time offset of user timezone from GMT.
+This is the default time offset of user timezone from GMT, if you
+are not using the zoneinfo database (see zonetabfile setting).
 You can set it to 'auto' or value in the notation [-|+]XXXX.
 For example, for Taiwan, the offset is +0800.
+
+default_timezone
+-----------------------------------------------------------------------
+This is the default timezone user if you are using the zoneinfo
+database (see zonetabfile setting). Valid settings can be found in your
+system's zone.tab file (for example, America/Sao_Paulo).
 
 
 default_daylightsaving
