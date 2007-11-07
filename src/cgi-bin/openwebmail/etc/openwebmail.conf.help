@@ -297,12 +297,19 @@ the directory for openwebmail per user config
 
 ow_usersdir
 -----------------------------------------------------------------------
-the directory for openwebmail users to store their messages,
-personal preferences, signatures, and addressbooks in.
+the directory for openwebmail users to store their messages, personal
+preferences, signatures, webdisk files and addressbooks in.
 
-ps: This option is used ONLY if option use_syshomedir is set to 'no'
-ps: This direcotry would become very large if you have many webmail users,
-    so please put it in a partition with enough space.
+This option is used ONLY if option use_syshomedir is set to 'no'
+
+This directory would become very large if you have many webmail users,
+so please put it in a partition with enough space.
+
+It is strongly recommended that the ow_usersdir NOT be directly
+accessable via a URL on the webserver. If you put the ow_usersdir
+somewhere that can be accessed by URL, users will be able to upload
+malicious scripts via webdisk and then execute them with the
+permissions of the webserver.
 
 
 ow_sessionsdir
