@@ -645,11 +645,11 @@ sub composemessage {
       my $fromemail=$prefs{'email'};
       foreach (keys %userfrom) {
          if ($composetype eq "editdraft") {
-            if ($message{'from'}=~/$_/) {
+            if ($message{'from'}=~/$_/i) {
                $fromemail=$_; last;
             }
          } else { # reply/replyall/forward/forwardasatt/forwardasorig
-            if ($message{'to'}=~/$_/ || $message{'cc'}=~/$_/ ) {
+            if ($message{'to'}=~/$_/i || $message{'cc'}=~/$_/i ) { # case-insensitive for UpPeRcAsE@ExAmPlE.cOm matching
                $fromemail=$_; last;
             }
          }
