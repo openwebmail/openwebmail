@@ -1547,7 +1547,7 @@ sub del_attachment_from_message {
 
       $has_namedatt++ if (${$att[$i]}{filename}!~/^Unknown\./);
    }
-   push(@datas, "\n--$boundary--\n");
+   push(@datas, "\n--$boundary--\n\n");
    return 0 if ($delatt==0);
 
    $block=join('', @datas);
