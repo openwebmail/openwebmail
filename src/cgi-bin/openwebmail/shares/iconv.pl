@@ -139,7 +139,7 @@ use vars qw(%is_convertible_cache);
 );
 sub is_convertible {
    my ($from, $to)=@_;
-   return 0 if ($from eq'' || $to eq '');
+   return 0 if ($from eq '' || $to eq '');
 
    $from=official_charset($from);
    $to=official_charset($to);
