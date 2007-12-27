@@ -1294,7 +1294,7 @@ ps: Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
    The latest perl 5.8.4 does more strict check for suid scripts,
    and the following two may cause incompatibility for some users
 
-   a. the name of the perl interpreter must has string 'perl'
+   a. the name of the perl interpreter must include the 'perl' string
 
       We used suggest 'speedy_suid' as the name of suid speedy perl interpreter,
       but we would like to suggest 'speedy_suidperl' as the name of speedy perl

@@ -31,7 +31,7 @@
       var s;
       s=document.passwordform.newpassword.value;
       if (s.length < @@@PASSWDMINLEN@@@) {
-         alert("Password must has at least @@@PASSWDMINLEN@@@ characters.");
+         alert("Password must have at least @@@PASSWDMINLEN@@@ characters.");
          return false;
       }
       if (document.passwordform.newpassword.value !=
