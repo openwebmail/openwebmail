@@ -1,65 +1,57 @@
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
-<tr><td colspan="5" bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<b>Edit Folders</b></font>
-</td></tr>
-<tr><td colspan="5" bgcolor=@@@MENUBAR@@@>
-@@@MENUBARLINKS@@@
-</td></tr>
+<tr>
+  <td colspan="5" bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Edit Folders</b></font></td>
+</tr>
+<tr>
+  <td colspan="5" bgcolor=@@@MENUBAR@@@>@@@MENUBARLINKS@@@</td>
+</tr>
 
 @@@USERFOLDERSSTART@@@
-<tr><td colspan="5">&nbsp;</td></tr>
-<tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
-<B>Folder Name (@@@FOLDERNAME_MAXLEN@@@ characters)</B></td>
-<td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
-<td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
-<td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
-<td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Action</B>
-</td></tr>
+<tr>
+  <td colspan="5">&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@>&nbsp;<b>Folder Name (@@@FOLDERNAME_MAXLEN@@@ characters)</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>New</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Mesg</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Size</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Action</b></td>
+</tr>
 @@@STARTFOLDERFORM@@@
-<tr><td bgcolor=@@@TABLEROW_LIGHT@@@>&nbsp;
-@@@FOLDERNAMEFIELD@@@
-</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
-&nbsp;
-</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
-&nbsp;
-</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
-&nbsp;
-</td><td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>
-@@@ADDBUTTON@@@
-</td></tr>
+<tr>
+  <td bgcolor=@@@TABLEROW_LIGHT@@@>&nbsp;@@@FOLDERNAMEFIELD@@@</td>
+  <td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>&nbsp;</td>
+  <td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>&nbsp;</td>
+  <td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>&nbsp;</td>
+  <td align="center" bgcolor=@@@TABLEROW_LIGHT@@@>@@@ADDBUTTON@@@</td>
+</tr>
 @@@ENDFORM@@@
 
 @@@FOLDERS@@@
 @@@USERFOLDERSEND@@@
 
-<tr><td colspan="5">&nbsp;</td></tr>
-<tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
-<B>Default folders</B></td>
-<td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>New</B></td>
-<td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Mesg</B></td>
-<td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Size</B></td>
-<td align="center" bgcolor=@@@COLUMNHEADER@@@>
-&nbsp;
-</td></tr>
+<tr>
+  <td colspan="5">&nbsp;</td>
+</tr>
+<tr>
+  <td bgcolor=@@@COLUMNHEADER@@@>&nbsp;<b>Default folders</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>New</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Mesg</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@><b>Size</b></td>
+  <td align="center" bgcolor=@@@COLUMNHEADER@@@>&nbsp;</td>
+</tr>
 
 @@@DEFAULTFOLDERS@@@
 
-<tr><td colspan="5">&nbsp;</td></tr>
+<tr>
+  <td colspan="5">&nbsp;</td>
+</tr>
 @@@TOTAL@@@
-
 </table>
-<script language="JavaScript">
+
+<script language="javascript">
 <!--
-   function OpConfirm(formname, op, text)
-   {
+   function OpConfirm(formname, op, text) {
       var newname='';
       if ( op == 'markreadfolder' ) {
          document.forms[formname].action.value='markreadfolder';

@@ -1,51 +1,65 @@
 <p align="center">
-<a href="@@@LOGO_LINK@@@">
-<img border="0" src="@@@LOGO_URL@@@"></a></p>
+  <a href="@@@LOGO_LINK@@@"><img border="0" src="@@@LOGO_URL@@@"></a>
+</p>
+
 <table border="0" align="center" width="260" cellpadding="0" cellspacing="0">
-<tr><td bgcolor="#3161bd" background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif">
-&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><B>Login</B></FONT>
-</td></tr><tr><td align="center" bgcolor="#3161bd">
-
-<table width="100%" cellpadding="0" cellspacing="1" border="0">
 <tr>
-<td bgcolor=#ffffff>
+  <td bgcolor="#3161bd" background="@@@IMAGEDIR_URL@@@/bg-titleblue.gif">&nbsp;<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Login</b></font></td>
+</tr>
+<tr>
+  <td align="center" bgcolor="#3161bd">
+    <table width="100%" cellpadding="0" cellspacing="1" border="0">
+    <tr>
+      <td bgcolor="#ffffff">
 @@@STARTFORM@@@
-<BR>
-<table align=center border=0 cellspacing=2 cellpadding=0>
-<tr>
-<td align="right" nowrap>UserID: </td><td>@@@LOGINNAMEFIELD@@@</td>
-</tr><tr>
-<td align="right" nowrap>Password: </td><td>@@@PASSWORDFIELD@@@</td>
+<br>
+        <table align="center" border="0" cellspacing="2" cellpadding="0">
+        <tr>
+          <td align="right" nowrap>UserID: </td>
+          <td>@@@LOGINNAMEFIELD@@@</td>
+        </tr>
+        <tr>
+          <td align="right" nowrap>Password: </td>
+          <td>@@@PASSWORDFIELD@@@</td>
 @@@DOMAINSTART@@@
-</tr><tr>
-<td align="right" nowrap>Domain: </td><td>@@@DOMAINMENU@@@</td>
+        </tr>
+        <tr>
+          <td align="right" nowrap>Domain: </td>
+          <td>@@@DOMAINMENU@@@</td>
 @@@DOMAINEND@@@
-</tr><tr>
-<td align=center colspan=2>
-
-<table><tr>
-<td align=center>@@@LOGINBUTTON@@@</td>
-<td align=center>
-<table><tr>
-<td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td><td><font size=1>HTTP<br>Compression</font></td>
+        </tr>
+        <tr>
+          <td align="center" colspan="2">
+            <table>
+            <tr>
+              <td align="center">@@@LOGINBUTTON@@@</td>
+              <td align="center">
+                <table>
+                <tr>
+                  <td>@@@HTTPCOMPRESSIONCHECKBOX@@@</td>
+                  <td><font size="1">HTTP<br>Compression</font></td>
 @@@AUTOLOGINSTART@@@
-<td>@@@AUTOLOGINCHECKBOX@@@</td><td><font size=1>Auto<br>Login</font></td>
+                  <td>@@@AUTOLOGINCHECKBOX@@@</td>
+                  <td><font size="1">Auto<br>Login</font></td>
 @@@AUTOLOGINEND@@@
-</tr></table>
-</td>
-</tr></table>
-
-</td>
+                </tr>
+                </table>
+              </td>
+            </tr>
+            </table>
+          </td>
+        </tr>
+        </table>
+<br>
+      </td>
+@@@ENDFORM@@@
+    </tr>
+    </table>
+  </td>
 </tr>
 </table>
-<BR>
-</td>
-@@@ENDFORM@@@
-</tr></table>
 
-</td></tr></table>
-
-<script language="JavaScript">
+<script language="javascript">
 <!--
 
    if (document.login.loginname.value == "") {
@@ -54,20 +68,17 @@
       document.login.password.focus()
    }
 
-   function focuspwd()
-   {
+   function focuspwd() {
       document.login.password.focus();
       return(true);
    }
 
-   function focusloginbutton()
-   {
+   function focusloginbutton() {
       document.login.loginbutton.focus();
       return (true);
    }
 
-   function httpcompresshelp()
-   {
+   function httpcompresshelp() {
       if (document.login.httpcompress.checked) {
          alert(
 "HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, "+
@@ -84,8 +95,7 @@
       return(true);
    }
 
-   function autologinhelp()
-   {
+   function autologinhelp() {
       if (document.login.autologin.checked) {
          alert(
 "When this feature is enabled, you may login into openwebmail without typing username/password "+

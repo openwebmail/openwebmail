@@ -65,7 +65,7 @@
           @@@ENDIMPORTFORM@@@
 
           @@@STARTCANCELFORM@@@
-          <td nowrap>&nbsp;@@@CANCELBUTTON@@@<td>
+          <td nowrap>&nbsp;@@@CANCELBUTTON@@@</td>
           @@@ENDCANCELFORM@@@
         </tr>
         </table>

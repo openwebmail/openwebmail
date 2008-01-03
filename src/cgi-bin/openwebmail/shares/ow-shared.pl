@@ -550,6 +550,9 @@ sub _load_owconf {
          }
          $conf{$key}= { map => \%equiv,		# src -> dst
                         list=> \%equivlist };	# dst <= srclist
+      } elsif ($key eq 'revision') {
+         # convert the SVN revision to only a number
+         $conf{$key} =~ s#[^\d]+##g;
       } elsif ($is_config_option{'list'}{$lckey}){
          $value=$conf{$key}; $value=~s/\s//g;
          my @list=split(/,+/, $value);

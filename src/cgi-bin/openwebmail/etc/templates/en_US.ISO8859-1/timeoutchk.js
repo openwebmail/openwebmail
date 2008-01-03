@@ -1,4 +1,4 @@
-<script language="JavaScript">
+<script language="javascript">
 <!--
    // alert before session end
    var remainingseconds=@@@REMAININGSECONDS@@@;

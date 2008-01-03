@@ -49,7 +49,7 @@
 
 </table>
 
-<script language="JavaScript">
+<script language="javascript">
 <!--
 function OpConfirm(op, formName, text)
 {

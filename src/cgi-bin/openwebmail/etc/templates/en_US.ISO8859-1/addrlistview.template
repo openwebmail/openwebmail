@@ -76,7 +76,7 @@ function CheckAll(thisBox,formName,nameName,groupName) {
                e.checked = thisBox.toggle;
             }
          } else {
-            if (e.name == nameName && 
+            if (e.name == nameName &&
                 document.forms[formName].elements[i+1] != null &&
                 document.forms[formName].elements[i+1].name == escape(groupName)) {
                e.checked = thisBox.toggle;

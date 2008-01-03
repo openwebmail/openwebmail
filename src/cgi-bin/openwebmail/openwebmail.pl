@@ -638,7 +638,7 @@ sub login {
 
    my $softwarestr=$config{'name'};
    if ($config{'enable_about'} && $config{'about_info_software'}) {
-      $softwarestr.=qq| $config{'version'} $config{'releasedate'}|;
+      $softwarestr.=qq| $config{'version'}.$config{'revision'} $config{'releasedate'}|;
    }
 
    my $countstr='';
@@ -672,11 +672,13 @@ sub login {
 	qq|<br><br><br>\n\n|.
 	qq|<a href="http://openwebmail.org/" title="click to home of $config{'name'}" target="_blank" style="text-decoration: none">\n|.
 	qq|$softwarestr<br><br>\n|.
-	qq|Copyright (C) 2001-2006<br>\n|.
-	qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>|.
-	qq|Thomas Chung, Dattola Filippo, Bernd Bass, Scott Mazur, Alex Teslik<br><br>\n|.
+	qq|Copyright (C) 2001-2008<br>\n|.
+	qq|Thomas Chung, Alex Teslik, Scott Mazur, Joao S Veiga, Marian &#270;urkovi&#269;<br><br>\n|.
 	qq|Copyright (C) 2000<br>\n|.
 	qq|Ernie Miller  (original GPL project: Neomail)<br><br>\n|.
+	qq|Special Thanks to Retired Developers<br>\n|.
+	qq|Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>|.
+	qq|Dattola Filippo, Bernd Bass<br><br>\n|.
 	qq|</a>\n\n|.
 	qq|<a href="$config{'ow_htmlurl'}/doc/copyright.txt" title="click to see GPL version 2 licence" target="_blank" style="text-decoration: none">\n|.
 	qq|This program is free software; you can redistribute it and/or modify<br>\n|.
