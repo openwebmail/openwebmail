@@ -45,6 +45,11 @@ sed -e "s/\(releasedate[[:space:]]*\)[0-9]*/\1$RELEASEDATE/" -i '' cgi-bin/openw
 # fix permissions
 echo "Permissioning files..."
 chmod 755 cgi-bin data
+chown -R 0:0 cgi-bin data
+
+chmod 755 cgi-bin/openwebmail data/openwebmail
+chown -R 0:0 cgi-bin/openwebmail data/openwebmail
+
 
 cd cgi-bin/openwebmail
 foreach DIR (etc/sites.conf etc/users.conf etc/defaults etc/templates etc/styles etc/holidays etc/maps misc)
