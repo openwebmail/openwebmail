@@ -311,7 +311,7 @@ sub viewattfile {	# view attachments uploaded to $config{'ow_sessionsdir'}
    return;
 }
 
-sub saveattfile {	# save attachments uploaded to $config{'pw_sessiondir'} to webdisk
+sub saveattfile {	# save attachments uploaded to $config{'ow_sessiondir'} to webdisk
    my $attfile=param('attfile')||'';
    my $webdisksel=param('webdisksel')||'';
 

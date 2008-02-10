@@ -976,13 +976,27 @@ Set this to 'no' if you hope to apply smart filters on these good messages
 
 enable_viruscheck
 -----------------------------------------------------------------------
-This option enables external virus check program (clamav)
+This option enables external virus checker (clamav). The virus
+checker in OpenWebMail is intended to check messages that arrive without
+going through the system MTA - such as POP3 messages. However it can
+also be used to check all messages by configuring the
+viruscheck_source_allowed option, in the case that the MTA does not
+perform virus checking - although it is recommended to check messages at
+the MTA and not OpenWebMail whenever possible.
 
 
 viruscheck_pipe
 -----------------------------------------------------------------------
 The location of the virus check program with parmeters to read a
 message from the stdin
+
+
+viruscheck_include_report
+-----------------------------------------------------------------------
+If the viruscheck_pipe is configured to return a report on which virus
+tests were hit, this option will include that report in the header of
+the infected message. Convenient for determining why a message has been
+flagged as infected.
 
 
 viruscheck_source_allowed
@@ -997,6 +1011,7 @@ this option limits the max value that user can set for viruscheck_maxsize
 in the user preference. (in KB)
 Value: 250, 500, 1000, 2000, 3000, 4000, 5000, 10000, 20000, 50000
 
+
 virus_destination
 -----------------------------------------------------------------------
 The folder to be moved to for messages with virus (default: virus-mail)
@@ -1010,7 +1025,13 @@ one of the default folders
 
 enable_spamcheck
 -----------------------------------------------------------------------
-This option enables external spam checker (spamassassin)
+This option enables external spam checker (spamassassin). The spam
+checker in OpenWebMail is intended to check messages that arrive without
+going through the system MTA - such as POP3 messages. However it can
+also be used to check all messages by configuring the
+spamcheck_source_allowed option, in the case that the MTA does not
+perform spam checking - although it is recommended to check messages at
+the MTA and not OpenWebMail whenever possible.
 
 
 spamcheck_pipe
@@ -1021,6 +1042,14 @@ commandline using a single raw message. Spamassassin spamc must be able
 to correctly connect to spamd to process the message. Make sure you are
 also connecting to the correct spamd port. Spamd must be running for
 OpenWebMail to process spam properly.
+
+
+spamcheck_include_report
+-----------------------------------------------------------------------
+If the spamcheck_pipe is configured to return a report on which spam
+tests were hit, this option will include that report in the header of
+the spammy message. Convenient for determining why a message has been
+flagged as spam.
 
 
 spamcheck_source_allowed
@@ -1858,7 +1887,7 @@ This defines how long openwebmail should wait for background mail
 filtering before returning the folder message listing or message
 content to user
 
-ps: Forgroung mail filtering guarentees that all messages are checked
+ps: Foreground mail filtering guarentees that all messages are checked
     and filtered before the message list is shown to user, but the
     user have to wait to see the message list until the filter finishes.
 

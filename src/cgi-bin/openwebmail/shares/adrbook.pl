@@ -241,7 +241,7 @@ sub _parse_username {
          return ($n[0], '', $n[1], $nick);
       }
    } elsif ($#n>=2) {
-      if ($name=~/(.+)\s+(st\.?|van|von|da|de)\s+(.+)/i) {
+      if ($name=~/(.+)\s+(st\.?|v[ao]n|d[aei]l?|d[ae]ll[ae])\s+(.+)/i) {
          my ($first, $last)=($1, "$2 $3");
          if ($first=~/^(.+)\s+(\S+)$/) {			# First Mid von Last
             return($1, $2, $last, $nick);

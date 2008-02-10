@@ -1340,6 +1340,7 @@ sub www_pop3_fetch {
 	=(split(/\@\@\@/, $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}))[2,4,5];
 
    my ($ret, $errmsg)=pop3_fetch($pop3host,$pop3port,$pop3ssl, $pop3user,$pop3passwd,$pop3del);
+
    if ($ret<0) {
       openwebmailerror(__FILE__, __LINE__, "$errmsg at $pop3user\@$pop3host:$pop3port");
    }
@@ -1348,8 +1349,8 @@ sub www_pop3_fetch {
 sub pop3_fetch {
    my ($pop3host, $pop3port, $pop3ssl, $pop3user, $pop3passwd, $pop3del)=@_;
 
-   my ($ret, $errmsg)=fetchmail($pop3host, $pop3port, $pop3ssl,
-                                $pop3user, $pop3passwd, $pop3del);
+   my ($ret, $errmsg)=fetchmail($pop3host, $pop3port, $pop3ssl, $pop3user, $pop3passwd, $pop3del);
+
    if ($ret<0) {
       writelog("pop3 error - $errmsg at $pop3user\@$pop3host:$pop3port");
       writehistory("pop3 error - $errmsg at $pop3user\@$pop3host:$pop3port");
@@ -1405,7 +1406,7 @@ sub pop3_fetches {
 
       if ( fork() == 0 ) {		# child
          close(STDIN); close(STDOUT); close(STDERR);
-         writelog("debug - fetch pop3s process forked - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
+         writelog("debug - pop3_fetches process forked - " . __FILE__ . ":" . __LINE__) if ($config{'debug_fork'});
 
          ow::suid::drop_ruid_rgid(); # set ruid=euid can avoid fork in spamcheck.pl
          foreach (values %accounts) {

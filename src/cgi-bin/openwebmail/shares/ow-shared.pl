@@ -45,7 +45,7 @@ foreach (qw(
    enable_stationery enable_savedraft enable_backupsent
    enable_globalfilter enable_userfilter enable_smartfilter smartfilter_bypass_goodmessage
    enable_viruscheck enable_spamcheck enable_learnspam enable_saprefs
-   has_virusfolder_by_default has_spamfolder_by_default
+   has_virusfolder_by_default has_spamfolder_by_default spamcheck_include_report viruscheck_include_report
    enable_pop3 pop3_delmail_by_default pop3_delmail_hidden pop3_usessl_by_default
    authpop3_getmail authpop3_delmail authpop3_usessl
    webdisk_readonly webdisk_lsmailfolder webdisk_lshidden webdisk_lsunixspec webdisk_lssymlink

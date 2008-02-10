@@ -2,23 +2,19 @@ package ow::spamcheck;
 #
 # spamcheck.pl - routines to call external checker to detect spam
 #
-# 2004/07/01 tung.AT.turtle.ee.ncku.edu.tw
-#
 
 use strict;
-use Fcntl qw(:DEFAULT :flock);
-use IO::Socket;
 require "modules/tool.pl";
 require "modules/suid.pl";
 
 # sub scanmsg(pipecmd, msg_reference)
-# ret (spamlevel, '');
+# ret (spamlevel, report);
 #     (-99999, runtime error);
 # sub learnspam(pipecmd, msg_reference)
-# ret (learned, exxamed);
+# ret (learned, examend);
 #     (-99999, runtime error);
-# sub larnham(pipecmd, msg_reference)
-# ret (learned, exxamed);
+# sub learnham(pipecmd, msg_reference)
+# ret (learned, examend);
 #     (-99999, runtime error);
 
 #
@@ -49,82 +45,91 @@ use vars qw (%spamcerr);
    78 => "configuration error",
 );
 
-# cmd:    /usr/local/bin/spamc -c -x -t60
+# cmd:    /usr/local/bin/spamc -R -x -t60
 # output: 212.8/5
 sub scanmsg {
-   my $ret=pipecmd_msg(@_);
-   $ret =~ s/[\r\n]//g;
+   my $ret = pipecmd_msg(@_);
 
-   # spamc exit with spam level
-   return ($1, '') if ($ret=~m!([\+\-]?[\d\.]+)/([\d+\.])! && $2!=0);
+   # did spamc exit with spam level like 16.4/5.0 or 0.0/5.0?
+   if ($ret =~ m#^[+-]?([\d.]+)/([\d.]+)#) {
+      my $spamscore = $1;
+      my $threshold = $2; # not same as $prefs{'spamcheck_threshold'}!
+      my ($report)  = $ret =~ m#^[+-]?[\d.]+/[\d.]+\s+(.*)#gs;
+      return($spamscore, $report) unless ($spamscore == 0 && $threshold == 0);
+   }
+
+   # ret is an error past this point
+   $ret =~ s/[\n\r]+/ /gs;
+   $ret =~ s/\s+$//gs;
+   $ret =~ s/^\s+//gs;
 
    # determine runtime error
-   my $exit=$?&255;
-   return(-99999, "spamc error, exit=$exit, ret=$ret, spamcerr=$spamcerr{$exit}") if (defined $spamcerr{$exit});
-   return(-99999, "spamd error, exit=$exit, ret=$ret");
+   my $exit = $? & 255;
+   return (-99999, "spamc error, exit=$exit, ret=$ret, spamcerr=$spamcerr{$exit}") if (exists $spamcerr{$exit});
+   return (-99999, "spamc forked but then failed, check if spamd is running, exit=$exit, ret=$ret") if ($ret eq '0/0');
+   return (-99999, "spamc unknown error, exit=$exit, ret=$ret");
 }
 
 # cmd:    /usr/local/bin/sa-learn --local --spam
 # output: Learned from 1 message(s) (1 message(s) examined).
 sub learnspam {
-   my $ret=pipecmd_msg(@_);
-   $ret =~ s/[\r\n]//g;
-   return (-99999, $ret) if ($ret!~/(\d+) message.*?(\d+) message/);
+   my $ret = pipecmd_msg(@_);
+   return (-99999, $ret) if ($ret!~/(\d+) message.*?(\d+) message/s);
    return($1, $2);
 }
 
 # cmd:    /usr/local/bin/sa-learn --local --ham
 # output: Learned from 1 message(s) (1 message(s) examined).
 sub learnham {
-   my $ret=pipecmd_msg(@_);
-   $ret =~ s/[\r\n]//g;
-   return (-99999, $ret) if ($ret!~/(\d+) message.*?(\d+) message/);
+   my $ret = pipecmd_msg(@_);
+   return (-99999, $ret) if ($ret!~/(\d+) message.*?(\d+) message/s);
    return($1, $2);
 }
 
 # common routine, ret pipe output #########################################
 sub pipecmd_msg {
-   # refer to perlopentut and perlipc for more information.
-   my ($pipecmd, $r_message)=@_;
+   my ($pipecmd, $r_message) = @_;
 
-   my $username=getpwuid($>);	# username of euid
-   $pipecmd=~s/\@\@\@USERNAME\@\@\@/$username/g;
+   my $username = getpwuid($>); # username of euid
 
-   my ($outfh, $outfile)=ow::tool::mktmpfile('spamcheck.out');
-   my ($errfh, $errfile)=ow::tool::mktmpfile('spamcheck.err');
+   $pipecmd = ow::tool::untaint($pipecmd);
+   $pipecmd =~ s/\@\@\@USERNAME\@\@\@/$username/g;
 
-   local $|=1; # flush all output
+   my ($outfh, $outfile) = ow::tool::mktmpfile('spamcheck.out');
+   my ($errfh, $errfile) = ow::tool::mktmpfile('spamcheck.err');
 
-   # alias STDERR and STDOUT to get the output of the pipe
-   open(STDERR,">&=".fileno($errfh)) or return("dup STDERR failed: $!");
-   open(STDOUT,">&=".fileno($outfh)) or return("dup STDOUT failed: $!");
+   # STDIN gets closed if this is not a separate sub for some unknown reason
+   my $pipeerror = _pipecmd_msg($pipecmd, $r_message, $outfile, $errfile);
+   return $pipeerror if $pipeerror;
 
-   local $SIG{PIPE} = 'IGNORE'; # don't die if the fork pipe breaks
+   # slurp in all the output
+   local $/ = undef;
 
-   my ($out, $err, $errmsg);
-   open(P, "|$pipecmd") or return("can't fork to pipecmd: $! pipecmd: $pipecmd");
-   if (ref($r_message) eq 'ARRAY') {
-      print P @{$r_message} or return("can't write to pipe: $!");
-   } else {
-      print P ${$r_message} or return("can't write to pipe: $!");
-   }
-   close(P) or return("pipe broke - check connection to spamd - status: $?");
+   my $stderr=<$errfh>;
+   close($errfh) || return("could not close the stderrfile $errfile: $!");
 
-   close($errfh) or return("can't close errfh: $!");
-   close($outfh) or return("can't close outfh: $!");
+   my $stdout=<$outfh>;
+   close($outfh) || return("could not close the stdoutfile $outfile: $!");
 
-   sysopen(F, $errfile, O_RDONLY) or return("can't open errfile $errfile: $!");
-   $err = <F>;
-   close(F) or return("can't close errfile $errfile: $!");
    unlink $errfile;
-
-   sysopen(F, $outfile, O_RDONLY) or return("can't open outfile $outfile: $!");
-   $out = <F>;
-   close(F) or return("can't close outfile $outfile: $!");
    unlink $outfile;
 
-   return $err if (defined $err && $err ne '' && $err !~ m/^\s+$/s);
-   return $out;
+   foreach ($stderr, $stdout) {
+      return $_ if (defined $_ && $_ =~ m#\S#g);
+   }
+}
+
+sub _pipecmd_msg {
+   my ($pipecmd, $r_message, $outfile, $errfile) = @_;
+   open(P, "|$pipecmd 2>$errfile >$outfile") or return("pipecmd open failed: $!");
+   if (ref($r_message) eq 'ARRAY') {
+      print P @{$r_message} or return("print array to pipe failed: $!\n");
+   } else {
+      print P ${$r_message} or return("print string to pipe failed: $!\n");
+   }
+   # this close fails because spamc exits immediately, so do not check for error
+   close(P);
+   return 0;
 }
 
 1;

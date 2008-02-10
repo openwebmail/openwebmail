@@ -87,14 +87,16 @@ sub fetchmail {
    if (!$uidl_support) {
       if (sendcmd($socket, "last\r\n", \@result)) {	# 'last' supported
          if (($last=$result[0]) == $msg_total) {	# all msgs have already been read
-            sendcmd($socket, "quit\r\n", \@result); close($socket);
+            sendcmd($socket, "quit\r\n", \@result);
+            close($socket);
             return (0, '');
          }
       } else {						# 'last' not supported
          if ($pop3del) {
             $last=0;
          } else {
-            sendcmd($socket, "quit\r\n", \@result); close($socket);
+            sendcmd($socket, "quit\r\n", \@result);
+            close($socket);
             return (-2, 'uidl & last not supported');
          }
       }
@@ -187,40 +189,64 @@ sub fetchmail {
           !$viruscheck_err &&
           $msgsize <= $prefs{'viruscheck_maxsize'}*1024 &&
           $msgsize-$headersize > $prefs{'viruscheck_minbodysize'}*1024 ) {
-         my ($ret, $err)=ow::viruscheck::scanmsg($config{'viruscheck_pipe'}, \@lines);
+         my @completemsg = ($has_dilimeter?@lines:($faked_dilimeter, @lines));
+         writelog("debug - viruscheck forking cmd $config{'viruscheck_pipe'} for msg $msgid from $pop3user\@$pop3host") if $config{debug_fork};
+         my ($ret, $report, $virusname) = ow::viruscheck::scanmsg($config{'viruscheck_pipe'}, \@completemsg);
          if ($ret<0) {
-            writelog("viruscheck - pipe error - $err");
-            writehistory("viruscheck - pipe error - $err");
+            writelog("viruscheck - pipe error - $report");
+            writehistory("viruscheck - pipe error - $report");
             $viruscheck_err++;
          } elsif ($ret>0) {
-            writelog("viruscheck - virus $err found in msg $msgid from $pop3user\@$pop3host");
-            writehistory("viruscheck - virus $err found in msg $msgid from $pop3user\@$pop3host");
+            writelog("viruscheck - virus $virusname found in msg $msgid from $pop3user\@$pop3host");
+            writehistory("viruscheck - virus $virusname found in msg $msgid from $pop3user\@$pop3host");
             $virus_found=1;
-            $viruscheck_xheader="X-OWM-VirusCheck: virus $err found\n";
+            $viruscheck_xheader="X-OWM-VirusCheck: virus $virusname found\n";
+            if (defined $report && $report && $prefs{'viruscheck_include_report'}) {
+               # replace blank lines with ----
+               $report =~ s#([\n\r])([\n\r])#$1----$2#gs;
+               # remove trailing space
+               $report =~ s#\s+$##gs;
+               # rfc822 folding of report
+               $report =~ s#([\n\r]+)#$1  #gs;
+               $viruscheck_xheader.=sprintf("X-OWM-VirusReport: $report\n");
+            }
          } else {
             $viruscheck_xheader="X-OWM-VirusCheck: clean\n";
+            writelog("debug - not infected for msg $msgid from $pop3user\@$pop3host, ret: $report") if $config{debug_fork};
          }
       }
 
       # 2. spam check
       my ($spam_found, $spamcheck_xheader)=(0, '');;
-      if (!$virus_found &&
-          $config{'enable_spamcheck'} &&
-          ($prefs{'spamcheck_source'} eq 'all' || $prefs{'spamcheck_source'} eq 'pop3') &&
-          !$spamcheck_err &&
-          $msgsize <= $prefs{'spamcheck_maxsize'}*1024 ) {
-         my ($spamlevel, $err)=ow::spamcheck::scanmsg($config{'spamcheck_pipe'}, \@lines);
-         if ($spamlevel==-99999) {
-            writelog("spamscheck - pipe error - $err");
-            writehistory("spamscheck - pipe error - $err");
+      if (!$virus_found
+          && $config{'enable_spamcheck'}
+          && ($prefs{'spamcheck_source'} eq 'all' || $prefs{'spamcheck_source'} eq 'pop3')
+          && !$spamcheck_err
+          && $msgsize <= $prefs{'spamcheck_maxsize'}*1024 ) {
+         my @completemsg = ($has_dilimeter?@lines:($faked_dilimeter, @lines));
+         writelog("debug - spamcheck forking cmd $config{'spamcheck_pipe'} for msg $msgid from $pop3user\@$pop3host") if $config{debug_fork};
+         my ($spamscore, $report)=ow::spamcheck::scanmsg($config{'spamcheck_pipe'}, \@completemsg);
+         if ($spamscore == -99999) {
+            writelog("spamcheck - pipe error - $report");
+            writehistory("spamcheck - pipe error - $report");
             $spamcheck_err++;
-         } elsif ($spamlevel > $prefs{'spamcheck_threshold'}) {
-            writelog("spamcheck - spam $spamlevel/$prefs{'spamcheck_threshold'} found in msg $msgid from $pop3user\@$pop3host");
-            writehistory("spamcheck - spam $spamlevel/$prefs{'spamcheck_threshold'} found in msg $msgid from $pop3user\@$pop3host");
+         } elsif ($spamscore > $prefs{'spamcheck_threshold'}) {
+            writelog("spamcheck - spam $spamscore/$prefs{'spamcheck_threshold'} found in msg $msgid from $pop3user\@$pop3host");
+            writehistory("spamcheck - spam $spamscore/$prefs{'spamcheck_threshold'} found in msg $msgid from $pop3user\@$pop3host");
             $spam_found=1;
-            $spamcheck_xheader=sprintf("X-OWM-SpamCheck: %s %.1f\n", '*' x $spamlevel, $spamlevel);
+            $spamcheck_xheader=sprintf("X-OWM-SpamCheck: %s %.1f/%.1f\n", '*' x $spamscore, $spamscore, $prefs{'spamcheck_threshold'});
+            if (defined $report && $report && $prefs{'spamcheck_include_report'}) {
+               # replace blank lines with ----
+               $report =~ s#([\n\r])([\n\r])#$1----$2#gs;
+               # remove trailing space
+               $report =~ s#\s+$##gs;
+               # rfc822 folding of report
+               $report =~ s#([\n\r]+)#$1  #gs;
+               $spamcheck_xheader.=sprintf("X-OWM-SpamReport: $report\n");
+            }
          } else {
-            $spamcheck_xheader=sprintf("X-OWM-SpamCheck: %s %.1f\n", '*' x $spamlevel, $spamlevel);
+            $spamcheck_xheader=sprintf("X-OWM-SpamCheck: %s %.1f/%.1f\n", '*' x $spamscore, $spamscore, $prefs{'spamcheck_threshold'});
+            writelog("debug - not spam $spamscore/$prefs{'spamcheck_threshold'} for msg $msgid from $pop3user\@$pop3host") if $config{debug_fork};
          }
       }
 

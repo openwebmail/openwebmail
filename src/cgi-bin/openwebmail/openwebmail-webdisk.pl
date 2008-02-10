@@ -1816,7 +1816,7 @@ sub dirfilesel {
                         -onClick=>"saveattachment_and_close('$escapedfolder', '$messageid', '$attachment_nodeid'); return false;",
                         -value=>$lang_text{'ok'});
    }
-   $temphtml.=submit(-name=>'cencelbutton',
+   $temphtml.=submit(-name=>'cancelbutton',
                      -onClick=>'window.close();',
                      -value=>$lang_text{'cancel'});
    $html =~ s/\@\@\@BUTTONS\@\@\@/$temphtml/g;
