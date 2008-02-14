@@ -753,7 +753,7 @@ sub readmessage {
       if ($printfriendly ne "yes") {
          # enable download the whole message
          my $dlicon;
-         if ($message{'x-mailer'}=~/Open WebMail/) {
+         if ($message{'x-mailer'} =~ /^Open ?WebMail/i) {
             $dlicon="download.s.ow.gif";
          } else {
             $dlicon="download.s.gif";

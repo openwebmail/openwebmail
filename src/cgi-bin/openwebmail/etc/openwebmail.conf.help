@@ -891,7 +891,7 @@ xheaders
 This is used to define the additional headers that would be added to
 the header of all outgoing messsages
 
-eg: X-Mailer: %name% %version% %releasedate%
+eg: X-Mailer: %name% %version% %releasedate% %revision%
     X-OriginatingIP: @@@CLIENTUP@@@ (@@@USERID@@@)
 
 ps: please note that all xheaders must be started with X-

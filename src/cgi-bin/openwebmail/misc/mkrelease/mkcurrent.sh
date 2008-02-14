@@ -36,11 +36,11 @@ svn log -rHEAD:1 $SVNSERVER | sed 's/[    ]*$//;s/^[      ]*//;/./,/^$/\!d;s/ [0
 # update the revision number to HEAD
 echo "Setting revision and release date..."
 set REVISIONNUMBER = `svn log -rHEAD $SVNSERVER | sed -n '2p' | cut -d' ' -f1 | sed s/r//`
-sed -e "s/\(revision[[:space:]]*.*\) [0-9]* \(.*\)/\1 $REVISIONNUMBER \2/" -i '' cgi-bin/openwebmail/etc/defaults/openwebmail.conf
+sed -e "s/^\(revision[[:space:]]*.*\) [0-9]* \(.*\)/\1 $REVISIONNUMBER \2/" -i '' cgi-bin/openwebmail/etc/defaults/openwebmail.conf
 
 # update the release date
 set RELEASEDATE = `date "+%Y%m%d"`
-sed -e "s/\(releasedate[[:space:]]*\)[0-9]*/\1$RELEASEDATE/" -i '' cgi-bin/openwebmail/etc/defaults/openwebmail.conf
+sed -e "s/^\(releasedate[[:space:]]*\)[0-9]*/\1$RELEASEDATE/" -i '' cgi-bin/openwebmail/etc/defaults/openwebmail.conf
 
 # fix permissions
 echo "Permissioning files..."

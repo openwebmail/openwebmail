@@ -1555,11 +1555,11 @@ sub safefoldername {
 sub is_safefoldername {		# used before create folder
    my $foldername=$_[0];
 
-   return 0 if ($foldername =~ m!\.\.+! ||
-                $foldername =~ m!^\s*[\|\<\>]+! ||
-                $foldername =~ m![\|\<\>]+\s*$!);
+   return 0 if ($foldername =~ m#\.\.+# ||
+                $foldername =~ m#^\s*[\|\<\>]+# ||
+                $foldername =~ m#[\|\<\>]+\s*$#);
    if ($config{'enable_strictfoldername'}) {
-      return 0 if ($foldername =~ m![\s\`\|\<\>/;&]+!);
+      return 0 if ($foldername =~ m#[\s\`\|\<\>/;&]+#);
    }
    return 1;
 }
@@ -1578,14 +1578,19 @@ sub safedlname {
 
 sub safexheaders {
    my $xheaders='';
+
    foreach (split("\n", $_[0])) {
-      s/^\s*//; s/\s*//;
-      $xheaders.="X-$1: $2\n" if (/^[Xx]\-([\w\d\-_]+):\s*(.*)$/);
+      s/^\s*//; # strip leading whitespace
+      s/\s*$//; # strip trailing whitespace
+      $xheaders .= "X-$1: $2\n" if (/^[Xx]\-([\w\d\-_]+):\s*(.*)$/);
    }
-   my $clientip=ow::tool::clientip();
-   $xheaders=~s/\@\@\@CLIENTIP\@\@\@/$clientip/g;
-   my $userid=$loginuser; $userid.="\@$logindomain" if ($config{'auth_withdomain'});
-   $xheaders=~s/\@\@\@USERID\@\@\@/$userid/g;
+
+   my $clientip = ow::tool::clientip();
+   $xheaders =~ s/\@\@\@CLIENTIP\@\@\@/$clientip/g;
+
+   my $userid = $loginuser;
+   $userid .= "\@$logindomain" if ($config{'auth_withdomain'});
+   $xheaders =~ s/\@\@\@USERID\@\@\@/$userid/g;
 
    return $xheaders;
 }
