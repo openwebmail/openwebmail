@@ -1174,7 +1174,7 @@ sub composemessage {
                          -accesskey=>'T',
                          -override=>'1');
    if ($config{'enable_addressbook'}) {
-      $temphtml.=qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript:GoAddressWindow()"|);
+      $temphtml.=qq|\n |.iconlink("addrbook.s.gif", $lang_text{'addressbook'}, qq|href="javascript: GoAddressWindow();" accesskey="K"|);
    }
    $html =~ s/\@\@\@TOFIELD\@\@\@/$temphtml/;
 

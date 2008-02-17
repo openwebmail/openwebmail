@@ -105,6 +105,9 @@
       document.composeform.to.focus();
    }
 
+   // global to prevent unnecessary reloading
+   var popUp = null;
+
    function GoAddressWindow() {
       var url = "@@@ABOOKURL@@@?action=addrlistview&sessionid=@@@SESSIONID@@@&abookkeyword=@@@ABOOKKEYWORD@@@&abooksearchtype=@@@ABOOKSEARCHTYPE@@@&listviewmode=composeselect";
 
@@ -112,9 +115,28 @@
       url += "&cc=" + escape (document.composeform.cc.value);
       url += "&bcc=" + escape (document.composeform.bcc.value);
 
-      var hWnd = window.open(url,"_addressbook","width=@@@ABOOKWIDTH@@@,height=@@@ABOOKHEIGHT@@@,resizable=yes,scrollbars=yes");
-      if ((document.window != null) && (!hWnd.opener))
-         hWnd.opener = document.window;
+      if (popUp == null || popUp.closed) {
+         popUp = window.open(url,"_addressbook","width=@@@ABOOKWIDTH@@@,height=@@@ABOOKHEIGHT@@@,resizable=yes,scrollbars=yes");
+
+         // early browsers do not auto-support opener, so manually set it
+         if (!popUp.opener) {
+            popUp.opener = self;
+         }
+      } else {
+         if (window.focus) {
+            popUp.focus();
+         }
+      }
+      focusSearch();
+   }
+
+   function focusSearch() {
+      if (popUp != null && popUp.document && popUp.document.searchForm && popUp.document.searchForm.abookkeyword) {
+         popUp.document.searchForm.abookkeyword.focus();
+         popUp.document.searchForm.abookkeyword.select();
+      } else {
+         setTimeout('focusSearch();', 1000)
+      }
    }
 
    function DeleteAttFile(deleteattfile) {
