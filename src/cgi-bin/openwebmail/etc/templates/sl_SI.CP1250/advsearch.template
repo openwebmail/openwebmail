@@ -25,7 +25,7 @@
 <B>Obseg iskanja</B>
 </td></tr>
 <tr><td bgcolor=@@@TABLEROW_LIGHT@@@>
-Start @@@STARTDATE@@@ &nbsp; end @@@ENDDATE@@@
+Od @@@STARTDATE@@@ &nbsp; do @@@ENDDATE@@@
 </td><td bgcolor=@@@TABLEROW_LIGHT@@@>
 @@@DATERANGEMENU@@@
 </td></tr>

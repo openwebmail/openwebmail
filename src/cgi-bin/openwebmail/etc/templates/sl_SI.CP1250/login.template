@@ -77,7 +77,7 @@
 "2. Nekateri proksi strežniki sploh ne podpirajo HTTP stiskanja, "+
 "zato morate izkljuéiti proksi v vašem brskalniku.\n"+
 "3. Nekateri brskalniki imajo težave s HTTP stiskanjem s SSL...\n"+
-"4. Nekateri brskalniki trdijo da omogoèajo HTTP stiskanje, vendar pa ja v resnici ne...\n\n"+
+"4. Nekateri brskalniki trdijo, da omogoèajo HTTP stiskanje, vendar pa ga v resnici ne...\n\n"+
 "V kolikor naletite na kakšno težavo, se prijavite z izkljuèenim HTTP stiskanjem.\n"
          );
       }

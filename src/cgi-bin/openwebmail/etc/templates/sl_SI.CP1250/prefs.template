@@ -142,7 +142,7 @@ Tema:
 @@@SORTMENU@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Timestamp used for message date:</B>
+<B>Za èasovno oznaèevanje sporoèil uporabi:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MSGDATETIMESTAMPMENU@@@
 </td></tr>
@@ -182,7 +182,7 @@ Tema:
 </td></tr>
 @@@AUTOPOP3END@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Put mail filter at background:</B>
+<B>Filtriranje sporoèil v ozadnju:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BGFILTERTHRESHOLDMENU@@@
 </td></tr>
@@ -193,7 +193,7 @@ Tema:
 </td></tr>
 @@@MOVEOLDSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Premakni stara sporoèila mapo SHRANJENA pri odjavi:</B>
+<B>Premakni stara sporoèila v mapo SHRANJENA pri odjavi:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@MOVEOLDMSGFROMINBOX@@@
 </td></tr>

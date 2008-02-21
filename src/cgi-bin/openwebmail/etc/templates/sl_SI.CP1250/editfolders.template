@@ -12,7 +12,7 @@
 <tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
 <B>Ime mape (@@@FOLDERNAME_MAXLEN@@@ znakov)</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Nova mapa</B></td>
+<B>Nova</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Sporoèilo</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
@@ -41,7 +41,7 @@
 <tr><td bgcolor=@@@COLUMNHEADER@@@>&nbsp;
 <B>Privzete mape</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
-<B>Nova mapa</B></td>
+<B>Nova</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
 <B>Sporoèilo</B></td>
 <td align="center" bgcolor=@@@COLUMNHEADER@@@>
