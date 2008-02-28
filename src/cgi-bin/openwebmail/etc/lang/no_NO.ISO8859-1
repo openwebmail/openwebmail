@@ -682,6 +682,13 @@ package ow::no_NO_ISO8859_1;
 
 %lang_err =
    (
+   execute_init_first                 => 'Please execute \'openwebmail-tool.pl --init\' on server first!',
+   domain_service_unavailable         => 'Service is not available for the domain @@@DOMAIN@@@',
+   user_at_domain_service_unavailable => 'Service is not available for user @@@USER@@@ at @@@DOMAIN@@@',
+   domain_homedir    => 'Couldn\'t create domain homedir @@@DOMAINHOME@@@',
+   session_illegal_chars => 'Session ID @@@THISSESSION@@@ has illegal characters!',
+   setgid_failed     => 'Set effective gid to mail(@@@MAILGID@@@) failed!',
+   must_setuid_root  => 'must be setuid to root to read the mail spools',
    has_illegal_chars => 'inneholder ulovlige tegn!',
    couldnt_readlock  => 'Fikk ikke lesetingang til',
    couldnt_writelock => 'Fikk ikke skrivetilgang til',

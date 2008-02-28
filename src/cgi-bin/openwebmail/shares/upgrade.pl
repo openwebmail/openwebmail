@@ -14,29 +14,28 @@ use vars qw(@openwebmailrcitem);	# defined in ow-shared.pl
 
 sub upgrade_20030323 {		# called only if homedir doesn't exist
    # rename old homedir for compatibility
-   if (!$config{'use_syshomedir'} && $config{'auth_withdomain'} &&
-       !-d "$homedir" && -d "$config{'ow_usersdir'}/$user\@$domain") {
-      my $olddir=ow::tool::untaint("$config{'ow_usersdir'}/$user\@$domain");
+   if (!$config{use_syshomedir} && $config{auth_withdomain} && !-d "$homedir" && -d "$config{ow_usersdir}/$user\@$domain") {
+      my $olddir = ow::tool::untaint("$config{ow_usersdir}/$user\@$domain");
       rename($olddir, $homedir) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_text{'rename'} $olddir to $homedir $lang_text{'failed'} ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_text{rename} $olddir -> $homedir $lang_text{failed} ($!)");
       writelog("release upgrade - rename $olddir to $homedir by 20030323");
    }
 }
 
 sub upgrade_20021218 {		# called only if folderdir doesn't exist
-   my $user_releasedate=$_[0];
-   my $folderdir="$homedir/$config{'homedirfolderdirname'}";
+   my $user_releasedate = shift;
+
+   my $folderdir = "$homedir/$config{homedirfolderdirname}";
 
    # mv folders from $homedir to $folderdir($homedir/mail/) for old ow_usersdir
    if ($user_releasedate lt "20021218") {
-      if ( !$config{'use_syshomedir'} &&
-           -f "$homedir/.openwebmailrc" && !-f "$folderdir/.openwebmailrc") {
+      if ( !$config{use_syshomedir} && -f "$homedir/.openwebmailrc" && !-f "$folderdir/.openwebmailrc") {
          opendir(D, $homedir);
-         my @files=readdir(D);
+         my @files = readdir(D);
          closedir(D);
          foreach my $file (@files) {
-            next if ($file eq "." || $file eq ".." || $file eq $config{'homedirfolderdirname'});
-            $file=ow::tool::untaint($file);
+            next if ($file eq "." || $file eq ".." || $file eq $config{homedirfolderdirname});
+            $file = ow::tool::untaint($file);
             rename("$homedir/$file", "$folderdir/$file");
          }
          writelog("release upgrade - mv $homedir/* to $folderdir/* by 20021218");
@@ -45,71 +44,73 @@ sub upgrade_20021218 {		# called only if folderdir doesn't exist
 }
 
 sub upgrade_all {	# called if user releasedate is too old
-   my $user_releasedate=$_[0];
+   my $user_releasedate = shift;
    my $content;
 
-   my $folderdir="$homedir/$config{'homedirfolderdirname'}";
+   my $folderdir = "$homedir/$config{homedirfolderdirname}";
 
    my (@validfolders, $inboxusage, $folderusage);
    getfolders(\@validfolders, \$inboxusage, \$folderusage);
 
    if ( $user_releasedate lt "20011101" ) {
-      if ( -f "$folderdir/.filter.book" ) {
-         $content="";
-         ow::filelock::lock("$folderdir/.filter.book", LOCK_EX) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $folderdir/.filter.book");
-         sysopen(F, "$folderdir/.filter.book", O_RDONLY);
+      my $filterbook = "$folderdir/.filter.book";
+      if ( -f $filterbook ) {
+         $content = "";
+         ow::filelock::lock($filterbook, LOCK_EX) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} $filterbook");
+         sysopen(F, $filterbook, O_RDONLY);
          while (<F>) {
             chomp;
             my ($priority, $ruletype, $include, $text, $op, $destination, $enable) = split(/\@\@\@/);
             if ( $enable eq '') {
                ($priority, $ruletype, $include, $text, $destination, $enable) = split(/\@\@\@/);
-               $op='move';
+               $op = 'move';
             }
-            $ruletype='textcontent' if ($ruletype eq 'body');
-            $content.="$priority\@\@\@$ruletype\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable\n";
+            $ruletype = 'textcontent' if ($ruletype eq 'body');
+            $content .= "$priority\@\@\@$ruletype\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable\n";
          }
          close(F);
          if ($content ne "") {
-            writehistory("release upgrade - $folderdir/.filter.book by 20011101");
-            writelog("release upgrade - $folderdir/.filter.book by 20011101");
-            sysopen(F, "$folderdir/.filter.book", O_WRONLY|O_TRUNC|O_CREAT);
+            writehistory("release upgrade - $filterbook by 20011101");
+            writelog("release upgrade - $filterbook by 20011101");
+            sysopen(F, $filterbook, O_WRONLY|O_TRUNC|O_CREAT);
             print F $content;
             close(F);
          }
-         ow::filelock::lock("$folderdir/.filter.book", LOCK_UN);
+         ow::filelock::lock($filterbook, LOCK_UN);
       }
 
-      if ( -f "$folderdir/.pop3.book" ) {
-         $content="";
-         ow::filelock::lock("$folderdir/.pop3.book", LOCK_EX) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $folderdir/.pop3.book");
-         sysopen(F, "$folderdir/.pop3.book", O_RDONLY);
+      my $pop3book = "$folderdir/.pop3.book";
+      if ( -f $pop3book ) {
+         $content = "";
+         ow::filelock::lock($pop3book, LOCK_EX) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} $pop3book");
+         sysopen(F, $pop3book, O_RDONLY);
          while (<F>) {
             chomp;
-            my @a=split(/:/);
+            my @a = split(/:/);
             my ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable);
-            if ($#a==4) {
+            if ($#a == 4) {
                ($pop3host, $pop3user, $pop3passwd, $pop3del, $pop3lastid) = @a;
-               $enable=1;
-            } elsif ($a[3]=~/\@/) {
+               $enable = 1;
+            } elsif ($a[3] =~ /\@/) {
                my $pop3email;
                ($pop3host, $pop3user, $pop3passwd, $pop3email, $pop3del, $pop3lastid) = @a;
-               $enable=1;
+               $enable = 1;
             } else {
-               ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable) =@a;
+               ($pop3host, $pop3user, $pop3passwd, $pop3lastid, $pop3del, $enable) = @a;
             }
-            $content.="$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@RESERVED\@\@\@$pop3del\@\@\@$enable\n";
+            $content .= "$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@RESERVED\@\@\@$pop3del\@\@\@$enable\n";
          }
          close(F);
          if ($content ne "") {
-            writehistory("release upgrade - $folderdir/.pop3.book by 20011101");
-            writelog("release upgrade - $folderdir/.pop3.book by 20011101");
-            sysopen(F, "$folderdir/.pop3.book", O_WRONLY|O_TRUNC|O_CREAT);
+            writehistory("release upgrade - $pop3book by 20011101");
+            writelog("release upgrade - $pop3book by 20011101");
+            sysopen(F, $pop3book, O_WRONLY|O_TRUNC|O_CREAT);
             print F $content;
             close(F);
          }
-         ow::filelock::lock("$folderdir/.pop3.book", LOCK_UN);
+         ow::filelock::lock($pop3book, LOCK_UN);
       }
    }
 
@@ -118,7 +119,7 @@ sub upgrade_all {	# called if user releasedate is too old
          if ( -f "$folderdir/$book" ) {
             $content="";
             ow::filelock::lock("$folderdir/$book", LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $folderdir/$book");
+               openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} $folderdir/$book");
             sysopen(F, "$folderdir/$book", O_RDONLY);
             while (<F>) {
                last if (/\@\@\@/);
@@ -399,21 +400,21 @@ sub upgrade_all {	# called if user releasedate is too old
       if (-f $rcfile) {
          %prefs = readprefs();
 
-         my $prefscharset = uc($prefs{'charset'});                   # utf-8 -> UTF-8
+         my $prefscharset = uc($prefs{charset});                     # utf-8 -> UTF-8
          $prefscharset =~ s#[-_\s]+##g;                              # UTF-8 -> UTF8
          $prefscharset = $ow::lang::charactersets{$prefscharset}[0]; # OWM Locale style
 
-         my $prefslanguage = substr(lc($prefs{'language'}), 0, 2);   # en.utf8 -> en
+         my $prefslanguage = substr(lc($prefs{language}), 0, 2);     # en.utf8 -> en
 
          # find locale by matching language and character set, or just by language, or default to en_US.ISO8859-1
-         my $locale = (grep { m/^$prefslanguage/ && m/\Q$prefscharset\E$/ } sort keys %{$config{'available_locales'}})[0] ||
-                      (grep { m/^$prefslanguage/ } sort keys %{$config{'available_locales'}})[0] ||
-                      'en_US.ISO8859-1';
+         my $locale = (grep { m/^$prefslanguage/ && m/\Q$prefscharset\E$/ } sort keys %{$config{available_locales}})[0]
+                      || (grep { m/^$prefslanguage/ } sort keys %{$config{available_locales}})[0]
+                      || 'en_US.ISO8859-1';
 
          # add locale support
-         $prefs{'language'} = join("_", (ow::lang::localeinfo($locale))[0,2]);
-         $prefs{'charset'}  = (ow::lang::localeinfo($locale))[6];
-         $prefs{'locale'} = $locale;
+         $prefs{language} = join("_", (ow::lang::localeinfo($locale))[0,2]);
+         $prefs{charset}  = (ow::lang::localeinfo($locale))[6];
+         $prefs{locale} = $locale;
          loadlang ($locale);
 
          # update holidays
@@ -446,7 +447,7 @@ sub upgrade_all {	# called if user releasedate is too old
                           'zh_HK.Big5'      => 'zh_HK.Big5',
                           'zh_TW.Big5'      => 'zh_TW.Big5',
                         );
-         $prefs{'calendar_holidaydef'} = $holidays{$prefs{'calendar_holidaydef'}} if exists $holidays{$prefs{'calendar_holidaydef'}};
+         $prefs{calendar_holidaydef} = $holidays{$prefs{calendar_holidaydef}} if exists $holidays{$prefs{calendar_holidaydef}};
 
          if (sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT)) {
             foreach my $key (@openwebmailrcitem) {
@@ -464,13 +465,15 @@ sub upgrade_all {	# called if user releasedate is too old
 
 sub read_releasedatefile {
    # try every possible release date file
-   my $releasedatefile=dotpath('release.date');
-   $releasedatefile="$homedir/$config{'homedirfolderdirname'}/.release.date" if (! -f $releasedatefile);
-   $releasedatefile="$homedir/.release.date" if (! -f $releasedatefile);
+   my $releasedatefile = dotpath('release.date');
+   $releasedatefile    = "$homedir/$config{'homedirfolderdirname'}/.release.date" if (! -f $releasedatefile);
+   $releasedatefile    = "$homedir/.release.date" if (! -f $releasedatefile);
 
    my $d;
    if (sysopen(D, $releasedatefile, O_RDONLY)) {
-      $d=<D>; chomp($d); close(D);
+      $d = <D>;
+      chomp($d);
+      close(D);
    }
    return($d);
 }

@@ -1744,7 +1744,7 @@ A: The best way to know all features of openwebmail is to check the
    cgi-bin/openwebmail/etc/openwebmail.conf.help. Please check it.
 
 Q: Can I use Open WebMail in a commercial web site?
-A: Yes. Open WebMail is GPLed software (please see copyright.txt for
+A: Yes. Portions of Open WebMail are GPLed software (please see copyright.txt for
    detail of GPL). You can distribute/use/modify/sell it freely ONLY IF
 
    a. The GPL Copyright page must be kept untouched.
@@ -1753,7 +1753,8 @@ A: Yes. Open WebMail is GPLed software (please see copyright.txt for
       internal use.
    c. Products based on Open Webmail must be also distributed under GPL.
 
+   New code added after 20080227 is a complete re-write of the OpenWebMail system
+   and is licensed under the BSD License (please see LICENSE.txt for details of
+   the BSD License). You can do almost anything you like with the BSD licensed code,
+   provided you properly credit the project.
 
-Jan/06/2005
-
-openwebmail.AT.turtle.ee.ncku.edu.tw

@@ -1,0 +1,140 @@
+<tmpl_var header_template>
+
+<p align="center">
+  <a href="<tmpl_var logo_link>"><img border="0" src="<tmpl_var logo_url>"></a>
+</p>
+
+<table border="0" align="center" width="260" cellpadding="0" cellspacing="0">
+<tr>
+  <td class="login_titlebar">&nbsp;Login</td>
+</tr>
+<tr>
+  <td align="center" class="login_border">
+    <table width="100%" cellpadding="0" cellspacing="1" border="0">
+    <tr>
+      <td>
+        <form action="<tmpl_var formaction>" name="login">
+
+        <!-- support the possible redirect after login -->
+        <tmpl_loop redirectloop>
+        <input type="hidden" name="<tmpl_var name>" value="<tmpl_var value>">
+        </tmpl_loop>
+        <!-- end redirect support -->
+
+        <tmpl_unless enable_domainselect>
+        <input type="hidden" name="logindomain" value="<tmpl_var logindomain>">
+        </tmpl_unless>
+
+        <table cellpadding="0" cellspacing="2" border="0" align="center">
+        <tr><td colspan="2">&nbsp;</td></tr>
+        <tr>
+          <td align="right" nowrap>UserID: </td>
+          <td><input type="text" name="loginname" size="<tmpl_var loginfieldwidth>" onchange="focuspwd();"></td>
+        </tr>
+        <tr>
+          <td align="right" nowrap>Password: </td>
+          <td><input type="password" name="password" size="<tmpl_var loginfieldwidth>" onchange="focusloginbutton();"></td>
+        </tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+
+        <!-- support domain selection -->
+        <tmpl_if enable_domainselect>
+        <tr>
+          <td align="right" nowrap>Domain: </td>
+          <td>
+            <select name="logindomain">
+              <tmpl_loop domainselectloop>
+              <option value="<tmpl_var option>" <tmpl_if selected>selected</tmpl_if>><tmpl_var label></option>
+              </tmpl_loop>
+            </select>
+          </td>
+        </tr>
+        </tmpl_if>
+        <!-- end support domainselect -->
+
+        <tr>
+          <td colspan="2">
+            <table cellpadding="0" cellspacing="0" border="0" align="center">
+            <tr>
+              <td align="center"><input type="submit" name="loginbutton" value="Login"></td>
+              <td>
+                <table cellpadding="0" cellspacing="0" border="0" align="center">
+                <tr>
+                  <td><input type="checkbox" name="httpcompress" value="1" <tmpl_if enable_httpcompression><tmpl_if use_httpcompression>checked="checked"</tmpl_if> onclick="httpcompresshelp();"<tmpl_else>disabled="1"</tmpl_if>></td>
+                  <td class="login_small">HTTP<br>Compression</td>
+
+                  <!-- support autologin if it is allowed for this ip -->
+                  <tmpl_if enable_autologin>
+                  <td><input type="checkbox" name="autologin" value="1" <tmpl_if use_autologin>checked="checked"</tmpl_if> onclick="autologinhelp();"></td>
+                  <td class="login_small">Auto<br>Login</td>
+                  </tmpl_if>
+                  <!-- end support autologin -->
+                </tr>
+                </table>
+              </td>
+            </tr>
+            </table>
+          </td>
+        </tr>
+        <tr><td colspan="2">&nbsp;</td></tr>
+        </table>
+        </form>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+</table>
+
+<script language="javascript">
+<!--
+
+   if (document.login.loginname.value == "") {
+      document.login.loginname.focus()
+   } else {
+      document.login.password.focus()
+   }
+
+   function focuspwd() {
+      document.login.password.focus();
+      return true;
+   }
+
+   function focusloginbutton() {
+      document.login.loginbutton.focus();
+      return true;
+   }
+
+   function httpcompresshelp() {
+      if (document.login.httpcompress.checked) {
+         var msg = '';
+         msg += "HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, ";
+         msg += "but there are some compatibility issues:\n\n";
+         msg += "1. some proxy servers only support HTTP compression via HTTP 1.1, ";
+         msg += "you may have to enable the HTTP1.1 support for proxy in your browser\n";
+         msg += "2. some proxy servers don't support HTTP compression at all, ";
+         msg += "you may have to list the webmail server as directly connected in the proxy configuration of your browser.\n";
+         msg += "3. some browsers have problems when using HTTP compression with SSL...\n";
+         msg += "4. some browsers claim to support HTTP compression but actually not...\n\n";
+         msg += "So if you encounter any problem, please login again with this checkbox unchecked.\n";
+         alert(msg);
+      }
+      return true;
+   }
+
+   function autologinhelp() {
+      if (document.login.autologin.checked) {
+         var msg = '';
+         msg += "When this feature is enabled, you may login into openwebmail without typing username/password ";
+         msg += "if you didn't do logout in your previous openwebmail session and that session is not timeout. ";
+         msg += "However, others may also auto login into your openwebmail account with this computer, ";
+         msg += "so please DO NOT enable this feature on a public computer\n";
+         alert(msg);
+      }
+      return true;
+   }
+
+//-->
+</script>
+
+<tmpl_var footer_template>

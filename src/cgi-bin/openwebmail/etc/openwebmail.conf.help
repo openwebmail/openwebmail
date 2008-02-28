@@ -1655,6 +1655,15 @@ This is the block that will be appended at the bottom of each page of
 openwebmail
 
 
+footer_template_file
+-----------------------------------------------------------------------
+This is the template file that will be used for the footer.
+
+
+header_template_file
+-----------------------------------------------------------------------
+This is the template file that will be used for the header.
+
 
 
 
