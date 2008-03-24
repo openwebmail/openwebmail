@@ -693,6 +693,7 @@ package ow::cs_CZ_ISO8859_2;
    session_illegal_chars => 'Session ID @@@THISSESSION@@@ has illegal characters!',
    setgid_failed     => 'Set effective gid to mail(@@@MAILGID@@@) failed!',
    must_setuid_root  => 'must be setuid to root to read the mail spools',
+   no_uname          => 'no uname program available to get OS information',
    has_illegal_chars => 'obsahuje nepovolené znaky!',
    couldnt_readlock  => 'Nepodaøilo se otevøít pro ètení',
    couldnt_writelock => 'Nepodaøilo se otevøít pro zápis',

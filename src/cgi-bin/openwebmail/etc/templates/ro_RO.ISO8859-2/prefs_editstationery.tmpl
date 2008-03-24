@@ -1,0 +1,79 @@
+<tmpl_var header_template>
+
+<table cellpadding="0" cellspacing="0" border="0" align="center" width="90%">
+<tr>
+  <td class="titlebar" colspan="3">Edit Stationery</td>
+</tr>
+<tr>
+  <td class="menubar" colspan="3">
+    <tmpl_if caller_read>
+    <a href="<tmpl_var url_cgi>/openwebmail-read.pl?action=readmessage<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="B" class="icon"><tmpl_if use_texticon>back to <tmpl_var folderstr escape="html"><tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to <tmpl_var folderstr escape="html">" alt="back to <tmpl_var folderstr escape="html">" border="0" align="absmiddle"></tmpl_if></a>
+    <tmpl_else>
+    <a href="<tmpl_var url_cgi>/openwebmail-prefs.pl?action=editprefs<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="F" class="icon"><tmpl_if use_texticon>back to user preferences<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to user preferences" alt="back to user preferences" border="0" align="absmiddle"></tmpl_if></a>
+    </tmpl_if>
+    &nbsp;
+    <a href="<tmpl_var url_cgi>/openwebmail-prefs.pl?action=clearstat<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" onclick="return confirm('clear all stationery?')" accesskey="Z" class="icon"><tmpl_if use_texticon>clear all stationery<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/clearst.gif" title="clear all stationery" alt="clear all stationery" border="0" align="absmiddle"></tmpl_if></a>
+  </td>
+</tr>
+<tr>
+  <td colspan="3">&nbsp;</td>
+</tr>
+<tr>
+  <td class="columnheader" width="20%">Title</td>
+  <td class="columnheader" width="70%">Stationery Text</td>
+  <td class="columnheader" width="10%">&nbsp;</td>
+</tr>
+
+<!-- statname and statcontent are already html escaped, so no need to do that here -->
+<tmpl_loop stationeryloop>
+<tr>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var statname></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var statcontent></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" nowrap>
+    <form method="post" action="<tmpl_var url_cgi>/openwebmail-prefs.pl" name="stationeryform">
+    <input type="hidden" name="action" value="editstat">
+    <input type="hidden" name="statname" value="<tmpl_var statname>">
+    <tmpl_loop standardparamsloop>
+    <input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
+    </tmpl_loop>
+    <input type="submit" name="editstatbutton" value="Edit"><input type="submit" name="deletestatbutton" value="Delete">
+    </form>
+  </td>
+</tr>
+</tmpl_loop>
+
+<tr>
+  <td colspan="3">&nbsp;</td>
+</tr>
+
+<form method="post" action="<tmpl_var url_cgi>/openwebmail-prefs.pl" name="stationeryaddform">
+<input type="hidden" name="action" value="addstat">
+<tmpl_loop standardparamsloop>
+<input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
+</tmpl_loop>
+
+<tr>
+  <td class="columnheader" colspan="3">Compose New Stationery</td>
+</tr>
+<tr>
+  <!-- editstatname and editstatbody are already html escaped, so no need to do that here -->
+  <td class="windowdarkbold" colspan="3" align="center">
+    Title: <input type="text" size="66" name="editstatname" value="<tmpl_var editstatname>">
+  </td>
+</tr>
+<tr>
+  <td class="windowdarkbold" colspan="3" align="center">
+    Stationery Text<br>
+    <textarea name="editstatbody" rows="5" cols="<tmpl_var textareacolumns>" wrap="hard" class="msgbody"><tmpl_var editstatbody></textarea>
+  </td>
+</tr>
+<tr>
+  <td class="windowdark" colspan="3" align="center">
+    <input type="submit" name="savestatbutton" value="Save Stationery">
+  </td>
+</tr>
+
+</form>
+</table>
+
+<tmpl_var footer_template>

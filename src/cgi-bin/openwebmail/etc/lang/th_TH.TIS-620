@@ -689,6 +689,7 @@ package ow::th_TH_TIS_620;
    session_illegal_chars => 'Session ID @@@THISSESSION@@@ has illegal characters!',
    setgid_failed     => 'Set effective gid to mail(@@@MAILGID@@@) failed!',
    must_setuid_root  => 'must be setuid to root to read the mail spools',
+   no_uname          => 'no uname program available to get OS information',
    has_illegal_chars => 'มีตัวอักขระที่ใช้ไม่ได้!',
    couldnt_readlock  => 'ไม่สามารถล็อกเพื่ออ่านกับ',
    couldnt_writelock => 'ไม่สามารถล็อกเพื่อเขียนกับ',

@@ -1,14 +1,14 @@
 <tmpl_var header_template>
 
-<script language="javascript">
+<script type="text/javascript">
 <!--
-   setTimeout("window.location.href='<tmpl_var url_refresh>'", 1000);
+   setTimeout("window.location.href='<tmpl_var url_refresh escape="js">'", 1000);
 //-->
 </script>
 
 <center>
 
-<br><br><a href="<tmpl_var url_refresh>" title="click to continue" class="loading">&nbsp; Loading ...</a><br><br>
+<br><br><a href="<tmpl_var url_refresh escape="html">" title="click to continue" class="loading">&nbsp; Loading ...</a><br><br>
 
 <a href="http://openwebmail.org/" title="<tmpl_var programname> homepage" target="_blank" class="copyright">
 <tmpl_if enable_about>
@@ -30,7 +30,7 @@ Portions based on Neomail, Copyright (c) 2000 Ernie Miller<br>
 <br>
 </a>
 
-<a href="<tmpl_var licensefile>" title="click to see The BSD License" target="_blank" class="copyright">
+<a href="<tmpl_var url_html>/doc/LICENSE.txt" title="click to see The BSD License" target="_blank" class="copyright">
 THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project &apos;&apos;AS IS&apos;&apos; AND ANY<br>
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED<br>
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE<br>

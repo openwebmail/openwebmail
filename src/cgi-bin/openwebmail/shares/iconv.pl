@@ -12,6 +12,9 @@ require "shares/iconv-chinese.pl";
 require "shares/iconv-japan.pl";
 
 use vars qw(%charset_convlist %charset_equiv %charset_localname);
+use vars qw($_iconv_handle $_iconv_tag);
+use vars qw(%is_convertible_cache);
+use vars qw(%localname_cache);
 
 # mapping www charset to all possible iconv charset on various platform
 %charset_localname=
@@ -107,7 +110,6 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname);
 			'windows-1256', 'windows-1257', 'windows-1258'
                       ]);
 
-
 # map old/unofficial charset name to official charset name
 %charset_equiv=
    (
@@ -120,6 +122,15 @@ use vars qw(%charset_convlist %charset_equiv %charset_localname);
    'utf8'           => 'utf-8'
    );
 
+%is_convertible_cache=(
+   'big5#gb2312' => 1,
+   'gb2312#big5' => 1,
+   'shift_jis#iso-2022-jp' => 1,
+   'iso-2022-jp#euc-jp' => 1,
+   'euc-jp#shift_jis' => 1
+);
+
+%localname_cache=();
 
 sub official_charset {
    my $charset=lc($_[0]);
@@ -128,15 +139,6 @@ sub official_charset {
    return $charset;
 }
 
-
-use vars qw(%is_convertible_cache);
-%is_convertible_cache=(
-   'big5#gb2312' => 1,
-   'gb2312#big5' => 1,
-   'shift_jis#iso-2022-jp' => 1,
-   'iso-2022-jp#euc-jp' => 1,
-   'euc-jp#shift_jis' => 1
-);
 sub is_convertible {
    my ($from, $to)=@_;
    return 0 if ($from eq '' || $to eq '');
@@ -164,7 +166,6 @@ sub is_convertible {
    return $is_convertible_cache{"$from#$to"};
 }
 
-
 sub iconv {
    my ($from, $to, @text)=@_;
    return (@text) if (!is_convertible($from, $to));
@@ -175,7 +176,7 @@ sub iconv {
    for (my $i=0; $i<=$#text; $i++) {
       next if ($text[$i]!~/[^\s]/);
 
-      # try convertion routine in iconv-chinese, iconv-japan first
+      # try conversion routine in iconv-chinese, iconv-japan first
       if ($from  eq 'big5' && $to eq 'gb2312' ) {
          $text[$i]=b2g($text[$i]);
          next;
@@ -207,9 +208,9 @@ sub iconv {
 
    return (@text);
 }
-# this routine try to keep opened iconv handle to speedup repeated conversion
-use vars qw($_iconv_handle $_iconv_tag);
+
 sub _iconv {
+   # this routine try to keep opened iconv handle to speedup repeated conversion
    my ($from, $to, $s)=@_;
    if ($_iconv_handle eq '' || $_iconv_tag ne "$from#$to" ) {
       $_iconv_handle=iconv_open($from, $to);
@@ -226,8 +227,6 @@ sub _iconv {
    }
 }
 
-
-use vars qw(%localname_cache); %localname_cache=();
 sub iconv_open {
    my ($from, $to)=@_;
 

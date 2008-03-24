@@ -1,19 +1,19 @@
 <tmpl_var header_template>
 
 <p align="center">
-  <a href="<tmpl_var logo_link>"><img border="0" src="<tmpl_var logo_url>"></a>
+  <a href="<tmpl_var logo_link>"><img border="0" src="<tmpl_var url_logo escape="html">"></a><br>&nbsp;
 </p>
 
-<table border="0" align="center" width="260" cellpadding="0" cellspacing="0">
+<table cellpadding="0" cellspacing="0" border="0" width="260" align="center">
 <tr>
-  <td class="login_titlebar">&nbsp;Login</td>
+  <td class="login_titlebar" style="background-image: url(<tmpl_var url_html>/images/bg-titleblue.gif);">&nbsp;Login</td>
 </tr>
 <tr>
   <td align="center" class="login_border">
-    <table width="100%" cellpadding="0" cellspacing="1" border="0">
+    <table cellpadding="0" cellspacing="1" border="0" width="100%">
     <tr>
-      <td>
-        <form action="<tmpl_var formaction>" name="login">
+      <td class="background">
+        <form action="<tmpl_var url_cgi>/openwebmail.pl" name="loginform">
 
         <!-- support the possible redirect after login -->
         <tmpl_loop redirectloop>
@@ -86,27 +86,27 @@
 </tr>
 </table>
 
-<script language="javascript">
+<script type="text/javascript">
 <!--
 
-   if (document.login.loginname.value == "") {
-      document.login.loginname.focus()
+   if (document.loginform.loginname.value == "") {
+      document.loginform.loginname.focus()
    } else {
-      document.login.password.focus()
+      document.loginform.password.focus()
    }
 
    function focuspwd() {
-      document.login.password.focus();
+      document.loginform.password.focus();
       return true;
    }
 
    function focusloginbutton() {
-      document.login.loginbutton.focus();
+      document.loginform.loginbutton.focus();
       return true;
    }
 
    function httpcompresshelp() {
-      if (document.login.httpcompress.checked) {
+      if (document.loginform.httpcompress.checked) {
          var msg = '';
          msg += "HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, ";
          msg += "but there are some compatibility issues:\n\n";
@@ -123,7 +123,7 @@
    }
 
    function autologinhelp() {
-      if (document.login.autologin.checked) {
+      if (document.loginform.autologin.checked) {
          var msg = '';
          msg += "When this feature is enabled, you may login into openwebmail without typing username/password ";
          msg += "if you didn't do logout in your previous openwebmail session and that session is not timeout. ";

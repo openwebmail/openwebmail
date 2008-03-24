@@ -691,6 +691,7 @@ package ow::ko_KR_eucKR;
    session_illegal_chars => 'Session ID @@@THISSESSION@@@ has illegal characters!',
    setgid_failed     => 'Set effective gid to mail(@@@MAILGID@@@) failed!',
    must_setuid_root  => 'must be setuid to root to read the mail spools',
+   no_uname          => 'no uname program available to get OS information',
    has_illegal_chars => '허용되지 않는 문자를 가지고 있습니다!',
    couldnt_readlock  => 'Couldn\'t get read lock on',
    couldnt_writelock => 'Couldn\'t get write lock on',

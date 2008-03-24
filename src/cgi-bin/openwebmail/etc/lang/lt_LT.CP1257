@@ -689,6 +689,7 @@ package ow::lt_LT_CP1257;
    session_illegal_chars => 'Session ID @@@THISSESSION@@@ has illegal characters!',
    setgid_failed     => 'Set effective gid to mail(@@@MAILGID@@@) failed!',
    must_setuid_root  => 'must be setuid to root to read the mail spools',
+   no_uname          => 'no uname program available to get OS information',
    has_illegal_chars => 'neleistini simboliai!',
    couldnt_readlock  => 'Skaitymo klaida',
    couldnt_writelock => 'Raðymo klaida',

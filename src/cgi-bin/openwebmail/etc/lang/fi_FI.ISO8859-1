@@ -690,6 +690,7 @@ package ow::fi_FI_ISO8859_1;
    session_illegal_chars => 'Session ID @@@THISSESSION@@@ has illegal characters!',
    setgid_failed     => 'Set effective gid to mail(@@@MAILGID@@@) failed!',
    must_setuid_root  => 'must be setuid to root to read the mail spools',
+   no_uname          => 'no uname program available to get OS information',
    has_illegal_chars => 'laittomia merkkejä!',
    couldnt_readlock  => 'Ei voitu lukita luettavaksi',
    couldnt_writelock => 'Ei saatu kirjoituslukkoa',

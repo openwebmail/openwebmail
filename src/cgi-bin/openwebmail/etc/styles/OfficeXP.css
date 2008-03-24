@@ -1,39 +1,39 @@
-<style type="text/css">
-    <!--
-    body { background-image: url(<tmpl_var url_bg>); background-repeat: <tmpl_if bgrepeat>repeat<tmpl_else>no-repeat</tmpl_if>; background-color: #9faabb; color: #000000; font-family: Geneva, Arial, Helvetica, sans-serif; font-size: <tmpl_var fontsize>; scrollbar-arrow-color: #000000; scrollbar-base-color: #d3dae3; scrollbar-face-color: #d3dae3; }
-    td { font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 14px; background-color: #ffffff; }
-    td.login_titlebar { color: #ffffff; background-color: #3161bd; background-image: url(<tmpl_var url_images>/bg-titleblue.gif); font-size: 105%; font-weight: bold; }
-    td.login_border { background-color: #3161bd; }
-    td.login_small { font-size: 65%; }
-    td.titlebar { background-color: #000000; color: #ffffff; font-size: 105%; font-weight: bold; }
-    td.rowdark { background-color: #d3dae3; }
-    td.rowlight { background-color: #ffffff; }
-    td.rowhilite { background-color: #ffcccc; }
-    form { margin-bottom: 0; }
-    input.mono { font-family: monospace; font-size: 80%; }
-    select.mono { font-family: monospace; font-size: 80%; }
-    h1 { font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 16px; font-weight: bold; }
-    a:link { text-decoration: none; color: #000000; }
-    a:visited { color: #000000; }
-    a:hover { color: #ff0000; }
-    a.loading:link { text-decoration: none; color: #333333; }
-    a.loading:visited { color: #333333; }
-    a.loading:hover { color: #333333; }
-    a.copyright:link { text-decoration: none; color: #cccccc; }
-    a.copyright:visited { color: #cccccc; }
-    a.copyright:hover { color: #333333; }
-    .medtext { font-size: 80%; }
-    .smalltext { font-size: 65%; }
-    .smallblacktext { font-size: 65%; color: #000000; }
-    .smallcolortext { font-size: 65%; color: #c00000; }
-    .hilighttext { font-style: normal; font-weight: bold; background-color: #c1d7eb; }
-
-    <tmpl_if usefixedfont>
-    /* use fixed fonts for message body is active */
-    td.msgbody { font-family: "Courier 10 Pitch", "Courier New", "Courier", "Lucida Console", monospace; }
-    a.msgbody:link { font-family: "Courier 10 Pitch", "Courier New", "Courier", "Lucida Console", monospace; text-decoration: none; color: #000000; }
-    a.msgbody:visited { color: #000000; }
-    a.msgbody:hover { color: #ff0000; }
-    </tmpl_if>
-    -->
-  </style>
+/*
+font-size is inherited from the body tag in header.tmpl, which is
+set by the user - please do not set the body font-size here
+*/
+body { background-color: #9faabb; color: #000000; font-family: Geneva, Arial, Helvetica, sans-serif; scrollbar-arrow-color: #000000; scrollbar-base-color: #d3dae3; scrollbar-face-color: #d3dae3; }
+td { font-family: Geneva, Arial, Helvetica, sans-serif; }
+td.login_titlebar { color: #ffffff; background-color: #3161bd; font-size: 105%; font-weight: bold; }
+td.login_border { background-color: #3161bd; }
+td.login_small { font-size: 65%; }
+td.titlebar { background-color: #000000; color: #ffffff; font-size: 105%; font-weight: bold; }
+td.background { background-color: #9faabb; }
+td.menubar { background-color: #c1d7eb; }
+td.windowdark { background-color: #d3dae3; }
+td.windowdarkbold { background-color: #d3dae3; font-weight: bold; }
+td.windowlight { background-color: #ffffff; }
+td.rowdark { background-color: #d3dae3; }
+td.rowlight { background-color: #ffffff; }
+td.rowhilite { background-color: #ffcccc; }
+td.columnheader { background-color: #d3dae3; font-weight: bold; }
+td.warning { color: #dd0000; font-weight: bold; }
+form { margin-bottom: 0; }
+input.mono { font-family: monospace; font-size: 80%; }
+select.mono { font-family: monospace; font-size: 80%; }
+h1 { font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 140%; font-weight: bold; }
+a:link { text-decoration: none; color: #000000; }
+a:visited { color: #000000; }
+a:hover { color: #ff0000; }
+a.icon:link { font-weight: bold; }
+a.loading:link { text-decoration: none; color: #333333; }
+a.loading:visited { color: #333333; }
+a.loading:hover { color: #333333; }
+a.copyright:link { text-decoration: none; color: #cccccc; }
+a.copyright:visited { color: #cccccc; }
+a.copyright:hover { color: #333333; }
+.medtext { font-size: 80%; }
+.smalltext { font-size: 65%; }
+.smallblacktext { font-size: 65%; color: #000000; }
+.smallcolortext { font-size: 65%; color: #c00000; }
+.hilighttext { font-style: normal; font-weight: bold; background-color: #c1d7eb; }

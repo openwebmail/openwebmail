@@ -21,6 +21,16 @@ use vars qw(%lang_sizes %lang_text %lang_err);	# defined in lang/xy
 use vars qw(%is_config_option);
 use vars qw(@openwebmailrcitem);
 use vars qw(%fontsize);
+use vars qw($htmltemplatefilters);
+
+$htmltemplatefilters = [
+                          # remove any space at the start of a line if it is immediately before a tmpl tag
+                          { sub => sub { my $text_aref = shift; s#^[\t ]+(</?tmpl_[^>]+>)#$1#gi for @{$text_aref} },
+                            format => 'array' },
+                          # remove any \n and \r following a tmpl tag
+                          { sub => sub { my $text_ref = shift; $$text_ref =~ s#(</?tmpl_[^>]+>)[\r\n]+#$1#sgi },
+                            format => 'scalar' },
+                       ];
 
 require "modules/htmltext.pl";
 
@@ -188,7 +198,7 @@ sub openwebmail_clearall {
    ow::filelock::closeall() if (defined %ow::filelock::opentable);
 
    # chdir back to openwebmail cgidir
-   chdir($config{'ow_cgidir'}) if ($config{'ow_cgidir'});
+   chdir($config{'ow_cgidir'}) if (exists $config{'ow_cgidir'} && -d $config{'ow_cgidir'});
 
    # clear gobal variable for persistent perl
    undef(%SIG)		if (defined %SIG);
@@ -245,11 +255,15 @@ sub openwebmail_requestbegin {
 sub openwebmail_requestend {
    ow::tool::zombie_cleaner();			# clear pending zombies
    openwebmail_clearall() if ($_vars_used);	# clear global
-   $_vars_used=0;
+   $_vars_used = 0;
    $persistence_count++;
 
+   my $nobodygid = getgrnam('nobody') || 65534;
+   my $nobodyuid = getpwnam('nobody') || 65534;
+
    # back euid to root if possible, required for setuid under persistent perl
-   $>=0; if ($>==0) { $<=65534; $(=65534; $)="65534 65534"; }
+   $> = 0;
+   if ($> == 0) { $< = $nobodyuid; $( = $nobodygid; $) = "$nobodygid $nobodygid"; }
 }
 
 # routine used at exit
@@ -797,33 +811,6 @@ sub readprefs {
 }
 ########## END READPREFS #########################################
 
-########## GET_STYLESHEET ##########################################
-sub get_stylesheet {
-   my $style = shift || 'Default';
-
-   my $stylesheet = "$config{ow_stylesdir}/$style\.css";
-   $stylesheet = "$config{ow_stylesdir}/Default.css" unless -f $stylesheet;
-
-   my $template = HTML::Template->new(
-                                      filename          => $stylesheet,
-                                      die_on_bad_params => 1,
-                                      loop_context_vars => 1,
-                                      global_vars       => 1,
-                                      cache             => 1,
-                                     );
-
-   $template->param(
-                      url_bg        => $prefs{bgurl},
-                      bgrepeat      => $prefs{bgrepeat},
-                      url_images    => "$config{'ow_htmlurl'}/images",
-                      fontsize      => $prefs{fontsize},
-                      usefixedfont  => $prefs{usefixedfont},
-                   );
-
-   return ($template->output);
-}
-########## END GET_STYLESHEET ######################################
-
 ########## GET_TEMPLATE ##########################################
 sub get_template {
    my ($templatename, $locale) = @_;
@@ -1241,22 +1228,23 @@ sub get_defaultemails {
 }
 
 sub get_userfrom {
-   my ($logindomain, $loginuser, $user, $realname, $frombook)=@_;
-   my %from=();
-   $realname=$config{'DEFAULT_realname'} if (defined $config{'DEFAULT_realname'});
+   my ($logindomain, $loginuser, $user, $realname, $frombook) = @_;
+
+   my %from = ();
+
+   $realname = $config{DEFAULT_realname} if defined $config{DEFAULT_realname};
 
    # get default fromemail
-   my @defaultemails=get_defaultemails($logindomain, $loginuser, $user);
-   foreach (@defaultemails) {
-      $from{$_}=$realname;
-   }
+   my @defaultemails = get_defaultemails($logindomain, $loginuser, $user);
+   $from{$_} = $realname for @defaultemails;
 
    # get user defined fromemail
-   if ($config{'enable_loadfrombook'} && sysopen(FROMBOOK, $frombook, O_RDONLY)) {
+   if ($config{enable_loadfrombook} && sysopen(FROMBOOK, $frombook, O_RDONLY)) {
       while (<FROMBOOK>) {
-         my ($_email, $_realname) = split(/\@\@\@/, $_, 2); chomp($_realname);
-         $_realname=$config{'DEFAULT_realname'} if (defined $config{'DEFAULT_realname'});
-         if (!$config{'frombook_for_realname_only'} || defined $from{$_email}) {
+         my ($_email, $_realname) = split(/\@\@\@/, $_, 2);
+         chomp($_realname);
+         $_realname = $config{DEFAULT_realname} if defined $config{DEFAULT_realname};
+         if (!$config{frombook_for_realname_only} || defined $from{$_email}) {
              $from{"$_email"} = $_realname;
          }
       }
@@ -1331,7 +1319,13 @@ sub httpheader {
 sub get_header {
    # extra_info is an optional custom message, typically used
    # to put the unread messages count in the titlebar
-   my ($headertemplatefile, $extra_info) = shift;
+   my ($headertemplatefile, $extra_info) = @_;
+
+   my $showaltstyles = 0;
+   if (defined $extra_info && $extra_info eq 'showaltstyles') {
+      $showaltstyles = 1;
+      $extra_info = '';
+   }
 
    my ($quotausagebytes, $quotausagepercentoflimit) = ();
    if ($user && $config{quota_module} ne "none") {
@@ -1391,23 +1385,43 @@ sub get_header {
       $helpurl = $firstmatch || "$helpurl/en_US.ISO8859-1";
    }
 
+   # Get a list of valid style files
+   opendir(STYLESDIR, $config{ow_stylesdir}) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_stylesdir}! ($!)");
+   my @styles = sort grep { s/^([^.][^.]+)\.css$/$1/i } readdir(STYLESDIR);
+   closedir(STYLESDIR) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_stylesdir}! ($!)");
+
    # build the template
    my $template = HTML::Template->new(
                                       filename          => get_template($headertemplatefile),
+                                      filter            => $htmltemplatefilters,
                                       die_on_bad_params => 1,
-                                      loop_context_vars => 1,
-                                      global_vars       => 1,
+                                      loop_context_vars => 0,
+                                      global_vars       => 0,
                                       cache             => 1,
                                      );
 
 
    $template->param(
-                      charset     => $prefs{charset},
-                      titleinfo   => $titleinfo,
-                      url_ico     => $config{ico_url},
-                      stylesheet  => get_stylesheet($prefs{style}),
-                      diagnostics => "$$:$persistence_count",
-                      url_help    => $helpurl,
+                      charset         => $prefs{charset},
+                      titleinfo       => $titleinfo,
+                      url_ico         => $config{ico_url},
+                      url_help        => $helpurl,
+                      url_bg          => $prefs{bgurl},
+                      url_styles      => $config{ow_stylesurl},
+                      stylesheet      => $prefs{style}?"$prefs{style}.css":'Default.css',
+                      showaltstyles   => $showaltstyles,
+                      stylesheetsloop => [
+                                            map { {
+                                                     url_styles => $config{ow_stylesurl},
+                                                     stylesheet => $_ . ".css",
+                                                } } @styles
+                                         ],
+                      diagnostics     => "$$:$persistence_count",
+                      bgrepeat        => $prefs{bgrepeat},
+                      fontsize        => $prefs{fontsize},
+                      usefixedfont    => $prefs{usefixedfont},
                    );
 
    return ($template->output);
@@ -1416,19 +1430,53 @@ sub get_header {
 sub get_footer {
    my $footertemplatefile = shift;
 
+   my $remainingseconds = 0;
+   if (defined $thissession && $thissession && -f "$config{ow_sessionsdir}/$thissession") {
+      $remainingseconds = 365 * 86400; # default timeout = 1 year
+      my $ftime= (stat("$config{ow_sessionsdir}/$thissession"))[9];
+      $remainingseconds = ($ftime + $prefs{sessiontimeout} * 60 - time()) if $ftime;
+   }
+
+   my $helpdir = "$config{ow_htmldir}/help";
+   my $helpurl = "$config{ow_htmlurl}/help";
+   if ( -d "$helpdir/$prefs{locale}" ) {
+      # choose help in the correct locale if available
+      $helpurl = "$helpurl/$prefs{locale}";
+   } else {
+      # choose help in the correct language if available
+      my $language = substr($prefs{locale}, 0, 2);
+
+      my $firstmatch = undef;
+      if (-d "$helpdir") {
+         opendir(HELPDIR, "$helpdir") or
+           openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} ".f2u($helpdir)."! ($!)");
+         $firstmatch = (map { "$helpurl/$_" } grep { !m/^\.+/ && m/^$language/ } readdir(HELPDIR))[0] || undef;
+         closedir(HELPDIR) or
+           openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} ".f2u($helpdir)."! ($!)");
+      }
+
+      # ...or default to en_US.ISO8859-1
+      $helpurl = $firstmatch || "$helpurl/en_US.ISO8859-1";
+   }
+
    # build the template
    my $template = HTML::Template->new(
                                       filename          => get_template($footertemplatefile),
+                                      filter            => $htmltemplatefilters,
                                       die_on_bad_params => 1,
-                                      loop_context_vars => 1,
-                                      global_vars       => 1,
+                                      loop_context_vars => 0,
+                                      global_vars       => 0,
                                       cache             => 1,
                                      );
 
 
    $template->param(
-                      programname    => $config{name},
-                      programversion => $config{version},
+                      programname      => $config{name},
+                      programversion   => $config{version},
+                      remainingseconds => $remainingseconds,
+                      url_help         => $helpurl,
+                      url_cgi          => $config{ow_cgiurl},
+                      thissession      => $thissession,
                    );
 
    return ($template->output);
@@ -1957,12 +2005,13 @@ sub lenstr {
    my ($len, $bytestr)=@_;
 
    if ($len >= 1048576){
-      $len = int($len/1048576*10+0.5)/10 . $lang_sizes{'mb'};
+      $len = int($len/1048576*10+0.5)/10 . $lang_sizes{mb};
    } elsif ($len >= 2048) {
-      $len =  int(($len/1024)+0.5) . $lang_sizes{'kb'};
+      $len = int(($len/1024)+0.5) . $lang_sizes{kb};
    } else {
-      $len = $len .$lang_sizes{'byte'} if ($bytestr);
+      $len = $len . $lang_sizes{byte} if ($bytestr);
    }
+
    return ($len);
 }
 ########## END LENSTR ############################################

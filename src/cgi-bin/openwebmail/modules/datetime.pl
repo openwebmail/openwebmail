@@ -98,23 +98,26 @@ sub array2seconds {
 ########## END SECONDS <-> DATEARRAY #############################
 
 ########## MAKEZONELIST ##########################################
-# Creates the zonelist from the zoneinfo data 
+# Creates the zonelist from the zoneinfo data
 sub makezonelist {
    my $zonetab = $_[0];
-   my @zones;
+
    if (($zonetab ne 'no') && sysopen(ZONETAB, $zonetab, O_RDONLY)) {
-      foreach (<ZONETAB>) {
+      my @zones = ();
+      while (<ZONETAB>) {
          next if (/^#/);
          push(@zones, $1) if (/^\w\w\s\S+\s(\S+)/);
       }
       close(ZONETAB);
+
+      # calculate the offset for each zone
       foreach (@zones) {
          $ENV{TZ} = ":$_";
          POSIX::tzset();
-         my $t=time();		# the UTC sec from 1970/01/01
-         my @l=localtime($t);
-         my $sec=timegm(@l[0..5])-$t;	# diff between local and UTC
-         $sec-=3600 if ($l[8]);	# is dst? (returned by localtime)
+         my $t = time();                  # the UTC sec from 1970/01/01
+         my @l = localtime($t);
+         my $sec = timegm(@l[0..5]) - $t; # diff between local and UTC
+         $sec -= 3600 if ($l[8]);         # is dst? (returned by localtime)
          my $offset = sprintf(seconds2timeoffset($sec));
          $_ = "$offset $_";
       }
@@ -124,7 +127,6 @@ sub makezonelist {
    }
 }
 ########## END MAKEZONELIST ######################################
-
 
 ########## IS_DST ################################################
 # Check if gmtime should be DST for timezone $timeoffset.
@@ -142,7 +144,7 @@ sub is_dst {
       my ($gmtime, $timeoffset)=@_;
       my ($month,$year)=(seconds2array($gmtime))[4,5];	# $month 0..11
       my $seconds=timeoffset2seconds($timeoffset);
-   
+
       my ($gm, $lt, $dow);
       if ($seconds >= -9*3600 && $seconds <= -3*3600 ) {	# dst rule for us
          return 1 if ($month>3 && $month<9);

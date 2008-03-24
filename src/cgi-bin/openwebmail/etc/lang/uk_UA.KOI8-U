@@ -689,6 +689,7 @@ package ow::uk_UA_KOI8_U;
    session_illegal_chars => 'Session ID @@@THISSESSION@@@ has illegal characters!',
    setgid_failed     => 'Set effective gid to mail(@@@MAILGID@@@) failed!',
    must_setuid_root  => 'must be setuid to root to read the mail spools',
+   no_uname          => 'no uname program available to get OS information',
    has_illegal_chars => 'м╕стить недопустим╕ символи!',
    couldnt_readlock  => 'Не можу отримати блокування на читання на',
    couldnt_writelock => 'Не можу отримати блокування на запис на',

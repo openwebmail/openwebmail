@@ -41,7 +41,7 @@ BEGIN {
       close(F) or die("Cannot close $pathconf: $!");
       ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
    } else {
-      ($SCRIPT_DIR) = $0 =~ m#(.*)[\\/]+[^\\/]+$#;
+      ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
    }
 
    die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
@@ -90,6 +90,7 @@ use vars qw(%prefs %style);
 
 # extern vars
 use vars qw(@openwebmailrcitem);	# defined in ow-shared.pl
+use vars qw($htmltemplatefilters);      # defined in ow-shared.pl
 use vars qw(%lang_text %lang_err);	# defined in lang/xy
 
 use vars qw(%action_redirect @actions);
@@ -144,9 +145,10 @@ if ( $config{forced_ssl_login} && !($ENV{HTTPS} =~ /on/i || $ENV{SERVER_PORT} ==
 
    my $template = HTML::Template->new(
                                         filename          => get_template("init_sslredirect.tmpl"),
+                                        filter            => $htmltemplatefilters,
                                         die_on_bad_params => 1,
-                                        loop_context_vars => 1,
-                                        global_vars       => 1,
+                                        loop_context_vars => 0,
+                                        global_vars       => 0,
                                         cache             => 1,
                                      );
 
@@ -249,13 +251,13 @@ sub loginmenu {
    # build the template
    my $template = HTML::Template->new(
                                         filename          => get_template("login.tmpl"),
+                                        filter            => $htmltemplatefilters,
                                         die_on_bad_params => 1,
-                                        loop_context_vars => 1,
-                                        global_vars       => 1,
+                                        loop_context_vars => 0,
+                                        global_vars       => 0,
                                         cache             => 1,
                                      );
 
-   # TODO: the formaction should just be action, and the action should be something else... like "task"
    # TODO: sync the config option names with the tmpl vars
    $template->param(
                       # header.tmpl
@@ -263,8 +265,9 @@ sub loginmenu {
 
                       # login.tmpl
                       logo_link              => $config{logo_link},
-                      logo_url               => $config{logo_url},
-                      formaction             => "$config{ow_cgiurl}/openwebmail.pl",
+                      url_logo               => $config{logo_url},
+                      url_cgi                => $config{ow_cgiurl},
+                      url_html               => $config{ow_htmlurl},
                       redirectloop           => $redirectloop,
                       logindomain            => $logindomain,
                       loginfieldwidth        => $config{login_fieldwidth},
@@ -683,9 +686,10 @@ sub login {
    # build the template
    my $template = HTML::Template->new(
                                         filename          => get_template("login_pass.tmpl"),
+                                        filter            => $htmltemplatefilters,
                                         die_on_bad_params => 1,
-                                        loop_context_vars => 1,
-                                        global_vars       => 1,
+                                        loop_context_vars => 0,
+                                        global_vars       => 0,
                                         cache             => 1,
                                      );
 
@@ -694,6 +698,7 @@ sub login {
                       header_template         => get_header($config{header_template_file}),
 
                       # login_pass.tmpl
+                      url_html                => $config{ow_htmlurl},
                       url_refresh             => $refreshurl,
                       enable_about            => $config{enable_about},
                       about_info_software     => $config{about_info_software},
@@ -701,7 +706,6 @@ sub login {
                       programversion          => $config{version},
                       programrevision         => $config{revision},
                       programreleasedate      => $config{releasedate},
-                      licensefile             => "$config{ow_htmlurl}/doc/LICENSE.txt",
                       session_count_display   => $config{session_count_display},
                       activelastminute        => $activelastminute,
                       activelastfiveminute    => $activelastfiveminute,
@@ -723,9 +727,10 @@ sub loginfailed {
    # build the template
    my $template = HTML::Template->new(
                                         filename          => get_template("login_fail.tmpl"),
+                                        filter            => $htmltemplatefilters,
                                         die_on_bad_params => 1,
-                                        loop_context_vars => 1,
-                                        global_vars       => 1,
+                                        loop_context_vars => 0,
+                                        global_vars       => 0,
                                         cache             => 1,
                                      );
    $template->param(

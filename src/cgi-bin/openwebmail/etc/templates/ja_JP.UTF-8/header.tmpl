@@ -1,13 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
 <html>
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=<tmpl_var charset>">
   <title><tmpl_var titleinfo></title>
-  <link rel="shortcut icon" href="<tmpl_var url_ico>">
+  <link rel="shortcut icon" href="<tmpl_var url_ico escape="html">">
+  <link rel="stylesheet" type="text/css" href="<tmpl_var url_styles escape="html">/<tmpl_var stylesheet>">
 
-  <tmpl_var stylesheet>
+  <tmpl_if showaltstyles>
+  <tmpl_loop stylesheetsloop>
+  <link rel="alternate stylesheet" type="text/css" href="<tmpl_var url_styles escape="html">/<tmpl_var stylesheet>" title="<tmpl_var stylesheet>">
+  </tmpl_loop>
+  </tmpl_if>
+
+  <tmpl_if usefixedfont>
+  <style type="text/css">
+    <!--
+    /* use fixed fonts for message body is active */
+    td.msgbody { font-family: "Courier 10 Pitch", "Courier New", "Courier", "Lucida Console", monospace; }
+    a.msgbody:link { font-family: "Courier 10 Pitch", "Courier New", "Courier", "Lucida Console", monospace; text-decoration: none; color: #0000ff; }
+    a.msgbody:visited { color: #0000ff; }
+    a.msgbody:hover { color: #ff0000; }
+    -->
+  </style>
+  </tmpl_if>
 </head>
 
 <!-- <tmpl_var diagnostics> -->
 
-<body onhelp="window.open('<tmpl_var url_help>', '_help'); return false;">
+<body onhelp="window.open('<tmpl_var url_help escape="js">', '_help'); return false;" style="background-image: url(<tmpl_var url_bg>); background-repeat: <tmpl_if bgrepeat>repeat<tmpl_else>no-repeat</tmpl_if>; font-size: <tmpl_var fontsize>;">

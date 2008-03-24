@@ -208,18 +208,19 @@ deliver_use_gmt
 -----------------------------------------------------------------------
 Set this to 'yes' if you mail deliver uses GMT time in the delimiter
 line when writing new messages to mailspool.
-eg: Qmail is know to use GMT time in mail delivery.
+eg: Qmail is known to use GMT time in mail delivery.
+
 
 zonetabfile
 -----------------------------------------------------------------------
-Points to the zone.tab, usually /usr/share/zoneinfo/zone.tab. 
-This will correctly handle DST. Set to 'no' for simple timezone 
+Points to the zone.tab, usually /usr/share/zoneinfo/zone.tab.
+This will correctly handle DST. Set to 'no' for simple timezone
 handling (old behaviour).
-NOTE: If you are upgrading from the old timezone handling, existing 
-users will not have the 'timezone' set in their openwebmailrc files 
+NOTE: If you are upgrading from the old timezone handling, existing
+users will not have the 'timezone' set in their openwebmailrc files
 (setting the default_timezone in openwebmail.conf only affects new
-users).  In this case, it has to be configured either on their 
-openwebmailrc, or through the user settings page. See default_timezone 
+users).  In this case, it has to be configured either on their
+openwebmailrc, or through the user settings page. See default_timezone
 setting description.
 
 
@@ -260,9 +261,20 @@ ps: No matter what value is set in this option,
     openwbemail.conf in %ow_cgidir%/etc
 
 
+ow_etcurl
+-----------------------------------------------------------------------
+the url to the directory defined by ow_etcdir
+
+
 ow_stylesdir
 -----------------------------------------------------------------------
-the directory for styles definitions
+the directory for styles definitions. This will be deprecated soon since
+styles will no longer be read and processed like templates.
+
+
+ow_stylesurl
+-----------------------------------------------------------------------
+the url for styles definition files
 
 
 ow_langdir

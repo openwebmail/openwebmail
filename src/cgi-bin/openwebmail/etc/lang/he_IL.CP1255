@@ -690,6 +690,7 @@ package ow::he_IL_CP1255;
    session_illegal_chars => 'Session ID @@@THISSESSION@@@ has illegal characters!',
    setgid_failed     => 'Set effective gid to mail(@@@MAILGID@@@) failed!',
    must_setuid_root  => 'must be setuid to root to read the mail spools',
+   no_uname          => 'no uname program available to get OS information',
    has_illegal_chars => '!תווים חוקיים',
    couldnt_readlock  => 'לא ננעל לקריאה',
    couldnt_writelock => 'לא ננעל לכתיבה',

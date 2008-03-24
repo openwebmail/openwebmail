@@ -689,6 +689,7 @@ package ow::zh_CN_UTF_8;
    session_illegal_chars => 'Session ID @@@THISSESSION@@@ has illegal characters!',
    setgid_failed     => 'Set effective gid to mail(@@@MAILGID@@@) failed!',
    must_setuid_root  => 'must be setuid to root to read the mail spools',
+   no_uname          => 'no uname program available to get OS information',
    has_illegal_chars => '有非法字符！',
    couldnt_readlock  => '读取无法锁定',
    couldnt_writelock => '写入无法锁定',

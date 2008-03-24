@@ -1,0 +1,72 @@
+<tmpl_var header_template>
+
+<script type="text/javascript">
+<!--
+   function update(realname, email) {
+      document.newfromform.realname.value = realname;
+      document.newfromform.email.value = email;
+   }
+//-->
+</script>
+
+<table cellpadding="1" cellspacing="0" border="0" align="center" width="90%">
+<tr>
+  <td class="titlebar">Edit Personal Email Addresses</td>
+</tr>
+<tr>
+  <td class="menubar">
+    <a href="<tmpl_var url_cgi>/openwebmail-prefs.pl?action=editprefs<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="F" class="icon"><tmpl_if use_texticon>back to user preferences<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to user preferences" alt="back to user preferences" border="0" align="absmiddle"></tmpl_if></a>
+  </td>
+</tr>
+</table>
+
+&nbsp;
+
+<table cellpadding="0" cellspacing="0" border="0" align="center" width="90%">
+<tr>
+  <td class="columnheader" nowrap>Real Name</td>
+  <td class="columnheader" nowrap>Email Address (click to edit)</td>
+  <td class="columnheader" align="center">Action</td>
+</tr>
+
+<form method="post" action="<tmpl_var url_cgi>/openwebmail-prefs.pl" name="newfromform">
+<input type="hidden" name="action" value="addfrom">
+
+<tmpl_loop standardparamsloop>
+<input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
+</tmpl_loop>
+
+<tr>
+  <td class="rowlight" nowrap>
+    <input type="text" size="20" name="realname" value="<tmpl_var realnametext escape="html">" <tmpl_if disablerealname>disabled="1"</tmpl_if>>
+  </td>
+  <td class="rowlight" nowrap>
+    <input type="text" size="30" name="email" value="">
+  </td>
+  <td class="rowlight" align="center">
+    <input type="submit" name="addmodifybutton" value="<tmpl_if frombook_for_realname_only>Modify<tmpl_else>Add/Modify</tmpl_if>" accesskey="W">
+  </td>
+</tr>
+
+</form>
+
+<tmpl_loop fromsloop>
+<tr>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var realname escape="html"></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><a href="javascript:update('<tmpl_var realname escape="js">','<tmpl_var email escape="js">')"><tmpl_var email escape="html"></a></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center">
+    <form method="post" action="<tmpl_var url_cgi>/openwebmail-prefs.pl" name="deletefromform">
+    <input type="hidden" name="action" value="deletefrom">
+    <input type="hidden" name="email" value="<tmpl_var email escape="html">">
+    <tmpl_loop standardparamsloop>
+    <input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
+    </tmpl_loop>
+    <input type="submit" name="deletebutton" value="Delete">
+    </form>
+  </td>
+</tr>
+</tmpl_loop>
+
+</table>
+
+<tmpl_var footer_template>

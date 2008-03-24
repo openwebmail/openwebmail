@@ -689,6 +689,7 @@ package ow::ar_AE_ISO8859_6;
    session_illegal_chars => 'Session ID @@@THISSESSION@@@ has illegal characters!',
    setgid_failed     => 'Set effective gid to mail(@@@MAILGID@@@) failed!',
    must_setuid_root  => 'must be setuid to root to read the mail spools',
+   no_uname          => 'no uname program available to get OS information',
    has_illegal_chars => 'has illegal characters!',
    couldnt_readlock  => 'Couldn\'t get read lock on',
    couldnt_writelock => 'Couldn\'t get write lock on',

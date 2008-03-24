@@ -689,6 +689,7 @@ package ow::el_GR_ISO8859_7;
    session_illegal_chars => 'Session ID @@@THISSESSION@@@ has illegal characters!',
    setgid_failed     => 'Set effective gid to mail(@@@MAILGID@@@) failed!',
    must_setuid_root  => 'must be setuid to root to read the mail spools',
+   no_uname          => 'no uname program available to get OS information',
    has_illegal_chars => 'περιέχει μη αποδεκτούς χαρακτήρες!',
    couldnt_readlock  => 'Αδύνατο να κλειδωθεί προς διάβασμα',
    couldnt_writelock => 'Αδύνατο να κλειδωθεί προς γράψιμο',
