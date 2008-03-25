@@ -448,11 +448,11 @@ sub editprefs {
    my ($autoreplysubject, $autoreplytext) = readdotvacationmsg();
 
    # Get a list of valid style files
-   opendir(STYLESDIR, $config{ow_stylesdir}) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_stylesdir}! ($!)");
+   opendir(STYLESDIR, $config{ow_stylesdirtemp}) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_stylesdirtemp}! ($!)");
    my @styles = sort grep { s/^([^.][^.]+)\.css$/$1/i } readdir(STYLESDIR);
    closedir(STYLESDIR) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_stylesdir}! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_stylesdirtemp}! ($!)");
 
    # Get a list of valid iconset
    opendir(ICONSETSDIR, "$config{ow_htmldir}/images/iconsets") or

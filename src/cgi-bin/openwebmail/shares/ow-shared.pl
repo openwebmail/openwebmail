@@ -118,7 +118,7 @@ foreach (qw(
     smtpserver auth_module virtusertable
     mailspooldir homedirspoolname homedirfolderdirname logfile
     ow_cgidir ow_htmldir ow_etcdir
-    ow_stylesdir ow_langdir ow_templatesdir ow_mapsdir
+    ow_stylesdir ow_stylesdirtemp ow_langdir ow_templatesdir ow_mapsdir
     ow_sitesconfdir ow_usersconfdir ow_usersdir ow_sessionsdir
     ow_addressbooksdir
     vacationinit vacationpipe spellcheck
@@ -1386,11 +1386,11 @@ sub get_header {
    }
 
    # Get a list of valid style files
-   opendir(STYLESDIR, $config{ow_stylesdir}) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_stylesdir}! ($!)");
+   opendir(STYLESDIR, $config{ow_stylesdirtemp}) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_stylesdirtemp}! ($!)");
    my @styles = sort grep { s/^([^.][^.]+)\.css$/$1/i } readdir(STYLESDIR);
    closedir(STYLESDIR) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_stylesdir}! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_stylesdirtemp}! ($!)");
 
    # build the template
    my $template = HTML::Template->new(
