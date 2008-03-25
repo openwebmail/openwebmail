@@ -36,7 +36,7 @@ sub filtermessage {
    if (!$config{'enable_userfilter'} &&
        !$config{'enable_globalfilter'} &&
        !$config{'enable_smartfilter'} &&
-       !$config{'enabel_viruscheck'} &&
+       !$config{'enable_viruscheck'} &&
        !$config{'enable_spamcheck'}) {
       return 0;				# return immediately if nothing to do
    }
@@ -176,7 +176,7 @@ sub filter_allmessageids {
    # return immediately if nothing to do
    return 1 if ($#sorted_filterrules<0 &&
                 !$config{'enable_smartfilter'} &&
-                !$config{'enabel_viruscheck'} &&
+                !$config{'enable_viruscheck'} &&
                 !$config{'enable_spamcheck'});
 
    my $repeatstarttime=time()-86400;	# only count repeat for messages within one day

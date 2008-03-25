@@ -261,11 +261,6 @@ ps: No matter what value is set in this option,
     openwbemail.conf in %ow_cgidir%/etc
 
 
-ow_etcurl
------------------------------------------------------------------------
-the url to the directory defined by ow_etcdir
-
-
 ow_stylesdir
 -----------------------------------------------------------------------
 the directory for styles definitions. This will be deprecated soon since
