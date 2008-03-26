@@ -568,6 +568,7 @@ sub login {
    my $homedirmbox = "$homedir/mbox";
    my $savedfolder = "$folderdir/saved-messages";
    if ( $config{symboliclink_mbox}
+        && -e $homedirmbox
         && $spoolfile ne $homedirmbox
         && ((lstat($homedirmbox))[2] & 07770000) eq 0100000) { # ~/mbox is regular file
       if (ow::filelock::lock($savedfolder, LOCK_EX|LOCK_NB)) {
@@ -649,7 +650,10 @@ sub login {
    # cookie for ssl session, expires if browser closed
    push(@cookies, cookie(
                            -name  => 'ow-ssl',
-                           -value => ($ENV{HTTPS} =~ /on/i || $ENV{SERVER_PORT} == 443 || 0),
+                           -value => (
+                                        (defined $ENV{HTTPS} && $ENV{HTTPS} =~ /on/i) ||
+                                        (defined $ENV{SERVER_PORT} && $ENV{SERVER_PORT} == 443) || 0
+                                     ),
                            @expire
                         ));
 
@@ -681,7 +685,7 @@ sub login {
    # in case the javascript refresh does not work
    push(@header, -refresh=>"2;URL=$refreshurl");
 
-   undef $ENV{HTTP_ACCEPT_ENCODING} unless param('httpcompress');
+   delete $ENV{HTTP_ACCEPT_ENCODING} unless param('httpcompress');
 
    # build the template
    my $template = HTML::Template->new(
@@ -807,13 +811,13 @@ sub autologin {
 
 sub refreshurl_after_login {
    my $action = shift;
-   $action = 'listmessages_afterlogin' if ($action eq 'listmessages');
+   $action = 'listmessages_afterlogin' if (defined $action && $action eq 'listmessages');
 
    my $validaction = '';
 
    foreach (@actions) {
       my $enable = $config{$action_redirect{$_}->[1]};
-      if ($action eq $_) {
+      if (defined $action && $action eq $_) {
          $validaction = $_ if ($enable);
          last;
       }
@@ -837,7 +841,9 @@ sub refreshurl_after_login {
    my @parms      = @{$action_redirect{$validaction}->[3]};
    my $refreshurl = "$config{ow_cgiurl}/$script?sessionid=$thissession&action=$validaction";
    foreach my $parm ( @parms ) {
-      $refreshurl.='&'.$parm.'='.ow::tool::escapeURL(param($parm)) if (param($parm) ne '');
+      if (param($parm)) {
+         $refreshurl .= '&' . $parm . '=' . ow::tool::escapeURL(param($parm));
+      }
    }
    return $refreshurl;
 }
