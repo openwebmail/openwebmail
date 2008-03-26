@@ -4,9 +4,9 @@ set by the user - please do not set the body font-size here
 */
 body { background-color: #ffffee; color: #000000; font-family: Arial, Helvetica, sans-serif; }
 td { font-family: Arial, Helvetica, sans-serif; }
-td.login_titlebar { color: #ffffff; background-color: #3161bd; font-size: 105%; font-weight: bold; }
+td.login_titlebar { color: #ffffff; background-color: #3161bd; font-size: 125%; font-weight: bold; }
 td.login_border { background-color: #3161bd; }
-td.login_small { font-size: 65%; }
+td.login_small { font-size: 80%; }
 td.background { background-color: #ffffee; }
 td.titlebar { background-color: #616c06; color: #ffffcc; font-size: 105%; font-weight: bold; }
 td.menubar { background-color: #e0ec78; }

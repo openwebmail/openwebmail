@@ -390,7 +390,7 @@ sub editprefs {
    my $defaultcharset     = (ow::lang::localeinfo($prefs{locale}))[6];
    my $defaultsendcharset = $prefs{sendcharset} || 'sameascomposing';
 
-   if ($paramlanguage =~ /^([A-Za-z_]+)$/ ) {
+   if (defined $paramlanguage && $paramlanguage =~ /^([A-Za-z_]+)$/ ) {
       $defaultlanguage = $1;
       my $defaultlocale = "$defaultlanguage\.UTF-8";
       if (!exists $config{available_locales}->{$defaultlocale}) {
@@ -520,16 +520,21 @@ sub editprefs {
 
    my $filtermatch = {};
    foreach my $filter (qw(filter_repeatlimit filter_badaddrformat filter_fakedsmtp filter_fakedfrom filter_fakedexecontenttype)) {
-      ($filtermatch->{$filter}{count}, $filtermatch->{$filter}{date}) = split(":", $FILTERRULEDB{"$filter"});
-      if ($filtermatch->{$filter}{date}) {
-         $filtermatch->{$filter}{date} = ow::datetime::dateserial2str(
-                                                                        $filtermatch->{$filter}{date},
-                                                                        $prefs{timeoffset},
-                                                                        $prefs{daylightsaving},
-                                                                        $prefs{dateformat},
-                                                                        $prefs{hourformat},
-                                                                        $prefs{timezone},
-                                                                     );
+      if (defined $FILTERRULEDB{$filter}) {
+         ($filtermatch->{$filter}{count}, $filtermatch->{$filter}{date}) = split(":", $FILTERRULEDB{$filter});
+         if (defined $filtermatch->{$filter}{date} && $filtermatch->{$filter}{date}) {
+            $filtermatch->{$filter}{date} = ow::datetime::dateserial2str(
+                                                                           $filtermatch->{$filter}{date},
+                                                                           $prefs{timeoffset},
+                                                                           $prefs{daylightsaving},
+                                                                           $prefs{dateformat},
+                                                                           $prefs{hourformat},
+                                                                           $prefs{timezone},
+                                                                        );
+         }
+      } else {
+         $filtermatch->{$filter}{count} = 0;
+         $filtermatch->{$filter}{date}  = 0;
       }
    }
 
@@ -714,7 +719,9 @@ sub editprefs {
                                                                                    $_ =~ m/(\d+)px/ ? "$1 $lang_text{pixel}" :
                                                                                    $_,
                                                                        selected => $_ eq $prefs{fontsize}?1:0
-                                                                  } } sort { ($a =~ m/px$/ - $b =~ m/px$/) || $a <=> $b } keys %fontsize
+                                                                  } } map { $_->[0] }
+                                                                     sort { ($a->[0] =~ m/px$/ - $b->[0] =~ m/px$/) || $a->[1] <=> $b->[1] }
+                                                                      map { m/(\d+)(p.)/; [$_, $1, $2] } keys %fontsize
                                                            ],
                       disabledateformatselect           => defined $config_raw{DEFAULT_dateformat}?1:0,
                       dateformatselectloop              => [
@@ -1862,7 +1869,7 @@ sub viewhistory {
       $desc = ow::htmltext::str2html(f2u($desc));
 
       push(@{$historyloop}, {
-                               is_warning => ($event =~ m/(?:error|warning)/i || $desc =~ m/(?:spam|virus) .* found/i)?1:0,
+                               is_warning => ((defined $event && $event =~ m/(?:error|warning)/i) || (defined $desc && $desc =~ m/(?:spam|virus) .* found/i))?1:0,
                                timestamp  => $timestamp,
                                ip_address => $ip,
                                username   => $u,
@@ -2339,17 +2346,21 @@ sub editfilter {
    foreach my $key (@sorted_globalfilterrules) {
       my %rule = %{$globalfilterrules{$key}};
 
-      my ($matchcount, $matchdate) = split(":", $FILTERRULEDB{$key});
+      my ($matchcount, $matchdate) = (0,0);
 
-      if ($matchdate) {
-         $matchdate = ow::datetime::dateserial2str(
-                                                     $matchdate,
-                                                     $prefs{timeoffset},
-                                                     $prefs{daylightsaving},
-                                                     $prefs{dateformat},
-                                                     $prefs{hourformat},
-                                                     $prefs{timezone}
-                                                  );
+      if (defined $FILTERRULEDB{$key}) {
+         ($matchcount, $matchdate) = split(":", $FILTERRULEDB{$key});
+
+         if ($matchdate) {
+            $matchdate = ow::datetime::dateserial2str(
+                                                        $matchdate,
+                                                        $prefs{timeoffset},
+                                                        $prefs{daylightsaving},
+                                                        $prefs{dateformat},
+                                                        $prefs{hourformat},
+                                                        $prefs{timezone}
+                                                     );
+         }
       }
 
       my ($textstr, $deststr) = iconv($rule{charset}, $prefs{charset}, $rule{text}, $rule{dest});

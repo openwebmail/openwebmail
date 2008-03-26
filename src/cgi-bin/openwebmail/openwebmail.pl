@@ -209,11 +209,11 @@ sub loginmenu {
    $prefs{language} = join("_", (ow::lang::localeinfo($prefs{locale}))[0,2]);
 
    # compile parameters for redirect after login loop
-   my $redirectloop = [ { name => "action", value => param('action') } ];
-   $redirectloop->[0]{value} = "listmessages_afterlogin" if ($redirectloop->[0]{value} eq "listmessages");
-   if (defined $action_redirect{$redirectloop->[0]{value}}) {
+   my $redirectloop = [ { name => "action", value => (param('action') || '') } ];
+   $redirectloop->[0]{value} = "listmessages_afterlogin" if (defined $redirectloop->[0]{value} && $redirectloop->[0]{value} eq "listmessages");
+   if (defined $redirectloop->[0]{value} && defined $action_redirect{$redirectloop->[0]{value}}) {
       foreach my $name (@{$action_redirect{$redirectloop->[0]{value}}->[3]}) {
-         push(@{$redirectloop}, { name => $name, value => param($name) });
+         push(@{$redirectloop}, { name => $name, value => (param($name) || '') });
       }
    } else {
       $redirectloop = []; # invalid redirect action
@@ -246,7 +246,7 @@ sub loginmenu {
    }
 
    # undef env to prevent httpprint() doing compression on login page
-   undef $ENV{HTTP_ACCEPT_ENCODING};
+   delete $ENV{HTTP_ACCEPT_ENCODING} if (exists $ENV{HTTP_ACCEPT_ENCODING} && defined $ENV{HTTP_ACCEPT_ENCODING});
 
    # build the template
    my $template = HTML::Template->new(
