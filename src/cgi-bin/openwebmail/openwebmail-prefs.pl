@@ -32,21 +32,18 @@ use warnings;
 
 use vars qw($SCRIPT_DIR);
 
-BEGIN {
+if (-f "/etc/openwebmail_path.conf") {
    my $pathconf = "/etc/openwebmail_path.conf";
-
-   if (-f $pathconf) {
-      open(F, $pathconf) or die("Cannot open $pathconf: $!");
-      my $pathinfo = <F>;
-      close(F) or die("Cannot close $pathconf: $!");
-      ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
-   } else {
-      ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
-   }
-
-   die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
-   push (@INC, $SCRIPT_DIR);
+   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+   my $pathinfo = <F>;
+   close(F) or die("Cannot close $pathconf: $!");
+   ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
+} else {
+   ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
+
+die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
+push (@INC, $SCRIPT_DIR);
 
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
@@ -110,6 +107,7 @@ use vars qw($sort $page);
 use vars qw($userfirsttime $prefs_caller);
 use vars qw($urlparmstr $formparmstr);
 use vars qw($escapedfolder $escapedmessageid);
+use vars qw($standardparamsloop);
 
 
 
@@ -133,17 +131,15 @@ $prefs_caller  = ow::tool::unescapeURL(param('prefs_caller')) ||
 
 # setup the standard params loop for use in all the templates
 # we modify these when needed, so don't change the ordering
-my $standardparamsloop = [
-                            { name => "sessionid",     value => $thissession },
-                            { name => "folder",        value => $folder },
-                            { name => "message_id",    value => $messageid },
-                            { name => "sort",          value => $sort },
-                            { name => "page",          value => $page },
-                            { name => "userfirsttime", value => $userfirsttime },
-                            { name => "prefs_caller",  value => $prefs_caller },
-                         ];
-my $url_cgi  = $config{ow_cgiurl};
-my $url_html = $config{ow_htmlurl};
+$standardparamsloop = [
+                         { name => "sessionid",     value => $thissession },
+                         { name => "folder",        value => $folder },
+                         { name => "message_id",    value => $messageid },
+                         { name => "sort",          value => $sort },
+                         { name => "page",          value => $page },
+                         { name => "userfirsttime", value => $userfirsttime },
+                         { name => "prefs_caller",  value => $prefs_caller },
+                      ];
 
 writelog("debug - request prefs begin, action=$action - " .__FILE__.":". __LINE__) if ($config{debug_request});
 
@@ -209,8 +205,8 @@ sub about {
 
                       # standard params
                       standardparamsloop      => $standardparamsloop,
-                      url_cgi                 => $url_cgi,
-                      url_html                => $url_html,
+                      url_cgi                 => $config{ow_cgiurl},
+                      url_html                => $config{ow_htmlurl},
                       use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
                       iconset                 => $prefs{iconset},
 
@@ -297,7 +293,7 @@ sub userfirsttime {
                       header_template => get_header($config{header_template_file}),
 
                       # standard params
-                      url_cgi         => $url_cgi,
+                      url_cgi         => $config{ow_cgiurl},
 
                       # prefs_userfirsttime.tmpl
                       programname     => $config{name},
@@ -600,8 +596,8 @@ sub editprefs {
 
                       # standard params
                       standardparamsloop                => $standardparamsloop,
-                      url_cgi                           => $url_cgi,
-                      url_html                          => $url_html,
+                      url_cgi                           => $config{ow_cgiurl},
+                      url_html                          => $config{ow_htmlurl},
                       use_texticon                      => ($prefs{iconset} =~ m/^Text\./?1:0),
                       iconset                           => $prefs{iconset},
 
@@ -1462,7 +1458,7 @@ sub saveprefs {
 
                       # standard params
                       standardparamsloop  => $standardparamsloop,
-                      url_cgi             => $url_cgi,
+                      url_cgi             => $config{ow_cgiurl},
 
                       # prefs_saved.tmpl
                       caller_calendar     => $prefs_caller eq 'cal'?1:0,
@@ -1714,7 +1710,7 @@ sub editpassword {
 
                       # standard params
                       standardparamsloop => $standardparamsloop,
-                      url_cgi            => $url_cgi,
+                      url_cgi            => $config{ow_cgiurl},
 
                       # prefs_editpassword.tmpl
                       url_chpwd          => $url_chpwd,
@@ -1898,8 +1894,8 @@ sub viewhistory {
 
                       # standard params
                       standardparamsloop => $standardparamsloop,
-                      url_cgi            => $url_cgi,
-                      url_html           => $url_html,
+                      url_cgi            => $config{ow_cgiurl},
+                      url_html           => $config{ow_htmlurl},
                       use_texticon       => ($prefs{iconset} =~ m/^Text\./?1:0),
                       iconset            => $prefs{iconset},
 
@@ -1934,8 +1930,8 @@ sub editfroms {
 
                       # standard params
                       standardparamsloop         => $standardparamsloop,
-                      url_cgi                    => $url_cgi,
-                      url_html                   => $url_html,
+                      url_cgi                    => $config{ow_cgiurl},
+                      url_html                   => $config{ow_htmlurl},
                       use_texticon               => ($prefs{iconset} =~ m/^Text\./?1:0),
                       iconset                    => $prefs{iconset},
 
@@ -2022,8 +2018,8 @@ sub editpop3 {
 
                       # standard params
                       standardparamsloop         => $standardparamsloop,
-                      url_cgi                    => $url_cgi,
-                      url_html                   => $url_html,
+                      url_cgi                    => $config{ow_cgiurl},
+                      url_html                   => $config{ow_htmlurl},
                       use_texticon               => ($prefs{iconset} =~ m/^Text\./?1:0),
                       iconset                    => $prefs{iconset},
 
@@ -2176,8 +2172,8 @@ sub editstat {
 
                       # standard params
                       standardparamsloop         => $standardparamsloop,
-                      url_cgi                    => $url_cgi,
-                      url_html                   => $url_html,
+                      url_cgi                    => $config{ow_cgiurl},
+                      url_html                   => $config{ow_htmlurl},
                       use_texticon               => ($prefs{iconset} =~ m/^Text\./?1:0),
                       iconset                    => $prefs{iconset},
 
@@ -2402,8 +2398,8 @@ sub editfilter {
 
                       # standard params
                       standardparamsloop      => $standardparamsloop,
-                      url_cgi                 => $url_cgi,
-                      url_html                => $url_html,
+                      url_cgi                 => $config{ow_cgiurl},
+                      url_html                => $config{ow_htmlurl},
                       use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
                       iconset                 => $prefs{iconset},
 

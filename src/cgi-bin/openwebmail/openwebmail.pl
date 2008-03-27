@@ -32,21 +32,18 @@ use warnings;
 
 use vars qw($SCRIPT_DIR);
 
-BEGIN {
+if (-f "/etc/openwebmail_path.conf") {
    my $pathconf = "/etc/openwebmail_path.conf";
-
-   if (-f $pathconf) {
-      open(F, $pathconf) or die("Cannot open $pathconf: $!");
-      my $pathinfo = <F>;
-      close(F) or die("Cannot close $pathconf: $!");
-      ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
-   } else {
-      ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
-   }
-
-   die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
-   push (@INC, $SCRIPT_DIR);
+   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+   my $pathinfo = <F>;
+   close(F) or die("Cannot close $pathconf: $!");
+   ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
+} else {
+   ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
+
+die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
+push (@INC, $SCRIPT_DIR);
 
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
