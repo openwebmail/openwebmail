@@ -1226,13 +1226,13 @@ sub clean_trash_spamvirus {
       if ($reserveddays{$folder} == 0) { # empty folder
          my $ret = empty_folder($folderfile, $folderdb);
          if ($ret == 0) {
-            $msg .= ', ' if ($msg ne '');
+            $msg .= ', ' if (defined $msg && $msg ne '');
             $msg .= "all msg deleted from $folder";
          }
       } elsif ( $now - $ftime > 43200 ) { # do clean only if last clean has passed for more than 0.5 day (43200 sec)
          my $deleted = delete_message_by_age($reserveddays{$folder}, $folderdb, $folderfile);
          if ($deleted > 0) {
-            $msg .= ', ' if ($msg ne '');
+            $msg .= ', ' if (defined $msg && $msg ne '');
             $msg .= "$deleted msg deleted from $folder";
          }
       }
