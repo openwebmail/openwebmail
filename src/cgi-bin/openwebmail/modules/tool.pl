@@ -377,30 +377,42 @@ sub contenttype2ext {
 }
 
 sub email2nameaddr {	# name, addr are guarentee to not null
-   my ($name, $address)=_email2nameaddr($_[0]);
+   my ($name, $address) = _email2nameaddr(shift);
    if ($name eq "") {
-      $name=$address; $name=~s/\@.*$//;
-      $name=$address if (length($name)<=2);
+      $name = $address;
+      $name =~ s/\@.+$//;
+      $name = $address if (length($name) <= 2);
    }
-   return($name, $address);
+   return ($name, $address);
 }
 
 sub _email2nameaddr {	# name may be null
-   my $email=$_[0];
+   my $email = shift;
+
    my ($name, $address);
 
-   if ($email=~/^\s*"?<?(.+?)>?"?\s*<(.*)>$/) {
-      $name = $1; $address = $2;
-   } elsif ($email=~/<?(.*?@.*?)>?\s+\((.+?)\)/) {
-      $name = $2; $address = $1;
-   } elsif ($email=~/<(.+)>/) {
-      $name = ""; $address = $1;
-   } elsif ($email=~/(.+)/) {
-      $name = "" ; $address = $1;
+   if ($email =~ m/^\s*"?<?(.+?)>?"?\s*<(.*)>$/) {
+      $name    = $1;
+      $address = $2;
+   } elsif ($email =~ m/<?(.+?\@.+?)>?\s+\((.+?)\)/) {
+      $name    = $2;
+      $address = $1;
+   } elsif ($email =~ m/<(.+)>/) {
+      $name    = '';
+      $address = $1;
+   } elsif ($email =~ m/(.+)/) {
+      $name    = '' ;
+      $address = $1;
    }
-   $name=~s/^\s+//; $name=~s/\s+$//;
-   $address=~s/^\s+//; $address=~s/\s+$//;
-   return($name, $address);
+
+   $name =~ s#^['"](.+)['"]$#$1#; # eliminate enclosing quotes
+   $name =~ s/^\s+//;
+   $name =~ s/\s+$//;
+
+   $address =~ s/^\s+//;
+   $address =~ s/\s+$//;
+
+   return ($name, $address);
 }
 
 sub str2list {

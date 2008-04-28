@@ -9,6 +9,8 @@
 # - minor tweaks here and there :)
 #
 
+# TODO: The Filehandle module is a memory hog and somewhat outdated. It would be nice to rewrite it out.
+
 # IMPORTANT!!!
 #
 # This module speeds up the message folder access by caching important
@@ -34,15 +36,14 @@ use vars qw($_DBVERSION);
 $_DBVERSION=20070808.1;
 
 # globals, message attribute number constant
-use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
-            $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);
+use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);
 ($_OFFSET, $_SIZE, $_HEADERSIZE, $_HEADERCHKSUM, $_RECVDATE, $_DATE, $_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_CHARSET, $_STATUS, $_REFERENCES)
 =(0,1,2,3,4,5,6,7,8,9,10,11,12);
 
-# we devode messages in a folder into the following 4 types exclusively
-# ZAPPED: msg deleted by user by still not removed from folder, has Z flag in status in db
-# INTERNAL: msg with is_internal_subejct ret=1
-# NEW: msg has R flah in ststus
+# we devide messages in a folder into the following 4 types exclusively
+# ZAPPED: msg deleted by user but still not removed from folder, has Z flag in status in db
+# INTERNAL: msg with is_internal_subject ret=1
+# NEW: msg has R flag in status
 # OLD: msgs not in the above 3 types
 use vars qw(%is_internal_dbkey);
 %is_internal_dbkey= (
@@ -553,16 +554,18 @@ sub get_msgid2attrs {
    my %msgid2attr=();
    my ($total, %FDB, $key, $data, @attr);
 
-   ow::dbm::open(\%FDB, $folderdb, LOCK_SH)
-      or return ($total, \%msgid2attr);
+   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return ($total, \%msgid2attr);
+
    while ( ($key, $data)=each(%FDB) ) {
       next if ($is_internal_dbkey{$key});
       @attr=string2msgattr( $data );
       next if ($attr[$_STATUS]=~/Z/i);
       next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
       $total++;
-      my @attr2=@attr[@attrnum]; $msgid2attr{$key}=\@attr2;
+      my @attr2=@attr[@attrnum];
+      $msgid2attr{$key}=\@attr2;
    }
+
    ow::dbm::close(\%FDB, $folderdb);
 
    return($total, \%msgid2attr);
@@ -779,44 +782,52 @@ sub update_message_status {
 # operate messages with @messageids from src folderfile to dst folderfile
 # available $op: "move", "copy", "delete"
 sub operate_message_with_ids {
-   my ($op, $r_messageids, $srcfile, $srcdb, $dstfile, $dstdb)=@_;
+   my ($op, $r_messageids, $srcfile, $srcdb, $dstfile, $dstdb) = @_;
+
    my (%FDB, %FDB2);
-   my $opendst=0;
+
+   my $opendst = 0;
 
    return (0, '') if ($srcfile eq $dstfile || $#{$r_messageids} < 0);
-   return (-1, $lang_err{'inv_msg_op'}) if ($op ne "move" && $op ne "copy" && $op ne "delete");
+   return (-1, $lang_err{inv_msg_op}) if ($op ne "move" && $op ne "copy" && $op ne "delete");
 
-   if (update_folderindex($srcfile, $srcdb)<0) {
+   if (update_folderindex($srcfile, $srcdb) < 0) {
       writelog("db error - Couldn't update index db $srcdb");
       writehistory("db error - Couldn't update index db $srcdb");
-      return (-1, "$lang_err{'couldnt_updatedb'} $srcdb");
+      return (-1, "$lang_err{couldnt_updatedb} $srcdb");
    }
 
-   my $srchandle=FileHandle->new();
-   return (-2, "$lang_err{'couldnt_read'} $srcfile ($!)") if (!sysopen($srchandle, $srcfile, O_RDONLY));
-   return (-1, "$lang_err{'couldnt_read'} $srcdb") if (!ow::dbm::open(\%FDB, $srcdb, LOCK_EX));
+   my $srchandle = FileHandle->new();
+   return (-2, "$lang_err{couldnt_read} $srcfile ($!)") if (!sysopen($srchandle, $srcfile, O_RDONLY));
+   return (-1, "$lang_err{couldnt_read} $srcdb") if (!ow::dbm::open(\%FDB, $srcdb, LOCK_EX));
 
-   my $dsthandle=FileHandle->new();
-   my $dstlength=0;
-   my $readlen=0;
+   my $dsthandle = FileHandle->new();
+   my $dstlength = 0;
+   my $readlen   = 0;
    if ($op eq "move" || $op eq "copy") {
-      if (update_folderindex($dstfile, $dstdb)<0) {
+      if (update_folderindex($dstfile, $dstdb) < 0) {
          ow::dbm::close(\%FDB, $srcdb);
          close($srchandle);
          writelog("db error - Couldn't update index db $dstdb");
          writehistory("db error - Couldn't update index db $dstdb");
-         return (-1, "$lang_err{'couldnt_updatedb'} $dstdb");
+         return (-1, "$lang_err{couldnt_updatedb} $dstdb");
       }
 
       if (!sysopen($dsthandle, $dstfile, O_WRONLY|O_APPEND|O_CREAT)) {
-         my $errmsg=$!;
+         my $errmsg = $!;
          ow::dbm::close(\%FDB, $srcdb);
          close($srchandle);
-         return (-2, "$lang_err{'couldnt_write'} $dstfile ($errmsg)");
+         return (-2, "$lang_err{couldnt_write} $dstfile ($errmsg)");
       }
-      $dstlength=(stat($dsthandle))[7];
+
+      $dstlength = (stat($dsthandle))[7];
+
       # since setvbuf is only available before perl 5.8.0, we put this inside eval
-      eval { my $_dstvbuf; $dsthandle->setvbuf($_dstvbuf, _IOFBF,  $BUFF_blocksize) };
+      # see Programming Perl third edition Chapter 32
+      eval {
+         my $_dstvbuf;
+         $dsthandle->setvbuf($_dstvbuf, _IOFBF,  $BUFF_blocksize)
+      };
 
       if (!ow::dbm::open(\%FDB2,$dstdb, LOCK_EX)) {
          close($dsthandle);
@@ -826,21 +837,21 @@ sub operate_message_with_ids {
          writehistory("db error - Couldn't open index db $dstdb");
          return (-1, "$lang_err{'couldnt_write'} $dstdb");
       }
-      $opendst=1;
+      $opendst = 1;
    }
 
    my $counted=0;
    foreach my $messageid (@{$r_messageids}) {
       next if (!defined $FDB{$messageid});
 
-      my @attr = string2msgattr( $FDB{$messageid} );
+      my @attr = string2msgattr($FDB{$messageid});
 
-      if (!is_msgattr_consistent_with_folder(\@attr, $srchandle)) {	# index not consistent with folder content
-         writelog("db warning - msg $messageid in $srcfile index inconsistence - ".__FILE__.':'.__LINE__);
-         writehistory("db warning - msg $messageid in $srcfile index inconsistence - ".__FILE__.':'.__LINE__);
+      if (!is_msgattr_consistent_with_folder(\@attr, $srchandle)) { # index not consistent with folder content
+         writelog("db warning - msg $messageid in $srcfile index inconsistence - " . __FILE__ . ':' . __LINE__);
+         writehistory("db warning - msg $messageid in $srcfile index inconsistence - " . __FILE__ . ':' . __LINE__);
 
          close($srchandle);
-         @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
+         @FDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
          ow::dbm::close(\%FDB, $srcdb);
 
          # forced reindex since metainfo = ERR
@@ -848,23 +859,24 @@ sub operate_message_with_ids {
 
          if ($opendst) {
             close($dsthandle);
-            @FDB2{'METAINFO', 'LSTMTIME'}=('ERR', -1);
+            @FDB2{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
             ow::dbm::close(\%FDB2,$dstdb);
-            update_folderindex($dsthandle, $dstdb);	# ensure msg cp/mv to dst are correctly indexed
+            update_folderindex($dsthandle, $dstdb); # ensure msg cp/mv to dst are correctly indexed
          }
          return (-3, "msg $messageid in $srcfile index inconsistence");
       }
 
       $counted++;
+
       # append msg to dst folder only if op=move/copy and msg doesn't exist in dstfile
       if ($opendst) {
          if (defined $FDB2{$messageid}) {
             _mark_duplicated_messageid(\%FDB2, $messageid, $attr[$_SIZE]);
          }
-         if (!defined $FDB2{$messageid}) {	# cp message from $srchandle to $dsthandle
+         if (!defined $FDB2{$messageid}) { # cp message from $srchandle to $dsthandle
             # since @attr will be used for FDB2 temporarily and $attr[$_OFFSET] will be modified
             # we save it in $srcoffset and copy it back after write of dst folder
-            my $srcoffset=$attr[$_OFFSET];
+            my $srcoffset = $attr[$_OFFSET];
             seek($srchandle, $srcoffset, 0);
 
             my $left=$attr[$_SIZE];

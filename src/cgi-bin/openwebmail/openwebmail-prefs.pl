@@ -45,17 +45,18 @@ if (-f "/etc/openwebmail_path.conf") {
 die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
 push (@INC, $SCRIPT_DIR);
 
-use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :standard);
-use CGI::Carp qw(fatalsToBrowser carpout);
-use HTML::Template;
-
 # secure the environment
 delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
 $ENV{PATH}='/bin:/usr/bin';
 
 # make sure the openwebmail group can write
 umask(0002);
+
+# load non-OWM libraries
+use Fcntl qw(:DEFAULT :flock);
+use CGI qw(-private_tempfiles :standard);
+use CGI::Carp qw(fatalsToBrowser carpout);
+use HTML::Template 2.9;
 
 # load the OWM libraries
 require "modules/dbm.pl";
@@ -82,7 +83,7 @@ use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($loginname $logindomain $loginuser);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
-use vars qw(%prefs %style %icontext);
+use vars qw(%prefs);
 use vars qw($quotausage $quotalimit);
 
 # extern vars
@@ -130,7 +131,6 @@ $prefs_caller  = ow::tool::unescapeURL(param('prefs_caller')) ||
                    $config{enable_webdisk}  ? 'webdisk' : '');
 
 # setup the standard params loop for use in all the templates
-# we modify these when needed, so don't change the ordering
 $standardparamsloop = [
                          { name => "sessionid",     value => $thissession },
                          { name => "folder",        value => $folder },
@@ -1438,9 +1438,6 @@ sub saveprefs {
    loadlang($prefs{locale});
    charset((ow::lang::localeinfo($prefs{locale}))[6]) if ($CGI::VERSION>=2.58); # setup charset of CGI module
 
-   # use new sort pref instead of orig sort as our standard
-   $standardparamsloop->[3]{value} = $prefs{sort};
-
    # build the template
    my $template = HTML::Template->new(
                                         filename          => get_template("prefs_saved.tmpl"),
@@ -1457,10 +1454,10 @@ sub saveprefs {
                       header_template     => get_header($config{header_template_file}),
 
                       # standard params
-                      standardparamsloop  => $standardparamsloop,
                       url_cgi             => $config{ow_cgiurl},
 
                       # prefs_saved.tmpl
+                      sortparamsloop      => [ map { $_->{value} = $prefs{sort} if $_->{name} eq 'sort'; $_; } @{$standardparamsloop} ],
                       caller_calendar     => $prefs_caller eq 'cal'?1:0,
                       calendardefaultview => $prefs{calendar_defaultview},
                       caller_webdisk      => $prefs_caller eq 'webdisk'?1:0,

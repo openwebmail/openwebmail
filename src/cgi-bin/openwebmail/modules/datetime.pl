@@ -20,25 +20,25 @@ use POSIX qw(tzset);
 @wday_en =  qw(Sun Mon Tue Wed Thu Fri Sat);
 
 %tzoffset = qw(
-ACDT +1030  ACST +0930  ADT  -0300  AEDT +1100  AEST +1000  
-AHDT -0900  AHST -1000  AKDT -0800  AKST -0900  AST  -0400  
-AT   -0200  AWDT +0900  AWST +0800  AZST +0400  BAT  +0300  
-BDST +0200  BET  -1100  BRST -0200  BRT  -0300  BST  -0300  
-BT   +0300  BZT2 -0300  CADT +1030  CAST +0930  CAT  -1000  
-CCT  +0800  CDT  -0500  CED  +0200  CEST +0200  CET  +0100  
-CST  -0600  EAST +1000  EDT  -0400  EED  +0300  EEST +0300  
-EET  +0200  EST  -0500  FST  +0200  FWT  +0100  GMT  +0000  
-GST  +1000  HADT -0900  HAST -1000  HDT  -0900  HKT  +0800  
-HST  -1000  IDLE +1200  IDLW -1200  IDT  +0300  IST  +0530  
-IT   +0330  JST  +0900  JT   +0700  KST  +0900  MDT  -0600  
-MED  +0200  MEST +0200  MESZ +0200  MET  +0100  MEWT +0100  
-MEZ  +0100  MSD  +0400  MSK  +0300  MST  -0700  MT   +0800  
-NDT  -0230  NFT  -0330  NST  +0630  NT   -1100  NZ   +1100  
-NZDT +1300  NZST +1200  NZT  +1200  PDT  -0700  PHT  +0800  
-PST  -0800  ROK  +0900  SAD  +1000  SAST +0900  SAT  +0900  
-SDT  +1000  SGT  +0800  SST  +0200  SWT  +0100  USZ3 +0400  
-USZ4 +0500  USZ5 +0600  USZ6 +0700  UT   +0000  UTC  +0000  
-UZ10 +1100  WAT  -0100  WEST +0100  WET  +0000  WST  +0800  
+ACDT +1030  ACST +0930  ADT  -0300  AEDT +1100  AEST +1000
+AHDT -0900  AHST -1000  AKDT -0800  AKST -0900  AST  -0400
+AT   -0200  AWDT +0900  AWST +0800  AZST +0400  BAT  +0300
+BDST +0200  BET  -1100  BRST -0200  BRT  -0300  BST  -0300
+BT   +0300  BZT2 -0300  CADT +1030  CAST +0930  CAT  -1000
+CCT  +0800  CDT  -0500  CED  +0200  CEST +0200  CET  +0100
+CST  -0600  EAST +1000  EDT  -0400  EED  +0300  EEST +0300
+EET  +0200  EST  -0500  FST  +0200  FWT  +0100  GMT  +0000
+GST  +1000  HADT -0900  HAST -1000  HDT  -0900  HKT  +0800
+HST  -1000  IDLE +1200  IDLW -1200  IDT  +0300  IST  +0530
+IT   +0330  JST  +0900  JT   +0700  KST  +0900  MDT  -0600
+MED  +0200  MEST +0200  MESZ +0200  MET  +0100  MEWT +0100
+MEZ  +0100  MSD  +0400  MSK  +0300  MST  -0700  MT   +0800
+NDT  -0230  NFT  -0330  NST  +0630  NT   -1100  NZ   +1100
+NZDT +1300  NZST +1200  NZT  +1200  PDT  -0700  PHT  +0800
+PST  -0800  ROK  +0900  SAD  +1000  SAST +0900  SAT  +0900
+SDT  +1000  SGT  +0800  SST  +0200  SWT  +0100  USZ3 +0400
+USZ4 +0500  USZ5 +0600  USZ6 +0700  UT   +0000  UTC  +0000
+UZ10 +1100  WAT  -0100  WEST +0100  WET  +0000  WST  +0800
 YDT  -0800  YST  -0900  ZP4  +0400  ZP5  +0500  ZP6  +0600 );
 
 ########## GETTIMEOFFSET #########################################
@@ -74,24 +74,24 @@ sub seconds2timeoffset {
 
 ########## SECONDS <-> DATEARRAY #################################
 sub seconds2array {
-   return gmtime($_[0]);
+   return gmtime(shift);
 }
 
 sub array2seconds {
-   my ($sec,$min,$hour, $d,$m,$y)=@_;
+   my ($sec,$min,$hour, $d,$m,$y) = @_;
    # avoid unexpected error exception from timegm
-   my @t=gmtime();
-   $sec= $t[0] if ($sec<0||$sec>59);
-   $min= $t[1] if ($min<0||$min>59);
-   $hour=$t[2] if ($hour<0||$hour>23);
-   $d   =$t[3] if ($d<1||$d>31);
-   $m   =$t[4] if ($m<0||$m>11);
-   $y   =$t[5] if ($y<70||$y>137);	# invalid if outside 1970...2037
-   if ($d>28) {
+   my @t = gmtime();
+   $sec  = $t[0] if ($sec < 0 || $sec > 59);
+   $min  = $t[1] if ($min < 0 || $min > 59);
+   $hour = $t[2] if ($hour < 0 || $hour > 23);
+   $d    = $t[3] if ($d < 1 || $d > 31);
+   $m    = $t[4] if ($m < 0 || $m > 11);
+   $y    = $t[5] if ($y < 70 || $y > 137);	# invalid if outside 1970...2037
+   if ($d > 28) {
       my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-      my $year=1900+$y;
-      $days_in_month[2]++ if ( $year%4==0 && ($year%100!=0||$year%400==0) );
-      $d=$days_in_month[$m+1] if ($d>$days_in_month[$m+1]);
+      my $year = 1900 + $y;
+      $days_in_month[2]++ if ( $year % 4 == 0 && ($year % 100 != 0 || $year % 400 == 0) );
+      $d = $days_in_month[$m+1] if ($d > $days_in_month[$m+1]);
    }
    return timegm($sec,$min,$hour, $d,$m,$y);
 }
@@ -211,7 +211,7 @@ sub gmtime2dateserial {
 }
 
 sub dateserial2gmtime {
-   $_[0]=~/(\d\d\d\d)(\d\d)(\d\d)(\d\d)?(\d\d)?(\d\d)?/;
+   $_[0] =~ m/(\d\d\d\d)(\d\d)(\d\d)(\d\d)?(\d\d)?(\d\d)?/;
    my ($year, $mon, $mday, $hour, $min, $sec)=($1, $2, $3, $4, $5, $6);
    return array2seconds($sec,$min,$hour, $mday,$mon-1,$year-1900);
 }

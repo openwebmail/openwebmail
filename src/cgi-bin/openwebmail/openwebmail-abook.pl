@@ -107,13 +107,7 @@ $escapedmessageid = ow::tool::escapeURL($messageid);
 $escapedkeyword = ow::tool::escapeURL($keyword);
 
 # addressbook globals
-if (defined param('abookfolder') && param('abookfolder') ne "") {
-   # unescape just in case if this parm is returned in escaped form
-   $abookfolder = ow::tool::unescapeURL(param('abookfolder'));
-} else {
-   $abookfolder = cookie("ow-abookfolder-$domain-$user") || 'ALL';
-}
-
+$abookfolder = ow::tool::unescapeURL(param('abookfolder')) || cookie("ow-abookfolder-$domain-$user") || 'ALL';
 $abookpage = param('abookpage') || 1;
 $abooklongpage = param('abooklongpage') || 0;
 $abooksort = param('abooksort') || $prefs{'abook_sort'} || 'fullname';

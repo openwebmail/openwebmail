@@ -4,7 +4,7 @@
 <input type="hidden" name="action" value="saveprefs">
 
 <tmpl_loop standardparamsloop>
-<input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
+<input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="url">">
 </tmpl_loop>
 
 <tmpl_loop hiddenprefsloop>
@@ -1174,7 +1174,7 @@
         </tmpl_if>
 
         <tmpl_loop standardparamsloop>
-        <input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
+        <input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="url">">
         </tmpl_loop>
 
         <input type="submit" name="cancelbutton" value="Cancel" accesskey="Q">

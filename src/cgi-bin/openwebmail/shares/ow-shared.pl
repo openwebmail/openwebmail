@@ -4,7 +4,7 @@
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use HTML::Template;
+use HTML::Template 2.9;
 
 # extern vars, defined in caller openwebmail-xxx.pl
 use vars qw($SCRIPT_DIR);
@@ -295,7 +295,7 @@ sub userenv_init {
       sleep $config{'loginerrordelay'} if (ow::tool::clientip() ne "127.0.0.1");
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'param_fmterr'}, $lang_err{'access_denied'}");
    }
-   $thissession = param('sessionid')||'';
+   $thissession = ow::tool::unescapeURL(param('sessionid')) || '';
    $thissession =~ s!\.\.+!!g;  # remove ..
 
    # sessionid format: loginname+domain-session-0.xxxxxxxxxx
@@ -1404,24 +1404,25 @@ sub get_header {
 
 
    $template->param(
-                      charset         => $prefs{charset},
-                      titleinfo       => $titleinfo,
-                      url_ico         => $config{ico_url},
-                      url_help        => $helpurl,
-                      url_bg          => $prefs{bgurl},
-                      url_styles      => $config{ow_stylesurl},
-                      stylesheet      => $prefs{style}?"$prefs{style}.css":'Default.css',
-                      showaltstyles   => $showaltstyles,
-                      stylesheetsloop => [
-                                            map { {
-                                                     url_styles => $config{ow_stylesurl},
-                                                     stylesheet => $_ . ".css",
-                                                } } @styles
-                                         ],
-                      diagnostics     => "$$:$persistence_count",
-                      bgrepeat        => $prefs{bgrepeat},
-                      fontsize        => $prefs{fontsize},
-                      usefixedfont    => $prefs{usefixedfont},
+                      charset            => $prefs{charset},
+                      titleinfo          => $titleinfo,
+                      url_ico            => $config{ico_url},
+                      url_help           => $helpurl,
+                      url_bg             => $prefs{bgurl},
+                      url_styles         => $config{ow_stylesurl},
+                      stylesheet         => $prefs{style}?"$prefs{style}.css":'Default.css',
+                      showaltstyles      => $showaltstyles,
+                      stylesheetsloop    => [
+                                               map { {
+                                                        url_styles => $config{ow_stylesurl},
+                                                        stylesheet => $_ . ".css",
+                                                   } } @styles
+                                            ],
+                      diagnostics        => "$$:$persistence_count",
+                      bgrepeat           => $prefs{bgrepeat},
+                      fontsize           => $prefs{fontsize},
+                      usefixedfont       => $prefs{usefixedfont},
+                      headerpluginoutput => htmlplugin($config{header_pluginfile}, $config{header_pluginfile_charset}, $prefs{charset}),
                    );
 
    return ($template->output);
@@ -1471,12 +1472,13 @@ sub get_footer {
 
 
    $template->param(
-                      programname      => $config{name},
-                      programversion   => $config{version},
-                      remainingseconds => $remainingseconds,
-                      url_help         => $helpurl,
-                      url_cgi          => $config{ow_cgiurl},
-                      thissession      => $thissession,
+                      programname        => $config{name},
+                      programversion     => $config{version},
+                      remainingseconds   => $remainingseconds,
+                      url_help           => $helpurl,
+                      url_cgi            => $config{ow_cgiurl},
+                      thissession        => $thissession,
+                      footerpluginoutput => htmlplugin($config{footer_pluginfile}, $config{footer_pluginfile_charset}, $prefs{charset}),
                    );
 
    return ($template->output);
@@ -1529,15 +1531,22 @@ sub htmlheader {
 }
 
 sub htmlplugin {
-   my ($file, $fromcharset, $tocharset)=@_;
-   my $html='';
-   if ($file ne '' && open(F, $file) ) {	# $file is defined in config file, which may be a pipe
-      local $/; undef $/; $html=<F>;	# no separator, read whole file in once
+   # TODO: this is terrible. No error checking, no reporting at all. The more I think
+   # about third party piping as a built-in the less I like it. It should be the job
+   # of experienced coders to drop pipe data into the output
+   my ($file, $fromcharset, $tocharset) = @_;
+   if ($file ne '' && open(F, $file)) { # $file is defined in config file, which may be a pipe
+      local $/ = undef;
+      my $html = <F>; # slurp
       close(F);
-      $html=~s/\%THISSESSION\%/$thissession/;
-      ($html)=iconv($fromcharset, $tocharset, "<center>\n$html</center>\n") if ($html ne '');
+      if (defined $html && $html) {
+         $html =~ s/\%THISSESSION\%/$thissession/;
+         $html = (iconv($fromcharset, $tocharset, $html))[0];
+         return $html;
+      } else {
+         return '';
+      }
    }
-   return ($html);
 }
 
 sub htmlfooter {
@@ -2267,28 +2276,27 @@ sub getfolders {
 
 ########## GET_FOLDERPATH_FOLDERDB ###############################
 sub get_folderpath_folderdb {
-   my ($username, $foldername)=@_;
+   my ($username, $foldername) = @_;
+
    my ($folderfile, $folderdb);
 
    if ($foldername eq 'INBOX') {
-      if ($config{'use_homedirspools'}) {
-         $folderfile = "$homedir/$config{'homedirspoolname'}";
-      } elsif ($config{'use_hashedmailspools'}) {
-         $folderfile = "$config{'mailspooldir'}/".
-                       substr($username,0,1)."/".
-                       substr($username,1,1)."/$username";
+      if ($config{use_homedirspools}) {
+         $folderfile = "$homedir/$config{homedirspoolname}";
+      } elsif ($config{use_hashedmailspools}) {
+         $folderfile = "$config{mailspooldir}/" . substr($username,0,1) . "/" . substr($username,1,1) . "/$username";
       } else {
-         $folderfile = "$config{'mailspooldir'}/$username";
+         $folderfile = "$config{mailspooldir}/$username";
       }
-      $folderdb=dotpath('db')."/$username";
-
+      $folderdb = dotpath('db') . "/$username";
    } elsif ($foldername eq 'DELETE') {
-      $folderfile = $folderdb ='';
-
+      $folderfile = $folderdb = '';
    } else {
-      $folderdb =$foldername; $folderdb=~s!/!#!g;
-      $folderfile = "$homedir/$config{'homedirfolderdirname'}/$foldername";
-      $folderdb=dotpath('db')."/$folderdb";
+      $folderdb = $foldername;
+      $folderdb =~ s!/!#!g;
+      $folderdb = dotpath('db') . "/$folderdb";
+
+      $folderfile = "$homedir/$config{homedirfolderdirname}/$foldername";
    }
 
    return(ow::tool::untaint($folderfile), ow::tool::untaint($folderdb));
@@ -2346,7 +2354,7 @@ sub get_abookemailhash {
                         readdir(D);
       closedir(D);
    }
-   if (opendir(D, $config{'ow_addressbooksdir'})) {
+   if (opendir(D, $config{ow_addressbooksdir})) {
       @globalabookfiles = map { "$config{'ow_addressbooksdir'}/$_" }
                           grep { /^[^.]/ }
                           readdir(D);
@@ -2357,7 +2365,7 @@ sub get_abookemailhash {
       if (sysopen(F, $abookfile, O_RDONLY)) {
          while (<F>) {
             # stored in lower case for case insensitive lookup
-            $emails{lc($2)}=1 if (/^EMAIL(;TYPE=PREF)?:(.+?)\s*$/);
+            $emails{lc($1)} = 1 if (/^EMAIL(?:[^:]*):(.+?)\s*$/);
          }
          close(F);
       }

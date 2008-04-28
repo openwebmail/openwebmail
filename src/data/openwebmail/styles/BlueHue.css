@@ -6,19 +6,16 @@ body { background-color: #ffffff; color: #000000; font-family: Arial, Helvetica,
 td { font-family: Arial, Helvetica, sans-serif; }
 td.login_titlebar { color: #ffffff; background-color: #3161bd; font-size: 125%; font-weight: bold; }
 td.login_border { background-color: #3161bd; }
-td.login_small { font-size: 80%; }
+td.login_small { font-size: 75%; }
 td.background { background-color: #ffffff; }
-td.titlebar { background-color: #002266; color: #eeeeff; font-size: 105%; font-weight: bold; }
+td.titlebar { background-color: #002266; color: #eeeeff; font-size: 112%; font-weight: bold; }
 td.menubar { background-color: #dcdcff; }
 td.windowdark { background-color: #ddddff; }
 td.windowdarkbold { background-color: #ddddff; font-weight: bold; }
 td.windowlight { background-color: #eeeeff; }
-td.rowdark { background-color: #ddddff; }
-td.rowlight { background-color: #eeeeff; }
-td.rowhilite { background-color: #ffcccc; }
 td.columnheader { background-color: #d3dce3; font-weight: bold; }
 td.warning { color: #dd0000; font-weight: bold; }
-form { margin-bottom: 0; }
+form { margin: 0; }
 input.mono { font-family: monospace; font-size: 80%; }
 select.mono { font-family: monospace; font-size: 80%; }
 h1 { font-family: Arial, Helvetica, sans-serif; font-size: 140%; font-weight: bold; }
@@ -32,8 +29,11 @@ a.loading:hover { color: #333333; }
 a.copyright:link { text-decoration: none; color: #cccccc; }
 a.copyright:visited { color: #cccccc; }
 a.copyright:hover { color: #333333; }
-.medtext { font-size: 80%; }
-.smalltext { font-size: 65%; }
-.smallblacktext { font-size: 65%; color: #000000; }
-.smallcolortext { font-size: 65%; color: #c00000; }
+.rowdark { background-color: #ddddff; }
+.rowlight { background-color: #eeeeff; }
+.rowhilite { background-color: #ffcccc; }
+.medtext { font-size: 85%; }
+.smalltext { font-size: 80%; }
+.smallblacktext { font-size: 80%; color: #000000; }
+.smallcolortext { font-size: 80%; color: #c00000; }
 .hilighttext { font-style: normal; font-weight: bold; background-color: #dcdcff; }

@@ -18,13 +18,13 @@ EDITING THE CODE
 ================
 ADDING, DELETING, COPYING, OR MOVING DIRECTORIES:
 
-- do NOT use rm, mv, or cp on SVN data!
+- do NOT use rm, mv, or cp on SVN data! Use the following commands:
 
 svn add foo
 -Schedule file, directory, or symbolic link foo to be added to the repository. When you next commit, foo will become a child of its parent directory. Note that if foo is a directory, everything underneath foo will be scheduled for addition. If you only want to add foo itself, pass the --non-recursive (-N) switch.
 
 svn delete foo
--Schedule file, directory, or symbolic link foo to be deleted from the repository. If foo is a file or link, it is immediately deleted from your working copy. If foo is a directory, it is not deleted, but Subversion schedules it for deletion. When you commit your changes, foo will be removed from your working copy and the repository. [2]
+-Schedule file, directory, or symbolic link foo to be deleted from the repository. If foo is a file or link, it is immediately deleted from your working copy. If foo is a directory, it is not deleted, but Subversion schedules it for deletion. When you commit your changes, foo will be removed from your working copy and the repository.
 
 svn copy foo bar
 -Create a new item bar as a duplicate of foo. bar is automatically scheduled for addition. When bar is added to the repository on the next commit, its copy history is recorded (as having originally come from foo). svn copy does not create intermediate directories.

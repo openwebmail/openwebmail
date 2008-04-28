@@ -48,7 +48,7 @@ push (@INC, $SCRIPT_DIR);
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
-use HTML::Template;
+use HTML::Template 2.9;
 use MIME::Base64;
 use Socket;
 
@@ -888,7 +888,7 @@ sub search_clean_oldsessions {
          push(@delfiles, $sessfile) if ( $modifyage > 86400 );
       }
 
-      if ($misc eq '') {
+      if (defined $misc && $misc eq '') {
          $sessioncount[0]++ if ($modifyage <= 60);
          $sessioncount[1]++ if ($modifyage <= 300);
          $sessioncount[2]++ if ($modifyage <= 900);

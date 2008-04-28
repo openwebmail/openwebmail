@@ -1,6 +1,6 @@
 package HTML::Template;
 
-$HTML::Template::VERSION = '2.7';
+$HTML::Template::VERSION = '2.9';
 
 =head1 NAME
 
@@ -118,7 +118,7 @@ Example:
 
    <input name=param type=text value="<TMPL_VAR NAME="PARAM">">
 
-If you called param() with a value like sam"my you'll get in trouble
+If you called C<param()> with a value like sam"my you'll get in trouble
 with HTML's idea of a double-quote.  On the other hand, if you use
 ESCAPE=HTML, like this:
 
@@ -126,8 +126,9 @@ ESCAPE=HTML, like this:
 
 You'll get what you wanted no matter what value happens to be passed in for
 param.  You can also write ESCAPE="HTML", ESCAPE='HTML' and ESCAPE='1'.
-Substitute a 0 for the HTML and you turn off escaping, which is the default
-anyway.
+
+"ESCAPE=0" and "ESCAPE=NONE" turn off escaping, which is the default
+behavior.
 
 There is also the "ESCAPE=URL" option which may be used for VARs that
 populate a URL.  It will do URL escaping, like replacing ' ' with '+'
@@ -150,7 +151,7 @@ if the "who" variable is not set.
 The <TMPL_LOOP> tag is a bit more complicated than <TMPL_VAR>.  The
 <TMPL_LOOP> tag allows you to delimit a section of text and give it a
 name.  Inside this named loop you place <TMPL_VAR>s.  Now you pass to
-param() a list (an array ref) of parameter assignments (hash refs) for
+C<param()> a list (an array ref) of parameter assignments (hash refs) for
 this loop.  The loop iterates over the list and produces output from
 the text block for each pass.  Unset parameters are skipped.  Here's
 an example:
@@ -228,7 +229,7 @@ It would produce output like:
    Number: 3
 
 <TMPL_LOOP>s within <TMPL_LOOP>s are fine and work as you would
-expect.  If the syntax for the param() call has you stumped, here's an
+expect.  If the syntax for the C<param()> call has you stumped, here's an
 example of a param call with one nested loop:
 
   $template->param(LOOP => [
@@ -403,8 +404,8 @@ Call new() to create a new Template object:
                                     );
 
 You must call new() with at least one name => value pair specifying how
-to access the template text.  You can use "filename => 'file.tmpl'" to
-specify a filename to be opened as the template.  Alternately you can
+to access the template text.  You can use C<< filename => 'file.tmpl' >> 
+to specify a filename to be opened as the template.  Alternately you can
 use:
 
   my $t = HTML::Template->new( scalarref => $ref_to_template_text, 
@@ -472,6 +473,15 @@ are available:
 die_on_bad_params - if set to 0 the module will let you call
 $template->param(param_name => 'value') even if 'param_name' doesn't
 exist in the template body.  Defaults to 1.
+
+=item *
+
+force_untaint - if set to 1 the module will not allow you to set 
+unescaped parameters with tainted values. If set to 2 you will have 
+to untaint all parameters, including ones with the escape attribute.
+This option makes sure you untaint everything so you don't accidentally
+introduce e.g. cross-site-scripting (CSS) vulnerabilities. Requires 
+taint mode. Defaults to 0.
 
 =item *
 
@@ -680,20 +690,20 @@ memory usage to STDERR.  Requires the GTop module.  Defaults to 0.
 
 associate - this option allows you to inherit the parameter values
 from other objects.  The only requirement for the other object is that
-it have a param() method that works like HTML::Template's param().  A
+it have a C<param()> method that works like HTML::Template's C<param()>.  A
 good candidate would be a CGI.pm query object.  Example:
 
   my $query = new CGI;
   my $template = HTML::Template->new(filename => 'template.tmpl',
                                      associate => $query);
 
-Now, $template->output() will act as though 
+Now, C<< $template->output() >> will act as though
 
   $template->param('FormField', $cgi->param('FormField'));
 
 had been specified for each key/value pair that would be provided by
-the $cgi->param() method.  Parameters you set directly take precedence
-over associated parameters.  
+the C<< $cgi->param() >> method.  Parameters you set directly take
+precedence over associated parameters.
 
 You can specify multiple objects to associate by passing an anonymous
 array to the associate option.  They are searched for parameters in
@@ -752,7 +762,7 @@ Example:
 
       <TMPL_UNLESS NAME="__odd__">
         This outputs every other pass, on the even passes.
-      </TMPL_IF>
+      </TMPL_UNLESS>
 
       <TMPL_IF NAME="__inner__">
         This outputs on passes that are neither first nor last.
@@ -762,7 +772,7 @@ Example:
 
       <TMPL_IF NAME="__last__">
         This only outputs on the last pass.
-      <TMPL_IF>
+      </TMPL_IF>
    </TMPL_LOOP>
 
 One use of this feature is to provide a "separator" similar in effect
@@ -777,7 +787,7 @@ Would output (in a browser) something like:
 
   Apples, Oranges, Brains, Toes, and Kiwi.
 
-Given an appropriate param() call, of course.  NOTE: A loop with only
+Given an appropriate C<param()> call, of course.  NOTE: A loop with only
 a single pass will get both __first__ and __last__ set to true, but
 not __inner__.
 
@@ -825,6 +835,11 @@ iteration:
         </TMPL_LOOP>
    </TMPL_LOOP>
 
+One side-effect of global-vars is that variables you set with param()
+that might otherwise be ignored when die_on_bad_params is off will
+stick around.  This is necessary to allow inner loops to access values
+set for outer loops that don't directly use the value.
+
 B<NOTE>: C<global_vars> is not C<global_loops> (which does not exist).
 That means that loops you declare at one scope are not available
 inside other loops even when C<global_vars> is on.
@@ -837,7 +852,7 @@ HTML::Template reads your template file but before it starts parsing
 template tags.
 
 In the most simple usage, you simply assign a code reference to the
-filter parameter.  This subroutine will recieve a single arguement - a
+filter parameter.  This subroutine will recieve a single argument - a
 reference to a string containing the template file text.  Here is an
 example that accepts templates with tags that look like "!!!ZAP_VAR
 FOO!!!" and transforms them into HTML::Template tags:
@@ -854,9 +869,9 @@ FOO!!!" and transforms them into HTML::Template tags:
 More complicated usages are possible.  You can request that your
 filter receieve the template text as an array of lines rather than as
 a single scalar.  To do that you need to specify your filter using a
-hash-ref.  In this form you specify the filter using the "sub" key and
-the desired argument format using the "format" key.  The available
-formats are "scalar" and "array".  Using the "array" format will incur
+hash-ref.  In this form you specify the filter using the C<sub> key and
+the desired argument format using the C<format> key.  The available
+formats are C<scalar> and C<array>.  Using the C<array> format will incur
 a performance penalty but may be more convenient in some situations.
 
    my $template = HTML::Template->new(filename => 'zap.tmpl',
@@ -879,6 +894,12 @@ specified.
 The specified filters will be called for any TMPL_INCLUDEed files just
 as they are for the main template file.
 
+=item * 
+
+default_escape - Set this parameter to "HTML", "URL" or "JS" and
+HTML::Template will apply the specified escaping to all variables
+unless they declare a different escape in the template.
+
 =back
 
 =back 4
@@ -892,12 +913,13 @@ use strict; # and no funny business, either.
 use Carp; # generate better errors with more context
 use File::Spec; # generate paths that work on all platforms
 use Digest::MD5 qw(md5_hex); # generate cache keys
+use Scalar::Util qw(tainted);
 
 # define accessor constants used to improve readability of array
 # accesses into "objects".  I used to use 'use constant' but that
 # seems to cause occasional irritating warnings in older Perls.
 package HTML::Template::LOOP;
-sub TEMPLATE_HASH () { 0; }
+sub TEMPLATE_HASH () { 0 };
 sub PARAM_SET     () { 1 };
 
 package HTML::Template::COND;
@@ -908,6 +930,8 @@ sub VARIABLE_TYPE_LOOP () { 1 };
 sub JUMP_IF_TRUE       () { 2 };
 sub JUMP_ADDRESS       () { 3 };
 sub WHICH              () { 4 };
+sub UNCONDITIONAL_JUMP () { 5 };
+sub IS_ELSE            () { 6 };
 sub WHICH_IF           () { 0 };
 sub WHICH_UNLESS       () { 1 };
 
@@ -934,6 +958,7 @@ sub new {
 	       file_cache => 0,
 	       file_cache_dir => '',
 	       file_cache_dir_mode => 0700,
+	       force_untaint => 0,
                cache_debug => 0,
                shared_cache_debug => 0,
                memory_debug => 0,
@@ -958,10 +983,7 @@ sub new {
               );
   
   # load in options supplied to new()
-  for (my $x = 0; $x <= $#_; $x += 2) {
-    defined($_[($x + 1)]) or croak("HTML::Template->new() called with odd number of option parameters - should be of the form option => value");
-    $options->{lc($_[$x])} = $_[($x + 1)]; 
-  }
+  $options = _load_supplied_options( [@_], $options);
 
   # blind_cache = 1 implies cache = 1
   $options->{blind_cache} and $options->{cache} = 1;
@@ -996,6 +1018,11 @@ sub new {
     delete $options->{source};
   }
 
+  # make sure taint mode is on if force_untaint flag is set
+  if ($options->{force_untaint} && ! ${^TAINT}) {
+    croak("HTML::Template->new() : 'force_untaint' option set but perl does not run in taint mode!");
+  }
+
   # associate should be an array of one element if it's not
   # already an array.
   if (ref($options->{associate}) ne 'ARRAY') {
@@ -1028,10 +1055,17 @@ sub new {
     croak("HTML::Template->new called with multiple (or no) template sources specified!  A valid call to new() has exactly one filename => 'file' OR exactly one scalarref => \\\$scalar OR exactly one arrayref => \\\@array OR exactly one filehandle => \*FH");
   }
 
+  # check that cache options are not used with non-cacheable templates
+  croak "Cannot have caching when template source is not file"
+    if grep { exists($options->{$_}) } qw( filehandle arrayref scalarref)
+      and 
+       grep {$options->{$_}} qw( cache blind_cache file_cache shared_cache 
+                                 double_cache double_file_cache );
+    
   # check that filenames aren't empty
   if (exists($options->{filename})) {
       croak("HTML::Template->new called with empty filename parameter!")
-        unless defined $options->{filename} and length $options->{filename};
+        unless length $options->{filename};
   }
 
   # do some memory debugging - this is best started as early as possible
@@ -1048,8 +1082,8 @@ sub new {
   if ($options->{file_cache}) {
     # make sure we have a file_cache_dir option
     croak("You must specify the file_cache_dir option if you want to use file_cache.") 
-      unless defined $options->{file_cache_dir} and 
-        length $options->{file_cache_dir};
+      unless length $options->{file_cache_dir};
+
 
     # file_cache needs some extra modules loaded
     eval { require Storable; };
@@ -1076,6 +1110,13 @@ sub new {
     $self->{cache} = \%cache;
   }
 
+  if ($options->{default_escape}) {
+    $options->{default_escape} = uc $options->{default_escape};
+    unless ($options->{default_escape} =~ /^(HTML|URL|JS)$/) {
+      croak("HTML::Template->new(): Invalid setting for default_escape - '$options->{default_escape}'.  Valid values are HTML, URL or JS.");
+    }
+  }
+
   print STDERR "### HTML::Template Memory Debug ### POST CACHE INIT ", $self->{proc_mem}->size(), "\n"
     if $options->{memory_debug};
 
@@ -1092,6 +1133,17 @@ sub new {
   delete $self->{cache} if $options->{shared_cache};
 
   return $self;
+}
+
+sub _load_supplied_options {
+    my $argsref = shift;
+    my $options = shift;
+    for (my $x = 0; $x < @{$argsref}; $x += 2) {
+      defined(${$argsref}[($x + 1)]) or croak(
+        "HTML::Template->new() called with odd number of option parameters - should be of the form option => value");
+      $options->{lc(${$argsref}[$x])} = ${$argsref}[($x + 1)]; 
+    }
+    return $options;
 }
 
 # an internally used new that receives its parse_stack and param_map as input
@@ -1115,10 +1167,7 @@ sub _new_from_loop {
               );
   
   # load in options supplied to new()
-  for (my $x = 0; $x <= $#_; $x += 2) { 
-    defined($_[($x + 1)]) or croak("HTML::Template->new() called with odd number of option parameters - should be of the form option => value");
-    $options->{lc($_[$x])} = $_[($x + 1)]; 
-  }
+  $options = _load_supplied_options( [@_], $options);
 
   $self->{param_map} = $options->{param_map};
   $self->{parse_stack} = $options->{parse_stack};
@@ -1162,14 +1211,14 @@ sub _init {
   } elsif ($options->{double_file_cache}) {
     # try the normal cache, return if we have it.
     $self->_fetch_from_cache();
-    return if (defined $self->{param_map} and defined $self->{parse_stack});
+    return if (defined $self->{param_map});
 
     # try the file cache
     $self->_fetch_from_file_cache();
 
     # put it in the local cache if we got it.
     $self->_commit_to_cache()
-      if (defined $self->{param_map} and defined $self->{parse_stack});
+      if (defined $self->{param_map});
   } elsif ($options->{shared_cache}) {
     # try the shared cache
     $self->_fetch_from_shared_cache();
@@ -1182,7 +1231,7 @@ sub _init {
   }
   
   # if we got a cache hit, return
-  return if (defined $self->{param_map} and defined $self->{parse_stack});
+  return if (defined $self->{param_map});
 
   # if we're here, then we didn't get a cached copy, so do a full
   # init.
@@ -1194,11 +1243,14 @@ sub _init {
   if($options->{file_cache}){
     $self->_commit_to_file_cache();
   }
-  $self->_commit_to_cache() if (($options->{cache}
-                                and not $options->{shared_cache}
-				and not $options->{file_cache}) or
-                                ($options->{double_cache}) or
-				($options->{double_file_cache}));
+  $self->_commit_to_cache() if (
+         ($options->{cache} 
+            and not $options->{shared_cache} 
+            and not $options->{file_cache}
+         ) 
+      or ($options->{double_cache}) 
+      or ($options->{double_file_cache})
+    );
 }
 
 # Caching subroutines - they handle getting and validating cache
@@ -1211,7 +1263,6 @@ sub _fetch_from_cache {
   my $options = $self->{options};
 
   # return if there's no file here
-  return unless exists($options->{filename});
   my $filepath = $self->_find_file($options->{filename});
   return unless (defined($filepath));
   $options->{filepath} = $filepath;
@@ -1286,18 +1337,9 @@ sub _cache_key {
     my $self = shift;
     my $options = $self->{options};
 
-    # determine path to file unless already known
-    my $filepath = $options->{filepath};
-    if (not defined $filepath) {
-        $filepath = $self->_find_file($options->{filename});
-        confess("HTML::Template->new() : Cannot find file '$options->{filename}'.")
-          unless defined($filepath);
-        $options->{filepath} = $filepath;   
-    }
-
     # assemble pieces of the key
-    my @key = ($filepath);
-    push(@key, @{$options->{path}}) if $options->{path};
+    my @key = ($options->{filepath});
+    push(@key, @{$options->{path}});
     push(@key, $options->{search_path_on_include} || 0);
     push(@key, $options->{loop_context_vars} || 0);
     push(@key, $options->{global_vars} || 0);
@@ -1331,7 +1373,6 @@ sub _get_cache_filename {
 sub _fetch_from_file_cache {
   my $self = shift;
   my $options = $self->{options};
-  return unless exists($options->{filename});
   
   # return if there's no cache entry for this filename
   my $filepath = $self->_find_file($options->{filename});
@@ -1520,7 +1561,7 @@ sub _load_shared_cache {
 }
 
 # utility function - given a filename performs documented search and
-# returns a full path of undef if the file cannot be found.
+# returns a full path or undef if the file cannot be found.
 sub _find_file {
   my ($self, $filename, $extra_path) = @_;
   my $options = $self->{options};
@@ -1538,7 +1579,7 @@ sub _find_file {
   }
 
   # try pre-prending HTML_Template_Root
-  if (exists($ENV{HTML_TEMPLATE_ROOT}) and defined($ENV{HTML_TEMPLATE_ROOT})) {
+  if (defined($ENV{HTML_TEMPLATE_ROOT})) {
     $filepath =  File::Spec->catfile($ENV{HTML_TEMPLATE_ROOT}, $filename);
     return File::Spec->canonpath($filepath) if -e $filepath;
   }
@@ -1553,7 +1594,7 @@ sub _find_file {
   return File::Spec->canonpath($filename) if -e $filename;
 
   # try "path" option list with HTML_TEMPLATE_ROOT prepended...
-  if (exists($ENV{HTML_TEMPLATE_ROOT})) {
+  if (defined($ENV{HTML_TEMPLATE_ROOT})) {
     foreach my $path (@{$options->{path}}) {
       $filepath = File::Spec->catfile($ENV{HTML_TEMPLATE_ROOT}, $path, $filename);
       return File::Spec->canonpath($filepath) if -e $filepath;
@@ -1594,6 +1635,7 @@ sub _normalize_options {
         $template->{options}{stack_debug} = $options->{stack_debug};
         $template->{options}{die_on_bad_params} = $options->{die_on_bad_params};
         $template->{options}{case_sensitive} = $options->{case_sensitive};
+        $template->{options}{parent_global_vars} = $options->{parent_global_vars};
 
         push(@pstacks, $template->{parse_stack});
       }
@@ -1843,18 +1885,13 @@ sub _parse {
                       [Ee][Ss][Cc][Aa][Pp][Ee]
                       \s*=\s*
                       (?:
-                         (?: 0 | (?:"0") | (?:'0') )
-                         |
-                         ( 1 | (?:"1") | (?:'1') | 
-                           (?:[Hh][Tt][Mm][Ll]) | 
-                           (?:"[Hh][Tt][Mm][Ll]") |
-                           (?:'[Hh][Tt][Mm][Ll]') |
-                           (?:[Uu][Rr][Ll]) | 
-                           (?:"[Uu][Rr][Ll]") |
-                           (?:'[Uu][Rr][Ll]') |
-                           (?:[Jj][Ss]) |
-                           (?:"[Jj][Ss]") |
-                           (?:'[Jj][Ss]') |
+                        (
+                           (?:["']?0["']?)|
+                           (?:["']?1["']?)|
+                           (?:["']?[Hh][Tt][Mm][Ll]["']?) |
+                           (?:["']?[Uu][Rr][Ll]["']?) |
+                           (?:["']?[Jj][Ss]["']?) |
+                           (?:["']?[Nn][Oo][Nn][Ee]["']?)
                          )                         # $5 => ESCAPE on
                        )
                     )* # allow multiple ESCAPEs
@@ -1913,18 +1950,13 @@ sub _parse {
                       [Ee][Ss][Cc][Aa][Pp][Ee]
                       \s*=\s*
                       (?:
-                         (?: 0 | (?:"0") | (?:'0') )
-                         |
-                         ( 1 | (?:"1") | (?:'1') | 
-                           (?:[Hh][Tt][Mm][Ll]) | 
-                           (?:"[Hh][Tt][Mm][Ll]") |
-                           (?:'[Hh][Tt][Mm][Ll]') |
-                           (?:[Uu][Rr][Ll]) | 
-                           (?:"[Uu][Rr][Ll]") |
-                           (?:'[Uu][Rr][Ll]') |
-                           (?:[Jj][Ss]) |
-                           (?:"[Jj][Ss]") |
-                           (?:'[Jj][Ss]') |
+                        (
+                           (?:["']?0["']?)|
+                           (?:["']?1["']?)|
+                           (?:["']?[Hh][Tt][Mm][Ll]["']?) |
+                           (?:["']?[Uu][Rr][Ll]["']?) |
+                           (?:["']?[Jj][Ss]["']?) |
+                           (?:["']?[Nn][Oo][Nn][Ee]["']?)
                          )                         # $15 => ESCAPE on
                        )
                     )* # allow multiple ESCAPEs
@@ -1952,7 +1984,8 @@ sub _parse {
 
       $which = uc($1); # which tag is it
 
-      $escape = defined $5 ? $5 : defined $15 ? $15 : 0; # escape set?
+      $escape = defined $5 ? $5 : defined $15 ? $15
+        : (defined $options->{default_escape} && $which eq 'TMPL_VAR') ? $options->{default_escape} : 0; # escape set?
       
       # what name for the tag?  undef for a /tag at most, one of the
       # following three will be defined
@@ -2006,15 +2039,20 @@ sub _parse {
 	
 	# if ESCAPE was set, push an ESCAPE op on the stack before
 	# the variable.  output will handle the actual work.
+        # unless of course, they have set escape=0 or escape=none
 	if ($escape) {
           if ($escape =~ /^["']?[Uu][Rr][Ll]["']?$/) {
-	    push(@pstack, $URLESCAPE);
-	  } elsif ($escape =~ /^"?[Jj][Ss]"?$/) {
+            push(@pstack, $URLESCAPE);
+          } elsif ($escape =~ /^["']?[Jj][Ss]["']?$/) {
 	    push(@pstack, $JSESCAPE);
-	  } else {
+          } elsif ($escape =~ /^["']?0["']?$/) {
+            # do nothing if escape=0
+          } elsif ($escape =~ /^["']?[Nn][Oo][Nn][Ee]["']?$/ ) {
+            # do nothing if escape=none
+          } else {
 	    push(@pstack, $ESCAPE);
-	  }
-	}
+          }
+        }
 
 	push(@pstack, $var);
 	
@@ -2108,13 +2146,15 @@ sub _parse {
 	# does _parse() - sub-templates get their parse_stack and
 	# param_map fed to them already filled in.
 	$loop->[HTML::Template::LOOP::TEMPLATE_HASH]{$starts_at}             
-	  = HTML::Template->_new_from_loop(
+	  = ref($self)->_new_from_loop(
 					   parse_stack => $parse_stack,
 					   param_map => $param_map,
 					   debug => $options->{debug}, 
 					   die_on_bad_params => $options->{die_on_bad_params}, 
 					   loop_context_vars => $options->{loop_context_vars},
                                            case_sensitive => $options->{case_sensitive},
+                                           force_untaint => $options->{force_untaint},
+                                           parent_global_vars => ($options->{global_vars} || $options->{parent_global_vars} || 0)
 					  );
 	
       } elsif ($which eq 'TMPL_IF' or $which eq 'TMPL_UNLESS' ) {
@@ -2179,12 +2219,13 @@ sub _parse {
 	
 	my $cond = pop(@ifstack);
 	die "HTML::Template->new() : found <TMPL_ELSE> with no matching <TMPL_IF> or <TMPL_UNLESS> at $fname : line $fcounter." unless defined $cond;
-	
+        die "HTML::Template->new() : found second <TMPL_ELSE> tag for  <TMPL_IF> or <TMPL_UNLESS> at $fname : line $fcounter." if $cond->[HTML::Template::COND::IS_ELSE];	
 	
 	my $else = HTML::Template::COND->new($cond->[HTML::Template::COND::VARIABLE]);
 	$else->[HTML::Template::COND::WHICH] = $cond->[HTML::Template::COND::WHICH];
-	$else->[HTML::Template::COND::JUMP_IF_TRUE] = not $cond->[HTML::Template::COND::JUMP_IF_TRUE];
-	
+        $else->[HTML::Template::COND::UNCONDITIONAL_JUMP] = 1;
+	$else->[HTML::Template::COND::IS_ELSE] = 1;
+
 	# need end-block resolution?
 	if (defined($cond->[HTML::Template::COND::VARIABLE_TYPE])) {
 	  $else->[HTML::Template::COND::VARIABLE_TYPE] = $cond->[HTML::Template::COND::VARIABLE_TYPE];
@@ -2201,7 +2242,7 @@ sub _parse {
 	# the IF fails and falls though, output will reach the else
 	# and jump to the /if address.
 	$cond->[HTML::Template::COND::JUMP_ADDRESS] = $#pstack;
-	
+		
       } elsif ($which eq 'TMPL_INCLUDE') {
 	# handle TMPL_INCLUDEs
 	$options->{debug} and print STDERR "### HTML::Template Debug ### $fname : line $fcounter : INCLUDE $name \n";
@@ -2370,7 +2411,7 @@ sub _unglobalize_vars {
 
 =head2 param()
 
-param() can be called in a number of ways
+C<param()> can be called in a number of ways
 
 1) To return a list of parameters in the template : 
 
@@ -2445,6 +2486,9 @@ param() can be called in a number of ways
                     }
                    );
 
+An error occurs if you try to set a value that is tainted if the "force_untaint"
+option is set.
+
 =cut
 
 
@@ -2478,8 +2522,7 @@ sub param {
 
   if (!scalar(@_)) {
     croak("HTML::Template->param() : Single reference arg to param() must be a hash-ref!  You gave me a $type.")
-      unless $type eq 'HASH' or 
-        (ref($first) and UNIVERSAL::isa($first, 'HASH'));  
+        unless $type eq 'HASH' or UNIVERSAL::isa($first, 'HASH');
     push(@_, %$first);
   } else {
     unshift(@_, $first);
@@ -2501,7 +2544,18 @@ sub param {
     
     # if we're not going to die from bad param names, we need to ignore
     # them...
-    next unless (exists($param_map->{$param}));
+    unless (exists($param_map->{$param})) {
+        next if not $options->{parent_global_vars};
+
+        # ... unless global vars is on - in which case we can't be
+        # sure we won't need it in a lower loop.
+        if (ref($value) eq 'ARRAY') {
+            $param_map->{$param} = HTML::Template::LOOP->new();
+        } else {
+            $param_map->{$param} = HTML::Template::VAR->new();
+        }
+    }
+
     
     # figure out what we've got, taking special care to allow for
     # objects that are compatible underneath.
@@ -2558,7 +2612,7 @@ you'll want to print this, like:
    print $template->output();
 
 When output is called each occurrence of <TMPL_VAR NAME=name> is
-replaced with the value assigned to "name" via param().  If a named
+replaced with the value assigned to "name" via C<param()>.  If a named
 parameter is unset it is simply replaced with ''.  <TMPL_LOOPS> are
 evaluated once per parameter set, accumlating output on each pass.
 
@@ -2572,7 +2626,7 @@ memory consumption.  Example:
 
    $template->output(print_to => *STDOUT);
 
-The return value is undefined when using the "print_to" option.
+The return value is undefined when using the C<print_to> option.
 
 =cut
 
@@ -2649,47 +2703,66 @@ sub output {
     if ($type eq 'SCALAR') {
       $result .= $$line;
     } elsif ($type eq 'HTML::Template::VAR' and ref($$line) eq 'CODE') {
-      defined($$line) and $result .= $$line->($self);
+      if ( defined($$line) ) {
+        if ($options->{force_untaint}) {
+          my $tmp = $$line->($self);
+          croak("HTML::Template->output() : 'force_untaint' option but coderef returns tainted value")
+            if tainted($tmp);
+          $result .= $tmp;
+        } else {
+          $result .= $$line->($self);
+        }
+      }
     } elsif ($type eq 'HTML::Template::VAR') {
-      defined($$line) and $result .= $$line;
+      if (defined $$line) {
+        if ($options->{force_untaint} && tainted($$line)) {
+          croak("HTML::Template->output() : tainted value with 'force_untaint' option");
+        }
+        $result .= $$line;
+      }
     } elsif ($type eq 'HTML::Template::LOOP') {
       if (defined($line->[HTML::Template::LOOP::PARAM_SET])) {
         eval { $result .= $line->output($x, $options->{loop_context_vars}); };
         croak("HTML::Template->output() : fatal error in loop output : $@") 
           if $@;
       }
-    } elsif ($type eq 'HTML::Template::COND') {
-      if ($line->[HTML::Template::COND::JUMP_IF_TRUE]) {
-        if ($line->[HTML::Template::COND::VARIABLE_TYPE] == HTML::Template::COND::VARIABLE_TYPE_VAR) {
-          if (defined ${$line->[HTML::Template::COND::VARIABLE]}) {
-            if (ref(${$line->[HTML::Template::COND::VARIABLE]}) eq 'CODE') {
-              $x = $line->[HTML::Template::COND::JUMP_ADDRESS] if ${$line->[HTML::Template::COND::VARIABLE]}->($self);
-            } else {
-              $x = $line->[HTML::Template::COND::JUMP_ADDRESS] if ${$line->[HTML::Template::COND::VARIABLE]};
-            }
-          }
-        } else {
-          $x = $line->[HTML::Template::COND::JUMP_ADDRESS] if
-            (defined $line->[HTML::Template::COND::VARIABLE][HTML::Template::LOOP::PARAM_SET] and
-             scalar @{$line->[HTML::Template::COND::VARIABLE][HTML::Template::LOOP::PARAM_SET]});
-        }
-      } else {
-        if ($line->[HTML::Template::COND::VARIABLE_TYPE] == HTML::Template::COND::VARIABLE_TYPE_VAR) {
-          if (defined ${$line->[HTML::Template::COND::VARIABLE]}) {
-            if (ref(${$line->[HTML::Template::COND::VARIABLE]}) eq 'CODE') {
-              $x = $line->[HTML::Template::COND::JUMP_ADDRESS] unless ${$line->[HTML::Template::COND::VARIABLE]}->($self);
-            } else {
-              $x = $line->[HTML::Template::COND::JUMP_ADDRESS] unless ${$line->[HTML::Template::COND::VARIABLE]};
+	} elsif ($type eq 'HTML::Template::COND') {
+    	
+     if ($line->[HTML::Template::COND::UNCONDITIONAL_JUMP]) {
+       $x = $line->[HTML::Template::COND::JUMP_ADDRESS]
+     } else {
+        if ($line->[HTML::Template::COND::JUMP_IF_TRUE]) {
+          if ($line->[HTML::Template::COND::VARIABLE_TYPE] == HTML::Template::COND::VARIABLE_TYPE_VAR) {
+            if (defined ${$line->[HTML::Template::COND::VARIABLE]}) {
+              if (ref(${$line->[HTML::Template::COND::VARIABLE]}) eq 'CODE') {
+                $x = $line->[HTML::Template::COND::JUMP_ADDRESS] if ${$line->[HTML::Template::COND::VARIABLE]}->($self);
+              } else {
+                $x = $line->[HTML::Template::COND::JUMP_ADDRESS] if ${$line->[HTML::Template::COND::VARIABLE]};
+              }
             }
           } else {
-            $x = $line->[HTML::Template::COND::JUMP_ADDRESS];
+            $x = $line->[HTML::Template::COND::JUMP_ADDRESS] if
+              (defined $line->[HTML::Template::COND::VARIABLE][HTML::Template::LOOP::PARAM_SET] and
+               scalar @{$line->[HTML::Template::COND::VARIABLE][HTML::Template::LOOP::PARAM_SET]});
           }
         } else {
-          $x = $line->[HTML::Template::COND::JUMP_ADDRESS] if
-            (not defined $line->[HTML::Template::COND::VARIABLE][HTML::Template::LOOP::PARAM_SET] or
-             not scalar @{$line->[HTML::Template::COND::VARIABLE][HTML::Template::LOOP::PARAM_SET]});
+          if ($line->[HTML::Template::COND::VARIABLE_TYPE] == HTML::Template::COND::VARIABLE_TYPE_VAR) {
+            if (defined ${$line->[HTML::Template::COND::VARIABLE]}) {
+              if (ref(${$line->[HTML::Template::COND::VARIABLE]}) eq 'CODE') {
+                $x = $line->[HTML::Template::COND::JUMP_ADDRESS] unless ${$line->[HTML::Template::COND::VARIABLE]}->($self);
+              } else {
+                $x = $line->[HTML::Template::COND::JUMP_ADDRESS] unless ${$line->[HTML::Template::COND::VARIABLE]};
+              }
+            } else {
+              $x = $line->[HTML::Template::COND::JUMP_ADDRESS];
+            }
+          } else {
+            $x = $line->[HTML::Template::COND::JUMP_ADDRESS] if
+              (not defined $line->[HTML::Template::COND::VARIABLE][HTML::Template::LOOP::PARAM_SET] or
+               not scalar @{$line->[HTML::Template::COND::VARIABLE][HTML::Template::LOOP::PARAM_SET]});
+          }
         }
-      }
+      }      	
     } elsif ($type eq 'HTML::Template::NOOP') {
       next;
     } elsif ($type eq 'HTML::Template::DEFAULT') {
@@ -2697,7 +2770,10 @@ sub output {
 
       # find next VAR, there might be an ESCAPE in the way
       *line = \$parse_stack[++$x];
-      *line = \$parse_stack[++$x] if ref $line eq 'HTML::Template::ESCAPE';
+      *line = \$parse_stack[++$x] 
+        if ref $line eq 'HTML::Template::ESCAPE' or
+           ref $line eq 'HTML::Template::JSESCAPE' or
+           ref $line eq 'HTML::Template::URLESCAPE';
 
       # either output the default or go back
       if (defined $$line) {
@@ -2709,7 +2785,17 @@ sub output {
     } elsif ($type eq 'HTML::Template::ESCAPE') {
       *line = \$parse_stack[++$x];
       if (defined($$line)) {
-        $_ = $$line;
+        if (ref($$line) eq 'CODE') {
+            $_ = $$line->($self);
+            if ($options->{force_untaint} > 1 && tainted($_)) {
+              croak("HTML::Template->output() : 'force_untaint' option but coderef returns tainted value");
+            }
+        } else {
+            $_ = $$line;
+            if ($options->{force_untaint} > 1 && tainted($_)) {
+              croak("HTML::Template->output() : tainted value with 'force_untaint' option");
+            }
+        }
         
         # straight from the CGI.pm bible.
         s/&/&amp;/g;
@@ -2725,7 +2811,17 @@ sub output {
       $x++;
       *line = \$parse_stack[$x];
       if (defined($$line)) {
-        $_ = $$line;
+        if (ref($$line) eq 'CODE') {
+            $_ = $$line->($self);
+            if ($options->{force_untaint} > 1 && tainted($_)) {
+              croak("HTML::Template->output() : 'force_untaint' option but coderef returns tainted value");
+            }
+        } else {
+            $_ = $$line;
+            if ($options->{force_untaint} > 1 && tainted($_)) {
+              croak("HTML::Template->output() : tainted value with 'force_untaint' option");
+            }
+        }
         s/\\/\\\\/g;
         s/'/\\'/g;
         s/"/\\"/g;
@@ -2737,7 +2833,17 @@ sub output {
       $x++;
       *line = \$parse_stack[$x];
       if (defined($$line)) {
-        $_ = $$line;
+        if (ref($$line) eq 'CODE') {
+            $_ = $$line->($self);
+            if ($options->{force_untaint} > 1 && tainted($_)) {
+              croak("HTML::Template->output() : 'force_untaint' option but coderef returns tainted value");
+            }
+        } else {
+            $_ = $$line;
+            if ($options->{force_untaint} > 1 && tainted($_)) {
+              croak("HTML::Template->output() : tainted value with 'force_untaint' option");
+            }
+        }
         # Build a char->hex map if one isn't already available
         unless (exists($URLESCAPE_MAP{chr(1)})) {
           for (0..255) { $URLESCAPE_MAP{chr($_)} = sprintf('%%%02X', $_); }
@@ -2777,7 +2883,7 @@ the C<name> option:
 
 This same usage returns the type of the parameter.  The type is the
 same as the tag minus the leading 'TMPL_'.  So, for example, a
-TMPL_VAR parameter returns 'VAR' from query().
+TMPL_VAR parameter returns 'VAR' from C<query()>.
 
   if ($template->query(name => 'foo') eq 'VAR') {
     # do something if FOO exists and is a TMPL_VAR
@@ -2835,7 +2941,7 @@ parameter that is not a loop.
 Note that all the names are returned in lowercase and the types are
 uppercase.
 
-Just like C<param()>, C<query()> with no arguements returns all the
+Just like C<param()>, C<query()> with no arguments returns all the
 parameter names in the template at the top level.
 
 =cut
@@ -3083,8 +3189,8 @@ A: That depends.  Did you send me the VERSION of HTML::Template, a test
 script and a test template?  If so, then almost certainly.
 
 If you're feeling really adventurous, HTML::Template has a publically
-available CVS server.  See below for more information in the PUBLIC
-CVS SERVER section.
+available Subversion server.  See below for more information in the PUBLIC
+SUBVERSION SERVER section.
 
 =item 5
 
@@ -3222,8 +3328,8 @@ including the VERSION of the module, a test script and a test template
 demonstrating the problem!
 
 If you're feeling really adventurous, HTML::Template has a publically
-available CVS server.  See below for more information in the PUBLIC
-CVS SERVER section.
+available Subversion server.  See below for more information in the
+PUBLIC SUBVERSION SERVER section.
 
 =head1 CREDITS
 
@@ -3283,6 +3389,9 @@ provided by:
    Paul Baker
    Gabor Szabo
    Craig Manley
+   Richard Fein
+   The Phalanx Project
+   Sven Neuhaus
 
 Thanks!
 
@@ -3292,11 +3401,11 @@ You can find information about HTML::Template and other related modules at:
 
    http://html-template.sourceforge.net
 
-=head1 PUBLIC CVS SERVER
+=head1 PUBLIC SUBVERSION SERVER
 
-HTML::Template now has a publicly accessible CVS server provided by
-SourceForge (www.sourceforge.net).  You can access it by going to
-http://sourceforge.net/cvs/?group_id=1075.  Give it a try!
+HTML::Template now has a publicly accessible Subversion server
+provided by SourceForge (www.sourceforge.net).  You can access it by
+going to http://sourceforge.net/svn/?group_id=1075.  Give it a try!
 
 =head1 AUTHOR
 

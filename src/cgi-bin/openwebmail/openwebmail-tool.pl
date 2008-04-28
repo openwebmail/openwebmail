@@ -5,28 +5,51 @@
 # 03/27/2003 tung.AT.turtle.ee.ncku.edu.tw
 #            Ebola.AT.turtle.ee.ncku.edu.tw
 #
+
+use strict;
+use warnings;
+
 use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { local $1; $SCRIPT_DIR=$1 }
-if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^(\S*)/) { local $1; $SCRIPT_DIR=$1 }
+
+if (-f "/etc/openwebmail_path.conf") {
+   my $pathconf = "/etc/openwebmail_path.conf";
+   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+   my $pathinfo = <F>;
+   close(F) or die("Cannot close $pathconf: $!");
+   ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
+} else {
+   ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
+
 if ($SCRIPT_DIR eq '') {
-   print qq|\nOpenWebMail is unable to locate itself on this system,\n|.
-         qq|please put 'the path of openwebmail CGI directory' to\n|.
-         qq|the first line of file /etc/openwebmail_path.conf\n\n|.
-         qq|For example, if the script is\n\n|.
-         qq|/usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl,\n\n|.
-         qq|then the content of /etc/openwebmail_path.conf should be:\n\n|.
-         qq|/usr/local/www/cgi-bin/openwebmail/\n\n|;
+   print qq|
+
+   OpenWebMail is unable to locate itself on this system,
+   please put the path of the openwebmail CGI directory as
+   the first line of file /etc/openwebmail_path.conf.
+
+   For example, if the script is:
+
+   /usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl
+
+   then the content of /etc/openwebmail_path.conf should be:
+
+   /usr/local/www/cgi-bin/openwebmail/
+
+   |;
    exit 0;
 }
 push (@INC, $SCRIPT_DIR);
 
-foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
-umask(0002); # make sure the openwebmail group can write
-use strict;
 use Fcntl qw(:DEFAULT :flock);
 use Net::SMTP;
+
+# secure the environment
+delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
+$ENV{PATH}='/bin:/usr/bin';
+
+# make sure the openwebmail group can write
+umask(0002);
 
 require "modules/dbm.pl";
 require "modules/suid.pl";
@@ -347,7 +370,7 @@ sub init {
       langconv($srclocale, $dstlocale, 0);
    }
    print "...done.\n\n";
-             
+
    my $id = $ENV{'USER'} || $ENV{'LOGNAME'} || getlogin || (getpwuid($>))[0];
    my $hostname=ow::tool::hostname();
    my $realname=(getpwnam($id))[6]||$id;
@@ -362,7 +385,7 @@ sub init {
    }
    my $content=qq|OS: $os\n|.
                qq|Perl: $]\n|.
-               qq|WebMail: $config{'name'} $config{'version'} $config{'releasedate'}\n|;
+               qq|WebMail: $config{'name'} $config{'version'} $config{'releasedate'} revision $config{revision}\n|;
 
    if ($opt{'yes'}) {
       print qq|$content\n|.

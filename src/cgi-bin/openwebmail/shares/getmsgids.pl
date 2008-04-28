@@ -10,101 +10,97 @@ use MIME::Base64;
 use MIME::QuotedPrint;
 
 use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
-            $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);	# defined in maildb.pl
+            $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES); # defined in maildb.pl
 use vars qw(%config %prefs);
 use vars qw(%lang_folders %lang_err);
-
 use vars qw($_index_complete);
+
 sub getinfomessageids {
-   my ($user, $folder, $sort, $msgdatetype, $searchtype, $keyword)=@_;
-   my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
+   my ($user, $folder, $sort, $msgdatetype, $searchtype, $keyword) = @_;
+
+   my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
 
    if ($sort eq 'date') {
-      $sort=$msgdatetype || $prefs{'msgdatetype'};
+      $sort = $msgdatetype || $prefs{msgdatetype};
    } elsif ($sort eq 'date_rev') {
-      $sort=($msgdatetype || $prefs{'msgdatetype'}).'_rev';
+      $sort = ($msgdatetype || $prefs{msgdatetype}).'_rev';
    }
 
    # do new indexing in background if folder > 10 M && empty db
    if (!ow::dbm::exist($folderdb) && (-s $folderfile) >= 10485760) {
-      local $_index_complete=0;
-      local $SIG{CHLD} = sub { wait; $_index_complete=1 if ($?==0) };	# signaled when indexing completes
-      local $|=1; # flush all output
-      if ( fork() == 0 ) {		# child
-         close(STDIN); close(STDOUT); close(STDERR);
-         writelog("debug - update folderindex process forked - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
+      local $_index_complete = 0;
+      local $SIG{CHLD} = sub { wait; $_index_complete = 1 if ($? == 0) }; # signaled when indexing completes
+      local $| = 1; # flush all output
+      if ( fork() == 0 ) { # child
+         close(STDIN);
+         close(STDOUT);
+         close(STDERR);
+
+         writelog("debug - update folderindex process forked - " .__FILE__.":". __LINE__) if ($config{debug_fork});
 
          ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or openwebmail_exit(1);
          update_folderindex($folderfile, $folderdb);
          ow::filelock::lock($folderfile, LOCK_UN);
 
-         writelog("debug - update folderindex process terminated - " .__FILE__.":". __LINE__) if ($config{'debug_fork'});
+         writelog("debug - update folderindex process terminated - " .__FILE__.":". __LINE__) if ($config{debug_fork});
          openwebmail_exit(0);
       }
 
-      for (my $i=0; $i<120; $i++) {	# wait index to complete for 120 seconds
+      for (my $i=0; $i<120; $i++) { # wait 120 seconds for index to complete
          sleep 1;
          last if ($_index_complete);
       }
 
-      if ($_index_complete==0) {
-         openwebmailerror(__FILE__, __LINE__, f2u($folderfile)." $lang_err{'under_indexing'}");
+      # TODO: the error is not captured from the fork above so we have no idea why indexing failed
+      if ($_index_complete == 0) {
+         openwebmailerror(__FILE__, __LINE__, f2u($folderfile)." $lang_err{under_indexing}");
       }
-   } else {	# do indexing directly if small folder
+   } else { # do indexing directly if small folder
+      # TODO: capture the errors and report them instead of just erroring out with generic messages
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} ".f2u($folderfile)."!");
-      if (update_folderindex($folderfile, $folderdb)<0) {
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} " . f2u($folderfile) . "!");
+      if (update_folderindex($folderfile, $folderdb) < 0) {
          ow::filelock::lock($folderfile, LOCK_UN);
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db ".f2u($folderdb));
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_updatedb} db " . f2u($folderdb));
       }
       ow::filelock::lock($folderfile, LOCK_UN);
-   }
-
-   # Since recipients are displayed instead of sender in folderview of
-   # SENT/DRAFT folder, the $sort must be changed from 'sender' to
-   # 'recipient' in this case
-   if ( $folder=~ m#sent-mail#i ||
-        $folder=~ m#saved-drafts#i ||
-        $folder=~ m#\Q$lang_folders{'sent-mail'}\E#i ||
-        $folder=~ m#\Q$lang_folders{'saved-drafts'}\E#i ) {
-      $sort='recipient' if ($sort eq 'sender');
    }
 
    my ($totalsize, $new, $r_messageids, $r_messagedepths);
 
    if ( $keyword ne '' ) {
-      my $folderhandle=do { local *FH };
+      my $folderhandle = do { local *FH };
       my %FDB;
       my $r_haskeyword;
-      my @messageids=();
-      my @messagedepths=();
+      my @messageids = ();
+      my @messagedepths = ();
 
-      ($r_messageids, $r_messagedepths)=get_messageids_sorted($folderdb, $sort, "$folderdb.cache", $prefs{'hideinternal'});
+      ($r_messageids, $r_messagedepths) = get_messageids_sorted($folderdb, $sort, "$folderdb.cache", $prefs{hideinternal});
 
+      # TODO: capture error
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} ".f2u($folderfile)."!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} " . f2u($folderfile) . "!");
 
       sysopen($folderhandle, $folderfile, O_RDONLY);
-      $r_haskeyword=search_info_messages_for_keyword(
-			$keyword, $prefs{'charset'}, $searchtype, $folderdb, $folderhandle,
-			dotpath('search.cache'), $prefs{'hideinternal'}, $prefs{'regexmatch'});
+      $r_haskeyword = search_info_messages_for_keyword($keyword, $prefs{charset}, $searchtype, $folderdb, $folderhandle,
+                                                       dotpath('search.cache'), $prefs{hideinternal}, $prefs{regexmatch});
       close($folderhandle);
 
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH);
       foreach my $messageid (keys %{$r_haskeyword}) {
-         my @attr=string2msgattr($FDB{$messageid});
-         $new++ if ($attr[$_STATUS]!~/R/i);
-         $totalsize+=$attr[$_SIZE];
+         my @attr = string2msgattr($FDB{$messageid});
+         $new++ if ($attr[$_STATUS] !~ m/R/i);
+         $totalsize += $attr[$_SIZE];
       }
       ow::dbm::close(\%FDB, $folderdb);
 
       ow::filelock::lock($folderfile, LOCK_UN);
 
       for (my $i=0; $i<@{$r_messageids}; $i++) {
-	my $id = ${$r_messageids}[$i];
-	if ( ${$r_haskeyword}{$id} == 1 ) {
+	my $id = $r_messageids->[$i];
+	if ( $r_haskeyword->{$id} == 1 ) {
 	  push (@messageids, $id);
-	  push (@messagedepths, ${$r_messagedepths}[$i]);
+	  push (@messagedepths, $r_messagedepths->[$i]);
         }
       }
       return($totalsize, $new, \@messageids, \@messagedepths);
@@ -114,12 +110,12 @@ sub getinfomessageids {
 
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
          return($totalsize, $new, $r_messageids, $r_messagedepths);
-      $new=$FDB{'NEWMESSAGES'};
-      $totalsize=(stat($folderfile))[7];
-      $totalsize=$totalsize-$FDB{'INTERNALSIZE'}-$FDB{'ZAPSIZE'};
+      $new=$FDB{NEWMESSAGES};
+      $totalsize = (stat($folderfile))[7];
+      $totalsize = $totalsize - $FDB{INTERNALSIZE} - $FDB{ZAPSIZE};
       ow::dbm::close(\%FDB, $folderdb);
 
-      ($r_messageids, $r_messagedepths)=get_messageids_sorted($folderdb, $sort, "$folderdb.cache", $prefs{'hideinternal'});
+      ($r_messageids, $r_messagedepths) = get_messageids_sorted($folderdb, $sort, "$folderdb.cache", $prefs{hideinternal});
 
       return($totalsize, $new, $r_messageids, $r_messagedepths);
    }
@@ -128,109 +124,109 @@ sub getinfomessageids {
 # searchtype: subject, from, to, date, attfilename, header, textcontent, all
 # prefs_charset: the charset of the keyword
 sub search_info_messages_for_keyword {
-   my ($keyword, $prefs_charset, $searchtype, $folderdb, $folderhandle, $cachefile, $ignore_internal, $regexmatch)=@_;
+   my ($keyword, $prefs_charset, $searchtype, $folderdb, $folderhandle, $cachefile, $ignore_internal, $regexmatch) = @_;
    my ($cache_lstmtime, $cache_folderdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal);
    my (%FDB, @messageids, $messageid);
    my %found=();
 
-   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-      return(\%found);
-   my $lstmtime=$FDB{'LSTMTIME'};
+   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return(\%found);
+   my $lstmtime = $FDB{LSTMTIME};
    ow::dbm::close(\%FDB, $folderdb);
 
-   ow::filelock::lock($cachefile, LOCK_EX) or
-      return(\%found);
+   ow::filelock::lock($cachefile, LOCK_EX) or return(\%found);
 
    if ( -e $cachefile ) {
       sysopen(CACHE, $cachefile, O_RDONLY);
       foreach ($cache_lstmtime, $cache_folderdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal) {
-         $_=<CACHE>; chomp;
+         $_ = <CACHE>;
+         chomp;
       }
       close(CACHE);
    }
 
-   if ( $cache_lstmtime ne $lstmtime || $cache_folderdb ne $folderdb ||
-        $cache_keyword ne $keyword || $cache_searchtype ne $searchtype ||
-        $cache_ignore_internal ne $ignore_internal ) {
-      $cachefile=ow::tool::untaint($cachefile);
-      @messageids=get_messageids_sorted_by_offset($folderdb, $folderhandle);
+   if ( $cache_lstmtime ne $lstmtime
+        || $cache_folderdb ne $folderdb
+        || $cache_keyword ne $keyword
+        || $cache_searchtype ne $searchtype
+        || $cache_ignore_internal ne $ignore_internal ) {
+      $cachefile = ow::tool::untaint($cachefile);
+      @messageids = get_messageids_sorted_by_offset($folderdb, $folderhandle);
 
-      ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-         return(\%found);
+      ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return(\%found);
 
       # check if keyword a valid regex
       $regexmatch = $regexmatch && ow::tool::is_regex($keyword);
 
+      my $userbrowsercharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{available_locales})))[6];
+
       foreach $messageid (@messageids) {
          my (@attr, $date, $block, $header, $body, $r_attachments);
-         @attr=string2msgattr($FDB{$messageid});
-         next if ($attr[$_STATUS]=~/Z/i);
+         @attr = string2msgattr($FDB{$messageid});
+         next if ($attr[$_STATUS] =~ m/Z/i);
          next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
 
-         my $msgcharset=$attr[$_CHARSET];
-         if ($msgcharset eq '' && $prefs_charset eq 'utf-8') {
-            # assume msg is from sender using same language as the recipient's browser
-            my $browserlocale = ow::lang::guess_browser_locale($config{'available_locales'});
-            $msgcharset = (ow::lang::localeinfo($browserlocale))[6];
-         }
-         ($attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT])=
-               iconv('utf-8', $prefs_charset, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
+         my $msgcharset = $attr[$_CHARSET];
+
+         # assume msg is from sender using same language as the recipient's browser if no charset defined
+         $msgcharset = $userbrowsercharset if ($msgcharset eq '' && $prefs_charset eq 'utf-8');
+
+         ($attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]) = iconv('utf-8', $prefs_charset, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
 
          if ($searchtype eq 'all' || $searchtype eq 'date') {
-            $date=ow::datetime::dateserial2str($attr[$_DATE],
-                                               $prefs{'timeoffset'}, $prefs{'daylightsaving'},
-                                               $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'});
+            $date = ow::datetime::dateserial2str($attr[$_DATE], $prefs{timeoffset}, $prefs{daylightsaving},
+                                                 $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone});
          }
 
          # check subject, from, to, date
-         if ( ( ($searchtype eq 'all' ||
-                 $searchtype eq 'subject') &&
-                (($regexmatch && $attr[$_SUBJECT]=~/$keyword/i) ||
-                 $attr[$_SUBJECT]=~/\Q$keyword\E/i) )  ||
-              ( ($searchtype eq 'all' ||
-                 $searchtype eq 'from') &&
-                (($regexmatch && $attr[$_FROM]=~/$keyword/i) ||
-                 $attr[$_FROM]=~/\Q$keyword\E/i) )  ||
-              ( ($searchtype eq 'all' ||
-                 $searchtype eq 'to') &&
-                (($regexmatch && $attr[$_TO]=~/$keyword/i) ||
-                 $attr[$_TO]=~/\Q$keyword\E/i) )  ||
-              ( ($searchtype eq 'all' ||
-                 $searchtype eq 'date') &&
-                (($regexmatch && $date=~/$keyword/i) ||
-                 $date=~/\Q$keyword\E/i) )
+         if (
+              (($searchtype eq 'all' || $searchtype eq 'subject')
+                && (($regexmatch && $attr[$_SUBJECT] =~ m/$keyword/i) || $attr[$_SUBJECT] =~ m/\Q$keyword\E/i))
+
+              ||
+
+              (($searchtype eq 'all' || $searchtype eq 'from')
+                && (($regexmatch && $attr[$_FROM] =~ m/$keyword/i) || $attr[$_FROM] =~ m/\Q$keyword\E/i))
+
+              ||
+
+              (($searchtype eq 'all' || $searchtype eq 'to')
+                && (($regexmatch && $attr[$_TO] =~ m/$keyword/i) || $attr[$_TO] =~ m/\Q$keyword\E/i))
+
+              ||
+
+              (($searchtype eq 'all' || $searchtype eq 'date')
+                && (($regexmatch && $date =~ m/$keyword/i) || $date =~ m/\Q$keyword\E/i))
             ) {
-            $found{$messageid}=1;
+            $found{$messageid} = 1;
          }
+
          # try to find msgs in same thread with references if seaching subject
          if ($searchtype eq 'subject') {
-            my @references=split(/\s+/, $attr[$_REFERENCES]);
+            my @references = split(/\s+/, $attr[$_REFERENCES]);
             foreach my $refid (@references) {
                # if a msg is already in %found, then we put all msgs it references in %found
-               $found{$refid}=1 if ($found{$messageid} && defined $FDB{$refid});
-               # if a msg references any member in %found, thn we put this msg in %found
-               $found{$messageid}=1 if ($found{$refid});
+               $found{$refid} = 1 if ($found{$messageid} && defined $FDB{$refid});
+               # if a msg references any member in %found, than we put this msg in %found
+               $found{$messageid} = 1 if ($found{$refid});
             }
          }
-         if ($found{$messageid}) {
-            next;
-         }
+
+         next if ($found{$messageid});
 
 	 # check header
          if ($searchtype eq 'all' || $searchtype eq 'header') {
             # check de-mimed header first since header in mail folder is raw format.
             seek($folderhandle, $attr[$_OFFSET], 0);
-            $header="";
+            $header = "";
             while(<$folderhandle>) {
-               $header.=$_;
+               $header .= $_;
                last if ($_ eq "\n");
             }
             $header = decode_mimewords_iconv($header, $prefs_charset);
-            $header=~s/\n / /g;	# handle folding roughly
+            $header =~ s/\n / /g; # handle folding roughly
 
-            if ( ($regexmatch && $header =~ /$keyword/im) ||
-                 $header =~ /\Q$keyword\E/im ) {
-               $found{$messageid}=1;
+            if (($regexmatch && $header =~ m/$keyword/im) || $header =~ m/\Q$keyword\E/im ) {
+               $found{$messageid} = 1;
                next;
             }
          }
@@ -239,49 +235,47 @@ sub search_info_messages_for_keyword {
          if ($searchtype eq 'all' || $searchtype eq 'textcontent' || $searchtype eq 'attfilename') {
             seek($folderhandle, $attr[$_OFFSET], 0);
             read($folderhandle, $block, $attr[$_SIZE]);
-            ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block(\$block);
+            ($header, $body, $r_attachments) = ow::mailparse::parse_rfc822block(\$block);
          }
 
 	 # check textcontent: text in body and attachments
          if ($searchtype eq 'all' || $searchtype eq 'textcontent') {
             # check body
-            if ( $attr[$_CONTENT_TYPE] =~ /^text/i ||
-                 $attr[$_CONTENT_TYPE] eq "N/A" ) { # read all for text/plain,text/html
-               if ( $header =~ /content-transfer-encoding:\s+quoted-printable/i) {
+            if ( $attr[$_CONTENT_TYPE] =~ m/^text/i || $attr[$_CONTENT_TYPE] eq 'N/A' ) { # read all for text/plain,text/html
+               if ( $header =~ m/content-transfer-encoding:\s+quoted-printable/i) {
                   $body = decode_qp($body);
-               } elsif ($header =~ /content-transfer-encoding:\s+base64/i) {
+               } elsif ($header =~ m/content-transfer-encoding:\s+base64/i) {
                   $body = decode_base64($body);
-               } elsif ($header =~ /content-transfer-encoding:\s+x-uuencode/i) {
+               } elsif ($header =~ m/content-transfer-encoding:\s+x-uuencode/i) {
                   $body = ow::mime::uudecode($body);
                }
-               ($body)=iconv($msgcharset, $prefs_charset, $body);
-               if ( ($regexmatch && $body =~ /$keyword/im) ||
-                    $body =~ /\Q$keyword\E/im ) {
-                  $found{$messageid}=1;
+
+               ($body) = iconv($msgcharset, $prefs_charset, $body);
+
+               if (($regexmatch && $body =~ m/$keyword/im) || $body =~ m/\Q$keyword\E/im ) {
+                  $found{$messageid} = 1;
                   next;
                }
             }
+
             # check attachments
             foreach my $r_attachment (@{$r_attachments}) {
-               if ( ${$r_attachment}{'content-type'} =~ /^text/i ||
-                    ${$r_attachment}{'content-type'} eq "N/A" ) {	# read all for text/plain. text/html
-                  my $content;
-                  if ( ${$r_attachment}{'content-transfer-encoding'} =~ /^quoted-printable/i ) {
-                     $content = decode_qp( ${${$r_attachment}{r_content}});
-                  } elsif ( ${$r_attachment}{'content-transfer-encoding'} =~ /^base64/i ) {
-                     $content = decode_base64( ${${$r_attachment}{r_content}});
-                  } elsif ( ${$r_attachment}{'content-transfer-encoding'} =~ /^x-uuencode/i ) {
-                     $content = ow::mime::uudecode( ${${$r_attachment}{r_content}});
-                  } else {
-                     $content=${${$r_attachment}{r_content}};
+               if ( $r_attachment->{'content-type'} =~ m/^text/i || $r_attachment->{'content-type'} eq 'N/A' ) { # read all for text/plain. text/html
+                  my $content = ${$r_attachment->{r_content}};
+                  if ( $r_attachment->{'content-transfer-encoding'} =~ m/^quoted-printable/i ) {
+                     $content = decode_qp(${$r_attachment->{r_content}});
+                  } elsif ( $r_attachment->{'content-transfer-encoding'} =~ m/^base64/i ) {
+                     $content = decode_base64(${$r_attachment->{r_content}});
+                  } elsif ( $r_attachment->{'content-transfer-encoding'} =~ m/^x-uuencode/i ) {
+                     $content = ow::mime::uudecode(${$r_attachment->{r_content}});
                   }
-                  my $attcharset=${$r_attachment}{charset}||$msgcharset;
-                  ($content)=iconv($attcharset, $prefs_charset, $content);
 
-                  if ( ($regexmatch && $content =~ /$keyword/im) ||
-                       $content =~ /\Q$keyword\E/im ) {
-                     $found{$messageid}=1;
-                     last;	# leave attachments check in one message
+                  my $attcharset = $r_attachment->{charset} || $msgcharset;
+                  ($content) = iconv($attcharset, $prefs_charset, $content);
+
+                  if (($regexmatch && $content =~ m/$keyword/im) || $content =~ m/\Q$keyword\E/im ) {
+                     $found{$messageid} = 1;
+                     last; # leave attachments check in one message
                   }
                }
             }
@@ -290,13 +284,12 @@ sub search_info_messages_for_keyword {
 	 # check attfilename
          if ($searchtype eq 'all' || $searchtype eq 'attfilename') {
             foreach my $r_attachment (@{$r_attachments}) {
-               my $attcharset=${$r_attachment}{filenamecharset}||${$r_attachment}{charset}||$msgcharset;
-               my ($filename)=iconv($attcharset, $prefs_charset, ${$r_attachment}{filename});
+               my $attcharset = $r_attachment->{filenamecharset} || $r_attachment->{charset} || $msgcharset;
+               my ($filename) = iconv($attcharset, $prefs_charset, $r_attachment->{filename});
 
-               if ( ($regexmatch && $filename =~ /$keyword/im) ||
-                    $filename =~ /\Q$keyword\E/im ) {
-                  $found{$messageid}=1;
-                  last;	# leave attachments check in one message
+               if (($regexmatch && $filename =~ m/$keyword/im) || $filename =~ m/\Q$keyword\E/im ) {
+                  $found{$messageid} = 1;
+                  last; # leave attachments check in one message
                }
             }
          }
@@ -305,17 +298,15 @@ sub search_info_messages_for_keyword {
       ow::dbm::close(\%FDB, $folderdb);
 
       sysopen(CACHE, $cachefile, O_WRONLY|O_TRUNC|O_CREAT) or logtime("cache write error $!");
-      foreach ($lstmtime, $folderdb, $keyword, $searchtype, $ignore_internal) {
-         print CACHE $_, "\n";
-      }
+      print CACHE join("\n", ($lstmtime, $folderdb, $keyword, $searchtype, $ignore_internal));
       print CACHE join("\n", keys(%found));
       close(CACHE);
-
    } else {
       sysopen(CACHE, $cachefile, O_RDONLY);
-      for (0..4) { $_=<CACHE>; }	# skip 5 lines
+      for (0..4) { $_ = <CACHE>; } # skip 5 lines
       while (<CACHE>) {
-         chomp; $found{$_}=1;
+         chomp;
+         $found{$_} = 1;
       }
       close(CACHE);
    }
@@ -328,7 +319,7 @@ sub search_info_messages_for_keyword {
 ########## GET_MESSAGEIDS_SORTED_BY_...  #########################
 
 use vars qw(%sorttype);
-%sorttype= (
+%sorttype = (
    'date'          => ['sentdate', 0],
    'date_rev'      => ['sentdate', 1],
    'sentdate'      => ['sentdate', 0],
@@ -463,15 +454,15 @@ sub get_messageids_sorted_by_recvdate {
 
    my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_RECVDATE);
    my @messageids= sort {
-                        ${${$r_msgid2attrs}{$a}}[0]<=>${${$r_msgid2attrs}{$b}}[0];
+                        ${${$r_msgid2attrs}{$a}}[0] <=> ${${$r_msgid2attrs}{$b}}[0]
                         } keys %{$r_msgid2attrs};
    return(\@messageids);
 }
 
 sub get_messageids_sorted_by_from {
-   my ($folderdb, $ignore_internal)=@_;
+   my ($folderdb, $ignore_internal) = @_;
 
-   my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_FROM);
+   my ($total, $r_msgid2attrs) = get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_FROM);
 
    my %msgfromname=();
    foreach my $id (keys %{$r_msgid2attrs}) {
@@ -479,25 +470,31 @@ sub get_messageids_sorted_by_from {
    }
    my @messageids= sort {
                         $msgfromname{$a} cmp $msgfromname{$b} or
-                        ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0];
+                        ${${$r_msgid2attrs}{$b}}[0] <=> ${${$r_msgid2attrs}{$a}}[0]
                         } keys %msgfromname;
    return(\@messageids);
 }
 
 sub get_messageids_sorted_by_to {
-   my ($folderdb, $ignore_internal)=@_;
+   my ($folderdb, $ignore_internal) = @_;
 
-   my ($total, $r_msgid2attrs)=get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_TO);
+   my ($total, $r_msgid2attrs) = get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_TO);
 
-   my %msgtoname=();
+   my %msgtoname = ();
    foreach my $id (keys %{$r_msgid2attrs}) {
-      my @tos=ow::tool::str2list(${${$r_msgid2attrs}{$id}}[1]);
-      $msgtoname{$id}= lc( (ow::tool::email2nameaddr($tos[0]))[0] );
+      my @tos = ow::tool::str2list($r_msgid2attrs->{$id}[1]);
+      $msgtoname{$id} = lc((ow::tool::email2nameaddr($tos[0]))[0]);
    }
-   my @messageids= sort {
-                        $msgtoname{$a} cmp $msgtoname{$b} or
-                        ${${$r_msgid2attrs}{$b}}[0]<=>${${$r_msgid2attrs}{$a}}[0];
-                        } keys %msgtoname;
+
+   # to is '' sometimes - push '' names to the end of the list by giving them priority 10
+   my @messageids = sort {
+                            my $apriority = defined $msgtoname{$a} && $msgtoname{$a} ne ''?1:10;
+                            my $bpriority = defined $msgtoname{$b} && $msgtoname{$b} ne ''?1:10;
+                            $apriority <=> $bpriority ||
+                            $msgtoname{$a} cmp $msgtoname{$b} ||
+                            $r_msgid2attrs->{$b}[0] <=> $r_msgid2attrs->{$a}[0]
+                         } keys %msgtoname;
+
    return(\@messageids);
 }
 
@@ -593,7 +590,7 @@ sub get_messageids_sorted_by_subject {
    # thus late coming message won't be hidden in case it belongs to a
    # very old root
    #
-   foreach my $id (sort {$date{$b}<=>$date{$a};} keys %thread_parent) {
+   foreach my $id (sort {$date{$b}<=>$date{$a}} keys %thread_parent) {
       if ($thread_parent{$id} && $id ne "ROOT.nonexist") {
          if ($date{$thread_parent{$id}} lt $date{$id} ) {
             $date{$thread_parent{$id}}=$date{$id};
@@ -605,25 +602,22 @@ sub get_messageids_sorted_by_subject {
    my (@message_ids, @message_depths);
 
    # Finally, we recursively traverse the tree.
-   @thread_roots = sort { $date{$a} <=> $date{$b}; } @thread_roots;
+   @thread_roots = sort { $date{$a} <=> $date{$b} } @thread_roots;
    foreach my $key (@thread_roots) {
-      _recursively_thread ($key, 0,
-		\@message_ids, \@message_depths, \%thread_children, \%date);
+      _recursively_thread($key, 0, \@message_ids, \@message_depths, \%thread_children, \%date);
    }
    return(\@message_ids, \@message_depths);
 }
 
 sub _recursively_thread {
-   my ($id, $depth,
-	$r_message_ids, $r_message_depths, $r_thread_children, $r_date) = @_;
+   my ($id, $depth, $r_message_ids, $r_message_depths, $r_thread_children, $r_date) = @_;
 
    unshift @{$r_message_ids}, $id;
    unshift @{$r_message_depths}, $depth;
    if (defined ${$r_thread_children}{$id}) {
       my @children = sort { ${$r_date}{$a} <=> ${$r_date}{$b}; } @{${$r_thread_children}{$id}};
       foreach my $thread (@children) {
-         _recursively_thread ($thread, $depth+1,
-	 $r_message_ids, $r_message_depths, $r_thread_children, $r_date);
+         _recursively_thread($thread, $depth+1, $r_message_ids, $r_message_depths, $r_thread_children, $r_date);
       }
    }
    return;
