@@ -1119,10 +1119,11 @@ sub folderindex {
 
             $error++ if (!$check[0] || !$check[1] || !$check[2]);
 
-            printf ("%s%s%s %4d, OFFSET:%8d, SIZE:%8d, HSIZE:%4d, DATE:%s, RECVDATE:%s, CHARSET:%s, STAT:%s, MSGID:%s, FROM:%s, TO:%s, SUB:%s\n",
-                    $check[0]?'+':'-', $check[1]?'+':'-', $check[2]?'+':'-',
-                    $i+1, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_HEADERSIZE], $attr[$_DATE], $attr[$_RECVDATE], $attr[$_CHARSET], $attr[$_STATUS],
-                    substr($messageids[$i],0,50), $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]) if (!$opt{'quiet'});
+            printf("%s%s%s %4d, OFFSET:%8d, SIZE:%8d, HSIZE:%4d, DATE:%s, RECVDATE:%s, CHARSET:%s, STAT:%s, MSGID:%s, FROM:%s, TO:%s, SUB:%s\n",
+                   ($check[0]?'+':'-'), ($check[1]?'+':'-'), ($check[2]?'+':'-'),
+                   $i+1, $attr[$_OFFSET], $attr[$_SIZE], $attr[$_HEADERSIZE], $attr[$_DATE], $attr[$_RECVDATE], $attr[$_CHARSET], $attr[$_STATUS],
+                   substr($messageids[$i],0,50), $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]
+                  ) if (!$opt{quiet});
             #printf ("buf=$buff, buff2=$buff2\n");
 
             $folderinfo{'ALLMESSAGES'}++;
