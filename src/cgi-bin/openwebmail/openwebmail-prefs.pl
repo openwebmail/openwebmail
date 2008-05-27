@@ -437,7 +437,7 @@ sub editprefs {
 
    # read .forward, also see if autoforwarding is on
    my ($autoreply, $keeplocalcopy, @forwards) = readdotforward();
-   my $forwardaddress = scalar @forwards >= 0?join(",", @forwards):'';
+   my $forwardaddress = scalar @forwards >= 1?join(",", @forwards):'';
 
    # whether autoreply active or not is determined by
    # if .forward is set to call vacation program, not in .openwebmailrc
@@ -1483,7 +1483,7 @@ sub readdotforward {
 
    # get flags and forward list with selfemail and vacationpipe removed
    my ($autoreply, $keeplocalcopy, @forwards) = splitforwardtext($forwardtext, 0, 0);
-   $keeplocalcopy = 0 if (scalar @forwards < 0);
+   $keeplocalcopy = 0 if (scalar @forwards == 0);
    return ($autoreply, $keeplocalcopy, @forwards);
 }
 
@@ -1537,10 +1537,10 @@ sub writedotforward {
 
    # if no other forwards, keeplocalcopy is required
    # only if autoreply is on or if this is a virtual user
-   $keeplocalcopy = (($autoreply || $config{auth_module} eq 'auth_vdomain.pl')?1:0) if scalar @forwards < 0;
+   $keeplocalcopy = (($autoreply || $config{auth_module} eq 'auth_vdomain.pl')?1:0) if scalar @forwards == 0;
 
    # nothing enabled, clean .forward
-   if (!$autoreply && !$keeplocalcopy && scalar @forwards < 0 ) {
+   if (!$autoreply && !$keeplocalcopy && scalar @forwards == 0 ) {
       unlink("$homedir/.forward");
       return 0;
    }
