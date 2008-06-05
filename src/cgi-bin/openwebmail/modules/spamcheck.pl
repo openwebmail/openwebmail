@@ -51,9 +51,10 @@ sub scanmsg {
    my $ret = pipecmd_msg(@_);
 
    # did spamc exit with spam level like 16.4/5.0 or 0.0/5.0?
-   if ($ret =~ m#^[+-]?([\d.]+)/([\d.]+)#) {
-      my $spamscore = $1;
-      my $threshold = $2; # not same as $prefs{'spamcheck_threshold'}!
+   if ($ret =~ m#^([+-])?([\d.]+)/([\d.]+)#) {
+      my $prefix    = defined $1?$1:'+';
+      my $spamscore = $prefix eq '-'?"-$2":$2;
+      my $threshold = $3; # not same as $prefs{'spamcheck_threshold'} !!!
       my ($report)  = $ret =~ m#^[+-]?[\d.]+/[\d.]+\s+(.*)#gs;
       return($spamscore, $report) unless ($spamscore == 0 && $threshold == 0);
    }
