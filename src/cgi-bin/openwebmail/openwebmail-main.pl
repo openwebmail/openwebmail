@@ -504,7 +504,7 @@ sub listmessages {
                                                         && ($sort =~ m#^(?:sender|sender_rev)$#        ? $fromcontactinaddressbook :
                                                             $sort =~ m#^(?:recipient|recipient_rev)$#  ? $tocontactinaddressbook   :
                                                             $folder =~ m#^(?:sent-mail|saved-drafts)$# ? $tocontactinaddressbook   : $fromcontactinaddressbook)?1:0,
-                                subjecthtml          => ow::htmltext::str2html($subject || 'N/A'),
+                                subjecthtml          => ow::htmltext::str2html($subject),
                                 subjectindent        => "&nbsp;&nbsp;" x ($messagedepth || 0),
                                 subject_keyword      => $subject_keyword,
                                 messagesize          => lenstr($attr[$_SIZE], 0),
