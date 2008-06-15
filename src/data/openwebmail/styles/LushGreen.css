@@ -20,7 +20,7 @@ input.mono { font-family: monospace; font-size: 80%; }
 select.mono { font-family: monospace; font-size: 80%; }
 h1 { font-family: Arial, Helvetica, sans-serif; font-size: 140%; font-weight: bold; }
 a:link { text-decoration: none; color: #0000ff; }
-a:visited { color: #0000ff; }
+a:visited { text-decoration: none; color: #0000ff; }
 a:hover { color: #ff0000; }
 a.icon:link { font-weight: bold; }
 a.loading:link { text-decoration: none; color: #333333; }
