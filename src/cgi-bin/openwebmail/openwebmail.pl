@@ -870,10 +870,11 @@ sub search_clean_oldsessions {
          # remove user old session if timeout
          if ( $modifyage > $prefs{sessiontimeout} * 60 ) {
             push(@delfiles, $sessfile);
-         } elsif ($misc eq '') {
+         } elsif (!defined $misc) {
             # this is a session info file
             my ($sessionkey, $ip, $userinfo) = sessioninfo($sessfile);
-            if ($client_sessionkey ne ''
+            if (defined $client_sessionkey 
+                && $client_sessionkey ne ''
                 && $client_sessionkey eq $sessionkey
                 && $clientip eq $ip
                 && (stat("$config{ow_sessionsdir}/$sessfile"))[4] == $owner_uid ) {
