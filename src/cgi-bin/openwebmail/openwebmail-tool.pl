@@ -416,7 +416,7 @@ sub do_test {
    my $err=0;
    print "\n" if (!$in_init);
 
-   if ($MIME::Base64::VERSION < 3.00) {
+   if ($MIME::Base64::VERSION lt "3.00") {
       $err--;
       print "Base64.pm\t\t$INC{'MIME/Base64.pm'}\n\n";
       print "Your MIME::Base64 module is too old ($MIME::Base64::VERSION),\n".
