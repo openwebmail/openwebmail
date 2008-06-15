@@ -889,7 +889,7 @@ sub search_clean_oldsessions {
          push(@delfiles, $sessfile) if ( $modifyage > 86400 );
       }
 
-      if (defined $misc && $misc eq '') {
+      if (defined $sess_loginname && !defined $misc) {
          $sessioncount[0]++ if ($modifyage <= 60);
          $sessioncount[1]++ if ($modifyage <= 300);
          $sessioncount[2]++ if ($modifyage <= 900);
