@@ -640,7 +640,7 @@ sub editprefs {
                                                               map { {
                                                                        option   => $_,
                                                                        label    => $_,
-                                                                       selected => ((defined $prefs{charset} && $_ eq $prefs{charset}) || $_ eq $defaultcharset)?1:0
+                                                                       selected => ((defined $prefs{charset})?$_ eq $prefs{charset}:$_ eq $defaultcharset)?1:0
                                                                   } } @selectedlanguagecharsets
                                                            ],
                       disabletimezoneselect             => defined $config_raw{DEFAULT_timezone}?1:0,
