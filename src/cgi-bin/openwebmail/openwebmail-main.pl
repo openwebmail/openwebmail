@@ -443,7 +443,7 @@ sub listmessages {
       my (@to_namelist, @to_addrlist);
       foreach my $recipient (ow::tool::str2list($to, 0)) {
          my ($name, $emailaddress) = ow::tool::email2nameaddr($recipient);
-         next if $name =~ m/"/ || $emailaddress =~ m/"/; # eliminate incomplete addresses
+         next if !defined $name || !defined $emailaddress || $name =~ m/"/ || $emailaddress =~ m/"/; # eliminate incomplete addresses
          push(@to_namelist, $name);
          push(@to_addrlist, $emailaddress);
       }
