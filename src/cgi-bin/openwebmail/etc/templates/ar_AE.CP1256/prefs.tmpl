@@ -70,7 +70,7 @@
 <tr>
   <td align="right" class="windowdarkbold" <tmpl_if userfirsttime>width="40%"</tmpl_if>>Language:</td>
   <td class="windowdarkbold">
-    <select name="language" accesskey="1" onchange="javascript:if (this.value != null) { window.location.href='<tmpl_var url_cgi>/openwebmail-prefs.pl?action=editprefs<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>&amp;language='+this.value; }"<tmpl_if disablelanguageselect> disabled="1"</tmpl_if>>
+    <select name="language" accesskey="1" onchange="javascript:if (this.value != null) { window.location.href='<tmpl_var url_cgi>/openwebmail-prefs.pl?action=editprefs<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>&amp;charset='+document.forms['prefsform'].elements['charset'].options[document.forms['prefsform'].elements['charset'].selectedIndex].value+'&amp;language='+this.value; }"<tmpl_if disablelanguageselect> disabled="1"</tmpl_if>>
     <tmpl_loop languageselectloop>
       <option value="<tmpl_var option>" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
     </tmpl_loop>
