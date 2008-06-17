@@ -503,7 +503,7 @@ sub listmessages {
                                 contactinaddressbook => $config{enable_addressbook}
                                                         && ($sort =~ m#^(?:sender|sender_rev)$#        ? $fromcontactinaddressbook :
                                                             $sort =~ m#^(?:recipient|recipient_rev)$#  ? $tocontactinaddressbook   :
-                                                            $folder =~ m#^(?:sent-mail|saved-drafts)$# ? $tocontactinaddressbook   : $fromcontactinaddressbook)?1:0,
+                                                            $folder =~ m#^(?:sent-mail|saved-drafts|\Q$lang_folders{'sent-mail'}\E.*)$# ? $tocontactinaddressbook   : $fromcontactinaddressbook)?1:0,
                                 subjecthtml          => ow::htmltext::str2html($subject),
                                 subjectindent        => "&nbsp;&nbsp;" x ($messagedepth || 0),
                                 subject_keyword      => $subject_keyword,
@@ -684,7 +684,7 @@ sub listmessages {
                       headingdatebysent       => $msgdatetype eq 'sentdate'?1:0,
                       headingfrombysender     => $sort =~ m#^(?:sender|sender_rev)$#        ? 1 :
                                                  $sort =~ m#^(?:recipient|recipient_rev)$#  ? 0 :
-                                                 $folder =~ m#^(?:sent-mail|saved-drafts)$# ? 0 : 1,
+                                                 $folder =~ m#^(?:sent-mail|saved-drafts|\Q$lang_folders{'sent-mail'}\E.*)$# ? 0 : 1,
                       uselightbar             => $prefs{uselightbar}?1:0,
                       singlemessage           => $totalmessage == 1?1:0,
                       messagesloop            => $messagesloop,
