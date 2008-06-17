@@ -593,7 +593,7 @@
   <td class="windowdarkbold">
     <select name="viruscheck_maxsize" <tmpl_if disableviruscheck_maxsizeselect>disabled="1"</tmpl_if>>
     <tmpl_loop viruscheck_maxsizeselectloop>
-      <option value="<tmpl_var option>" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> kb</option>
+      <option value="<tmpl_var option>" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> kB</option>
     </tmpl_loop>
     </select>
   </td>
@@ -638,7 +638,7 @@
   <td class="windowdarkbold">
     <select name="spamcheck_maxsize" <tmpl_if disablespamcheck_maxsizeselect>disabled="1"</tmpl_if>>
     <tmpl_loop spamcheck_maxsizeselectloop>
-      <option value="<tmpl_var option>" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> kb</option>
+      <option value="<tmpl_var option>" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> kB</option>
     </tmpl_loop>
     </select>
   </td>

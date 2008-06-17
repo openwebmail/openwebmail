@@ -467,11 +467,11 @@
    }
 
 <tmpl_if popup_quotahitdelmail>
-   popup_message('<tmpl_var charset>', 'QUOTA HIT', '<span class="warning">Warning: the quota limit(<tmpl_var quotalimit> kb) was hit. Oldest messages have been automatically removed.</span>', 'close', '_quotahit_delmail', 400, 100, 60);
+   popup_message('<tmpl_var charset>', 'QUOTA HIT', '<span class="warning">Warning: the quota limit(<tmpl_var quotalimit> kB) was hit. Oldest messages have been automatically removed.</span>', 'close', '_quotahit_delmail', 400, 100, 60);
 </tmpl_if>
 
 <tmpl_if popup_quotahitdelfile>
-   popup_message('<tmpl_var charset>', 'QUOTA HIT', '<span class="warning">Warning: the quota limit(<tmpl_var quotalimit> kb) was hit. Some files from the webdisk have been automatically removed.</span>', 'close', '_quotahit_delfile', 400, 100, 60);
+   popup_message('<tmpl_var charset>', 'QUOTA HIT', '<span class="warning">Warning: the quota limit(<tmpl_var quotalimit> kB) was hit. Some files from the webdisk have been automatically removed.</span>', 'close', '_quotahit_delfile', 400, 100, 60);
 </tmpl_if>
 
 <tmpl_if quotaoverlimit>
@@ -479,7 +479,7 @@
 </tmpl_if>
 
 <tmpl_if spooloverlimit>
-   popup_message('<tmpl_var charset>', 'QUOTA HIT', '<span class="warning">Your INBOX has exceeded the spool limit (<tmpl_var spoollimit> kb). Please move some messages from your INBOX to other folders.</span>', 'close', '_spool_overlimit', 400, 100, 60);
+   popup_message('<tmpl_var charset>', 'QUOTA HIT', '<span class="warning">Your INBOX has exceeded the spool limit (<tmpl_var spoollimit> kB). Please move some messages from your INBOX to other folders.</span>', 'close', '_spool_overlimit', 400, 100, 60);
 </tmpl_if>
 
 <tmpl_if popup_messagesent>
