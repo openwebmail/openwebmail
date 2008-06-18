@@ -644,7 +644,7 @@ sub readmessage {
                              -onChange=>'JavaScript:document.ReplyWith.submit();',
                              -override=>'1').
                   qq|</td><td>|.
-                  iconlink("editst.s.gif", $lang_text{'editstat'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editstat&amp;sessionid=$thissession&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;page=$page"|).
+                  iconlink("editst.s.gif", $lang_text{'editstat'}, qq|href="$config{'ow_cgiurl'}/openwebmail-prefs.pl?action=editstat&amp;sessionid=$thissession&amp;prefs_caller=read&amp;folder=$escapedfolder&amp;message_id=$escapedmessageid&amp;sort=$sort&amp;msgdatetype=$msgdatetype&amp;page=$page"|).
                   qq|</td>|.end_form().qq|</tr></table>|;
    }
 
