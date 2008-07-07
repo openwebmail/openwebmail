@@ -33,8 +33,8 @@
 
 <tr><td><B>Expressão:</B></td>
 <td colspan="2">@@@PATTERNFIELD@@@ &nbsp; Ignorar Maiúscula/Minúscula@@@IGNORECASECHECKBOX@@@ &nbsp; Procura em linha simples@@@SINGLELINECHECKBOX@@@</td></tr>
-<tr><td><B>Escore:</B></td>
-<td>@@@SCOREMENU@@@  (Escore>0 para Spam, Escore <0 para Ham)</td><td align="right">@@@ADDBUTTON@@@ &nbsp; </td></tr>
+<tr><td><B>Índice:</B></td>
+<td>@@@SCOREMENU@@@  (Índice>0 para Spam, Índice<0 para Ham)</td><td align="right">@@@ADDBUTTON@@@ &nbsp; </td></tr>
 @@@ENDFORM@@@
 </table>
 

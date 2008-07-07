@@ -39,7 +39,7 @@
 @@@BCCFIELD@@@
 </td></tr>
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@ nowrap>
-<B>Encaminhar para:</B>
+<B>Responder para:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@REPLYTOFIELD@@@&nbsp;&nbsp;</td>
@@ -58,7 +58,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
 @@@BACKUPSENTSTART@@@
-<td><B>Salva cópia em Enviadas</B></td>
+<td><B>Grava cópia em Enviadas</B></td>
 <td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
 @@@BACKUPSENTEND@@@
 </tr></table>

@@ -22,7 +22,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SHOWHIDDENLABEL@@@</td><td>@@@SHOWHIDDENCHECKBOX@@@</td>
 <td>@@@SHOWTHUMBLABEL@@@</td><td>@@@SHOWTHUMBCHECKBOX@@@</td>
-<td>Página simples</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
+<td>&nbsp;Uma página</td><td>@@@SINGLEPAGECHECKBOX@@@</td>
 </tr></table>
 </td>
 </tr></table>
@@ -176,7 +176,7 @@
    }
    function opconfirm(op, conf) {
       if (conf) {
-         return(confirm('Tem certeza que quer '+op+' os itens selecionados ? ( '+selectedstr()+' )'));
+         return(confirm('Confirma a operação: "'+op+'" para os ítens selecionados ? ( '+selectedstr()+' )'));
       } else {
          return true;
       }
@@ -184,7 +184,7 @@
    function chmodinput() {
       var oldperm=document.dirform.permission.value;
       var newperm;
-      newperm=prompt('Favor entrar com a permissão para os ítens selecionados ( '+selectedstr()+' )\n\n'+
+      newperm=prompt('Favor informar a permissão para os ítens selecionados ( '+selectedstr()+' )\n\n'+
                      'Exemplos de Permissão:\n'+
                      '0755 para diretório compartilhado, 0644 para arquivos compartilhados\n'+
                      '0700 para diretório privativo,     0600 para arquivo privativo', oldperm);

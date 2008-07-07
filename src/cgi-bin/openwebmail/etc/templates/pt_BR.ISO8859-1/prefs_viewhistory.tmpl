@@ -2,11 +2,11 @@
 
 <table cellpadding="1" cellspacing="0" border="0" align="center" width="90%">
 <tr>
-  <td class="titlebar">User History</td>
+  <td class="titlebar">Histórico do Usuário</td>
 </tr>
 <tr>
   <td class="menubar">
-    <a href="<tmpl_var url_cgi>/openwebmail-prefs.pl?action=editprefs<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="F" class="icon"><tmpl_if use_texticon>back to user preferences<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to user preferences" alt="back to user preferences" border="0" align="absmiddle"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi>/openwebmail-prefs.pl?action=editprefs<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="F" class="icon"><tmpl_if use_texticon>Voltar para Preferências do Usuário<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="Voltar para Preferências do Usuário" alt="Voltar para Preferências do Usuário" border="0" align="absmiddle"></tmpl_if></a>
   </td>
 </tr>
 </table>
@@ -15,11 +15,11 @@
 
 <table cellspacing="0" cellpadding="0" border="0" align="center" width="90%">
 <tr>
-  <td align="center" class="columnheader">Time</td>
-  <td align="center" class="columnheader">Client Address</td>
-  <td align="center" class="columnheader">User</td>
-  <td align="center" class="columnheader">Event</td>
-  <td align="center" class="columnheader">Description</td>
+  <td align="center" class="columnheader">Hora</td>
+  <td align="center" class="columnheader">Cliente</td>
+  <td align="center" class="columnheader">Usuário</td>
+  <td align="center" class="columnheader">Evento</td>
+  <td align="center" class="columnheader">Descrição</td>
 </tr>
 
 <tmpl_loop historyloop>

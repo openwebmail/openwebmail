@@ -1,7 +1,7 @@
 <tmpl_var footerpluginoutput>
 
 <center>
-  <br><a href="http://www.openwebmail.org" target="_blank"><tmpl_var programname></a> version <tmpl_var programversion>&nbsp;&nbsp;<a accesskey="H" href="<tmpl_var url_help escape="html">" target="_help">Help?</a>
+  <br><a href="http://www.openwebmail.org" target="_blank"><tmpl_var programname></a> versão <tmpl_var programversion>&nbsp;&nbsp;<a accesskey="H" href="<tmpl_var url_help escape="html">" target="_help">Ajuda?</a>
 </center>
 
 <tmpl_if remainingseconds>
@@ -20,7 +20,7 @@
 
          if (remainingseconds < 65) {
             if (remainingseconds >= 5) {
-               window.defaultStatus = "session time : " + (remainingseconds - 5) + " seconds left";
+               window.defaultStatus = "Final da sessão : " + (remainingseconds - 5) + " segundos";
             } 
             if (!warn) {
                warn = 1;
@@ -30,7 +30,7 @@
             }
          }
       } else {
-         window.defaultStatus = "session timeout";
+         window.defaultStatus = "Tempo de sessão inativa expirado";
          clearTimeout(timer);
       }
    }
@@ -39,7 +39,7 @@
       if (remainingseconds > 0) {
          return true;
       } else {
-         alert("Sorry, your session has timed out, please login again.");
+         alert("Sua sessão foi encerrada por tempo de inatividade. Por favor faça outro login.");
          return false;
       }
    }

@@ -2,33 +2,33 @@
 
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="90%">
 <tr>
-  <td class="titlebar" colspan="4">Edit Mail Filters</td>
-  <td class="titlebar" colspan="6" align="right" nowrap><tmpl_var freespace> KB Available</td>
+  <td class="titlebar" colspan="4">Editar Filtros de Mensagens</td>
+  <td class="titlebar" colspan="6" align="right" nowrap><tmpl_var freespace> kB Disponíveis</td>
 </tr>
 <tr>
   <td class="menubar" colspan="9">
-    <tmpl_if caller_main><a href="<tmpl_var url_cgi>/openwebmail-main.pl?action=listmessages<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="B" class="icon"><tmpl_if use_texticon>back to <tmpl_var callerfoldername escape="html"><tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to <tmpl_var callerfoldername escape="html">" alt="back to <tmpl_var callerfoldername escape="html">" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+    <tmpl_if caller_main><a href="<tmpl_var url_cgi>/openwebmail-main.pl?action=listmessages<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="B" class="icon"><tmpl_if use_texticon>voltar para <tmpl_var callerfoldername escape="html"><tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="voltar para <tmpl_var callerfoldername escape="html">" alt="voltar para <tmpl_var callerfoldername escape="html">" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
 
-    <tmpl_if caller_calendar><a href="<tmpl_var url_cgi>/openwebmail-cal.pl?action=<tmpl_var calendardefaultview><tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="B" class="icon"><tmpl_if use_texticon>back to calendar<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to calendar" alt="back to calendar" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+    <tmpl_if caller_calendar><a href="<tmpl_var url_cgi>/openwebmail-cal.pl?action=<tmpl_var calendardefaultview><tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="B" class="icon"><tmpl_if use_texticon>voltar para calendário<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="voltar para calendário" alt="back to calendar" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
 
-    <tmpl_if caller_webdisk><a href="<tmpl_var url_cgi>/openwebmail-webdisk.pl?action=showdir<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="B" class="icon"><tmpl_if use_texticon>back to webdisk<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to webdisk" alt="back to webdisk" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+    <tmpl_if caller_webdisk><a href="<tmpl_var url_cgi>/openwebmail-webdisk.pl?action=showdir<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="B" class="icon"><tmpl_if use_texticon>voltar para webdisk<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="voltar para webdisk" alt="voltar para webdisk" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
 
-    <tmpl_if caller_read><a href="<tmpl_var url_cgi>/openwebmail-read.pl?action=readmessage<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="B" class="icon"><tmpl_if use_texticon>back to <tmpl_var callerfoldername escape="html"><tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to <tmpl_var callerfoldername escape="html">" alt="back to <tmpl_var callerfoldername escape="html">" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+    <tmpl_if caller_read><a href="<tmpl_var url_cgi>/openwebmail-read.pl?action=readmessage<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="B" class="icon"><tmpl_if use_texticon>voltar para <tmpl_var callerfoldername escape="html"><tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="voltar para <tmpl_var callerfoldername escape="html">" alt="voltar para <tmpl_var callerfoldername escape="html">" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
   </td>
 </tr>
 <tr>
   <td colspan="9">&nbsp;</td>
 </tr>
 <tr>
-  <td class="columnheader" align="center" nowrap>Count&nbsp;&nbsp;</td>
-  <td class="columnheader" align="center" nowrap>Priority</td>
-  <td class="columnheader" align="center" nowrap>Rules</td>
+  <td class="columnheader" align="center" nowrap>Contagem&nbsp;&nbsp;</td>
+  <td class="columnheader" align="center" nowrap>Prioridade</td>
+  <td class="columnheader" align="center" nowrap>Regras</td>
   <td class="columnheader" align="center" nowrap>Inc/Exc</td>
-  <td class="columnheader" align="center" nowrap>Filter String</td>
-  <td class="columnheader" align="center" nowrap>Action</td>
-  <td class="columnheader" align="center" nowrap>Destination</td>
-  <td class="columnheader" align="center" nowrap>Enable</td>
-  <td class="columnheader" align="center" nowrap>Action</td>
+  <td class="columnheader" align="center" nowrap>Expressão de Filtro</td>
+  <td class="columnheader" align="center" nowrap>Ação</td>
+  <td class="columnheader" align="center" nowrap>Destino</td>
+  <td class="columnheader" align="center" nowrap>Ativo</td>
+  <td class="columnheader" align="center" nowrap>Opção</td>
 </tr>
 
 <form method="post" action="<tmpl_var url_cgi>/openwebmail-prefs.pl" name="newfilter">
@@ -76,7 +76,7 @@
     </select>
   </td>
   <td class="rowlight" align="center" nowrap><input type="checkbox" name="enable" value="1" checked></td>
-  <td class="rowlight" align="center" nowrap><input type="submit" name="newfilterselect" value="Add/Modify" accesskey="A"></td>
+  <td class="rowlight" align="center" nowrap><input type="submit" name="newfilterselect" value="Gravar" accesskey="A"></td>
 </tr>
 </form>
 
@@ -89,7 +89,7 @@
   <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><a href="javascript:update('<tmpl_var priority escape="js">','<tmpl_var type escape="js">','<tmpl_var include escape="js">','<tmpl_var text escape="js">','<tmpl_var operation escape="js">','<tmpl_var dest escape="js">','<tmpl_var enable escape="js">')" title="edit this filter rule" alt="edit this filter rule"><tmpl_var texttext></a></td>
   <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><tmpl_var operationtext escape="html"></td>
   <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><tmpl_var desttext></td>
-  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><tmpl_if enable>Enabled<tmpl_else>Disabled</tmpl_if></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><tmpl_if enable>Ativo<tmpl_else>Inativo</tmpl_if>&nbsp;</td>
   <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center">
     <form method="post" action="<tmpl_var url_cgi>/openwebmail-prefs.pl" name="deletefilterform">
     <input type="hidden" name="action" value="deletefilter">
@@ -100,7 +100,7 @@
     <tmpl_loop standardparamsloop>
     <input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
     </tmpl_loop>
-    <input type="submit" name="deletefilterformsubmit" value="Delete">
+    <input type="submit" name="deletefilterformsubmit" value="Remover">
     </form>
   </td>
 </tr>
@@ -112,7 +112,7 @@
   <td colspan="9">&nbsp;</td>
 </tr>
 <tr>
-  <td colspan="9" class="columnheader">Global Filter Rules (read only)</td>
+  <td colspan="9" class="columnheader">Regras de Filtro Globais (somente leitura)</td>
 </tr>
 </tmpl_if>
 <tr>
@@ -123,7 +123,7 @@
   <td class="<tmpl_if __odd__>rowlight<tmpl_else>rowdark</tmpl_if>" align="center"><a href="javascript:update('<tmpl_var priority escape="js">','<tmpl_var type escape="js">','<tmpl_var include escape="js">','<tmpl_var text escape="js">','<tmpl_var operation escape="js">','<tmpl_var dest escape="js">','<tmpl_var enable escape="js">')" title="create a new filter rule like this one" alt="create a new filter rule like this one"><tmpl_var texttext></a></td>
   <td class="<tmpl_if __odd__>rowlight<tmpl_else>rowdark</tmpl_if>" align="center"><tmpl_var operationtext escape="html"></td>
   <td class="<tmpl_if __odd__>rowlight<tmpl_else>rowdark</tmpl_if>" align="center"><tmpl_var desttext></td>
-  <td class="<tmpl_if __odd__>rowlight<tmpl_else>rowdark</tmpl_if>" align="center"><tmpl_if enable>Enabled<tmpl_else>Disabled</tmpl_if></td>
+  <td class="<tmpl_if __odd__>rowlight<tmpl_else>rowdark</tmpl_if>" align="center"><tmpl_if enable>Ativo<tmpl_else>Inativo</tmpl_if></td>
   <td class="<tmpl_if __odd__>rowlight<tmpl_else>rowdark</tmpl_if>" align="center">-----</td>
 </tr>
 </tmpl_loop>

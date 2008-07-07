@@ -2,11 +2,11 @@
 
 <table cellpadding="0" cellspacing="0" border="0" width="90%" align="center">
 <tr>
-  <td class="titlebar">About</td>
+  <td class="titlebar">Sobre</td>
 </tr>
 <tr>
   <td class="menubar">
-    <a href="<tmpl_var url_cgi>/openwebmail-prefs.pl?action=editprefs&amp;<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="F" class="icon"><tmpl_if use_texticon>back to preferences<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to preferences" alt="back to preferences" border="0" align="absmiddle"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi>/openwebmail-prefs.pl?action=editprefs&amp;<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="F" class="icon"><tmpl_if use_texticon>voltar às preferências<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="voltar às preferências" alt="voltar às preferências" border="0" align="absmiddle"></tmpl_if></a>
   </td>
 </tr>
 </table>
@@ -20,7 +20,7 @@
   <td colspan="2" class="columnheader">SOFTWARE</td>
 </tr>
 <tr>
-  <td class="windowdark">OS</td>
+  <td class="windowdark">Sistema Operacional</td>
   <td class="windowdark"><tmpl_var operatingsystem escape="html"></td>
 </tr>
 <tr>
@@ -29,7 +29,7 @@
 </tr>
 <tr>
   <td class="windowdark">WebMail</td>
-  <td class="windowdark"><tmpl_var programname> <tmpl_var programversion>.<tmpl_var programrevision> <tmpl_var programreleasedate><tmpl_if is_persistence> (<tmpl_else><tmpl_if is_httpcompression> (</tmpl_if></tmpl_if><tmpl_if is_persistence>Persistence,</tmpl_if><tmpl_if is_httpcompression>HTTP Compression</tmpl_if><tmpl_if is_persistence>)<tmpl_else><tmpl_if is_httpcompression>)</tmpl_if></tmpl_if></td>
+  <td class="windowdark"><tmpl_var programname> <tmpl_var programversion>.<tmpl_var programrevision> <tmpl_var programreleasedate><tmpl_if is_persistence> (<tmpl_else><tmpl_if is_httpcompression> (</tmpl_if></tmpl_if><tmpl_if is_persistence>CGIs persistentes (speedy),</tmpl_if><tmpl_if is_httpcompression>Compressão de HTTP</tmpl_if><tmpl_if is_persistence>)<tmpl_else><tmpl_if is_httpcompression>)</tmpl_if></tmpl_if></td>
 </tr>
 <tr>
   <td colspan="2">&nbsp;</td>
@@ -38,7 +38,7 @@
 
 <tmpl_if show_protocolinfo>
 <tr>
-  <td colspan="2" class="columnheader">PROTOCOL</td>
+  <td colspan="2" class="columnheader">PROTOCOLO</td>
 </tr>
 <tmpl_if server_protocol>
 <tr>
@@ -65,7 +65,7 @@
 
 <tmpl_if show_serverinfo>
 <tr>
-  <td colspan="2" class="columnheader">SERVER</td>
+  <td colspan="2" class="columnheader">SERVIDOR</td>
 </tr>
 <tmpl_if http_host>
 <tr>
@@ -113,8 +113,8 @@
 </tmpl_if>
 <tmpl_if show_sessioncount>
 <tr>
-  <td class="windowdark">ACTIVE SESSIONS</td>
-  <td class="windowdark"><tmpl_var activelastminute>,<tmpl_var activelastfiveminute>,<tmpl_var activelastfifteenminute> (in last 1, 5, 10 minutes)</td>
+  <td class="windowdark">SESSÕES ATIVAS</td>
+  <td class="windowdark"><tmpl_var activelastminute>,<tmpl_var activelastfiveminute>,<tmpl_var activelastfifteenminute> (nos últimos 1, 5, 10 minutos)</td>
 </tr>
 </tmpl_if>
 <tr>
@@ -124,7 +124,7 @@
 
 <tmpl_if show_clientinfo>
 <tr>
-  <td colspan="2" class="columnheader">CLIENT</td>
+  <td colspan="2" class="columnheader">CLIENTE</td>
 </tr>
 <tmpl_if remote_addr>
 <tr>

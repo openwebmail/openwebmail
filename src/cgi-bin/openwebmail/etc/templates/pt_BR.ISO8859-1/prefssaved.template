@@ -3,9 +3,9 @@
 @@@STARTSAVEDFORM@@@
 <tr><td bgcolor=@@@TITLEBAR@@@>
 <font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Preferências Salvas!</B></font>
+<B>Preferências Gravas!</B></font>
 </td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>Preferências salvas com sucesso.<BR>&nbsp;<BR>
+<BR>Preferências gravadas com sucesso.<BR>&nbsp;<BR>
 @@@CONTINUEBUTTON@@@
 <BR>&nbsp;
 </td></tr>

@@ -39,28 +39,28 @@
 
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="90%">
 <tr>
-  <td colspan="5" class="titlebar">Edit POP3 Book</td>
-  <td nowrap colspan="3" class="titlebar" align="right"><tmpl_var freespace> KB Available</td>
+  <td colspan="5" class="titlebar">Editar lista POP3</td>
+  <td nowrap colspan="3" class="titlebar" align="right"><tmpl_var freespace> KB Disponívei(s)</td>
 </tr>
 <tr>
   <td colspan="8" class="menubar">
-    <a href="<tmpl_var url_cgi>/openwebmail-prefs.pl?action=editprefs<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="F" class="icon"><tmpl_if use_texticon>back to user preferences<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to user preferences" alt="back to user preferences" border="0" align="absmiddle"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi>/openwebmail-prefs.pl?action=editprefs<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="F" class="icon"><tmpl_if use_texticon>voltar para preferências do usuário<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="voltar para preferências do usuário" alt="voltar para preferências do usuário" border="0" align="absmiddle"></tmpl_if></a>
     &nbsp;
-    <a href="<tmpl_var url_cgi>/openwebmail-main.pl?action=pop3fetches<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="G" class="icon"><tmpl_if use_texticon>retreive pop3 mail<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/pop3.gif" title="retreive pop3 mail" alt="retreive pop3 mail" border="0" align="absmiddle"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi>/openwebmail-main.pl?action=pop3fetches<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="G" class="icon"><tmpl_if use_texticon>receber emails pop3<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/pop3.gif" title="receber emails pop3" alt="receber emails pop3" border="0" align="absmiddle"></tmpl_if></a>
   </td>
 </tr>
 <tr>
   <td colspan="8">&nbsp;</td>
 </tr>
 <tr>
-  <td nowrap class="columnheader">POP3 Server</td>
-  <td nowrap class="columnheader">Port</td>
-  <td nowrap class="columnheader" align="center"><tmpl_if is_ssl_supported>Use SSL</tmpl_if></td>
-  <td nowrap class="columnheader" align="center">User Id</td>
-  <td nowrap class="columnheader" align="center">Password</td>
-  <td nowrap class="columnheader" align="center"><tmpl_unless pop3_delmail_hidden>Delete remote mail</tmpl_unless></td>
-  <td nowrap class="columnheader" align="center">Enable</td>
-  <td nowrap class="columnheader" align="center">Action</td>
+  <td nowrap class="columnheader">Servidor POP3</td>
+  <td nowrap class="columnheader">Porta</td>
+  <td nowrap class="columnheader" align="center"><tmpl_if is_ssl_supported>Usar SSL</tmpl_if></td>
+  <td nowrap class="columnheader" align="center">Id do usuário</td>
+  <td nowrap class="columnheader" align="center">Senha</td>
+  <td nowrap class="columnheader" align="center"><tmpl_unless pop3_delmail_hidden>Remover email remoto</tmpl_unless></td>
+  <td nowrap class="columnheader" align="center">Habilitar</td>
+  <td nowrap class="columnheader" align="center">Ação</td>
 </tr>
 
 <form method="post" action="<tmpl_var url_cgi>/openwebmail-prefs.pl" name="pop3form">
@@ -89,17 +89,17 @@
     </tmpl_if>
   </td>
   <td nowrap class="rowlight" align="center"><input type="checkbox" name="enable" value="1" checked></td>
-  <td nowrap class="rowlight" align="center"><input type="submit" name="pop3formsubmit" value="Add/Modify"></td>
+  <td nowrap class="rowlight" align="center"><input type="submit" name="pop3formsubmit" value="Adicionar/Modificar"></td>
 </tr>
 
 </form>
 
 <tmpl_loop accountsloop>
 <tr>
-  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><a href="javascript:update('<tmpl_var pop3host escape="js">','<tmpl_var pop3port escape="js">','<tmpl_var pop3ssl escape="js">','<tmpl_var pop3user escape="js">','******','<tmpl_var pop3del escape="js">','<tmpl_var enable escape="js">')" title="edit this account"><tmpl_var pop3host escape="html"></a></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><a href="javascript:update('<tmpl_var pop3host escape="js">','<tmpl_var pop3port escape="js">','<tmpl_var pop3ssl escape="js">','<tmpl_var pop3user escape="js">','******','<tmpl_var pop3del escape="js">','<tmpl_var enable escape="js">')" title="editar esta contaR"><tmpl_var pop3host escape="html"></a></td>
   <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var pop3port escape="html"></td>
   <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><tmpl_if is_ssl_supported><tmpl_if pop3ssl>Yes<tmpl_else>No</tmpl_if><tmpl_else>&nbsp;</tmpl_if></td>
-  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><a href="<tmpl_var url_cgi>/openwebmail-main.pl?action=pop3fetch&amp;pop3user=<tmpl_var pop3user escape="url">&amp;<tmpl_var pop3host escape="url">&amp;<tmpl_var pop3port escape="url">&amp;<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" title="click to retreive mail from this account"><tmpl_var pop3user escape="html"></a></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><a href="<tmpl_var url_cgi>/openwebmail-main.pl?action=pop3fetch&amp;pop3user=<tmpl_var pop3user escape="url">&amp;<tmpl_var pop3host escape="url">&amp;<tmpl_var pop3port escape="url">&amp;<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" title="clique para receber email desta conta"><tmpl_var pop3user escape="html"></a></td>
   <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center">******</td>
   <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><tmpl_if pop3_delmail_hidden>&nbsp;<tmpl_else><tmpl_if pop3del>Delete<tmpl_else>Reserve</tmpl_if></tmpl_if></td>
   <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><tmpl_if enable>Enabled<tmpl_else>Disabled</tmpl_if></td>
@@ -112,7 +112,7 @@
     <tmpl_loop standardparamsloop>
     <input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
     </tmpl_loop>
-    <input type="submit" name="deletepop3submit" value="Delete"></td>
+    <input type="submit" name="deletepop3submit" value="Remover"></td>
     </form>
   </td>
 </tr>

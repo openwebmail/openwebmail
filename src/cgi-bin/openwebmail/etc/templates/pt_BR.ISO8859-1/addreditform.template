@@ -312,7 +312,7 @@ function savecheck (formName) {
       return false;
    }
    if (document.forms[formName].elements['EMAIL.0.VALUE'].value == '') {
-      return(confirm("Endereço de E-mail está vazio, tem certeza que quer salvar este contato?"));
+      return(confirm("Endereço de E-mail está vazio, tem certeza que quer gravar este contato?"));
    }
    return true
 }

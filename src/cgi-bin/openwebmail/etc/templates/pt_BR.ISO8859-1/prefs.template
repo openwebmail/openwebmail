@@ -291,13 +291,13 @@ Colunas @@@EDITCOLUMNSMENU@@@ Linhas @@@EDITROWSMENU@@@
 </td></tr>
 @@@BACKUPSENTSTART@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Salva cópia das mensagens em ENVIADAS:</B>
+<B>Grava cópia das mensagens em ENVIADAS:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTMSG@@@
 </td></tr>
 @@@BACKUPSENTEND@@@
 <tr><td align="right" bgcolor=@@@WINDOW_DARK@@@>
-<B>Salva cópia na pasta atual:</B>
+<B>Grava cópia na pasta atual:</B>
 </td><td bgcolor=@@@WINDOW_DARK@@@>
 @@@BACKUPSENTONCURRFOLDER@@@
 </td></tr>

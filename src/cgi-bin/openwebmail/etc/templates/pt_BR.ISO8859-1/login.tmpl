@@ -28,18 +28,18 @@
         <table cellpadding="0" cellspacing="2" border="0" align="center">
         <tr><td colspan="2">&nbsp;</td></tr>
         <tr>
-          <td align="right" nowrap>UserID:</td>
+          <td align="right" nowrap>Usuário:</td>
           <td align="left"><input type="text" name="loginname" size="<tmpl_var loginfieldwidth>" onchange="focuspwd();"></td>
         </tr>
         <tr>
-          <td align="right" nowrap>Password:</td>
+          <td align="right" nowrap>Senha:</td>
           <td align="left"><input type="password" name="password" size="<tmpl_var loginfieldwidth>" onchange="focusloginbutton();"></td>
         </tr>
 
         <!-- support domain selection -->
         <tmpl_if enable_domainselect>
         <tr>
-          <td align="right" nowrap>Domain: </td>
+          <td align="right" nowrap>Domínio:</td>
           <td>
             <select name="logindomain">
               <tmpl_loop domainselectloop>
@@ -60,7 +60,7 @@
                 <table cellpadding="2" cellspacing="0" border="0" align="center">
                 <tr>
                   <td><input type="checkbox" name="httpcompress" value="1" <tmpl_if enable_httpcompression><tmpl_if use_httpcompression>checked="checked"</tmpl_if> onclick="httpcompresshelp();"<tmpl_else>disabled="1"</tmpl_if>></td>
-                  <td class="login_small" align="left">HTTP<br>Compression</td>
+                  <td class="login_small" align="left">Compressão<br>HTTP</td>
 
                   <!-- support autologin if it is allowed for this ip -->
                   <tmpl_if enable_autologin>
@@ -107,15 +107,15 @@
    function httpcompresshelp() {
       if (document.loginform.httpcompress.checked) {
          var msg = '';
-         msg += "HTTP Compression can reduce the use of network bandwidth between your computer and the webmail server effectively, ";
-         msg += "but there are some compatibility issues:\n\n";
-         msg += "1. some proxy servers only support HTTP compression via HTTP 1.1, ";
-         msg += "you may have to enable the HTTP1.1 support for proxy in your browser\n";
-         msg += "2. some proxy servers don't support HTTP compression at all, ";
-         msg += "you may have to list the webmail server as directly connected in the proxy configuration of your browser.\n";
-         msg += "3. some browsers have problems when using HTTP compression with SSL...\n";
-         msg += "4. some browsers claim to support HTTP compression but actually not...\n\n";
-         msg += "So if you encounter any problem, please login again with this checkbox unchecked.\n";
+         msg += "Compressão HTTP pode reduzir efetivamente o uso da banda da rede entre o seu computador e o servidor de e-mail.";
+         msg += "Porém existem alguns casos de incompatibilidade:\n\n";
+         msg += "1. Alguns servidores proxy apenas suportam compressão por HTTP 1.1, ";
+         msg += "tavez seja necessario habilitar o suporte ao HTTP1.1 para proxy em seu navegador\n";
+         msg += "2. Alguns servidores proxy não suportam compressão HTTP, ";
+         msg += "na configuração de proxy de seu navegador, talvez seja necessário indicar o servidor de e-mail como conectado diretamente.\n";
+         msg += "3. Alguns navegadores tem problemas ao usar compressão HTTP com SSL...\n";
+         msg += "4. Alguns navegadores dizem suportar compressão HTTP, mas não suportam...\n\n";
+         msg += "Então caso tenha algum problema, por favor logue-se novamente com esta opção desativada.\n";
          alert(msg);
       }
       return true;
@@ -124,10 +124,10 @@
    function autologinhelp() {
       if (document.loginform.autologin.checked) {
          var msg = '';
-         msg += "When this feature is enabled, you may login into openwebmail without typing username/password ";
-         msg += "if you didn't do logout in your previous openwebmail session and that session is not timeout. ";
-         msg += "However, others may also auto login into your openwebmail account with this computer, ";
-         msg += "so please DO NOT enable this feature on a public computer\n";
+         msg += "Com esta opção ativada, você pode acessar o openwebmail sem digitar o usuário/senha";
+         msg += "caso você não tenha efetuado logout em sua sessão openwebmail anterior e aquela sessão não tenha sido expirada. ";
+         msg += "Porém, outros podem auto-logar em sua conta openwebmail neste computador,";
+         msg += "portanto, por favor NÃO habilite esta opção em um computador público\n";
          alert(msg);
       }
       return true;
