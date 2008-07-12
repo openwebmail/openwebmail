@@ -543,7 +543,7 @@ sub addfolder {
    writelog("create folder - $foldertoadd");
    writehistory("create folder - $foldertoadd");
 
-   editfolders();
+   reindexfolder();
 }
 
 sub is_lang_defaultfolder {

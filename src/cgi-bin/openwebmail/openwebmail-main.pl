@@ -431,7 +431,7 @@ sub listmessages {
       my ($from, $to, $subject) = iconv('utf-8' , $prefs{charset}, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
 
       # status
-      my $status = $attr[$_STATUS];
+      my $status = $attr[$_STATUS] || '';
       $status =~ s/\s//g; # remove whitespace
 
       # date difference between received time and sent time
