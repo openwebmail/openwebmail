@@ -769,7 +769,7 @@ sub allusers {
       }
    }
 
-   return if ($loaded_domain>0);
+   return 0 if ($loaded_domain>0);
    return -1;
 }
 

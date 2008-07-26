@@ -469,7 +469,7 @@ sub read_releasedatefile {
    $releasedatefile    = "$homedir/$config{'homedirfolderdirname'}/.release.date" if (! -f $releasedatefile);
    $releasedatefile    = "$homedir/.release.date" if (! -f $releasedatefile);
 
-   my $d;
+   my $d = "";
    if (sysopen(D, $releasedatefile, O_RDONLY)) {
       $d = <D>;
       chomp($d);
