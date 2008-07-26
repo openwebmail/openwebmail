@@ -58,7 +58,7 @@
 <table border="0" cellpadding="0" cellspacing="0"><tr>
 <td>@@@SUBJECTFIELD@@@&nbsp;&nbsp;</td>
 @@@BACKUPSENTSTART@@@
-<td><B>Grava cópia em Enviadas</B></td>
+<td><B>Grava mensagem enviada</B></td>
 <td>@@@BACKUPSENTMSGCHECKBOX@@@</td>
 @@@BACKUPSENTEND@@@
 </tr></table>
