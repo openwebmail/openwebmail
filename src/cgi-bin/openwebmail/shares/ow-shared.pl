@@ -27,6 +27,9 @@ $htmltemplatefilters = [
                           # remove any space at the start of a line if it is immediately before a tmpl tag
                           { sub => sub { my $text_aref = shift; s#^[\t ]+(</?tmpl_[^>]+>)#$1#gi for @{$text_aref} },
                             format => 'array' },
+                          # cluster <a> closing and opening links to avoid unintentional gaps between images
+                          { sub => sub { my $text_ref = shift; $$text_ref =~ s#(</a>(?:&nbsp;|</tmpl_[^>]+>)?)(\s+)(<a href)#$1$3#sgi },
+                            format => 'scalar' },
                           # remove any \n and \r following a tmpl tag
                           { sub => sub { my $text_ref = shift; $$text_ref =~ s#(</?tmpl_[^>]+>)[\r\n]+#$1#sgi },
                             format => 'scalar' },
@@ -272,30 +275,27 @@ sub openwebmail_exit {
    exit $_[0];
 }
 
-########## END CLEARVAR/ENDREQUEST/EXIT ##########################
-
-########## USERENV_INIT ##########################################
-# init user globals, switch euid
 sub userenv_init {
+   # userenv_init: initializes user globals and switches euid to the user
    load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
    read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if (-f "$SCRIPT_DIR/etc/openwebmail.conf");
 
    # so %lang... can be displayed with right charset in error msg
-   loadlang($config{'default_locale'});
+   loadlang($config{default_locale});
 
-   if ($config{'smtpauth'}) {	# load smtp auth user/pass
+   if ($config{smtpauth}) {	# load smtp auth user/pass
       read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/smtpauth.conf");
-      if ($config{'smtpauth_username'} eq "" || $config{'smtpauth_password'} eq "") {
-         openwebmailerror(__FILE__, __LINE__, "$SCRIPT_DIR/etc/smtpauth.conf $lang_err{'param_fmterr'}");
+      if ($config{smtpauth_username} eq "" || $config{smtpauth_password} eq "") {
+         openwebmailerror(__FILE__, __LINE__, "$SCRIPT_DIR/etc/smtpauth.conf $lang_err{param_fmterr}");
       }
    }
 
    if (!defined param('sessionid') ) {
       # delayed response for non localhost
-      sleep $config{'loginerrordelay'} if (ow::tool::clientip() ne "127.0.0.1");
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'param_fmterr'}, $lang_err{'access_denied'}");
+      sleep $config{loginerrordelay} if (ow::tool::clientip() ne "127.0.0.1");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{param_fmterr}, $lang_err{access_denied}");
    }
-   $thissession = ow::tool::unescapeURL(param('sessionid')) || '';
+   $thissession = param('sessionid') || '';
    $thissession =~ s!\.\.+!!g;  # remove ..
 
    # sessionid format: loginname+domain-session-0.xxxxxxxxxx
@@ -304,109 +304,109 @@ sub userenv_init {
       $thissession = $1."*".$2."-session-".$3;	# untaint
       ($loginname, $default_logindomain)=($1, $2); # param from sessionid
    } else {
-      openwebmailerror(__FILE__, __LINE__, "Session ID $thissession $lang_err{'has_illegal_chars'}");
+      openwebmailerror(__FILE__, __LINE__, "Session ID $thissession $lang_err{has_illegal_chars}");
    }
 
    ($logindomain, $loginuser) = login_name2domainuser($loginname, $default_logindomain);
 
-   if (!is_localuser("$loginuser\@$logindomain") &&  -f "$config{'ow_sitesconfdir'}/$logindomain") {
-      read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
+   if (!is_localuser("$loginuser\@$logindomain") &&  -f "$config{ow_sitesconfdir}/$logindomain") {
+      read_owconf(\%config, \%config_raw, "$config{ow_sitesconfdir}/$logindomain");
    }
-   if ( $>!=0 &&	# setuid is required if spool is located in system dir
-       ($config{'mailspooldir'} eq "/var/mail" ||
-        $config{'mailspooldir'} eq "/var/spool/mail")) {
-      print "Content-type: text/html\n\n'$0' must setuid to root"; openwebmail_exit(0);
+
+   # setuid is required if spool is located in system dir
+   if ( $> != 0 && ($config{mailspooldir} eq "/var/mail" || $config{mailspooldir} eq "/var/spool/mail")) {
+      print "Content-type: text/html\n\n'$0' must setuid to root";
+      openwebmail_exit(0);
    }
-   ow::auth::load($config{'auth_module'});
+   ow::auth::load($config{auth_module});
 
    $user='';
    # try userinfo cached in session file first
    ($domain, $user, $userrealname, $uuid, $ugid, $homedir)
-	=split(/\@\@\@/, (sessioninfo($thissession))[2]) if ($config{'cache_userinfo'});
+	= split(/\@\@\@/, (sessioninfo($thissession))[2]) if ($config{cache_userinfo});
    # use userinfo from auth server if user is root or null
    ($domain, $user, $userrealname, $uuid, $ugid, $homedir)
-	=get_domain_user_userinfo($logindomain, $loginuser) if ($user eq '' || $uuid==0 || $ugid=~/\b0\b/);
+	= get_domain_user_userinfo($logindomain, $loginuser) if ($user eq '' || $uuid == 0 || $ugid =~ m/\b0\b/);
 
    if ($user eq "") {
-      sleep $config{'loginerrordelay'};	# delayed response
-      openwebmailerror(__FILE__, __LINE__, "$loginuser@$logindomain $lang_err{'user_not_exist'}!");
+      sleep $config{loginerrordelay}; # delayed response
+      openwebmailerror(__FILE__, __LINE__, "$loginuser@$logindomain $lang_err{user_not_exist}!");
    }
 
    if (!matchlist_fromhead('allowed_rootloginip', ow::tool::clientip())) {
       if ($user eq 'root' || $uuid==0) {
-         sleep $config{'loginerrordelay'};	# delayed response
+         sleep $config{loginerrordelay}; # delayed response
          writelog("userinfo error - possible root hacking attempt");
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'norootlogin'}");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{norootlogin}");
       }
    }
 
    # load user config
-   my $userconf="$config{'ow_usersconfdir'}/$user";
-   $userconf="$config{'ow_usersconfdir'}/$domain/$user" if ($config{'auth_withdomain'});
+   my $userconf = "$config{ow_usersconfdir}/$user";
+   $userconf = "$config{ow_usersconfdir}/$domain/$user" if ($config{auth_withdomain});
    read_owconf(\%config, \%config_raw, "$userconf") if ( -f "$userconf");
 
    # override auto guessing domainanmes if loginname has domain or domainselectmenu enabled
-   if (${$config_raw{'domainnames'}}[0] eq 'auto' &&
-       ($loginname=~/\@/ || $config{'enable_domainselectmenu'})) {
-      $config{'domainnames'}=[ $logindomain ];
+   if (${$config_raw{domainnames}}[0] eq 'auto' && ($loginname =~ m/\@/ || $config{enable_domainselectmenu})) {
+      $config{domainnames} = [ $logindomain ];
    }
    # override realname if defined in config
-   if ($config{'default_realname'} ne 'auto') {
-      $userrealname=$config{'default_realname'}
+   if ($config{default_realname} ne 'auto') {
+      $userrealname = $config{default_realname};
    }
 
-   if ( !$config{'use_syshomedir'} ) {
-      $homedir = "$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/$user":$user);
+   if ( !$config{use_syshomedir} ) {
+      $homedir = "$config{ow_usersdir}/" . ($config{auth_withdomain}?"$domain/$user":$user);
    }
 
-   $user=ow::tool::untaint($user);
-   $uuid=ow::tool::untaint($uuid);
-   $ugid=ow::tool::untaint($ugid);
-   $homedir=ow::tool::untaint($homedir);
+   $user    = ow::tool::untaint($user);
+   $uuid    = ow::tool::untaint($uuid);
+   $ugid    = ow::tool::untaint($ugid);
+   $homedir = ow::tool::untaint($homedir);
 
    umask(0077);
-   if ( $>==0 ) {			# switch to uuid:mailgid if script is setuid root.
-      my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
+   if ($> == 0) {                     # switch to uuid:mailgid if script is setuid root.
+      my $mailgid = getgrnam('mail'); # for better compatibility with other mail progs
       ow::suid::set_euid_egids($uuid, $ugid, $mailgid);
-      if ( $)!~/\b$mailgid\b/) { # group mail doesn't exist?
+      if ($) !~ m/\b$mailgid\b/) {    # group mail doesn't exist?
          openwebmailerror(__FILE__, __LINE__, "Set effective gid to mail($mailgid) failed!");
       }
    }
 
    %prefs = readprefs();
-   %style = readstyle($prefs{'style'});
-   loadlang($prefs{'locale'});
-   charset((ow::lang::localeinfo($prefs{'locale'}))[6]) if ($CGI::VERSION>=2.58); # setup charset of CGI module
+   %style = readstyle($prefs{style});
+   loadlang($prefs{locale});
+   charset((ow::lang::localeinfo($prefs{locale}))[6]) if ($CGI::VERSION >= 2.58); # setup charset of CGI module
 
    verifysession();
 
-   if ($prefs{'iconset'}=~ /^Text\./) {
-      ($prefs{'iconset'} =~ /^([\w\d\.\-_]+)$/) && ($prefs{'iconset'} = $1);
-      my $icontext=ow::tool::untaint("$config{'ow_htmldir'}/images/iconsets/$prefs{'iconset'}/icontext");
+   if ($prefs{iconset} =~ m/^Text\./) {
+      ($prefs{iconset} =~ m/^([\w\d\.\-_]+)$/) && ($prefs{iconset} = $1);
+      my $icontext = ow::tool::untaint("$config{ow_htmldir}/images/iconsets/$prefs{iconset}/icontext");
       delete $INC{$icontext};
       require $icontext;
    }
 
-   if ($config{'quota_module'} ne "none") {
-      ow::quota::load($config{'quota_module'});
+   if ($config{quota_module} ne "none") {
+      ow::quota::load($config{quota_module});
 
       my ($ret, $errmsg);
-      ($ret, $errmsg, $quotausage, $quotalimit)=ow::quota::get_usage_limit(\%config, $user, $homedir, 0);
-      if ($ret==-1) {
-         writelog("quota error - $config{'quota_module'}, ret $ret, $errmsg");
-         openwebmailerror(__FILE__, __LINE__, "Quota $lang_err{'param_fmterr'}");
-      } elsif ($ret<0) {
-         writelog("quota error - $config{'quota_module'}, ret $ret, $errmsg");
-         openwebmailerror(__FILE__, __LINE__, $lang_err{'quota_syserr'});
+      ($ret, $errmsg, $quotausage, $quotalimit) = ow::quota::get_usage_limit(\%config, $user, $homedir, 0);
+      if ($ret == -1) {
+         writelog("quota error - $config{quota_module}, ret $ret, $errmsg");
+         openwebmailerror(__FILE__, __LINE__, "Quota $lang_err{param_fmterr}");
+      } elsif ($ret < 0) {
+         writelog("quota error - $config{quota_module}, ret $ret, $errmsg");
+         openwebmailerror(__FILE__, __LINE__, $lang_err{quota_syserr});
       }
-      $quotalimit=$config{'quota_limit'} if ($quotalimit<0);
+      $quotalimit = $config{quota_limit} if ($quotalimit < 0);
    } else {
-      ($quotausage, $quotalimit)=(0,0);
+      ($quotausage, $quotalimit) = (0,0);
    }
 
    # set env for external programs
-   $ENV{'HOME'}=$homedir;
-   $ENV{'USER'}=$ENV{'LOGNAME'}=$user;
+   $ENV{HOME} = $homedir;
+   $ENV{USER} = $ENV{LOGNAME} = $user;
    chdir($homedir);
 
    return;
@@ -676,19 +676,15 @@ sub available_locales {
    my ($available_locales, $available_templates);
 
    # make sure we have the language
-   opendir(LANGDIR, "$config{ow_langdir}") or
-     openwebmailerror(__FILE__, __LINE__, "Cannot read $config{ow_langdir}! ($!)");
+   opendir(LANGDIR, "$config{ow_langdir}") || openwebmailerror(__FILE__, __LINE__, "Cannot read $config{ow_langdir}! ($!)");
    $available_locales->{$_}++ for grep { !m/^\.+/ && !m#[/\\]# && -f "$config{ow_langdir}/$_" } readdir(LANGDIR);
-   closedir(LANGDIR) or
-     openwebmailerror(__FILE__, __LINE__, "Cannot close $config{ow_langdir}! ($!)");
+   closedir(LANGDIR) || openwebmailerror(__FILE__, __LINE__, "Cannot close $config{ow_langdir}! ($!)");
 
    # and make sure we have the templates
    # TODO: This will go away when we get all the language out of the templates
-   opendir(TMPLDIR, "$config{ow_templatesdir}") or
-     openwebmailerror(__FILE__, __LINE__, "Cannot read $config{ow_templatesdir}! ($!)");
+   opendir(TMPLDIR, "$config{ow_templatesdir}") || openwebmailerror(__FILE__, __LINE__, "Cannot read $config{ow_templatesdir}! ($!)");
    $available_templates->{$_}++ for grep { !m/^\.+/ && !m#[/\\]# && -d "$config{ow_templatesdir}/$_" } readdir(TMPLDIR);
-   closedir(TMPLDIR) or
-     openwebmailerror(__FILE__, __LINE__, "Cannot close $config{ow_templatesdir}! ($!)");
+   closedir(TMPLDIR) || openwebmailerror(__FILE__, __LINE__, "Cannot close $config{ow_templatesdir}! ($!)");
 
    for (keys %{$available_locales}) {
       delete $available_locales->{$_} unless exists $available_templates->{$_};
@@ -700,8 +696,8 @@ sub available_locales {
 
 ########## LOADLANG ##############################################
 sub loadlang {
-   my $locale = $_[0];
-   ow::tool::loadmodule("main", $config{'ow_langdir'}, $locale, ()); # null list, load all symbols
+   my $locale = shift;
+   ow::tool::loadmodule("main", $config{ow_langdir}, $locale, ()); # null list, load all symbols
 }
 ########## END LOADLANG ##########################################
 
@@ -815,12 +811,16 @@ sub readprefs {
 sub get_template {
    my ($templatename, $locale) = @_;
 
-   $locale = $locale || $prefs{'locale'} || $config{'default_locale'};
+   $locale = $locale || $prefs{locale} || $config{default_locale};
 
-   my $langfile   = "$config{'ow_templatesdir'}/$locale/$templatename";
-   my $commonfile = "$config{'ow_templatesdir'}/COMMON/$templatename";
+   my $langfile   = "$config{ow_templatesdir}/$locale/$templatename";
+   my $commonfile = "$config{ow_templatesdir}/COMMON/$templatename";
 
-   return (-f $langfile?$langfile:$commonfile);
+   return (
+            -f $langfile   ? $langfile   :
+            -f $commonfile ? $commonfile :
+            openwebmailerror(__FILE__, __LINE__, "$locale $templatename $lang_err{doesnt_exist}")
+          );
 }
 ########## END GET_TEMPLATE ######################################
 
@@ -966,13 +966,12 @@ sub applystyle {
 }
 ########## END APPLYSTYLE ########################################
 
-########## VERIFYSESSION #########################################
 sub verifysession {
-   my $now=time();
-   my $sessionfile=ow::tool::untaint("$config{'ow_sessionsdir'}/$thissession");
-   my $modifyage=$now-(stat($sessionfile))[9];
-   if ( $modifyage > $prefs{'sessiontimeout'}*60) {
-      unlink ( $sessionfile) if ( -e  $sessionfile);
+   my $now = time();
+   my $sessionfile = ow::tool::untaint("$config{ow_sessionsdir}/$thissession");
+   my $modifyage = $now - (stat($sessionfile))[9];
+   if ( $modifyage > $prefs{sessiontimeout} * 60) {
+      unlink($sessionfile) if (-e $sessionfile);
 
       my $html = applystyle(readtemplate("sessiontimeout.template"));
       httpprint([], [htmlheader(), $html, htmlfooter(1)]);
@@ -983,53 +982,58 @@ sub verifysession {
       openwebmail_exit(0);
    }
 
-   my $client_sessionkey=cookie("ow-sessionkey-$domain-$user");
+   my $client_sessionkey = cookie("ow-sessionkey-$domain-$user");
 
-   my ($sessionkey, $ip, $userinfo)=sessioninfo($thissession);
-   if ( $config{'session_checkcookie'} &&
-        $client_sessionkey ne $sessionkey ) {
+   my ($sessionkey, $ip, $userinfo) = sessioninfo($thissession);
+   if ($config{session_checkcookie} && $client_sessionkey ne $sessionkey) {
       writelog("session error - request doesn't have proper cookie, access denied!");
       writehistory("session error - request doesn't have proper cookie, access denied !");
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'sess_cookieerr'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{sess_cookieerr}");
    }
-   if ( $config{'session_checksameip'} &&
-        ow::tool::clientip() ne $ip) {
+
+   if ( $config{'session_checksameip'} && ow::tool::clientip() ne $ip) {
       writelog("session error - request doesn't come from the same ip, access denied!");
       writehistory("session error - request doesn't com from the same ip, access denied !");
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'sess_iperr'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{sess_iperr}");
    }
 
    # no_update is set to 1 if auto-refresh/timeoutwarning
-   my $session_noupdate=param('session_noupdate')||0;
+   my $session_noupdate = param('session_noupdate') || 0;
    if (!$session_noupdate) {
       # update the session timestamp with now-1,
       # the -1 is for nfs, utime is actually the nfs rpc setattr()
       # since nfs server current time will be used if setattr() is issued with nfs client's current time.
-      utime ($now-1, $now-1,  $sessionfile) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'}  $sessionfile! ($!)");
+      utime ($now - 1, $now - 1,  $sessionfile) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write}  $sessionfile! ($!)");
    }
    return 1;
 }
 
 sub sessioninfo {
-   my $sessionid=$_[0];
-   my ($sessionkey, $ip, $userinfo);
+   my $sessionid = shift;
+   my ($sessionkey, $ip, $userinfo) = ('','','');
 
-   openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html("Session ID $sessionid $lang_err{'doesnt_exist'}") . qq|&nbsp;<a href="$config{'ow_cgiurl'}/openwebmail.pl">$lang_text{'loginagain'}?</a>|, "passthrough") unless
-      (-e "$config{'ow_sessionsdir'}/$sessionid");
-
-   if ( !sysopen(F, "$config{'ow_sessionsdir'}/$sessionid", O_RDONLY) ) {
-      writelog("session error - couldn't open $config{'ow_sessionsdir'}/$sessionid ($@)");
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}/$sessionid");
+   if (! -e "$config{ow_sessionsdir}/$sessionid") {
+      openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html("Session ID $sessionid $lang_err{doesnt_exist}") . qq|&nbsp;<a href="$config{ow_cgiurl}/openwebmail.pl">$lang_text{loginagain}?</a>|, "passthrough");
    }
-   $sessionkey= <F>; chomp $sessionkey;
-   $ip= <F>; chomp $ip;
-   $userinfo = <F>; chomp $userinfo;
+
+   if (! sysopen(F, "$config{ow_sessionsdir}/$sessionid", O_RDONLY)) {
+      writelog("session error - couldn't open $config{ow_sessionsdir}/$sessionid ($@)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_sessionsdir}/$sessionid");
+   }
+
+   $sessionkey = <F>;
+   chomp $sessionkey;
+
+   $ip = <F>;
+   chomp $ip;
+
+   $userinfo = <F>;
+   chomp $userinfo;
    close(F);
 
    return($sessionkey, $ip, $userinfo);
 }
-########## END VERIFYSESSION #####################################
 
 ########## VIRTUALUSER related ###################################
 # update index db of virtusertable
@@ -1421,7 +1425,6 @@ sub get_header {
                       diagnostics        => "$$:$persistence_count",
                       bgrepeat           => $prefs{bgrepeat},
                       fontsize           => $prefs{fontsize},
-                      usefixedfont       => $prefs{usefixedfont},
                       headerpluginoutput => htmlplugin($config{header_pluginfile}, $config{header_pluginfile_charset}, $prefs{charset}),
                    );
 
@@ -1477,7 +1480,7 @@ sub get_footer {
                       remainingseconds   => $remainingseconds,
                       url_help           => $helpurl,
                       url_cgi            => $config{ow_cgiurl},
-                      thissession        => $thissession,
+                      sessionid          => $thissession,
                       footerpluginoutput => htmlplugin($config{footer_pluginfile}, $config{footer_pluginfile_charset}, $prefs{charset}),
                    );
 
@@ -1620,24 +1623,26 @@ sub openwebmailerror {
 
       $stackdump=qq|<pre>$stackdump</pre>| if ($stackdump ne '');
 
-      my $html = start_html(-title=>"$locale - $config{'name'}",
-                            -encoding=>$charset,
-                            -bgcolor=>$background,
-                            -background=>$bgurl);
-      $html.=qq|<style type="text/css">\n|.
-             $css.
-             qq|</style>\n|.
-             qq|<br><br><br><br><br><br><br>\n|.
-             qq|<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">|.
-             qq|<tr><td bgcolor=$titlebar nowrap>\n|.
-             qq|<font color=$titlebar_text face=$fontface size="3"><b>$config{'name'} ERROR</b></font>\n|.
-             qq|</td></tr>|.
-             qq|<tr><td align="center" bgcolor=$window_light>\n|.
-             qq|<br>$msg<br><br>$stackdump\n|.
-             qq|</td></tr>|.
-             qq|</table>\n|.
-             qq|<p align="center"><br>$config{'page_footer'}<br></p>\n|.
-             qq|</body></html>|;
+      my $html = qq|<html>|.
+                 qq|<head>|.
+                 qq|<title>$locale - $config{'name'}</title>|.
+                 qq|<meta http-equiv="Content-Type" content="text/html; charset=$charset">|.
+                 qq|</head>|.
+                 qq|<body background="$bgurl" bgcolor="$background">|.
+                 qq|<style type="text/css">\n|.
+                 $css.
+                 qq|</style>\n|.
+                 qq|<br><br><br><br><br><br><br>\n|.
+                 qq|<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">|.
+                 qq|<tr><td bgcolor=$titlebar nowrap>\n|.
+                 qq|<font color=$titlebar_text face=$fontface size="3"><b>$config{'name'} ERROR</b></font>\n|.
+                 qq|</td></tr>|.
+                 qq|<tr><td align="center" bgcolor=$window_light>\n|.
+                 qq|<br>$msg<br><br>$stackdump\n|.
+                 qq|</td></tr>|.
+                 qq|</table>\n|.
+                 qq|<p align="center"><br>$config{'page_footer'}<br></p>\n|.
+                 qq|</body></html>|;
       # for page footer
       $html =~ s!\@\@\@HELP_URL\@\@\@!$config{'ow_htmlurl'}/help/en/index.html!g;
       $html =~ s!\@\@\@HELP_TEXT\@\@\@!Help!g;
@@ -2018,7 +2023,7 @@ sub lenstr {
    } elsif ($len >= 2048) {
       $len = int(($len/1024)+0.5) . $lang_sizes{kb};
    } else {
-      $len = $len . $lang_sizes{byte} if ($bytestr);
+      $len = "$len $lang_sizes{byte}" if ($bytestr);
    }
 
    return ($len);
@@ -2375,15 +2380,18 @@ sub get_abookemailhash {
 }
 ########## END GET_ABOOKEMAILHASH ################################
 
-########## F2U/U2F ###############################################
-sub f2u { # convert str from filesystem charset to userprefs charset
-   my $localecharset = (ow::lang::localeinfo($prefs{'locale'}))[6];
-   return (iconv($prefs{'fscharset'}, $localecharset, $_[0]))[0];
+sub f2u {
+   # convert string from filesystem charset to userprefs charset
+   my $string = shift;
+   my $localecharset = (ow::lang::localeinfo($prefs{locale}))[6];
+   return (iconv($prefs{fscharset}, $localecharset, $string))[0];
 }
-sub u2f { # convert str from userprefs charset to filesystem charset
-   my $localecharset = (ow::lang::localeinfo($prefs{'locale'}))[6];
-   return (iconv($localecharset, $prefs{'fscharset'}, $_[0]))[0];
+
+sub u2f {
+   # convert string from userprefs charset to filesystem charset
+   my $string = shift;
+   my $localecharset = (ow::lang::localeinfo($prefs{locale}))[6];
+   return (iconv($localecharset, $prefs{fscharset}, $string))[0];
 }
-########## END F2U/U2F ###########################################
 
 1;

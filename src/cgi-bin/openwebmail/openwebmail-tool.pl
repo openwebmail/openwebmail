@@ -1,4 +1,4 @@
-#!/usr/bin/suidperl -T
+#!/usr/bin/perl -T
 #
 # openwebmail-tool.pl - command tool for mail/event/notify/index...
 #
@@ -397,8 +397,7 @@ sub init {
    } else {
       print qq|Welcome to the OpenWebMail!\n\n|.
             qq|This program is going to send a short message back to the developer,\n|.
-            qq|so we could have the idea that who is installing and how many sites are\n|.
-            qq|using this software, the content to be sent is:\n\n|.
+            qq|to give us statistics for future developments. The content to be sent is:\n\n|.
             qq|$content\n|.
             qq|Send the site report?(Y/n) |;
       $_=<STDIN>;
@@ -769,7 +768,7 @@ sub allusers {
       }
    }
 
-   return 0 if ($loaded_domain>0);
+   return if ($loaded_domain>0);
    return -1;
 }
 

@@ -55,7 +55,7 @@ sub upgrade_all {	# called if user releasedate is too old
    if ( $user_releasedate lt "20011101" ) {
       my $filterbook = "$folderdir/.filter.book";
       if ( -f $filterbook ) {
-         $content = "";
+         $content = '';
          ow::filelock::lock($filterbook, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} $filterbook");
          sysopen(F, $filterbook, O_RDONLY);
@@ -70,7 +70,7 @@ sub upgrade_all {	# called if user releasedate is too old
             $content .= "$priority\@\@\@$ruletype\@\@\@$include\@\@\@$text\@\@\@$op\@\@\@$destination\@\@\@$enable\n";
          }
          close(F);
-         if ($content ne "") {
+         if ($content ne '') {
             writehistory("release upgrade - $filterbook by 20011101");
             writelog("release upgrade - $filterbook by 20011101");
             sysopen(F, $filterbook, O_WRONLY|O_TRUNC|O_CREAT);
@@ -82,7 +82,7 @@ sub upgrade_all {	# called if user releasedate is too old
 
       my $pop3book = "$folderdir/.pop3.book";
       if ( -f $pop3book ) {
-         $content = "";
+         $content = '';
          ow::filelock::lock($pop3book, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} $pop3book");
          sysopen(F, $pop3book, O_RDONLY);
@@ -103,7 +103,7 @@ sub upgrade_all {	# called if user releasedate is too old
             $content .= "$pop3host\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@RESERVED\@\@\@$pop3del\@\@\@$enable\n";
          }
          close(F);
-         if ($content ne "") {
+         if ($content ne '') {
             writehistory("release upgrade - $pop3book by 20011101");
             writelog("release upgrade - $pop3book by 20011101");
             sysopen(F, $pop3book, O_WRONLY|O_TRUNC|O_CREAT);
@@ -117,7 +117,7 @@ sub upgrade_all {	# called if user releasedate is too old
    if ( $user_releasedate lt "20011117" ) {
       for my $book (".from.book", ".address.book", ".pop3.book") {
          if ( -f "$folderdir/$book" ) {
-            $content="";
+            $content = '';
             ow::filelock::lock("$folderdir/$book", LOCK_EX) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} $folderdir/$book");
             sysopen(F, "$folderdir/$book", O_RDONLY);
@@ -127,7 +127,7 @@ sub upgrade_all {	# called if user releasedate is too old
                $content.=$_
             }
             close(F);
-            if ($content ne "") {
+            if ($content ne '') {
                writehistory("release upgrade - $folderdir/$book by 20011117");
                writelog("release upgrade - $folderdir/$book by 20011117");
                sysopen(F, "$folderdir/$book", O_WRONLY|O_TRUNC|O_CREAT);
@@ -161,7 +161,7 @@ sub upgrade_all {	# called if user releasedate is too old
 
    if ( $user_releasedate lt "20021201" ) {
       if ( -f "$folderdir/.calendar.book" ) {
-         my $content='';
+         my $content = '';
          ow::filelock::lock("$folderdir/.calendar.book", LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $folderdir/.calendar.book");
          sysopen(F, "$folderdir/.calendar.book", O_RDONLY);
@@ -182,7 +182,7 @@ sub upgrade_all {	# called if user releasedate is too old
             $content.="\n";
          }
          close(F);
-         if ($content ne "") {
+         if ($content ne '') {
             writehistory("release upgrade - $folderdir/.calendar.book by 20021201");
             writelog("release upgrade - $folderdir/.calendar.book by 20021201");
             sysopen(F, "$folderdir/.calendar.book", O_WRONLY|O_TRUNC|O_CREAT);
@@ -207,7 +207,7 @@ sub upgrade_all {	# called if user releasedate is too old
 
    if ( $user_releasedate lt "20030528" ) {
       if ( -f "$folderdir/.pop3.book" ) {
-         $content="";
+         $content = '';
          ow::filelock::lock("$folderdir/.pop3.book", LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $folderdir/.pop3.book");
          sysopen(F, "$folderdir/.pop3.book", O_RDONLY);
@@ -225,7 +225,7 @@ sub upgrade_all {	# called if user releasedate is too old
             $content.="$pop3host\@\@\@$pop3port\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3del\@\@\@$enable\n";
          }
          close(F);
-         if ($content ne "") {
+         if ($content ne '') {
             writehistory("release upgrade - $folderdir/.pop3.book by 20030528");
             writelog("release upgrade - $folderdir/.pop3.book by 20030528");
             sysopen(F, "$folderdir/.pop3.book", O_WRONLY|O_TRUNC|O_CREAT);
@@ -267,7 +267,7 @@ sub upgrade_all {	# called if user releasedate is too old
    if ( $user_releasedate lt "20040111" ) {
       my $pop3book = dotpath('pop3.book');
       if ( -f $pop3book ) {
-         $content="";
+         $content = '';
          ow::filelock::lock($pop3book, LOCK_EX) or
             openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $pop3book");
          sysopen(F, $pop3book, O_RDONLY);
@@ -283,7 +283,7 @@ sub upgrade_all {	# called if user releasedate is too old
             }
          }
          close(F);
-         if ($content ne "") {
+         if ($content ne '') {
             writehistory("release upgrade - $pop3book by 20040111");
             writelog("release upgrade - $pop3book by 20040111");
             sysopen(F, $pop3book, O_WRONLY|O_TRUNC|O_CREAT);
@@ -381,7 +381,7 @@ sub upgrade_all {	# called if user releasedate is too old
       if (-f $rcfile) {
          %prefs = readprefs();
          if ($prefs{'sort'} eq 'date') {
-            $prefs{'sort'}='date_rev';
+            $prefs{'sort'} = 'date_rev';
             if (sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT)) {
                foreach my $key (@openwebmailrcitem) {
                   print RC "$key=$prefs{$key}\n";
@@ -469,7 +469,7 @@ sub read_releasedatefile {
    $releasedatefile    = "$homedir/$config{'homedirfolderdirname'}/.release.date" if (! -f $releasedatefile);
    $releasedatefile    = "$homedir/.release.date" if (! -f $releasedatefile);
 
-   my $d = "";
+   my $d = '';
    if (sysopen(D, $releasedatefile, O_RDONLY)) {
       $d = <D>;
       chomp($d);

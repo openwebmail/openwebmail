@@ -1,4 +1,4 @@
-#!/usr/bin/suidperl -T
+#!/usr/bin/perl -T
 #
 # openwebmail-abook.pl - address book program
 #

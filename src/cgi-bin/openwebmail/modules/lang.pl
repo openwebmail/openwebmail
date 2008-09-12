@@ -513,14 +513,26 @@ use vars qw(%languagecodes %countrycodes %charactersets %RTL);
    'ur_PK.UTF-8'     => 1, # urdu
 );
 
+sub charset_for_locale {
+   my $charset = shift;
+   if (defined $charset && $charset) {
+      $charset =~ s/[-_\s]//sg;
+      return 0 unless $charset;
+      $charset = uc($charset);
+      return $charactersets{$charset}->[0] if exists $charactersets{$charset};
+   }
+   return 0;
+}
+
 sub is_charset_supported {
-   my $charset = uc($_[0]);
+   my $charset = uc shift;
+   return 0 unless defined $charset && $charset;
    $charset =~ s/[-_\s]//sg;
    return exists $charactersets{$charset};
 }
 
 sub guess_browser_locale {
-   my $available_locales = $_[0];
+   my $available_locales = shift;
 
    $ENV{HTTP_ACCEPT_LANGUAGE} = "en_US"
      unless defined $ENV{HTTP_ACCEPT_LANGUAGE} && $ENV{HTTP_ACCEPT_LANGUAGE} =~ m#^[A-Za-z0-9-._*,;=\s]+$#gs;
@@ -564,7 +576,7 @@ sub guess_browser_locale {
       }
    }
 
-   # we don't have any locale for the desired language - return en_US
+   # we do not have any locale for the desired language - return en_US
    if ($ENV{HTTP_ACCEPT_CHARSET} =~ /UTF-8/i) {
       return "en_US.UTF-8"
    }
@@ -574,7 +586,7 @@ sub guess_browser_locale {
 sub parse_http_accept {
    # parses HTTP_ACCEPT_CHARSET and HTTP_ACCEPT_LANGUAGES environment vars
    # returns as an array to the caller, sorted by the q setting
-   my $string = $_[0];
+   my $string = shift;
    $string =~ s#[\s_-]##gs;
    return  map { $_->[0] }
           sort { $b->[1] <=> $a->[1] || $a->[0] cmp $b->[0] }
@@ -584,7 +596,7 @@ sub parse_http_accept {
 
 sub localeinfo {
    # this sub is intended to parse already validated locale names
-   my $locale = $_[0]; # en_US.ISO8859-1
+   my $locale = shift; # en_US.ISO8859-1
    my ($language, $country, $charset) = $locale =~ m/^(..)_(..)\.(.*)$/;
    my $charsetkey = uc($charset);
    $charsetkey =~ s#[_-]##g; # ISO88591

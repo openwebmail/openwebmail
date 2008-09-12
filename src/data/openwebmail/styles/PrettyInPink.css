@@ -15,6 +15,9 @@ td.windowdarkbold { background-color: #ffdddd; font-weight: bold; }
 td.windowlight { background-color: #ffeeee; }
 td.columnheader { background-color: #ffdce3; font-weight: bold; }
 td.warning { color: #dd0000; font-weight: bold; }
+td.attachmentdark { background-color: #ffdddd; }
+td.attachmentlight { background-color: #ffe5e5; }
+img.attachment { border: 2px solid #ffdddd; }
 form { margin: 0; }
 input.mono { font-family: monospace; font-size: 80%; }
 select.mono { font-family: monospace; font-size: 80%; }
@@ -29,6 +32,9 @@ a.loading:hover { color: #333333; }
 a.copyright:link { text-decoration: none; color: #cccccc; }
 a.copyright:visited { color: #cccccc; }
 a.copyright:hover { color: #333333; }
+a.messagebody:link { text-decoration: none; color: #0000ff; }
+a.messagebody:visited { color: #0000ff; }
+a.messagebody:hover { color: #ff0000; }
 .rowdark { background-color: #ffdddd; }
 .rowlight { background-color: #ffeeee; }
 .rowhilite { background-color: #ffcccc; }
@@ -37,3 +43,6 @@ a.copyright:hover { color: #333333; }
 .smallblacktext { font-size: 80%; color: #000000; }
 .smallcolortext { font-size: 80%; color: #c00000; }
 .hilighttext { font-style: normal; font-weight: bold; background-color: #ffdcdc; }
+.quotedtext { color: #009900; }
+.monospacetext { font-family: "Courier 10 Pitch", "Courier New", "Courier", "Lucida Console", monospace; }
+.messageheaderproperty { font-weight: bold; }

@@ -1,4 +1,4 @@
-#!/usr/bin/suidperl -T
+#!/usr/bin/perl -T
 #
 # openwebmail-viewatt.pl - attachment reading program
 #
@@ -96,24 +96,26 @@ openwebmail_requestend();
 
 ########## VIEWATTACHMENT/SAVEATTACHMENT #########################
 sub viewattachment {	# view attachments inside a message
-   my $messageid = param('message_id')||'';
-   my $nodeid = param('attachment_nodeid');
-   my $wordpreview=param('wordpreview')||0;
+   my $messageid   = param('message_id') || '';
+   my $nodeid      = param('attachment_nodeid');
+   my $wordpreview = param('wordpreview') || 0;
 
-   my ($attfilename, $length, $r_attheader, $r_attbody)=getattachment($folder, $messageid, $nodeid, $wordpreview);
+   my ($attfilename, $length, $r_attheader, $r_attbody) = getattachment($folder, $messageid, $nodeid, $wordpreview);
 
-   if (${$r_attheader}=~m!Content-Type: text/!i && $length>512 &&
-       is_http_compression_enabled()) {
-      my $zattbody=Compress::Zlib::memGzip($r_attbody); undef(${$r_attbody}); undef($r_attbody);
-      my $zlen=length($zattbody);
-      my $zattheader=qq|Content-Encoding: gzip\n|.
-                     qq|Vary: Accept-Encoding\n|.
-                     ${$r_attheader};
-      $zattheader=~s!Content\-Length: .*?\n!Content-Length: $zlen\n!ims;
+   if (${$r_attheader} =~ m#Content-Type: text/#i && $length > 512 && is_http_compression_enabled()) {
+      my $zattbody = Compress::Zlib::memGzip($r_attbody);
+      undef(${$r_attbody});
+      undef($r_attbody);
+      my $zlen = length($zattbody);
+      my $zattheader = qq|Content-Encoding: gzip\n|.
+                       qq|Vary: Accept-Encoding\n|.
+                       ${$r_attheader};
+      $zattheader =~ s#Content\-Length: .*?\n#Content-Length: $zlen\n#ims;
       print $zattheader, "\n", $zattbody;
    } else {
       print ${$r_attheader}, "\n", ${$r_attbody};
    }
+
    return;
 }
 
@@ -127,69 +129,68 @@ sub saveattachment {	# save attachments inside a message to webdisk
 }
 
 sub getattachment {
-   my ($folder, $messageid, $nodeid, $wordpreview)=@_;
-   my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
-   my $folderhandle=do { local *FH };
-   my ($msgsize, $errmsg, $block);
+   my ($folder, $messageid, $nodeid, $wordpreview) = @_;
 
-   ($msgsize, $errmsg)=lockget_message_block($messageid, $folderfile, $folderdb, \$block);
-   if ( $msgsize<=0 ) {
-      openwebmailerror(__FILE__, __LINE__, "What the heck? Message $messageid seems to be gone!");
+   my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
+   my $folderhandle = do { local *FH };
+
+   my ($msgsize, $errmsg, $block);
+   ($msgsize, $errmsg) = lockget_message_block($messageid, $folderfile, $folderdb, \$block);
+   if ($msgsize <= 0) {
+      openwebmailerror(__FILE__, __LINE__, "Message $messageid can no longer be found");
    }
 
-   my @attr=get_message_attributes($messageid, $folderdb);
-   my $convfrom=param('convfrom')||'';
+   my @attr = get_message_attributes($messageid, $folderdb);
+   my $convfrom = param('convfrom') || '';
    if ($convfrom eq "") {
-      if ( is_convertible($attr[$_CHARSET], $prefs{'charset'}) ) {
-         $convfrom=lc($attr[$_CHARSET]);
+      if (is_convertible($attr[$_CHARSET], $prefs{charset})) {
+         $convfrom = lc($attr[$_CHARSET]);
       } else {
-         $convfrom="none\.$prefs{'charset'}";
+         $convfrom ="none\.$prefs{charset}";
       }
    }
 
    if ( $nodeid eq 'all' ) {
       # return whole msg as an message/rfc822 object
-      my ($subject) = iconv($convfrom, $prefs{'charset'}, $attr[$_SUBJECT]);
+      my ($subject) = iconv($convfrom, $prefs{charset}, $attr[$_SUBJECT]);
       $subject =~ s/\s+/_/g;
 
       my $length = length($block);
-      my $attheader=qq|Content-Length: $length\n|.
-                    qq|Connection: close\n|.
-                    qq|Content-Type: message/rfc822; name="$subject.msg"\n|;
+      my $attheader = qq|Content-Length: $length\n|.
+                      qq|Connection: close\n|.
+                      qq|Content-Type: message/rfc822; name="$subject.msg"\n|;
 
       # disposition:attachment default to save
-      if ( $ENV{'HTTP_USER_AGENT'}=~/MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition: attachment
-         $attheader.=qq|Content-Disposition: filename="$subject.msg"\n|;
+      if ($ENV{'HTTP_USER_AGENT'} =~ m/MSIE 5.5/) { # ie5.5 is broken with content-disposition: attachment
+         $attheader .= qq|Content-Disposition: filename="$subject.msg"\n|;
       } else {
-         $attheader.=qq|Content-Disposition: attachment; filename="$subject.msg"\n|;
+         $attheader .= qq|Content-Disposition: attachment; filename="$subject.msg"\n|;
       }
 
       # allow cache for msg in folder other than saved-drafts
       if ($folder ne 'saved-drafts') {
-         $attheader.=qq|Expires: |.CGI::expires('+900s').qq|\n|.
-                     qq|Cache-Control: private,max-age=900\n|;
+         $attheader .= qq|Expires: | . CGI::expires('+900s') . qq|\n|.
+                       qq|Cache-Control: private,max-age=900\n|;
       }
 
       return("$subject.msg", $length, \$attheader, \$block);
 
    } else {
       # return a specific attachment
-      my ($header, $body, $r_attachments)=ow::mailparse::parse_rfc822block(\$block, "0", $nodeid);
+      my ($header, $body, $r_attachments) = ow::mailparse::parse_rfc822block(\$block, "0", $nodeid);
       undef($block);
 
       my $r_attachment;
-      for (my $i=0; $i<=$#{$r_attachments}; $i++) {
-         if ( ${${$r_attachments}[$i]}{nodeid} eq $nodeid ) {
-            $r_attachment=${$r_attachments}[$i];
+      for (my $i=0; $i <= $#{$r_attachments}; $i++) {
+         if (${${$r_attachments}[$i]}{nodeid} eq $nodeid) {
+            $r_attachment = ${$r_attachments}[$i];
          }
       }
       if (defined $r_attachment) {
-         my $charset=${$r_attachment}{filenamecharset}||
-                     ${$r_attachment}{charset}||
-                     $convfrom||
-                     $attr[$_CHARSET];
+         my $charset = ${$r_attachment}{filenamecharset} || ${$r_attachment}{charset} || $convfrom || $attr[$_CHARSET];
          my $contenttype = ${$r_attachment}{'content-type'};
-         my $filename = ${$r_attachment}{filename}; $filename=~s/\s$//;
+         my $filename = ${$r_attachment}{filename};
+         $filename =~ s/\s$//;
          my $content;
          if (${$r_attachment}{'content-transfer-encoding'} =~ /^base64$/i) {
             $content = decode_base64(${${$r_attachment}{r_content}});
@@ -201,14 +202,14 @@ sub getattachment {
             $content = ${${$r_attachment}{r_content}};
          }
 
-         if ($contenttype =~ m#^application/ms\-tnef#) {	# try to convery tnef -> zip/tgz/tar
-            my $tnefbin=ow::tool::findbin('tnef');
+         if ($contenttype =~ m#^application/ms\-tnef#) { # try to convert tnef -> zip/tgz/tar
+            my $tnefbin = ow::tool::findbin('tnef');
             if ($tnefbin ne '') {
-               my ($arcname, $r_arcdata)=ow::tnef::get_tnef_archive($tnefbin, $filename, \$content);
-               if ($arcname ne '') {	# tnef extraction and conversion successed
-                  $filename=$arcname;
-                  $contenttype=ow::tool::ext2contenttype($filename);
-                  $content=${$r_arcdata};
+               my ($arcname, $r_arcdata) = ow::tnef::get_tnef_archive($tnefbin, $filename, \$content);
+               if ($arcname ne '') { # tnef extraction and conversion successed
+                  $filename = $arcname;
+                  $contenttype = ow::tool::ext2contenttype($filename);
+                  $content = ${$r_arcdata};
                }
             }
          }
@@ -220,7 +221,7 @@ sub getattachment {
 #            $content = ow::htmlrender::html4link($content);
             $content = ow::htmlrender::html4disablejs($content) if ($prefs{'disablejs'});
             $content = ow::htmlrender::html4disableembcode($content) if ($prefs{'disableembcode'});
-            $content = ow::htmlrender::html4disableemblink($content, $prefs{'disableemblink'}, "$config{'ow_htmlurl'}/images/backgrounds/Transparent.gif") if ($prefs{'disableemblink'} ne 'none');
+            $content = ow::htmlrender::html4disableemblink($content, $prefs{disableemblink}, "$config{ow_htmlurl}/images/backgrounds/Transparent.gif");
             $content = ow::htmlrender::html4attachments($content, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
 #            $content = ow::htmlrender::html4mailto($content, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto");
          }
@@ -242,7 +243,7 @@ sub getattachment {
               $contenttype !~ /application\/x\-msdownload/i ) {
             # change attname from *.exe, *.com *.bat, *.pif, *.lnk, *.scr to *.file
             # if its contenttype is not application/octet-stream,
-            # so this attachment won't be referenced by html and executed directly ie
+            # so this attachment won't be referenced by html and executed directly by Internet Explorer
             $filename="$filename.file";
          } elsif ($filename =~ /\.(?:doc|dot)$/i &&
              $wordpreview && msword2html(\$content)) {
@@ -278,8 +279,10 @@ sub getattachment {
          }
 
          # use undef to free memory before attachment transfer
-         undef %{$r_attachment}; undef $r_attachment;
-         undef @{$r_attachments}; undef $r_attachments;
+         undef %{$r_attachment};
+         undef $r_attachment;
+         undef @{$r_attachments};
+         undef $r_attachments;
 
          return($filename, $length, \$attheader, \$content);
       } else {
@@ -292,7 +295,8 @@ sub getattachment {
 
 ########## VIEWATTFILE/SAVEATTFILE ###############################
 sub viewattfile {	# view attachments uploaded to $config{'ow_sessionsdir'}
-   my $attfile=param('attfile')||''; $attfile =~ s/\///g;  # just in case someone gets tricky ...
+   my $attfile=param('attfile')||'';
+   $attfile =~ s/\///g;  # just in case someone gets tricky ...
    my $wordpreview=param('wordpreview')||0;
    my ($attfilename, $length, $r_attheader, $r_attbody)=getattfile($attfile, $wordpreview);
 

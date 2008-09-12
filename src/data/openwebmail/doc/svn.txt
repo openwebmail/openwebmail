@@ -3,14 +3,14 @@ How To Use Subversion For OpenWebMail Development
 -You must have an account on the SVN server before you can commit changes. Send
  an email to the owm-devel mailing list to request an account.
 
--If you don't want an account, please submit patches with 'diff-uN oldfile newfile > patch'
+-If you don't want an account, please submit patches with 'diff -uN oldfile newfile > patch'
  to openwebmail.AT.acatysmoof.com.
 
 ===============
 GETTING STARTED
 ===============
 CHECKOUT A COPY OF THE CURRENT CODE FROM 'trunk':
-svn checkout svn://openwebmail.acatysmoof.com/openwebmail/trunk [OPTIONAL:/where/to/put/it]
+svn checkout http://openwebmail.acatysmoof.com/svn/trunk [OPTIONAL:/where/to/put/it]
 
 
 ================
@@ -117,25 +117,25 @@ $ svn merge -r BASE:PREV URL-to-repository
 MISCELLANEOUS USEFUL COMMANDS
 =============================
 CHANGE DATE ON REVISION:
-svn propset -rXXX --revprop svn:date "2002-02-10T03:00:00.000000Z" svn://openwebmail.acatysmoof.com/openwebmail
+svn propset -rXXX --revprop svn:date "2002-02-10T03:00:00.000000Z" http://openwebmail.acatysmoof.com/svn
 -A new revision date MUST be older than the revision before it
 
 CHANGE THE LOG FOR A REVISION (in case you made a typo in your commit message):
-svn propset -rXXX --revprop svn:log -F NEWLOGFILE svn://openwebmail.acatysmoof.com/openwebmail
+svn propset -rXXX --revprop svn:log -F NEWLOGFILE http://openwebmail.acatysmoof.com/svn
 
 MAKE A TAG OF THE TRUNK (Lead Developer only please):
-svn copy svn://openwebmail.acatysmoof.com/openwebmail/trunk svn://openwebmail.acatysmoof.com/openwebmail/tags/1.13
+svn copy http://openwebmail.acatysmoof.com/svn/trunk http://openwebmail.acatysmoof.com/svn/tags/1.13
 
 REVIEW PROPERTIES OF A REVISION:
-svn proplist -v --revprop -rXXX svn://openwebmail.acatysmoof.com/openwebmail
+svn proplist -v --revprop -rXXX http://openwebmail.acatysmoof.com/svn
 
 AUTO-BUILD A CHANGELOG:
-svn log -r1:HEAD svn://openwebmail.acatysmoof.com/openwebmail > changes
+svn log -r1:HEAD http://openwebmail.acatysmoof.com/svn > changes
 -add the -v option to see changes with a list of changed files per revision
 -HEAD refers to the last revision number that was checked in the repository.
 
 PACKAGING A RELEASE:
-svn export svn://openwebmail.acatysmoof.com/openwebmail/tags/1.12 openwebmail-1.12
+svn export http://openwebmail.acatysmoof.com/svn/tags/1.12 openwebmail-1.12
 tar -cvzf openwebmail-1.12.tar.gz openwebmail-1.12
 
 EXAMINE LOCAL CHANGES AGAINST THE REVISION YOU CHECKED OUT:

@@ -1,4 +1,4 @@
-#!/usr/bin/suidperl -T
+#!/usr/bin/perl -T
 
 #                              The BSD License
 #
@@ -54,7 +54,7 @@ umask(0002);
 
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :standard);
+use CGI qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use HTML::Template 2.9;
 
@@ -104,12 +104,9 @@ use vars qw($persistence_count);
 
 # local globals
 use vars qw($action $folder $messageid);
-use vars qw($sort $page);
+use vars qw($sort $page $longpage);
 use vars qw($userfirsttime $prefs_caller);
 use vars qw($urlparmstr $formparmstr);
-use vars qw($escapedfolder $escapedmessageid);
-use vars qw($standardparamsloop);
-
 
 
 # BEGIN MAIN PROGRAM
@@ -117,29 +114,16 @@ use vars qw($standardparamsloop);
 openwebmail_requestbegin();
 userenv_init();
 
-# These params are url escaped in the templates, so unescape them on the way back in
-$action        = ow::tool::unescapeURL(param('action')) || '';
-$folder        = ow::tool::unescapeURL(param('folder')) || 'INBOX';
-$messageid     = ow::tool::unescapeURL(param('message_id')) || '';
-$page          = ow::tool::unescapeURL(param('page')) || 1;
-$sort          = ow::tool::unescapeURL(param('sort')) || $prefs{sort} || 'date_rev';
-$userfirsttime = ow::tool::unescapeURL(param('userfirsttime')) || 0;
-
-$prefs_caller  = ow::tool::unescapeURL(param('prefs_caller')) ||
-                 ( $config{enable_webmail}  ? 'main'    :
-                   $config{enable_calendar} ? 'cal'     :
-                   $config{enable_webdisk}  ? 'webdisk' : '');
-
-# setup the standard params loop for use in all the templates
-$standardparamsloop = [
-                         { name => "sessionid",     value => $thissession },
-                         { name => "folder",        value => $folder },
-                         { name => "message_id",    value => $messageid },
-                         { name => "sort",          value => $sort },
-                         { name => "page",          value => $page },
-                         { name => "userfirsttime", value => $userfirsttime },
-                         { name => "prefs_caller",  value => $prefs_caller },
-                      ];
+$action        = param('action') || '';
+$folder        = param('folder') || 'INBOX';
+$messageid     = param('message_id') || '';
+$page          = param('page') || 1;
+$longpage      = param('longpage') || 0;
+$sort          = param('sort') || $prefs{sort} || 'date_rev';
+$userfirsttime = param('userfirsttime') || 0;
+$prefs_caller  = param('prefs_caller') || ( $config{enable_webmail}  ? 'main'    :
+                                            $config{enable_calendar} ? 'cal'     :
+                                            $config{enable_webdisk}  ? 'webdisk' : '');
 
 writelog("debug - request prefs begin, action=$action - " .__FILE__.":". __LINE__) if ($config{debug_request});
 
@@ -204,7 +188,14 @@ sub about {
                       header_template         => get_header($config{header_template_file}),
 
                       # standard params
-                      standardparamsloop      => $standardparamsloop,
+                      sessionid               => $thissession,
+                      folder                  => $folder,
+                      message_id              => $messageid,
+                      sort                    => $sort,
+                      page                    => $page,
+                      longpage                => $longpage,
+                      userfirsttime           => $userfirsttime,
+                      prefs_caller            => $prefs_caller,
                       url_cgi                 => $config{ow_cgiurl},
                       url_html                => $config{ow_htmlurl},
                       use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
@@ -293,11 +284,11 @@ sub userfirsttime {
                       header_template => get_header($config{header_template_file}),
 
                       # standard params
+                      sessionid       => $thissession,
                       url_cgi         => $config{ow_cgiurl},
 
                       # prefs_userfirsttime.tmpl
                       programname     => $config{name},
-                      thissession     => $thissession,
 
                       # footer.tmpl
                       footer_template => get_footer($config{footer_template_file}),
@@ -307,8 +298,8 @@ sub userfirsttime {
 }
 
 sub editprefs {
-   my $paramlanguage = ow::tool::unescapeURL(param('language'));
-   my $paramcharset  = ow::tool::unescapeURL(param('charset'));
+   my $paramlanguage = param('language');
+   my $paramcharset  = param('charset');
 
    if (defined $paramlanguage) {
       if ( $paramlanguage =~ /^([_A-Za-z]+)$/ ) {
@@ -342,7 +333,7 @@ sub editprefs {
    }
 
    # simple prefs menu for first time users
-   # all other values in the form as hidden, except the items we want users to update now
+   # all other values in the form are hidden, except the items we want users to update now
    my $hiddenprefsloop = [];
    if ($userfirsttime) {
       my %shownow = ();
@@ -352,7 +343,7 @@ sub editprefs {
       foreach (@openwebmailrcitem) {
          next if $shownow{$_};
          if ($_ eq 'bgurl') {
-            my ($background, $bgurl)=($prefs{bgurl}, '');
+            my ($background, $bgurl) = ($prefs{bgurl}, '');
             if ($background !~ m#$config{ow_htmlurl}/images/backgrounds/#) {
                ($background, $bgurl) = ('USERDEFINE', $prefs{bgurl});
             }
@@ -595,14 +586,20 @@ sub editprefs {
                       header_template                   => get_header($config{header_template_file}, 'showaltstyles'),
 
                       # standard params
-                      standardparamsloop                => $standardparamsloop,
+                      sessionid                         => $thissession,
+                      folder                            => $folder,
+                      message_id                        => $messageid,
+                      sort                              => $sort,
+                      page                              => $page,
+                      longpage                          => $longpage,
+                      userfirsttime                     => $userfirsttime,
+                      prefs_caller                      => $prefs_caller,
                       url_cgi                           => $config{ow_cgiurl},
                       url_html                          => $config{ow_htmlurl},
                       use_texticon                      => ($prefs{iconset} =~ m/^Text\./?1:0),
                       iconset                           => $prefs{iconset},
 
                       # prefs.tmpl
-                      userfirsttime                     => $userfirsttime,
                       hiddenprefsloop                   => $hiddenprefsloop,
                       enable_quota                      => $enable_quota,
                       quotashowusage                    => $quotashowusage,
@@ -1454,10 +1451,15 @@ sub saveprefs {
                       header_template     => get_header($config{header_template_file}),
 
                       # standard params
+                      sessionid           => $thissession,
+                      folder              => $folder,
+                      message_id          => $messageid,
+                      sort                => $prefs{sort}, # reset
+                      page                => $page,
+                      longpage            => $longpage,
                       url_cgi             => $config{ow_cgiurl},
 
                       # prefs_saved.tmpl
-                      sortparamsloop      => [ map { $_->{value} = $prefs{sort} if $_->{name} eq 'sort'; $_; } @{$standardparamsloop} ],
                       caller_calendar     => $prefs_caller eq 'cal'?1:0,
                       calendardefaultview => $prefs{calendar_defaultview},
                       caller_webdisk      => $prefs_caller eq 'webdisk'?1:0,
@@ -1483,7 +1485,7 @@ sub readdotforward {
 
    # get flags and forward list with selfemail and vacationpipe removed
    my ($autoreply, $keeplocalcopy, @forwards) = splitforwardtext($forwardtext, 0, 0);
-   $keeplocalcopy = 0 if (scalar @forwards == 0);
+   $keeplocalcopy = 0 if scalar @forwards == 0;
    return ($autoreply, $keeplocalcopy, @forwards);
 }
 
@@ -1495,7 +1497,7 @@ sub splitforwardtext {
    # set autoreply if vacation found
    my $vacation_bin = (split(/\s+/,$config{vacationpipe}))[0];
 
-   my @forwards=();
+   my @forwards = ();
 
    foreach my $name ( split(/[,;\n\r]+/, $forwardtext) ) {
       $name =~ s/^\s+//;
@@ -1529,7 +1531,7 @@ sub is_selfemail {
 sub writedotforward {
    my ($autoreply, $keeplocalcopy, $forwardtext, @userfrom) = @_;
 
-   my @forwards=();
+   my @forwards = ();
 
    # don't allow forward to self (avoid mail loops!)
    # splitforwardtext will remove self emails
@@ -1703,28 +1705,35 @@ sub editpassword {
    # TODO: sync the config option names with the tmpl vars
    $template->param(
                       # header.tmpl
-                      header_template    => get_header($config{header_template_file}),
+                      header_template => get_header($config{header_template_file}),
 
                       # standard params
-                      standardparamsloop => $standardparamsloop,
-                      url_cgi            => $config{ow_cgiurl},
+                      sessionid       => $thissession,
+                      folder          => $folder,
+                      message_id      => $messageid,
+                      sort            => $sort,
+                      page            => $page,
+                      longpage        => $longpage,
+                      userfirsttime   => $userfirsttime,
+                      prefs_caller    => $prefs_caller,
+                      url_cgi         => $config{ow_cgiurl},
 
                       # prefs_editpassword.tmpl
-                      url_chpwd          => $url_chpwd,
-                      loginnametext      => $loginname,
-                      passwd_minlen      => $config{passwd_minlen},
+                      url_chpwd       => $url_chpwd,
+                      loginnametext   => $loginname,
+                      passwd_minlen   => $config{passwd_minlen},
 
                       # footer.tmpl
-                      footer_template    => get_footer($config{footer_template_file}),
+                      footer_template => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
 }
 
 sub changepassword {
-   my $oldpassword        = param('oldpassword');
-   my $newpassword        = param('newpassword');
-   my $confirmnewpassword = param('confirmnewpassword');
+   my $oldpassword        = param('oldpassword') || '';
+   my $newpassword        = param('newpassword') || '';
+   my $confirmnewpassword = param('confirmnewpassword') || '';
 
    if (length($newpassword) < $config{passwd_minlen}) {
       $lang_err{pwd_tooshort} =~ s#\@\@\@PASSWDMINLEN\@\@\@#$config{passwd_minlen}#i;
@@ -1784,16 +1793,23 @@ sub changepassword {
    # TODO: sync the config option names with the tmpl vars
    $template->param(
                       # header.tmpl
-                      header_template    => get_header($config{header_template_file}),
+                      header_template => get_header($config{header_template_file}),
 
                       # standard params
-                      standardparamsloop => $standardparamsloop,
+                      sessionid       => $thissession,
+                      folder          => $folder,
+                      message_id      => $messageid,
+                      sort            => $sort,
+                      page            => $page,
+                      longpage        => $longpage,
+                      userfirsttime   => $userfirsttime,
+                      prefs_caller    => $prefs_caller,
 
                       # prefs_editpassword_fail.tmpl
-                      url_afterchpass    => $url_afterchpass,
+                      url_afterchpass => $url_afterchpass,
 
                       # footer.tmpl
-                      footer_template    => get_footer($config{footer_template_file}),
+                      footer_template => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
@@ -1827,18 +1843,25 @@ sub editpassword_fail {
    # TODO: sync the config option names with the tmpl vars
    $template->param(
                       # header.tmpl
-                      header_template    => get_header($config{header_template_file}),
+                      header_template => get_header($config{header_template_file}),
 
                       # standard params
-                      standardparamsloop => $standardparamsloop,
+                      sessionid       => $thissession,
+                      folder          => $folder,
+                      message_id      => $messageid,
+                      sort            => $sort,
+                      page            => $page,
+                      longpage        => $longpage,
+                      userfirsttime   => $userfirsttime,
+                      prefs_caller    => $prefs_caller,
 
                       # prefs_editpassword_fail.tmpl
-                      errormessage       => $errormessage,
-                      url_afterchpass    => $url_afterchpass,
-                      url_tryagain       => $url_tryagain,
+                      errormessage    => $errormessage,
+                      url_afterchpass => $url_afterchpass,
+                      url_tryagain    => $url_tryagain,
 
                       # footer.tmpl
-                      footer_template    => get_footer($config{footer_template_file}),
+                      footer_template => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
@@ -1859,7 +1882,7 @@ sub viewhistory {
       # pathnames appearing in the history file are in the filesystem charset,
       # so we must call f2u() before showing them to the user
       my ($u, $event, $desc, $desc2) = split(/ \- /, $misc, 4);
-      $desc = ow::htmltext::str2html(f2u($desc));
+      $desc = f2u($desc);
 
       push(@{$historyloop}, {
                                is_warning => ((defined $event && $event =~ m/(?:error|warning)/i) || (defined $desc && $desc =~ m/(?:spam|virus) .* found/i))?1:0,
@@ -1868,6 +1891,7 @@ sub viewhistory {
                                username   => $u,
                                event      => $event,
                                desc       => $desc,
+                               descshort  => length $desc > 40 ? (substr($desc, 0, 40) . "...") : $desc,
                             }
           );
    }
@@ -1887,20 +1911,27 @@ sub viewhistory {
 
    $template->param(
                       # header.tmpl
-                      header_template    => get_header($config{header_template_file}),
+                      header_template => get_header($config{header_template_file}),
 
                       # standard params
-                      standardparamsloop => $standardparamsloop,
-                      url_cgi            => $config{ow_cgiurl},
-                      url_html           => $config{ow_htmlurl},
-                      use_texticon       => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      iconset            => $prefs{iconset},
+                      sessionid       => $thissession,
+                      folder          => $folder,
+                      message_id      => $messageid,
+                      sort            => $sort,
+                      page            => $page,
+                      longpage        => $longpage,
+                      userfirsttime   => $userfirsttime,
+                      prefs_caller    => $prefs_caller,
+                      url_cgi         => $config{ow_cgiurl},
+                      url_html        => $config{ow_htmlurl},
+                      use_texticon    => ($prefs{iconset} =~ m/^Text\./?1:0),
+                      iconset         => $prefs{iconset},
 
                       # prefs_viewhistory.tmpl
-                      historyloop        => $historyloop,
+                      historyloop     => $historyloop,
 
                       # footer.tmpl
-                      footer_template    => get_footer($config{footer_template_file}),
+                      footer_template => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
@@ -1926,7 +1957,14 @@ sub editfroms {
                       header_template            => get_header($config{header_template_file}),
 
                       # standard params
-                      standardparamsloop         => $standardparamsloop,
+                      sessionid                  => $thissession,
+                      folder                     => $folder,
+                      message_id                 => $messageid,
+                      sort                       => $sort,
+                      page                       => $page,
+                      longpage                   => $longpage,
+                      userfirsttime              => $userfirsttime,
+                      prefs_caller               => $prefs_caller,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
                       use_texticon               => ($prefs{iconset} =~ m/^Text\./?1:0),
@@ -1970,7 +2008,7 @@ sub modfrom {
          delete $userfrom{$email};
       } else {
          if ( (-s $frombookfile) >= ($config{maxbooksize} * 1024) ) {
-            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{abook_toobig} <a href="| . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editfroms&sessionid=$thissession&folder=$escapedfolder&message_id=$escapedmessageid&sort=$sort&page=$page&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . qq|">$lang_err{back}</a>$lang_err{tryagain}|, "passthrough");
+            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{abook_toobig} <a href="| . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editfroms&sessionid=$thissession&folder=$folder&message_id=$messageid&sort=$sort&page=$page&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . qq|">$lang_err{back}</a>$lang_err{tryagain}|, "passthrough");
 
          }
          if (!$config{frombook_for_realname_only} || defined $userfrom{$email}) {
@@ -2011,39 +2049,46 @@ sub editpop3 {
    # TODO: sync the config option names with the tmpl vars
    $template->param(
                       # header.tmpl
-                      header_template            => get_header($config{header_template_file}),
+                      header_template         => get_header($config{header_template_file}),
 
                       # standard params
-                      standardparamsloop         => $standardparamsloop,
-                      url_cgi                    => $config{ow_cgiurl},
-                      url_html                   => $config{ow_htmlurl},
-                      use_texticon               => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      iconset                    => $prefs{iconset},
+                      sessionid               => $thissession,
+                      folder                  => $folder,
+                      message_id              => $messageid,
+                      sort                    => $sort,
+                      page                    => $page,
+                      longpage                => $longpage,
+                      userfirsttime           => $userfirsttime,
+                      prefs_caller            => $prefs_caller,
+                      url_cgi                 => $config{ow_cgiurl},
+                      url_html                => $config{ow_htmlurl},
+                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
+                      iconset                 => $prefs{iconset},
 
                       # prefs_editpop3.tmpl
-                      freespace                  => int($config{maxbooksize} - ($pop3booksize/1024) + .5),
-                      pop3_delmail_hidden        => $config{pop3_delmail_hidden},
-                      pop3_delmail_by_default    => $config{pop3_delmail_by_default},
-                      is_ssl_supported           => ow::tool::has_module('IO/Socket/SSL.pm'),
-                      pop3_usessl_by_default     => $config{pop3_usessl_by_default},
-                      accountsloop               => [
-                                                       map {
-                                                              my @pos = split(/\@\@\@/,$_);
-                                                              {
-                                                                 pop3host   => $pos[0],
-                                                                 pop3port   => $pos[1],
-                                                                 pop3ssl    => $pos[2],
-                                                                 pop3user   => $pos[3],
-                                                                 # don't show passwords in the form
-                                                                 # pop3passwd => $pos[4],
-                                                                 pop3del    => $pos[5],
-                                                                 enable     => $pos[6],
-                                                              }
-                                                           } sort values %accounts
-                                                    ],
+                      freespace               => int($config{maxbooksize} - ($pop3booksize/1024) + .5),
+                      pop3_delmail_hidden     => $config{pop3_delmail_hidden},
+                      pop3_delmail_by_default => $config{pop3_delmail_by_default},
+                      is_ssl_supported        => ow::tool::has_module('IO/Socket/SSL.pm'),
+                      pop3_usessl_by_default  => $config{pop3_usessl_by_default},
+                      accountsloop            => [
+                                                    map {
+                                                           my @account = split(/\@\@\@/,$_);
+                                                           {
+                                                              pop3host   => $account[0],
+                                                              pop3port   => $account[1],
+                                                              pop3ssl    => $account[2],
+                                                              pop3user   => $account[3],
+                                                              # don't show passwords in the form
+                                                              # pop3passwd => $account[4],
+                                                              pop3del    => $account[5],
+                                                              enable     => $account[6],
+                                                           }
+                                                        } sort values %accounts
+                                                 ],
 
                       # footer.tmpl
-                      footer_template            => get_footer($config{footer_template_file}),
+                      footer_template         => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
@@ -2092,7 +2137,7 @@ sub modpop3 {
       } else {
          # add a new pop3 account
          if ( (-s $pop3bookfile) >= ($config{maxbooksize} * 1024) ) {
-            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{abook_toobig} <a href="| . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editpop3&sessionid=$thissession&folder=$escapedfolder&message_id=$escapedmessageid&sort=$sort&page=$page&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . qq|">$lang_err{back}</a>$lang_err{tryagain}|, "passthrough");
+            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{abook_toobig} <a href="| . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editpop3&sessionid=$thissession&folder=$folder&message_id=$messageid&sort=$sort&page=$page&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . qq|">$lang_err{back}</a>$lang_err{tryagain}|, "passthrough");
          }
 
          foreach ( @{$config{pop3_disallowed_servers}} ) {
@@ -2147,7 +2192,7 @@ sub editstat {
    # load the stat for edit only if editstat button is clicked
    my ($editstatname, $editstatbody) = ('','');
    if (param('editstatbutton')) {
-      $editstatname = param('statname');
+      $editstatname = param('statname') || '';
       $editstatname = (iconv($stationery{$editstatname}{charset}, $prefs{charset}, $editstatname))[0];
       $editstatbody = (iconv($stationery{$editstatname}{charset}, $prefs{charset}, $stationery{$editstatname}{content}))[0];
    }
@@ -2165,35 +2210,43 @@ sub editstat {
    # TODO: sync the config option names with the tmpl vars
    $template->param(
                       # header.tmpl
-                      header_template            => get_header($config{header_template_file}),
+                      header_template => get_header($config{header_template_file}),
 
                       # standard params
-                      standardparamsloop         => $standardparamsloop,
-                      url_cgi                    => $config{ow_cgiurl},
-                      url_html                   => $config{ow_htmlurl},
-                      use_texticon               => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      iconset                    => $prefs{iconset},
+                      sessionid       => $thissession,
+                      folder          => $folder,
+                      message_id      => $messageid,
+                      sort            => $sort,
+                      page            => $page,
+                      longpage        => $longpage,
+                      userfirsttime   => $userfirsttime,
+                      prefs_caller    => $prefs_caller,
+                      url_cgi         => $config{ow_cgiurl},
+                      url_html        => $config{ow_htmlurl},
+                      use_texticon    => ($prefs{iconset} =~ m/^Text\./?1:0),
+                      use_fixedfont   => $prefs{usefixedfont},
+                      iconset         => $prefs{iconset},
 
                       # prefs_editstationery.tmpl
-                      caller_read                => $prefs_caller eq 'read'?1:0,
-                      folderstr                  => $folderstr,
-                      stationeryloop             => [
-                                                       map {
-                                                              my $statname = (iconv($stationery{$_}{charset}, $prefs{charset}, $_))[0];
-                                                              my $statcontent = (iconv($stationery{$_}{charset}, $prefs{charset}, $stationery{$_}{content}))[0];
-                                                              $statcontent = (substr($statcontent, 0, 100) . "...") if length $statcontent > 105;
-                                                              {
-                                                                statname    => ow::htmltext::str2html($statname),
-                                                                statcontent => ow::htmltext::str2html($statcontent),
-                                                              }
-                                                           } sort keys %stationery
-                                                    ],
-                      editstatname               => ow::htmltext::str2html($editstatname),
-                      editstatbody               => ow::htmltext::str2html($editstatbody),
-                      textareacolumns            => $prefs{editcolumns} || '78',
+                      caller_read     => $prefs_caller eq 'read'?1:0,
+                      folderstr       => $folderstr,
+                      stationeryloop  => [
+                                            map {
+                                                    my $statname    = (iconv($stationery{$_}{charset}, $prefs{charset}, $_))[0];
+                                                    my $statcontent = (iconv($stationery{$_}{charset}, $prefs{charset}, $stationery{$_}{content}))[0];
+                                                    $statcontent    = (substr($statcontent, 0, 100) . "...") if length $statcontent > 105;
+                                                    {
+                                                      statname    => $statname,
+                                                      statcontent => $statcontent,
+                                                    }
+                                                 } sort keys %stationery
+                                         ],
+                      editstatname    => $editstatname,
+                      editstatbody    => $editstatbody,
+                      textareacolumns => $prefs{editcolumns} || '78',
 
                       # footer.tmpl
-                      footer_template            => get_footer($config{footer_template_file}),
+                      footer_template => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
@@ -2203,7 +2256,7 @@ sub addstat {
    my $newname    = param('editstatname') || '';
    my $newcontent = param('editstatbody') || '';
 
-   my %stationery=();
+   my %stationery = ();
 
    if($newname ne '' && $newcontent ne '') {
       # save msg to file stationery
@@ -2325,11 +2378,10 @@ sub editfilter {
                                    include       => $rule{inc},
                                    includetext   => $lang_text{$rule{inc}},
                                    text          => $textstr,
-                                   texttext      => ow::htmltext::str2html($textstr),
                                    operation     => $rule{op},
                                    operationtext => $rule{dest} eq 'INBOX'?'-----':$lang_text{$rule{op}},
                                    dest          => $deststr,
-                                   desttext      => exists $lang_folders{$rule{dest}}?$lang_folders{$rule{dest}}:ow::htmltext::str2html($deststr),
+                                   desttext      => exists $lang_folders{$rule{dest}}?$lang_folders{$rule{dest}}:$deststr,
                                    enable        => $rule{enable},
                                 }
           );
@@ -2367,11 +2419,10 @@ sub editfilter {
                                    include       => $rule{inc},
                                    includetext   => $lang_text{$rule{inc}},
                                    text          => $textstr,
-                                   texttext      => ow::htmltext::str2html($textstr),
                                    operation     => $rule{op},
                                    operationtext => $rule{dest} eq 'INBOX'?'-----':$lang_text{$rule{op}},
                                    dest          => $deststr,
-                                   desttext      => exists $lang_folders{$rule{dest}}?$lang_folders{$rule{dest}}:ow::htmltext::str2html($deststr),
+                                   desttext      => exists $lang_folders{$rule{dest}}?$lang_folders{$rule{dest}}:$deststr,
                                    enable        => $rule{enable},
                                 }
           );
@@ -2391,63 +2442,70 @@ sub editfilter {
 
    $template->param(
                       # header.tmpl
-                      header_template         => get_header($config{header_template_file}),
+                      header_template       => get_header($config{header_template_file}),
 
                       # standard params
-                      standardparamsloop      => $standardparamsloop,
-                      url_cgi                 => $config{ow_cgiurl},
-                      url_html                => $config{ow_htmlurl},
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      iconset                 => $prefs{iconset},
+                      sessionid             => $thissession,
+                      folder                => $folder,
+                      message_id            => $messageid,
+                      sort                  => $sort,
+                      page                  => $page,
+                      longpage              => $longpage,
+                      userfirsttime         => $userfirsttime,
+                      prefs_caller          => $prefs_caller,
+                      url_cgi               => $config{ow_cgiurl},
+                      url_html              => $config{ow_htmlurl},
+                      use_texticon          => ($prefs{iconset} =~ m/^Text\./?1:0),
+                      iconset               => $prefs{iconset},
 
                       # prefs_editfilter.tmpl
-                      freespace               => int($config{maxbooksize} - ($filterbooksize/1024) + .5),
-                      callerfoldername        => $lang_folders{$folder}||f2u($folder),
-                      caller_calendar         => $prefs_caller eq 'cal'?1:0,
-                      calendardefaultview     => $prefs{calendar_defaultview},
-                      caller_webdisk          => $prefs_caller eq 'webdisk'?1:0,
-                      caller_read             => $prefs_caller eq 'read'?1:0,
-                      caller_main             => $prefs_caller eq 'main'?1:0,
-                      priorityselectloop      => [
-                                                    map { {
-                                                             option   => $_,
-                                                             label    => $_,
-                                                             selected => $_ eq 10?1:0
-                                                        } } map { sprintf('%02d', $_) } (1..20)
-                                                 ],
-                      ruletypeselectloop      => [
-                                                    map { {
-                                                             option   => $_,
-                                                             label    => $lang_text{$_},
-                                                             selected => $_ eq 'subject'?1:0
-                                                        } } qw(from to subject smtprelay header textcontent attfilename)
-                                                 ],
-                      includeselectloop       => [
-                                                    map { {
-                                                             option   => $_,
-                                                             label    => $lang_text{$_},
-                                                             selected => $_ eq 'include'?1:0
-                                                        } } qw(include exclude)
-                                                 ],
-                      operationselectloop     => [
-                                                    map { {
-                                                             option   => $_,
-                                                             label    => $lang_text{$_},
-                                                             selected => $_ eq 'move'?1:0
-                                                        } } qw(move copy)
-                                                 ],
-                      destinationselectloop   => [
-                                                    map { {
-                                                             option   => $_,
-                                                             label    => exists $lang_folders{$_}?$lang_folders{$_}:$_,
-                                                             selected => $_ eq 'mail-trash'?1:0
-                                                        } } iconv($prefs{fscharset}, $prefs{charset}, @validfolders, 'DELETE')
-                                                 ],
-                      filterrulesloop         => $filterrulesloop,
-                      globalrulesloop         => $globalrulesloop,
+                      freespace             => int($config{maxbooksize} - ($filterbooksize/1024) + .5),
+                      callerfoldername      => $lang_folders{$folder}||f2u($folder),
+                      caller_calendar       => $prefs_caller eq 'cal'?1:0,
+                      calendardefaultview   => $prefs{calendar_defaultview},
+                      caller_webdisk        => $prefs_caller eq 'webdisk'?1:0,
+                      caller_read           => $prefs_caller eq 'read'?1:0,
+                      caller_main           => $prefs_caller eq 'main'?1:0,
+                      priorityselectloop    => [
+                                                  map { {
+                                                           option   => $_,
+                                                           label    => $_,
+                                                           selected => $_ eq 10?1:0
+                                                      } } map { sprintf('%02d', $_) } (1..20)
+                                               ],
+                      ruletypeselectloop    => [
+                                                  map { {
+                                                           option   => $_,
+                                                           label    => $lang_text{$_},
+                                                           selected => $_ eq 'subject'?1:0
+                                                      } } qw(from to subject smtprelay header textcontent attfilename)
+                                               ],
+                      includeselectloop     => [
+                                                  map { {
+                                                           option   => $_,
+                                                           label    => $lang_text{$_},
+                                                           selected => $_ eq 'include'?1:0
+                                                      } } qw(include exclude)
+                                               ],
+                      operationselectloop   => [
+                                                  map { {
+                                                           option   => $_,
+                                                           label    => $lang_text{$_},
+                                                           selected => $_ eq 'move'?1:0
+                                                      } } qw(move copy)
+                                               ],
+                      destinationselectloop => [
+                                                  map { {
+                                                           option   => $_,
+                                                           label    => exists $lang_folders{$_}?$lang_folders{$_}:$_,
+                                                           selected => $_ eq 'mail-trash'?1:0
+                                                      } } iconv($prefs{fscharset}, $prefs{charset}, @validfolders, 'DELETE')
+                                               ],
+                      filterrulesloop       => $filterrulesloop,
+                      globalrulesloop       => $globalrulesloop,
 
                       # footer.tmpl
-                      footer_template         => get_footer($config{footer_template_file}),
+                      footer_template       => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
@@ -2476,7 +2534,7 @@ sub modfilter {
 
       if (-f $filterbookfile) {
          if ($mode ne 'delete' && (-s $filterbookfile) >= ($config{maxbooksize}*1024)) {
-            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{abook_toobig} <a href="| . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editaddresses&sessionid=$thissession&folder=$escapedfolder&message_id=$escapedmessageid&sort=$sort&page=$page&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . qq|">$lang_err{back}</a>$lang_err{tryagain}|, "passthrough");
+            openwebmailerror(__FILE__, __LINE__, qq|$lang_err{abook_toobig} <a href="| . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editaddresses&sessionid=$thissession&folder=$folder&message_id=$messageid&sort=$sort&page=$page&longpage=$longpage&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . qq|">$lang_err{back}</a>$lang_err{tryagain}|, "passthrough");
          }
 
          # read personal filter and update it
@@ -2544,8 +2602,10 @@ sub modfilter {
    if ( param('message_id') ) {
       my $searchtype     = param('searchtype') || 'subject';
       my $keyword        = param('keyword') || '';
+      my $headers        = param('headers') || $prefs{headers} || 'simple';
+      my $attmode        = param('attmode') || 'simple';
       my $escapedkeyword = ow::tool::escapeURL($keyword);
-      print redirect(-location=>"$config{ow_cgiurl}/openwebmail-read.pl?action=readmessage&sessionid=$thissession&page=$page&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$escapedfolder&message_id=$escapedmessageid");
+      print redirect(-location=>"$config{ow_cgiurl}/openwebmail-read.pl?action=readmessage&sessionid=$thissession&page=$page&longpage=$longpage&sort=$sort&keyword=$escapedkeyword&searchtype=$searchtype&folder=$folder&message_id=$messageid&headers=$headers&attmode=$attmode");
    } else {
       editfilter();
    }

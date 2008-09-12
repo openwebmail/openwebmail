@@ -1,39 +1,39 @@
-<tmpl_var header_template>
+<tmpl_var header_template escape="none">
 
 <center>
-<a href="<tmpl_var logo_link>"><img border="0" src="<tmpl_var url_logo escape="html">"></a><br><br>
+<a href="<tmpl_var logo_link escape="html">"><img border="0" src="<tmpl_var url_logo escape="html">"></a><br><br>
 </center>
 
 <table cellpadding="0" cellspacing="0" border="0" width="260" align="center">
 <tr>
-  <td class="login_titlebar" style="background-image: url(<tmpl_var url_html>/images/bg-titleblue.gif);">&nbsp;Login</td>
+  <td class="login_titlebar" style="background-image: url(<tmpl_var url_html escape="none">/images/bg-titleblue.gif);">&nbsp;Login</td>
 </tr>
 <tr>
   <td align="center" class="login_border">
     <table cellpadding="0" cellspacing="1" border="0" width="100%">
     <tr>
       <td class="background">
-        <form action="<tmpl_var url_cgi>/openwebmail.pl" method="post" name="loginform">
+        <form action="<tmpl_var url_cgi escape="none">/openwebmail.pl" method="post" name="loginform">
 
         <!-- support the possible redirect after login -->
         <tmpl_loop redirectloop>
-        <input type="hidden" name="<tmpl_var name>" value="<tmpl_var value>">
+        <input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
         </tmpl_loop>
         <!-- end redirect support -->
 
         <tmpl_unless enable_domainselect>
-        <input type="hidden" name="logindomain" value="<tmpl_var logindomain>">
+        <input type="hidden" name="logindomain" value="<tmpl_var logindomain escape="html">">
         </tmpl_unless>
 
         <table cellpadding="0" cellspacing="2" border="0" align="center">
         <tr><td colspan="2">&nbsp;</td></tr>
         <tr>
           <td align="right" nowrap>UserID:</td>
-          <td align="left"><input type="text" name="loginname" size="<tmpl_var loginfieldwidth>" onchange="focuspwd();"></td>
+          <td align="left"><input type="text" name="loginname" size="<tmpl_var loginfieldwidth escape="html">" onchange="focuspwd();"></td>
         </tr>
         <tr>
           <td align="right" nowrap>Password:</td>
-          <td align="left"><input type="password" name="password" size="<tmpl_var loginfieldwidth>" onchange="focusloginbutton();"></td>
+          <td align="left"><input type="password" name="password" size="<tmpl_var loginfieldwidth escape="html">" onchange="focusloginbutton();"></td>
         </tr>
 
         <!-- support domain selection -->
@@ -43,7 +43,7 @@
           <td>
             <select name="logindomain">
               <tmpl_loop domainselectloop>
-              <option value="<tmpl_var option>" <tmpl_if selected>selected</tmpl_if>><tmpl_var label></option>
+              <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
               </tmpl_loop>
             </select>
           </td>
@@ -136,4 +136,4 @@
 //-->
 </script>
 
-<tmpl_var footer_template>
+<tmpl_var footer_template escape="none">

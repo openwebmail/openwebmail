@@ -8,40 +8,44 @@ use vars qw(%config %lang_err);
 
 sub getmessage {
    my ($user, $folder, $messageid, $mode) = @_;
-   my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
+   my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
    my ($msgsize, $errmsg, $block);
    my %message = ();
 
-   ($msgsize, $errmsg)=lockget_message_block($messageid, $folderfile, $folderdb, \$block);
+   ($msgsize, $errmsg) = lockget_message_block($messageid, $folderfile, $folderdb, \$block);
 
    # -1 lock/open error
    # -2 msg not found in db
    # -3 size in db invalid, -4 read size mismatch, -5 folder index inconsistence
-   if ($msgsize==-1) {
+   if ($msgsize == -1) {
       openwebmailerror(__FILE__, __LINE__, $errmsg);
-   } elsif ($msgsize==-2) {
-      my $m="db warning - $errmsg"; writelog($m); writehistory($m);
+   } elsif ($msgsize == -2) {
+      my $m = "db warning - $errmsg";
+      writelog($m);
+      writehistory($m);
       return \%message;
-   } elsif ($msgsize==-3 || $msgsize==-4 || $msgsize==-5) {
-      my $m="db warning - $errmsg - ".__FILE__.':'.__LINE__; writelog($m); writehistory($m);
+   } elsif ($msgsize == -3 || $msgsize == -4 || $msgsize == -5) {
+      my $m = "db warning - $errmsg - ".__FILE__.':'.__LINE__;
+      writelog($m);
+      writehistory($m);
 
       my %FDB;	# set metainfo=ERR to force reindex in next update_folderindex
       ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderdb));
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderdb));
       @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
       ow::dbm::close(\%FDB, $folderdb);
 
-      ($msgsize, $errmsg)=lockget_message_block($messageid, $folderfile, $folderdb, \$block);
-      openwebmailerror(__FILE__, __LINE__, $errmsg) if ($msgsize<0 && $msgsize!=-2);
+      ($msgsize, $errmsg) = lockget_message_block($messageid, $folderfile, $folderdb, \$block);
+      openwebmailerror(__FILE__, __LINE__, $errmsg) if ($msgsize < 0 && $msgsize != -2);
    }
-   return \%message if ($msgsize<=0);
+   return \%message if ($msgsize <= 0);
    $message{size}=$msgsize;
 
    # member: header, body, attachment
    #         return-path from to cc bcc reply-to date subject status
    #         message-id content-type encoding in-reply-to references priority
-   foreach (qw(from to date subject content-type)) { $message{$_}= 'N/A' }
-   foreach (qw(return-path cc reply-to status in-reply-to references charset priority)) { $message{$_}='' }
+   foreach (qw(from to date subject content-type)) { $message{$_} = 'N/A' }
+   foreach (qw(return-path cc reply-to status in-reply-to references charset priority)) { $message{$_} = '' }
 
    # $r_attachment is a reference to attachment array!
    if ($mode eq "all") {
@@ -76,7 +80,8 @@ sub getmessage {
       $message{smtprelay} = $_;
       foreach my $localdomain (@{$config{'domainnames'}}) {
          if ($message{smtprelay}=~$localdomain) {
-            $message{smtprelay}=''; last;
+            $message{smtprelay}='';
+            last;
          }
       }
       last if ($message{smtprelay} ne '');
@@ -100,10 +105,10 @@ sub getmessage {
    }
 
    # ensure message charsetname is official
-   $message{charset}=official_charset($message{charset});
+   $message{charset} = official_charset($message{charset});
 
    foreach (qw(from reply-to to cc bcc subject)) {
-      $message{$_}=decode_mimewords_iconv($message{$_}, 'utf-8') if ($message{$_} ne 'N/A');
+      $message{$_} = decode_mimewords_iconv($message{$_}, 'utf-8') if ($message{$_} ne 'N/A');
    }
 
    return \%message;

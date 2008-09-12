@@ -1,4 +1,4 @@
-#!/usr/bin/suidperl -T
+#!/usr/bin/perl -T
 #
 # openwebmail-saprefs.pl - spamassassin user_prefs file config
 #

@@ -1,42 +1,47 @@
-<tmpl_var header_template>
+<tmpl_var header_template escape="none">
 
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="90%">
 <tr>
-  <td class="titlebar" colspan="3">Editar Modelo</td>
+  <td class="titlebar" colspan="3">Edit Stationery</td>
 </tr>
 <tr>
   <td class="menubar" colspan="3">
     <tmpl_if caller_read>
-    <a href="<tmpl_var url_cgi>/openwebmail-read.pl?action=readmessage<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="B" class="icon"><tmpl_if use_texticon>voltar para <tmpl_var folderstr escape="html"><tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="voltar para <tmpl_var folderstr escape="html">" alt="voltar para <tmpl_var folderstr escape="html">" border="0" align="absmiddle"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to <tmpl_var folderstr escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to <tmpl_var folderstr escape="html">" alt="back to <tmpl_var folderstr escape="html">" border="0" align="absmiddle"></tmpl_if></a>
     <tmpl_else>
-    <a href="<tmpl_var url_cgi>/openwebmail-prefs.pl?action=editprefs<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" accesskey="F" class="icon"><tmpl_if use_texticon>voltar para preferências de usuário<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="voltar para preferências de usuário" alt="voltar para preferências de usuário" border="0" align="absmiddle"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editprefs&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="F" class="icon"><tmpl_if use_texticon>back to user preferences<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to user preferences" alt="back to user preferences" border="0" align="absmiddle"></tmpl_if></a>
     </tmpl_if>
     &nbsp;
-    <a href="<tmpl_var url_cgi>/openwebmail-prefs.pl?action=clearstat<tmpl_loop standardparamsloop><tmpl_if value>&amp;<tmpl_var name>=<tmpl_var value escape="url"></tmpl_if></tmpl_loop>" onclick="return confirm('Apagar todos os modelos?')" accesskey="Z" class="icon"><tmpl_if use_texticon>apagar todos os modelos<tmpl_else><img src="<tmpl_var url_html>/images/iconsets/<tmpl_var iconset escape="html">/clearst.gif" title="apagar todos os modelos" alt="apagar todos os modelos" border="0" align="absmiddle"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=clearstat&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" onclick="return confirm('clear all stationery?')" accesskey="Z" class="icon"><tmpl_if use_texticon>clear all stationery<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/clearst.gif" title="clear all stationery" alt="clear all stationery" border="0" align="absmiddle"></tmpl_if></a>
   </td>
 </tr>
 <tr>
   <td colspan="3">&nbsp;</td>
 </tr>
 <tr>
-  <td class="columnheader" width="20%">Título</td>
-  <td class="columnheader" width="70%">Texto do Modelo</td>
+  <td class="columnheader" width="20%">Title</td>
+  <td class="columnheader" width="70%">Stationery Text</td>
   <td class="columnheader" width="10%">&nbsp;</td>
 </tr>
 
 <!-- statname and statcontent are already html escaped, so no need to do that here -->
 <tmpl_loop stationeryloop>
 <tr>
-  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var statname></td>
-  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var statcontent></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var statname escape="html"></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var statcontent escape="html"></td>
   <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" nowrap>
-    <form method="post" action="<tmpl_var url_cgi>/openwebmail-prefs.pl" name="stationeryform">
+    <form action="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl" method="post" name="stationeryform">
     <input type="hidden" name="action" value="editstat">
-    <input type="hidden" name="statname" value="<tmpl_var statname>">
-    <tmpl_loop standardparamsloop>
-    <input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
-    </tmpl_loop>
-    <input type="submit" name="editstatbutton" value="Editar"><input type="submit" name="deletestatbutton" value="Apagar">
+    <input type="hidden" name="statname" value="<tmpl_var statname escape="html">">
+    <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+    <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+    <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+    <input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+    <input type="hidden" name="page" value="<tmpl_var page escape="html">">
+    <input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+    <input type="hidden" name="userfirsttime" value="<tmpl_var userfirsttime escape="html">">
+    <input type="hidden" name="prefs_caller" value="<tmpl_var prefs_caller escape="html">">
+    <input type="submit" name="editstatbutton" value="Edit"><input type="submit" name="deletestatbutton" value="Delete">
     </form>
   </td>
 </tr>
@@ -46,25 +51,29 @@
   <td colspan="3">&nbsp;</td>
 </tr>
 
-<form method="post" action="<tmpl_var url_cgi>/openwebmail-prefs.pl" name="stationeryaddform">
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl" method="post" name="stationeryaddform">
 <input type="hidden" name="action" value="addstat">
-<tmpl_loop standardparamsloop>
-<input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
-</tmpl_loop>
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+<input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+<input type="hidden" name="userfirsttime" value="<tmpl_var userfirsttime escape="html">">
+<input type="hidden" name="prefs_caller" value="<tmpl_var prefs_caller escape="html">">
 
 <tr>
-  <td class="columnheader" colspan="3">Editar Modelo</td>
+  <td class="columnheader" colspan="3">Compose New Stationery</td>
 </tr>
 <tr>
-  <!-- editstatname and editstatbody are already html escaped, so no need to do that here -->
   <td class="windowdarkbold" colspan="3" align="center">
-    Title: <input type="text" size="66" name="editstatname" value="<tmpl_var editstatname>">
+    Title: <input type="text" size="66" name="editstatname" value="<tmpl_var editstatname escape="html">">
   </td>
 </tr>
 <tr>
   <td class="windowdarkbold" colspan="3" align="center">
     Stationery Text<br>
-    <textarea name="editstatbody" rows="5" cols="<tmpl_var textareacolumns>" wrap="hard" class="msgbody"><tmpl_var editstatbody></textarea>
+    <textarea name="editstatbody" rows="5" cols="<tmpl_var textareacolumns>" wrap="hard" <tmpl_if use_fixedfont>class="monospacetext"</tmpl_if>><tmpl_var editstatbody escape="html"></textarea>
   </td>
 </tr>
 <tr>
@@ -76,4 +85,4 @@
 </form>
 </table>
 
-<tmpl_var footer_template>
+<tmpl_var footer_template escape="none">

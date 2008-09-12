@@ -1,4 +1,4 @@
-#!/usr/bin/suidperl -T
+#!/usr/bin/perl -T
 
 #                              The BSD License
 #
@@ -54,7 +54,7 @@ umask(0002);
 
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :standard);
+use CGI qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use HTML::Template 2.9;
 
@@ -119,14 +119,13 @@ if (!$config{enable_webmail} && $action ne "logout") {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{webmail} $lang_err{access_denied}");
 }
 
-# These params are url escaped in the templates, so unescape them on the way back in
-$folder      = ow::tool::unescapeURL(param('folder')) || 'INBOX';
-$sort        = ow::tool::unescapeURL(param('sort')) || $prefs{sort} || 'date_rev';
-$msgdatetype = ow::tool::unescapeURL(param('msgdatetype')) || $prefs{msgdatetype};
-$page        = ow::tool::unescapeURL(param('page')) || 1;
-$longpage    = ow::tool::unescapeURL(param('longpage')) || 0;
-$searchtype  = ow::tool::unescapeURL(param('searchtype')) || 'subject';
-$keyword     = ow::tool::unescapeURL(param('keyword')) || '';
+$folder      = param('folder') || 'INBOX';
+$keyword     = param('keyword') || '';
+$longpage    = param('longpage') || 0;
+$msgdatetype = param('msgdatetype') || $prefs{msgdatetype};
+$page        = param('page') || 1;
+$searchtype  = param('searchtype') || 'subject';
+$sort        = param('sort') || $prefs{sort} || 'date_rev';
 
 $keyword     = '' if param('clearsearchbutton');
 $keyword     =~ s/^\s*//;
@@ -137,8 +136,7 @@ writelog("debug - request main begin, action=$action, folder=$folder - " .__FILE
 
 if ($action eq "movemessage" || defined param('movebutton') || defined param('copybutton') ) {
    my @messageids  = param('message_ids');
-   @messageids = map { ow::tool::unescapeURL($_) } @messageids;
-   my $destination = ow::tool::untaint(safefoldername(ow::tool::unescapeURL(param('destination'))));
+   my $destination = ow::tool::untaint(safefoldername(param('destination')));
 
    if ($destination eq 'FORWARD' && $#messageids >= 0) {
       # write the forwarding message-ids to a file for openwebmail-send to read
@@ -150,14 +148,14 @@ if ($action eq "movemessage" || defined param('movebutton') || defined param('co
       my $redirect = "$config{ow_cgiurl}/openwebmail-send.pl?action=composemessage&compose_caller=main&" .
                      join ("&", (
                                    "composetype=" . (defined param('movebutton')?'forwardids_delete':'forwardids'),
-                                   "sessionid=" . ow::tool::escapeURL($thissession),
-                                   "folder=" . ow::tool::escapeURL($folder),
-                                   "sort=" . ow::tool::escapeURL($sort),
+                                   "folder="      . ow::tool::escapeURL($folder),
+                                   "keyword="     . ow::tool::escapeURL($keyword),
+                                   "longpage="    . ow::tool::escapeURL($longpage),
                                    "msgdatetype=" . ow::tool::escapeURL($msgdatetype),
-                                   "page=" . ow::tool::escapeURL($page),
-                                   "longpage=" . ow::tool::escapeURL($longpage),
-                                   "searchtype=" . ow::tool::escapeURL($searchtype),
-                                   "keyword=" . ow::tool::escapeURL($keyword)
+                                   "page="        . ow::tool::escapeURL($page),
+                                   "searchtype="  . ow::tool::escapeURL($searchtype),
+                                   "sessionid="   . ow::tool::escapeURL($thissession),
+                                   "sort="        . ow::tool::escapeURL($sort),
                                 )
                           );
       print redirect(-location => $redirect);
@@ -169,17 +167,19 @@ if ($action eq "movemessage" || defined param('movebutton') || defined param('co
          my $attmode   = param('attmode') || 'simple';
          my $messageid = param('message_id') || '';
          $messageid    = $messageids[0] if (defined param('copybutton')); # copy button pressed, msg not moved
-         my $redirect = "$config{ow_cgiurl}/openwebmail-read.pl?action=readmessage&headers=$headers&attmode=$attmode&" .
+         my $redirect = "$config{ow_cgiurl}/openwebmail-read.pl?action=readmessage&" .
                         join ("&", (
-                                      "message_id=" . ow::tool::escapeURL($messageid),
-                                      "sessionid=" . ow::tool::escapeURL($thissession),
-                                      "folder=" . ow::tool::escapeURL($folder),
-                                      "sort=" . ow::tool::escapeURL($sort),
+                                      "attmode="     . ow::tool::escapeURL($attmode),
+                                      "folder="      . ow::tool::escapeURL($folder),
+                                      "headers="     . ow::tool::escapeURL($headers),
+                                      "keyword="     . ow::tool::escapeURL($keyword),
+                                      "longpage="    . ow::tool::escapeURL($longpage),
+                                      "message_id="  . ow::tool::escapeURL($messageid),
                                       "msgdatetype=" . ow::tool::escapeURL($msgdatetype),
-                                      "page=" . ow::tool::escapeURL($page),
-                                      "longpage=" . ow::tool::escapeURL($longpage),
-                                      "searchtype=" . ow::tool::escapeURL($searchtype),
-                                      "keyword=" . ow::tool::escapeURL($keyword)
+                                      "page="        . ow::tool::escapeURL($page),
+                                      "searchtype="  . ow::tool::escapeURL($searchtype),
+                                      "sessionid="   . ow::tool::escapeURL($thissession),
+                                      "sort="        . ow::tool::escapeURL($sort),
                                    )
                              );
          print redirect(-location => $redirect);
@@ -356,7 +356,7 @@ sub listmessages {
 
       push(@{$folderselectloop}, {
                                     option                => $foldername,
-                                    label                 => exists $lang_folders{$foldername}?$lang_folders{$foldername}:ow::htmltext::str2html(f2u($foldername)),
+                                    label                 => exists $lang_folders{$foldername}?$lang_folders{$foldername}:f2u($foldername),
                                     selected              => $foldername eq $folder?1:0,
                                     newmessagesthisfolder => $newmessagesthisfolder,
                                     allmessagesthisfolder => $allmessagesthisfolder,
@@ -417,7 +417,7 @@ sub listmessages {
    my $messagesloop = [];
    foreach my $messagenumber ($firstmessage  .. $lastmessage) {
       my $messageid    = $r_messageids->[$messagenumber - 1];
-      my $messagedepth = $r_messagedepths->[$messagenumber - 1];
+      my $messagedepth = $r_messagedepths->[$messagenumber - 1] || 0;
 
       next if (!defined $FDB{$messageid});
 
@@ -428,7 +428,7 @@ sub listmessages {
       $charset = $userbrowsercharset if ($charset eq '' && $prefs{charset} eq 'utf-8');
 
       # convert from message charset to current user charset
-      my ($from, $to, $subject) = iconv('utf-8' , $prefs{charset}, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
+      my ($from, $to, $subject) = iconv('utf-8', $prefs{charset}, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
 
       # status
       my $status = $attr[$_STATUS] || '';
@@ -491,23 +491,20 @@ sub listmessages {
                                 timeintransitsec     => $timeintransit % 60,
                                 to_namesandaddresses => $to,
                                 to_names             => $to_names,
-                                to_nameshtml         => ow::htmltext::str2html($to_names),
                                 to_addresses         => $to_addrs,
-                                to_addresseshtml     => ow::htmltext::str2html($to_addrs),
                                 to_keywords          => $to_keywords,
                                 from_nameandaddress  => $from,
                                 from_name            => $from_name,
-                                from_namehtml        => ow::htmltext::str2html($from_name),
                                 from_address         => $from_addr,
-                                from_addresshtml     => ow::htmltext::str2html($from_addr),
                                 contactinaddressbook => $config{enable_addressbook}
                                                         && ($sort =~ m#^(?:sender|sender_rev)$#        ? $fromcontactinaddressbook :
                                                             $sort =~ m#^(?:recipient|recipient_rev)$#  ? $tocontactinaddressbook   :
-                                                            $folder =~ m#^(?:sent-mail|saved-drafts)$# ? $tocontactinaddressbook   : 
-                                                            $folder =~ m#^\Q$lang_folders{'sent-mail'}\E[\Q$prefs{categorizedfolders_fs}\E\s_-]#i ? $tocontactinaddressbook : 
+                                                            $folder =~ m#^(?:sent-mail|saved-drafts)$# ? $tocontactinaddressbook   :
+                                                            $folder =~ m#^\Q$lang_folders{'sent-mail'}\E[\Q$prefs{categorizedfolders_fs}\E\s_-]#i ?
+                                                            $tocontactinaddressbook :
                                                             $fromcontactinaddressbook)?1:0,
-                                subjecthtml          => ow::htmltext::str2html($subject),
-                                subjectindent        => "&nbsp;&nbsp;" x ($messagedepth || 0),
+                                subjecttext          => $subject,
+                                subjectindent        => '&nbsp;' x $messagedepth,
                                 subject_keyword      => $subject_keyword,
                                 messagesize          => lenstr($attr[$_SIZE], 0),
                                 accesskey            => (scalar @{$messagesloop}) + 1 < 10?(scalar @{$messagesloop}) + 1:'',
@@ -546,7 +543,7 @@ sub listmessages {
          foreach my $filteredfolder (sort keys %filtered) {
             next if (is_defaultfolder($filteredfolder));
             push(@{$incomingmessagesloop}, {
-                                              incomingfolder => ow::htmltext::str2html(f2u($filteredfolder)),
+                                              incomingfolder => f2u($filteredfolder),
                                               incomingcount  => $filtered{$filteredfolder},
                                            }
                 );
@@ -632,7 +629,7 @@ sub listmessages {
                       enable_learnham         => $config{enable_learnspam} && $folder eq 'spam-mail'?1:0,
                       enable_learnspam        => $config{enable_learnspam} && $folder !~ m#^(?:saved-drafts|sent-mail|spam-mail|virus-mail)$#?1:0,
                       show_emptyfolder        => $folder =~ m#^(?:saved-drafts|mail-trash|spam-mail|virus-mail)$#?1:0,
-                      foldername              => exists $lang_folders{$folder}?$lang_folders{$folder}:ow::htmltext::str2html(f2u($folder)),
+                      foldername              => exists $lang_folders{$folder}?$lang_folders{$folder}:f2u($folder),
                       folder_allmessages      => $folder_allmessages,
                       trashfolder             => $quotalimit > 0 && $quotausage > $quotalimit?'DELETE':'mail-trash',
                       totalpage               => $totalpage,
@@ -666,7 +663,7 @@ sub listmessages {
                       destinationselectloop   => [
                                                     map { {
                                                              option   => $_,
-                                                             label    => exists $lang_folders{$_}?$lang_folders{$_}:ow::htmltext::str2html(f2u($_)),
+                                                             label    => exists $lang_folders{$_}?$lang_folders{$_}:f2u($_),
                                                              selected => $_ eq $destinationdefault?1:0
                                                         } } @destinationfolders
                                                  ],
@@ -713,14 +710,14 @@ sub listmessages {
                 -Refresh => ($prefs{refreshinterval} * 60) .
                             ";URL=openwebmail-main.pl?action=listmessages&session_noupdate=1&" .
                             join ("&", (
-                                          "sessionid=" . ow::tool::escapeURL($thissession),
                                           "folder=" . ow::tool::escapeURL($folder),
-                                          "sort=" . ow::tool::escapeURL($sort),
+                                          "keyword=" . ow::tool::escapeURL($keyword),
+                                          "longpage=" . ow::tool::escapeURL($longpage),
                                           "msgdatetype=" . ow::tool::escapeURL($msgdatetype),
                                           "page=" . ow::tool::escapeURL($page),
-                                          "longpage=" . ow::tool::escapeURL($longpage),
                                           "searchtype=" . ow::tool::escapeURL($searchtype),
-                                          "keyword=" . ow::tool::escapeURL($keyword)
+                                          "sessionid=" . ow::tool::escapeURL($thissession),
+                                          "sort=" . ow::tool::escapeURL($sort),
                                        )
                                  )
              ], [$template->output]);
@@ -876,10 +873,10 @@ sub movemessage {
 
    my $op = 'move';
    if ($destination eq 'DELETE') {
-      return if (defined param('copybutton'));      # copy to DELETE is meaningless, so return
-      $op='delete';
+      return if (defined param('copybutton'));       # copy to DELETE is meaningless, so return
+      $op = 'delete';
    } else {
-      $op='copy' if (defined param('copybutton'));  # copy button pressed
+      $op = 'copy' if (defined param('copybutton')); # copy button pressed
    }
 
    if ($quotalimit > 0 && $quotausage > $quotalimit && $op ne "delete") {
@@ -920,7 +917,7 @@ sub movemessage {
       } else {
          if (!-f "$dstfile" ) {
             if (!sysopen(F, $dstfile, O_WRONLY|O_APPEND|O_CREAT)) {
-               my $err=$!;
+               my $err = $!;
                ow::filelock::lock($folderfile, LOCK_UN);
                openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} $lang_err{destination_folder} " . f2u($dstfile) . "! ($err)");
             }
@@ -1005,9 +1002,7 @@ sub movemessage {
    }
    return;
 }
-########## END MOVEMESSAGE #######################################
 
-########## EMPTYFOLDER ############################################
 sub www_emptyfolder {
    my $folder = shift;
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
@@ -1026,24 +1021,25 @@ sub www_emptyfolder {
    writelog("emptyfolder - $folder");
    writehistory("emptyfolder - $folder");
 }
-########## END EMPTYFOLDER ########################################
 
-########## RETRIVEPOP3/RETRPOP3S #################################
 sub www_pop3_fetch {
    my $pop3host = param('pop3host') || '';
    my $pop3port = param('pop3port') || '110';
    my $pop3user = param('pop3user') || '';
    my $pop3book = dotpath('pop3.book');
+
    return if ($pop3host eq '' || $pop3user eq '' || !-f $pop3book);
 
    foreach ( @{$config{pop3_disallowed_servers}} ) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{disallowed_pop3} $pop3host") if ($pop3host eq $_);
    }
+
    my %accounts;
    if (readpop3book($pop3book, \%accounts) < 0) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $pop3book!");
    }
-   # don't care enable flag since this is triggered by user clicking
+
+   # ignore the enable flag since this is triggered by user clicking
    my ($pop3ssl, $pop3passwd, $pop3del) = (split(/\@\@\@/, $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}))[2,4,5];
 
    my ($ret, $errmsg) = pop3_fetch($pop3host,$pop3port,$pop3ssl, $pop3user,$pop3passwd,$pop3del);
@@ -1068,7 +1064,7 @@ sub pop3_fetch {
 sub authpop3_fetch {
    return 0 if (!$config{authpop3_getmail});
 
-   my $authpop3book=dotpath('authpop3.book');
+   my $authpop3book = dotpath('authpop3.book');
    my %accounts;
    if (-f "$authpop3book") {
       if (readpop3book($authpop3book, \%accounts) > 0) {
@@ -1109,11 +1105,11 @@ sub pop3_fetches {
 
    # fork a child to do fetch pop3 mails and return immediately
    if (%accounts > 0) {
-      local $| = 1; # flush all output
-      local $pop3_fetches_complete = 0;	# localize for reentry safe
+      local $| = 1;                                                 # flush all output
+      local $pop3_fetches_complete = 0;	                            # localize for reentry safe
       local $SIG{CHLD} = sub { wait; $pop3_fetches_complete = 1; }; # signaled when pop3 fetch completes
 
-      if ( fork() == 0 ) {		# child
+      if ( fork() == 0 ) { # child
          close(STDIN);
          close(STDOUT);
          close(STDERR);

@@ -317,54 +317,38 @@ sub dateserial2datefield {
 }
 ########## END DATEFIELD <-> DATESERIAL ##########################
 
-########## DATESERIAL2STR ########################################
 sub dateserial2str {
-   my ($dateserial, $timeoffset, $daylightsaving, $format, $hourformat, $timezone)=@_;
+   my ($dateserial, $timeoffset, $daylightsaving, $format, $hourformat, $timezone) = @_;
 
    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=
       seconds2array(time_gm2local(dateserial2gmtime($dateserial), $timeoffset, $daylightsaving, $timezone));
-   $year+=1900; $mon++;
+   $year += 1900;
+   $mon++;
 
-   my $str;
-   if ( $format eq "mm/dd/yyyy") {
-      $str=sprintf("%02d/%02d/%04d", $mon, $mday, $year);
-   } elsif ( $format eq "dd/mm/yyyy") {
-      $str=sprintf("%02d/%02d/%04d", $mday, $mon, $year);
-   } elsif ( $format eq "yyyy/mm/dd") {
-      $str=sprintf("%04d/%02d/%02d", $year, $mon, $mday);
+   my $str = $format eq "mm/dd/yyyy" ? sprintf("%02d/%02d/%04d", $mon, $mday, $year) :
+             $format eq "dd/mm/yyyy" ? sprintf("%02d/%02d/%04d", $mday, $mon, $year) :
+             $format eq "yyyy/mm/dd" ? sprintf("%04d/%02d/%02d", $year, $mon, $mday) :
+             $format eq "mm-dd-yyyy" ? sprintf("%02d-%02d-%04d", $mon, $mday, $year) :
+             $format eq "dd-mm-yyyy" ? sprintf("%02d-%02d-%04d", $mday, $mon, $year) :
+             $format eq "yyyy-mm-dd" ? sprintf("%04d-%02d-%02d", $year, $mon, $mday) :
+             $format eq "mm.dd.yyyy" ? sprintf("%02d.%02d.%04d", $mon, $mday, $year) :
+             $format eq "dd.mm.yyyy" ? sprintf("%02d.%02d.%04d", $mday, $mon, $year) :
+             $format eq "yyyy.mm.dd" ? sprintf("%04d.%02d.%02d", $year, $mon, $mday) :
+             sprintf("%02d/%02d/%04d", $mon, $mday, $year);
 
-   } elsif ( $format eq "mm-dd-yyyy") {
-      $str=sprintf("%02d-%02d-%04d", $mon, $mday, $year);
-   } elsif ( $format eq "dd-mm-yyyy") {
-      $str=sprintf("%02d-%02d-%04d", $mday, $mon, $year);
-   } elsif ( $format eq "yyyy-mm-dd") {
-      $str=sprintf("%04d-%02d-%02d", $year, $mon, $mday);
-
-   } elsif ( $format eq "mm.dd.yyyy") {
-      $str=sprintf("%02d.%02d.%04d", $mon, $mday, $year);
-   } elsif ( $format eq "dd.mm.yyyy") {
-      $str=sprintf("%02d.%02d.%04d", $mday, $mon, $year);
-   } elsif ( $format eq "yyyy.mm.dd") {
-      $str=sprintf("%04d.%02d.%02d", $year, $mon, $mday);
-
+   if ($hourformat eq "12") {
+      my ($h, $ampm) = hour24to12($hour);
+      $str .= sprintf(" %02d:%02d:%02d $ampm", $h, $min, $sec);
    } else {
-      $str=sprintf("%02d/%02d/%04d", $mon, $mday, $year);
+      $str .= sprintf(" %02d:%02d:%02d", $hour, $min, $sec);
    }
 
-   if ( $hourformat eq "12") {
-      my ($h, $ampm)=hour24to12($hour);
-      $str.=sprintf(" %02d:%02d:%02d $ampm", $h, $min, $sec);
-   } else {
-      $str.=sprintf(" %02d:%02d:%02d", $hour, $min, $sec);
-   }
    return($str);
 }
-########## END DATESERIAL2STR ####################################
 
-########## HOUR24TO12 ############################################
 sub hour24to12 {
-   my $hour=$_[0];
-   my $ampm="am";
+   my $hour = shift;
+   my $ampm = "am";
 
    $hour =~ s/^0(.+)/$1/;
    if ($hour==24||$hour==0) {

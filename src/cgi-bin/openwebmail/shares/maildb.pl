@@ -596,7 +596,7 @@ sub get_message_header {
    }
    seek($folderhandle, $attr[$_OFFSET], 0);
 
-   my $size=read($folderhandle, ${$r_buff}, $attr[$_HEADERSIZE]);
+   my $size = read($folderhandle, ${$r_buff}, $attr[$_HEADERSIZE]);
    if ($size !=  $attr[$_HEADERSIZE]) {	# unexpected end of folderfile?
       return(-3, "msg $messageid in $folderdb hdrsize mismatched, hdrsize=$attr[$_HEADERSIZE], read=$size");
    }
@@ -614,8 +614,8 @@ sub get_message_block {
    }
    seek($folderhandle, $attr[$_OFFSET], 0);
 
-   my $size=read($folderhandle, ${$r_buff}, $attr[$_SIZE]);
-   if ($size !=  $attr[$_SIZE]) {		# unexpected end of folderfile?
+   my $size = read($folderhandle, ${$r_buff}, $attr[$_SIZE]);
+   if ($size != $attr[$_SIZE]) { # unexpected end of folderfile?
       return(-3, "msg $messageid in $folderdb msgsize mismatched, msgsize=$attr[$_SIZE], read=$size");
    }
    return($size);
@@ -1403,24 +1403,27 @@ sub string2msgattr {
 }
 ########## END STRING <-> MSGATTR ################################
 
-########## SIMPLEHEADER ##########################################
-sub simpleheader {
-   my $simpleheader="";
-   my $lastline = 'NONE';
-   my $regex_simpleheaders=qr/^(?:from|reply-to|to|cc|date|subject):\s?/i;
 
-   foreach (split(/\n/, $_[0])) {	# $_[0] is header
-      if (/^\s+/) {
-         $simpleheader.="$_\n" if ($lastline eq 'HEADER');
-      } elsif (/$regex_simpleheaders/) {
-         $simpleheader .= "$_\n"; $lastline = 'HEADER';
+sub simpleheader {
+   my $fullheader = shift;
+
+   my $simpleheader = "";
+   my $lastline = 'NONE';
+   my $regex_simpleheaders = qr/^(?:from|reply-to|to|cc|date|subject):\s?/i;
+
+   foreach my $line (split(/\n/, $fullheader)) {
+      if ($line =~ m/^\s+/) {
+         $simpleheader .= "$line\n" if ($lastline eq 'HEADER');
+      } elsif ($line =~ m/$regex_simpleheaders/) {
+         $simpleheader .= "$line\n";
+         $lastline = 'HEADER';
       } else {
          $lastline = 'NONE';
       }
    }
    return($simpleheader);
 }
-########## END SIMPLEHEADER ######################################
+
 
 ########## IS_INTERNAL_SUBJECT ###################################
 sub is_internal_subject {

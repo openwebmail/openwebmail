@@ -1,14 +1,14 @@
-<tmpl_var footerpluginoutput>
+<tmpl_var footerpluginoutput escape="none">
 
 <center>
-  <br><a href="http://www.openwebmail.org" target="_blank"><tmpl_var programname></a> versão <tmpl_var programversion>&nbsp;&nbsp;<a accesskey="H" href="<tmpl_var url_help escape="html">" target="_help">Ajuda?</a>
+  <br><a href="http://www.openwebmail.org" target="_blank"><tmpl_var programname escape="html"></a> version <tmpl_var programversion escape="html">&nbsp;&nbsp;<a accesskey="H" href="<tmpl_var url_help escape="none">" target="_help">Help?</a>
 </center>
 
 <tmpl_if remainingseconds>
 <script type="text/javascript">
 <!--
    // alert before session end
-   var remainingseconds = <tmpl_var remainingseconds>;
+   var remainingseconds = <tmpl_var remainingseconds escape="js">;
    var warn = 0;
    var timer;
 
@@ -20,17 +20,17 @@
 
          if (remainingseconds < 65) {
             if (remainingseconds >= 5) {
-               window.defaultStatus = "Final da sessão : " + (remainingseconds - 5) + " segundos";
-            } 
+               window.defaultStatus = "session time : " + (remainingseconds - 5) + " seconds left";
+            }
             if (!warn) {
                warn = 1;
                // @@@JSCODE@@@ goes here someday
-               var timeoutwarningpopup = window.open('<tmpl_var url_cgi>/openwebmail-prefs.pl?action=timeoutwarning&sessionid=<tmpl_var thissession escape="js">&session_noupdate=1',"_timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
+               var timeoutwarningpopup = window.open('<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=timeoutwarning&sessionid=<tmpl_var sessionid escape="url">&session_noupdate=1',"_timeoutwarning","width=400,height=140,resizable=no,scrollbars=no");
                timeoutwarningpopup.focus();
             }
          }
       } else {
-         window.defaultStatus = "Tempo de sessão inativa expirado";
+         window.defaultStatus = "session timeout";
          clearTimeout(timer);
       }
    }
@@ -39,7 +39,7 @@
       if (remainingseconds > 0) {
          return true;
       } else {
-         alert("Sua sessão foi encerrada por tempo de inatividade. Por favor faça outro login.");
+         alert("Sorry, your session has timed out, please login again.");
          return false;
       }
    }

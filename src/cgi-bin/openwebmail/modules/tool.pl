@@ -136,12 +136,13 @@ sub clientip {
 
 use vars qw(%_has_module_err);
 sub has_module {
-   my $module=$_[0];
+   my $module = shift;
    return 1 if (defined $INC{$module});
    return 0 if ($_has_module_err{$module});
    eval { require $module; };	# test module existance and load if it exists
    if ($@) {
-      $_has_module_err{$module}=1; return 0;
+      $_has_module_err{$module} = 1;
+      return 0;
    } else {
       return 1;
    }
@@ -376,9 +377,11 @@ sub contenttype2ext {
    return("bin");
 }
 
-sub email2nameaddr {	# name, addr are guarentee to not null
+sub email2nameaddr {
+   # separates the email name from the email address.
+   # always returns defined values, although name may be ''
    my ($name, $address) = _email2nameaddr(shift);
-   if ($name eq "") {
+   if ($name eq '') {
       $name = $address;
       $name =~ s/\@.+$//;
       $name = $address if (length($name) <= 2);
@@ -386,7 +389,8 @@ sub email2nameaddr {	# name, addr are guarentee to not null
    return ($name, $address);
 }
 
-sub _email2nameaddr {	# name may be null
+sub _email2nameaddr {
+   # name may be coming in null
    my $email = shift;
 
    my ($name, $address);
@@ -405,9 +409,9 @@ sub _email2nameaddr {	# name may be null
       $address = $1;
    }
 
-   $name =~ s#^['"](.+)['"]$#$1#; # eliminate enclosing quotes
    $name =~ s/^\s+//;
    $name =~ s/\s+$//;
+   $name =~ s#^['"](.+)['"]$#$1#; # eliminate enclosing quotes
 
    $address =~ s/^\s+//;
    $address =~ s/\s+$//;

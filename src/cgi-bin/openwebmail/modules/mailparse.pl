@@ -25,11 +25,13 @@ require "modules/mime.pl";
 
 sub parse_header {
    # concatenate folding lines in header but not the last blank line
-   my $header=${$_[0]}; $header=~s/\s+$//s; $header=~s/\s*\n\s+/ /sg;
-   my $r_message=$_[1];
+   my $header = ${$_[0]};
+   $header =~ s/\s+$//s;
+   $header =~ s/\s*\n\s+/ /sg;
+   my $r_message = $_[1];
 
-   my @lines=split(/\r*\n/, $header);
-   ${$r_message}{delimiter}=shift(@lines) if ($lines[0]=~/^From /);
+   my @lines = split(/\r*\n/, $header);
+   ${$r_message}{delimiter} = shift(@lines) if ($lines[0] =~ /^From /);
    foreach (@lines) {
       last if (! /(.+?):\s*(.*)/);
       next if ($1 =~ /^(?:received|body|attachment)$/i);

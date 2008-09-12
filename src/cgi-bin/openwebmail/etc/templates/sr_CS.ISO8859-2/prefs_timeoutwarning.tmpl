@@ -1,8 +1,8 @@
-<tmpl_var header_template>
+<tmpl_var header_template escape="none">
 
 <table cellspacing="0" cellpadding="0" border="0" align="center" width="90%">
 <tr>
-  <td class="warning">Dear <tmpl_var useremail>,<br><br>You have been idle for a long time. If no more action is taken, this session will be ended within 60 seconds.</td>
+  <td class="warning">Dear <tmpl_var useremail escape="html">>,<br><br>You have been idle for a long time. If no more action is taken, this session will be ended within 60 seconds.</td>
 </tr>
 <tr>
   <td align="center"><form><br><input type="button" NAME="OK" value=" ok " onclick="window.close();"></form><br></td>

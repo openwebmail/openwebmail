@@ -1,4 +1,4 @@
-<tmpl_var header_template>
+<tmpl_var header_template escape="none">
 
 <br><br><br><br><br><br><br>
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="250">
@@ -8,9 +8,9 @@
 <tr>
   <td align="center" class="windowlight">
     <br>Logout successful, thank you.<br><br>
-    <form action="<tmpl_var url_start>" method="post" name="loginform">
+    <form action="<tmpl_var url_start escape="none">" method="post" name="loginform">
     <tmpl_if default_logindomain>
-    <input type="hidden" name="logindomain" value="<tmpl_var default_logindomain>">
+    <input type="hidden" name="logindomain" value="<tmpl_var default_logindomain escape="html">">
     </tmpl_if>
     <input type="submit" name="loginformsubmit" value="Login Again">&nbsp;&nbsp;
     <input type="button" name="exit" value="Exit" onclick="top.window.close();">
@@ -20,4 +20,4 @@
 <tr><td class="windowlight">&nbsp;</td></tr>
 </table>
 
-<tmpl_var footer_template>
+<tmpl_var footer_template escape="none">

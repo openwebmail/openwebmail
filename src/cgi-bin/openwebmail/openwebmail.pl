@@ -1,4 +1,4 @@
-#!/usr/bin/suidperl -T
+#!/usr/bin/perl -T
 
 #                              The BSD License
 #
@@ -46,7 +46,7 @@ die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
 push (@INC, $SCRIPT_DIR);
 
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :standard);
+use CGI qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use HTML::Template 2.9;
 use MIME::Base64;
@@ -607,7 +607,7 @@ sub login {
    # redirect page to openwebmail main/calendar/webdisk/prefs
    my $refreshurl = refreshurl_after_login(param('action'));
    if ( ! -f dotpath('openwebmailrc')) {
-      $refreshurl = "$config{ow_cgiurl}/openwebmail-prefs.pl?sessionid=$thissession&action=userfirsttime";
+      $refreshurl = "$config{ow_cgiurl}/openwebmail-prefs.pl?action=userfirsttime&sessionid=" . ow::tool::escapeURL($thissession);
    }
    if ( !$config{stay_ssl_afterlogin} && ($ENV{HTTPS} =~ /on/i || $ENV{SERVER_PORT} == 443)) {
       $refreshurl = "http://$ENV{HTTP_HOST}$refreshurl" if ($refreshurl !~ s#^https?://#http://#i);
@@ -836,12 +836,10 @@ sub refreshurl_after_login {
 
    my $script     = $action_redirect{$validaction}->[2];
    my @parms      = @{$action_redirect{$validaction}->[3]};
-   my $refreshurl = "$config{ow_cgiurl}/$script?sessionid=$thissession&action=$validaction";
-   foreach my $parm ( @parms ) {
-      if (param($parm)) {
-         $refreshurl .= '&' . $parm . '=' . ow::tool::escapeURL(param($parm));
-      }
-   }
+   my $refreshurl = "$config{ow_cgiurl}/$script?" .
+                    "action=" . ow::tool::escapeURL($validaction) . "&" .
+                    "sessionid=" . ow::tool::escapeURL($thissession) . "&";
+   $refreshurl   .= join('&', map { "$_=".ow::tool::escapeURL(param($_)) } grep { param($_) } @parms);
    return $refreshurl;
 }
 

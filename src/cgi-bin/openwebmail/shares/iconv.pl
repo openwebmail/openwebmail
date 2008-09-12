@@ -133,31 +133,34 @@ use vars qw(%localname_cache);
 %localname_cache=();
 
 sub official_charset {
-   my $charset=lc($_[0]);
-   $charset=~s/iso_?8859/iso\-8859/;
-   $charset=$charset_equiv{$charset} if (defined $charset_equiv{$charset});
+   my $charset = lc shift;
+   return '' if !defined $charset || $charset eq '';
+   $charset =~ s/iso_?8859/iso\-8859/;
+   $charset = $charset_equiv{$charset} if (exists $charset_equiv{$charset});
    return $charset;
 }
 
 sub is_convertible {
-   my ($from, $to)=@_;
+   my ($from, $to) = @_;
    return 0 if ($from eq '' || $to eq '');
 
-   $from=official_charset($from);
-   $to=official_charset($to);
+   $from = official_charset($from);
+   $to   = official_charset($to);
+
    return 0 if ($from eq $to || 			# not necessary
-                !defined $charset_convlist{$to} || 	# unrecognized to charset
-                !defined $charset_convlist{$from});	# unrecognized from charset
+                !exists $charset_convlist{$to} || 	# unrecognized to charset
+                !exists $charset_convlist{$from});	# unrecognized from charset
+
    return 1 if ($from eq 'utf-8' || $to eq 'utf-8');	# utf8 is convertible with any charset
 
-   if (!defined $is_convertible_cache{"$from#$to"}) {
-      $is_convertible_cache{"$from#$to"}=0;
+   if (!exists $is_convertible_cache{"$from#$to"}) {
+      $is_convertible_cache{"$from#$to"} = 0;
       foreach my $charset (@{$charset_convlist{$to}}) {	# try all possible from charset
          if ($from eq $charset) {
             my $converter;
             if ($converter=iconv_open($charset, $to)) {
-               $is_convertible_cache{"$from#$to"}=1;
-               $converter='';
+               $is_convertible_cache{"$from#$to"} = 1;
+               $converter = '';
             }
             last;
          }
@@ -167,22 +170,22 @@ sub is_convertible {
 }
 
 sub iconv {
-   my ($from, $to, @text)=@_;
+   my ($from, $to, @text) = @_;
    return (@text) if (!is_convertible($from, $to));
 
-   $from=official_charset($from);
-   $to=official_charset($to);
+   $from = official_charset($from);
+   $to   = official_charset($to);
 
    for (my $i=0; $i<=$#text; $i++) {
       next if ($text[$i]!~/[^\s]/);
 
       # try conversion routine in iconv-chinese, iconv-japan first
       if ($from  eq 'big5' && $to eq 'gb2312' ) {
-         $text[$i]=b2g($text[$i]);
+         $text[$i] = b2g($text[$i]);
          next;
 
       } elsif ($from eq 'gb2312' && $to eq 'big5' ) {
-         $text[$i]=g2b($text[$i]);
+         $text[$i] = g2b($text[$i]);
          next;
 
       } elsif ($from eq 'shift_jis' && $to eq 'iso-2022-jp' ) {
@@ -202,7 +205,7 @@ sub iconv {
          next;
 
       } else {
-         $text[$i]=~s/(\S+)/_iconv($from, $to, $1)/egis;
+         $text[$i] =~ s/(\S+)/_iconv($from, $to, $1)/egis;
       }
    }
 
@@ -213,25 +216,25 @@ sub _iconv {
    # this routine try to keep opened iconv handle to speedup repeated conversion
    my ($from, $to, $s)=@_;
    if ($_iconv_handle eq '' || $_iconv_tag ne "$from#$to" ) {
-      $_iconv_handle=iconv_open($from, $to);
+      $_iconv_handle = iconv_open($from, $to);
       $_iconv_tag = "$from#$to" if ($_iconv_handle ne '');
    }
-   return $s if ($_iconv_handle eq '');		# no supported charset?
+   return $s if ($_iconv_handle eq '');	        # no supported charset?
 
    my $converted=$_iconv_handle->convert($s);
    if ($converted ne '') {
       return $converted;
    } else {
-      $_iconv_handle='';   			# terminate converter
-      return "[".uc($from)."?]".$s;	# add [charset?] at the beginning if covert failed
+      $_iconv_handle='';                        # terminate converter
+      return "[".uc($from)."?]".$s;             # add [charset?] at the beginning if convert failed
+                                                # TODO: This idea is terrible. It makes the text unreadable. Do something else.
    }
 }
 
 sub iconv_open {
    my ($from, $to)=@_;
 
-   if (defined $localname_cache{$from} &&
-       defined $localname_cache{$to}) {
+   if (defined $localname_cache{$from} && defined $localname_cache{$to}) {
       return(Text::Iconv->new($localname_cache{$from}, $localname_cache{$to}));
    }
 
@@ -240,8 +243,8 @@ sub iconv_open {
       foreach my $localto (@{$charset_localname{$to}}) {
          eval { $converter = Text::Iconv->new($localfrom, $localto); };
          next if ($@);
-         $localname_cache{$from}=$localfrom;
-         $localname_cache{$to}=$localto;
+         $localname_cache{$from} = $localfrom;
+         $localname_cache{$to}   = $localto;
        	 return($converter);
       }
    }

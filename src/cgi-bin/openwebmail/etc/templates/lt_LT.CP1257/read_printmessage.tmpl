@@ -1,0 +1,119 @@
+<tmpl_var header_template escape="none">
+
+<table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
+<tmpl_loop messagesloop>
+<!-- HEADERS -->
+<tr>
+  <td width="90%" class="windowdark">
+
+    <span class="messageheaderproperty">Date:</span>&nbsp;<tmpl_var date escape="html"><br>
+
+    <span class="messageheaderproperty">From:</span>&nbsp;<tmpl_var from escape="html"><br>
+
+    <tmpl_if reply-to>
+     <span class="messageheaderproperty">Reply-To:</span>&nbsp;<tmpl_var reply-to escape="html"><br>
+    </tmpl_if>
+
+    <tmpl_if to>
+     <span class="messageheaderproperty">To:</span>&nbsp;<tmpl_var to escape="html"><br>
+    </tmpl_if>
+
+    <tmpl_if cc>
+     <span class="messageheaderproperty">Cc:</span>&nbsp;<tmpl_var cc escape="html"><br>
+    </tmpl_if>
+
+    <tmpl_if bcc>
+     <span class="messageheaderproperty">Bcc:</span>&nbsp;<tmpl_var bcc escape="html"><br>
+    </tmpl_if>
+
+    <span class="messageheaderproperty">Subject:</span>&nbsp;<tmpl_if subject><tmpl_var subject escape="html"><tmpl_else>N/A</tmpl_if>
+    <tmpl_if status_important>&nbsp;<tmpl_if use_texticon>(important)<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/important.gif" title="important" alt="important" border="0" align="absmiddle"></tmpl_if></tmpl_if><tmpl_if status_answered>&nbsp;<tmpl_if use_texticon>(answered)<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/read.a.gif" title="answered" alt="answered" border="0" align="absmiddle"></tmpl_if></tmpl_if><br>
+  </td>
+  <td width="10%" nowrap valign="top" align="right" class="windowdark">&nbsp;</td>
+</tr>
+<!-- END HEADERS -->
+
+<tr>
+  <td colspan="2" width="100%" class="windowlight <tmpl_if use_fixedfont>monospacetext</tmpl_if>">
+  <!-- BODY -->
+  <tmpl_unless is_multipart>
+  <tmpl_var body escape="none">
+  </tmpl_unless>
+  <!-- END BODY -->
+
+  <!-- ATTACHMENTS -->
+  <tmpl_if attachment>
+  <tmpl_unless simpleattachments>
+  <hr>
+  </tmpl_unless>
+  </tmpl_if>
+
+  <tmpl_loop attachment>
+
+  <tmpl_if is_html>
+  <tmpl_var r_content escape="none">
+  </tmpl_if>
+
+  <tmpl_if is_enriched>
+  <tmpl_var r_content escape="none">
+  </tmpl_if>
+
+  <tmpl_if is_text>
+  <tmpl_var r_content escape="none">
+  </tmpl_if>
+
+  <tmpl_if is_message>
+  <tmpl_var r_content escape="none">
+  </tmpl_if>
+
+  <tmpl_if is_image>
+    <table cellpadding="2" cellspacing="0" border="0" align="center">
+    <tr>
+      <td class="attachmentdark" align="center" nowrap>Attachment <a title="nodeid: <tmpl_var nodeid escape="html"> content-disposition: <tmpl_var content-disposition escape="html">"><tmpl_var attnumber escape="html"></a>: <tmpl_var filename escape="html">&nbsp;(<tmpl_var content-length escape="html">)&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="attachmentlight" align="center">
+        <img src="<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl/<tmpl_var filename escape="url">?action=viewattachment&amp;attachment_nodeid=<tmpl_var nodeid escape="url">&amp;message_id=<tmpl_var messageid escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">" <tmpl_if imagewidth>width="<tmpl_var imagewidth escape="html">"</tmpl_if> <tmpl_if content-description>alt="<tmpl_var content-description escape="html">"</tmpl_if> class="attachment">
+      </td>
+    </tr>
+    </table>
+  </tmpl_if>
+
+  <tmpl_if is_misc>
+    <table cellpadding="2" cellspacing="2" border="0" width="40%" align="center">
+    <tr>
+      <td class="attachmentdark" colspan="2" align="center" nowrap>Attachment <a title="nodeid: <tmpl_var nodeid escape="html"> content-disposition: <tmpl_var content-disposition escape="html">"><tmpl_var attnumber escape="html"></a>: <tmpl_var filename escape="html">&nbsp;(<tmpl_var content-length escape="html">)&nbsp;&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="attachmentlight" align="center" nowrap>Type: <tmpl_var content-type escape="html"><br>Encoding: <tmpl_var content-transfer-encoding escape="html"><tmpl_if content-description><br>Description: <tmpl_var content-description escape="html"></tmpl_if></td>
+      <td class="attachmentlight" align="center" width="10%" nowrap>&nbsp;</td>
+    </tr>
+    </table>
+  </tmpl_if>
+
+  </tmpl_loop>
+  <!-- END ATTACHMENTS -->
+  </td>
+</tr>
+</tmpl_loop>
+</table>
+
+<script type="text/javascript">
+<!--
+   /* 5 second delay for images to load or they will not have a width property */
+   setTimeout(autoresizeimages, 5000);
+
+   function autoresizeimages() {
+      var userwidth = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+      var ideal = Math.floor(userwidth * .80);
+      for (var i=0; i<document.images.length; i++) {
+         if (document.images[i].width > ideal) {
+            document.images[i].width = ideal;
+         }
+      }
+   }
+
+   setTimeout("window.print()", 6000);
+//-->
+</script>
+

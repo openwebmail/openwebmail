@@ -15,6 +15,9 @@ td.windowdarkbold { background-color: #daedfe; font-weight: bold; }
 td.windowlight { background-color: #f0f8ff; }
 td.columnheader { background-color: #add8f9; font-weight: bold; }
 td.warning { color: #dd0000; font-weight: bold; }
+td.attachmentdark { background-color: #99bddf; }
+td.attachmentlight { background-color: #d3dae3; }
+img.attachment { border: 2px solid #99bddf; }
 form { margin: 0; }
 input.mono { font-family: monospace; font-size: 80%; }
 select.mono { font-family: monospace; font-size: 80%; }
@@ -29,6 +32,9 @@ a.loading:hover { color: #333333; }
 a.copyright:link { text-decoration: none; color: #cccccc; }
 a.copyright:visited { color: #cccccc; }
 a.copyright:hover { color: #333333; }
+a.messagebody:link { text-decoration: none; color: #000000; }
+a.messagebody:visited { color: #000000; }
+a.messagebody:hover { color: #ff0000; }
 .rowdark { background-color: #daedfe; }
 .rowlight { background-color: #f8f8f8; }
 .rowhilite { background-color: #ffcccc; }
@@ -37,3 +43,6 @@ a.copyright:hover { color: #333333; }
 .smallblacktext { font-size: 80%; color: #000000; }
 .smallcolortext { font-size: 80%; color: #c00000; }
 .hilighttext { font-style: normal; font-weight: bold; background-color: #99bddf; }
+.quotedtext { color: #009900; }
+.monospacetext { font-family: "Courier 10 Pitch", "Courier New", "Courier", "Lucida Console", monospace; }
+.messageheaderproperty { font-weight: bold; }

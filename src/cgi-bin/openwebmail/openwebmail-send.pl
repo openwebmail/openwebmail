@@ -1,4 +1,4 @@
-#!/usr/bin/suidperl -T
+#!/usr/bin/perl -T
 #
 # openwebmail-send.pl - mail composing and sending program
 #
@@ -76,21 +76,21 @@ if (!$config{'enable_webmail'}) {
    openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
 }
 
-$folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
-$messageid = param('message_id')||'';		# the orig message to reply/forward
-$mymessageid = param('mymessageid')||'';		# msg we are editing
-$page = param('page') || 1;
-$sort = param('sort') || $prefs{'sort'} || 'date_rev';
+$folder      = param('folder') || 'INBOX';
+$messageid   = param('message_id') || '';  # the orig message to reply/forward
+$mymessageid = param('mymessageid') || ''; # msg we are editing
+$page        = param('page') || 1;
+$sort        = param('sort') || $prefs{'sort'} || 'date_rev';
 $msgdatetype = param('msgdatetype') || $prefs{'msgdatetype'};
 
-$searchtype = param('searchtype') || 'subject';
-$keyword = param('keyword') || '';
+$searchtype  = param('searchtype') || 'subject';
+$keyword     = param('keyword') || '';
 
-$escapedfolder = ow::tool::escapeURL($folder);
+$escapedfolder    = ow::tool::escapeURL($folder);
 $escapedmessageid = ow::tool::escapeURL($messageid);
-$escapedkeyword = ow::tool::escapeURL($keyword);
+$escapedkeyword   = ow::tool::escapeURL($keyword);
 
-my $action = param('action')||'';
+my $action = param('action') || '';
 writelog("debug - request send begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
 if ($action eq "replyreceipt") {
    replyreceipt();
@@ -304,7 +304,7 @@ sub composemessage {
    my $inreplyto = param('inreplyto') || '';
    my $references = param('references') || '';
    my $priority = param('priority') || 'normal';	# normal/urgent/non-urgent
-   my $statname = ow::tool::unescapeURL(param('statname')) || '';
+   my $stationeryname = ow::tool::unescapeURL(param('stationeryname')) || '';
    my $composetype = param('composetype')||'';
 
    # hashify to,cc,bcc to eliminate duplicates and strip off xowmuid tracker stuff after %@#
@@ -621,7 +621,7 @@ sub composemessage {
          if ($composetype ne "editdraft" && $composetype ne "forwardasorig") {
             $body = ow::htmlrender::html4disablejs($body) if ($prefs{'disablejs'});
             $body = ow::htmlrender::html4disableembcode($body) if ($prefs{'disableembcode'});
-            $body = ow::htmlrender::html4disableemblink($body, $prefs{'disableemblink'}, "$config{'ow_htmlurl'}/images/backgrounds/Transparent.gif") if ($prefs{'disableemblink'} ne 'none');
+            $body = ow::htmlrender::html4disableemblink($body, $prefs{disableemblink}, "$config{ow_htmlurl}/images/backgrounds/Transparent.gif");
          }
          $body = ow::htmlrender::html4attfiles($body, $r_attfiles, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattfile&amp;sessionid=$thissession");
          $body = ow::htmlrender::html2block($body);
@@ -761,12 +761,12 @@ sub composemessage {
          my $origbody=$body;
 
          my $statcontent;
-         if ($config{'enable_stationery'} && $statname ne '') {
+         if ($config{'enable_stationery'} && $stationeryname ne '') {
             my $statbookfile=dotpath('stationery.book');
             if (-f $statbookfile) {
                my %stationery;
                my ($ret, $errmsg)=read_stationerybook($statbookfile, \%stationery);
-               $statcontent=(iconv($stationery{$statname}{charset}, $composecharset, $stationery{$statname}{content}))[0] if ($ret==0);
+               $statcontent=(iconv($stationery{$stationeryname}{charset}, $composecharset, $stationery{$stationeryname}{content}))[0] if ($ret==0);
             }
          }
 
