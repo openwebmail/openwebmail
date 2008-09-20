@@ -98,7 +98,7 @@ use vars qw($quotausage $quotalimit);
 
 # extern vars
 use vars qw($htmltemplatefilters); # defined in ow-shared.pl
-use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_sortlabels %lang_calendar %lang_wday); # defined in lang/xy
+use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_sortlabels %lang_calendar %lang_wday); # defined in lang/locale
 use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES); # defined in maildb.pl
 
 # local globals
@@ -163,10 +163,12 @@ if ($action eq "movemessage" || defined param('movebutton') || defined param('co
       # move/copy/delete messages
       movemessage(\@messageids, $destination) if ($#messageids >= 0);
       if (param('messageaftermove')) {
+         my $messageid = param('messageaftermove') || '';
+         $messageid    = $messageids[0] if defined param('copybutton'); # copy button pressed, msg not moved
+
          my $headers   = param('headers') || $prefs{headers} || 'simple';
          my $attmode   = param('attmode') || 'simple';
-         my $messageid = param('message_id') || '';
-         $messageid    = $messageids[0] if (defined param('copybutton')); # copy button pressed, msg not moved
+
          my $redirect = "$config{ow_cgiurl}/openwebmail-read.pl?action=readmessage&" .
                         join ("&", (
                                       "attmode="     . ow::tool::escapeURL($attmode),
@@ -480,10 +482,12 @@ sub listmessages {
                                 status_answered      => $status =~ m/A/i?1:0,
                                 status_attachments   => $status =~ m/T/i?1:0,
                                 status_important     => $status =~ m/I/i?1:0,
-                                messagedatesent      => ow::datetime::dateserial2str($attr[$_DATE], $prefs{timeoffset}, $prefs{daylightsaving},
-                                                                                     $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone}),
-                                messagedatereceived  => ow::datetime::dateserial2str($attr[$_RECVDATE], $prefs{timeoffset}, $prefs{daylightsaving},
-                                                                                     $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone}),
+                                messagedatesent      => ow::datetime::dateserial2str(
+                                                          $attr[$_DATE], $prefs{timeoffset}, $prefs{daylightsaving},
+                                                          $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone}),
+                                messagedatereceived  => ow::datetime::dateserial2str(
+                                                          $attr[$_RECVDATE], $prefs{timeoffset}, $prefs{daylightsaving},
+                                                          $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone}),
                                 showdatereceived     => $msgdatetype eq 'recvdate'?1:0,
                                 timeintransitsign    => $timeintransitsign,
                                 timeintransithour    => int($timeintransit / 60 / 60),

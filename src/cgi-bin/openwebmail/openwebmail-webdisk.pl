@@ -2721,7 +2721,7 @@ sub findicon {
       return("ps.gif")   if ( /\.(ps|eps)$/ );
       return("txt.gif");
    } else {
-      return("audio.gif")  if (/\.(mid[is]?|mod|au|cda|aif[fc]?|voc|wav|snd)$/ );
+      return("audio.gif")  if ( /\.(mid[is]?|mod|au|cda|aif[fc]?|voc|wav|snd)$/ );
       return("chm.gif")    if ( /\.chm$/ );
       return("doc.gif")    if ( /\.(do[ct]|rtf|wri)$/ );
       return("exe.gif")    if ( /\.(exe|com|dll)$/ );

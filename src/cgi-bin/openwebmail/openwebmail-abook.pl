@@ -18,7 +18,9 @@ use strict;
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
-use Data::Dumper; $Data::Dumper::Sortkeys=1; $Data::Dumper::Deepcopy=1; $Data::Dumper::Purity=1;
+# use Data::Dumper; $Data::Dumper::Sortkeys=1; $Data::Dumper::Deepcopy=1; $Data::Dumper::Purity=1;
+use MIME::Base64;
+use MIME::QuotedPrint;
 
 require "modules/dbm.pl";
 require "modules/suid.pl";
@@ -26,12 +28,15 @@ require "modules/filelock.pl";
 require "modules/tool.pl";
 require "modules/datetime.pl";
 require "modules/lang.pl";
+require "modules/mailparse.pl";
 require "modules/htmltext.pl";
 require "auth/auth.pl";
 require "quota/quota.pl";
 require "shares/ow-shared.pl";
 require "shares/adrbook.pl";
 require "shares/iconv.pl";
+require "shares/maildb.pl";
+require "shares/lockget.pl";
 
 # optional module
 ow::tool::has_module('Compress/Zlib.pm');
@@ -43,6 +48,7 @@ use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs %style %icontext);
 
 # extern vars
+use vars qw($_CHARSET);			# defined in maildb.pl
 use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_wday
             %lang_order %lang_wday_abbrev %lang_month); # defined in lang/xy
 use vars qw(%lang_abookselectionlabels %lang_abookclasslabels
@@ -62,8 +68,8 @@ use vars qw($abook_urlparm $abook_urlparm_with_abookfolder $abook_formparm $aboo
 use vars qw($urlparm $formparm $importfieldcount);
 
 # DEBUGGING
-use vars qw($addrdebug);
-$addrdebug = 0;
+#use vars qw($addrdebug);
+#$addrdebug = 0;
 
 ########## MAIN ##################################################
 openwebmail_requestbegin();
@@ -197,6 +203,8 @@ if ($action eq "addrlistview") {
    addrimportform();
 } elsif ($action eq "addrimport") {
    addrimport();
+} elsif ($action eq "addrimportattachment") {
+   addrimportattachment();
 } elsif ($action eq "addrexport") {
    addrexport();
 } elsif ($action eq "addrviewatt") {
@@ -1805,7 +1813,7 @@ sub addrlistview {
 
 ########## ADDREDITFORM ##########################################
 sub addreditform {
-   print header() if $addrdebug;
+   #print header() if $addrdebug;
 
    # first time called?
    if (param('action') eq 'addreditform') {
@@ -1950,7 +1958,7 @@ sub addreditform {
 
       $completevcard = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), (keys %only_return?\%only_return:undef));
 
-      print "<pre>addreditform COMPLETEVCARD as loaded:\n" . Dumper(\%{$completevcard}) . "</pre>" if $addrdebug;
+      # print "<pre>addreditform COMPLETEVCARD as loaded:\n" . Dumper(\%{$completevcard}) . "</pre>" if $addrdebug;
    }
 
    # Tag as a GROUP
@@ -1966,7 +1974,7 @@ sub addreditform {
    pop(@targetagent) if ($traversedirection == -1); # we need to pop off the last value if we're traversing up
    my $targetdepth = @targetagent || 0;
 
-   print "<pre>\n\naddreditform TARGETDEPTH: $targetdepth\nTRAVERSEDIRECTION: $traversedirection\nTARGETAGENT:\n".Dumper(\@targetagent)."\n\n</pre>" if $addrdebug;
+   # print "<pre>\n\naddreditform TARGETDEPTH: $targetdepth\nTRAVERSEDIRECTION: $traversedirection\nTARGETAGENT:\n".Dumper(\@targetagent)."\n\n</pre>" if $addrdebug;
 
    # Align $contact so it is pointing to the completevcard data we want to modify.
    my $target = \%{$completevcard->{$xowmuid}};
@@ -1976,10 +1984,10 @@ sub addreditform {
    my @agentpath_charset=($target->{'X-OWM-CHARSET'}[0]{VALUE}||'');
 
    for(my $depth=1;$depth<=$targetdepth;$depth++) { # 0,0
-   print "<pre>Digging: targetagent position ".($depth-1)." is ".$targetagent[$depth-1]."</pre>\n" if $addrdebug;
+   # print "<pre>Digging: targetagent position ".($depth-1)." is ".$targetagent[$depth-1]."</pre>\n" if $addrdebug;
       if (exists $target->{AGENT}[$targetagent[$depth-1]]{VALUE}) {
          foreach my $agentxowmuid (keys %{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}}) {
-            print "<pre>The AGENTXOWMUID at this position is $agentxowmuid</pre>\n" if $addrdebug;
+            # print "<pre>The AGENTXOWMUID at this position is $agentxowmuid</pre>\n" if $addrdebug;
             $target = \%{$target->{AGENT}[$targetagent[$depth-1]]{VALUE}{$agentxowmuid}};
             push(@agentpath, $target->{FN}[0]{VALUE});
             push(@agentpath_charset, $target->{'X-OWM-CHARSET'}[0]{VALUE}||'');
@@ -1994,7 +2002,7 @@ sub addreditform {
    }
    $contact->{$xowmuid} = $target;
 
-   print "<pre>addreditform CONTACT has been aligned to:\n" . Dumper(\%{$contact}) . "</pre>" if $addrdebug;
+   # print "<pre>addreditform CONTACT has been aligned to:\n" . Dumper(\%{$contact}) . "</pre>" if $addrdebug;
 
    #################################################################################################################
    #          $contact gets modified after this point so be careful when you analize your Data::Dump's             #
@@ -2012,23 +2020,23 @@ sub addreditform {
       }
    }
 
-   print "<pre>FORM DUMP:\n".Dump()."\n</pre>\n\n\n" if $addrdebug;
+   # print "<pre>FORM DUMP:\n".Dump()."\n</pre>\n\n\n" if $addrdebug;
 
    # convert embedded base64 file data to a file in sessions dir
    # replace the value in %contact with this $fileserial
    foreach my $propertyname (qw(PHOTO LOGO SOUND KEY AGENT)) {
       if (exists $contact->{$xowmuid}{$propertyname}) {
-         print "<pre>Working on propertyname $propertyname\n</pre>" if $addrdebug;
+         # print "<pre>Working on propertyname $propertyname\n</pre>" if $addrdebug;
          for(my $index=0;$index<@{$contact->{$xowmuid}{$propertyname}};$index++) {
-            print "<pre>working on index $index\n</pre>" if $addrdebug;
+            # print "<pre>working on index $index\n</pre>" if $addrdebug;
             if (exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}) {
-               print "<pre>this contact has defined types\n</pre>" if $addrdebug;
+               # print "<pre>this contact has defined types\n</pre>" if $addrdebug;
                if ((exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{BASE64} ||
                     exists $contact->{$xowmuid}{$propertyname}[$index]{TYPES}{VCARD})) {
-                  print "<pre>this contact has a type of either VCARD or of BASE64\n</pre>" if $addrdebug;
+                  # print "<pre>this contact has a type of either VCARD or of BASE64\n</pre>" if $addrdebug;
                   if (param('EDITFORMUPLOAD') eq '' && param('webdisksel') eq '' && param('formchange') eq '') {
                      my $fileserial = time() . join("",map { int(rand(10)) }(1..9));
-                     print "<pre>saving out the $propertyname index $index to fileserial $fileserial\n</pre>" if $addrdebug;
+                     # print "<pre>saving out the $propertyname index $index to fileserial $fileserial\n</pre>" if $addrdebug;
                      sysopen(FILE, "$config{'ow_sessionsdir'}/$thissession-vcard$fileserial", O_WRONLY|O_TRUNC|O_CREAT) or
                         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $config{'ow_sessionsdir'}/$thissession-vcard$fileserial ($!)\n");
                      binmode FILE; # to ensure images don't corrupt
@@ -2071,7 +2079,7 @@ sub addreditform {
    #                                $contact is not modified after this point                                #
    ###########################################################################################################
 
-   print "<pre>addreditform CONTACT after all modifications now looks like:\n" . Dumper(\%{$contact}) . "</pre>" if $addrdebug;
+   # print "<pre>addreditform CONTACT after all modifications now looks like:\n" . Dumper(\%{$contact}) . "</pre>" if $addrdebug;
 
    # find out composecharset
    my $composecharset = $contact->{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE} || $prefs{'charset'};
@@ -3170,7 +3178,7 @@ sub addreditform_to_vcard {
    my $convfrom = param('convfrom');
    my $convto = param('X-OWM-CHARSET.0.VALUE');
 
-   print "<pre>INSIDE addreditform_to_vcard:\n</pre>" if $addrdebug;
+   # print "<pre>INSIDE addreditform_to_vcard:\n</pre>" if $addrdebug;
 
    # we need to force the FN value into N to make the card valid if its a group.
    if (param('editgroupform')) {
@@ -3253,7 +3261,7 @@ sub addreditform_to_vcard {
    # process form changes
    if (param('formchange')) {
       my ($formchange,$formchangeindex,$formchangeamount) = split(/,/,param('formchange')); # add (EMAIL,0,1) or remove (EMAIL,5,-1)
-      print "<pre>FORMCHANGE REQUEST: $formchange,$formchangeindex,$formchangeamount</pre>\n" if $addrdebug;
+      # print "<pre>FORMCHANGE REQUEST: $formchange,$formchangeindex,$formchangeamount</pre>\n" if $addrdebug;
       if ($formchangeamount>0 || $formchangeamount<0) {
          # figure out the form target
          my $formchangetarget = \%{$formdata->{$xowmuid}};
@@ -3291,7 +3299,7 @@ sub addreditform_to_vcard {
       }
    }
 
-   print "EXITING addreditform_to_vcard:\n" if $addrdebug;
+   # print "EXITING addreditform_to_vcard:\n" if $addrdebug;
    return($formdata);
 }
 ########## END ADDREDITFORM_TO_VCARD #############################
@@ -3305,12 +3313,12 @@ sub addredit {
 
    my $editformcaller = safefoldername(ow::tool::unescapeURL(param('editformcaller')));
 
-   print header() if $addrdebug;
+   # print header() if $addrdebug;
    if ($formchange ne '') {
       #################################################
       # not ready to process yet, just modifying form #
       #################################################
-      print "<pre>GOING TO THE ADDREDITFORM via FORMCHANGE\n</pre>" if $addrdebug;
+      # print "<pre>GOING TO THE ADDREDITFORM via FORMCHANGE\n</pre>" if $addrdebug;
       addreditform();
    } elsif (defined param('EDITFORMUPLOAD') ||		# user press 'add' button
                     param('webdisksel') ) {		# file selected from webdisk
@@ -3518,7 +3526,7 @@ sub addredit {
             param(-name=>"$uploadtype.$newindex.TYPE", -value =>['URI']);
          }
       }
-      print "GOING TO THE ADDREDITFORM via EDITFORMUPLOAD\n" if $addrdebug;
+      # print "GOING TO THE ADDREDITFORM via EDITFORMUPLOAD\n" if $addrdebug;
       addreditform();
    } else {
       ######################################################################
@@ -3529,7 +3537,7 @@ sub addredit {
       #  - we want to access an agent. Before we do so we need to save the #
       #    the data of the card we're currently on.                        #
       ######################################################################
-      print header() if $addrdebug;
+      # print header() if $addrdebug;
 
       my $completevcard;  # will contain all of the data for this card
       my $contact;        # will be a pointer to a level of data in $completevcard
@@ -3547,17 +3555,17 @@ sub addredit {
          my %searchterms = ( 'X-OWM-UID' => [ { 'VALUE' => $xowmuid } ] ); # only pull this card
          my %only_return = ();
 
-         print "<pre>addredit XOWMUID is $xowmuid, reading completevcard:\n" if $addrdebug;
+         # print "<pre>addredit XOWMUID is $xowmuid, reading completevcard:\n" if $addrdebug;
          $completevcard = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), (keys %only_return?\%only_return:undef));
-         print "</pre>\n" if $addrdebug;
+         # print "</pre>\n" if $addrdebug;
       }
 
-      if ($addrdebug) { # DEBUG DUMP
-         my $outfile = "$config{'ow_sessionsdir'}/DUMP_BEFORE";
-         sysopen(FILE, $outfile, O_WRONLY|O_TRUNC|O_CREAT) || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $outfile ($!)\n");
-         print FILE Dumper(\%{$completevcard});
-         close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $outfile ($!)\n");
-      }
+#      if ($addrdebug) { # DEBUG DUMP
+#         my $outfile = "$config{'ow_sessionsdir'}/DUMP_BEFORE";
+#         sysopen(FILE, $outfile, O_WRONLY|O_TRUNC|O_CREAT) || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $outfile ($!)\n");
+#         print FILE Dumper(\%{$completevcard});
+#         close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $outfile ($!)\n");
+#      }
 
       # To access AGENT nested data we will need to know what the targetagent is.
       # Targetagent looks like: <traversedirection>,<agent position(s)>,[<last position accessed>]
@@ -3565,7 +3573,7 @@ sub addredit {
       # Last should only be used if traversedirection is -1 (so we know what card to save the form
       # data to before we traverse to the parent).
       my @targetagent = split(/,/,param('targetagent')); # a map to the target: 1,0,2,0,1
-      print "<pre>\n\nTARGETAGENT:\n".Dumper(\@targetagent)."</pre>\n" if $addrdebug;
+      # print "<pre>\n\nTARGETAGENT:\n".Dumper(\@targetagent)."</pre>\n" if $addrdebug;
       my $traversedirection = shift(@targetagent);
       if ($traversedirection == 1) {
          # if we're going into an agent we want to save the level above it
@@ -3573,7 +3581,7 @@ sub addredit {
       }
 
       my $targetdepth = @targetagent || 0;
-      print "<pre>addredit TARGETDEPTH: $targetdepth\nTRAVERSEDIRECTION: $traversedirection\nTARGETAGENT:\n".Dumper(\@targetagent)."</pre>\n" if $addrdebug;
+      # print "<pre>addredit TARGETDEPTH: $targetdepth\nTRAVERSEDIRECTION: $traversedirection\nTARGETAGENT:\n".Dumper(\@targetagent)."</pre>\n" if $addrdebug;
 
       # Align $contact so it is pointing to the completevcard data we want to modify.
       my $target = \%{$completevcard->{$xowmuid}};
@@ -3590,16 +3598,16 @@ sub addredit {
       }
       $contact->{$xowmuid} = $target;
 
-      print "<pre>addredit CONTACT has been aligned to:\n".Dumper(\%{$contact})."</pre>\n" if $addrdebug;
+      # print "<pre>addredit CONTACT has been aligned to:\n".Dumper(\%{$contact})."</pre>\n" if $addrdebug;
 
       # clear out $contact so we can populate it with the form data - keep 'X-OWM-UID'
       foreach my $propertyname (keys %{$contact->{$xowmuid}}) {
          delete $contact->{$xowmuid}{$propertyname} unless ($propertyname eq 'X-OWM-UID');
       }
 
-      print "<pre>addredit CONTACT has been cleaned out to make way for the form data:\n".Dumper(\%{$contact})."</pre>\n" if $addrdebug;
+      # print "<pre>addredit CONTACT has been cleaned out to make way for the form data:\n".Dumper(\%{$contact})."</pre>\n" if $addrdebug;
 
-      print "<pre>FORM DUMP:\n".Dump()."\n</pre>\n\n\n" if $addrdebug;
+      # print "<pre>FORM DUMP:\n".Dump()."\n</pre>\n\n\n" if $addrdebug;
 
       # populate $contact with the form data
       my $formdata = addreditform_to_vcard();
@@ -3618,7 +3626,7 @@ sub addredit {
          }
       }
 
-      print "<pre>addredit CONTACT has been made from the form data:\n".Dumper(\%{$contact})."</pre>\n" if $addrdebug;
+      # print "<pre>addredit CONTACT has been made from the form data:\n".Dumper(\%{$contact})."</pre>\n" if $addrdebug;
 
       # Convert all BASE64 and VCARD files in the sessions directories to be included in the vcard.
       foreach my $propertyname (qw(PHOTO LOGO SOUND KEY AGENT)) {
@@ -3675,16 +3683,16 @@ sub addredit {
       # Time to output the completecard.                                             #
       ################################################################################
 
-      print "<pre>addredit COMPLETEVCARD after form merged into it:\n".Dumper(\%{$completevcard})."</pre>\n" if $addrdebug;
+      # print "<pre>addredit COMPLETEVCARD after form merged into it:\n".Dumper(\%{$completevcard})."</pre>\n" if $addrdebug;
 
       # outputvfile will check values and add X-OWM-UID if needed.
       # readvfilesfromstring will make it a hash, double check values,
       # and add any missing propertynames.
-      print "<pre>USING OUTPUTVFILE TO VALIDATE THE DATA:\n" if $addrdebug;
+      # print "<pre>USING OUTPUTVFILE TO VALIDATE THE DATA:\n" if $addrdebug;
       $completevcard = readvfilesfromstring(outputvfile('vcard',$completevcard));
-      print "</pre>\n" if $addrdebug;
+      # print "</pre>\n" if $addrdebug;
 
-      print "<pre>XOWMUID before reset is: $xowmuid\n</pre>" if $addrdebug;
+      # print "<pre>XOWMUID before reset is: $xowmuid\n</pre>" if $addrdebug;
       # reset $xowmuid in case outputvfile assigned one because it was blank before.
       # $xowmuid would be blank if we were coming from a new card.
       my $oldxowmuid = $xowmuid;
@@ -3696,25 +3704,25 @@ sub addredit {
          # set param to remember in case we are traversing into an agent.
          param(-name=>'rootxowmuid', -value=>$xowmuid, -override=>1);
       }
-      print "<pre>XOWMUID reset is now: $xowmuid\n</pre>" if $addrdebug;
+      # print "<pre>XOWMUID reset is now: $xowmuid\n</pre>" if $addrdebug;
 
       # update the revision time of this card
       update_revision_time(\%{$completevcard->{$xowmuid}{REV}[0]});
 
-      if ($addrdebug) { # DEBUG DUMP
-         my $outfile = "$config{'ow_sessionsdir'}/DUMP_AFTER";
-         sysopen(FILE, $outfile, O_WRONLY|O_TRUNC|O_CREAT) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $outfile ($!)\n");
-         print FILE Dumper(\%{$completevcard});
-         close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $outfile ($!)\n");
-         print "<pre>addredit COMPLETEVCARD has been validated and is about to writeout:\n".Dumper(\%{$completevcard})."</pre>\n";
-      }
+#      if ($addrdebug) { # DEBUG DUMP
+#         my $outfile = "$config{'ow_sessionsdir'}/DUMP_AFTER";
+#         sysopen(FILE, $outfile, O_WRONLY|O_TRUNC|O_CREAT) or
+#            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $outfile ($!)\n");
+#         print FILE Dumper(\%{$completevcard});
+#         close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} $outfile ($!)\n");
+#         print "<pre>addredit COMPLETEVCARD has been validated and is about to writeout:\n".Dumper(\%{$completevcard})."</pre>\n";
+#      }
 
       # load up the entire addressbook...
       my (%searchterms, %only_return) = ();
-      print "<pre>LOADING THE COMPLETE BOOK IN ORDER TO SAVE OUT CARD $xowmuid\n" if $addrdebug;
+      # print "<pre>LOADING THE COMPLETE BOOK IN ORDER TO SAVE OUT CARD $xowmuid\n" if $addrdebug;
       my $completebook = readadrbook($abookfile, (keys %searchterms?\%searchterms:undef), (keys %only_return?\%only_return:undef));
-      print "</pre>\n" if $addrdebug;
+      # print "</pre>\n" if $addrdebug;
 
       # and overwrite the target card with the new data...
       $completebook->{$xowmuid} = $completevcard->{$xowmuid};
@@ -3735,7 +3743,7 @@ sub addredit {
 
       # display
       if ($traversedirection == 1 || $traversedirection == -1) {
-         print "<pre>WE'RE TRAVERSING AGENTS - GOING TO THE ADDREDITFORM...\n</pre>" if $addrdebug;
+         # print "<pre>WE'RE TRAVERSING AGENTS - GOING TO THE ADDREDITFORM...\n</pre>" if $addrdebug;
          addreditform(); # continue on to display that targetagent now that this level is saved.
       } else {
          if ($editformcaller eq 'readmessage') {
@@ -4085,10 +4093,7 @@ sub addrviewatt {
 
    return;
 }
-########## END ADDRVIEWATT #######################################
 
-
-########## UPDATE_REVISION_TIME ##################################
 sub update_revision_time {
    my ($r_rev) = @_;
    my ($rev_sec,$rev_min,$rev_hour,$rev_mday,$rev_mon,$rev_year,$rev_wday,$rev_yday,$rev_isdst) = gmtime(time);
@@ -4100,10 +4105,7 @@ sub update_revision_time {
    $r_rev->{VALUE}{MONTH} = $rev_mon;
    $r_rev->{VALUE}{YEAR} = $rev_year;
 }
-########## END UPDATE_REVISION_TIME ##############################
 
-
-########## DELETEATTACHMENTS #####################################
 sub deleteattachments {
    my (@delfiles, @sessfiles);
 
@@ -4127,7 +4129,7 @@ sub getattfilesinfo {
    my (@attfiles, @sessfiles);
    my $totalsize = 0;
 
-   print "<pre>Getting attachments info\n</pre>" if $addrdebug;
+   # print "<pre>Getting attachments info\n</pre>" if $addrdebug;
 
    opendir(SESSIONSDIR, "$config{'ow_sessionsdir'}") or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}! ($!)");
@@ -4146,7 +4148,7 @@ sub getattfilesinfo {
       }
    }
 
-   print "<pre>Dumping attachments info:\n".Dumper(\@attfiles)."</pre>\n\n" if $addrdebug;
+   # print "<pre>Dumping attachments info:\n".Dumper(\@attfiles)."</pre>\n\n" if $addrdebug;
 
    return ($totalsize, \@attfiles);
 }
@@ -4574,10 +4576,7 @@ sub addrimportform {
 
    httpprint([], [htmlheader(), $html, htmlfooter(2)]);
 }
-########## END ADDRIMPORTFORM ####################################
 
-
-########## ADDRIMPORT ############################################
 sub addrimport {
    my $importfile = param('importfile') ||
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_import_nofile'}! ($!)");
@@ -4704,10 +4703,162 @@ sub addrimport {
    }
    addrlistview();
 }
-########## END ADDRIMPORT ########################################
 
+sub addrimportattachment {
+   my $headers   = param('headers') || $prefs{headers} || 'simple';
+   my $attmode   = param('attmode') || 'simple';
+   my $receivers = param('receivers') || 'simple';
+   my $convfrom  = param('convfrom') || '';
+   my $nodeid    = param('attachment_nodeid');
+   my $attname   = param('attname');
 
-########## IMPORTVCARD ###########################################
+   # Convert :: back to the ' like it should be.
+   $attname =~ s/::/'/g;
+
+   # Trim the path info from the attname
+   if ($prefs{'charset'} eq 'big5' || $prefs{'charset'} eq 'gb2312') {
+      $attname = ow::tool::zh_dospath2fname($attname); # dos path
+   } else {
+      $attname =~ s|^.*\\||; # dos path
+   }
+   $attname =~ s|^.*/||; # unix path
+   $attname =~ s|^.*:||; # mac path and dos drive
+
+   my ($content, $contentfilesize) = getmessageattachment($folder, $messageid, $nodeid);
+
+   my $contentfilesizekb = sprintf("%0.2f",$contentfilesize/1024);
+
+   if (!is_quota_available($contentfilesizekb)) {
+      openwebmailerror(__FILE__, __LINE__,"$lang_err{quotahit_alert}\n");
+   }
+
+   if ($config{abook_importlimit} > 0 && $contentfilesizekb > $config{abook_importlimit}) {
+      openwebmailerror(__FILE__, __LINE__,"$contentfilesizekb $lang_sizes{kb} $lang_err{upload_overlimit} $config{abook_importlimit} $lang_sizes{kb}\n");
+   }
+
+   if ($config{abook_maxsizeallbooks} > 0) {
+      # load up the list of all books
+      my @allabookfolders = get_readable_abookfolders();
+      # calculate the available free space
+      my $availfreespace = $config{abook_maxsizeallbooks} - userabookfolders_totalsize();
+      if ($contentfilesizekb > $availfreespace) {
+          openwebmailerror(__FILE__, __LINE__,"$contentfilesizekb $lang_sizes{kb} > $availfreespace $lang_sizes{kb}. $lang_err{abook_toobig} $lang_err{back}\n");
+      }
+   }
+
+   if ($contentfilesize == 0) {
+      openwebmailerror(__FILE__, __LINE__,"$lang_wdbutton{upload} $lang_text{failed} ($!)\n");
+   }
+
+   my $attvcards = importvcard($content);
+   undef $content;
+
+   # remember old settings so we can change them
+   my $oldabookfolder = $abookfolder;
+   my $oldescapedabookfolder = $escapedabookfolder;
+
+   # load the existing book
+   my $importdest = $attname || $lang_text{attachment};
+   my $targetfile = ow::tool::untaint(abookfolder2file($importdest));
+   my $targetbook = {};
+   if (-e $targetfile) {
+      $targetbook = readadrbook($targetfile, undef, undef);
+   } else {
+      # create the book file
+      sysopen(TARGET, $targetfile, O_WRONLY|O_TRUNC|O_CREAT) or
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($targetfile)." ($!)\n");
+      close(TARGET) or
+        openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($targetfile)." ($!)\n");
+   }
+
+   # merge the new data
+   foreach my $xowmuid (keys %{$attvcards}) {
+      $targetbook->{$xowmuid} = $attvcards->{$xowmuid};
+   }
+
+   # stringify it
+   my $writeoutput = outputvfile('vcard',$targetbook);
+
+   # overwrite the targetfile with the new data
+   ow::filelock::lock($targetfile, LOCK_EX|LOCK_NB) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($targetfile));
+   sysopen(TARGET, $targetfile, O_WRONLY|O_TRUNC|O_CREAT) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} ".f2u($targetfile)." ($!)\n");
+   print TARGET $writeoutput;
+   close(TARGET) or
+     openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($targetfile)." ($!)\n");
+   ow::filelock::lock($targetfile, LOCK_UN);
+
+   writelog("import addressbook from attachment - ".keys(%{$attvcards})." contacts to $importdest");
+   writehistory("import addressbook from attachment - ".keys(%{$attvcards})." contacts to $importdest");
+
+   # done
+   $abookfolder = $importdest;
+   $escapedabookfolder = ow::tool::escapeURL($importdest);
+
+   # import done - go back to the listing
+   # (maybe a http redirect is more clean here? tung)
+   foreach ($abook_urlparm_with_abookfolder, $urlparm) {
+      s/abookfolder=$oldescapedabookfolder&amp;/abookfolder=$escapedabookfolder&amp;/g;
+   }
+   foreach ($abook_formparm_with_abookfolder, $formparm) {
+      s/NAME="abookfolder" VALUE="$oldabookfolder"/NAME="abookfolder" VALUE="$abookfolder"/gi;
+   }
+   addrlistview();
+}
+
+sub getmessageattachment {
+   my ($folder, $messageid, $nodeid) = @_;
+
+   my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
+   my $folderhandle = do { local *FH };
+
+   my ($msgsize, $errmsg, $block);
+   ($msgsize, $errmsg) = lockget_message_block($messageid, $folderfile, $folderdb, \$block);
+   if ($msgsize <= 0) {
+      openwebmailerror(__FILE__, __LINE__, "Message $messageid can no longer be found");
+   }
+
+   my @attr = get_message_attributes($messageid, $folderdb);
+   my $convfrom = param('convfrom') || '';
+   if ($convfrom eq "") {
+      if (is_convertible($attr[$_CHARSET], $prefs{charset})) {
+         $convfrom = lc($attr[$_CHARSET]);
+      } else {
+         $convfrom ="none\.$prefs{charset}";
+      }
+   }
+
+   # return a specific attachment
+   my ($header, $body, $r_attachments) = ow::mailparse::parse_rfc822block(\$block, "0", $nodeid);
+   undef($block);
+
+   my $r_attachment;
+   for (my $i=0; $i <= $#{$r_attachments}; $i++) {
+      if (${${$r_attachments}[$i]}{nodeid} eq $nodeid) {
+         $r_attachment = ${$r_attachments}[$i];
+      }
+   }
+   if (defined $r_attachment) {
+      my $charset = ${$r_attachment}{filenamecharset} || ${$r_attachment}{charset} || $convfrom || $attr[$_CHARSET];
+      my $contenttype = ${$r_attachment}{'content-type'};
+      my $filename = ${$r_attachment}{filename};
+      $filename =~ s/\s$//;
+      my $content;
+      if (${$r_attachment}{'content-transfer-encoding'} =~ /^base64$/i) {
+         $content = decode_base64(${${$r_attachment}{r_content}});
+      } elsif (${$r_attachment}{'content-transfer-encoding'} =~ /^quoted-printable$/i) {
+         $content = decode_qp(${${$r_attachment}{r_content}});
+      } elsif (${$r_attachment}{'content-transfer-encoding'} =~ /^x-uuencode$/i) {
+         $content = ow::mime::uudecode(${${$r_attachment}{r_content}});
+      } else { ## Guessing it's 7-bit, at least sending SOMETHING back! :)
+         $content = ${${$r_attachment}{r_content}};
+      }
+      return ($content, length($content));
+   }
+   return ('',0);
+}
+
 sub importvcard {
    # accepts a vCard string and returns a vCard hash data structure
 
@@ -4717,10 +4868,7 @@ sub importvcard {
    my $importdata = $_[0];
    return readvfilesfromstring($importdata);
 }
-########## END IMPORTVCARD #######################################
 
-
-######################### IMPORTTXT #################################
 sub importtxt {
    # accepts a csv or tab string and returns a vCard hash data structure
 

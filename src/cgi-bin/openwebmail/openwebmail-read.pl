@@ -500,10 +500,12 @@ sub readmessage {
    }
 
    my $is_writeable_abook = 0;
-   foreach my $dir (dotpath('webaddr'),  $config{ow_addressbooksdir}) {
-      opendir(D, $dir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $dir ($!)");
-      $is_writeable_abook += scalar grep { !m/^\./ && !m/^categories\.cache$/ && -w "$dir/$_" } readdir(D);
-      closedir(D);
+   if ($config{enable_addressbook}) {
+      foreach my $dir (dotpath('webaddr'),  $config{ow_addressbooksdir}) {
+         opendir(D, $dir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $dir ($!)");
+         $is_writeable_abook += scalar grep { !m/^\./ && !m/^categories\.cache$/ && -w "$dir/$_" } readdir(D);
+         closedir(D);
+      }
    }
 
    # fork a child to do the status update and folderdb update
@@ -744,6 +746,8 @@ sub readmessage {
          $messagesloop->[$i]{attachment}[$n]{use_fixedfont}         = $prefs{usefixedfont};
          $messagesloop->[$i]{attachment}[$n]{iconset}               = $prefs{iconset};
          # non-standard
+         $messagesloop->[$i]{attachment}[$n]{enable_addressbook}    = $config{enable_addressbook};
+         $messagesloop->[$i]{attachment}[$n]{is_writeable_abook}    = $is_writeable_abook;
          $messagesloop->[$i]{attachment}[$n]{enable_webdisk}        = $config{enable_webdisk};
          $messagesloop->[$i]{attachment}[$n]{is_writeable_webdisk}  = $config{webdisk_readonly}?0:1;
          $messagesloop->[$i]{attachment}[$n]{simpleheaders}         = $headers eq 'simple'?1:0;
@@ -793,6 +797,7 @@ sub readmessage {
          $messagesloop->[$i]{attachment}[$n]{is_misc}     = 1;
          $messagesloop->[$i]{attachment}[$n]{is_html}     = 0;
          $messagesloop->[$i]{attachment}[$n]{is_enriched} = 0;
+         $messagesloop->[$i]{attachment}[$n]{is_vcard}    = 0;
          $messagesloop->[$i]{attachment}[$n]{is_text}     = 0;
          $messagesloop->[$i]{attachment}[$n]{is_message}  = 0;
          $messagesloop->[$i]{attachment}[$n]{is_image}    = 0;
@@ -889,8 +894,16 @@ sub readmessage {
             }
          }
 
-         # process text/... attachments (except html or enriched)
-         if ($messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^text/(?!html|enriched)#i && $attmode eq 'simple') {
+         # process text/x-vcard or text/directory attachments
+         if ($messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^text/(?:x?-?vcard|directory)#i
+             && $messagesloop->[$i]{attachment}[$n]{filename} =~ m/\.(?:vcard|vcf)$/i
+             && $attmode eq 'simple') {
+            $messagesloop->[$i]{attachment}[$n]{is_misc}  = 0;
+            $messagesloop->[$i]{attachment}[$n]{is_vcard} = 1;
+         }
+
+         # process text/... attachments (except html, enriched, x-vcard, or directory)
+         if ($messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^text/(?!html|enriched|x?-?vcard|directory)#i && $attmode eq 'simple') {
             if ($messagesloop->[$i]{attachment}[$n]{filename} =~ m#^Unknown\.# || scalar @{$messagesloop->[$i]{attachment}} == 1) {
                # text_att2table
                $messagesloop->[$i]{attachment}[$n]{is_misc} = 0;

@@ -175,6 +175,7 @@
           <td nowrap>
             <form action="<tmpl_var url_cgi escape="none">/openwebmail-main.pl" method="post" name="destinationForm">
             <input type="hidden" name="action" value="movemessage">
+            <input type="hidden" name="message_ids" value="<tmpl_var messageid escape="html">">
             <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
             <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
             <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
@@ -183,13 +184,10 @@
             <input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
             <input type="hidden" name="searchtype" value="<tmpl_var searchtype escape="html">">
             <input type="hidden" name="keyword" value="<tmpl_var keyword escape="html">">
-            <input type="hidden" name="message_id" value="<tmpl_var messageid escape="html">">
             <input type="hidden" name="headers" value="<tmpl_var headers escape="html">">
             <input type="hidden" name="attmode" value="<tmpl_var attmode escape="html">">
-            <input type="hidden" name="message_ids" value="<tmpl_var messageid escape="html">">
             <tmpl_if messageaftermove>
-            <input type="hidden" name="message_id" value="<tmpl_var messageaftermove escape="html">">
-            <input type="hidden" name="messageaftermove" value="1">
+            <input type="hidden" name="messageaftermove" value="<tmpl_var messageaftermove escape="html">">
             </tmpl_if>
             <select name="destination" accesskey="T">
             <tmpl_loop destinationselectloop>
@@ -198,7 +196,7 @@
             </select>
             <input type="submit" name="movebutton" value="Move" <tmpl_if confirmmsgmovecopy>onclick="return confirm('Are you sure you want to move this message?');"</tmpl_if>>
             <tmpl_unless overlimit>
-            <input type="submit" name="copybutton" value="Copy" <tmpl_if confirmmsgmovecopy>onclick="return confirm('Are you sure you want to move this message?');"</tmpl_if>>
+            <input type="submit" name="copybutton" value="Copy" <tmpl_if confirmmsgmovecopy>onclick="return confirm('Are you sure you want to copy this message?');"</tmpl_if>>
             </tmpl_unless>
             </form>
           </td>
@@ -336,6 +334,30 @@
 
   <tmpl_if is_enriched>
   <tmpl_var r_content escape="none">
+  </tmpl_if>
+
+  <tmpl_if is_vcard>
+    <table cellpadding="2" cellspacing="0" border="0" align="center">
+    <tr>
+      <td class="attachmentdark" colspan="2" align="center" nowrap>Attachment <a title="nodeid: <tmpl_var nodeid escape="html"> content-disposition: <tmpl_var content-disposition escape="html">"><tmpl_var attnumber escape="html"></a>: <tmpl_var filename escape="html">&nbsp;(<tmpl_var content-length escape="html">)&nbsp;&nbsp;
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=deleteattachment&amp;message_id=<tmpl_var messageid escape="url">&amp;nodeid=<tmpl_var nodeid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=<tmpl_var attmode escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="ALEX" title="delete this attachment" onclick="return confirm('Delete <tmpl_var filename escape="js">?');">Delete</a>&nbsp;
+      <tmpl_if enable_webdisk>
+      <tmpl_if is_writeable_webdisk>
+        <a href="#" title="save this attachment to your webdisk" onclick="window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=sel_saveattachment&amp;attachment_nodeid=<tmpl_var nodeid escape="url">&amp;attname=<tmpl_var filename escape="url">&amp;attnamecharset=<tmpl_var convfrom escape="url">&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=<tmpl_var attmode escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no');">Webdisk</a>&nbsp;
+      </tmpl_if>
+      </tmpl_if>
+      <tmpl_if enable_addressbook>
+      <tmpl_if is_writeable_abook>
+        <a href="#" title="import this contact to your addressbook" onclick="window.open('<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrimportattachment&amp;attachment_nodeid=<tmpl_var nodeid escape="url">&amp;attname=<tmpl_var filename escape="url">&amp;attnamecharset=<tmpl_var convfrom escape="url">&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=<tmpl_var attmode escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">', '_blank','width=740,height=500,scrollbars=yes,resizable=yes,location=no');">Addressbook</a>&nbsp;
+      </tmpl_if>
+      </tmpl_if>
+      </td>
+    </tr>
+    <tr>
+      <td class="attachmentlight" align="center" nowrap>Type: <tmpl_var content-type escape="html"><br>Encoding: <tmpl_var content-transfer-encoding escape="html"><tmpl_if content-description><br>Description: <tmpl_var content-description escape="html"></tmpl_if></td>
+      <td class="attachmentlight" align="center" width="10%" nowrap><a href="<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl/<tmpl_var filename escape="url">?action=viewattachment&amp;attachment_nodeid=<tmpl_var nodeid escape="url">&amp;message_id=<tmpl_var messageid escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">" <tmpl_if is_text>target="_new"</tmpl_if> accesskey="ALEX" title="download this attachment">Download</a></td>
+    </tr>
+    </table>
   </tmpl_if>
 
   <tmpl_if is_text>
@@ -539,7 +561,7 @@
             </select>
             <input type="submit" name="movebutton" value="Move" <tmpl_if confirmmsgmovecopy>onclick="return confirm('Are you sure you want to move this message?');"</tmpl_if>>
             <tmpl_unless overlimit>
-            <input type="submit" name="copybutton" value="Copy" <tmpl_if confirmmsgmovecopy>onclick="return confirm('Are you sure you want to move this message?');"</tmpl_if>>
+            <input type="submit" name="copybutton" value="Copy" <tmpl_if confirmmsgmovecopy>onclick="return confirm('Are you sure you want to copy this message?');"</tmpl_if>>
             </tmpl_unless>
             </form>
           </td>
