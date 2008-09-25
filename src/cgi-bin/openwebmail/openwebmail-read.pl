@@ -895,11 +895,12 @@ sub readmessage {
          }
 
          # process text/x-vcard or text/directory attachments
-         if ($messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^text/(?:x?-?vcard|directory)#i
-             && $messagesloop->[$i]{attachment}[$n]{filename} =~ m/\.(?:vcard|vcf)$/i
-             && $attmode eq 'simple') {
-            $messagesloop->[$i]{attachment}[$n]{is_misc}  = 0;
-            $messagesloop->[$i]{attachment}[$n]{is_vcard} = 1;
+         if ($messagesloop->[$i]{attachment}[$n]{filename} =~ m/\.(?:vcard|vcf)$/i && $attmode eq 'simple') {
+            if ($messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^text/(?:x?-?vcard|directory)#i
+                || $messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^application/octet-stream#i) {
+               $messagesloop->[$i]{attachment}[$n]{is_misc}  = 0;
+               $messagesloop->[$i]{attachment}[$n]{is_vcard} = 1;
+            }
          }
 
          # process text/... attachments (except html, enriched, x-vcard, or directory)
