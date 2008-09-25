@@ -290,7 +290,7 @@ sub readmessage {
 
    if ($convfrom =~ m#^none.(.*)#) {
       my $nativecharset = $1;
-      if ($nativecharset ne $displaycharset) {
+      if ($nativecharset ne $prefs{charset}) {
          # user is trying to display the message natively in a charset that is not our
          # display charset, with no conversion. Lets see if we have template pack in our
          # language to match the native charset
