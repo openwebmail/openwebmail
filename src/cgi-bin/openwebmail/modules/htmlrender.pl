@@ -119,7 +119,7 @@ sub html4disablejs {
    $html =~ s#//-->\s*//-->#//-->#isg;
 
    # disable inline javascript
-   $html =~ s#<([^<>]*?)javascript:([^<>]*?)>#<$1disable_javascript:$2>#isg;
+   $html =~ s#<([^<>]*?)javascript:([^<>]*?)>#<$1disable_javascript:$2>#isg if ($html =~ /javascript:/is);
 
    return($html);
 }
