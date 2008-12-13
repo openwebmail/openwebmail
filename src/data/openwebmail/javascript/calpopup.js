@@ -1,5 +1,3 @@
-<script type="text/javascript" language="javascript">
-<!--
 // When you want to include this popup in a page you MUST:
 // 1) create a named div for the popup to attach to in the page.
 //    It should look like <div id="mypopup"></div>. Do not put
@@ -8,8 +6,8 @@
 //    MUST be position absolute and should look like:
 //    #mypopup{ position: absolute;
 //              visibility: hidden;
-//              background-color: @@@MENUBAR@@@;
-//              layer-background-color: @@@MENUBAR@@@; }
+//              background-color: "#AABBCC";
+//              layer-background-color: "#AABBCC"; }
 // 3) call the popup with code that looks like
 //    <a href="#" onClick="calPopup(this,'mypopup',-175,15,'additemform','valiDate');">
 //    where -175 and 15 are your desired x and y offsets from the link.
@@ -21,13 +19,6 @@ var ie  = (document.all) ? true : false;
 var dom = (document.getElementById && !document.all) ? true : false;
 var popups = new Array(); // keeps track of popup windows we create
 var calHtml = '';
-
-// language and preferences
-wDay = new Array(@@@WDAY_ARRAY@@@);
-wDayAbbrev = new Array(@@@WDAYABBREV_ARRAY@@@);
-wMonth = new Array(@@@WMONTH_ARRAY@@@);
-wOrder = new Array(@@@WORDER_ARRAY@@@);
-wStart = @@@WSTART@@@;
 
 function calPopup(obj, id, xOffset, yOffset, formName, validationScript) {
    attachListener(id);
@@ -112,14 +103,14 @@ function makeCalHtml(id, calYear, calMonth, calDay, formName, validationScript) 
    html += '<table cellpadding="0" cellspacing="1" border="0" bgcolor="#000000">\n';
    html += '<tr>\n';
    html += '<td valign="top">\n';
-   html += '<table cellpadding="0" cellspacing="2" border="0" bgcolor=@@@MENUBAR@@@>\n';
+   html += '<table cellpadding="0" cellspacing="2" border="0" class="rowdark">\n';
    html += '<tr>\n';
    html += '<td valign="top">\n';
    html += '<table cellpadding="3" cellspacing="1" border="0">\n';
    html += '<tr>\n';
-   html += '<td><a class="stylecal" href="#" onClick="updateCal(\''+id+'\','+calLastYear+','+calLastMonth+','+calDay+',\''+formName+'\',\''+validationScript+'\'); return false;">&lt;&lt;</a></td>\n';
-   html += '<td class="stylecal" align="center" colspan="5">&nbsp;' +wMonth[calDate.getMonth()]+ ' ' +calDate.getFullYear()+ '&nbsp;</td>\n';
-   html += '<td><a class="stylecal" href="#" onClick="updateCal(\''+id+'\','+calNextYear+','+calNextMonth+','+calDay+',\''+formName+'\',\''+validationScript+'\'); return false;">&gt;&gt;</a></td>\n';
+   html += '<td class="stylecal"><a class="rowdark" href="#" onClick="updateCal(\''+id+'\','+calLastYear+','+calLastMonth+','+calDay+',\''+formName+'\',\''+validationScript+'\'); return false;">&lt;&lt;</a></td>\n';
+   html += '<td align="center" colspan="5" class="stylecal">&nbsp;' +wMonth[calDate.getMonth()]+ ' ' +calDate.getFullYear()+ '&nbsp;</td>\n';
+   html += '<td class="stylecal"><a class="rowdark" href="#" onClick="updateCal(\''+id+'\','+calNextYear+','+calNextMonth+','+calDay+',\''+formName+'\',\''+validationScript+'\'); return false;">&gt;&gt;</a></td>\n';
    html += '</tr>\n';
    for (var row=1; row <= 7; row++) {
       // check if we started a new month at the beginning of this row
@@ -130,30 +121,31 @@ function makeCalHtml(id, calYear, calMonth, calDay, formName, validationScript) 
 
       html += '<tr>\n';
       for (var col=0; col < 7; col++) {
-         var tdColor = col % 2 ? '@@@TABLEROW_DARK@@@' : '@@@TABLEROW_LIGHT@@@';
+         var tdClass = col % 2 ? '"rowdark"' : '"rowlight"';
          if (row == 1) {
-            html += '<td bgcolor='+tdColor+' align="center" class="stylecal">'+wDayAbbrev[(wStart+col)%7]+'</td>\n';
+            html += '<td class='+tdClass+' align="center"><font class="stylecal">'+wDayAbbrev[(wStart+col)%7]+'</font></td>\n';
          } else {
-            var hereDate = new Date(calStartYear,calStartMonth,calCurrentDay);
+            var hereDate = new Date(calStartYear,calStartMonth,calCurrentDay,12,0,0);
             var hereDay = hereDate.getDate();
             var aClass = '"stylecal"';
 
             if (hereDate.getYear() == todayDate.getYear() && hereDate.getMonth() == todayDate.getMonth() && hereDate.getDate() == todayDate.getDate()) {
-               tdColor = '"#ff9999"';
+               tdClass = '"rowhilite"';
+               aClass = '"stylecal"';
             }
             if (hereDate.getMonth() != calDate.getMonth()) {
-               tdColor = '@@@MENUBAR@@@';
-               var aClass = '"notmonth"';
+               tdClass = '"menubar"';
+               aClass = '"notmonth"';
             }
 
-            html += '<td bgcolor='+tdColor+' align="right"><a class='+aClass+' href="#" onClick="changeFormDate('+hereDate.getFullYear()+','+(hereDate.getMonth()+1)+','+hereDate.getDate()+',\''+formName+'\',\''+validationScript+'\'); hideLayer(\''+id+'\'); return false;">'+hereDay+'</a></td>\n';
+            html += '<td class='+tdClass+' align="right"><a font class='+aClass+' href="#" onClick="changeFormDate('+hereDate.getFullYear()+','+(hereDate.getMonth()+1)+','+hereDate.getDate()+',\''+formName+'\',\''+validationScript+'\'); hideLayer(\''+id+'\'); return false;">'+hereDay+'</a></td>\n';
             calCurrentDay++;
          }
       }
       html += '</tr>\n';
    }
    html += '<tr>\n';
-   html += '<td align="center" colspan="7"><a class="stylecal" href="#" onClick="updateCal(\''+id+'\','+todayDate.getFullYear()+','+(todayDate.getMonth()+1)+','+todayDate.getDate()+',\''+formName+'\',\''+validationScript+'\'); return false;">@@@TODAY@@@</a></td>\n';
+   html += '<td align="center" colspan="7"><a class="stylecal" href="#" onClick="updateCal(\''+id+'\','+todayDate.getFullYear()+','+(todayDate.getMonth()+1)+','+todayDate.getDate()+',\''+formName+'\',\''+validationScript+'\'); return false;">Today</a></td>\n';
    html += '</tr>\n';
    html += '</table>\n';
    html += '</td>\n';
@@ -287,22 +279,10 @@ function hideLayer(id) {
 }
 
 function changeFormDate(changeYear,changeMonth,changeDay,formName,validationScript) {
-   document.forms[formName].elements['year'].selectedIndex = changeYear-1970;
+   document.forms[formName].elements['year'].selectedIndex = changeYear-min_year;
    document.forms[formName].elements['month'].selectedIndex = changeMonth-1;
    document.forms[formName].elements['day'].selectedIndex = changeDay-1;
    if (validationScript) {
       eval(validationScript+"('"+formName+"')"); // to update the other selection boxes in the form
    }
 }
-// -->
-</script>
-
-<style type="text/css">
-.stylecal { font-size: 9pt; color: #000000; }
-A.notmonth:link { font-size: 9pt; color: #cccccc; }
-A.notmonth:visited { font-size: 9pt; color: #cccccc; }
-A.notmonth:hover { font-size: 9pt; color: #ff0000; }
-A.stylecal:link { font-size: 9pt; color: #000000; }
-A.stylecal:visited { font-size: 9pt; color: #000000; }
-A.stylecal:hover { font-size: 9pt; color: #ff0000; }
-</style>

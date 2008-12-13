@@ -14,6 +14,7 @@ td.windowdark { background-color: #daedfe; }
 td.windowdarkbold { background-color: #daedfe; font-weight: bold; }
 td.windowlight { background-color: #f0f8ff; }
 td.columnheader { background-color: #add8f9; font-weight: bold; }
+td.columnheadercolor { background-color: #add8f9; }
 td.warning { color: #dd0000; font-weight: bold; }
 td.attachmentdark { background-color: #99bddf; }
 td.attachmentlight { background-color: #d3dae3; }
@@ -40,9 +41,11 @@ a.messagebody:hover { color: #ff0000; }
 .rowhilite { background-color: #ffcccc; }
 .medtext { font-size: 85%; }
 .smalltext { font-size: 80%; }
+.smalllighttext { font-size: 80%; color: #aaaaaa; }
 .smallblacktext { font-size: 80%; color: #000000; }
 .smallcolortext { font-size: 80%; color: #c00000; }
 .hilighttext { font-style: normal; font-weight: bold; background-color: #99bddf; }
 .quotedtext { color: #009900; }
+.colortext { color: #c00000; }
 .monospacetext { font-family: "Courier 10 Pitch", "Courier New", "Courier", "Lucida Console", monospace; }
 .messageheaderproperty { font-weight: bold; }

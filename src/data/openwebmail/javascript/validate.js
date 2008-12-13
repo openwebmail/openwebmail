@@ -1,5 +1,3 @@
-<script type="text/javascript" language="javascript">
-<!--
 function valiDate(formName) {
    var formYear = document.forms[formName].elements['year'].options[document.forms[formName].elements['year'].selectedIndex].value;
    var formMonth = document.forms[formName].elements['month'].options[document.forms[formName].elements['month'].selectedIndex].value;
@@ -11,8 +9,7 @@ function valiDate(formName) {
    if (formMonth < checkDate.getMonth()+1) {
      var selectedmonth=document.forms[formName].elements['month'].options[document.forms[formName].elements['month'].selectedIndex].text;
      var daysinmonth=formDay-checkDate.getDate();
-     alert("Sorry, "+selectedmonth+" only has "+daysinmonth+" days in "+formYear+".\n"+
-           "Changing the day to "+daysinmonth+".");
+     alert(alerttxt(selectedmonth,daysinmonth,formYear,daysinmonth));
      document.forms[formName].elements['day'].selectedIndex = formDay-checkDate.getDate()-1;
      // reset our vars
      formDay = formDay-checkDate.getDate();
@@ -29,32 +26,30 @@ function valiDate(formName) {
          }
       }
       document.forms[formName].elements['dayfreq'].options.length =0; // clear popup
-      document.forms[formName].elements['dayfreq'][0] = new Option("@@@THISDAY_ONLY@@@","thisdayonly");
-      document.forms[formName].elements['dayfreq'][1] = new Option("@@@THE_WDAY_OF_THISMONTH@@@","thewdayofthismonth");
-      document.forms[formName].elements['dayfreq'][2] = new Option("@@@EVERY_WDAY_THISMONTH@@@","everywdaythismonth");
+      document.forms[formName].elements['dayfreq'][0] = new Option(thisdayonlytxt,"thisdayonly");
+      document.forms[formName].elements['dayfreq'][1] = new Option(thewdayofthismonthtxt(weekOrder,checkDate.getDay()),"thewdayofthismonth");
+      document.forms[formName].elements['dayfreq'][2] = new Option(everywdaythismonthtxt(checkDate.getDay()),"everywdaythismonth");
    } else {
       if (document.forms[formName].elements['dayfreq'][2]) {  // coming from 3 choice menu
-         dayfreqSelection--;
+         dayfreqSelection = dayfreqSelection - 1;
          if (dayfreqSelection < 0) {
             dayfreqSelection = 0;
          }
       }
       document.forms[formName].elements['dayfreq'].options.length =0; // clear popup
-      document.forms[formName].elements['dayfreq'][0] = new Option("@@@THISDAY_ONLY@@@","thisdayonly");
-      document.forms[formName].elements['dayfreq'][1] = new Option("@@@EVERY_WDAY_THISMONTH@@@","everywdaythismonth");
+      document.forms[formName].elements['dayfreq'][0] = new Option(thisdayonlytxt,"thisdayonly");
+      document.forms[formName].elements['dayfreq'][1] = new Option(everywdaythismonthtxt(checkDate.getDay()),"everywdaythismonth");
    }
 
    // update the month recurrance
    if (formMonth%2) {
-      document.forms[formName].elements['monthfreq'][1] = new Option("@@@EVERY_ODDMONTH_THISYEAR@@@","everyoddmonththisyear");
+      document.forms[formName].elements['monthfreq'][1] = new Option(everyoddmonththisyeartxt,"everyoddmonththisyear");
    } else {
-      document.forms[formName].elements['monthfreq'][1] = new Option("@@@EVERY_EVENMONTH_THISYEAR@@@","everyevenmonththisyear");
+      document.forms[formName].elements['monthfreq'][1] = new Option(everyevenmonththisyeartxt,"everyevenmonththisyear");
    }
 
    document.forms[formName].elements['dayfreq'].selectedIndex = dayfreqSelection;
    document.forms[formName].elements['monthfreq'].selectedIndex = monthfreqSelection;
    return true;
 }
-// -->
-</script>
 
