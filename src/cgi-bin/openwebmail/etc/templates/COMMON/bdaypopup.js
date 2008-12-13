@@ -145,7 +145,7 @@ function makeCalHtml(id, calYear, calMonth, calDay, formName, validationScript) 
          if (row == 1) {
             html += '<td bgcolor='+tdColor+' align="center" class="stylecal">'+wDayAbbrev[(wStart+col)%7]+'</td>\n';
          } else {
-            var hereDate = new Date(calStartYear,calStartMonth,calCurrentDay);
+            var hereDate = new Date(calStartYear,calStartMonth,calCurrentDay,12,0,0);
             var hereDay = hereDate.getDate();
             var aClass = '"stylecal"';
 
