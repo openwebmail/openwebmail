@@ -61,37 +61,40 @@ sub readcalbook {
 sub writecalbook {
    my ($calbook, $r_items) = @_;
 
-   my @indexlist = sort { $r_items->{$a}{idate} <=> $r_items->{$b}{idate} } keys %{$r_items};
+   my @indexlist = sort {
+                          $r_items->{$a}{idate} cmp $r_items->{$b}{idate}
+                          || $r_items->{$a}{string} cmp $r_items->{$b}{string}
+                        } keys %{$r_items};
 
    $calbook = ow::tool::untaint($calbook);
 
-   if (! -f "$calbook" ) {
+   if (! -f "$calbook") {
       sysopen(CALBOOK, $calbook, O_WRONLY|O_TRUNC|O_CREAT) or return -1;
       close(CALBOOK);
    }
 
    ow::filelock::lock($calbook, LOCK_EX) or return -1;
    sysopen(CALBOOK, $calbook, O_WRONLY|O_TRUNC|O_CREAT) or return -1;
-   my $newindex = 1;
-   foreach (@indexlist) {
+   my $written = 0;
+   foreach my $eventid (@indexlist) {
       print CALBOOK join('@@@',
-                           $newindex,
-                           $r_items->{$_}{idate},
-                           $r_items->{$_}{starthourmin},
-                           $r_items->{$_}{endhourmin},
-                           $r_items->{$_}{string},
-                           $r_items->{$_}{link},
-                           $r_items->{$_}{email},
-                           $r_items->{$_}{eventcolor} || 'none',
-                           $r_items->{$_}{charset} || '',
-                           $r_items->{$_}{eventreminder}
+                           $eventid,
+                           $r_items->{$eventid}{idate},
+                           $r_items->{$eventid}{starthourmin},
+                           $r_items->{$eventid}{endhourmin},
+                           $r_items->{$eventid}{string},
+                           $r_items->{$eventid}{link},
+                           $r_items->{$eventid}{email},
+                           $r_items->{$eventid}{eventcolor} || 'none',
+                           $r_items->{$eventid}{charset} || '',
+                           $r_items->{$eventid}{eventreminder}
                         ) . "\n";
-      $newindex++;
+      $written++;
    }
    close(CALBOOK);
    ow::filelock::lock($calbook, LOCK_UN);
 
-   return($newindex);
+   return($written);
 }
 
 1;
