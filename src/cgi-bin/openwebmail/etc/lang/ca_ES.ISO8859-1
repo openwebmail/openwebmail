@@ -738,6 +738,7 @@ package ow::ca_ES_ISO8859_1;
    sendmail_chkdraft => 'Si us plau, verifiqueu el missatge desat a la carpeta d\'Esborranys, i torneu-ho a provar.',
    at_char_not_allowed => 'El caràcter @ no és permès en aquest camp. Premeu el botó Endarrera del vostre navegador i torneu-ho a provar',
    badnum_in_days => 'número erroni en el camp de dies consecutius',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Accés denegat',
    couldnt_chdirto   => 'No puc entrar al directori',
    isnt_a_dir        => 'no és un directori',

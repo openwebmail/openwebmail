@@ -737,6 +737,7 @@ package ow::uk_UA_KOI8_U;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => 'Символ @ не дозволя╓ться в цьому пол╕. Натисн╕ть кнопку <Назад> у вашому переглядач╕ ╕ спробуйте знову.',
    badnum_in_days => 'погане число у пол╕ к╕лькост╕ дн╕в',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'В доступ╕ в╕дмовлено',
    couldnt_chdirto   => 'Не можу зм╕нити каталог на',
    isnt_a_dir        => 'не ╓ каталогом.',

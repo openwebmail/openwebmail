@@ -738,6 +738,7 @@ package ow::sk_SK_ISO8859_2;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => 'Znak @ nie je povolenı v tomto políèku. Kliknite prosím na tlaèítko Spä» vo Va¹om prehliadaèi a skúste to znovu.',
    badnum_in_days => 'zlé èíslo v políèku nasledujúcich dní',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Prístup zamietnutı',
    couldnt_chdirto   => 'Nemô¾em zmeni» adresár na ',
    isnt_a_dir        => 'nie je adresár',

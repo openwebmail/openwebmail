@@ -737,6 +737,7 @@ package ow::tr_TR_ISO8859_9;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => '@ karakterini bu alanda kullanamazsýnýz.  Geri tuþuna basýp tekrar deneyiniz',
    badnum_in_days => 'takip eden günler alanýnda hatalý giriþ',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Eriþim engellendi',
    couldnt_chdirto   => 'Girilemeyen klasör',
    isnt_a_dir        => 'bir klasör deðil',

@@ -737,6 +737,7 @@ package ow::sl_SI_CP1250;
    sendmail_chkdraft => 'Prosim preverite sporoèilo, ki je shranjeno v mapi osnutki in poskusite znova.',
    at_char_not_allowed => 'Znak @ v tem polju ni dovoljen.  Pritisnite gumb "nazaj" na vašem brskalniku in poskusite znova.',
    badnum_in_days => 'napaèno število v zaporedju zastopanih dnevov',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Vstop zavrnjen',
    couldnt_chdirto   => 'Ne morem zamenjati mape na',
    isnt_a_dir        => 'ni mapa',

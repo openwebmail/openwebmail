@@ -737,6 +737,7 @@ package ow::zh_TW_UTF_8;
    sendmail_chkdraft => '請檢查暫存在草稿匣中的信件, 然後再試一次.',
    at_char_not_allowed => '欄位中不能有 @ 字元.  請回到上一頁再試一次',
    badnum_in_days => '代表天數欄位的數值發生錯誤',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => '拒絕存取',
    couldnt_chdirto   => '無法切換目錄到',
    isnt_a_dir        => '不是一個目錄',

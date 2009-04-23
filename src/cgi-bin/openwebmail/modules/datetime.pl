@@ -93,7 +93,7 @@ sub array2seconds {
       $days_in_month[2]++ if ( $year % 4 == 0 && ($year % 100 != 0 || $year % 400 == 0) );
       $d = $days_in_month[$m+1] if ($d > $days_in_month[$m+1]);
    }
-   return timegm($sec,$min,$hour, $d,$m,$y);
+   return timegm($sec,$min,$hour, $d,$m,$y); # Time::Local module
 }
 ########## END SECONDS <-> DATEARRAY #############################
 
@@ -362,6 +362,72 @@ sub hour24to12 {
    return($hour, $ampm);
 }
 ########## END HOUR24TO12 ########################################
+
+sub days_in_month {
+   # return the total number of days for a given month in a given year
+   my ($year, $month) = @_;
+   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+   $days_in_month[2]++ if ($year % 4 == 0 && ($year % 100 != 0 || $year % 400 == 0));
+   return $days_in_month[$month];
+}
+
+sub day_of_year {
+   # return the number of a given day this year from 0 to 366
+   my ($year, $month, $day) = @_;
+   my $day_of_year = 0;
+   foreach my $month_this_year (1..$month) {
+      my $days_in_month = days_in_month($year, $month_this_year);
+      $day_of_year += $days_in_month;
+      $day_of_year -= $days_in_month - $day if $month_this_year == $month && $day < $days_in_month;
+   }
+   return $day_of_year;
+}
+
+sub days_in_year {
+   # return the number of days in the given year
+   my $year = shift;
+   return ($year % 400 || $year % 100 || $year %4) ? 365 : 366;
+}
+
+sub week_of_year {
+   # return the week number this year for the provided date. This follows
+   # ISO 8601 provided the $weekstart is 1 (where 0 => Sunday, 1 => Monday, etc.)
+   my ($year, $month, $day, $weekstart) = @_;
+
+   my $day_of_year = day_of_year($year,$month,$day);
+
+   my $weekday_number = (weekday_number($year,$month,$day) + 7 - $weekstart) % 7;
+
+   my $day_of_nearest_thursday = $day_of_year - $weekday_number + 2;
+
+   $day_of_nearest_thursday += days_in_year($year-1) if $day_of_nearest_thursday < 0;
+   $day_of_nearest_thursday -= days_in_year($year) if $day_of_nearest_thursday > days_in_year($year);
+
+   return (int($day_of_nearest_thursday / 7) + 1);
+}
+
+sub weekday_number {
+   # return the weekday number for the given year, month, day
+   my ($year, $month, $day) = @_;
+
+   my $time           = ow::datetime::array2seconds(1, 1, 1, $day, $month - 1, $year - 1900);
+   my $weekday_number = (ow::datetime::seconds2array($time))[6]; # 0 => Sunday, etc
+
+   return $weekday_number;
+}
+
+sub yyyymmdd {
+   # return the provided date formatted as a yyyymmdd string
+   my ($year, $month, $day) = @_;
+
+   my $date = sprintf("%04d%02d%02d", $year, $month, $day);
+
+   my $dayofweek = $ow::datetime::wday_en[weekday_number($year,$month,$day)]; # Mon, Tues, etc
+   my $date2     = sprintf("%04d,%02d,%02d,%s", $year, $month, $day, $dayofweek);
+
+   return($date, $date2);
+}
+
 
 ########## EASTER_MATCH ##########################################
 # Allow use of expression 'easter +- offset' for month and day field in $idate

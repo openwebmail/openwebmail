@@ -737,6 +737,7 @@ package ow::bg_BG_CP1251;
    sendmail_chkdraft => 'Моля изберете съобщението, записано в чернови и опитайте пак.',
    at_char_not_allowed => 'Символът @ е недопустим за това поле.  Натисни back бутона на браузера и опитай пак',
    badnum_in_days => 'грешка в броя на дните',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Достъпът отказан',
    couldnt_chdirto   => 'Невъзможност за прехвърляне в',
    isnt_a_dir        => 'не е директория',

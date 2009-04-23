@@ -737,6 +737,7 @@ package ow::pt_PT_ISO8859_1;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => 'O caracter @ não é permitido neste campo. É favor clicar no botão de retroceder do navegador (browser), e tente novamente',
    badnum_in_days => 'número incorrecto no campo de dias consecutivos',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Acesso negado',
    couldnt_chdirto   => 'Não foi possível mudar para a directoria',
    isnt_a_dir        => 'não é uma directoria',

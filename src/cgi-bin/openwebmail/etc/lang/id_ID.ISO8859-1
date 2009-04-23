@@ -737,6 +737,7 @@ package ow::id_ID_ISO8859_1;
    sendmail_chkdraft => 'Silakan memeriksa pesan yang tersimpan di folder Simpan Catatan dan mencoba lagi.',
    at_char_not_allowed => 'Karakter @ tidak diijinkan pada kolom ini. Silakan klik tombol kembali pada browser anda dan coba kembali',
    badnum_in_days => 'angka berurutan yang buruk di dalam kolom hari',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Akses ditolak',
    couldnt_chdirto   => 'Tidak dapat mengubah direktori ke',
    isnt_a_dir        => 'tidak ada direktori',

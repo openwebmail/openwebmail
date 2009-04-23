@@ -738,6 +738,7 @@ package ow::he_IL_CP1255;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => 'התו @ איננו מורשה בשדה זה. נא לחץ על "חזור" בדפדפן שלך ונסה שנית',
    badnum_in_days => 'bad number in consecutive days field',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'גישה לא אושרה',
    couldnt_chdirto   => 'לא הצליח לשנות סיפריה ל',
    isnt_a_dir        => 'הוא לא סיפרייה',

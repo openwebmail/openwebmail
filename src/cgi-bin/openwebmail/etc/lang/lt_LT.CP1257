@@ -737,6 +737,7 @@ package ow::lt_LT_CP1257;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => 'Simbolis @ negalimas ğiame lauke.  Gráşkite atgal ir bandykite dar kartà',
    badnum_in_days => 'blogas skaièius , nenuoseklus',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Uşdrausta',
    couldnt_chdirto   => 'Negalima perğokti á katalogà',
    isnt_a_dir        => 'tai ne katalogas',

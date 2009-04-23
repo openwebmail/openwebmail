@@ -740,6 +740,7 @@ package ow::de_DE_ISO8859_1;
    sendmail_chkdraft => 'Bitte prüfen Sie die Nachricht, die in Ihrem Entürfe-Ordner gespeichert ist, und versuchen Sie es erneut.',
    at_char_not_allowed => 'Das @-Zeichen ist in diesem Eingabefeld nicht erlaubt. Klicken sie auf zurück und versuchen sie es erneut!',
    badnum_in_days => 'Falsche Zahl im Feld für die Tage',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Zugriff verweigert',
    couldnt_chdirto   => 'Ordnerwechsel nicht möglich',
    isnt_a_dir        => 'ist kein Ordner',

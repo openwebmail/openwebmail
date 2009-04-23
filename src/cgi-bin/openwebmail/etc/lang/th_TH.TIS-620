@@ -737,6 +737,7 @@ package ow::th_TH_TIS_620;
    sendmail_chkdraft => 'กรุณาตรวจสอบจดหมายในกล่องร่าง แล้วลองใหม่',
    at_char_not_allowed => 'ไม่สามารถใช้เครื่องหมาย @ ในช่องนี้ได้ กรุณากดปุ่ม back แล้วลองใหม่',
    badnum_in_days => 'จำนวนในช่องวันติดต่อกันผิดพลาด',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'ไม่อนุญาตให้ใช้งาน',
    couldnt_chdirto   => 'ไม่สามารถเข้าโฟลเดอร์',
    isnt_a_dir        => 'ไม่ใช่โฟลเดอร์',

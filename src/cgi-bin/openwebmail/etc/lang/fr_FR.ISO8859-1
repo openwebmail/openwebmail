@@ -737,6 +737,7 @@ package ow::fr_FR_ISO8859_1;
    sendmail_chkdraft => 'Verifiez le message dans le répertoire Brouillons, et ré-essayez.',
    at_char_not_allowed => 'Le caractère @ n\'est pas autorisé dans ce champs. Cliquez sur le boutton précédent et corrigez',
    badnum_in_days => 'Chiffre incorrect dans le champ des jours consécutifs',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Accès interdit',
    couldnt_chdirto   => 'Ne peut pas changer de répertoire vers',
    isnt_a_dir        => 'n\'est pas un répertoire',

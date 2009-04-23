@@ -743,6 +743,7 @@ package ow::pl_PL_ISO8859_2;
    sendmail_chkdraft => 'Proszê sprawdziæ wiadomo¶æ zapisan± w folderze szkiców i spróbowaæ jeszcze raz.',
    at_char_not_allowed => 'Znak @ jest niedozwolony. Naci¶nij przycisk wstecz w przegl±darce i spróbuj ponownie.',
    badnum_in_days => 'nieprawid³owa liczba w polu kolejno¶ci dni',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Dostêp zabroniony',
    couldnt_chdirto   => 'Nie mo¿na zmieniæ folderu do',
    isnt_a_dir        => 'nie jest folderem',

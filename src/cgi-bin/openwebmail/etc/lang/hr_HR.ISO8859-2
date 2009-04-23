@@ -737,6 +737,7 @@ package ow::hr_HR_ISO8859_2;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => 'Znak @ nije dozvoljen u ovom polju.  Pritisnite dugme za povratak i poku¹ajte ponovo',
    badnum_in_days => 'pogre¹an broj u nizu uzastopnih dana',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Pristup odbijen',
    couldnt_chdirto   => 'Ne mogu promijeniti direktorij na',
    isnt_a_dir        => 'nije direktorij',

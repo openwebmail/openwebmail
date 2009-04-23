@@ -738,6 +738,7 @@ package ow::nl_NL_ISO8859_1;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => 'Het @ karakter is niet toegestaan in dit invulveld. Klik op de \'Terug\' knop van uw browser, corrigeer het invulveld en probeer opnieuw',
    badnum_in_days => 'incorrect getal in dagveld',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Toegang geweigerd',
    couldnt_chdirto   => 'Kan niet bekijken: ',
    isnt_a_dir        => 'is geen directory',

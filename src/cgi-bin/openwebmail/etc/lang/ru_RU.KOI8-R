@@ -737,6 +737,7 @@ package ow::ru_RU_KOI8_R;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => 'Символ @ не предназначен для этого поля. Попробуйте вернуться назад (кнопкой Назад) и попробовать снова.',
    badnum_in_days => 'непривильное число в поле даты',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Доступ запрещен',
    couldnt_chdirto   => 'Не удается сменить каталог на',
    isnt_a_dir        => 'не является каталогом',

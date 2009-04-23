@@ -739,6 +739,7 @@ package ow::ko_KR_eucKR;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => '이 항목에서는 @ 문자가 허용되지 않습니다. 뒤로가기버튼을 누르시고 다시 시도하세요.',
    badnum_in_days => 'bad number in consecutive days field',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => '접근이 거부되었습니다.',
    couldnt_chdirto   => '로 디렉토리를 바꿀 수 없습니다.',
    isnt_a_dir        => '디렉토리가 아닙니다.',

@@ -737,6 +737,7 @@ package ow::ar_AE_CP1256;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => 'The @ character is not allowed in this field.  Press browser back button and try again',
    badnum_in_days => 'bad number in consecutive days field',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Access denied',
    couldnt_chdirto   => 'Couldn\'t chdir to',
    isnt_a_dir        => 'is not a directory',

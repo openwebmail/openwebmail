@@ -737,6 +737,7 @@ package ow::es_AR_ISO8859_1;
    sendmail_chkdraft => 'Por favor, verifique el mensaje guardado en la bandeja BORRADOR, e intentelo nuevamente.',
    at_char_not_allowed => 'El caracter @ no está permitido en este campo. Presione el botón Atrás de su navegador e intentelo nuevamente',
    badnum_in_days => 'número erróneo en el campo de días consecutivos',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Acceso denegado',
    couldnt_chdirto   => 'No se pudo acceder al directorio',
    isnt_a_dir        => 'no es un directorio',

@@ -737,6 +737,7 @@ package ow::ro_RO_ISO8859_2;
    sendmail_chkdraft => 'Vã rugãm verificaþi mesajul salvat în directorul DRAFT ºi încercaþi din nou.',
    at_char_not_allowed => 'Caracterul @ nu este permis în acest camp.  Vã rugãm apãsaþi butonul back al browser-ului, faceþi corecturile necesare ºi încercaþi din nou.',
    badnum_in_days => 'numãr greºit în câmpul de zile consecutive',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Acces nepermis!',
    couldnt_chdirto   => 'Nu se poate schimba directorul la',
    isnt_a_dir        => 'nu este un director',

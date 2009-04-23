@@ -737,6 +737,7 @@ package ow::no_NO_ISO8859_1;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => 'Tegnet @ er ikke tillagg i dette feltet. Trykk nettleserens Tilbake-knapp og prøv igjen.',
    badnum_in_days => 'feil antall i fletet for etterfølgende dager',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Ingen adgang',
    couldnt_chdirto   => 'Kunne ikke gå til mappen',
    isnt_a_dir        => 'er ikke en mappe',

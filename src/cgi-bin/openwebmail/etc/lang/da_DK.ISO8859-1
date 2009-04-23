@@ -738,6 +738,7 @@ package ow::da_DK_ISO8859_1;
    sendmail_chkdraft => 'Kontroller filen i kladdemappen og prøv igen.',
    at_char_not_allowed => 'Du kan ikke benyttet @ i dette felt. Tryk på tilbage i din browser og prøv igen.',
    badnum_in_days => 'ugyldigt antal dage, for tilbagevendende aftale',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Adgang nægtet',
    couldnt_chdirto   => 'Kunne ikke gå til',
    isnt_a_dir        => 'er ikke en mappe',

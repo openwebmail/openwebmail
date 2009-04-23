@@ -738,6 +738,7 @@ package ow::fi_FI_ISO8859_1;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => '@ -merkki ei ole sallittu tässä kentässä. Palaa takaisin ja yritä uudestaan',
    badnum_in_days => 'Huono(ja) numero(ja) peräkkäisissä päivä-kentissä',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Pääsy estetty',
    couldnt_chdirto   => 'Hakemiston vaihtaminen epäonnistui',
    isnt_a_dir        => 'Ei ole hakemisto',

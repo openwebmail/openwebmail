@@ -26,6 +26,9 @@ h1 { font-family: Arial, Helvetica, sans-serif; font-size: 140%; font-weight: bo
 a:link { text-decoration: none; color: #0000ff; }
 a:visited { text-decoration: none; color: #0000ff; }
 a:hover { color: #ff0000; }
+a.columnheader:link { text-decoration: none; color: #000000; }
+a.columnheader:visited { text-decoration: none; color: #000000; }
+a.columnheader:hover { color: #ff0000; }
 a.icon:link { font-weight: bold; }
 a.loading:link { text-decoration: none; color: #333333; }
 a.loading:visited { color: #333333; }
@@ -44,8 +47,33 @@ a.messagebody:hover { color: #ff0000; }
 .smalllighttext { font-size: 80%; color: #aaaaaa; }
 .smallblacktext { font-size: 80%; color: #000000; }
 .smallcolortext { font-size: 80%; color: #c00000; }
-.hilighttext { font-style: normal; font-weight: bold; background-color: #e0ec78; }
+.lighttext { color: #aaaaaa; }
+.hilitetext { font-style: normal; font-weight: bold; background-color: #e0ec78; }
 .quotedtext { color: #009900; }
 .colortext { color: #c00000; }
 .monospacetext { font-family: "Courier 10 Pitch", "Courier New", "Courier", "Lucida Console", monospace; }
 .messageheaderproperty { font-weight: bold; }
+.eventcolor0  { background-color: #e0ec78; border: solid 1px #666666; }
+.eventcolor1a { background-color: #b0b0e0; border: solid 1px #7b7bc2; }
+.eventcolor1b { background-color: #b0e0b0; border: solid 1px #7bc27b; }
+.eventcolor1c { background-color: #b0e0e0; border: solid 1px #7bc2c2; }
+.eventcolor1d { background-color: #e0b0b0; border: solid 1px #c27b7b; }
+.eventcolor1e { background-color: #e0b0e0; border: solid 1px #c27bc2; }
+.eventcolor1f { background-color: #e0e0b0; border: solid 1px #c2c27b; }
+.eventcolor2a { background-color: #9090f8; border: solid 1px #5d5dda; }
+.eventcolor2b { background-color: #90f890; border: solid 1px #5dda5d; }
+.eventcolor2c { background-color: #90f8f8; border: solid 1px #5ddada; }
+.eventcolor2d { background-color: #f89090; border: solid 1px #da5d5d; }
+.eventcolor2e { background-color: #f890f8; border: solid 1px #da5dda; }
+.eventcolor2f { background-color: #f8f890; border: solid 1px #dada5d; }
+
+/* popup calendar styles */
+#mypopupCal{ position: absolute; visibility: hidden; }
+.stylecal { font-size: 90%; color: #000000; }
+td.todayhilite { background-color: #f89090; font-weight: bold; border: solid 1px #da5d5d; }
+a.notmonth:link { font-size: 90%; color: #cccccc; }
+a.notmonth:visited { font-size: 90%; color: #cccccc; }
+a.notmonth:hover { font-size: 90%; color: #ff0000; }
+a.stylecal:link { font-size: 90%; color: #000000; }
+a.stylecal:visited { font-size: 90%; color: #000000; }
+a.stylecal:hover { font-size: 90%; color: #ff0000; }

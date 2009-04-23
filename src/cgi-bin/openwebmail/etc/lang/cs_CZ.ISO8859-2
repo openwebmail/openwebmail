@@ -741,6 +741,7 @@ package ow::cs_CZ_ISO8859_2;
    sendmail_chkdraft => 'Zkontrolujte prosím zprávy ulo¾ené ve slo¾ce Rozepsané a zkuste znovu.',
    at_char_not_allowed => 'Znak @ není v tomto políèku dovolen.  Kliknìte na tlaèítko prohlí¾eèe \'Zpìt\' a zkuste to znovu',
    badnum_in_days => '¹patné èíslo v políèku následujících dní',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Pøístup odepøen',
    couldnt_chdirto   => 'Nelze pøejít do slo¾ky',
    isnt_a_dir        => 'není slo¾kou',

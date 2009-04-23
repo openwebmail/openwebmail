@@ -742,6 +742,7 @@ package ow::ja_JP_eucJP;
    sendmail_chkdraft => 'Please check the message saved in draft folder, and try again.',
    at_char_not_allowed => 'その@文字はこのフィールドでは使えません。  ブラウザーの戻るボタンをクリックしてからもう一度試してみてください。',
    badnum_in_days => '連続した日フィールドでの良くない数',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'アクセスは拒否されました。',
    couldnt_chdirto   => '次のところにカレントディレクトリを移動できません。',
    isnt_a_dir        => 'はディレクトリではありません',

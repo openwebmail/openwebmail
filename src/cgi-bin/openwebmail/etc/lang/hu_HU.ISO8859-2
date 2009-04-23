@@ -738,6 +738,7 @@ package ow::hu_HU_ISO8859_2;
    sendmail_chkdraft => 'Kérlek nézzd meg a Piszkozat mappába elmentett üzenetet, és próbáld meg újra elküldeni.',
    at_char_not_allowed => 'A @ karakter nem engedélyezett ebben a mezõben. Kérem, hogy lépjen vissza egy oldalt a böngészõben, ellenõrizze az üzenetet, és próbálja újra.',
    badnum_in_days => 'hibás szám az egymást követõ napok mezõben',
+   start_after_end => 'The event start time cannot be after the event end time. Press browser back button and try again.',
    access_denied     => 'Hozzáférés megtagadva',
    couldnt_chdirto   => 'Nem lehet belépni a könyvtárba: ',
    isnt_a_dir        => 'nem könyvtár',

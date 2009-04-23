@@ -77,254 +77,248 @@ require "shares/calbook.pl";
 ow::tool::has_module('Compress/Zlib.pm');
 
 # common globals
-use vars qw(%config);
-use vars qw($thissession);
-use vars qw(%prefs);
+use vars qw(%config $thissession %prefs);
 
 # extern vars
-use vars qw($htmltemplatefilters); # defined in ow-shared.pl
-use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
+use vars qw($htmltemplatefilters);                                 # defined in ow-shared.pl
+use vars qw(%lang_folders %lang_text %lang_err);                   # defined in lang/xy
 use vars qw(%lang_month %lang_wday_abbrev %lang_wday %lang_order); # defined in lang/xy
 
 # local globals
-use vars qw($folder $sort $msgdatetype $page $longpage $keyword $searchtype);
-use vars qw($messageid);
-use vars qw(@slottime);
-
+use vars qw($folder $sort $msgdatetype $page $longpage $keyword $searchtype $messageid);
+use vars qw($events $index);
 
 # BEGIN MAIN PROGRAM
 
 openwebmail_requestbegin();
 userenv_init();
 
-openwebmailerror(__FILE__, __LINE__, "$lang_text{'calendar'} $lang_err{'access_denied'}") if !$config{'enable_calendar'};
+openwebmailerror(__FILE__, __LINE__, "$lang_text{calendar} $lang_err{access_denied}") if !$config{enable_calendar};
 
-my $action   = param('action') || '';
+($events, $index) = open_calendars();
 
-$folder      = param('folder') || 'INBOX';
-$sort        = param('sort') || $prefs{sort} || 'date_rev';
-$msgdatetype = param('msgdatetype') || $prefs{msgdatetype};
-$page        = param('page') || 1;
-$longpage    = param('longpage') || 0;
-$searchtype  = param('searchtype') || 'subject';
-$keyword     = param('keyword') || '';
-$messageid   = param('message_id') ||'';
+my $action     = param('action') || '';
 
-# init global @slottime
-@slottime=();
-for my $h (0..23) {
-   for (my $m=0; $m<60 ; $m=$m+$prefs{'calendar_interval'}) {
-      push(@slottime, sprintf("%02d%02d", $h, $m));
-   }
-}
-push(@slottime, "2400");
+$folder        = param('folder') || 'INBOX';
+$sort          = param('sort') || $prefs{sort} || 'date_rev';
+$msgdatetype   = param('msgdatetype') || $prefs{msgdatetype};
+$page          = param('page') || 1;
+$longpage      = param('longpage') || 0;
+$searchtype    = param('searchtype') || 'subject';
+$keyword       = param('keyword') || '';
+$messageid     = param('message_id') ||'';
 
-# event background colors
-my %eventcolors=( '1a'=>'b0b0e0', '1b'=>'b0e0b0', '1c'=>'b0e0e0',
-                  '1d'=>'e0b0b0', '1e'=>'e0b0e0', '1f'=>'e0e0b0',
-                  '2a'=>'9090f8', '2b'=>'90f890', '2c'=>'90f8f8',
-                  '2d'=>'f89090', '2e'=>'f890f8', '2f'=>'f8f890');
+writelog("debug - request cal begin, action=$action - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
 
-my $year=param('year')||'';
-my $month=param('month')||'';
-my $day=param('day')||'';
-if (defined param('daybutton')) {
-   $day=param('daybutton'); $day=~s/\s//g;
-}
+$action eq 'calyear'   ? viewyear()  :
+$action eq 'calmonth'  ? viewmonth() :
+$action eq 'calday'    ? viewday()   :
+$action eq 'calweek'   ? viewweek()  :
+$action eq 'callist'   ? viewlist()  :
+$action eq 'caledit'   ? edit()      :
+$action eq 'caladdmod' ? addmod()    :
+$action eq 'caldel'    ? del()       :
+openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
 
-my $index=param('index')||'';
-my $string=param('string')||'';
-my $starthour=param('starthour')||0;
-my $startmin=param('startmin')||0;
-my $startampm=param('startampm')||'am';
-my $endhour=param('endhour')||0;
-my $endmin=param('endmin')||0;
-my $endampm=param('endampm')||'am';
-my $link=param('link')||'';
-my $email=param('email')||'';
-my $dayfreq=param('dayfreq')||'thisdayonly';
-my $thisandnextndays=param('thisandnextndays')||0;
-my $ndays=param('ndays')||0;
-my $monthfreq=param('monthfreq')||0;
-my $everyyear=param('everyyear')||0;
-my $eventcolor=param('eventcolor')||'none';
-my $eventreminder=param('eventreminder');
-
-writelog("debug - request cal begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
-if ($action eq "calyear") {
-   yearview($year);
-} elsif ($action eq "calmonth") {
-   monthview($year, $month);
-} elsif ($action eq "calweek") {
-   weekview($year, $month, $day);
-} elsif ($action eq "calday") {
-   dayview($year, $month, $day);
-} elsif ($action eq "callist") {
-   listview($year);
-} elsif ($action eq "caledit") {
-   edit_item($year, $month, $day, $index);
-} elsif ($action eq "caladd") {
-   add_item($year, $month, $day,
-            $string,
-            $starthour, $startmin, $startampm,
-            $endhour, $endmin, $endampm,
-            $dayfreq,
-            $thisandnextndays, $ndays, $monthfreq, $everyyear,
-            $link, $email, $eventcolor, $eventreminder);
-   dayview($year, $month, $day);
-} elsif ($action eq "caldel") {
-   del_item($index);
-   if (defined param('callist')) {
-      listview($year);
-   } else {
-      dayview($year, $month, $day);
-   }
-} elsif ($action eq "calupdate") {
-   update_item($index,
-               $year, $month, $day,
-               $string,
-               $starthour, $startmin, $startampm,
-               $endhour, $endmin, $endampm,
-               $dayfreq,
-               $thisandnextndays, $ndays, $monthfreq, $everyyear,
-               $link, $email, $eventcolor, $eventreminder);
-
-   if (defined param('callist')) {
-      listview($year);
-   } else {
-      dayview($year, $month, $day);
-   }
-} else {
-   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
-}
-writelog("debug - request cal end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+writelog("debug - request cal end, action=$action - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
 
 openwebmail_requestend();
-########## END MAIN ##############################################
 
-########## YEARVIEW ##############################################
-sub yearview {
-   my $year = $_[0];
 
-#  Common to all views
+# BEGIN SUBROUTINES
 
-   my $localtime = ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
-   my ($current_year, $current_month, $current_day) = (ow::datetime::seconds2array($localtime))[5,4,3];
-
-   $current_year += 1900; 
-   my $min_year = $current_year - 30;
-   my $max_year = $current_year + 30;
-
-   $year = $current_year    if (!$year);
-   $year = $max_year        if ($year > $max_year); 
-   $year = $min_year        if ($year < $min_year);
-   
-   $current_month++;
-
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++      if ($year % 4 == 0 && ($year % 100 != 0 || $year % 400 == 0));
-
-   my (%items, %indexes);
+sub open_calendars {
+   # populate the events and indexes hashes with
+   # all of the calendar events for this user
    my $calbookfile = dotpath('calendar.book');
 
-   if (readcalbook($calbookfile, \%items, \%indexes, 0) < 0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
-   }
-   if ($prefs{'calendar_reminderforglobal'}) {
-      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
-      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
+   my (%events, %index) = (),();
+
+   # open the user calendar
+   openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $calbookfile")
+     if readcalbook($calbookfile, \%events, \%index, 0) < 0;
+
+   # open the global and holiday calendars
+   if ($prefs{calendar_reminderforglobal}) {
+      readcalbook($config{global_calendarbook}, \%events, \%index, 1E6);
+      if ($prefs{calendar_holidaydef} eq 'auto') {
+         readcalbook("$config{ow_holidaysdir}/$prefs{locale}", \%events, \%index, 1E7);
+      } elsif ($prefs{calendar_holidaydef} ne 'none') {
+         readcalbook("$config{ow_holidaysdir}/$prefs{calendar_holidaydef}", \%events, \%index, 1E7);
       }
    }
 
-#  End Common to all views
+   return (\%events, \%index);
+}
 
-   my $prev_year = $year - 1;
-   my $next_year = $year + 1;
+sub viewyear {
+   my $dates = dates(param('year'));
 
-   my @accesskey = qw(0 1 2 3 4 5 6 7 8 9 0 J Q);
-   my $weeknr = 1;
+   my $yearloop    = [];
+   my $yearlooprow = 0;
 
-   my $monthsloop = [];
+   foreach my $month_this_year (1..12) {
+      my @days_of_month_matrix = days_of_month_matrix($dates->{year}, $month_this_year);
 
-   for my $month (1..12) {
+      my $monthloop = [];
 
-      my $daysloop = [];
-      my @days = set_days_in_month($year, $month, $days_in_month[$month]);
+      # get the events for each day this month
+      foreach my $row (0..$#days_of_month_matrix) {
+         foreach my $col (0..6) {
+            my $day_this_month = $days_of_month_matrix[$row][$col] || 0;
 
-      my @eventstr;
+            if ($day_this_month) {
+               push(@{$monthloop->[$row]{columns}}, {
+                                     # standard params
+                                     use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                     url_html      => $config{ow_htmlurl},
+                                     url_cgi       => $config{ow_cgiurl},
+                                     iconset       => $prefs{iconset},
+                                     sessionid     => $thissession,
+                                     message_id    => $messageid,
+                                     folder        => $folder,
+                                     sort          => $sort,
+                                     msgdatetype   => $msgdatetype,
+                                     page          => $page,
+                                     longpage      => $longpage,
+                                     searchtype    => $searchtype,
+                                     keyword       => $keyword,
 
-      for my $w (0..5) {
-         for my $d (0..6) {
-            my $day = $days[$w][$d] || 0;
-            if ($day) {
-               my $wdaynum = ($prefs{'calendar_weekstart'} + $w) % 7;
-               my $dow     = $ow::datetime::wday_en[$wdaynum % 7];
-               my $date    = sprintf("%04d%02d%02d", $year, $month, $day);
-               my $date2   = sprintf("%04d,%02d,%02d,%s", $year, $month, $day, $dow);
-               my @indexlist = ();
-               foreach ($date, '*') {
-                  next if (!defined $indexes{$_});
-                  foreach my $index (@{$indexes{$_}}) {
-                     if ($date  =~ /$items{$index}{'idate'}/
-                         || $date2 =~ /$items{$index}{'idate'}/
-                         || ow::datetime::easter_match($year, $month, $day, $items{$index}{'idate'})) {
-                        push(@indexlist, $index);
-                     }
-                  }
-               }
-               @indexlist = sort { $items{$a}{'starthourmin'} <=> $items{$b}{'starthourmin'}
-                                 || $items{$a}{'endhourmin'} <=> $items{$b}{'endhourmin'}
-                                 || $b <=> $a } @indexlist;
-
-               @eventstr = ();
-               for my $index (@indexlist) {
-                  push(@eventstr, (iconv($items{$index}{'charset'}, $prefs{'charset'}, $items{$index}{'string'}))[0]);
-               }
+                                     year          => $dates->{year},
+                                     month         => $month_this_year,
+                                     day           => $day_this_month,
+                                     is_today      => (
+                                                        $dates->{year} == $dates->{current_year}
+                                                        && $month_this_year == $dates->{current_month}
+                                                        && $day_this_month == $dates->{current_day}
+                                                      ) ? 1 : 0,
+                                     eventstr      => $day_this_month
+                                                      ? join (' / ',
+                                                          map  {
+                                                                 (iconv($events->{$_}{charset}, $prefs{charset}, $events->{$_}{string}))[0]
+                                                               } indexes($dates->{year},$month_this_year,$day_this_month)
+                                                             )
+                                                      : '',
+                                  }
+                   );
+            } else {
+               push(@{$monthloop->[$row]{columns}}, { is_empty => 1 });
             }
-            push(@{$daysloop}, { url_cgi       => $config{ow_cgiurl},
-                                 sessionid     => $thissession,
-                                 message_id    => $messageid,
-                                 folder        => $folder,
-                                 year          => $year,          
-                                 month         => $month,
-                                 day           => $day,
-                                 today         => ($year == $current_year && $month == $current_month && $day == $current_day) ? 1 : 0,
-                                 weeknr        => (($d == 0) && ($days[$w][0] || $days[$w][6])) ? $weeknr : 0,
-                                 eventstr      => join(" / ", @eventstr),
-                                 newrow        => $d == 6 ? 1 : 0,
-                              });
-            $weeknr++ if ($d == 6 && $day);
          }
       }
 
-      push(@{$monthsloop}, { url_cgi       => $config{ow_cgiurl},
-                             sessionid     => $thissession,
-                             message_id    => $messageid,
-                             folder        => $folder,
-                             uselightbar   => $prefs{'uselightbar'},
-                             year          => $year,
-                             month         => $month,
-                             monthname     => $lang_month{$month},
-                             thismonth     => ($year == $current_year && $month == $current_month) ? 1 : 0,
-                             accesskey     => $accesskey[$month],
-                             newrow        => $month % 4 == 0 ? 1 : 0,
-                             wdheadersloop => [
-                                                map { my $n = ($prefs{'calendar_weekstart'} + $_) % 7;
-                                                      { wdheader    => $lang_wday_abbrev{$n} } 
-                                                    } @{[0..6]}
-                                              ],
-                             daysloop      => $daysloop,
-                          });
+      # label each row of the month with the week number
+      unshift(@{$monthloop->[$_]{columns}}, {
+                                               # standard params
+                                               use_texticon     => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                               url_html         => $config{ow_htmlurl},
+                                               url_cgi          => $config{ow_cgiurl},
+                                               iconset          => $prefs{iconset},
+                                               sessionid        => $thissession,
+                                               message_id       => $messageid,
+                                               folder           => $folder,
+                                               sort             => $sort,
+                                               msgdatetype      => $msgdatetype,
+                                               page             => $page,
+                                               longpage         => $longpage,
+                                               searchtype       => $searchtype,
+                                               keyword          => $keyword,
+
+                                               is_rowlabel   => 1,
+                                               year          => $dates->{year},
+                                               month         => $month_this_year,
+                                               weekofyearday => $days_of_month_matrix[$_][0] || $days_of_month_matrix[$_][6],
+                                               weekofyear    => ow::datetime::week_of_year(
+                                                                                            $dates->{year},
+                                                                                            $month_this_year,
+                                                                                            $days_of_month_matrix[$_][0]
+                                                                                            || $days_of_month_matrix[$_][6],
+                                                                                            $prefs{calendar_weekstart}
+                                                                                          ),
+                                            }
+             ) for (0..$#days_of_month_matrix);
+
+      # label each column of the month with the abbreviated day
+      unshift(@{$monthloop}, {
+                               columns => [
+                                            { is_collabel => 1, collabel => $lang_wday_abbrev{week} },
+                                            map {
+                                                  {
+                                                    is_collabel => 1,
+                                                    collabel    => $lang_wday_abbrev{(($prefs{calendar_weekstart} + $_) % 7)},
+                                                  }
+                                                } (0..6)
+                                          ]
+                             }
+             );
+
+      # label the entire month with the monthname
+      unshift(@{$monthloop}, {
+                               columns => [
+                                            {
+                                               # standard params
+                                               use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                               url_html      => $config{ow_htmlurl},
+                                               url_cgi       => $config{ow_cgiurl},
+                                               iconset       => $prefs{iconset},
+                                               sessionid     => $thissession,
+                                               message_id    => $messageid,
+                                               folder        => $folder,
+                                               sort          => $sort,
+                                               msgdatetype   => $msgdatetype,
+                                               page          => $page,
+                                               longpage      => $longpage,
+                                               searchtype    => $searchtype,
+                                               keyword       => $keyword,
+
+                                               is_monthlabel => 1,
+                                               colspan       => 8,
+                                               year          => $dates->{year},
+                                               month         => $month_this_year,
+                                               monthname     => $lang_month{$month_this_year},
+                                            }
+                                          ]
+                             }
+             );
+
+      # add this month to the year loop
+      push(@{$yearloop->[$yearlooprow]{columns}}, {
+                                                     # standard params
+                                                     use_texticon     => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                     url_html         => $config{ow_htmlurl},
+                                                     url_cgi          => $config{ow_cgiurl},
+                                                     iconset          => $prefs{iconset},
+                                                     sessionid        => $thissession,
+                                                     message_id       => $messageid,
+                                                     folder           => $folder,
+                                                     sort             => $sort,
+                                                     msgdatetype      => $msgdatetype,
+                                                     page             => $page,
+                                                     longpage         => $longpage,
+                                                     searchtype       => $searchtype,
+                                                     keyword          => $keyword,
+
+                                                     uselightbar      => $prefs{uselightbar},
+                                                     year             => $dates->{year},
+                                                     month            => $month_this_year,
+                                                     monthname        => $lang_month{$month_this_year},
+                                                     is_current_month => (
+                                                                           $dates->{year} == $dates->{current_year}
+                                                                           && $month_this_year == $dates->{current_month}
+                                                                         ) ? 1 : 0,
+                                                     month_accesskey  => ((qw(0 1 2 3 4 5 6 7 8 9 0 J Q))[$month_this_year]),
+                                                     monthloop        => $monthloop,
+                                                  }
+          );
+
+      $yearlooprow++ if $month_this_year % 4 == 0;
    }
 
    # build the template
    my $template = HTML::Template->new(
                                         filename          => get_template("cal_yearview.tmpl"),
                                         filter            => $htmltemplatefilters,
-                                        die_on_bad_params => 1,
+                                        die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
                                         cache             => 1,
@@ -332,182 +326,163 @@ sub yearview {
 
    $template->param(
                       # header.tmpl
-                      header_template         => get_header($config{header_template_file}),
+                      header_template     => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      url_html                => $config{ow_htmlurl},
-                      url_cgi                 => $config{ow_cgiurl},
-                      iconset                 => $prefs{iconset},
-                      sessionid               => $thissession,
-                      message_id              => $messageid,
-                      folder                  => $folder,
-                      sort                    => $sort,
-                      msgdatetype             => $msgdatetype,
-                      page                    => $page,
-                      longpage                => $longpage,
-                      searchtype              => $searchtype,
-                      keyword                 => $keyword,
+                      use_texticon        => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      url_html            => $config{ow_htmlurl},
+                      url_cgi             => $config{ow_cgiurl},
+                      iconset             => $prefs{iconset},
+                      sessionid           => $thissession,
+                      message_id          => $messageid,
+                      folder              => $folder,
+                      sort                => $sort,
+                      msgdatetype         => $msgdatetype,
+                      page                => $page,
+                      longpage            => $longpage,
+                      searchtype          => $searchtype,
+                      keyword             => $keyword,
+
+                      # standard calendar dates
+                      %{$dates},
 
                       # cal_yearview.tmpl
-                      enable_preference       => $config{enable_preference},
-                      enable_webmail          => $config{enable_webmail},
-                      enable_addressbook      => $config{enable_addressbook},
-                      enable_webdisk          => $config{enable_webdisk},
-                      enable_sshterm          => $config{enable_sshterm},
-                      year                    => $year,
-                      month                   => $month,
-                      day                     => $current_day,
-                      current_year            => $current_year,
-                      not_current             => $current_year != $year ? 1 : 0,
-                      prev_year               => $prev_year,
-                      next_year               => $next_year,
-                      monthname               => $lang_month{$current_month},
-                      yearselectloop          => [ 
-                                                   map { { 
-                                                            option      => $_,
-                                                            label       => $_,
-                                                            selected    => $_ eq $year ? 1 : 0
-                                                       } } @{[$min_year..$max_year]}
-                                                 ],
-                      monthsloop              => $monthsloop,
-                      
+                      cal_caller          => 'calyear',
+                      enable_preference   => $config{enable_preference},
+                      enable_webmail      => $config{enable_webmail},
+                      enable_addressbook  => $config{enable_addressbook},
+                      enable_webdisk      => $config{enable_webdisk},
+                      enable_sshterm      => $config{enable_sshterm},
+                      yearselectloop      => [
+                                               map { {
+                                                       option      => $_,
+                                                       label       => $_,
+                                                       selected    => $_ eq $dates->{year} ? 1 : 0
+                                                   } } ($dates->{min_year}..$dates->{max_year})
+                                             ],
+                      yearloop            => $yearloop,
+
                       # footer.tmpl
-                      footer_template         => get_footer($config{footer_template_file}),
+                      footer_template     => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
-
 }
-########## END YEARVIEW ##########################################
 
-########## MONTHVIEW #############################################
-sub monthview {
-   my ($year, $month) = @_;
+sub viewmonth {
+   my $dates = dates(param('year'), param('month'));
 
-#  Common to all views
+   my @days_of_month_matrix = days_of_month_matrix($dates->{year}, $dates->{month});
 
-   my $localtime = ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
-   my ($current_year, $current_month, $current_day) = (ow::datetime::seconds2array($localtime))[5,4,3];
+   my $monthloop = [];
 
-   $current_year += 1900; 
-   my $min_year = $current_year - 30;
-   my $max_year = $current_year + 30;
+   # populate the month with all the events
+   foreach my $row (0..$#days_of_month_matrix) {
+      foreach my $col (0..6) {
+         my $day_this_month = $days_of_month_matrix[$row][$col] || 0;
 
-   $year = $current_year    if (!$year);
-   $year = $max_year        if ($year > $max_year); 
-   $year = $min_year        if ($year < $min_year);
-   
-   $current_month++;
+         if ($day_this_month) {
+            my @thisday_events = events($dates->{year}, $dates->{month}, $day_this_month);
 
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++      if ($year % 4 == 0 && ($year % 100 != 0 || $year % 400 == 0));
-
-   my (%items, %indexes);
-   my $calbookfile = dotpath('calendar.book');
-
-   if (readcalbook($calbookfile, \%items, \%indexes, 0) < 0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
-   }
-   if ($prefs{'calendar_reminderforglobal'}) {
-      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
-      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
-      }
-   }
-
-#  End Common to all views
-
-   $month = $current_month       if (!$month);
-   $month = 12                   if ($month > 12); 
-   $month = 1                    if ($month < 1);
-
-   my ($prev_year, $prev_month) = $month == 1  ? ($year - 1, 12) : ($year, $month - 1);
-   my ($next_year, $next_month) = $month == 12 ? ($year + 1, 1)  : ($year, $month + 1);
-
-   my $daysloop = [];
-   my @days = set_days_in_month($year, $month, $days_in_month[$month]);
-
-   for my $w (0..5) {
-      for my $d (0..6) {
-         my ($lunar, $lunarnew);
-         my $day        = $days[$w][$d];
-         my $eventcount = 0;
-         my $eventsloop = [];
-
-         if ($day) {
-            my $t       = ow::datetime::array2seconds(1, 1, 1, $day, $month - 1, $year - 1900);
-            my $dow     = $ow::datetime::wday_en[(ow::datetime::seconds2array($t))[6]];
-            my $date    = sprintf("%04d%02d%02d", $year, $month, $day);
-            my $date2   = sprintf("%04d,%02d,%02d,%s", $year, $month, $day, $dow);
-            ($lunar, $lunarnew) = lunar_day($year, $month, $day, $prefs{'charset'});
-
-            my @indexlist = ();
-            foreach ($date, '*') {
-               next if (!defined $indexes{$_});
-               foreach my $index (@{$indexes{$_}}) {
-                  if (  $date  =~ /$items{$index}{'idate'}/ 
-                     || $date2 =~ /$items{$index}{'idate'}/ 
-                     || ow::datetime::easter_match($year, $month, $day, $items{$index}{'idate'})) {
-                     push(@indexlist, $index);
-                  }
-               }
+            my $more_events = 0;
+            if (scalar @thisday_events >= $prefs{calendar_monthviewnumitems}) {
+               $more_events = 1;
+               pop @thisday_events while scalar @thisday_events > $prefs{calendar_monthviewnumitems};
             }
-            @indexlist = sort { $items{$a}{'starthourmin'} <=> $items{$b}{'starthourmin'}
-                               || $items{$a}{'endhourmin'} <=> $items{$b}{'endhourmin'}
-                               || $b <=> $a } @indexlist;
-            for my $index (@indexlist) {
-               if ($eventcount < $prefs{'calendar_monthviewnumitems'}) {
-                  my ($eventtime, 
-                      $eventlink, 
-                      $eventlinktxt, 
-                      $eventemail, 
-                      $eventtxt, 
-                      $eventcolor,
-                      $idate) = parse_event($items{$index}, ($index >= 1E6));
 
-                  push(@{$eventsloop}, { use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
-                                         url_html      => $config{ow_htmlurl},
-                                         iconset       => $prefs{iconset},
-                                         eventtime     => $eventtime,    
-                                         eventlink     => $eventlink,    
-                                         eventlinktxt  => $eventlinktxt, 
-                                         eventemail    => $eventemail,   
-                                         eventtxt      => $eventtxt,     
-                                         eventcolor    => $eventcolor
-                                       });
-               }
-               $eventcount++;
-            }
+            my ($lunar, $lunarnew) = lunar_day($dates->{year}, $dates->{month}, $day_this_month);
+
+            # add this day to the month loop
+            push(@{$monthloop->[$row]{columns}}, {
+                                                    # standard params
+                                                    use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                    url_html      => $config{ow_htmlurl},
+                                                    url_cgi       => $config{ow_cgiurl},
+                                                    iconset       => $prefs{iconset},
+                                                    sessionid     => $thissession,
+                                                    message_id    => $messageid,
+                                                    folder        => $folder,
+                                                    sort          => $sort,
+                                                    msgdatetype   => $msgdatetype,
+                                                    page          => $page,
+                                                    longpage      => $longpage,
+                                                    searchtype    => $searchtype,
+                                                    keyword       => $keyword,
+
+                                                    cal_caller    => 'calmonth',
+                                                    uselightbar   => $prefs{uselightbar},
+                                                    year          => $dates->{year},
+                                                    month         => $dates->{month},
+                                                    day           => $day_this_month,
+                                                    lunar         => $lunar,
+                                                    lunarnew      => $lunarnew,
+                                                    is_today      => (
+                                                                       $dates->{year} == $dates->{current_year}
+                                                                       && $dates->{month} == $dates->{current_month}
+                                                                       && $day_this_month == $dates->{current_day}
+                                                                     ) ? 1 : 0,
+                                                    dayeventsloop => \@thisday_events,
+                                                    more_events   => $more_events,
+                                                  }
+                );
+         } else {
+            # no day here - add an empty cell
+            push(@{$monthloop->[$row]{columns}}, { is_empty => 1 });
          }
-         $day = 0 if (!defined($day));
-         push(@{$daysloop}, { url_cgi     => $config{ow_cgiurl},
-                              sessionid   => $thissession,
-                              message_id  => $messageid,
-                              folder      => $folder,
-                              uselightbar => $prefs{'uselightbar'},
-                              day         => $day,
-                              month       => $month,
-                              year        => $year,
-                              daystr      => sprintf("%2d", $day),
-                              lunar       => $lunar,
-                              lunarnew    => $lunarnew,
-                              today       => ($year == $current_year && $month == $current_month && $day == $current_day) ? 1 : 0,
-                              newrow      => $d == 6 ? 1 : 0,
-                              has_event   => $eventcount,
-                              more_events => $eventcount > $prefs{'calendar_monthviewnumitems'} ? 1 : 0,
-                              eventsloop  => $eventsloop
-                           });
       }
    }
+
+   # label each row of the month with its week number
+   unshift(@{$monthloop->[$_]{columns}}, {
+                                             # standard params
+                                             use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                             url_html      => $config{ow_htmlurl},
+                                             url_cgi       => $config{ow_cgiurl},
+                                             iconset       => $prefs{iconset},
+                                             sessionid     => $thissession,
+                                             message_id    => $messageid,
+                                             folder        => $folder,
+                                             sort          => $sort,
+                                             msgdatetype   => $msgdatetype,
+                                             page          => $page,
+                                             longpage      => $longpage,
+                                             searchtype    => $searchtype,
+                                             keyword       => $keyword,
+
+                                             is_rowlabel   => 1,
+                                             labeltext     => ow::datetime::week_of_year($dates->{year},$dates->{month},$days_of_month_matrix[$_][0] || $days_of_month_matrix[$_][6],$prefs{calendar_weekstart}),
+                                             uselightbar   => $prefs{uselightbar},
+                                             year          => $dates->{year},
+                                             month         => $dates->{month},
+                                             dayinrow      => $days_of_month_matrix[$_][0] || $days_of_month_matrix[$_][6],
+                                          }
+          ) for (0..$#days_of_month_matrix);
+
+   # create a column label row with the columns date and day information
+   unshift(@{$monthloop}, {
+                             columns => [
+                                          {
+                                            is_collabel => 1,
+                                            labeltext   => $lang_wday_abbrev{week},
+                                          },
+                                          map {
+                                                my $weekday_number = ($prefs{calendar_weekstart} + $_) % 7;
+                                                {
+                                                  is_collabel => 1,
+                                                  labeltext   => $lang_wday{$weekday_number},
+                                                  is_saturday => $weekday_number == 6 ? 1 : 0,
+                                                  is_sunday   => $weekday_number == 0 ? 1 : 0
+                                                }
+                                              } (0..6)
+                                        ]
+                          }
+          );
 
    # build the template
    my $template = HTML::Template->new(
                                         filename          => get_template("cal_monthview.tmpl"),
                                         filter            => $htmltemplatefilters,
-                                        die_on_bad_params => 1,
+                                        die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
                                         cache             => 1,
@@ -515,578 +490,121 @@ sub monthview {
 
    $template->param(
                       # header.tmpl
-                      header_template         => get_header($config{header_template_file}),
+                      header_template     => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      url_html                => $config{ow_htmlurl},
-                      url_cgi                 => $config{ow_cgiurl},
-                      iconset                 => $prefs{iconset},
-                      sessionid               => $thissession,
-                      message_id              => $messageid,
-                      folder                  => $folder,
-                      sort                    => $sort,
-                      msgdatetype             => $msgdatetype,
-                      page                    => $page,
-                      longpage                => $longpage,
-                      searchtype              => $searchtype,
-                      keyword                 => $keyword,
+                      use_texticon        => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      url_html            => $config{ow_htmlurl},
+                      url_cgi             => $config{ow_cgiurl},
+                      iconset             => $prefs{iconset},
+                      sessionid           => $thissession,
+                      message_id          => $messageid,
+                      folder              => $folder,
+                      sort                => $sort,
+                      msgdatetype         => $msgdatetype,
+                      page                => $page,
+                      longpage            => $longpage,
+                      searchtype          => $searchtype,
+                      keyword             => $keyword,
+
+                      # standard calendar dates
+                      %{$dates},
 
                       # cal_monthview.tmpl
-                      enable_preference       => $config{enable_preference},
-                      enable_webmail          => $config{enable_webmail},
-                      enable_addressbook      => $config{enable_addressbook},
-                      enable_webdisk          => $config{enable_webdisk},
-                      enable_sshterm          => $config{enable_sshterm},
-                      year                    => $year,
-                      month                   => $month,
-                      day                     => $current_day,
-                      current_year            => $current_year,
-                      current_month           => $current_month,
-                      not_current             => (($current_year != $year) || ($current_month != $month)) ? 1 : 0,
-                      prev_year               => $prev_year,
-                      prev_month              => $prev_month,
-                      next_year               => $next_year,
-                      next_month              => $next_month,
-                      prev_monthname          => $lang_month{$prev_month}, 
-                      next_monthname          => $lang_month{$next_month},
-                      current_monthname       => $lang_month{$current_month},
-                      monthname               => $lang_month{$month},
-                      monthselectloop         => [
-                                                   map { {
-                                                            option      => $_,
-                                                            label       => $lang_month{$_},
-                                                            selected    => $_ eq $month ? 1 : 0
-                                                       } } @{[1..12]}
-                                                 ],
-                      yearselectloop          => [ 
-                                                   map { { 
-                                                            option      => $_,
-                                                            label       => $_,
-                                                            selected    => $_ eq $year ? 1 : 0
-                                                       } } @{[$min_year..$max_year]}
-                                                 ],
-                      calheaderloop           => [
-                                                   map { my $n = ($prefs{'calendar_weekstart'} + $_) % 7;
-                                                       {
-                                                            weekday     => $lang_wday{$n},
-                                                            saturday    => $n == 6 ? 1 : 0,
-                                                            sunday      => $n == 0 ? 1 : 0
-                                                       } } @{[0..6]}
-                                                 ],
-                      daysloop                => $daysloop,
-                      
+                      cal_caller          => 'calmonth',
+                      enable_preference   => $config{enable_preference},
+                      enable_webmail      => $config{enable_webmail},
+                      enable_addressbook  => $config{enable_addressbook},
+                      enable_webdisk      => $config{enable_webdisk},
+                      enable_sshterm      => $config{enable_sshterm},
+                      monthselectloop     => [
+                                               map { {
+                                                       option      => $_,
+                                                       label       => $lang_month{$_},
+                                                       selected    => $_ eq $dates->{month} ? 1 : 0
+                                                   } } @{[1..12]}
+                                             ],
+                      yearselectloop      => [
+                                               map { {
+                                                       option      => $_,
+                                                       label       => $_,
+                                                       selected    => $_ eq $dates->{year} ? 1 : 0
+                                                   } } ($dates->{min_year}..$dates->{max_year})
+                                             ],
+                      monthloop           => $monthloop,
+
                       # footer.tmpl
-                      footer_template         => get_footer($config{footer_template_file}),
+                      footer_template     => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
-
-}
-########## END MONTHVIEW #########################################
-
-
-########## WEEKVIEW ##############################################
-sub weekview {
-   my ($year, $month, $day) = @_;
-
-#  Common to all views
-
-   my $localtime = ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
-   my ($current_year, $current_month, $current_day) = (ow::datetime::seconds2array($localtime))[5,4,3];
-
-   $current_year  += 1900; 
-   my $min_year = $current_year - 30;
-   my $max_year = $current_year + 30;
-
-   $year = $current_year    if (!$year);
-   $year = $max_year        if ($year > $max_year); 
-   $year = $min_year        if ($year < $min_year);
-
-   $current_month++;
-
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++      if ($year % 4 == 0 && ($year % 100 != 0 || $year % 400 == 0));
-
-   my (%items, %indexes);
-   my $calbookfile = dotpath('calendar.book');
-
-   if (readcalbook($calbookfile, \%items, \%indexes, 0) < 0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
-   }
-   if ($prefs{'calendar_reminderforglobal'}) {
-      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
-      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
-      }
-   }
-
-#  End Common to all views
-
-   $month = $current_month       if (!$month);
-   $month = 12                   if ($month > 12); 
-   $month = 1                    if ($month < 1);
-   $day = $current_day           if (!$day);
-   $day = $days_in_month[$month] if ($day > $days_in_month[$month]); 
-   $day = 1                      if ($day < 1);
-
-   my $time = ow::datetime::array2seconds(0, 0, 12, $day, $month - 1, $year - 1900);
-   my ($prev_year, $prev_month, $prev_day) = (ow::datetime::seconds2array($time - 86400 * 7))[5,4,3];
-   my ($next_year, $next_month, $next_day) = (ow::datetime::seconds2array($time + 86400 * 7))[5,4,3];
-
-   $prev_month++;
-   $next_month++;
-
-   $prev_year     += 1900;
-   $next_year     += 1900;
-
-   my $wdaynum = (ow::datetime::seconds2array($time))[6];
-   my $start_time = $time - 86400 * (($wdaynum + 7 - $prefs{'calendar_weekstart'}) % 7);
-
-   my $daysloop = [];
-
-   for my $d (0..6) {
-      my $eventcount = 0;
-      my $eventsloop = [];
-
-      my ($year, $month, $day) = (ow::datetime::seconds2array($start_time + $d * 86400))[5,4,3];
-      $year += 1900;
-      $month++;
-
-      my $t       = ow::datetime::array2seconds(1, 1, 1, $day, $month - 1, $year - 1900);
-      my $dow     = $ow::datetime::wday_en[(ow::datetime::seconds2array($t))[6]];
-      my $date    = sprintf("%04d%02d%02d", $year, $month, $day);
-      my $date2   = sprintf("%04d,%02d,%02d,%s", $year, $month, $day, $dow);
-      my ($lunar, $lunarnew) = lunar_day($year, $month, $day, $prefs{'charset'});
-
-      my @indexlist=();
-      foreach ($date, '*') {
-         next if (!defined $indexes{$_});
-         foreach my $index (@{$indexes{$_}}) {
-            if (  $date  =~ /$items{$index}{'idate'}/
-               || $date2 =~ /$items{$index}{'idate'}/
-               || ow::datetime::easter_match($year, $month, $day, $items{$index}{'idate'})) {
-               push(@indexlist, $index);
-            }
-         }
-      }
-      @indexlist = sort { $items{$a}{'starthourmin'} <=> $items{$b}{'starthourmin'}
-                         || $items{$a}{'endhourmin'} <=> $items{$b}{'endhourmin'}
-                         || $b <=> $a } @indexlist;
-      for my $index (@indexlist) {
-         if ($eventcount < $prefs{'calendar_monthviewnumitems'}) {
-            my ($eventtime, 
-                $eventlink, 
-                $eventlinktxt, 
-                $eventemail, 
-                $eventtxt, 
-                $eventcolor,
-                $idate) = parse_event($items{$index}, ($index>=1E6));
-
-            push(@{$eventsloop}, { use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
-                                   url_html      => $config{ow_htmlurl},
-                                   iconset       => $prefs{iconset},
-                                   eventtime     => $eventtime,    
-                                   eventlink     => $eventlink,    
-                                   eventlinktxt  => $eventlinktxt, 
-                                   eventemail    => $eventemail,   
-                                   eventtxt      => $eventtxt,     
-                                   eventcolor    => $eventcolor
-                                 });
-         }
-         $eventcount++;
-      }
-      push(@{$daysloop}, { url_cgi     => $config{ow_cgiurl},
-                           sessionid   => $thissession,
-                           message_id  => $messageid,
-                           folder      => $folder,
-                           uselightbar => $prefs{'uselightbar'},
-                           day         => $day,
-                           month       => $month,
-                           year        => $year,
-                           daystr      => sprintf("%2d", $day),
-                           lunar       => $lunar,
-                           lunarnew    => $lunarnew,
-                           today       => ($year == $current_year && $month == $current_month && $day == $current_day) ? 1 : 0,
-                           has_event   => $eventcount,
-                           eventsloop  => $eventsloop
-                        });
-   }
-
-   # build the template
-   my $template = HTML::Template->new(
-                                        filename          => get_template("cal_weekview.tmpl"),
-                                        filter            => $htmltemplatefilters,
-                                        die_on_bad_params => 1,
-                                        loop_context_vars => 0,
-                                        global_vars       => 0,
-                                        cache             => 1,
-                                     );
-   $template->param(
-                      # header.tmpl
-                      header_template         => get_header($config{header_template_file}),
-
-                      # standard params
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      url_html                => $config{ow_htmlurl},
-                      url_cgi                 => $config{ow_cgiurl},
-                      iconset                 => $prefs{iconset},
-                      sessionid               => $thissession,
-                      message_id              => $messageid,
-                      folder                  => $folder,
-                      sort                    => $sort,
-                      msgdatetype             => $msgdatetype,
-                      page                    => $page,
-                      longpage                => $longpage,
-                      searchtype              => $searchtype,
-                      keyword                 => $keyword,
-
-                      # cal_weekview.tmpl
-                      enable_preference       => $config{enable_preference},
-                      enable_webmail          => $config{enable_webmail},
-                      enable_addressbook      => $config{enable_addressbook},
-                      enable_webdisk          => $config{enable_webdisk},
-                      enable_sshterm          => $config{enable_sshterm},
-                      year                    => $year,
-                      month                   => $month,
-                      current_day             => $current_day,
-                      day                     => $day,
-                      current_year            => $current_year,
-                      current_month           => $current_month,
-                      not_current             => (($current_year != $year) || ($current_month != $month) || ($current_day != $day)) ? 1 : 0,
-                      min_year                => $min_year,
-                      prev_year               => $prev_year,
-                      prev_month              => $prev_month,
-                      prev_day                => $prev_day,
-                      next_year               => $next_year,
-                      next_month              => $next_month,
-                      next_day                => $next_day,
-                      prev_monthname          => $lang_month{$prev_month}, 
-                      next_monthname          => $lang_month{$next_month},
-                      current_monthname       => $lang_month{$current_month},
-                      monthname               => $lang_month{$month},
-                      weekstart               => $prefs{'calendar_weekstart'},
-                      dayselectloop           => [ 
-                                                   map { { 
-                                                            option      => $_,
-                                                            label       => $_,
-                                                            selected    => $_ eq $day ? 1 : 0
-                                                       } } @{[1..$days_in_month[$month]]}
-                                                 ],
-                      monthselectloop         => [
-                                                   map { {
-                                                            option      => $_,
-                                                            label       => $lang_month{$_},
-                                                            selected    => $_ eq $month ? 1 : 0
-                                                       } } @{[1..12]}
-                                                 ],
-                      yearselectloop          => [ 
-                                                   map { { 
-                                                            option      => $_,
-                                                            label       => $_,
-                                                            selected    => $_ eq $year ? 1 : 0
-                                                       } } @{[$min_year..$max_year]}
-                                                 ],
-                      calheaderloop           => [
-                                                   map { my $n = ($prefs{'calendar_weekstart'} + $_) % 7;
-                                                       {
-                                                            weekday     => $lang_wday{$n},
-                                                            saturday    => $n == 6 ? 1 : 0,
-                                                            sunday      => $n == 0 ? 1 : 0
-                                                       } } @{[0..6]}
-                                                 ],
-                      daysloop                => $daysloop,
-                      
-                      # footer.tmpl
-                      footer_template         => get_footer($config{footer_template_file}),
-                   );
-
-   httpprint([], [$template->output]);
-
 }
 
-########## END WEEKVIEW ##########################################
+sub viewday {
+   my $dates = dates(param('year'), param('month'), param('day'));
 
-########## DAYVIEW ###############################################
-sub dayview {
-   my ($year, $month, $day) = @_;
+   my ($lunar, $lunarnew) = lunar_day($dates->{year}, $dates->{month}, $dates->{day});
 
-#  Common to all views
+   my @thisday_events = events($dates->{year}, $dates->{month}, $dates->{day});
 
-   my $localtime = ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
-   my ($current_year, $current_month, $current_day) = (ow::datetime::seconds2array($localtime))[5,4,3];
+   # create 24 hour matrix grid of the events
+   my $matrix = matrix_24h(@thisday_events);
 
-   $current_year  += 1900; 
-   my $min_year = $current_year - 30;
-   my $max_year = $current_year + 30;
+   $matrix = matrix_trim_empty_hour_rows($matrix);
+   $matrix = matrix_labelrows($matrix);
 
-   $year = $current_year    if (!$year);
-   $year = $max_year        if ($year > $max_year); 
-   $year = $min_year        if ($year < $min_year);
+   $matrix->[0]{columns}[1]{no_events} = 1 unless scalar @thisday_events;
 
-   $current_month++;
+   # calculate the offset in days from today
+   my $thisymdtime = ow::datetime::array2seconds(0, 0, 12, $dates->{day}, $dates->{month} - 1, $dates->{year} - 1900);
+   my $currenttime = ow::datetime::array2seconds(0, 0, 12, $dates->{current_day}, $dates->{current_month} - 1, $dates->{current_year} - 1900);
+   my $daysfromtoday = int(($thisymdtime - $currenttime) / 86400);
+   $daysfromtoday = "+$daysfromtoday" if $daysfromtoday >= 0;
 
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++      if ($year % 4 == 0 && ($year % 100 != 0 || $year % 400 == 0));
+   # prepare the form elements for the "add calendar event" form
+   my $weekday_number = ow::datetime::weekday_number($dates->{year},$dates->{month},$dates->{day});
 
-   my (%items, %indexes);
-   my $calbookfile = dotpath('calendar.book');
+   my @hourlist = ('none', ($prefs{hourformat} == 12 ? (1..12) : (0..23)));
 
-   if (readcalbook($calbookfile, \%items, \%indexes, 0) < 0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
+   my $weekorder = int(($dates->{day} + 6) / 7);
+
+   my %dayfreqlabels = (
+                         thisdayonly        => $lang_text{thisday_only},
+                         thewdayofthismonth => $lang_text{the_wday_of_thismonth},
+                         everywdaythismonth => $lang_text{every_wday_thismonth},
+                       );
+
+   $dayfreqlabels{thewdayofthismonth} =~ s/\@\@\@ORDER\@\@\@/$lang_order{$weekorder}/;
+   $dayfreqlabels{thewdayofthismonth} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$weekday_number}/;
+   $dayfreqlabels{everywdaythismonth} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$weekday_number}/;
+
+   my @dayfreq = $weekorder <= 4 ? qw(thisdayonly thewdayofthismonth everywdaythismonth) : qw(thisdayonly everywdaythismonth);
+
+   my %monthfreqlabels = (
+                           thismonthonly          => $lang_text{thismonth_only},
+                           everyoddmonththisyear  => $lang_text{every_oddmonth_thisyear},
+                           everyevenmonththisyear => $lang_text{every_evenmonth_thisyear},
+                           everymonththisyear     => $lang_text{every_month_thisyear}
+                         );
+
+   my @monthfreq = ('thismonthonly', ($dates->{month} % 2 ? 'everyoddmonththisyear' : 'everyevenmonththisyear'), 'everymonththisyear');
+
+   my $eventcolorselectloop = [];
+   foreach my $eventcolor (qw(1a 1b 1c 1d 1e 1f 2a 2b 2c 2d 2e 2f none)) {
+      push(@{$eventcolorselectloop}, {
+                                        option        => $eventcolor,
+                                        label         => $eventcolor eq 'none' ? '--' : $eventcolor,
+                                        selected      => 0,
+                                        selectedindex => $#{$eventcolorselectloop} + 1,
+                                     }
+          )
    }
-   if ($prefs{'calendar_reminderforglobal'}) {
-      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
-      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
-      }
-   }
-
-#  End Common to all views
-
-   $month = $current_month       if (!$month);
-   $month = 12                   if ($month > 12); 
-   $month = 1                    if ($month < 1);
-   $day = $current_day           if (!$day);
-   $day = $days_in_month[$month] if ($day > $days_in_month[$month]); 
-   $day = 1                      if ($day < 1);
-
-   my $time = ow::datetime::array2seconds(0, 0, 12, $day, $month - 1, $year - 1900);
-   my ($prev_year, $prev_month, $prev_day) = (ow::datetime::seconds2array($time - 86400))[5,4,3];
-   my ($next_year, $next_month, $next_day) = (ow::datetime::seconds2array($time + 86400))[5,4,3];
-
-   $prev_month++;
-   $next_month++;
-
-   $prev_year     += 1900;
-   $next_year     += 1900;
-
-   my $t       = ow::datetime::array2seconds(1, 1, 1, $day, $month - 1, $year - 1900);
-   my $wdaynum = (ow::datetime::seconds2array($t))[6];
-   my $dow     = $ow::datetime::wday_en[$wdaynum];
-   my $date    = sprintf("%04d%02d%02d", $year, $month, $day);
-   my $date2   = sprintf("%04d,%02d,%02d,%s", $year, $month, $day, $dow);
-   my ($lunar, $lunarnew) = lunar_day($year, $month, $day, $prefs{'charset'});
-
-   my $offset = int(($time - ow::datetime::array2seconds(0, 0, 12, $current_day, $current_month - 1, $current_year - 1900)) / 86400);
-   $offset = "+$offset" if ($offset >= 0);
-
-   my @hourlist;
-   if ($prefs{'hourformat'} == 12) {
-      @hourlist = qw(none 1 2 3 4 5 6 7 8 9 10 11 12);
-   } else {
-      @hourlist = qw(none 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23);
-   }
-
-   my $weekorder = int(($day + 6) / 7);
-   my %dayfreqlabels = ('thisdayonly'       => $lang_text{'thisday_only'},
-                        'thewdayofthismonth'=> $lang_text{'the_wday_of_thismonth'},
-                        'everywdaythismonth'=> $lang_text{'every_wday_thismonth'});
-   $dayfreqlabels{'thewdayofthismonth'} =~ s/\@\@\@ORDER\@\@\@/$lang_order{$weekorder}/;
-   $dayfreqlabels{'thewdayofthismonth'} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$wdaynum}/;
-   $dayfreqlabels{'everywdaythismonth'} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$wdaynum}/;
-   my @dayfreq= $weekorder <= 4 ? ('thisdayonly', 'thewdayofthismonth', 'everywdaythismonth')
-                                : ('thisdayonly', 'everywdaythismonth');
-
-   my %monthfreqlabels = ('thismonthonly'         => $lang_text{'thismonth_only'},
-                          'everyoddmonththisyear' => $lang_text{'every_oddmonth_thisyear'},
-                          'everyevenmonththisyear'=> $lang_text{'every_evenmonth_thisyear'},
-                          'everymonththisyear'    => $lang_text{'every_month_thisyear'});
-   my @monthfreq = $month % 2 ? ('thismonthonly', 'everyoddmonththisyear', 'everymonththisyear') 
-                              : ('thismonthonly', 'everyevenmonththisyear', 'everymonththisyear');
-
-   my @indexlist=();
-   foreach ($date, '*') {
-      next if (!defined $indexes{$_});
-      foreach my $index (@{$indexes{$_}}) {
-         if (  $date  =~ /$items{$index}{'idate'}/
-            || $date2 =~ /$items{$index}{'idate'}/
-            || ow::datetime::easter_match($year, $month, $day, $items{$index}{'idate'})) {
-            push(@indexlist, $index);
-         }
-      }
-   }
-   @indexlist = sort { $items{$a}{'starthourmin'} <=> $items{$b}{'starthourmin'}
-                      || $items{$a}{'endhourmin'} <=> $items{$b}{'endhourmin'}
-                      || $b <=> $a } @indexlist;
-
-   # all day events
-
-   my (@allday_indexes, @matrix, %layout, $slotmin, $slotmax, $colmax, );
-   build_event_matrix(\%items, \@indexlist,
-       \@allday_indexes, \@matrix, \%layout, \$slotmin, \$slotmax, \$colmax);
-
-   my $alldayloop = [];
-   my ($bdstylestr, $eventlink, $eventemail, $eventtime);
-   my $alterrow = 1;
-
-   for my $index (@allday_indexes) {
-      $alterrow = $alterrow ? 0 : 1;
-      my ($eventtime, 
-          $eventlink, 
-          $eventlinktxt, 
-          $eventemail, 
-          $eventtxt, 
-          $eventcolor,
-          $idate) = parse_event($items{$index}, ($index >= 1E6));
-
-      push(@{$alldayloop}, {  
-                              use_texticon         => ($prefs{iconset} =~ m/^Text\./?1:0),
-                              url_html             => $config{ow_htmlurl},
-                              url_cgi              => $config{ow_cgiurl},
-                              iconset              => $prefs{iconset},
-                              sessionid            => $thissession,
-                              message_id           => $messageid,
-                              folder               => $folder,
-                              year                 => $year,
-                              month                => $month,
-                              day                  => $day,
-                              alterrow             => $alterrow,
-                              eventtime            => $eventtime,    
-                              eventlink            => $eventlink,    
-                              eventlinktxt         => $eventlinktxt, 
-                              eventemail           => $eventemail,   
-                              eventtxt             => $eventtxt,     
-                              eventcolor           => $eventcolor,
-                              eventindex           => $index,
-                              eventmult            => $idate =~ /[\*|,|\|]/ ? 1 : 0,
-                              notglobal            => $index < 1E6 ? 1 : 0,
-                              colspan              => $colmax + 1,
-                           });
-   }
-
-   # events with time
-
-   $alterrow = 1;
-   my $slotsloop = [];
-   my $slots_in_hour = int(60 / ($prefs{'calendar_interval'} || 30) + 0.999999);
-
-   for (my $slot = 0; $slot < $#slottime; $slot++) {
-      my $rowminstr = 0;
-      if ($slot % $slots_in_hour == 0) {
-         # skip too early time slots
-         my $is_early = 1;
-         for my $i (0 .. $slots_in_hour - 1) {
-            if ($slot + $i >= $slotmin
-                || $slottime[$slot + $i] ge $prefs{'calendar_starthour'}) {
-               $is_early = 0; 
-               last;
-            }
-         }
-
-         if ($is_early) {	# skip $slots_in_hour slots at once
-            $slot = $slot + $slots_in_hour - 1;
-            next;
-         }
-
-         # skip empty time slots
-         if (!$prefs{'calendar_showemptyhours'}) {
-            my $is_empty = 1;
-            for my $col (0 .. $colmax) {
-               for my $i (0 .. $slots_in_hour - 1) {
-                  if (defined $matrix[$slot + $i][$col] && $matrix[$slot + $i][$col]) {
-                     $is_empty=0;
-                     last;
-                  }
-                  last if (!$is_empty);
-               }
-               last if (!$is_empty);
-            }
-            if ($is_empty) {	# skip $slots_in_hour slots at once
-               $slot = $slot + $slots_in_hour-1;
-               next;
-            }
-         }
-
-         last if ($slot > $slotmax && $slottime[$slot] gt $prefs{'calendar_endhour'});
-         
-         $alterrow = $alterrow ? 0 : 1;
-      } elsif ($slots_in_hour > 3 && ($slot%$slots_in_hour) % 2 == 0) {
-         $rowminstr = ($slot % $slots_in_hour) * $prefs{'calendar_interval'};
-      }
-
-      my $colsloop = [];
-
-      for my $col (0 .. $colmax) {
-        my $r_event;
-        my ($eventtime, 
-           $eventlink, 
-           $eventlinktxt, 
-           $eventemail, 
-           $eventtxt, 
-           $eventcolor,
-           $idate) = ('','','','','','','');
-         my $starteventcell = 0;
-         my $overlappedcell = 0;
-         my $index = 0;
-         if (defined $matrix[$slot][$col]) {
-            $index = $matrix[$slot][$col];
-            $r_event = $items{$index};
-            if ($slot == $layout{$index}{'startslot'} &&
-                $col == $layout{$index}{'startcol'} ) {	# an event started at this cell
-                ($eventtime, 
-                 $eventlink, 
-                 $eventlinktxt, 
-                 $eventemail, 
-                 $eventtxt, 
-                 $eventcolor,
-                 $idate) = parse_event($items{$index}, ($index >= 1E6));
-               $starteventcell = 1;
-            } else {
-               $overlappedcell = 1;
-            }
-         }
-         push(@{$colsloop}, {
-                              use_texticon         => ($prefs{iconset} =~ m/^Text\./?1:0),
-                              url_html             => $config{ow_htmlurl},
-                              url_cgi              => $config{ow_cgiurl},
-                              iconset              => $prefs{iconset},
-                              sessionid            => $thissession,
-                              message_id           => $messageid,
-                              folder               => $folder,
-                              alterrow             => $alterrow,
-                              year                 => $year,
-                              month                => $month,
-                              day                  => $day,
-                              width                => int(100 * $layout{$index}{'colspan'} / ($colmax + 1)),
-                              rowspan              => $layout{$index}{'rowspan'},
-                              colspan              => $layout{$index}{'colspan'},
-                              starteventcell       => $starteventcell,
-                              overlappedcell       => $overlappedcell,
-                              eventtime            => $eventtime,    
-                              eventlink            => $eventlink,    
-                              eventlinktxt         => $eventlinktxt, 
-                              eventemail           => $eventemail,   
-                              eventtxt             => $eventtxt,     
-                              eventcolor           => $eventcolor,
-                              bordercolor          => bordercolor($eventcolor),
-                              eventindex           => $index,
-                              eventmult            => $idate =~ /[\*|,|\|]/ ? 1 : 0,
-                              endhourmin           => ${$r_event}{'endhourmin'},
-                              notglobal            => $index < 1E6 ? 1 : 0,
-                         });
-      }
-
-      push(@{$slotsloop}, {  
-                              fullrow              => $slot % $slots_in_hour == 0 ? 1 : 0,
-                              rowtimestr           => hourmin2str($slottime[$slot], $prefs{'hourformat'}),
-                              rowminstr            => $rowminstr,
-                              alterrow             => $alterrow,
-                              colsloop             => $colsloop,
-                      });
-   }
-
-   my $i = 1;
 
    # build the template
    my $template = HTML::Template->new(
                                         filename          => get_template("cal_dayview.tmpl"),
                                         filter            => $htmltemplatefilters,
-                                        die_on_bad_params => 1,
+                                        die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
                                         cache             => 1,
@@ -1096,7 +614,7 @@ sub dayview {
                       header_template         => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
+                      use_texticon            => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
                       url_html                => $config{ow_htmlurl},
                       url_cgi                 => $config{ow_cgiurl},
                       iconset                 => $prefs{iconset},
@@ -1109,65 +627,46 @@ sub dayview {
                       longpage                => $longpage,
                       searchtype              => $searchtype,
                       keyword                 => $keyword,
-                      
+
+                      # standard calendar dates
+                      %{$dates},
+
                       # cal_dayview.tmpl
+                      cal_caller              => 'calday',
                       enable_preference       => $config{enable_preference},
                       enable_webmail          => $config{enable_webmail},
                       enable_addressbook      => $config{enable_addressbook},
                       enable_webdisk          => $config{enable_webdisk},
                       enable_sshterm          => $config{enable_sshterm},
-                      year                    => $year,
-                      month                   => $month,
-                      current_day             => $current_day,
-                      offset                  => $offset,
-                      day                     => $day,
-                      weekday                 => $lang_wday{$wdaynum},
+                      weekstart               => $prefs{calendar_weekstart},
+                      is_weekend              => $weekday_number == 6 || $weekday_number == 0 ? 1 : 0,
+                      daysfromtoday           => $daysfromtoday,
                       lunar                   => $lunar,
                       lunarnew                => $lunarnew,
-                      saturday                => $wdaynum == 6 ? 1 : 0,
-                      sunday                  => $wdaynum == 0 ? 1 : 0,
-                      current_year            => $current_year,
-                      current_month           => $current_month,
-                      not_current             => (($current_year != $year) || ($current_month != $month) || ($current_day != $day)) ? 1 : 0,
-                      min_year                => $min_year,
-                      prev_year               => $prev_year,
-                      prev_month              => $prev_month,
-                      prev_day                => $prev_day,
-                      next_year               => $next_year,
-                      next_month              => $next_month,
-                      next_day                => $next_day,
-                      prev_monthname          => $lang_month{$prev_month}, 
-                      next_monthname          => $lang_month{$next_month},
-                      current_monthname       => $lang_month{$current_month},
-                      monthname               => $lang_month{$month},
-                      weekstart               => $prefs{'calendar_weekstart'},
-                      noitems                 => $#indexlist < 0 ? 1 : 0,
-                      noalldayitems           => $#allday_indexes < 0 ? 1 : 0,
-                      colspan                 => $colmax + 1,
-                      dayselectloop           => [ 
-                                                   map { { 
+                      matrix                  => $matrix,
+                      dayselectloop           => [
+                                                   map { {
                                                             option      => $_,
                                                             label       => $_,
-                                                            selected    => $_ eq $day ? 1 : 0
-                                                       } } @{[1..$days_in_month[$month]]}
+                                                            selected    => $_ eq $dates->{day} ? 1 : 0
+                                                       } } (1..ow::datetime::days_in_month($dates->{year},$dates->{month}))
                                                  ],
                       monthselectloop         => [
                                                    map { {
                                                             option      => $_,
                                                             label       => $lang_month{$_},
-                                                            selected    => $_ eq $month ? 1 : 0
-                                                       } } @{[1..12]}
+                                                            selected    => $_ eq $dates->{month} ? 1 : 0
+                                                       } } (1..12)
                                                  ],
-                      yearselectloop          => [ 
-                                                   map { { 
+                      yearselectloop          => [
+                                                   map { {
                                                             option      => $_,
                                                             label       => $_,
-                                                            selected    => $_ eq $year ? 1 : 0
-                                                       } } @{[$min_year..$max_year]}
+                                                            selected    => $_ eq $dates->{year} ? 1 : 0
+                                                       } } ($dates->{min_year}..$dates->{max_year})
                                                  ],
-                      alldayloop              => $alldayloop,
-                      slotsloop               => $slotsloop,
-                      starthourselectloop     => [ 
+                      is_12hourformat         => $prefs{hourformat} == 12 ? 1 : 0,
+                      starthourselectloop     => [
                                                    map { {
                                                            option       => $_,
                                                            label        => $_ eq 'none' ? $lang_text{$_} : sprintf("%02d", $_),
@@ -1181,339 +680,239 @@ sub dayview {
                                                            selected     => $_ eq '0' ? 1 : 0
                                                        } } (0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
                                                  ],
-                      endhourselectloop     => [ 
+                      endhourselectloop       => [
                                                    map { {
                                                            option       => $_,
                                                            label        => $_ eq 'none' ? $lang_text{$_} : sprintf("%02d", $_),
                                                            selected     => $_ eq $hourlist[0] ? 1 : 0
                                                        } } @hourlist
                                                  ],
-                      endminselectloop      => [
+                      endminselectloop        => [
                                                    map { {
                                                            option       => $_,
                                                            label        => sprintf("%02d", $_),
                                                            selected     => $_ eq '0' ? 1 : 0
                                                        } } (0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
                                                  ],
-                      dayfreqselectloop     => [
+                      dayfreqselectloop       => [
                                                    map { {
                                                            option       => $_,
                                                            label        => $dayfreqlabels{$_},
                                                            selected     => $_ eq $dayfreq[0] ? 1 : 0
                                                        } } @dayfreq
                                                  ],
-                      monthfreqselectloop   => [
+                      monthfreqselectloop     => [
                                                    map { {
                                                            option       => $_,
                                                            label        => $monthfreqlabels{$_},
                                                            selected     => $_ eq $monthfreq[0] ? 1 : 0
                                                        } } @monthfreq
                                                  ],
-                      eventcolorselectloop  => [
-                                                   map { {
-                                                           option       => $_,
-                                                           label        => $_,
-                                                           selected     => $_ eq 'none' ? 1 : 0
-                                                       } } @{['none', sort keys %eventcolors]}
-                                                 ],
-                      eventcolorlistloop    => [
-                                                   map { {
-                                                           eventcolor   => $eventcolors{$_},
-                                                           eventcolorkey=> $_,
-                                                           eventcolornum=> $i++,
-                                                       } } sort keys %eventcolors
-                                                 ],
+                      eventcolorselectloop    => $eventcolorselectloop,
 
                       # footer.tmpl
                       footer_template         => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
-
 }
 
-sub build_event_matrix {
-   my ($r_items, $r_indexlist,
-       $r_allday_indexies, $r_matrix, $r_layout, $r_slotmin, $r_slotmax, $r_colmax)=@_;
-   my @matrix_indexies;
-   my %slots;
-   (${$r_slotmin}, ${$r_slotmax}, ${$r_colmax})=(999999, 0, 0);
+sub viewweek {
+   my $dates = dates(param('year'), param('month'), param('day'));
 
-   # split the events into two lists: all day events, and not all day events.
-   foreach my $index (@{$r_indexlist}) {
-      my $r_event=${$r_items}{$index};
-      if ( (${$r_event}{'starthourmin'} gt ${$r_event}{'endhourmin'} && ${$r_event}{'endhourmin'} ne '0') ||
-           (${$r_event}{'starthourmin'} eq '0' && ${$r_event}{'endhourmin'} eq '0') ) {
-          push(@{$r_allday_indexies}, $index);
-      } else {
-          push(@matrix_indexies, $index);
-      }
+   my $time = ow::datetime::array2seconds(0, 0, 12, $dates->{day}, $dates->{month} - 1, $dates->{year} - 1900);
+   my $weekstart_time = $time - 86400 * ((ow::datetime::weekday_number($dates->{year},$dates->{month},$dates->{day}) + 7 - $prefs{calendar_weekstart}) % 7);
+
+   my @days            = ();
+   my $maxallday       = 0;
+   my $firsteventstart = $prefs{calendar_starthour};
+   my $lasteventfinish = $prefs{calendar_endhour};
+
+   # process each day of this week
+   foreach my $col (0..6) {
+      my ($week_year, $week_month, $week_day) = (ow::datetime::seconds2array($weekstart_time + $col * 86400))[5,4,3];
+
+      $week_year += 1900;
+      $week_month++;
+
+      my @thisday_events = events($week_year, $week_month, $week_day);
+
+      # create 24 hour matrix grid of this days events
+      my $matrix = matrix_24h(@thisday_events);
+
+      # make sure the first column of the first row notes the year, month, day this day of
+      # the matrix covers, even if there is no event in the first column of the first row
+      $matrix->[0]{columns}[0]{year}     = $week_year;
+      $matrix->[0]{columns}[0]{month}    = $week_month;
+      $matrix->[0]{columns}[0]{day}      = $week_day;
+      $matrix->[0]{columns}[0]{is_today} = (
+                                             $week_year == $dates->{current_year}
+                                             && $week_month == $dates->{current_month}
+                                             && $week_day == $dates->{current_day}
+                                           ) ? 1 : 0;
+
+      $maxallday       = $matrix->[0]{allday_count} if $matrix->[0]{allday_count} > $maxallday;
+      $firsteventstart = $matrix->[0]{firsteventstart} if $matrix->[0]{firsteventstart} < $firsteventstart;
+      $lasteventfinish = $matrix->[0]{lasteventfinish} if $matrix->[0]{lasteventfinish} > $lasteventfinish;
+
+      push(@days, $matrix);
    }
 
-   foreach my $index (@matrix_indexies) {
-      my $r_event=${$r_items}{$index};
-      next if (${$r_event}{'endhourmin'} ne '0' &&
-               ${$r_event}{'starthourmin'} gt ${$r_event}{'endhourmin'});
-      # find all slots of this event
-      for (my $slot = 0; $slot < $#slottime; $slot++) {
-         if ((${$r_event}{'endhourmin'}   gt $slottime[$slot] &&
-              ${$r_event}{'starthourmin'} lt $slottime[$slot+1]) ||
-             ((${$r_event}{'endhourmin'} eq '0' ||
-               ${$r_event}{'endhourmin'} eq ${$r_event}{'starthourmin'}) &&
-              ${$r_event}{'starthourmin'} ge $slottime[$slot] &&
-              ${$r_event}{'starthourmin'} lt $slottime[$slot+1]) ) {
-            push(@{$slots{$index}}, $slot);
-            ${$r_layout}{$index}{'rowspan'}++;
-            ${$r_slotmin}=$slot if ($slot<${$r_slotmin});
-            ${$r_slotmax}=$slot if ($slot>${$r_slotmax});
-         }
-      }
+   my $week_matrix = [];
 
-      # find the first available column for this event so all it won't conflict with other event
-      my $col=0;
-      for ($col=0; ; $col++) {
-         my $col_available=1;
-         foreach my $slot (@{$slots{$index}}) {
-            if (defined ${$r_matrix}[$slot][$col] && ${$r_matrix}[$slot][$col]) {
-               $col_available=0; last;
+   # create new allday rows as needed until each
+   # day matrix has the same number of rows
+   for(my $daycol = 0; $daycol < @days; $daycol++) {
+      while ($days[$daycol][0]{allday_count} < $maxallday) {
+         splice(@{$days[$daycol]},$days[$daycol][0]{allday_count},0,{ time => 'allday' });
+         foreach my $col (0..$#{$days[$daycol][0]{columns}}) {
+            foreach my $key (keys %{$days[$daycol][0]{columns}[$col]}) {
+               next unless $key =~ m#(?:colspan|rowspan|skip)#;
+               $days[$daycol][$days[$daycol][0]{allday_count}]{columns}[$col]{$key} = $days[$daycol][0]{columns}[$col]{$key};
             }
          }
-         last if ($col_available);
-      }
-      ${$r_layout}{$index}{'colspan'}=1;
-
-      foreach my $slot (@{$slots{$index}}) {
-         ${$r_matrix}[$slot][$col]=$index;
-      }
-      ${$r_layout}{$index}{'startslot'}=${$slots{$index}}[0];
-      ${$r_layout}{$index}{'startcol'}=$col;
-      ${$r_colmax}=$col if ($col>${$r_colmax});
-   }
-
-   # try to enlarge this event to other columns
-   foreach my $index (@matrix_indexies) {
-      my $extensible=1;
-      foreach my $slot (@{$slots{$index}}) {
-         for my $col (${$r_layout}{$index}{'startcol'}+1..${$r_colmax}) {
-            if (defined ${$r_matrix}[$slot][$col] && ${$r_matrix}[$slot][$col]) {
-               $extensible=0; last;
-            }
-         }
-         last if ($extensible==0);
-      }
-      if ($extensible) {
-         for my $col (${$r_layout}{$index}{'startcol'}+1..${$r_colmax}) {
-            foreach my $slot (@{$slots{$index}}) {
-               ${$r_matrix}[$slot][$col]=$index;
-            }
-            ${$r_layout}{$index}{'colspan'}++;
-         }
+         $days[$daycol][0]{allday_count}++;
       }
    }
-   return;
+
+   # join the days together into the final week matrix
+   for(my $daycol = 0; $daycol < @days; $daycol++) {
+      foreach my $row (0..$#{$days[$daycol]}) {
+         push(@{$week_matrix->[$row]{columns}}, @{$days[$daycol][$row]{columns}});
+         $week_matrix->[$row]{time} = $days[$daycol][$row]{time};
+      }
+   }
+
+   $week_matrix->[0]{allday_count}    = $maxallday;
+   $week_matrix->[0]{firsteventstart} = $firsteventstart;
+   $week_matrix->[0]{lasteventfinish} = $lasteventfinish;
+
+   $week_matrix = matrix_trim_empty_hour_rows($week_matrix);
+   $week_matrix = matrix_labelrows($week_matrix);
+   $week_matrix = matrix_labelcols($week_matrix);
+
+   # build the template
+   my $template = HTML::Template->new(
+                                        filename          => get_template("cal_weekview.tmpl"),
+                                        filter            => $htmltemplatefilters,
+                                        die_on_bad_params => 0,
+                                        loop_context_vars => 0,
+                                        global_vars       => 0,
+                                        cache             => 1,
+                                     );
+   $template->param(
+                      # header.tmpl
+                      header_template    => get_header($config{header_template_file}),
+
+                      # standard params
+                      use_texticon       => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      url_html           => $config{ow_htmlurl},
+                      url_cgi            => $config{ow_cgiurl},
+                      iconset            => $prefs{iconset},
+                      sessionid          => $thissession,
+                      message_id         => $messageid,
+                      folder             => $folder,
+                      sort               => $sort,
+                      msgdatetype        => $msgdatetype,
+                      page               => $page,
+                      longpage           => $longpage,
+                      searchtype         => $searchtype,
+                      keyword            => $keyword,
+
+                      # standard calendar dates
+                      %{$dates},
+
+                      # cal_weekview.tmpl
+                      cal_caller         => 'calweek',
+                      enable_preference  => $config{enable_preference},
+                      enable_webmail     => $config{enable_webmail},
+                      enable_addressbook => $config{enable_addressbook},
+                      enable_webdisk     => $config{enable_webdisk},
+                      enable_sshterm     => $config{enable_sshterm},
+                      week_matrix        => $week_matrix,
+                      weekstart          => $prefs{calendar_weekstart},
+                      dayselectloop      => [
+                                              map { {
+                                                      option      => $_,
+                                                      label       => $_,
+                                                      selected    => $_ eq $dates->{day} ? 1 : 0
+                                                  } } (1..ow::datetime::days_in_month($dates->{year},$dates->{month}))
+                                            ],
+                      monthselectloop    => [
+                                              map { {
+                                                      option      => $_,
+                                                      label       => $lang_month{$_},
+                                                      selected    => $_ eq $dates->{month} ? 1 : 0
+                                                  } } (1..12)
+                                            ],
+                      yearselectloop     => [
+                                              map { {
+                                                      option      => $_,
+                                                      label       => $_,
+                                                      selected    => $_ eq $dates->{year} ? 1 : 0
+                                                  } } ($dates->{min_year}..$dates->{max_year})
+                                            ],
+
+                      # footer.tmpl
+                      footer_template    => get_footer($config{footer_template_file}),
+                   );
+
+   httpprint([], [$template->output]);
 }
 
-sub bordercolor {
-   # take a hex number and calculate a hex number that
-   # will be a nice complement to it as a bordercolor
-   return "#666666" unless ($_[0]);
-   my ($redhex, $greenhex, $bluehex) = $_[0]=~/#(..)(..)(..)/;
-   my ($r, $g, $blue) = (sprintf("%d", hex($redhex)), sprintf("%d", hex($greenhex)), sprintf("%d", hex($bluehex)));
-   my ($h, $s, $v) = rgb2hsv($r, $g, $blue);
-
-   # adjust to get our new hsv bordercolor
-   if ($s > .5) { $s -= .15; $v += 30; } else { $s += .15; $v -= 30; };
-   $s = 0 if ($s < 0);
-   $s = 1 if ($s > 1);
-   $v = 0 if ($v < 0);
-   $v = 255 if ($v > 255);
-
-   ($r, $g, $blue) = hsv2rgb($h, $s, $v);
-   ($redhex, $greenhex, $bluehex) = (sprintf("%02x", $r), sprintf("%02x", $g), sprintf("%02x", $blue));
-
-   return "#$redhex$greenhex$bluehex";
-}
-
-sub rgb2hsv {
-   # based off reference code at http://www.cs.rit.edu/~ncs/color/t_convert.html
-   my ($r, $g, $blue) = @_;
-   my ($h, $s, $v, $min, $max, $delta);
-
-   ($min, $max) = (sort { $a <=> $b } ($r,$g,$blue))[0,-1];
-   return(-1, 0, 0) if ($max==0); # r g b are all 0
-
-   $delta = $max - $min;
-
-   $v = $max;
-   $s = $delta / $max;
-   if ($r == $max) {
-      $h = ($g - $blue) / $delta;
-   } elsif ($g == $max) {
-      $h = 2 + ($blue - $r) / $delta;
-   } else {
-      $h = 4 + ($r - $g) / $delta;
-   }
-
-   $h *= 60;
-   $h += 360 if ($h < 0);
-
-   return ($h, $s, $v);
-}
-
-sub hsv2rgb {
-   # based off reference code at http://www.cs.rit.edu/~ncs/color/t_convert.html
-   my ($h, $s, $v) = @_;
-   my ($i, $f, $p, $q, $t, $r, $g, $blue);
-
-   return ($v, $v, $v) if ($s == 0); # achromatic
-
-   $h /= 60; # sector 0 to 5
-   $i = int($h);
-   $f = $h - $i;
-   $p = $v * (1 - $s);
-   $q = $v * (1 - $s * $f);
-   $t = $v * (1 - $s * (1 - $f));
-
-   if ($i == 0) {
-      ($r, $g, $blue) = ($v, $t, $p);
-   } elsif ($i == 1) {
-      ($r, $g, $blue) = ($q, $v, $p);
-   } elsif ($i == 2) {
-      ($r, $g, $blue) = ($p, $v, $t);
-   } elsif ($i == 3) {
-      ($r, $g, $blue) = ($p, $q, $v);
-   } elsif ($i == 4) {
-      ($r, $g, $blue) = ($t, $p, $v);
-   } else {
-      ($r, $g, $blue) = ($v, $p, $q);
-   }
-
-   return ($r, $g, $blue);
-}
-########## END DAYVIEW ###########################################
-
-########## LISTVIEW ##############################################
-sub listview {
-   my $year = $_[0];
-
-#  Common to all views
-
-   my $localtime = ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
-   my ($current_year, $current_month, $current_day) = (ow::datetime::seconds2array($localtime))[5,4,3];
-
-   $current_year += 1900; 
-   my $min_year = $current_year - 30;
-   my $max_year = $current_year + 30;
-
-   $year = $current_year    if (!$year);
-   $year = $max_year        if ($year > $max_year); 
-   $year = $min_year        if ($year < $min_year);
-   
-   $current_month++;
-
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++      if ($year % 4 == 0 && ($year % 100 != 0 || $year % 400 == 0));
-
-   my (%items, %indexes);
-   my $calbookfile = dotpath('calendar.book');
-
-   if (readcalbook($calbookfile, \%items, \%indexes, 0) < 0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
-   }
-   if ($prefs{'calendar_reminderforglobal'}) {
-      readcalbook("$config{'global_calendarbook'}", \%items, \%indexes, 1E6);
-      if ($prefs{'calendar_holidaydef'} eq 'auto') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'locale'}", \%items, \%indexes, 1E7);
-      } elsif ($prefs{'calendar_holidaydef'} ne 'none') {
-         readcalbook("$config{'ow_holidaysdir'}/$prefs{'calendar_holidaydef'}", \%items, \%indexes, 1E7);
-      }
-   }
-
-#  End Common to all views
-
-   my $prev_year = $year - 1;
-   my $next_year = $year + 1;
-
-   my @accesskey = qw(0 1 2 3 4 5 6 7 8 9 0 J Q);
-
-   my $tnow = ow::datetime::array2seconds(1, 1, 1, $current_day, $current_month - 1, $current_year - 1900);
+sub viewlist {
+   my $dates = dates(param('year'));
 
    my $daysloop = [];
-   for my $month (1..12) {
-      for my $day (1..$days_in_month[$month]) {
-         my $t       = ow::datetime::array2seconds(1, 1, 1, $day, $month - 1, $year - 1900);
-         my $wdaynum = (ow::datetime::seconds2array($t))[6];
-         my $dow     = $ow::datetime::wday_en[$wdaynum];
-         my $date    = sprintf("%04d%02d%02d", $year, $month, $day);
-         my $date2   = sprintf("%04d,%02d,%02d,%s", $year, $month, $day, $dow);
-         my $today   = $t == $tnow ? 1 : 0;
-         my @indexlist = ();
-         foreach ($date, '*') {
-            next if (!defined $indexes{$_});
-            foreach my $index (@{$indexes{$_}}) {
-               if ($date  =~ /$items{$index}{'idate'}/
-                   || $date2 =~ /$items{$index}{'idate'}/
-                   || ow::datetime::easter_match($year, $month, $day, $items{$index}{'idate'})) {
-                  push(@indexlist, $index);
-               }
-            }
-         }
-         @indexlist = sort { $items{$a}{'starthourmin'} <=> $items{$b}{'starthourmin'}
-                           || $items{$a}{'endhourmin'} <=> $items{$b}{'endhourmin'}
-                           || $b <=> $a } @indexlist;
-         
-         my $eventsloop = [];
 
-         for my $index (@indexlist) {
-            my ($eventtime, 
-                $eventlink, 
-                $eventlinktxt, 
-                $eventemail, 
-                $eventtxt, 
-                $eventcolor,
-                $idate) = parse_event($items{$index}, ($index >= 1E6));
+   foreach my $month_this_year (1..12) {
+      foreach my $day_this_month (1..ow::datetime::days_in_month($dates->{year},$month_this_year)) {
+         my @thisday_events = events($dates->{year}, $month_this_year, $day_this_month);
 
-            push(@{$eventsloop}, { use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
-                                   url_cgi       => $config{ow_cgiurl},
-                                   url_html      => $config{ow_htmlurl},
-                                   sessionid     => $thissession,
-                                   message_id    => $messageid,
-                                   folder        => $folder,
-                                   iconset       => $prefs{iconset},
-                                   eventtime     => $eventtime,    
-                                   eventlink     => $eventlink,    
-                                   eventlinktxt  => $eventlinktxt, 
-                                   eventemail    => $eventemail,   
-                                   eventtxt      => $eventtxt,     
-                                   eventcolor    => $eventcolor,
-                                   eventindex    => $index,
-                                   eventmult     => $idate =~ /[\*|,|\|]/ ? 1 : 0,
-                                   notglobal     => $index < 1E6 ? 1 : 0,
-                                   year          => $year,
-                                   month         => $month,
-                                   day           => $day
-                                 });
-         }
-         if ($#{$eventsloop} > -1 || $today) {
-            my ($lunar, $lunarnew) = lunar_day($year, $month, $day, $prefs{'charset'});
-            push(@{$daysloop}, { url_cgi     => $config{ow_cgiurl},
-                                 sessionid   => $thissession,
-                                 message_id  => $messageid,
-                                 folder      => $folder,
-                                 uselightbar => $prefs{'uselightbar'},
-                                 day         => $day,
-                                 month       => $month,
-                                 year        => $year,
-                                 accesskey   => $accesskey[$month],
-                                 daystr      => sprintf("%02d", $day),
-                                 monthstr    => sprintf("%02d", $month),
-                                 weekday     => $lang_wday{$wdaynum},
-                                 lunar       => $lunar,
-                                 lunarnew    => $lunarnew,
-                                 today       => $today,
-                                 daydiffstr  => $today ? "" : sprintf("%+d", int(($t - $tnow)/86400)),
-                                 eventsloop  => $eventsloop
-                              });
+         my $is_today = (
+                          $dates->{year} == $dates->{current_year}
+                          && $month_this_year == $dates->{current_month}
+                          && $day_this_month == $dates->{current_day}
+                        ) ? 1 : 0;
+
+         my $time = ow::datetime::array2seconds(1, 1, 1, $day_this_month, $month_this_year - 1, $dates->{year} - 1900);
+         my $current_time = ow::datetime::array2seconds(1, 1, 1, $dates->{current_day}, $dates->{current_month} - 1, $dates->{current_year} - 1900);
+         my $dayoffset_from_current = $is_today ? 0 : sprintf("%+d", int(($time - $current_time)/86400));
+
+         if (scalar @thisday_events > 0 || $is_today) {
+            my ($lunar, $lunarnew) = lunar_day($dates->{year}, $month_this_year, $day_this_month);
+
+            push(@{$daysloop}, {
+                                 # standard params
+                                 use_texticon    => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                 url_html        => $config{ow_htmlurl},
+                                 url_cgi         => $config{ow_cgiurl},
+                                 iconset         => $prefs{iconset},
+                                 sessionid       => $thissession,
+                                 message_id      => $messageid,
+                                 folder          => $folder,
+                                 sort            => $sort,
+                                 msgdatetype     => $msgdatetype,
+                                 page            => $page,
+                                 longpage        => $longpage,
+                                 searchtype      => $searchtype,
+                                 keyword         => $keyword,
+
+                                 year            => $dates->{year},
+                                 month           => $month_this_year,
+                                 monthname       => $lang_month{$month_this_year},
+                                 day             => $day_this_month,
+                                 dayname         => $lang_wday{ow::datetime::weekday_number($dates->{year},$month_this_year,$day_this_month)},
+                                 daypadded       => sprintf("%02d",$day_this_month),
+                                 uselightbar     => $prefs{uselightbar},
+                                 lunar           => $lunar,
+                                 lunarnew        => $lunarnew,
+                                 is_today        => $is_today,
+                                 eventsloop      => \@thisday_events,
+                                 month_accesskey => ((qw(0 1 2 3 4 5 6 7 8 9 0 J Q))[$month_this_year]),
+                                 dayoffset_from_current => $dayoffset_from_current,
+                              }
+                );
          }
       }
    }
@@ -1522,197 +921,757 @@ sub listview {
    my $template = HTML::Template->new(
                                         filename          => get_template("cal_listview.tmpl"),
                                         filter            => $htmltemplatefilters,
-                                        die_on_bad_params => 1,
+                                        die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
                                         cache             => 1,
                                      );
    $template->param(
                       # header.tmpl
-                      header_template         => get_header($config{header_template_file}),
+                      header_template    => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      url_html                => $config{ow_htmlurl},
-                      url_cgi                 => $config{ow_cgiurl},
-                      iconset                 => $prefs{iconset},
-                      sessionid               => $thissession,
-                      message_id              => $messageid,
-                      folder                  => $folder,
-                      sort                    => $sort,
-                      msgdatetype             => $msgdatetype,
-                      page                    => $page,
-                      longpage                => $longpage,
-                      searchtype              => $searchtype,
-                      keyword                 => $keyword,
+                      use_texticon       => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      url_html           => $config{ow_htmlurl},
+                      url_cgi            => $config{ow_cgiurl},
+                      iconset            => $prefs{iconset},
+                      sessionid          => $thissession,
+                      message_id         => $messageid,
+                      folder             => $folder,
+                      sort               => $sort,
+                      msgdatetype        => $msgdatetype,
+                      page               => $page,
+                      longpage           => $longpage,
+                      searchtype         => $searchtype,
+                      keyword            => $keyword,
+
+                      # standard calendar dates
+                      %{$dates},
 
                       # cal_listview.tmpl
-                      enable_preference       => $config{enable_preference},
-                      enable_webmail          => $config{enable_webmail},
-                      enable_addressbook      => $config{enable_addressbook},
-                      enable_webdisk          => $config{enable_webdisk},
-                      enable_sshterm          => $config{enable_sshterm},
-                      year                    => $year,
-                      month                   => $current_month,
-                      day                     => $current_day,
-                      current_year            => $current_year,
-                      not_current             => $current_year != $year ? 1 : 0,
-                      prev_year               => $prev_year,
-                      next_year               => $next_year,
-                      monthname               => $lang_month{$current_month},
-                      yearselectloop          => [ 
-                                                   map { { 
-                                                            option      => $_,
-                                                            label       => $_,
-                                                            selected    => $_ eq $year ? 1 : 0
-                                                       } } @{[$min_year..$max_year]}
-                                                 ],
-                      daysloop                => $daysloop,
-                      
+                      cal_caller         => 'callist',
+                      enable_preference  => $config{enable_preference},
+                      enable_webmail     => $config{enable_webmail},
+                      enable_addressbook => $config{enable_addressbook},
+                      enable_webdisk     => $config{enable_webdisk},
+                      enable_sshterm     => $config{enable_sshterm},
+                      yearselectloop     => [
+                                              map { {
+                                                option   => $_,
+                                                label    => $_,
+                                                selected => $_ eq $dates->{year} ? 1 : 0
+                                              } } ($dates->{min_year}..$dates->{max_year})
+                                            ],
+                      daysloop           => $daysloop,
+
                       # footer.tmpl
-                      footer_template         => get_footer($config{footer_template_file}),
+                      footer_template    => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
-
 }
-########## END DAYVIEW ##########################################
 
-########## EDIT_ITEM #############################################
-# display the edit menu of an event
-sub edit_item {
-   my ($year, $month, $day, $index)=@_;
+sub events {
+   # return an array of hashes of the events occuring on a given year, month, day
+   my ($year, $month, $day) = @_;
 
-   my $localtime = ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
-   my ($current_year, $current_month, $current_day) = (ow::datetime::seconds2array($localtime))[5,4,3];
+   my @thisday_events = ();
 
-   $current_year  += 1900; 
+   foreach my $eventid (indexes($year, $month, $day)) {
+      my ($eventtime, $eventlink, $eventlinktxt, $eventemail, $eventtxt, $eventcolor, $idate) = parse_event($eventid);
+
+      push(@thisday_events, {
+                               # standard params
+                               use_texticon => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                               url_html     => $config{ow_htmlurl},
+                               url_cgi      => $config{ow_cgiurl},
+                               iconset      => $prefs{iconset},
+                               sessionid    => $thissession,
+                               message_id   => $messageid,
+                               folder       => $folder,
+                               sort         => $sort,
+                               msgdatetype  => $msgdatetype,
+                               page         => $page,
+                               longpage     => $longpage,
+                               searchtype   => $searchtype,
+                               keyword      => $keyword,
+
+                               cal_caller   => param('cal_caller') || $action || $prefs{calendar_defaultview},
+                               year         => $year,
+                               month        => $month,
+                               day          => $day,
+                               eventtime    => $eventtime,
+                               eventlink    => $eventlink,
+                               eventlinktxt => $eventlinktxt,
+                               eventemail   => $eventemail,
+                               eventtxt     => $eventtxt,
+                               eventcolor   => $eventcolor,
+                               eventid      => $eventid,
+                               is_multi     => $idate =~ /[\*|,|\|]/ ? 1 : 0,
+                               is_global    => $eventid < 1E6 ? 0 : 1,
+                               starthourmin => $events->{$eventid}{starthourmin},
+                               endhourmin   => $events->{$eventid}{endhourmin},
+                            }
+          );
+   }
+
+   return @thisday_events;
+}
+
+sub indexes {
+   # return a list of the event indexes occuring on a given year, month, and day
+   my ($year, $month, $day) = @_;
+
+   my ($date, $date2) = ow::datetime::yyyymmdd($year, $month, $day);
+
+   my @thisday_indexes = sort {
+                                $events->{$a}{starthourmin} <=> $events->{$b}{starthourmin}
+                                || $events->{$a}{endhourmin} <=> $events->{$b}{endhourmin}
+                                || $events->{$a}{string} cmp $events->{$b}{string}
+                                || $b <=> $a
+                              }
+                         grep {
+                                defined $events->{$_}{string}
+                                &&
+                                (
+                                  $date =~ m/$events->{$_}{idate}/
+                                  || $date2 =~ m/$events->{$_}{idate}/
+                                  || ow::datetime::easter_match($year, $month, $day, $events->{$_}{idate})
+                                )
+                              } @{$index->{$date}}, @{$index->{'*'}}; # recurring events = '*'
+
+   return @thisday_indexes;
+}
+
+sub dates {
+   # return a complete collection of dates for a given year and/or month and/or day
+   my $current_time = ow::datetime::time_gm2local(time(), $prefs{timeoffset}, $prefs{daylightsaving}, $prefs{timezone});
+   my ($current_year, $current_month, $current_day) = (ow::datetime::seconds2array($current_time))[5,4,3];
+
+   $current_year += 1900;
+   $current_month++;
+
    my $min_year = $current_year - 30;
    my $max_year = $current_year + 30;
 
-   my $format12 = $prefs{'hourformat'} == 12 ? 1 : 0;
+   my $year  = shift || $current_year;
+   my $month = shift || $current_month;
+   my $day   = shift || $current_day;
 
-   my (%items, %indexes);
-   my $calbookfile = dotpath('calendar.book');
+   $year = $max_year if $year > $max_year;
+   $year = $min_year if $year < $min_year;
 
-   if (readcalbook($calbookfile, \%items, \%indexes, 0) < 0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
+   $month = 12 if $month > 12;
+   $month = 1  if $month < 1;
+
+   $day = 1 if $day < 1;
+   $day = ow::datetime::days_in_month($year,$month) if $day > ow::datetime::days_in_month($year,$month);
+
+   my $time = ow::datetime::array2seconds(0, 0, 12, $day, $month - 1, $year - 1900);
+
+   # calculate all the previous and nexts
+   my $prev_year = $year - 1;
+   my $next_year = $year + 1;
+
+   my ($prevmonth_year, $prevmonth_month) = $month == 1  ? ($prev_year, 12) : ($year, $month - 1);
+   my ($nextmonth_year, $nextmonth_month) = $month == 12 ? ($next_year, 1)  : ($year, $month + 1);
+
+   my ($prevday_year, $prevday_month, $prevday_day) = (ow::datetime::seconds2array($time - 86400))[5,4,3];
+   my ($nextday_year, $nextday_month, $nextday_day) = (ow::datetime::seconds2array($time + 86400))[5,4,3];
+
+   $prevday_year += 1900;
+   $nextday_year += 1900;
+
+   $prevday_month++;
+   $nextday_month++;
+
+   # calculate all the weeks information
+   my $currentweekstart_time = $current_time - 86400 * ((ow::datetime::weekday_number($current_year,$current_month,$current_day) + 7 - $prefs{calendar_weekstart}) % 7);
+   my ($currentweekstart_year, $currentweekstart_month, $currentweekstart_day) = (ow::datetime::seconds2array($currentweekstart_time))[5,4,3];
+   my ($currentweekstop_year, $currentweekstop_month, $currentweekstop_day) = (ow::datetime::seconds2array($currentweekstart_time + 6 * 86400))[5,4,3];
+
+   $currentweekstart_year += 1900;
+   $currentweekstop_year  += 1900;
+
+   $currentweekstart_month++;
+   $currentweekstop_month++;
+
+   my $weekstart_time = $time - 86400 * ((ow::datetime::weekday_number($year,$month,$day) + 7 - $prefs{calendar_weekstart}) % 7);
+   my ($weekstart_year, $weekstart_month, $weekstart_day) = (ow::datetime::seconds2array($weekstart_time))[5,4,3];
+   my ($weekstop_year, $weekstop_month, $weekstop_day) = (ow::datetime::seconds2array($weekstart_time + 6 * 86400))[5,4,3];
+
+   $weekstart_year += 1900;
+   $weekstop_year  += 1900;
+
+   $weekstart_month++;
+   $weekstop_month++;
+
+   my ($prevweekstart_year, $prevweekstart_month, $prevweekstart_day) = (ow::datetime::seconds2array($weekstart_time - 7 * 86400))[5,4,3];
+   my ($prevweekstop_year, $prevweekstop_month, $prevweekstop_day) = (ow::datetime::seconds2array($weekstart_time - 86400))[5,4,3];
+
+   $prevweekstart_year += 1900;
+   $prevweekstop_year  += 1900;
+
+   $prevweekstart_month++;
+   $prevweekstop_month++;
+
+   my ($nextweekstart_year, $nextweekstart_month, $nextweekstart_day) = (ow::datetime::seconds2array($weekstart_time + 7 * 86400))[5,4,3];
+   my ($nextweekstop_year, $nextweekstop_month, $nextweekstop_day) = (ow::datetime::seconds2array($weekstart_time + 13 * 86400))[5,4,3];
+
+   $nextweekstart_year += 1900;
+   $nextweekstop_year  += 1900;
+
+   $nextweekstart_month++;
+   $nextweekstop_month++;
+
+   # return the collection
+   return {
+             min_year                   => $min_year,
+             max_year                   => $max_year,
+             year                       => $year,
+             month                      => $month,
+             monthname                  => $lang_month{$month},
+             day                        => $day,
+             dayname                    => $lang_wday{ow::datetime::weekday_number($year,$month,$day)},
+             prev_year                  => $prev_year,
+             next_year                  => $next_year,
+             prevmonth_year             => $prevmonth_year,
+             prevmonth_month            => $prevmonth_month,
+             prevmonth_monthname        => $lang_month{$prevmonth_month},
+             nextmonth_year             => $nextmonth_year,
+             nextmonth_month            => $nextmonth_month,
+             nextmonth_monthname        => $lang_month{$nextmonth_month},
+             prevday_year               => $prevday_year,
+             prevday_month              => $prevday_month,
+             prevday_monthname          => $lang_month{$prevday_month},
+             prevday_day                => $prevday_day,
+             prevday_dayname            => $lang_wday{ow::datetime::weekday_number($prevday_year,$prevday_month,$prevday_day)},
+             nextday_year               => $nextday_year,
+             nextday_month              => $nextday_month,
+             nextday_monthname          => $lang_month{$nextday_month},
+             nextday_day                => $nextday_day,
+             nextday_dayname            => $lang_wday{ow::datetime::weekday_number($nextday_year,$nextday_month,$nextday_day)},
+             current_year               => $current_year,
+             current_month              => $current_month,
+             current_monthname          => $lang_month{$current_month},
+             current_day                => $current_day,
+             current_dayname            => $lang_wday{ow::datetime::weekday_number($current_year,$current_month,$current_day)},
+             current_weekofyear         => ow::datetime::week_of_year($current_year,$current_month,$current_day,$prefs{calendar_weekstart}),
+             is_current_year            => $year == $current_year ? 1 : 0,
+             is_current_month           => $month == $current_month ? 1 : 0,
+             is_current_day             => $day == $current_day ? 1 : 0,
+             is_current                 => ($year == $current_year && $month == $current_month && $day == $current_day) ? 1 : 0,
+             weekofyear                 => ow::datetime::week_of_year($year,$month,$day,$prefs{calendar_weekstart}),
+             weekstart_year             => $weekstart_year,
+             weekstart_month            => $weekstart_month,
+             weekstart_monthname        => $lang_month{$weekstart_month},
+             weekstart_day              => $weekstart_day,
+             weekstart_dayname          => $lang_wday{ow::datetime::weekday_number($weekstart_year,$weekstart_month,$weekstart_day)},
+             weekstop_year              => $weekstop_year,
+             weekstop_month             => $weekstop_month,
+             weekstop_monthname         => $lang_month{$weekstop_month},
+             weekstop_day               => $weekstop_day,
+             weekstop_dayname           => $lang_wday{ow::datetime::weekday_number($weekstop_year,$weekstop_month,$weekstop_day)},
+             prevweekofyear             => ow::datetime::week_of_year($prevweekstart_year,$prevweekstart_month,$prevweekstart_day,$prefs{calendar_weekstart}),
+             prevweekstart_year         => $prevweekstart_year,
+             prevweekstart_month        => $prevweekstart_month,
+             prevweekstart_monthname    => $lang_month{$prevweekstart_month},
+             prevweekstart_day          => $prevweekstart_day,
+             prevweekstart_dayname      => $lang_wday{ow::datetime::weekday_number($prevweekstart_year,$prevweekstart_month,$prevweekstart_day)},
+             prevweekstop_year          => $prevweekstop_year,
+             prevweekstop_month         => $prevweekstop_month,
+             prevweekstop_monthname     => $lang_month{$prevweekstop_month},
+             prevweekstop_day           => $prevweekstop_day,
+             prevweekstop_dayname       => $lang_wday{ow::datetime::weekday_number($prevweekstop_year,$prevweekstop_month,$prevweekstop_day)},
+             nextweekofyear             => ow::datetime::week_of_year($nextweekstart_year,$nextweekstart_month,$nextweekstart_day,$prefs{calendar_weekstart}),
+             nextweekstart_year         => $nextweekstart_year,
+             nextweekstart_month        => $nextweekstart_month,
+             nextweekstart_monthname    => $lang_month{$nextweekstart_month},
+             nextweekstart_day          => $nextweekstart_day,
+             nextweekstart_dayname      => $lang_wday{ow::datetime::weekday_number($nextweekstart_year,$nextweekstart_month,$nextweekstart_day)},
+             nextweekstop_year          => $nextweekstop_year,
+             nextweekstop_month         => $nextweekstop_month,
+             nextweekstop_monthname     => $lang_month{$nextweekstop_month},
+             nextweekstop_day           => $nextweekstop_day,
+             nextweekstop_dayname       => $lang_wday{ow::datetime::weekday_number($nextweekstop_year,$nextweekstop_month,$nextweekstop_day)},
+             currentweekofyear          => ow::datetime::week_of_year($current_year,$current_month,$current_day,$prefs{calendar_weekstart}),
+             currentweekstart_year      => $currentweekstart_year,
+             currentweekstart_month     => $currentweekstart_month,
+             currentweekstart_monthname => $lang_month{$currentweekstart_month},
+             currentweekstart_day       => $currentweekstart_day,
+             currentweekstart_dayname   => $lang_wday{ow::datetime::weekday_number($currentweekstart_year,$currentweekstart_month,$currentweekstart_day)},
+             currentweekstop_year       => $currentweekstop_year,
+             currentweekstop_month      => $currentweekstop_month,
+             currentweekstop_monthname  => $lang_month{$currentweekstop_month},
+             currentweekstop_day        => $currentweekstop_day,
+             currentweekstop_dayname    => $lang_wday{ow::datetime::weekday_number($currentweekstop_year,$currentweekstop_month,$currentweekstop_day)},
+             is_current_week            => ($year == $current_year
+                                            && ow::datetime::week_of_year($year,$month,$day,$prefs{calendar_weekstart})
+                                            == ow::datetime::week_of_year($current_year,$current_month,$current_day,$prefs{calendar_weekstart})) ? 1 : 0,
+          };
+}
+
+sub days_of_month_matrix {
+   # returns a matrix of the days of the month for the requested year
+   # the matrix is a data structure like: $days{$row}{$col} = $day_of_month
+   my ($year, $month) = @_;
+
+   my %weekday_ordering = qw(Sun 0 Mon 1 Tue 2 Wed 3 Thu 4 Fri 5 Sat 6);
+
+   # re-order the weekdays per the users preferences (Wed 0 Thu 1 Fri 2 etc)
+   %weekday_ordering = map { $_ => ($weekday_ordering{$_} + 7 - $prefs{calendar_weekstart}) % 7 } keys %weekday_ordering;
+
+   # figure out weekday_today
+   my $time = ow::datetime::array2seconds(0,0,12,1,$month - 1,$year - 1900);
+   my $weekday_today = ow::datetime::seconds2array($time); # returns string like Thu Jan 1 12:00:00 2009
+   $weekday_today =~ s/(\w+).*$/$1/; # remove everything except the weekday "Thu"
+
+   my @day_of_month_matrix = ();
+
+   my $day_of_month = 1;
+
+   foreach my $row (0..5) {
+      foreach my $col (0..6) {
+         if (($row > 0 || $col >= $weekday_ordering{$weekday_today}) && $day_of_month <= ow::datetime::days_in_month($year, $month)) {
+            $day_of_month_matrix[$row][$col] = $day_of_month;
+            $day_of_month++;
+         }
+      }
    }
 
-   if (!defined $items{$index}) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
-      writelog("edit calitem error - item missing, index=$index");
-      writehistory("edit calitem error - item missing, index=$index");
+   return @day_of_month_matrix;
+}
+
+sub matrix_24h {
+   # layout a list of events for a given day into a 24 hour matrix grid
+   my @thisday_events = @_;
+
+   my $matrix_rows = int(((23.99999 * 60) / $prefs{calendar_interval}));
+
+   # initialize the matrix grid
+   my $matrix = [
+                  map { { columns => [], time => sprintf("%02d%02d",(int($_ / 60),int($_ % 60))) } }
+                  map { $_ * $prefs{calendar_interval} } (0..$matrix_rows)
+                ];
+
+   my $firsteventstart = $prefs{calendar_starthour};
+   my $lasteventfinish = $prefs{calendar_endhour};
+
+   # populate the matrix grid with the events
+   foreach my $event (@thisday_events) {
+      my $start = $event->{starthourmin};
+      my $end   = $event->{endhourmin};
+      my $rows  = int(duration_minutes($start, $end) / $prefs{calendar_interval} + 0.99999);
+      $event->{rowspan} = $rows || 1;
+      if ($rows == 0) {
+         unshift(@{$matrix}, { columns => [$event], time => 'allday' } );
+      } else {
+         my $col      = 0;
+         my $allday_rows = $#{$matrix} - $matrix_rows;
+         my $startrow = int(duration_minutes('0000', $start) / $prefs{calendar_interval}) + $allday_rows;
+         my $endrow   = $startrow + $rows - 1;
+         if (defined $end && (($endrow + 1 - $allday_rows) * $prefs{calendar_interval}) < duration_minutes('0000', $end)) {
+            $endrow++;
+            $event->{rowspan}++;
+         }
+         $col++ while (scalar grep { defined $matrix->[$_]{columns}[$col] } ($startrow..$endrow));
+         $matrix->[$startrow]{columns}[$col] = $event;
+         $matrix->[$endrow--]{columns}[$col] = {} until $endrow == $startrow;
+         $firsteventstart = $start if $start < $firsteventstart;
+         $lasteventfinish = $end if $end > $lasteventfinish;
+      }
    }
 
+   # force a single row for allday events if there are no allday events
+   my $allday_count = scalar grep { $_->{time} eq 'allday' } @{$matrix};
+   unshift(@{$matrix}, { columns => [], time => 'allday' } ) if $allday_count == 0;
 
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++      if ($year % 4 == 0 && ($year % 100 != 0 || $year % 400 == 0));
-   $day = $days_in_month[$month] if ($day > $days_in_month[$month]); 
-   $day = 1 if ($day < 1);
+   # remember stats for this matrix
+   $matrix->[0]{allday_count}    = $allday_count ? $allday_count : 1;
+   $matrix->[0]{firsteventstart} = $firsteventstart;
+   $matrix->[0]{lasteventfinish} = $lasteventfinish;
 
-   my @hourlist;
-   if ($prefs{'hourformat'} == 12) {
-      @hourlist = qw(none 1 2 3 4 5 6 7 8 9 10 11 12);
+   # what is the max colspan of our matrix?
+   my $maxcolspan = (reverse sort map { scalar @{$_->{columns}} } grep { ref($_->{columns}) eq 'ARRAY' } @{$matrix})[0] || 1;
+
+   # extend the colspan of each cell in the matrix grid as much as possible
+   for(my $row = 0; $row < scalar @{$matrix}; $row++) {
+      for(my $col = 0; $col < $maxcolspan; $col++) {
+         my $startcol = $col;
+         if (not defined $matrix->[$row]{columns}[$col]) {
+            while ($col+1 < $maxcolspan && not defined $matrix->[$row]{columns}[$col+1]) {
+               $col++;
+               $matrix->[$row]{columns}[$col]{skip}++;
+            }
+            $matrix->[$row]{columns}[$startcol]{colspan} = $col - $startcol + 1;
+            $matrix->[$row]{columns}[$startcol]{rowspan} = 1;
+         } else {
+            if (exists $matrix->[$row]{columns}[$col]{eventtxt}) {
+               my @eventrows = ($row..($row + $matrix->[$row]{columns}[$startcol]{rowspan} - 1));
+               while ($col+1 < $maxcolspan) {
+                  my $allclear = 1;
+                  foreach my $eventrow (@eventrows) {
+                     $allclear = 0 && last if defined $matrix->[$eventrow]{columns}[$col+1];
+                  }
+                  if ($allclear) {
+                     $matrix->[$_]{columns}[$col+1]{skip}++ for @eventrows;
+                     $col++;
+                  } else {
+                     last;
+                  }
+               }
+               $matrix->[$row]{columns}[$startcol]{colspan} = $col - $startcol + 1;
+            } else {
+               $matrix->[$row]{columns}[$startcol]{skip}++;
+            }
+         }
+      }
+   }
+
+   return $matrix;
+}
+
+sub matrix_trim_empty_hour_rows {
+   # remove empty hour rows from a given matrix
+   # the given matrix should have no row or column labels
+   my $matrix = shift;
+
+   for(my $row = 0; $row < @{$matrix}; $row++) {
+      if ($matrix->[$row]{time} ne 'allday') {
+         my $startrow = $row;
+
+         my ($starthour, $startmin) = $matrix->[$row]{time} =~ m/^(\d{2})(\d{2})/;
+
+         my $is_empty_hour = 1;
+
+         # is this an empty hour row?
+         if ($row > $matrix->[0]{allday_count} && $matrix->[$row-1]{time} =~ m/^$starthour/) {
+            $is_empty_hour = 0;               # the previous row of this hour is still there
+         } else {
+            while ($row < @{$matrix}) {       # this is the beginning of this hour
+               my $totalcolspan = 0;
+               foreach my $col (0..$#{$matrix->[$row]{columns}}) {
+                  last if exists $matrix->[$row]{columns}[$col]{eventtxt};
+                  $totalcolspan += $matrix->[$row]{columns}[$col]{colspan} if exists $matrix->[$row]{columns}[$col]{colspan};
+               }
+               $is_empty_hour = 0 && last if $totalcolspan != scalar @{$matrix->[0]{columns}};
+               last unless defined $matrix->[$row+1] && $matrix->[$row+1]{time} =~ m/^$starthour/;
+               $row++;
+            }
+         }
+
+         if ($is_empty_hour) {
+            if (
+                 $matrix->[$startrow]{time} >=
+                 ($matrix->[0]{firsteventstart} < $prefs{calendar_starthour} ? $matrix->[0]{firsteventstart} : $prefs{calendar_starthour})
+                 &&
+                 $matrix->[$row]{time} <=
+                 ($matrix->[0]{lasteventfinish} > $prefs{calendar_endhour} ? $matrix->[0]{lasteventfinish} : $prefs{calendar_endhour})
+               ) {
+               if (!$prefs{calendar_showemptyhours}) {
+                  # remove this empty hour row
+                  splice(@{$matrix},$startrow,$row-$startrow+1);
+                  $row = $startrow-1;
+                  next;
+               }
+            } else {
+               # remove this empty hour row
+               splice(@{$matrix},$startrow,$row-$startrow+1);
+               $row = $startrow-1;
+               next;
+            }
+         }
+
+         $row = $startrow;
+      }
+   }
+
+   return $matrix;
+}
+
+sub matrix_labelrows {
+   # add row labels to a given matrix based on the
+   # time information already provided in the matix
+   my $matrix = shift;
+
+   my $rowdark = 1;
+
+   for(my $row = 0; $row < @{$matrix}; $row++) {
+      if ($matrix->[$row]{time} eq 'allday') {
+         # add a column for all our labels
+         # add the allday row label to this row
+         unshift(
+                  @{$matrix->[$row]{columns}},
+                  (
+                    $row == 0
+                    ? {
+                        rowdark => 1,
+                        colspan => 1,
+                        rowspan => $matrix->[0]{allday_count},
+                        timelabel => $lang_text{allday},
+                        is_timelabel_allday => 1,
+                      }
+                    : { skip => 1 }
+                  )
+                );
+      } else {
+         my ($starthour, $startmin) = $matrix->[$row]{time} =~ m/^(\d{2})(\d{2})/;
+
+         unless (exists $matrix->[$row]{columns}[0]{timelabel}) {
+            my ($lasthour) = $matrix->[$row-1]{time} =~ m/^(\d{2})/ if $row > $matrix->[0]{allday_count};
+            $rowdark = $rowdark ? 0 : 1 if (
+                                            $row == $matrix->[0]{allday_count}
+                                            ||
+                                            (
+                                              $row > $matrix->[0]{allday_count}
+                                              && $matrix->[$row]{time} !~ m/^$lasthour/
+                                            )
+                                           );
+
+            my $timelabel = $matrix->[$row-1]{time} !~ m/^$starthour/
+                            ? hourmin2str($matrix->[$row]{time},$prefs{hourformat})
+                            : $matrix->[$row-1]{time} =~ m/^$starthour/
+                              ? defined $matrix->[$row+1]
+                                ? $matrix->[$row+1]{time} =~ m/^$starthour/
+                                  ? $matrix->[$row-1]{columns}[0]{timelabel} eq '' ? $startmin : ''
+                                  : ''
+                                : $matrix->[$row-1]{columns}[0]{timelabel} eq '' ? $startmin : ''
+                              : '';
+
+            # add the time label to this row
+            unshift(
+                     @{$matrix->[$row]{columns}},
+                     {
+                       colspan   => 1,
+                       rowspan   => 1,
+                       timelabel => $timelabel,
+                       is_timelabel_hour   => $timelabel eq $startmin ? 0 : 1,
+                       is_timelabel_minute => $timelabel eq $startmin ? 1 : 0,
+                     }
+                   );
+         }
+      }
+
+      # set the rowdark key to determine the shading on all the columns of this row
+      for(my $col = 0; $col < @{$matrix->[$row]{columns}}; $col++) {
+         $matrix->[$row]{columns}[$col]{rowdark} = $rowdark
+           unless (exists $matrix->[$row]{columns}[$col]{skip} || exists $matrix->[$row]{columns}[$col]{eventtxt});
+      }
+   }
+
+   return $matrix;
+}
+
+sub matrix_labelcols {
+   # label the columns of a given matrix using the year, month,
+   # and day information already provided by the matrix
+   my $matrix = shift;
+
+   # add a new row for our column labels
+   unshift(@{$matrix}, { columns => [] });
+
+   # populate our column labels
+   for(my $col = 0; $col < @{$matrix->[1]{columns}}; $col++) {
+      if (exists $matrix->[1]{columns}[$col]{timelabel}) {
+         # do not label the rowlabel column
+         $matrix->[0]{columns}[$col] = { colspan => 1, rowspan => 1 };
+      } else {
+         if (exists $matrix->[1]{columns}[$col]{colspan}) {
+            my $weekday_number = ow::datetime::weekday_number(
+                                                               $matrix->[1]{columns}[$col]{year},
+                                                               $matrix->[1]{columns}[$col]{month},
+                                                               $matrix->[1]{columns}[$col]{day},
+                                                             );
+            $matrix->[0]{columns}[$col] = {
+                                            # standard params
+                                            use_texticon         => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                            url_html             => $config{ow_htmlurl},
+                                            url_cgi              => $config{ow_cgiurl},
+                                            iconset              => $prefs{iconset},
+                                            sessionid            => $thissession,
+                                            message_id           => $messageid,
+                                            folder               => $folder,
+                                            sort                 => $sort,
+                                            msgdatetype          => $msgdatetype,
+                                            page                 => $page,
+                                            longpage             => $longpage,
+                                            searchtype           => $searchtype,
+                                            keyword              => $keyword,
+
+                                            colspan              => $matrix->[1]{columns}[$col]{colspan},
+                                            rowspan              => 1,
+                                            timelabel            => $lang_wday{$weekday_number},
+                                            is_timelabel_weekday => 1,
+                                            is_saturday          => $weekday_number == 6 ? 1 : 0,
+                                            is_sunday            => $weekday_number == 0 ? 1 : 0,
+                                            is_today             => $matrix->[1]{columns}[$col]{is_today},
+                                            weekday_year         => $matrix->[1]{columns}[$col]{year},
+                                            weekday_month        => $matrix->[1]{columns}[$col]{month},
+                                            weekday_monthname    => $lang_month{$matrix->[1]{columns}[$col]{month}},
+                                            weekday_day          => $matrix->[1]{columns}[$col]{day},
+                                          };
+         } else {
+            $matrix->[0]{columns}[$col]{skip} = 1;
+         }
+      }
+   }
+
+   return $matrix;
+}
+
+sub parse_event {
+   # parse and process calendar events to separate variables
+   my $eventid = shift;
+
+   my ($eventtime, $eventlink, $eventlinktxt, $eventemail, $eventtxt, $eventcolor) = ('','','','','','');
+
+   if ($events->{$eventid}{starthourmin} ne "0") {
+      $eventtime = hourmin2str($events->{$eventid}{starthourmin}, $prefs{hourformat});
+      if ($events->{$eventid}{endhourmin} ne "0") {
+        $eventtime .= qq| - | . hourmin2str($events->{$eventid}{endhourmin}, $prefs{hourformat});
+      }
    } else {
-      @hourlist = qw(none 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23);
+      $eventtime = "#";
    }
 
-   my ($starthour, $startmin, $startampm) = ('none', 0, 'am');
-   if ($items{$index}{'starthourmin'} =~ /0*(\d+)(\d{2})$/) {
-      ($starthour, $startmin) = ($1, $2);
-      ($starthour, $startampm) = ow::datetime::hour24to12($starthour) if ($format12);
+   if ($events->{$eventid}{link}) {
+      $eventlinktxt = $events->{$eventid}{link};
+      $eventlink = $eventlinktxt;
+      $eventlink =~ s/\%THISSESSION\%/$thissession/;
    }
 
-   my ($endhour, $endmin, $endampm) = ('none', 0, 'am');
-   if ($items{$index}{'endhourmin'} =~ /0*(\d+)(\d{2})$/) {
-      ($endhour, $endmin) = ($1, $2);
-      ($endhour, $endampm) = ow::datetime::hour24to12($endhour) if ($format12);
+   $eventemail = $events->{$eventid}{email};
+
+   ($eventtxt) = iconv($events->{$eventid}{charset}, $prefs{charset}, $events->{$eventid}{string});
+   $eventtxt =~ s/<.*?>//g;
+   $eventtxt = substr($eventtxt, 0, 76) . "..." if length($eventtxt) > 80;
+   $eventtxt = "$eventtxt *" if $eventid >= 1E6; # global eventids are numbered >= 1E6
+
+   $eventcolor = defined $events->{$eventid}{eventcolor} && $events->{$eventid}{eventcolor} ne 'none' ? $events->{$eventid}{eventcolor} : 0;
+
+   return($eventtime, $eventlink, $eventlinktxt, $eventemail, $eventtxt, $eventcolor, $events->{$eventid}{idate});
+}
+
+sub edit {
+   my $dates = dates(param('year'), param('month'), param('day'));
+
+   my $eventid = param('eventid') || '';
+
+   my $starthour       = 'none';
+   my $startmin        = 0;
+   my $startampm       = 'am';
+   my $endhour         = 'none';
+   my $endmin          = 0;
+   my $endampm         = 'am';
+   my $eventtxt        = '';
+   my $everyyear       = 0;
+   my $monthfreq       = 'thismonthonly';
+   my $dayfreq         = 'thisdayonly';
+   my $dayofweek       = '';
+   my $startdate       = 0;
+   my $enddate         = 0;
+   my $thisandnextdays = 0;
+   my $nextdays        = 0;
+   my $linkstring      = 'http://';
+   my $emailstring     = '';
+   my $eventcolor      = 'none';
+
+   # deconstruct the idate to establish the edit form settings
+   # see the open_calendars sub for more information on idates
+   if ($eventid) {
+      if ($events->{$eventid}{starthourmin} =~ m/0*(\d+)(\d{2})$/) {
+         ($starthour, $startmin)  = ($1, $2);
+         ($starthour, $startampm) = ow::datetime::hour24to12($starthour) if $prefs{hourformat} == 12;
+      }
+
+      if ($events->{$eventid}{endhourmin} =~ m/0*(\d+)(\d{2})$/) {
+         ($endhour, $endmin)  = ($1, $2);
+         ($endhour, $endampm) = ow::datetime::hour24to12($endhour) if $prefs{hourformat} == 12;
+      }
+
+      $eventtxt = (iconv($events->{$eventid}{charset}, $prefs{charset}, $events->{$eventid}{string}))[0];
+
+      if ($events->{$eventid}{idate} =~ m/,/) {
+          # idate has recurrance in it - deconstruct the recurrance
+          ($everyyear, $monthfreq, $dayfreq, $dayofweek) = split(/,/, $events->{$eventid}{idate});
+          my %weekorder_day_wild_reversed = (
+                                              "0[1-7]"              => 1,
+                                              "((0[8-9])|(1[0-4]))" => 2,
+                                              "((1[5-9])|(2[0-1]))" => 3,
+                                              "2[2-8]"              => 4,
+                                            );
+
+          $dayfreq = $weekorder_day_wild_reversed{$dayfreq} ? 'thewdayofthismonth' :
+                     $dayfreq eq '.*' ? 'everywdaythismonth' : $dayfreq;
+
+          $monthfreq = $monthfreq eq '(01|03|05|07|09|11)' ? 'everyoddmonththisyear'  :
+                       $monthfreq eq '(02|04|06|08|10|12)' ? 'everyevenmonththisyear' :
+                       $monthfreq eq '.*' ? 'everymonththisyear' : $monthfreq;
+
+          $everyyear = $everyyear eq '.*' ? 1 : 0;
+      } elsif ($events->{$eventid}{idate} =~ m/^\(?(\d+)\|?.*?\|?(\d+)?\)?$/) {
+          # idates is like (20030808|20030809)
+          $startdate = $1;
+          $enddate   = $2 || '';
+          if ($enddate) {
+             # we have a nextdays recurrance here
+             $thisandnextdays = 1;
+             $nextdays = $events->{$eventid}{idate} =~ tr/|/|/; # count pipes - cheap and easy
+          }
+      } else {
+         openwebmailerror(__FILE__, __LINE__, "Eventid $eventid idate $lang_err{doesnt_exist}");
+         writelog("edit calitem error - idate wrong format, eventid=$eventid");
+         writehistory("edit calitem error - idate wrong format, eventid=$eventid");
+      }
+
+      $linkstring  = $events->{$eventid}{link} || 'http://';
+
+      $emailstring = $events->{$eventid}{email} || '';
+
+      $eventcolor  = $events->{$eventid}{eventcolor} || 'none';
    }
 
-   # deconstruct the idate
-   # An idate has the following format: <years><months><days><dayofweek>
-   # An idate can look like:
-   #    20030808                            The event occurs on August 8, 2003, This Month, This Day only
-   #    (20030808|20030809)                 The event occurs on August 8 and 9, 2003 (or August 8 and Next 1 day)
-   #    .*,04,07,.*                         The event occurs on April 7, Every Year
-   #    .*,.*,((1[5-9])|(2[0-1])),Tue       The event occurs on the 3rd Tuesday, Every Month, Every Year
-   #    2003,.*,.*,Wed                      The event occurs Every Wednesday, Every Week of 2003
-   #    2003,.*,11,.*                       The event occurs Every 11th day, Every Month of 2003
-   my ($everyyear, $monthfreq, $dayfreq, $dow, $startdate, $enddate, $ndays) = '';
+   my @hourlist = ('none', ($prefs{hourformat} == 12 ? (1..12) : (0..23)));
 
-   my $dayfreq_default = "thisdayonly";
-   my $thisandnextndays_default = 0;
-   my $ndays_default = "";
-   my $monthfreq_default = "thismonthonly";
-   my $everyyear_default = 0;
-   my $linkstr_default = $items{$index}{'link'};
-   my $emailstr_default = $items{$index}{'email'};
+   my $weekday_number = ow::datetime::weekday_number($dates->{year},$dates->{month},$dates->{day});
+   my $weekorder = int(($dates->{day} + 6) / 7);
 
-   if ($items{$index}{'idate'} =~ /,/) { #idate has recurrance in it
-       ($everyyear, $monthfreq, $dayfreq, $dow) = split(/,/, $items{$index}{'idate'});
-       my %weekorder_day_wild_reversed = ( "0[1-7]" => 1,
-                                           "((0[8-9])|(1[0-4]))" => 2,
-                                           "((1[5-9])|(2[0-1]))" => 3,
-                                           "2[2-8]" => 4);
+   my %dayfreqlabels = (
+                         thisdayonly        => $lang_text{thisday_only},
+                         thewdayofthismonth => $lang_text{the_wday_of_thismonth},
+                         everywdaythismonth => $lang_text{every_wday_thismonth},
+                       );
+   $dayfreqlabels{thewdayofthismonth} =~ s/\@\@\@ORDER\@\@\@/$lang_order{$weekorder}/;
+   $dayfreqlabels{thewdayofthismonth} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$weekday_number}/;
+   $dayfreqlabels{everywdaythismonth} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$weekday_number}/;
 
-       if ($weekorder_day_wild_reversed{$dayfreq}) {
-          $dayfreq_default = "thewdayofthismonth";
-       } elsif ($dayfreq eq '.*') {
-          $dayfreq_default = "everywdaythismonth";
-       }
-       if ($monthfreq eq '(01|03|05|07|09|11)') {
-          $monthfreq_default = "everyoddmonththisyear";
-       } elsif ($monthfreq eq '(02|04|06|08|10|12)') {
-          $monthfreq_default = "everyevenmonththisyear"
-       } elsif ($monthfreq eq '.*') {
-          $monthfreq_default = "everymonththisyear";
-       }
-       if ($everyyear eq '.*') {
-          $everyyear_default = 1;
-       }
-   } elsif ($items{$index}{'idate'} =~ /^\(?(\d+)\|?.*?\|?(\d+)?\)?$/) {
-       # That regex breaks apart idates like (20030808|20030809)
-       $startdate = $1;
-       $enddate = $2 || '';
-       if ($enddate ne '') { # we have a next Nday recurrance here
-          $thisandnextndays_default = 1;
-          $ndays_default = $items{$index}{'idate'} =~ tr/|/|/; # count pipes - cheap and easy
-       }
-   } else {
-      openwebmailerror(__FILE__, __LINE__, "Index $index idate $lang_err{'doesnt_exist'}");
-      writelog("edit calitem error - idate wrong format, index=$index");
-      writehistory("edit calitem error - idate wrong format, index=$index");
+   my @dayfreq_options = $weekorder <= 4 ? qw(thisdayonly thewdayofthismonth everywdaythismonth) : qw(thisdayonly everywdaythismonth);
+
+   my %monthfreqlabels = (
+                            thismonthonly          => $lang_text{thismonth_only},
+                            everyoddmonththisyear  => $lang_text{every_oddmonth_thisyear},
+                            everyevenmonththisyear => $lang_text{every_evenmonth_thisyear},
+                            everymonththisyear     => $lang_text{every_month_thisyear},
+                         );
+
+   my @monthfreq_options = ('thismonthonly', ($dates->{month} % 2 ? 'everyoddmonththisyear' : 'everyevenmonththisyear'), 'everymonththisyear');
+
+   my $eventcolorselectloop = [];
+   foreach my $option (qw(1a 1b 1c 1d 1e 1f 2a 2b 2c 2d 2e 2f none)) {
+      push(@{$eventcolorselectloop}, {
+                                        option        => $option,
+                                        label         => $option eq 'none' ? '--' : $option,
+                                        selected      => $eventcolor eq $option ? 1 : 0,
+                                        selectedindex => $#{$eventcolorselectloop} + 1,
+                                     }
+          )
    }
-
-   my $t = ow::datetime::array2seconds(1, 1, 1, $day, $month - 1, $year - 1900);
-   my $wdaynum = (ow::datetime::seconds2array($t))[6];
-   my $weekorder = int(($day + 6) / 7);
-   my %dayfreqlabels = ('thisdayonly'       => $lang_text{'thisday_only'},
-                        'thewdayofthismonth'=> $lang_text{'the_wday_of_thismonth'},
-                        'everywdaythismonth'=> $lang_text{'every_wday_thismonth'});
-   $dayfreqlabels{'thewdayofthismonth'} =~ s/\@\@\@ORDER\@\@\@/$lang_order{$weekorder}/;
-   $dayfreqlabels{'thewdayofthismonth'} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$wdaynum}/;
-   $dayfreqlabels{'everywdaythismonth'} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$wdaynum}/;
-   my @dayfreq= $weekorder <= 4 ? ('thisdayonly', 'thewdayofthismonth', 'everywdaythismonth')
-                                : ('thisdayonly', 'everywdaythismonth');
-
-   my %monthfreqlabels = ('thismonthonly'         => $lang_text{'thismonth_only'},
-                          'everyoddmonththisyear' => $lang_text{'every_oddmonth_thisyear'},
-                          'everyevenmonththisyear'=> $lang_text{'every_evenmonth_thisyear'},
-                          'everymonththisyear'    => $lang_text{'every_month_thisyear'});
-   my @monthfreq = $month % 2 ? ('thismonthonly', 'everyoddmonththisyear', 'everymonththisyear') 
-                              : ('thismonthonly', 'everyevenmonththisyear', 'everymonththisyear');
-
-   $linkstr_default = "http://" if ($linkstr_default eq "0");
-   $emailstr_default = "" if ($emailstr_default eq "0");
-   my $i = 1;
 
    # build the template
    my $template = HTML::Template->new(
                                         filename          => get_template("cal_edit.tmpl"),
                                         filter            => $htmltemplatefilters,
-                                        die_on_bad_params => 1,
+                                        die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
                                         cache             => 1,
@@ -1720,494 +1679,351 @@ sub edit_item {
 
    $template->param(
                       # header.tmpl
-                      header_template         => get_header($config{header_template_file}),
+                      header_template      => get_header($config{header_template_file}),
 
                       # standard params
-                      url_html                => $config{ow_htmlurl},
-                      url_cgi                 => $config{ow_cgiurl},
-                      iconset                 => $prefs{iconset},
-                      sessionid               => $thissession,
-                      message_id              => $messageid,
-                      folder                  => $folder,
+                      use_texticon         => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      url_html             => $config{ow_htmlurl},
+                      url_cgi              => $config{ow_cgiurl},
+                      iconset              => $prefs{iconset},
+                      sessionid            => $thissession,
+                      message_id           => $messageid,
+                      folder               => $folder,
+                      sort                 => $sort,
+                      msgdatetype          => $msgdatetype,
+                      page                 => $page,
+                      longpage             => $longpage,
+                      searchtype           => $searchtype,
+                      keyword              => $keyword,
+
+                      # standard calendar dates
+                      %{$dates},
 
                       # cal_edit.tmpl
-                      index                   => $index,
-                      year                    => $year,
-                      month                   => $month,
-                      day                     => $day,
-                      min_year                => $min_year,
-                      weekstart               => $prefs{'calendar_weekstart'},
-                      format12                => $format12,
-                      startam                 => $startampm eq 'am' ? 1 : 0,
-                      endam                   => $endampm eq 'am' ? 1 : 0,
-                      thisandnextndays        => $thisandnextndays_default,
-                      ndays                   => $ndays_default,
-                      everyyear               => $everyyear_default,
-                      eventtxt                => (iconv($items{$index}{'charset'}, $prefs{'charset'}, $items{$index}{'string'}))[0],
-                      linkstr                 => $linkstr_default,
-                      emailstr                => $emailstr_default,
-                      eventreminder           => $items{$index}{'eventreminder'},
-                      notifyenabled           => $config{'calendar_email_notifyinterval'} > 0 ? 1 : 0,
-                      callist                 => defined param('callist') ? 1 : 0,
-                      dayselectloop           => [ 
-                                                   map { { 
-                                                            option      => $_,
-                                                            label       => $_,
-                                                            selected    => $_ eq $day ? 1 : 0
-                                                       } } @{[1..$days_in_month[$month]]}
-                                                 ],
-                      monthselectloop         => [
-                                                   map { {
-                                                            option      => $_,
-                                                            label       => $lang_month{$_},
-                                                            selected    => $_ eq $month ? 1 : 0
-                                                       } } @{[1..12]}
-                                                 ],
-                      yearselectloop          => [ 
-                                                   map { { 
-                                                            option      => $_,
-                                                            label       => $_,
-                                                            selected    => $_ eq $year ? 1 : 0
-                                                       } } @{[$min_year..$max_year]}
-                                                 ],
-                      starthourselectloop     => [ 
-                                                   map { {
-                                                           option       => $_,
-                                                           label        => $_ eq 'none' ? $lang_text{$_} : sprintf("%02d", $_),
-                                                           selected     => $_ eq $starthour ? 1 : 0
-                                                       } } @hourlist
-                                                 ],
-                      startminselectloop      => [
-                                                   map { {
-                                                           option       => $_,
-                                                           label        => sprintf("%02d", $_),
-                                                           selected     => $_ eq $startmin ? 1 : 0
-                                                       } } (0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
-                                                 ],
-                      endhourselectloop     => [ 
-                                                   map { {
-                                                           option       => $_,
-                                                           label        => $_ eq 'none' ? $lang_text{$_} : sprintf("%02d", $_),
-                                                           selected     => $_ eq $endhour ? 1 : 0
-                                                       } } @hourlist
-                                                 ],
-                      endminselectloop      => [
-                                                   map { {
-                                                           option       => $_,
-                                                           label        => sprintf("%02d", $_),
-                                                           selected     => $_ eq $endmin ? 1 : 0
-                                                       } } (0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
-                                                 ],
-                      dayfreqselectloop     => [
-                                                   map { {
-                                                           option       => $_,
-                                                           label        => $dayfreqlabels{$_},
-                                                           selected     => $_ eq $dayfreq_default ? 1 : 0
-                                                       } } @dayfreq
-                                                 ],
-                      monthfreqselectloop   => [
-                                                   map { {
-                                                           option       => $_,
-                                                           label        => $monthfreqlabels{$_},
-                                                           selected     => $_ eq $monthfreq_default ? 1 : 0
-                                                       } } @monthfreq
-                                                 ],
-                      eventcolorselectloop  => [
-                                                   map { {
-                                                           option       => $_,
-                                                           label        => $_,
-                                                           selected     => $_ eq $items{$index}{'eventcolor'} ? 1 : 0
-                                                       } } @{['none', sort keys %eventcolors]}
-                                                 ],
-                      eventcolorlistloop    => [
-                                                   map { {
-                                                           eventcolor   => $eventcolors{$_},
-                                                           eventcolorkey=> $_,
-                                                           eventcolornum=> $i++,
-                                                       } } sort keys %eventcolors
-                                                 ],
+                      cal_caller           => param('cal_caller') || $prefs{calendar_defaultview},
+                      eventid              => $eventid,
+                      weekstart            => $prefs{calendar_weekstart},
+                      is_hourformat12      => $prefs{hourformat} == 12 ? 1 : 0,
+                      startam              => $startampm eq 'am' ? 1 : 0,
+                      endam                => $endampm eq 'am' ? 1 : 0,
+                      thisandnextdays      => $thisandnextdays,
+                      nextdays             => $nextdays,
+                      everyyear            => $everyyear,
+                      eventtxt             => $eventtxt,
+                      linkstring           => $linkstring,
+                      emailstring          => $emailstring,
+                      eventreminder        => $eventid ? $events->{$eventid}{eventreminder} : 0,
+                      notifyenabled        => $config{calendar_email_notifyinterval} > 0 ? 1 : 0,
+                      dayselectloop        => [
+                                                map { {
+                                                        option   => $_,
+                                                        label    => $_,
+                                                        selected => $_ eq $dates->{day} ? 1 : 0
+                                                    } } (1..ow::datetime::days_in_month($dates->{year}, $dates->{month}))
+                                              ],
+                      monthselectloop      => [
+                                                map { {
+                                                        option   => $_,
+                                                        label    => $lang_month{$_},
+                                                        selected => $_ eq $dates->{month} ? 1 : 0
+                                                    } } (1..12)
+                                              ],
+                      yearselectloop       => [
+                                                map { {
+                                                        option   => $_,
+                                                        label    => $_,
+                                                        selected => $_ eq $dates->{year} ? 1 : 0
+                                                    } } ($dates->{min_year}..$dates->{max_year})
+                                              ],
+                      starthourselectloop  => [
+                                                map { {
+                                                        option   => $_,
+                                                        label    => $_ eq 'none' ? $lang_text{$_} : sprintf("%02d", $_),
+                                                        selected => $_ eq $starthour ? 1 : 0
+                                                    } } @hourlist
+                                              ],
+                      startminselectloop   => [
+                                                map { {
+                                                        option   => $_,
+                                                        label    => sprintf("%02d", $_),
+                                                        selected => $_ eq $startmin ? 1 : 0
+                                                    } } (0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
+                                              ],
+                      endhourselectloop    => [
+                                                map { {
+                                                        option   => $_,
+                                                        label    => $_ eq 'none' ? $lang_text{$_} : sprintf("%02d", $_),
+                                                        selected => $_ eq $endhour ? 1 : 0
+                                                    } } @hourlist
+                                              ],
+                      endminselectloop     => [
+                                                 map { {
+                                                         option   => $_,
+                                                        label    => sprintf("%02d", $_),
+                                                        selected => $_ eq $endmin ? 1 : 0
+                                                    } } (0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
+                                              ],
+                      dayfreqselectloop    => [
+                                                map { {
+                                                        option   => $_,
+                                                        label    => $dayfreqlabels{$_},
+                                                        selected => $_ eq $dayfreq ? 1 : 0
+                                                    } } @dayfreq_options
+                                              ],
+                      monthfreqselectloop  => [
+                                                map { {
+                                                        option   => $_,
+                                                        label    => $monthfreqlabels{$_},
+                                                        selected => $_ eq $monthfreq ? 1 : 0
+                                                    } } @monthfreq_options
+                                              ],
+                      eventcolorselectloop => $eventcolorselectloop,
+
                       # footer.tmpl
-                      footer_template         => get_footer($config{footer_template_file}),
+                      footer_template     => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
 }
-########## END EDIT_ITEM #########################################
 
-########## ADD_ITEM ##############################################
-# add an item to user calendar
-sub add_item {
-   my ($year, $month, $day,
-       $string,
-       $starthour, $startmin, $startampm,
-       $endhour, $endmin, $endampm,
-       $dayfreq,
-       $thisandnextndays, $ndays,
-       $monthfreq,
-       $everyyear,
-       $link, $email, $eventcolor, $eventreminder)=@_;
-   my $line;
-   return if ($string=~/^\s?$/);
+sub addmod {
+   # add or modify a user calendar event
+   my $dates = dates(param('year'), param('month'), param('day'));
 
-   # check for bad input that would kill our database format
-   if ($string =~ /\@\@\@/) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'at_char_not_allowed'}");
-   }
-   if ($link =~ /\@\@\@/) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'at_char_not_allowed'}");
-   }
-   # check for bad input that would confuse our database format
-   if ($string =~ /\@$/) {
-      $string=$string." ";
-   } elsif ($string =~ /^\@/) {
-      $string=" ".$string;
-   }
-   if ($link =~ /\@$/) {
-      $link=$link." ";
-   } elsif ($link =~ /^\@/) {
-      $link=" ".$link;
-   }
-   $link=~s/\Q$thissession\E/\%THISSESSION\%/;
-   $link=0 if ($link !~ m!://[^\s]+!);
-   $email=0 if ($email !~ m![^\s@]+@[^\s@]+!);
+   my $eventid         = param('eventid')         || 0;
+   my $string          = param('string')          || '';
+   my $starthour       = param('starthour')       || 0;
+   my $startmin        = param('startmin')        || 0;
+   my $startampm       = param('startampm')       || 'am';
+   my $endhour         = param('endhour')         || 0;
+   my $endmin          = param('endmin')          || 0;
+   my $endampm         = param('endampm')         || 'am';
+   my $link            = param('link')            || '';
+   my $email           = param('email')           || '';
+   my $dayfreq         = param('dayfreq')         || 'thisdayonly';
+   my $thisandnextdays = param('thisandnextdays') || 0;
+   my $nextdays        = param('nextdays')        || 0;
+   my $monthfreq       = param('monthfreq')       || 0;
+   my $everyyear       = param('everyyear')       || 0;
+   my $eventcolor      = param('eventcolor')      || 'none';
+   my $eventreminder   = param('eventreminder')   || 0;
 
-   # translate time format to military time.
-   my $starthourmin=0;
-   my $endhourmin=0;
-   if ($starthour =~ /\d+/) {
-      if ($prefs{'hourformat'}==12) {
-         $starthour+=12 if ($startampm eq "pm" && $starthour< 12);
-         $starthour=0   if ($startampm eq "am" && $starthour==12);
-      }
-      $starthourmin = sprintf("%02d%02d", $starthour,$startmin);
-   }
-   if ($endhour =~ /\d+/) {
-      if ($prefs{'hourformat'}==12) {
-         $endhour+=12 if ($endampm eq "pm" && $endhour< 12);
-         $endhour=0   if ($endampm eq "am" && $endhour==12);
-      }
-      $endhourmin = sprintf("%02d%02d", $endhour,$endmin);
-   }
+   if ($string !~ m/^\s+?$/) {
+      # check for input that would corrupt our @@@ separated flatfile database format
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{at_char_not_allowed}") if $string =~ /\@\@\@/ || $link =~ /\@\@\@/;
 
-   # fix the day if needed
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
-   $day=$days_in_month[$month] if ($day>$days_in_month[$month]); $day=1 if ($day<1);
+      $string =~ s#\@$#\@ #; # do not allow trailing @ signs
+      $string =~ s#^\@# \@#; # do not allow leading @ signs
+      $link   =~ s#\@$#\@ #; # do not allow trailing @ signs
+      $link   =~ s#^\@# \@#; # do not allow leading @ signs
 
-   my $calbookfile=dotpath('calendar.book');
+      $link =~ s#\Q$thissession\E#\%THISSESSION\%#;
 
-   my ($item_count, %items, %indexes);
-   if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
-   }
+      $link  = 0 if $link !~ m#://[^\s]+#;
+      $email = 0 if $email !~ m#[^\s@]+@[^\s@]+#;
 
-   my $index = $item_count+19690404;	# avoid collision with old records
-   my $t = ow::datetime::array2seconds(1,1,1, $day,$month-1,$year-1900);
-   my $dow = $ow::datetime::wday_en[(ow::datetime::seconds2array($t))[6]];
-
-   # construct the idate for this record.
-   if ($dayfreq eq 'thisdayonly' && $monthfreq eq 'thismonthonly' && !$everyyear) {
-      if ($thisandnextndays && $ndays) {
-         if ($ndays !~ /\d+/) {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'badnum_in_days'}: $ndays");
+      # convert time format to military time.
+      if ($prefs{hourformat} == 12) {
+         if ($starthour =~ m/^\d+$/) {
+            $starthour += 12 if $startampm eq "pm" && $starthour < 12;
+            $starthour = 0   if $startampm eq "am" && $starthour == 12;
          }
-         my $date_wild='(';
-         for (my $i=0; $i<=$ndays; $i++) {
-            my ($y, $m, $d)=(ow::datetime::seconds2array($t+86400*$i))[5,4,3];
-            $date_wild.='|' if ($i>0);
-            $date_wild.=sprintf("%04d%02d%02d", $y+1900, $m+1, $d);
+
+         if ($endhour =~ m/^\d+$/) {
+            $endhour += 12 if $endampm eq "pm" && $endhour < 12;
+            $endhour = 0   if $endampm eq "am" && $endhour == 12;
          }
-         $date_wild.=')';
-         $items{$index}{'idate'}=$date_wild;
+      }
+
+      my $starthourmin = $starthour =~ m/^\d+$/ ? sprintf("%02d%02d",$starthour,$startmin) : 0; # 0 != 0000; 0 == None
+      my $endhourmin   = $endhour =~ m/^\d+$/   ? sprintf("%02d%02d",$endhour,$endmin)     : 0; # 0 != 0000; 0 == None
+
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{start_after_end}")
+        if $endhourmin =~ m/^\d{4}$/ && $starthourmin =~ m/^\d{4}$/ && $starthourmin > $endhourmin;
+
+      my $time = ow::datetime::array2seconds(1,1,1, $dates->{day},$dates->{month} - 1,$dates->{year} - 1900);
+      my $dayofweek = $ow::datetime::wday_en[(ow::datetime::seconds2array($time))[6]];
+
+      # construct the idate for this record.
+      my $idate = '';
+      if ($dayfreq eq 'thisdayonly' && $monthfreq eq 'thismonthonly' && !$everyyear) {
+         if ($thisandnextdays && $nextdays) {
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{badnum_in_days}: $nextdays") if $nextdays !~ /\d+/;
+            my @nextdates = map {
+                                  my ($y,$m,$d) = (ow::datetime::seconds2array($time + 86400 * $_))[5,4,3];
+                                  sprintf("%04d%02d%02d",$y+1900,$m+1,$d)
+                                } (0..$nextdays);
+            $idate = '(' . join('|',@nextdates) . ')'; # (20090420|20090421|20090422)
+         } else {
+            $idate = sprintf("%04d%02d%02d", $dates->{year}, $dates->{month}, $dates->{day});
+         }
+      } elsif ($dayfreq eq 'thewdayofthismonth') {
+         my $year_wild  = $everyyear ? '.*' : sprintf("%04d", $dates->{year});
+
+         my $month_wild = $monthfreq eq 'everyoddmonththisyear'  ? '(01|03|05|07|09|11)' :
+                          $monthfreq eq 'everyevenmonththisyear' ? '(02|04|06|08|10|12)' :
+                          $monthfreq eq 'everymonththisyear'     ? '.*' : sprintf("%02d", $dates->{month});
+
+         my %weekorder_day_wild = (
+                                    1 => '0[1-7]',
+                                    2 => '((0[8-9])|(1[0-4]))',
+                                    3 => '((1[5-9])|(2[0-1]))',
+                                    4 => '2[2-8]',
+                                  );
+
+         my $weekorder = int(($dates->{day} + 6) / 7);
+
+         my $day_wild = exists $weekorder_day_wild{$weekorder} ? $weekorder_day_wild{$weekorder} : sprintf("%02d", $dates->{day});
+
+         $idate = "$year_wild,$month_wild,$day_wild,$dayofweek"; # .*,12,25,Wed or .*,.*,0[1-7],Wed
       } else {
-         $items{$index}{'idate'}=sprintf("%04d%02d%02d", $year, $month, $day);
+         # everywdaythismonth and everything else...
+         my $year_wild  = $everyyear ? '.*' : sprintf("%04d", $dates->{year});
+
+         my $month_wild = $monthfreq eq 'everyoddmonththisyear'  ? '(01|03|05|07|09|11)' :
+                          $monthfreq eq 'everyevenmonththisyear' ? '(02|04|06|08|10|12)' :
+                          $monthfreq eq 'everymonththisyear'     ? '.*' : sprintf("%02d", $dates->{month});
+
+         $idate = $dayfreq eq 'everywdaythismonth'
+                  ? "$year_wild,$month_wild,.*,$dayofweek"
+                  : "$year_wild,$month_wild," . sprintf("%02d", $dates->{day}) . ",.*";
       }
 
-   } elsif ($dayfreq eq 'thewdayofthismonth') {
-      my $year_wild=sprintf("%04d", $year);
-      my $month_wild=sprintf("%02d", $month);
-      my $day_wild=sprintf("%02d", $day);
+      my ($date, $date2) = ow::datetime::yyyymmdd($dates->{year}, $dates->{month}, $dates->{day});
 
-      $year_wild = ".*" if ($everyyear);
-      if ($monthfreq eq 'everyoddmonththisyear') {
-         $month_wild="(01|03|05|07|09|11)";
-      } elsif ($monthfreq eq 'everyevenmonththisyear') {
-         $month_wild="(02|04|06|08|10|12)";
-      } elsif ($monthfreq eq 'everymonththisyear') {
-         $month_wild = ".*";
-      }
-      my %weekorder_day_wild= ( 1 => "0[1-7]",
-                                2 => "((0[8-9])|(1[0-4]))",
-                                3 => "((1[5-9])|(2[0-1]))",
-                                4 => "2[2-8]" );
-      my $weekorder=int(($day+6)/7);
-      $day_wild=$weekorder_day_wild{$weekorder} if ($weekorder_day_wild{$weekorder} ne "");
+      if (defined $eventid && $eventid =~ m/^\d+$/ && exists $events->{$eventid}) {
+         if ($idate ne $events->{$eventid}{idate}) {
+            # remove the eventid from the in-memory index for the dates on which it use to occur
+            my $oldkey = $events->{$eventid}{idate} =~ m/[^\d]/ ? '*' : $events->{$eventid}{idate};
+            @{$index->{$oldkey}} = grep { $_ != $eventid } @{$index->{$oldkey}};
 
-      $items{$index}{'idate'}="$year_wild,$month_wild,$day_wild,$dow";
-
-   } else { # everywdaythismonth and else...
-      my $year_wild=sprintf("%04d", $year);
-      my $month_wild=sprintf("%02d", $month);
-
-      $year_wild = ".*" if ($everyyear);
-      if ($monthfreq eq 'everyoddmonththisyear') {
-         $month_wild="(01|03|05|07|09|11)";
-      } elsif ($monthfreq eq 'everyevenmonththisyear') {
-         $month_wild="(02|04|06|08|10|12)";
-      } elsif ($monthfreq eq 'everymonththisyear') {
-         $month_wild = ".*";
-      }
-
-      if ($dayfreq eq 'everywdaythismonth') {
-         $items{$index}{'idate'}="$year_wild,$month_wild,.*,$dow";
-      } else {
-         my $daystr=sprintf("%02d", $day);
-         $items{$index}{'idate'}="$year_wild,$month_wild,$daystr,.*";
-      }
-   }
-
-   $items{$index}{'starthourmin'}="$starthourmin"; # " is required or "0000" will be treated as 0?
-   $items{$index}{'endhourmin'}="$endhourmin";
-   $items{$index}{'string'}=$string;
-   $items{$index}{'link'}=$link;
-   $items{$index}{'email'}=$email;
-   $items{$index}{'eventcolor'}=$eventcolor;
-   $items{$index}{'charset'}=$prefs{'charset'};
-   $items{$index}{'eventreminder'}=$eventreminder;
-
-   if (writecalbook($calbookfile, \%items) <0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $calbookfile");
-   }
-
-   reset_notifycheck_for_newitem($items{$index});
-
-   my $msg="add calitem - index=$index, start=$starthourmin, end=$endhourmin, str=$string";
-   writelog($msg);
-   writehistory($msg);
-}
-########## END ADD_ITEM ##########################################
-
-########## DEL_ITEM ##############################################
-# delete an item from user calendar
-sub del_item {
-   my $index=$_[0];
-
-   my $calbookfile=dotpath('calendar.book');
-   my (%items, %indexes);
-   if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
-   }
-   return if (!defined $items{$index});
-
-   delete $items{$index};
-   if ( writecalbook($calbookfile, \%items) <0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $calbookfile");
-   }
-
-   my ($s)=iconv($items{$index}{'charset'}, $prefs{'charset'}, $items{$index}{'string'});
-   my $msg="delete calitem - index=$index, t=$items{$index}{'starthourmin'}, str=$s";
-   writelog($msg);
-   writehistory($msg);
-}
-########## END DEL_ITEM ##########################################
-
-########## UPDATE_ITEM ###########################################
-# update an item in user calendar
-sub update_item {
-   my ($index,
-       $year, $month, $day,
-       $string,
-       $starthour, $startmin, $startampm,
-       $endhour, $endmin, $endampm,
-       $dayfreq,
-       $thisandnextndays, $ndays, $monthfreq, $everyyear,
-       $link, $email, $eventcolor, $eventreminder)=@_;
-   my $line;
-
-   return if ($string=~/^\s?$/);
-
-   # check for valid input
-   if ($string =~ /\@{3}/) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'at_char_not_allowed'}");
-   }
-   if ($link =~ /\@{3}/) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'at_char_not_allowed'}");
-   }
-   # check for bad input that would confuse our database format
-   if ($string =~ /\@$/) {
-      $string=$string." ";
-   } elsif ($string =~ /^\@/) {
-      $string=" ".$string;
-   }
-   if ($link =~ /\@$/) {
-      $link=$link." ";
-   } elsif ($link =~ /^\@/) {
-      $link=" ".$link;
-   }
-   $link=~s/\Q$thissession\E/\%THISSESSION\%/;
-   $link=0 if ($link !~ m!://[^\s]+!);
-   $email=0 if ($email !~ m![^\s@]+@[^\s@]+!);
-
-   # translate time format to military time.
-   my $starthourmin=0;
-   my $endhourmin=0;
-   if ($starthour =~ /\d+/) {
-      if ($prefs{'hourformat'}==12) {
-         $starthour+=12 if ($startampm eq "pm" && $starthour< 12);
-         $starthour=0   if ($startampm eq "am" && $starthour==12);
-      }
-      $starthourmin = sprintf("%02d%02d", $starthour,$startmin);
-   }
-   if ($endhour =~ /\d+/) {
-      if ($prefs{'hourformat'}==12) {
-         $endhour+=12 if ($endampm eq "pm" && $endhour< 12);
-         $endhour=0   if ($endampm eq "am" && $endhour==12);
-      }
-      $endhourmin = sprintf("%02d%02d", $endhour,$endmin);
-   }
-
-   # fix the day if needed
-   my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-   $days_in_month[2]++ if ( ($year%4)==0 && (($year%100)!=0||($year%400)==0) );
-   $day=$days_in_month[$month] if ($day>$days_in_month[$month]); $day=1 if ($day<1);
-
-   my $t = ow::datetime::array2seconds(1,1,1, $day,$month-1,$year-1900);
-   my $dow = $ow::datetime::wday_en[(ow::datetime::seconds2array($t))[6]];
-
-   # construct the idate for this record.
-   my $idate = '';
-   if ($dayfreq eq 'thisdayonly' && $monthfreq eq 'thismonthonly' && !$everyyear) {
-      if ($thisandnextndays && $ndays) {
-         if ($ndays !~ /\d+/) {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'badnum_in_days'}: $ndays");
+            # add the eventid to the in-memory index for its new dates
+            push(@{$index->{($idate =~ m/[^\d]/ ? '*' : $date)}},$eventid);
          }
-         my $date_wild='(';
-         for (my $i=0; $i<=$ndays; $i++) {
-            my ($y, $m, $d)=(ow::datetime::seconds2array($t+86400*$i))[5,4,3];
-            $date_wild.='|' if ($i>0);
-            $date_wild.=sprintf("%04d%02d%02d", $y+1900, $m+1, $d);
-         }
-         $date_wild.=')';
-         $idate=$date_wild;
       } else {
-         $idate=sprintf("%04d%02d%02d", $year, $month, $day);
+         $eventid++ while exists $events->{$eventid} || $eventid < 1;    # determine a new unique eventid
+         push(@{$index->{($idate =~ m/[^\d]/ ? '*' : $date)}},$eventid); # add it to our in-memory index for this date
       }
 
-   } elsif ($dayfreq eq 'thewdayofthismonth') {
-      my $year_wild=sprintf("%04d", $year);
-      my $month_wild=sprintf("%02d", $month);
-      my $day_wild=sprintf("%02d", $day);
+      my $calbookfile = dotpath('calendar.book');
 
-      $year_wild = ".*" if ($everyyear);
-      if ($monthfreq eq 'everyoddmonththisyear') {
-         $month_wild="(01|03|05|07|09|11)";
-      } elsif ($monthfreq eq 'everyevenmonththisyear') {
-         $month_wild="(02|04|06|08|10|12)";
-      } elsif ($monthfreq eq 'everymonththisyear') {
-         $month_wild = ".*";
-      }
-      my %weekorder_day_wild= ( 1 => "0[1-7]",
-                                2 => "((0[8-9])|(1[0-4]))",
-                                3 => "((1[5-9])|(2[0-1]))",
-                                4 => "2[2-8]" );
-      my $weekorder=int(($day+6)/7);
-      $day_wild=$weekorder_day_wild{$weekorder} if ($weekorder_day_wild{$weekorder} ne "");
+      # read the events from the user calbook
+      my ($user_events, $user_index) = ({},{});
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $calbookfile")
+        if readcalbook($calbookfile, $user_events, $user_index, 0) < 0;
 
-      $idate="$year_wild,$month_wild,$day_wild,$dow";
+      # add/update the event
+      $user_events->{$eventid}{starthourmin}  = "$starthourmin"; # quotes preserve padding on 0000 miltary time
+      $user_events->{$eventid}{endhourmin}    = "$endhourmin";   # quotes preserve padding on 0000 miltary time
+      $user_events->{$eventid}{idate}         = $idate;
+      $user_events->{$eventid}{string}        = $string;
+      $user_events->{$eventid}{link}          = $link;
+      $user_events->{$eventid}{email}         = $email;
+      $user_events->{$eventid}{eventcolor}    = $eventcolor;
+      $user_events->{$eventid}{charset}       = $prefs{charset};
+      $user_events->{$eventid}{eventreminder} = $eventreminder;
 
-   } else { # everywdaythismonth and else...
-      my $year_wild=sprintf("%04d", $year);
-      my $month_wild=sprintf("%02d", $month);
+      $events->{$eventid} = $user_events->{$eventid};            # update our in-memory global events hash
 
-      $year_wild = ".*" if ($everyyear);
-      if ($monthfreq eq 'everyoddmonththisyear') {
-         $month_wild="(01|03|05|07|09|11)";
-      } elsif ($monthfreq eq 'everyevenmonththisyear') {
-         $month_wild="(02|04|06|08|10|12)";
-      } elsif ($monthfreq eq 'everymonththisyear') {
-         $month_wild = ".*";
-      }
+      # and save out the book
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} $calbookfile")
+        if writecalbook($calbookfile, $user_events) < 0;
 
-      if ($dayfreq eq 'everywdaythismonth') {
-         $idate="$year_wild,$month_wild,.*,$dow";
-      } else {
-         my $daystr=sprintf("%02d", $day);
-         $idate="$year_wild,$month_wild,$daystr,.*";
-      }
-   }
+      my $msg = "add calitem - eventid=$eventid, start=$starthourmin, end=$endhourmin, str=$string";
+      writelog($msg);
+      writehistory($msg);
 
-   my $calbookfile=dotpath('calendar.book');
+      # reset the lastcheck datetimestamp in the user's .notifycheck file
+      my $notifycheckfile = dotpath('notify.check');
 
-   my (%items, %indexes);
-   if ( readcalbook($calbookfile, \%items, \%indexes, 0)<0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $calbookfile");
-   }
-   if (!defined $items{$index}) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_text{'calendar'} $index $lang_err{'doesnt_exist'}");
-      writelog("update calitem error - item missing, index=$index");
-      writehistory("update calitem error - item missing, index=$index");
-   }
+      if ($events->{$eventid}{email} && ($date =~ m/$events->{$eventid}{idate}/ || $date2 =~ m/$events->{$eventid}{idate}/)) {
+         if (-f $notifycheckfile) {
+            sysopen(FILEREAD, $notifycheckfile, O_RDONLY)
+              or writelog("cannot open for read $notifycheckfile : $!");
+            my $lastcheck = <FILEREAD>; # should be a one line timestamp like: 200904212400
+            close(FILEREAD);
 
-   $items{$index}{'starthourmin'}="$starthourmin"; # " is required or "0000" will be treated as 0?
-   $items{$index}{'endhourmin'}="$endhourmin";
-   $items{$index}{'idate'}="$idate";
-   $items{$index}{'string'}=$string;
-   $items{$index}{'link'}=$link;
-   $items{$index}{'email'}=$email;
-   $items{$index}{'eventcolor'}="$eventcolor";
-   $items{$index}{'charset'}=$prefs{'charset'};
-   $items{$index}{'eventreminder'}=$eventreminder;
-
-   if ( writecalbook($calbookfile, \%items) <0 ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $calbookfile");
-   }
-
-   reset_notifycheck_for_newitem($items{$index});
-
-   my $msg="update calitem - index=$index, start=$starthourmin, end=$endhourmin, str=$string";
-   writelog($msg);
-   writehistory($msg);
-}
-########## END UPDATE_ITEM #######################################
-
-########## SET_DAYS_IN_MONTH #####################################
-# set the day number of each cell in the month calendar
-sub set_days_in_month {
-   my ($year, $month, $days_in_month) = @_;
-
-   my %wdaynum=qw(Sun 0 Mon 1 Tue 2 Wed 3 Thu 4 Fri 5 Sat 6);
-   foreach (keys %wdaynum) {
-      $wdaynum{$_}=($wdaynum{$_}+7-$prefs{'calendar_weekstart'})%7;
-   }
-   my $time = ow::datetime::array2seconds(0,0,12, 1,$month-1,$year-1900);
-   my $weekday = ow::datetime::seconds2array($time); $weekday =~ s/^(\w+).*$/$1/;
-
-   my @days;
-   my $day_counter = 1;
-   for my $x (0..5) {
-      for my $y (0..6) {
-         if ( ($x>0 || $y>=$wdaynum{$weekday}) &&
-              $day_counter<=$days_in_month ) {
-            $days[$x][$y] = $day_counter;
-            $day_counter++;
+            if (defined $lastcheck && $lastcheck =~ m/$date(\d\d\d\d)/) {
+               if ($events->{$eventid}{starthourmin} < $1) {
+                  sysopen(FILEWRITE, $notifycheckfile, O_WRONLY|O_TRUNC|O_CREAT)
+                    or writelog("cannot open for write $notifycheckfile : $!");
+                  print FILEWRITE sprintf("%08d%04d",$date,$events->{$eventid}{starthourmin});
+                  close(FILEWRITE);
+               }
+            }
          }
       }
    }
-   return @days;
-}
-########## END SET_DAYS_IN_MONTH #################################
 
-########## HOURMIN2STR ###########################################
-# convert military time (eg:1700) to timestr (eg:05:00 pm)
+   my $cal_caller = param('cal_caller') || $prefs{calendar_defaultview};
+   $cal_caller eq 'calyear'  ? viewyear()  :
+   $cal_caller eq 'calmonth' ? viewmonth() :
+   $cal_caller eq 'calweek'  ? viewweek()  :
+   $cal_caller eq 'calday'   ? viewday()   :
+   $cal_caller eq 'callist'  ? viewlist()  :
+   openwebmailerror(__FILE__, __LINE__, "Caller $lang_err{has_illegal_chars}");
+}
+
+sub del {
+   # delete an event from the user's calendar
+   my $eventid = param('eventid') || '';
+
+   if ($eventid && exists $events->{$eventid}) {
+      my ($eventtxt) = iconv($events->{$eventid}{charset}, $prefs{charset}, $events->{$eventid}{string});
+      my $msg = "delete calitem - eventid=$eventid, starthourmin=$events->{$eventid}{starthourmin}, eventtxt=$eventtxt";
+
+      my $calbookfile = dotpath('calendar.book');
+
+      # read the events from this calbook only
+      my ($user_events, $user_index) = ({},{});
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $calbookfile")
+        if readcalbook($calbookfile, $user_events, $user_index, 0) < 0;
+
+      # make the change
+      delete $user_events->{$eventid};
+
+      # and save it out
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} $calbookfile")
+        if writecalbook($calbookfile, $user_events) < 0;
+
+      writelog($msg);
+      writehistory($msg);
+
+      # update our in-memory hash of all events
+      delete $events->{$eventid};
+   }
+
+   my $cal_caller = param('cal_caller') || $prefs{calendar_defaultview};
+   $cal_caller eq 'calyear'  ? viewyear()  :
+   $cal_caller eq 'calmonth' ? viewmonth() :
+   $cal_caller eq 'calweek'  ? viewweek()  :
+   $cal_caller eq 'calday'   ? viewday()   :
+   $cal_caller eq 'callist'  ? viewlist()  :
+   openwebmailerror(__FILE__, __LINE__, "Caller $lang_err{has_illegal_chars}");
+}
+
+sub duration_minutes {
+   # returns the duration in minutes between two military times
+   my ($start, $end) = @_;
+   return 0 unless defined $start;
+   return 0 unless $start =~ m/\d{4}/;
+   $end = $start + $prefs{calendar_interval} unless defined $end && $end =~ m/\d{4}/;
+   return 0 if $start > $end;
+   my ($starthour, $startmin) = $start =~ m/(\d+)(\d{2})$/;
+   my ($endhour, $endmin) = $end =~ m/(\d+)(\d{2})$/;
+   return (($endhour * 60 + $endmin) - ($starthour * 60 + $startmin));
+}
+
 sub hourmin2str {
+   # converts military time (eg:1700) to a time string (eg:05:00 pm)
    my ($hourmin, $hourformat) = @_;
    if ($hourmin =~ /(\d+)(\d{2})$/) {
       my ($hour, $min) = ($1, $2);
       $hour =~ s/^0(.+)/$1/;
-      if ($hourformat==12) {
+      if ($hourformat == 12) {
          my $ampm;
-         ($hour, $ampm)=ow::datetime::hour24to12($hour);
-         $hourmin = $lang_text{'calfmt_hourminampm'};
+         ($hour, $ampm) = ow::datetime::hour24to12($hour);
+         $hourmin = $lang_text{calfmt_hourminampm};
          $hourmin =~ s/\@\@\@HOURMIN\@\@\@/$hour:$min/;
          $hourmin =~ s/\@\@\@AMPM\@\@\@/$lang_text{$ampm}/;
       } else {
@@ -2216,99 +2032,76 @@ sub hourmin2str {
    }
    return $hourmin;
 }
-########## END HOURMIN2STR #######################################
 
-########## LUNAR_DAY #############################################
-# get big5 lunar str from gregorian date, then convert it to target charset
 sub lunar_day {
-   my ($year, $month, $day, $charset) = @_;
-   my $txt = "";
+   # get big5 lunar string from a gregorian date, then convert it to target charset
+   my ($year, $month, $day) = @_;
+   my $txt = '';
    my $new = 0;
 
-   if ($prefs{'locale'} =~ m/^(?:zh_TW\.Big5|zh_CN\.GB2312)/) {
+   if ($prefs{locale} =~ m/^(?:zh_TW\.Big5|zh_CN\.GB2312)/) {
       my ($lyear, $lmonth, $lday) = solar2lunar($year, $month, $day);
       $txt = lunar2big5str((solar2lunar($year, $month, $day))[1, 2]);
-      if ($txt ne "") {
+      if ($txt ne '') {
          $new = ($txt =~ /ªì¤@/ || $txt=~/¤Q¤­/) ? 1 : 0;
-         $txt = (iconv('big5', $charset, $txt))[0];
+         $txt = (iconv('big5', $prefs{charset}, $txt))[0];
       }
    }
+
    return($txt, $new);
 }
-########## END LUNAR_DAY #########################################
 
-########## PARSE_EVENT ###########################################
-# parse calendar events to eventsloop variables
-sub parse_event {
-   my ($r_item, $is_global) = @_;
+#                       OPENWEBMAIL CALENDAR DATA STRUCTURES
+#
+# %index: a hash of arrays of all the event id numbers that take place each day.
+#         The hash key '*' stores all of the recurring events.
+# %index = (
+#            20030220 => [
+#                          10, # an event number
+#                          11, # another event number
+#                        ],
+#                   * => [
+#                          1,  # a recurring event number (* is the key for recurring events)
+#                        ],
+#          );
+#
+# %events: each item contains information about the event that takes place.
+# %events = (
+#            10 => {
+#                    email        => 0,
+#                    starthourmin => 0, # all day event
+#                    endhourmin   => 0,
+#                    eventcolor   => '2a',
+#                    link         => 0,
+#                    string       => 'a friends birthday',
+#                    idate        => 20030220,
+#                  },
+#            11 => {
+#                    email        => 'test@example.com',
+#                    starthourmin => 1900,
+#                    endhourmin   => 2200,
+#                    eventcolor   => '1e',
+#                    link         => 'http://yahoo.com',
+#                    string       => 'birthday dinner',
+#                    idate        => 20030220,
+#                  },
+#             1 => {
+#                    email        => 0,
+#                    starthourmin => 0600,
+#                    endhourmin   => 0800,
+#                    eventcolor   => '1a',
+#                    link         => 'http://exercise.com',
+#                    string       => 'morning workout',
+#                    idate        => '.*,.*,.*,.*', # recurring
+#                  }
+#          );
+#
+# IDATE FORMATS:
+#    <years><months><days><dayofweek>
+#    20030808                            The event occurs on August 8, 2003, This Month, This Day only
+#    (20030808|20030809)                 The event occurs on August 8 & 9, 2003 (or August 8 and Next 1 day)
+#    .*,04,07,.*                         The event occurs on April 7, Every Year
+#    .*,.*,((1[5-9])|(2[0-1])),Tue       The event occurs on the 3rd Tuesday, Every Month, Every Year
+#    2003,.*,.*,Wed                      The event occurs Every Wednesday, Every Week of 2003
+#    2003,.*,11,.*                       The event occurs Every 11th day, Every Month of 2003
 
-   my ($eventtime, $eventlink, $eventlinktxt, $eventemail, $eventtxt, $eventcolor);
-
-   if (${$r_item}{'starthourmin'} ne "0") {
-      $eventtime = hourmin2str(${$r_item}{'starthourmin'}, $prefs{'hourformat'});
-      if (${$r_item}{'endhourmin'} ne "0") {
-        $eventtime .= qq|-| . hourmin2str(${$r_item}{'endhourmin'}, $prefs{'hourformat'});
-      }
-   } else {
-      $eventtime = "#";
-   }
-
-   $eventlink = 0;
-   if (${$r_item}{'link'}) {
-      $eventlinktxt = ${$r_item}{'link'}; 
-      $eventlink = $eventlinktxt;
-      $eventlink =~ s/\%THISSESSION\%/$thissession/;
-   }
-
-   $eventemail = ${$r_item}{'email'};
-
-   ($eventtxt) = iconv(${$r_item}{'charset'}, $prefs{'charset'}, ${$r_item}{'string'});
-   $eventtxt =~ s/<.*?>//g;
-   $eventtxt = substr($eventtxt, 0, 76)."..." if (length($eventtxt)>80);
-   $eventtxt = "$eventtxt *" if ($is_global);
-
-   $eventcolor = defined($eventcolors{${$r_item}{'eventcolor'}}) ? "#".$eventcolors{${$r_item}{'eventcolor'}} : 0;
-
-   return($eventtime, 
-          $eventlink, 
-          $eventlinktxt, 
-          $eventemail, 
-          $eventtxt, 
-          $eventcolor,
-          ${$r_item}{'idate'});
-}
-########## END PARSE_EVENT #######################################
-
-########## RESET_NOTIFYCHECK_FOR_NEWITEM #########################
-# reset the lastcheck date in .notify.check
-# if any item added with date before the lastcheck date
-sub reset_notifycheck_for_newitem {
-   my $r_item=$_[0];
-   my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
-   my ($wdaynum, $year, $month, $day, $hour, $min)=(ow::datetime::seconds2array($localtime))[6,5,4,3,2,1];
-   $year+=1900; $month++;
-
-   my $dow=$ow::datetime::wday_en[$wdaynum];
-   my $date=sprintf("%04d%02d%02d", $year, $month, $day);
-   my $date2=sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
-
-   my $notifycheckfile=dotpath('notify.check');
-
-   if ( ${$r_item}{'email'} &&
-        ($date=~/${$r_item}{'idate'}/ || $date2=~/${$r_item}{'idate'}/) ) {
-      if ( -f $notifycheckfile ) {
-         sysopen(NOTIFYCHECK, $notifycheckfile, O_RDONLY) or return -1; # read err
-         my $lastcheck=<NOTIFYCHECK>;
-         close(NOTIFYCHECK);
-         if ($lastcheck=~/$date(\d\d\d\d)/) {
-            if (${$r_item}{'starthourmin'} < $1) {
-               sysopen(NOTIFYCHECK, $notifycheckfile, O_WRONLY|O_TRUNC|O_CREAT) or return -1; # write err
-               print NOTIFYCHECK sprintf("%08d%04d", $date, ${$r_item}{'starthourmin'});
-               close(NOTIFYCHECK);
-            }
-         }
-      }
-   }
-   return 0;
-}
-########## END RESET_NOTIFYCHECK_FOR_NEWITEM #####################

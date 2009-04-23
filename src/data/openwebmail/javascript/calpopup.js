@@ -103,14 +103,14 @@ function makeCalHtml(id, calYear, calMonth, calDay, formName, validationScript) 
    html += '<table cellpadding="0" cellspacing="1" border="0" bgcolor="#000000">\n';
    html += '<tr>\n';
    html += '<td valign="top">\n';
-   html += '<table cellpadding="0" cellspacing="2" border="0" class="rowdark">\n';
+   html += '<table cellpadding="2" cellspacing="0" border="0">\n';
    html += '<tr>\n';
-   html += '<td valign="top">\n';
+   html += '<td valign="top" class="menubar">\n';
    html += '<table cellpadding="3" cellspacing="1" border="0">\n';
    html += '<tr>\n';
-   html += '<td class="stylecal"><a class="rowdark" href="#" onClick="updateCal(\''+id+'\','+calLastYear+','+calLastMonth+','+calDay+',\''+formName+'\',\''+validationScript+'\'); return false;">&lt;&lt;</a></td>\n';
-   html += '<td align="center" colspan="5" class="stylecal">&nbsp;' +wMonth[calDate.getMonth()]+ ' ' +calDate.getFullYear()+ '&nbsp;</td>\n';
-   html += '<td class="stylecal"><a class="rowdark" href="#" onClick="updateCal(\''+id+'\','+calNextYear+','+calNextMonth+','+calDay+',\''+formName+'\',\''+validationScript+'\'); return false;">&gt;&gt;</a></td>\n';
+   html += '<td class="menubar"><a class="stylecal" href="#" onClick="updateCal(\''+id+'\','+calLastYear+','+calLastMonth+','+calDay+',\''+formName+'\',\''+validationScript+'\'); return false;">&lt;&lt;</a></td>\n';
+   html += '<td align="center" colspan="5" class="menubar stylecal">&nbsp;' +wMonth[calDate.getMonth()]+ ' ' +calDate.getFullYear()+ '&nbsp;</td>\n';
+   html += '<td class="menubar"><a class="stylecal" href="#" onClick="updateCal(\''+id+'\','+calNextYear+','+calNextMonth+','+calDay+',\''+formName+'\',\''+validationScript+'\'); return false;">&gt;&gt;</a></td>\n';
    html += '</tr>\n';
    for (var row=1; row <= 7; row++) {
       // check if we started a new month at the beginning of this row
@@ -123,22 +123,21 @@ function makeCalHtml(id, calYear, calMonth, calDay, formName, validationScript) 
       for (var col=0; col < 7; col++) {
          var tdClass = col % 2 ? '"rowdark"' : '"rowlight"';
          if (row == 1) {
-            html += '<td class='+tdClass+' align="center"><font class="stylecal">'+wDayAbbrev[(wStart+col)%7]+'</font></td>\n';
+            html += '<td class='+tdClass+' align="center"><span class="stylecal">'+wDayAbbrev[(wStart+col)%7]+'</span></td>\n';
          } else {
             var hereDate = new Date(calStartYear,calStartMonth,calCurrentDay,12,0,0);
             var hereDay = hereDate.getDate();
             var aClass = '"stylecal"';
 
             if (hereDate.getYear() == todayDate.getYear() && hereDate.getMonth() == todayDate.getMonth() && hereDate.getDate() == todayDate.getDate()) {
-               tdClass = '"rowhilite"';
-               aClass = '"stylecal"';
+               tdClass = '"todayhilite"';
             }
             if (hereDate.getMonth() != calDate.getMonth()) {
                tdClass = '"menubar"';
                aClass = '"notmonth"';
             }
 
-            html += '<td class='+tdClass+' align="right"><a font class='+aClass+' href="#" onClick="changeFormDate('+hereDate.getFullYear()+','+(hereDate.getMonth()+1)+','+hereDate.getDate()+',\''+formName+'\',\''+validationScript+'\'); hideLayer(\''+id+'\'); return false;">'+hereDay+'</a></td>\n';
+            html += '<td class='+tdClass+' align="right"><a class='+aClass+' href="#" onClick="changeFormDate('+hereDate.getFullYear()+','+(hereDate.getMonth()+1)+','+hereDate.getDate()+',\''+formName+'\',\''+validationScript+'\'); hideLayer(\''+id+'\'); return false;">'+hereDay+'</a></td>\n';
             calCurrentDay++;
          }
       }
