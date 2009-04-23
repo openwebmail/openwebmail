@@ -2,7 +2,7 @@
 
 #                              The BSD License
 #
-#  Copyright (c) 2008, The OpenWebMail Project
+#  Copyright (c) 2009, The OpenWebMail Project
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
