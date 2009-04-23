@@ -240,13 +240,13 @@ if ($opt{'init'}) {
    $retval=makethumbnail(\@list);
 } else {
    if ($opt{'convert_addressbooks'} && $>==0) {	# only allow root to convert globalbook
-      print "converting GLOBAL addressbook..." if (!$opt{'quiet'});
+      print "converting GLOBAL addressbook..." unless $opt{quiet};
       $retval=convert_addressbook('global', (ow::lang::localeinfo($prefs{'locale'}))[6]);
       if ($retval<0) {
          print "error:$@. EXITING\n";
          openwebmail_exit($retval);
       }
-      print "done.\n" if (!$opt{'quiet'});
+      print "done.\n" unless $opt{quiet};
    }
 
    if ($opt{'allusers'}) {
@@ -276,7 +276,7 @@ Syntax: openwebmail-tool.pl --init [options]
         openwebmail-tool.pl [options] [user1 user2 ...]
 
 common options:
- -q, --quite  \t quiet, no output
+ -q, --quiet  \t quiet, no output
      --debug  \t print debug information
 
 init options:
@@ -630,7 +630,7 @@ sub makethumbnail {
 
    my $convertbin=ow::tool::findbin("convert");
    if ($convertbin eq '') {
-      print "Program convert doesn't exist\n" if (!$opt{'quiet'});
+      print "Program convert doesn't exist\n" unless $opt{quiet};
       return -1;
    }
    my @cmd=($convertbin, '+profile', '*', '-interlace', 'NONE', '-geometry', '64x64');
@@ -643,7 +643,7 @@ sub makethumbnail {
       my $thumbnaildir=join('/', @p);
       if (!-d "$thumbnaildir") {
          if (!mkdir (ow::tool::untaint("$thumbnaildir"), 0755)) {
-            print "$!\n" if (!$opt{'quiet'});
+            print "$!\n" unless $opt{quiet};
             $err++; next;
          }
       }
@@ -652,7 +652,7 @@ sub makethumbnail {
       if (-f $thumbnail) {
          my ($thumbnail_atime,$thumbnail_mtime)= (stat($thumbnail))[8,9];
          if ($thumbnail_mtime==$img_mtime) {
-            print "$thumbnail already exist.\n" if (!$opt{'quiet'});
+            print "$thumbnail already exist.\n" unless $opt{quiet};
             next;
          }
       }
@@ -746,9 +746,9 @@ sub allusers {
       if ($errcode!=0) {
          writelog("userlist error - $config{'auth_module'}, ret $errcode , $errmsg");
          if ($errcode==-1) {
-            print "-a is not supported by $config{'auth_module'}, use -f instead\n" if (!$opt{'quiet'});
+            print "-a is not supported by $config{'auth_module'}, use -f instead\n" unless $opt{quiet};
          } else {
-            print "Unable to get userlist, error code $errcode\n" if (!$opt{'quiet'});
+            print "Unable to get userlist, error code $errcode\n" unless $opt{quiet};
          }
       } else {
          $loaded_domain++;
@@ -768,7 +768,7 @@ sub allusers {
       }
    }
 
-   return if ($loaded_domain>0);
+   return 0 if ($loaded_domain>0);
    return -1;
 }
 
@@ -778,7 +778,7 @@ sub alldomains {
 
    if ( ! opendir(SITEDIR, $config{'ow_sitesconfdir'})){
       writelog("siteconf dir error $config{'ow_sitesconfdir'} $!");
-      print "Unable to read siteconf dir $config{'ow_sitesconfdir'} $!\n" if (!$opt{'quiet'});
+      print "Unable to read siteconf dir $config{'ow_sitesconfdir'} $!\n" unless $opt{quiet};
       return -1;
    }
    while ($domain=readdir(SITEDIR)) {
@@ -850,7 +850,7 @@ sub usertool {
       }
 
       if ($user eq "") {
-         print "user $loginname doesn't exist\n" if (!$opt{'quiet'});
+         print "user $loginname doesn't exist\n" unless $opt{quiet};
          next;
       }
       if ($user eq 'root' || $user eq 'toor'||
@@ -1043,9 +1043,9 @@ sub usertool {
       }
       if ($opt{'convert_addressbooks'}) {
          loadlang("$prefs{'locale'}"); # for converted filename $lang_text{abook_converted}
-         print "converting user $user addressbook..." if (!$opt{'quiet'});
+         print "converting user $user addressbook..." unless $opt{quiet};
          my $ret=convert_addressbook('user', (ow::lang::localeinfo($prefs{'locale'}))[6]);
-         print "done.\n" if (!$opt{'quiet'});
+         print "done.\n" unless $opt{quiet};
       }
 
       $usercount++;
@@ -1074,7 +1074,7 @@ sub folderindex {
       my %FDB;
 
       if (! -f $folderfile) {
-         print "$folderfile doesn't exist\n" if (!$opt{'quiet'});
+         print "$folderfile doesn't exist\n" unless $opt{quiet};
          next;
       }
 
@@ -1085,17 +1085,17 @@ sub folderindex {
          my $error=0;
 
          if (!ow::dbm::exist($folderdb)) {
-            print "db $folderdb doesn't exist\n" if (!$opt{'quiet'});
+            print "db $folderdb doesn't exist\n" unless $opt{quiet};
             return -1;
          }
          @messageids=get_messageids_sorted_by_offset($folderdb);
 
          if (!ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB)) {
-            print "Couldn't get read lock on $folderfile\n" if (!$opt{'quiet'});
+            print "Couldn't get read lock on $folderfile\n" unless $opt{quiet};
             return -1;
          }
          if (!ow::dbm::open(\%FDB, $folderdb, LOCK_SH)) {
-            print "Couldn't get read lock on db $folderdb\n" if (!$opt{'quiet'});
+            print "Couldn't get read lock on db $folderdb\n" unless $opt{quiet};
             ow::filelock::lock($folderfile, LOCK_UN);
             return -1;
          }
@@ -1151,25 +1151,25 @@ sub folderindex {
          close(FOLDER);
          ow::filelock::lock($folderfile, LOCK_UN);
 
-         print "$error errors in db $folderdb\n" if (!$opt{'quiet'});
+         print "$error errors in db $folderdb\n" unless $opt{quiet};
 
       } elsif ($op eq "zap") {
          if (!ow::filelock::lock($folderfile, LOCK_EX)) {
-            print "Couldn't get write lock on $folderfile\n" if (!$opt{'quiet'});
+            print "Couldn't get write lock on $folderfile\n" unless $opt{quiet};
             next;
          }
          my $ret=folder_zapmessages($folderfile, $folderdb);
          $ret=folder_zapmessages($folderfile, $folderdb) if ($ret==-9||$ret==-10);
          if ($ret>=0) {
-            print "$ret messages have been zapped from $folder\n" if (!$opt{'quiet'});
+            print "$ret messages have been zapped from $folder\n" unless $opt{quiet};
          } elsif ($ret<0) {
-            print "zap folder return error $ret\n" if (!$opt{'quiet'});
+            print "zap folder return error $ret\n" unless $opt{quiet};
          }
          ow::filelock::lock($folderfile, LOCK_UN);
 
       } else {
          if (!ow::filelock::lock($folderfile, LOCK_EX)) {
-            print "Couldn't get write lock on $folderfile\n" if (!$opt{'quiet'});
+            print "Couldn't get write lock on $folderfile\n" unless $opt{quiet};
             next;
          }
          my $ret;
@@ -1180,7 +1180,7 @@ sub folderindex {
             $ret=update_folderindex($folderfile, $folderdb);
          } elsif ($op eq "fastrebuild") {
             if (!ow::dbm::open(\%FDB, $folderdb, LOCK_EX, 0600)) {
-               print "Couldn't get write lock on db $folderdb\n" if (!$opt{'quiet'});
+               print "Couldn't get write lock on db $folderdb\n" unless $opt{quiet};
                ow::filelock::lock($folderfile, LOCK_UN);
                next;
             }
@@ -1227,7 +1227,7 @@ sub clean_trash_spamvirus {
    if ($msg ne '') {
       writelog("clean trash/spam/virus - $msg");
       writehistory("clean trash/spam/virus - $msg");
-      print "clean trash/spam/virus - $msg\n" if (!$opt{'quiet'});
+      print "clean trash/spam/virus - $msg\n" unless $opt{quiet};
    }
    return 0;
 }
@@ -1239,7 +1239,7 @@ sub checksize {
 
    my ($ret, $errmsg, $quotausage, $quotalimit)=ow::quota::get_usage_limit(\%config, $user, $homedir, 0);
    if ($ret<0) {
-      print "$errmsg\n" if (!$opt{'quiet'});
+      print "$errmsg\n" unless $opt{quiet};
       return $ret;
    }
    $quotalimit=$config{'quota_limit'} if ($quotalimit<0);
@@ -1275,7 +1275,7 @@ sub checksize {
 
 sub checknewmail {
    my ($spoolfile, $folderdb)=get_folderpath_folderdb($user, 'INBOX');
-   print "$loginname " if (!$opt{'quiet'});
+   print "$loginname " unless $opt{quiet};
 
    if ($config{'authpop3_getmail'}) {
       my $authpop3book=dotpath('authpop3.book');
@@ -1294,7 +1294,7 @@ sub checknewmail {
    }
 
    if ( ! -f $spoolfile || (stat($spoolfile))[7]==0 ) {
-      print "has no mail\n" if (!$opt{'quiet'});
+      print "has no mail\n" unless $opt{quiet};
       return 0;
    }
 
