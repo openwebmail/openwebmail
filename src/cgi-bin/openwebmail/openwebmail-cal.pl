@@ -1844,6 +1844,8 @@ sub addmod {
       my $time = ow::datetime::array2seconds(1,1,1, $dates->{day},$dates->{month} - 1,$dates->{year} - 1900);
       my $dayofweek = $ow::datetime::wday_en[(ow::datetime::seconds2array($time))[6]];
 
+      my $stopwarnings = $ow::datetime::wday_en[0]; # use var again to eliminate warnings
+
       # construct the idate for this record.
       my $idate = '';
       if ($dayfreq eq 'thisdayonly' && $monthfreq eq 'thismonthonly' && !$everyyear) {
