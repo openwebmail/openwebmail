@@ -1428,7 +1428,7 @@ sub saveprefs {
    my $rcfile = dotpath('openwebmailrc');
    sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} $rcfile! ($!)");
-   print RC "$_=$newprefs{$_}\n" for @openwebmailrcitem;
+   print RC "$_=" . (exists $newprefs{$_} && defined $newprefs{$_} ? $newprefs{$_} : '') . "\n" for @openwebmailrcitem;
    close(RC) or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $rcfile! ($!)");
 
    %prefs = readprefs();
