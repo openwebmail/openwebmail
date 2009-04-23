@@ -17,7 +17,7 @@
         <input type="hidden" name="keyword" value="<tmpl_var keyword escape="html">">
         <select name="folder" accesskey="L" onchange="document.FolderForm.submit();">
           <tmpl_loop folderselectloop>
-          <option value="<tmpl_var option escape="html">" <tmpl_if newmessagesthisfolder>class="hilighttext"</tmpl_if> <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> (<tmpl_var newmessagesthisfolder escape="html">/<tmpl_var allmessagesthisfolder escape="html">)</option>
+          <option value="<tmpl_var option escape="html">" <tmpl_if newmessagesthisfolder>class="hilitetext"</tmpl_if> <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> (<tmpl_var newmessagesthisfolder escape="html">/<tmpl_var allmessagesthisfolder escape="html">)</option>
           </tmpl_loop>
         </select>
         </form>
