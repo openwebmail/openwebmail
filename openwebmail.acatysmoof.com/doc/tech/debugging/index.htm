@@ -1,0 +1,94 @@
+<html>
+
+<head>
+   <meta name="description" content="OpenWebMail Project :: Tech Specs :: Debugging">
+   <title>The OpenWebMail Project :: Tech Specs :: Debugging</title>
+   <link rel="shortcut icon" href="/images/favicon.ico">
+</head>
+
+<body text="#555555" bgcolor="#ffffff" background="/images/Globe.gif">
+<center>
+
+<a href="http://openwebmail.acatysmoof.com"><img src="/images/openwebmail.gif" alt="OpenWebMail Logo" border="0"></a>
+<br><br>
+
+<table width="90%">
+<tr>
+  <td>
+    <br>
+    <h3>Debugging OpenWebMail</h3>
+    <blockquote>
+    <p>OpenWebMail is a lot of code, and sometimes bugs creep in to the program that are difficult to find. These bugs can produce cryptic or unusable error messages. Fortunately, OpenWebMail comes with some tools and settings that you can use to add some debugging output that helps track down these bugs.</p>
+    </blockquote>
+
+    <h3>Debug Settings</h3>
+    <blockquote>
+    <p>The following settings may be put into the etc/openwebmail.conf file to help debug certain sections of code in OpenWebMail:</p>
+    </blockquote>
+    <table border="1" cellpadding="6" cellspacing="0" width="90%" align="center">
+    <tr>
+      <td bgcolor="#3161bd" width="20%"><font color="#ffffff"><b>Setting</b></font></td>
+      <td bgcolor="#3161bd" width="20%"><font color="#ffffff"><b>Output Location</b></font></td>
+      <td bgcolor="#3161bd" width="60%"><font color="#ffffff"><b>Purpose</b></font></td>
+    </tr>
+    <tr>
+      <td nowrap>debug_request  yes</td>
+      <td>to logfile set in openwebmail.conf</td>
+      <td>outputs the request string before any other code runs, and after all code is done processing. Pinpoints the exact request string at the time of the error.</td>
+    </tr>
+    <tr>
+      <td nowrap>debug_fork    yes</td>
+      <td>to logfile set in openwebmail.conf</td>
+      <td>outputs the process being forked and the file and line from which it is forking. Tracks all the forking processes including learnham, pop3 fetches, updating msg status, updating ldap_cache, folder indexing, and mail filters.</td>
+    </tr>
+    <tr>
+      <td nowrap>debug_mailfilter    yes</td>
+      <td>to logfile set in openwebmail.conf</td>
+      <td>outputs all activity of the mailfilter system. Tracks which messages are filtered, and which filter did it.</td>
+    </tr>
+    <tr>
+      <td nowrap>error_with_debuginfo   yes</td>
+      <td>to browser window in the event of an error</td>
+      <td>outputs a stacktrace dump in addition to the normal error message. Stacktraces can be large and will fill the browser window.</td>
+    </tr>
+    </table>
+    <blockquote>
+    <p>You can watch the output writing to the log file as you go through OpenWebMail by doing a "tail" on it:<br><br>tail -f /var/log/openwebmail-access.log</p>
+    </blockquote>
+
+    <h3>Advanced Debugging</h3>
+    <blockquote>
+    <p>If the above settings do not pinpoint the problem, OpenWebMail also includes scripts to insert more rigorous debugging code into the system. Use the following steps to activate verbose debugging output:</p>
+    <ul>
+      <li>become root (su -)</li>
+      <li>cd cgi-bin/openwebmail/misc/test</li>
+      <li>chmod 700 debugadd.pl</li>
+      <li>cd cgi-bin/openwebmail</li>
+      <li>./misc/test/debugadd.pl SCRIPTS_TO_DEBUG (for example: ./misc/test/debugadd.pl *.pl shares/*.pl modules/*.pl)</li>
+    </ul>
+    <p>The script adds debugging code that outputs information at the beginning of every single subroutine that is run. At the very least this helps narrow which subroutine is dying. The output is hardcoded in the modules/tool.pl log_time subroutine to be /tmp/openwebmail.debug. Make sure your /tmp partition has enough space to support this level of output before using this technique.</p>
+    <p>Do NOT run this script on the shares/maildb.pl file - it will break that file because the passed arguments are GLOBs (filehandles)!</p>
+    <p>Advanced Debugging can be removed by using the misc/test/debugdel.pl script in the same way. The script needs to be activated first using chmod, just like the debugadd.pl script.</p>
+    <p>For security, please be certain to chmod 444 these scripts when you are done using them.</p>
+    </blockquote>
+
+
+    <h3>Sending Debug Info</h3>
+    <blockquote>
+    <p>Debug output has a lot of information - sensitive information - in it. Please review your debug files carefully before releasing them to the public.</p>
+    <p>After you have obtained debug output please send it <b><u>ZIPPED</u></b> to openwebmail AT acatysmoof.com, along with a description of the problem, and which OS, Perl version, Berkeley DB version, MTA, POP Server, and OpenWebMail version you are using. Debug information sent to openwebmail AT acatysmoof.com will be kept completely confidential.</p>
+    <p>You may also choose to send the problem to the <a href="http://openwebmail.acatysmoof.com/archive/mj_wwwusr.pl?func=lists-long-full&extra=owm-devel">owm-devel mailing list</a>, but please do not send large attachments to the list (you may post a link to the debug data however).</p>
+    <p>Your help in getting rid of bugs is appreciated!</p>
+    </blockquote>
+
+  </td>
+</tr>
+</table>
+
+<p><font size="2">$Id: index.html 2 2006-04-30 21:09:49Z ateslik $<br>Copyright &copy; 2001-2006 The OpenWebMail Project</font></p>
+
+</center>
+</body>
+</html>
+
+

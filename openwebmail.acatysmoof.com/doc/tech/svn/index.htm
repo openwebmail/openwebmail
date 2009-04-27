@@ -1,0 +1,208 @@
+<html>
+
+<head>
+   <meta name="description" content="OpenWebMail Project :: Tech Specs :: Using SVN for OpenWebMail">
+   <title>The OpenWebMail Project :: Tech Specs :: Using SVN for OpenWebMail</title>
+   <link rel="shortcut icon" href="/images/favicon.ico">
+</head>
+
+<body text="#555555" bgcolor="#ffffff" background="/images/Globe.gif">
+<center>
+<a href="http://openwebmail.acatysmoof.com"><img src="/images/openwebmail.gif" alt="OpenWebMail Logo" border="0"></a>
+<br><br>
+<h3>How To Use Subversion For OpenWebMail Development</h3>
+</center>
+
+<div style="margin:60px;font-family:monospace;">
+===============<br>
+GETTING STARTED<br>
+===============<br>
+CHECKOUT A COPY OF THE CURRENT CODE FROM 'trunk' using HTTP protocol:<br>
+svn checkout http://openwebmail.acatysmoof.com/svn/trunk [OPTIONAL:/where/to/put/it]<br>
+<br>
+CHECKOUT A COPY OF THE CURRENT CODE FROM 'trunk' using SVN protocol:<br>
+svn checkout svn://openwebmail.acatysmoof.com/svn/trunk [OPTIONAL:/where/to/put/it]<br>
+<br>
+<br>
+================<br>
+EDITING THE CODE<br>
+================<br>
+ADDING, DELETING, COPYING, OR MOVING DIRECTORIES:<br>
+svn add foo<br>
+-Schedule file, directory, or symbolic link foo to be added to the repository. When you next commit, foo will become a child of its parent directory. Note that if foo is a directory, everything underneath foo will be scheduled for addition. If you only want to add foo itself, pass the --non-recursive (-N) switch.<br>
+<br>
+svn delete foo<br>
+-Schedule file, directory, or symbolic link foo to be deleted from the repository. If foo is a file or link, it is immediately deleted from your working copy. If foo is a directory, it is not deleted, but Subversion schedules it for deletion. When you commit your changes, foo will be removed from your working copy and the repository.<br>
+<br>
+svn copy foo bar<br>
+-Create a new item bar as a duplicate of foo. bar is automatically scheduled for addition. When bar is added to the repository on the next commit, its copy history is recorded (as having originally come from foo). svn copy does not create intermediate directories.<br>
+<br>
+svn move foo bar<br>
+-This command is exactly the same as running svn copy foo bar; svn delete foo. That is, bar is scheduled for addition as a copy of foo, and foo is scheduled for removal. svn move does not create intermediate directories.<br>
+<br>
+Otherwise, just edit the code as normal using your favorite text editor.<br>
+<br>
+<br>
+============================<br>
+COMMITTING YOUR CHANGES BACK<br>
+============================<br>
+<br>
+CHECK YOUR CHANGES BEFORE YOU COMMIT THEM USING "svn status" FROM THE TOP OF THE TRUNK!!<br>
+UPDATE YOUR COPY TO THE LATEST BEFORE COMMITTING TO MAKE SURE IT WILL STILL WORK (svn update)<br>
+<br>
+(make sure you 'svn add' any new files you made!):<br>
+<br>
+'svn status' outputs:<br>
+A item<br>
+    The file, directory, or symbolic link item has been scheduled for addition into the repository.<br>
+<br>
+C item<br>
+    The file item is in a state of conflict. That is, changes received from the server during an update overlap with local changes that you have in your working copy. You must resolve this conflict before committing your changes to the repository.<br>
+<br>
+D item<br>
+    The file, directory, or symbolic link item has been scheduled for deletion from the repository.<br>
+<br>
+M item<br>
+    The contents of the file item have been modified.<br>
+<br>
+R item<br>
+    The file, directory, or symbolic link item has been scheduled to replace item in the repository. This means that the object is first deleted, then another object of the same name is added, all within a single revision.<br>
+<br>
+X item<br>
+    The directory item is unversioned, but is related to a Subversion externals definition. To find out more about externals definitions, see the section called ?Externals Definitions?.<br>
+<br>
+? item<br>
+    The file, directory, or symbolic link item is not under version control. You can silence the question marks by either passing the --quiet (-q) switch to svn status, or by setting the svn:ignore property on the parent directory. For more information on ignored files, see the section called ?svn:ignore?.<br>
+<br>
+! item<br>
+    The file, directory, or symbolic link item is under version control but is missing or somehow incomplete. The item can be missing if it's removed using a non-Subversion command. In the case of a directory, it can be incomplete if you happened to interrupt a checkout or update. A quick svn update will refetch the file or directory from the repository, or svn revert file will restore a missing file.<br>
+<br>
+~ item<br>
+    The file, directory, or symbolic link item is in the repository as one kind of object, but what's actually in your working copy is some other kind. For example, Subversion might have a file in the repository, but you removed the file and created a directory in its place, without using the svn delete or svn add command.<br>
+<br>
+I item<br>
+    The file, directory, or symbolic link item is not under version control, and Subversion is configured to ignore it during svn add, svn import and svn status operations. For more information on ignored files, see the section called ?svn:ignore?. Note that this symbol only shows up if you pass the --no-ignore option to svn status?otherwise the file would be ignored and not listed at all!<br>
+<br>
+<br>
+COMMIT YOUR CHANGES (follow the changelog format already established!):<br>
+svn commit<br>
+The first time you commit you will be asked for your developer name and password. It will be stored in your tree.<br>
+<br>
+**************************************************************************<br>
+UPDATE YOUR LOCAL WORKING COPY AFTER YOU COMMIT SO THAT YOU STAY IN SYNC!!<br>
+**************************************************************************<br>
+svn update<br>
+Or else you will have problems on future commits.<br>
+For each updated item a line will start with a character reporting<br>
+the action taken. These characters have the following meaning:<br>
+<br>
+A Added<br>
+D Deleted<br>
+U Updated<br>
+C Conflict<br>
+G Merged<br>
+<br>
+<br>
+===============<br>
+TROUBLESHOOTING<br>
+===============<br>
+YOU MESSED UP AND WANT TO REVERT A LOCAL FILE BACK TO HOW IT WAS BEFORE YOU MESSED IT UP:<br>
+svn revert foo_file<br>
+<br>
+YOU MESSED UP AND WANT TO REVERT A WHOLE DIRECTORY BACK TO HOW IT WAS BEFORE YOU MESSED IT UP:<br>
+svn revert --recursive foo_dir<br>
+<br>
+If you want to undo all changes from the HEAD revision made in the last<br>
+commit, you could do that like this:<br>
+<br>
+$ svn update<br>
+(now your working copy is at HEAD)<br>
+<br>
+$ svn merge -r BASE:PREV URL-to-repository<br>
+<br>
+<br>
+=============================<br>
+MISCELLANEOUS USEFUL COMMANDS<br>
+=============================<br>
+CHANGE DATE ON REVISION:<br>
+svn propset -rXXX --revprop svn:date "2002-02-10T03:00:00.000000Z" http://openwebmail.acatysmoof.com/svn<br>
+-A new revision date MUST be older than the revision before it<br>
+<br>
+CHANGE THE LOG FOR A REVISION (in case you made a typo in your commit message):<br>
+svn propset -rXXX --revprop svn:log -F NEWLOGFILE http://openwebmail.acatysmoof.com/svn<br>
+<br>
+MAKE A TAG OF THE TRUNK (Lead Developer only please):<br>
+svn copy http://openwebmail.acatysmoof.com/svn/trunk http://openwebmail.acatysmoof.com/svn/tags/1.13<br>
+<br>
+REVIEW PROPERTIES OF A REVISION:<br>
+svn proplist -v --revprop -rXXX http://openwebmail.acatysmoof.com/svn<br>
+<br>
+AUTO-BUILD A CHANGELOG:<br>
+svn log -r1:HEAD http://openwebmail.acatysmoof.com/svn > changes<br>
+-add the -v option to see changes with a list of changed files per revision<br>
+-HEAD refers to the last revision number that was checked in the repository.<br>
+<br>
+PACKAGING A RELEASE:<br>
+svn export http://openwebmail.acatysmoof.com/svn/tags/1.12 openwebmail-1.12<br>
+tar -cvzf openwebmail-1.12.tar.gz openwebmail-1.12<br>
+<br>
+EXAMINE LOCAL CHANGES AGAINST THE REVISION YOU CHECKED OUT:<br>
+svn diff<br>
+<br>
+COMPARE YOUR WORKING COPY TO THE LATEST REVISION IN THE REPOSITORY:<br>
+svn diff -r HEAD .<br>
+<br>
+COMPARE REPOSITORY TO REPOSITORY:<br>
+svn diff -r 32:36<br>
+<br>
+<br>
+=========<br>
+MORE HELP<br>
+=========<br>
+more info: http://svnbook.red-bean.com/en/1.1/ch03s05.html<br>
+<br>
+<br>
+<br>
+=================================<br>
+RUNNING OPENWEBMAIL FROM SVN CODE<br>
+=================================<br>
+SVN does not store file permissions. When you checkout from SVN you will need to adjust<br>
+the file permissions in order to run the version of OpenWebMail you have just checked out.<br>
+This can be done with the following short script as root:<br>
+<br>
+================<br>
+#!/bin/tcsh -f<br>
+#<br>
+# this is used by author to set the permissions on an svn<br>
+# copy of OWM.<br>
+#<br>
+<br>
+cd cgi-bin/openwebmail<br>
+foreach DIR (etc/sites.conf etc/users.conf etc/defaults etc/templates etc/styles etc/holidays etc/maps misc)<br>
+   chown -vR 0:0 $DIR<br>
+   chmod -vR 644 $DIR<br>
+   find $DIR -type d -exec chmod -v 755 {} \;<br>
+end<br>
+<br>
+chown root:mail * auth/* quota/* modules/* shares/* misc/* etc/*<br>
+chmod -v 644 */*pl<br>
+chmod -v 4755 openwebmail*.pl<br>
+chmod -v 755 vacation.pl userstat.pl preload.pl<br>
+chmod -v 771 etc/users etc/sessions<br>
+chmod -v 640 etc/smtpauth.conf<br>
+cd ../..<br>
+<br>
+cd data/openwebmail<br>
+chown -vR 0:0 *<br>
+chmod -vR 644 *<br>
+find . -type d -exec chmod -v 755 {} \;<br>
+cd ../..<br>
+<br>
+chmod -v 755 cgi-bin data<br>
+<br>
+<br>
+</div>
+
+</body>
+</html>
+

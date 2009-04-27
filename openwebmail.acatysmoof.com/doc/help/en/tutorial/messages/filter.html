@@ -1,0 +1,173 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta name="Author" content="Brent Epp &amp; William Brillinger, Precision Design Co. http://www.pdcweb.net">
+<title>Setting up a Filter</title>
+
+<link href="../../templates_and_data/style.css" rel="stylesheet">
+<script src="../../templates_and_data/makewin.js"></script>
+
+<meta name="Microsoft Border" content="tb"></head>
+
+<body stylesrc="../../templates_and_data/borders-template.html" background="../../images/globe.gif">
+<!--msnavigation-->
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td>
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tr><td>
+<a href="../../index.html">
+<img border="0" src="../../images/logo_small.gif" width="150" height="78"></a>
+</td></tr>
+<tr><td bgcolor="#000000" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+</table>
+
+</center></div>
+</td></tr>
+
+<!--msnavigation-->
+</table>
+
+<!--msnavigation-->
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr>
+<!--msnavigation-->
+<td valign="top">
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tbody>
+<tr><td>
+<a href="../../index.html">Open Webmail Help Tutorials</a>
+&gt;&gt; Setting up a Filter
+<br>
+<br></td></tr>
+</tbody>
+</table>
+
+</center></div>
+
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tbody>
+<tr><td>A filter, in the sense of e-mail, is a setting that blocks certain e-mails from selected header criteria. The trick to setting up a filter is to identify a criteria in the message that is unique from all others. Then, specify that all messages with that criteria are to take a desired action.
+<p>To set up a filter, click the &quot;Mail Filter Setup&quot; button (
+<img src="../../images/buttons/filter.gif" width="23" height="22"> ), and you will be redirected to the Mail Filter Setup Page. You'll notice that there are already several preset filters in place that are changeable, but not removable. It is likely that these filters will be all that you need.</p>
+
+<p>However, you may want to set up filters for more specifics. By entering the &quot;Mail Filter Setup&quot;, (see above paragraph) you can edit, create new, and delete filters.</p>
+
+<p>As you can see, there are several filters setup, but they seem to be unclear. For example, you may see a filter that blocks out <b>\s{40,}\[[a-z0-9]{5}\]$</b>. This is a specially made filter that will block out several different strings in one criteria. In this case, it will block out any string that consists of 40 or less lowercase characters and 5 or less alphanumeric characters. However, instead of getting into the messy details, this tutorial will explain the basics of setting up a filter.</p>
+
+<p>Please use this chart as a reference to mail filters:</p>
+
+<table cellspacing="1" cellpadding="1" width="100%" align="center" border="0">
+<tbody>
+<tr bgcolor="#6699bb">
+<th width="100">Term</th>
+
+<th width="140">Action or Meaning</th>
+</tr>
+<tr bgcolor="#efefef"><td valign="top">Rules</td><td valign="top">Select the header criteria to block</td></tr>
+<tr bgcolor="#cdcdcd"><td valign="top">Inc/Exc</td><td valign="top">Includes or Excludes the string (see next)</td></tr>
+<tr bgcolor="#efefef"><td valign="top">String</td><td valign="top">Text to block or accept</td></tr>
+<tr bgcolor="#cdcdcd"><td valign="top">Action</td><td valign="top">What action will be taken when encountering this mail</td></tr>
+<tr bgcolor="#efefef"><td valign="top">Destination</td><td valign="top">Location to dump this mail to</td></tr>
+<tr bgcolor="#cdcdcd"><td valign="top">Enable</td><td valign="top">Check to enable the selected filter</td></tr>
+<tr bgcolor="#efefef"><td valign="top">Action[2]</td><td valign="top">Finalize filter settings (add to filter list)</td></tr>
+</tbody>
+</table>
+
+&nbsp;
+<p>Here's an example to follow:</p>
+
+<table cellspacing="1" cellpadding="3" border="0" width="100%">
+<tbody>
+<tr bgcolor="#d3dce3">
+<th align="left"><b>Rules</b></th>
+
+<th align="left"><b>Inc/Exc</b></th>
+</center>
+<th align="left"><b>String</b></th>
+<center>
+<th align="left"><b>Action</b></th>
+
+<th align="left"><b>Destination</b></th>
+
+<th align="left"><b>Enable</b></th>
+</tr>
+<tr bgcolor="#eeeeee"><td>From</td><td>Include</td><td>bad-website.com</td><td>Move</td><td>Trash</td><td>Enable</td></tr>
+</tbody>
+</table>
+
+</center>
+<p align="left">Translating this filter into plain English would be:
+<br><b>Move</b> all e-mail that is <b>from</b> anyone who resides on <b>bad-website.com</b> to the <b>Trash</b>. This filter is <b>enabled</b>. Therefore, if someone who's e-mail address was <i>bob@bad-website.com</i> tried to send you an e-mail, it would be automatically sent to the Trash.</p>
+
+<p align="left">You could also have an exclusive filter, by blocking anyone who does not reside on a certain server. For example, if you changed <b>include</b> to <b>exclude</b>, you would be allowing e-mail from <i>only</i> those at <b>bad-website.com</b>.</p>
+
+<p align="left">To edit a filter, simply click the string of the filter, and it will display on the editor at the top. see the above chart for details on filter editing.</p>
+
+<p align="left">If you would like to temporarily disable a filter, there is an easier way than deleting it and having to create it all over again. Simply follow the instructions in the above paragraph to edit the filter, uncheck <b>Enable</b>, then click <b>Add/Modify</b>, and the filter will no longer be in place. It will store it in a second chart above the preset filters. To enable the filter again, you can either edit the newly created filter in the second chart and check off <b>Enable</b>, then click <b>Add/Modify</b>; or you can delete the newly created filter by clicking <b>Delete</b> to absolute right of the filter you wish to delete.</td></tr>
+</tbody>
+</table>
+
+</div>
+
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tbody>
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td>
+<a href="folders.html"><b>&lt;&lt; Managing Your Folders</b></a>
+</td><td align="right"><b>
+<a href="backing_up.html">Downloading &amp; Backing up &gt;&gt;&gt;</a>
+</b></td></tr>
+</tbody>
+</table>
+
+</center></div>
+&nbsp;
+<!--msnavigation-->
+</td></tr>
+
+<!--msnavigation-->
+</table>
+
+<!--msnavigation-->
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr><td>
+<div align="center"><center>
+
+<table cellspacing="0" cellpadding="0" width="550" border="0">
+<tr><td bgcolor="#000000" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img height="1" src="../../images/space.gif" width="10"></td></tr>
+<tr><td height="1"><font size="1">
+<a href="../notes/using_owm_help.html">About Open Webmail Help</a>
+</font></td></tr>
+</table>
+
+</center></div>
+</td></tr>
+
+<!--msnavigation-->
+</table>
+
+</body>
+</html>

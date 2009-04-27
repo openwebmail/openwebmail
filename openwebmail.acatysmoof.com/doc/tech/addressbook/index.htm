@@ -1,0 +1,337 @@
+
+<html>
+
+<head>
+   <meta name="description" content="OpenWebMail Project :: Tech Specs">
+   <title>The OpenWebMail Project :: Addressbook Tech Specs</title>
+   <link rel="shortcut icon" href="/images/favicon.ico">
+</head>
+
+<body text="#555555" bgcolor="#ffffff" background="/images/Globe.gif">
+<center>
+
+<a href="http://openwebmail.acatysmoof.com"><img src="/images/openwebmail.gif" alt="OpenWebMail Logo" border="0"></a>
+<br><br>
+
+<table border="0" width="90%">
+<tr>
+  <td>
+    <br>
+    <h3>The OpenWebMail Addressbook</h3>
+    <blockquote>
+    <p>The OpenWebMail addressbook is completely vCard 3.0 and 2.1 compliant, and therefore compatible with any system that is also vCard compliant including Microsoft Outlook and Apple Addressbook. OpenWebMail addressbook developers are encouraged to download and read the vCard 3.0 and vCard 2.1 RFC Specifications used to implement the system.</p>
+    </blockquote>
+
+    <h3>Data Locations and Structures</h3>
+    <blockquote>
+    <p>The actual location of the directories that store user addressbook data depends on the site configuration as set in the openwebmail.conf file. By default, user addressbook data in OpenWebMail is stored in the ~USER/.openwebmail/webaddr directory. By default, the global addressbook data is stored in the cgi-bin/openwebmail/etc/addressbooks directory. Regardless of where the directories are located, the contents are always the same - numerous flat text files each containing multiple vCards.</p>
+    <p>The vCards are read into the system via the modules/vfile.pl parser. The parser detects the type of vFile, in this case vCard data, and passes the data to the modules/vcard.pl data parser. The vcard.pl parser returns the data in the format that OpenWebMail expects, namely the vCard Data Strtucture. This structure is a complex hash of arrays, hashes, and scalars. All of the routines for displaying, manipulating, and exporting vCards in OpenWebMail expect the data structure to be in this format.</p>
+    <p>Using a rigidly defined data structure is convenient because it allows fairly easy implementation of import and export filters. As long as import filters convert data into the vCard data structure they will work. As long as export filters convert the vcard data structure to whatever format they are exporting, they will work. This universal target idea also creates the excellent side-effect that as import and export filters are created, OpenWebMail will become an excellent translation tool for addressbook data.</p>
+    <p>Each vCard in OpenWebMail is assigned a unique user id called X-OWM-UID. The X-OWM-UID is always the key to the vCard data and is always in the format:<br>
+    <br>
+    <pre>
+    YYYYMMDD-HHMMSS-(Random 10 characters)-(Random 4 characters)
+    </pre>
+    For Example:<br>
+    <br>
+    <pre>
+    20040909-073403-35PDGCRZE5OQ-HVLF
+    </pre>
+    The imported or exported vcard data structure can contain any of the following fields, but only the BEGIN, VERSION, N, and END fields are mandatory per the RFC Specifications. This data example contains all of the fields you will encounter as you process vcard data that conforms to the specs. As you study the data structure, notice the repeated pattern of:<br>
+    <br>
+    <small>
+    <pre>
+    'PROPERTYNAME' =&gt; [
+                       {
+                         'GROUP' =&gt; {
+                                      'SOME GROUP NAME'
+                                    },
+                         'TYPES' =&gt; {
+                                      'SOME TYPE VALUE' =&gt; 'SOME TYPE DESCRIPTION'
+                                    },
+                         'VALUE' =&gt; {
+                                      'SOME VALUE HERE OR HASH OF KEYS/VALUES'
+                                    },
+                       }
+                     ]
+    </pre>
+    TYPES and GROUP are optional. VALUE is mandatory.<br><br>
+    The TYPES values and descriptions are not made up, they are defined standards taken from the RFC. The RFC also contains a good explanation of how GROUP works. The basic idea is that PROPERTYNAMES can be grouped so that grouped propertynames display together. The current OpenWebMail implementation recognizes grouping and displays the grouping information, but it does not display grouped elements together.</p>
+    <p>Here is an example complete vCard data structure:<br>
+    <br>
+    <pre>
+    my $vcard_data_structure = {
+              # notice each key is the X-OWM-UID
+              '20040909-073403-35PDGCRZE5OQ-HVLF' =&gt; {
+                                                       'ADR' =&gt; [
+                                                                  {
+                                                                    'TYPES' =&gt; {
+                                                                                 'BASE64' =&gt; 'ENCODING',
+                                                                                 'DOM' =&gt; 'TYPE',
+                                                                                 'HOME' =&gt; 'TYPE',
+                                                                                 'INTL' =&gt; 'TYPE',
+                                                                                 'PARCEL' =&gt; 'TYPE',
+                                                                                 'POSTAL' =&gt; 'TYPE',
+                                                                                 'WORK' =&gt; 'TYPE'
+                                                                               },
+                                                                    'VALUE' =&gt; {
+                                                                                 'COUNTRY' =&gt; 'Italy',
+                                                                                 'EXTENDEDADDRESS' =&gt; 'Apt. 20',
+                                                                                 'LOCALITY' =&gt; 'FakeCity',
+                                                                                 'POSTALCODE' =&gt; '90045',
+                                                                                 'POSTOFFICEADDRESS' =&gt; 'P.O. Box 123',
+                                                                                 'REGION' =&gt; 'California',
+                                                                                 'STREET' =&gt; '123 Fake Street'
+                                                                               }
+                                                                  }
+                                                                ],
+                                                       'BDAY' =&gt; [
+                                                                   {
+                                                                     'VALUE' =&gt; {
+                                                                                  'DAY' =&gt; 19,
+                                                                                  'MONTH' =&gt; 11,
+                                                                                  'YEAR' =&gt; 1962
+                                                                                }
+                                                                   }
+                                                                 ],
+                                                       'CLASS' =&gt; [
+                                                                    {
+                                                                      'VALUE' =&gt; 'Private'
+                                                                    }
+                                                                  ],
+                                                       'EMAIL' =&gt; [
+                                                                    {
+                                                                      'GROUP' =&gt; 'email_section01',
+                                                                      'TYPES' =&gt; {
+                                                                                   'PREF' =&gt; 'TYPE'
+                                                                                 },
+                                                                      'VALUE' =&gt; 'fakeone@fake.com'
+                                                                    },
+                                                                    {
+                                                                      'VALUE' =&gt; 'faketwo@fake.com'
+                                                                    }
+                                                                  ],
+                                                       'FN' =&gt; [
+                                                                 {
+                                                                   'VALUE' =&gt; 'Mr. Joe Michael Bloggs III'
+                                                                 }
+                                                               ],
+                                                       'GEO' =&gt; [
+                                                                  {
+                                                                    'VALUE' =&gt; {
+                                                                                 'LATITUDE' =&gt; '32.550266',
+                                                                                 'LONGITUDE' =&gt; '-120.209183'
+                                                                               }
+                                                                  }
+                                                                ],
+                                                       'LABEL' =&gt; [
+                                                                    {
+                                                                      'TYPES' =&gt; {
+                                                                                   'BASE64' =&gt; 'ENCODING',
+                                                                                   'DOM' =&gt; 'TYPE',
+                                                                                   'HOME' =&gt; 'TYPE',
+                                                                                   'INTL' =&gt; 'TYPE',
+                                                                                   'PARCEL' =&gt; 'TYPE',
+                                                                                   'POSTAL' =&gt; 'TYPE',
+                                                                                   'WORK' =&gt; 'TYPE'
+                                                                                 },
+                                                                      'VALUE' =&gt; 'P.O. Box 123
+                                                                                     123 Fake Street, Apt. 20
+                                                                                     FakeCity, California
+                                                                                                  90000 USA'
+                                                                    }
+                                                                  ],
+                                                       'MAILER' =&gt; [
+                                                                     {
+                                                                       'VALUE' =&gt; 'OpenWebmail'
+                                                                     }
+                                                                   ],
+                                                       'N' =&gt; [
+                                                                {
+                                                                  'VALUE' =&gt; {
+                                                                               'ADDITIONALNAMES' =&gt; 'Michael',
+                                                                               'FAMILYNAME' =&gt; 'Bloggs',
+                                                                               'GIVENNAME' =&gt; 'Joe',
+                                                                               'NAMEPREFIX' =&gt; 'Mr.',
+                                                                               'NAMESUFFIX' =&gt; 'III'
+                                                                             }
+                                                                }
+                                                              ],
+                                                       'NAME' =&gt; [
+                                                                   {
+                                                                     'VALUE' =&gt; 'vCard for Mr. Bloggs'
+                                                                   }
+                                                                 ],
+                                                       'NICKNAME' =&gt; [
+                                                                       {
+                                                                         'VALUE' =&gt; 'Joey'
+                                                                       }
+                                                                     ],
+                                                       'NOTE' =&gt; [
+                                                                   {
+                                                                     'VALUE' =&gt; 'This is a note about this contact. This is a fake person.'
+                                                                   }
+                                                                 ],
+                                                       'ORG' =&gt; [
+                                                                  {
+                                                                    'VALUE' =&gt; {
+                                                                                 'ORGANIZATIONALUNITS' =&gt; [
+                                                                                                            'Local Division',
+                                                                                                            'Worldwide Division'
+                                                                                                          ],
+                                                                                 'ORGANIZATIONNAME' =&gt; 'Fake Company'
+                                                                               }
+                                                                  }
+                                                                ],
+                                                       'PRODID' =&gt; [
+                                                                     {
+                                                                       'VALUE' =&gt; 'Open WebMail 2.30 20040424'
+                                                                     }
+                                                                   ],
+                                                       'REV' =&gt; [
+                                                                  {
+                                                                    'VALUE' =&gt; {
+                                                                                 'DAY' =&gt; 9,
+                                                                                 'HOUR' =&gt; 7,
+                                                                                 'MINUTE' =&gt; 34,
+                                                                                 'MONTH' =&gt; 9,
+                                                                                 'SECOND' =&gt; 3,
+                                                                                 'YEAR' =&gt; 2004
+                                                                               }
+                                                                  }
+                                                                ],
+                                                       'ROLE' =&gt; [
+                                                                   {
+                                                                     'VALUE' =&gt; 'Executive'
+                                                                   }
+                                                                 ],
+                                                       'SORT-STRING' =&gt; [
+                                                                          {
+                                                                            'VALUE' =&gt; 'Bloggs'
+                                                                          }
+                                                                        ],
+                                                       'SOURCE' =&gt; [
+                                                                     {
+                                                                       'VALUE' =&gt; 'http://www.fakeurl.com/mycard.vcf'
+                                                                     }
+                                                                   ],
+                                                       'TEL' =&gt; [
+                                                                  {
+                                                                    'TYPES' =&gt; {
+                                                                                 'HOME' =&gt; 'TYPE',
+                                                                                 'PREF' =&gt; 'TYPE',
+                                                                                 'VOICE' =&gt; 'TYPE'
+                                                                               },
+                                                                    'VALUE' =&gt; '1-800-123-4567'
+                                                                  },
+                                                                  {
+                                                                    'TYPES' =&gt; {
+                                                                                 'BBS' =&gt; 'TYPE',
+                                                                                 'CAR' =&gt; 'TYPE',
+                                                                                 'CELL' =&gt; 'TYPE',
+                                                                                 'FAX' =&gt; 'TYPE',
+                                                                                 'ISDN' =&gt; 'TYPE',
+                                                                                 'MODEM' =&gt; 'TYPE',
+                                                                                 'MSG' =&gt; 'TYPE',
+                                                                                 'PAGER' =&gt; 'TYPE',
+                                                                                 'VIDEO' =&gt; 'TYPE',
+                                                                                 'WORK' =&gt; 'TYPE'
+                                                                               },
+                                                                    'VALUE' =&gt; '1-800-345-6789'
+                                                                  }
+                                                                ],
+                                                       'TITLE' =&gt; [
+                                                                    {
+                                                                      'VALUE' =&gt; 'President'
+                                                                    }
+                                                                  ],
+                                                       'TZ' =&gt; [
+                                                                 {
+                                                                   'VALUE' =&gt; '-0300'
+                                                                 }
+                                                               ],
+                                                       'UID' =&gt; [
+                                                                  {
+                                                                    'VALUE' =&gt; 'f43431r4qfweq202'
+                                                                  }
+                                                                ],
+                                                       'URL' =&gt; [
+                                                                  {
+                                                                    'VALUE' =&gt; 'http://www.fakesite.com'
+                                                                  }
+                                                                ],
+                                                       'VERSION' =&gt; [
+                                                                      {
+                                                                        'VALUE' =&gt; '3.0'
+                                                                      }
+                                                                    ],
+                                                       'X-OWM-UID' =&gt; [
+                                                                        {
+                                                                          'VALUE' =&gt; '20040909-073403-35PDGCRZE5OQ-HVLF'
+                                                                        }
+                                                                      ]
+                                                     }
+            };
+     </pre>
+     </small>
+     Some things to remember as you work with the vcard_hash_structure:<br>
+     <ol>
+       <li>Each propertyname (like URL, VERSION, etc) points to an ARRAY of hashes. This is important to realize because it means that each propertyname can have multiple hashes in the array - meaning that each propertyname can be specified multiple times in the same vcard. Look at the EMAIL and TEL propertynames above for an example of multiple hashes in the propertyname array for a user who has multiple email addresses and telephone numbers.</li><br>
+       <li>To support all of these instances of data you must iterate through the data!</li><br>
+       <li>The program automatically strips out any empty fields and validates the data, so just get it into the hash structure and the program will do the rest. Don't worry about empty fields.</li><br>
+       <li>Don't worry about the X-OWM-UID when creating an import routine for a single contact. The program will automatically generate and add an X-OWM-UID if it is left blank. So feel free to use a blank as your X-OWM-UID like:<br>
+       <br>
+       <pre>
+       '' =&gt; {
+                'ADR' =&gt; [
+       etcetera, etcetera, etcetera.....
+       </pre>
+       Of course, if you are importing multiple contacts you should generate an X-OWM-UID for each contact
+     so you can store each contacts data in a unique key in the vcard hash structure.</li>
+     </ol>
+     </p>
+     </blockquote>
+
+     <h3>Creating The X-OWM-UID</h3>
+     <blockquote>
+     <p>
+     <pre>
+     ########################## MAKE_X_OWM_UID ################################
+     # You will need this to make unique X-OWM-UID keys in the converted_vcard_hash_structure
+     # if there are more than one contacts being imported because the X-OWM-UID is the key
+     # to each structure of data.
+     sub make_x_owm_uid {
+        my ($uid_sec,$uid_min,$uid_hour,$uid_mday,$uid_mon,$uid_year) = gmtime(time);
+        my @chars = ( 'A' .. 'Z', 0 .. 9 );
+        my $longrandomstring = join '', map { $chars[rand @chars] } 1..12;
+        my $shortrandomstring = join '', map { $chars[rand @chars] } 1..4;
+        my $uid = ($uid_year+1900).sprintf("%02d",($uid_mon+1)).sprintf("%02d",$uid_mday)."-".
+                  sprintf("%02d",$uid_hour).sprintf("%02d",$uid_min).sprintf("%02d",$uid_sec)."-".
+                  $longrandomstring."-".$shortrandomstring;
+        return $uid;
+     }
+     ####################### END MAKE_X_OWM_UID ################################
+     </pre>
+     </p>
+     </blockquote>
+
+     <h3>Other Important Info</h3>
+     <blockquote>
+     <p>Unrelated to import/export filters, but still important info:<br>
+     <br>
+     ALIGNMENT AND HOW THE TARGETAGENT PARAMETER WORKS<br>
+     The way OpenWebMail loads a contact is important to understand because with embedded agents (which are entire vCards inside a vCard) things could possibly get confusing. I needed to design a way that I only had to be concerned with the card I was working on, and able to ignore all the other cards in the vCard. This is where the alignment step comes in. OpenWebMail loads the complete_vcard in memory. This is all the vcard data of the requested contact, including all embedded agent data. Then it looks at the targetagent request and makes the %contact hash a reference to the specific card we want to work with. Now, we only have to deal with %contact and never have to worry about the full card. It also standardizes the steps needed to process a card because we are always processing just one target vcard data structure at a time.<br><br>
+     This is easier to understand visually:<br>
+     <img src="contactAlignment.gif">
+     <br>
+     The alignment step is clearly labeled when it occurs in the code of openwebmail-abook.pl. Actually, there are many useful comments in openwebmail-abook.pl, so I recommend reading there too.<br>
+     <br>
+     </p>
+     </blockquote>
+  </td>
+</tr>
+</table>
+
+</body>
+</html>
+
