@@ -1,0 +1,403 @@
+/******************* General Styles **************************/
+body {
+  background-image: url(/images/Globe.gif);
+  background-repeat: repeat;
+  background-color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #333333;
+}
+
+form {
+  margin-bottom: 0;
+}
+
+ul {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-left: 2em;
+  margin-right: 0em;
+}
+
+pre {
+  font-family: monospace;
+/*  padding: 1em; */
+  margin: 0;
+  width: 90%;
+}
+
+pre.quote {
+  background-color: #ffffcc;
+}
+
+pre.code {
+  background-color: #ccffcc;
+}
+
+iframe {
+  border-style: none;
+/*  border-width: 1px;
+  border-color: #999999;
+  -moz-border-radius: 15px 15px 15px 15px;
+  padding: 0.25em 0.25em 0.25em 0.25em;
+*/
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+
+
+/******************* Navigation Styles ***********************/
+td.idxTitle {
+  background-color: #c1d7eb;
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  font-weight: bold;
+  font-size: 16pt;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000000;
+}
+
+td.navLinks {             /* [Date Index] [Top] [All Lists] */
+  font-size: 10pt;
+  font-weight: bold;
+  padding-top: 0.5em;
+  padding-bottom: 1em;
+}
+
+a.navLinks {
+  text-decoration: none;
+}
+
+a.navLinks:hover {
+  text-decoration: underline;
+}
+
+td.navPrevNext {
+  background-color: #3161bd;
+  padding: 0.25em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000000;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+a.navPrevNext {
+  font-weight: bold;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+a.navPrevNext:hover {
+  text-decoration: underline;
+}
+
+td.navNewTopic {
+  background-color: #c1d7eb;
+  padding: 0.25em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000000;
+  font-weight: bold;
+  font-size: 12pt;
+  color: #666666;
+}
+
+a.navNewTopic {
+  font-weight: bold;
+  color: #666666;
+  text-decoration: none;
+}
+
+a.navNewTopic:hover {
+  text-decoration: underline;
+}
+
+
+.inactiveText {
+  color: #cccccc;
+}
+
+
+/******************* Date Index Styles *********************/
+td.byDate {
+  background-color: #c1d7eb;
+  padding: 1em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000000;
+}
+
+.byDateHeader {                        /* January 30, 2006 */
+  font-size: 12pt;
+  font-weight: bold;
+}
+
+li.byDate {
+  /* nothing yet */
+}
+
+a.byDate {
+  text-decoration: none;
+}
+
+a.byDate:hover {
+  text-decoration: underline;
+}
+
+
+
+
+/******************* Thread Index Styles *******************/
+ul.byThread {
+  margin: 0;
+  padding-left: 1em;
+  padding-right: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+li.byThread {
+  background-color: #c1d7eb;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000000;
+  margin-top: 0.25em;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0.25em;
+}
+
+ul.byThreadSub {                /* sub thread, not subject */
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 0;
+}
+
+li.byThreadSingle {
+  padding-top: 0.25em;
+  padding-bottom: 0em;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+}
+
+a.byThread {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+a.byThread:hover {
+  text-decoration: underline;
+}
+
+
+
+/******************* Message Styles *******************/
+td.msgSpacerBox {
+  font-size: 4pt;
+}
+
+td.msgTopBox {
+  background-color: #c1d7eb;
+  padding: 0.5em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000000;
+  -moz-border-radius: 15px 15px 0 0;
+}
+
+td.msgSubjectHeader {
+  font-weight: bold;
+  font-size: 16pt;
+  padding-bottom: 1em;
+  padding-top: 0.25em;
+}
+
+a.msgLinks {
+  font-size: 10pt;
+}
+
+td.msgFieldsBox {
+  background-color: #e5f2f9;
+  padding: 0.5em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000000;
+}
+
+td.msgBodyBox {
+  background-color: #ffffff;
+  padding: 0.5em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000000;
+  -moz-border-radius: 0 0 15px 15px;
+}
+
+
+
+
+
+/******************* Thread NavBox Styles *************/
+td.tSliceBox {
+  background-color: #000000;
+}
+
+td.tSlicePrev {
+  background-color: #3161bd;
+  padding: 0.25em;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+a.tSlicePrev {
+  text-decoration: none;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+a.tSlicePrev:hover {
+  text-decoration: underline;
+}
+
+td.tSliceHeader {
+  background-color: #cccccc;
+  font-weight: bold;
+}
+
+td.tSliceNext {
+  background-color: #3161bd;
+  padding: 0.25em;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+a.tSliceNext {
+  text-decoration: none;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+a.tSliceNext:hover {
+  text-decoration: underline;
+}
+
+
+td.tSlicesBox {
+  background-color: #e5f2f9;
+  padding: 0.5em;
+}
+
+div.sliceCur {
+  background-color: #ffffff;
+  padding: 0.25em;
+  border-style: dashed;
+  border-width: 1px;
+  border-color: #000000;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  -moz-border-radius: 8px 8px 8px 8px;
+}
+
+div.sliceNotCur a {
+  color: #000000;
+}
+
+
+
+/******************* Bottom Links Styles **************/
+td.botLinksBox {
+  background-color: #c1d7eb;
+  padding: 0.5em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000000;
+}
+
+/******************* Archive Index Styles **************/
+.arcHeader {
+  font-weight: bold;
+  font-size: 16pt;
+}
+
+a.arcLinks {
+  font-size: 10pt;
+  font-weight: bold;
+}
+
+td.arcBox {
+  background-color: #000000;
+}
+
+td.arcTitleBox {
+  background-color: #3161bd;
+  padding: 0.5em;
+}
+
+td.arcTitle {
+  font-weight: bold;
+  font-size: 16pt;
+  color: #ffffff;
+}
+
+td.arcDesc {
+  font-weight: bold;
+  font-weight: normal;
+  font-size: 10pt;
+  color: #ffffff;
+}
+
+a.arcJoinLink {
+  font-size: 10pt;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+td.arcYear {
+  background-color: #c1d7eb;
+  padding: 0.5em;
+  font-weight: bold;
+}
+
+td.arcMonthPosts {
+  background-color: #e5f2f9;
+  padding: 0.5em;
+}
+
+td.arcMonthNoPosts {
+  background-color: #e5f2f9;
+  padding: 0.5em;
+}
+
+td.arcMonthInFuture {
+  background-color: #cccccc;
+  padding: 0.5em;
+}
+
+
+
+/******************* Reply Styles **************/
+td.replyTopBox {
+  background-color: #c1d7eb;
+  padding: 0.5em;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000000;
+  -moz-border-radius: 15px 15px 0 0;
+}
+
+input.button {
+  font-size:12px;
+}
+
+

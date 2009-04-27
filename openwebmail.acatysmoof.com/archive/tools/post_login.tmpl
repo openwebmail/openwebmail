@@ -1,0 +1,56 @@
+<html>
+
+<head>
+<title></title>
+<link rel="stylesheet" type="text/css" href="/archive/css/owm.css">
+</head>
+
+<body>
+
+<table cellpadding="0" cellspacing="0" border="0" width="95%" align="center">
+<tr>
+  <TMPL_IF NEWTOPIC>
+  <td><h4>New Topic</h4></td>
+  <TMPL_ELSE>
+  <td><h4>Reply to &quot;<TMPL_VAR ESCAPE=HTML MSGSUBJECT>&quot;:</h4></td>
+  </TMPL_IF>
+</tr>
+<TMPL_IF BADPASS>
+<tr>
+  <td><font color="#ff0000"><b>Invalid login or you are not subscribed to this list. Please try again.</b><br><br></font></td>
+</tr>
+</TMPL_IF>
+<tr>
+  <td>
+    <form method="POST" action="/archive/tools/post.pl">
+    <input type="hidden" name="list" value="<TMPL_VAR LIST>">
+    <input type="hidden" name="msgid" value="<TMPL_VAR ESCAPE=HTML MSGID>">
+    <input type="hidden" name="msgsubject" value="<TMPL_VAR ESCAPE=HTML MSGSUBJECT>">
+    <TMPL_IF NEWTOPIC><input type="hidden" name="newtopic" value="1"></TMPL_IF>
+    <input type="hidden" name="func" value="compose">
+    <table cellpadding="2" cellspacing="2" border="0">
+    <tr>
+      <td>Your Email Address</td>
+      <td>Password</td>
+    </tr>
+    <tr>
+      <td><input size="36" name="user" value="<TMPL_VAR ESCAPE=HTML USER>"></td>
+      <td><input type="password" name="passw" size="36" value=""></td>
+    </tr>
+    <tr>
+      <td colspan="2" align="right"><input type="submit" value="Sign In"></td>
+    </tr>
+    </table>
+    </form>
+  </td>
+</tr>
+<tr>
+  <td>
+    <p><br>To reply to a message or create a new topic you must be a subscribed user of this mailing list (<TMPL_VAR LIST>). You can subscribe to any of the OpenWebMail mailing lists at the <a href="/archive/mj_wwwusr.pl?func=lists-long" target="_new">Mailing Lists Homepage</a>.<br><br>When you subscribe you will be sent an email that contains your password. You can change your password at anytime by logging in at the <a href="/archive/mj_wwwusr.pl" target="_new">Mailing Lists Homepage</a> and following the "Unsubscribe or Change Settings" link.</p>
+  </td>
+</tr>
+</table>
+
+</body>
+</html>
+
