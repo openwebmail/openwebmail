@@ -1,4 +1,5 @@
 Open WebMail Frequently Asked Questions
+$Id$
 
 0.  SPECIAL NOTE FOR SPEEDYCGI
 1.  INSTALLATION & STARTUP PROBLEMS

@@ -1,3 +1,5 @@
+OpenWebMail ReadMe Document
+$Id$
 
 Open WebMail is a webmail system based on
 the Neomail version 1.14 from Ernie Miller.

@@ -1,3 +1,6 @@
+OpenWebMail File Structures
+$Id$
+
 There are mainly 4 groups of files used in openwebmail.
 
 1. cgi-bin/openwebmail/         cgi scripts/configurations/languages/templates
