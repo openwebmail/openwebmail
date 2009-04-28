@@ -1806,7 +1806,7 @@ sub addmod {
    my $monthfreq       = param('monthfreq')       || 0;
    my $everyyear       = param('everyyear')       || 0;
    my $eventcolor      = param('eventcolor')      || 'none';
-   my $eventreminder   = param('eventreminder')   || 0;
+   my $eventreminder   = param('eventreminder')   || 1;
 
    if ($string !~ m/^\s+?$/) {
       # check for input that would corrupt our @@@ separated flatfile database format
