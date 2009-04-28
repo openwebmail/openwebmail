@@ -1712,7 +1712,7 @@ sub edit {
                       eventtxt             => $eventtxt,
                       linkstring           => $linkstring,
                       emailstring          => $emailstring,
-                      eventreminder        => $eventid ? $events->{$eventid}{eventreminder} : 0,
+                      eventreminder        => $eventid ? $events->{$eventid}{eventreminder} : 1,
                       notifyenabled        => $config{calendar_email_notifyinterval} > 0 ? 1 : 0,
                       dayselectloop        => [
                                                 map { {
@@ -1806,7 +1806,7 @@ sub addmod {
    my $monthfreq       = param('monthfreq')       || 0;
    my $everyyear       = param('everyyear')       || 0;
    my $eventcolor      = param('eventcolor')      || 'none';
-   my $eventreminder   = param('eventreminder')   || 1;
+   my $eventreminder   = param('eventreminder')   || 0;
 
    if ($string !~ m/^\s+?$/) {
       # check for input that would corrupt our @@@ separated flatfile database format
