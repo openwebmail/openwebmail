@@ -1,0 +1,46 @@
+[% PROCESS header %]
+
+<div style="margin:40px">
+
+<p>OpenWebMail development is stored in a version tracking software called Subversion. The OpenWebMail Subversion Repository Web Interface area is setup for users or developers to browse code and view changelogs. It is intended as a convenient window into whats being developed as changes occur.
+<br><br>
+Please don't try to download entire branches through this web interface. If you would like to download the latest bleeding edge code from this repository you will need to use a Subversion client. We provide a document that describes <a href="/doc/tech/svn">how to use SVN to work on OpenWebMail</a>.
+<br><br>
+Latest Official Releases of OpenWebMail are packaged as tarballs and are <a href="http://www.openwebmail.org">available at the OpenWebMail Project homepage</a>.
+<br>
+</p>
+
+<p>The OpenWebMail Subversion Repository is organized as follows:</p>
+
+<ul>
+<li><b><a href="/dev/svnweb/index.pl/openwebmail/browse/branches">branches</a></b><br>
+This is the area where developers can experiment with radical code changes without affecting the main trunk of code. The code here is not for the general public and could damage your data if not properly used.</li>
+<br>
+<li><b><a href="/dev/svnweb/index.pl/openwebmail/browse/tags">tags</a></b><br>
+Each officially released version of OpenWebMail can be found here. Every time the trunk code is ready be packaged into an official release, a new tag is made.</li>
+<br>
+<li><b><a href="/dev/svnweb/index.pl/openwebmail/browse/trunk/src">trunk</a></b><br>
+This is the main development area for the OpenWebMail codebase. The bleeding-edge of the code can be found here and most daily patches and work are applied here. A strong effort is made to make sure that the code in the trunk runs with as few bugs as possible, but it should not be considered stable until it is tagged and released.</li>
+</ul>
+
+<!--
+[% IF reposcount %]
+<p>
+[%|l%](choose repos)[%END%]
+</p>
+
+<ul>
+  [% FOREACH r = repos %]
+ <li><a href="[% c.script %]/[% r.key %]">[% r.key %]</a> <span class="reponame">&#8594; [% r.value %]</span></li>
+  [% END %]
+</ul>
+[% ELSE %]
+<p>
+[%|l%](no repos)[%END%]
+</p>
+[% END %]
+-->
+
+</div>
+
+[% PROCESS footer %]
