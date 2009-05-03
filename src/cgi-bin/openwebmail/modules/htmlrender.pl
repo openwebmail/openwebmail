@@ -109,7 +109,7 @@ sub html4disablejs {
    my $html = shift;
 
    foreach my $event (@jsevents) {
-      $html =~ s/$event/x_$event/isg;
+      $html =~ s/$event/disable_$event/isg;
    }
 
    # disable javascript code blocks
@@ -119,7 +119,7 @@ sub html4disablejs {
    $html =~ s#//-->\s*//-->#//-->#isg;
 
    # disable inline javascript
-   $html =~ s#<([^<>]*?)javascript:([^<>]*?)>#<$1disable_javascript:$2>#isg if ($html =~ /javascript:/is);
+   $html =~ s#<([^<]*?[='"\s]+)javascript:#<$1disable_javascript:#isg;
 
    return($html);
 }
