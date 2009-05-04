@@ -860,8 +860,6 @@ sub composemessage {
          $priority = $message{'priority'} if (defined $message{'priority'});
          $replyto = (iconv($prefs{'charset'}, $composecharset, $prefs{'replyto'}))[0] if ($replyto eq '' && defined $prefs{'replyto'});
 
-         # we prefer to use the messageid in a draft message if available
-         $mymessageid = $messageid if ($messageid);
       }
 
    } elsif ($composetype eq 'forwardasatt') {
