@@ -81,7 +81,8 @@
 </table>
 
 <form action="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl" method="post" name="additemform">
-<input type="hidden" name="action" value="caladd">
+<input type="hidden" name="action" value="caladdmod">
+<input type="hidden" name="cal_caller" value="calday">
 <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
 <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
 <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
