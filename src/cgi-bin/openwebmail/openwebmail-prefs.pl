@@ -1409,7 +1409,7 @@ sub saveprefs {
 
    # save .vacation.msg
    if ($config{enable_autoreply}) {
-      writedotvacationmsg($autoreply, $autoreplysubject, $autoreplytext, $newprefs{signature}, $newprefs{email}, $userfrom{$newprefs{email}} );
+      writedotvacationmsg($autoreply, $autoreplysubject, $autoreplytext, $newprefs{signature}, $newprefs{email}, $userfrom{$newprefs{email}}, $newprefs{charset} );
    }
 
    # save .signature
@@ -1628,7 +1628,7 @@ sub readdotvacationmsg {
 }
 
 sub writedotvacationmsg {
-   my ($autoreply, $subject, $text, $signature, $email, $userfrom) = @_;
+   my ($autoreply, $subject, $text, $signature, $email, $userfrom, $charset) = @_;
 
    my $from;
    if ($userfrom) {
@@ -1679,7 +1679,10 @@ sub writedotvacationmsg {
 
    sysopen(MSG, "$homedir/.vacation.msg", O_WRONLY|O_TRUNC|O_CREAT) or return -2;
    print MSG "From: $from\n" .
-             "Subject: $subject\n\n" .
+             "Subject: $subject\n" .
+             "Mime-Version: 1.0\n" .
+             "Content-Type: text/plain; charset=$charset\n" .
+             "Content-Transfer-Encoding: 8bit\n\n" .
              "$text\n\n" .
              $signature; # append signature
    close MSG;
