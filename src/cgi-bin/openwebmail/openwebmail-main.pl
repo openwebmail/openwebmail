@@ -145,19 +145,21 @@ if ($action eq "movemessage" || defined param('movebutton') || defined param('co
       print FORWARDIDS join("\n", @messageids);
       close(FORWARDIDS)
          or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_sessionsdir}/$thissession-forwardids");
-      my $redirect = "$config{ow_cgiurl}/openwebmail-send.pl?action=composemessage&compose_caller=main&" .
-                     join ("&", (
-                                   "composetype=" . (defined param('movebutton')?'forwardids_delete':'forwardids'),
-                                   "folder="      . ow::tool::escapeURL($folder),
-                                   "keyword="     . ow::tool::escapeURL($keyword),
-                                   "longpage="    . ow::tool::escapeURL($longpage),
-                                   "msgdatetype=" . ow::tool::escapeURL($msgdatetype),
-                                   "page="        . ow::tool::escapeURL($page),
-                                   "searchtype="  . ow::tool::escapeURL($searchtype),
-                                   "sessionid="   . ow::tool::escapeURL($thissession),
-                                   "sort="        . ow::tool::escapeURL($sort),
-                                )
-                          );
+      my %params = (
+                     action         => 'composemessage',
+                     composetype    => 'forwardids',
+                     compose_caller => 'main',
+                     folder         => $folder,
+                     keyword        => $keyword,
+                     longpage       => $longpage,
+                     msgdatetype    => $msgdatetype,
+                     page           => $page,
+                     searchtype     => $searchtype,
+                     sessionid      => $thissession,
+                     sort           => $sort,
+                   );
+      my $redirect = "$config{ow_cgiurl}/openwebmail-send.pl?" .
+                     join('&', map { "$_=" . ow::tool::escapeURL($params{$_}) } sort keys %params);
       print redirect(-location => $redirect);
    } else {
       # move/copy/delete messages
