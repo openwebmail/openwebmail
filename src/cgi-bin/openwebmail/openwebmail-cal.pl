@@ -1617,6 +1617,11 @@ sub edit {
              # we have a nextdays recurrance here
              $thisandnextdays = 1;
              $nextdays = $events->{$eventid}{idate} =~ tr/|/|/; # count pipes - cheap and easy
+
+             # set the dates to the startdate of this event, so we don't move
+             # the event by using the date we came into the edit form with.
+             my ($startyear, $startmonth, $startday) = $startdate =~ m/^(\d{4})(\d{2})(\d{2})$/;
+             $dates = dates(int $startyear, int $startmonth, int $startday);
           }
       } else {
          openwebmailerror(__FILE__, __LINE__, "Eventid $eventid idate $lang_err{doesnt_exist}");
