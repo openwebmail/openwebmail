@@ -232,7 +232,8 @@ sub replyreceipt {
                safexheaders($config{'xheaders'}).
                "MIME-Version: 1.0\n";
          if ($is_samecharset) {
-            $s .= "Content-Type: text/plain; charset=$prefs{'charset'}\n\n".
+            $s .= "Content-Type: text/plain; charset=$prefs{'charset'}\n".
+                  "Content-Transfer-Encoding: 8bit\n\n".
                   "$lang_text{'yourmsg'}\n\n".
                   "  $lang_text{'to'}: $attr[$_TO]\n".
                   "  $lang_text{'subject'}: $attr[$_SUBJECT]\n".
@@ -247,7 +248,8 @@ sub replyreceipt {
                                    $prefs{'dateformat'}, $prefs{'hourformat'}, $prefs{'timezone'}).
                   " $lang_text{'wasreadon2'}\n\n";
          } else {
-            $s .= "Content-Type: text/plain; charset=utf-8\n\n".
+            $s .= "Content-Type: text/plain; charset=utf-8\n".
+                  "Content-Transfer-Encoding: 8bit\n\n".
                   "Your message\n\n".
                   "  To: $attr[$_TO]\n".
                   "  Subject: $attr[$_SUBJECT]\n".
@@ -2088,7 +2090,8 @@ sub sendmessage {
             $contenttype="text/plain; charset=$composecharset";
 
             $s=qq|Content-Type: text/plain;\n|.
-               qq|\tcharset=$composecharset\n|;
+               qq|\tcharset=$composecharset\n|.
+               qq|Content-Transfer-Encoding: 8bit\n|;
             dump_str($s, $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
             print $folderhandle "Status: R\n" or $saveerr++ if ($do_save && !$saveerr);
             $messageheader.=$s."Status: R\n";
