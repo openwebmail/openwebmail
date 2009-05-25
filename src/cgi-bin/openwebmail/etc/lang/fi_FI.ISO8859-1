@@ -15,6 +15,8 @@ package ow::fi_FI_ISO8859_1;
    'virus-mail'     => 'VIRUSPOSTI',
    LEARNSPAM        => '--OPETA SPAMMINA--',
    LEARNHAM         => '--OPETA OIK. POSTINA--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--EDELLEENLÄHETÄ--',
    DELETE           => '--POISTA--'
    );

@@ -135,35 +135,47 @@ $keyword     =~ s/\s*$//;
 writelog("debug - request main begin, action=$action, folder=$folder - " .__FILE__.":". __LINE__) if ($config{debug_request});
 
 if ($action eq "movemessage" || defined param('movebutton') || defined param('copybutton') ) {
-   my @messageids  = param('message_ids');
    my $destination = ow::tool::untaint(safefoldername(param('destination')));
 
-   if ($destination eq 'FORWARD' && $#messageids >= 0) {
-      # write the forwarding message-ids to a file for openwebmail-send to read
-      sysopen(FORWARDIDS, "$config{ow_sessionsdir}/$thissession-forwardids", O_WRONLY|O_TRUNC|O_CREAT)
-         or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_open} $config{ow_sessionsdir}/$thissession-forwardids");
-      print FORWARDIDS join("\n", @messageids);
-      close(FORWARDIDS)
-         or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_sessionsdir}/$thissession-forwardids");
-      my %params = (
-                     action         => 'composemessage',
-                     composetype    => 'forwardids',
-                     compose_caller => 'main',
-                     folder         => $folder,
-                     keyword        => $keyword,
-                     longpage       => $longpage,
-                     msgdatetype    => $msgdatetype,
-                     page           => $page,
-                     searchtype     => $searchtype,
-                     sessionid      => $thissession,
-                     sort           => $sort,
-                   );
-      my $redirect = "$config{ow_cgiurl}/openwebmail-send.pl?" .
-                     join('&', map { "$_=" . ow::tool::escapeURL($params{$_}) } sort keys %params);
-      print redirect(-location => $redirect);
+   if ($destination eq 'FORWARD') {
+      my @messageids  = param('message_ids');
+
+      if (scalar @messageids > 0) {
+         # write the forwarding message-ids to a file for openwebmail-send to read
+         sysopen(FORWARDIDS, "$config{ow_sessionsdir}/$thissession-forwardids", O_WRONLY|O_TRUNC|O_CREAT)
+            or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_open} $config{ow_sessionsdir}/$thissession-forwardids");
+         print FORWARDIDS join("\n", @messageids);
+         close(FORWARDIDS)
+            or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_sessionsdir}/$thissession-forwardids");
+         my %params = (
+                        action         => 'composemessage',
+                        composetype    => 'forwardids',
+                        compose_caller => 'main',
+                        folder         => $folder,
+                        keyword        => $keyword,
+                        longpage       => $longpage,
+                        msgdatetype    => $msgdatetype,
+                        page           => $page,
+                        searchtype     => $searchtype,
+                        sessionid      => $thissession,
+                        sort           => $sort,
+                      );
+         my $redirect = "$config{ow_cgiurl}/openwebmail-send.pl?" .
+                        join('&', map { "$_=" . ow::tool::escapeURL($params{$_}) } sort keys %params);
+         print redirect(-location => $redirect);
+      } else {
+         listmessages();
+      }
+   } elsif ($destination eq 'MARKASREAD') {
+      markasread();
+      listmessages();
+   } elsif ($destination eq 'MARKASUNREAD') {
+      markasunread();
+      listmessages();
    } else {
       # move/copy/delete messages
-      movemessage(\@messageids, $destination) if ($#messageids >= 0);
+      my @messageids  = param('message_ids');
+      movemessage(\@messageids, $destination) if scalar @messageids > 0;
       if (param('messageaftermove')) {
          my $messageid = param('messageaftermove') || '';
          $messageid    = $messageids[0] if defined param('copybutton'); # copy button pressed, msg not moved
@@ -374,7 +386,7 @@ sub listmessages {
    } else {
       @destinationfolders = @validfolders;
       push(@destinationfolders, 'LEARNSPAM', 'LEARNHAM') if ($config{enable_learnspam});
-      push(@destinationfolders, 'FORWARD', 'DELETE');
+      push(@destinationfolders, 'MARKASREAD', 'MARKASUNREAD', 'FORWARD', 'DELETE');
    }
 
    my $destinationdefault = '';
@@ -836,38 +848,44 @@ sub get_upcomingevents {
 }
 
 sub markasread {
-   my $messageid = param('message_id');
-   return if ($messageid eq "");
+   my @messageids = (defined param('movebutton') || defined param('copybutton')) ? param('message_ids') : param('message_id');
+   return if scalar @messageids == 0;
 
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
-   my @attr = get_message_attributes($messageid, $folderdb);
-   return if ($#attr < 0); # msg not found in db
 
-   if ($attr[$_STATUS] !~ m/R/i) {
-      ow::filelock::lock($folderfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
-      update_message_status($messageid, $attr[$_STATUS]."R", $folderdb, $folderfile);
-      ow::filelock::lock($folderfile, LOCK_UN);
+   foreach my $messageid (@messageids) {
+      my @attr = get_message_attributes($messageid, $folderdb);
+      next if scalar @attr == 0; # msg not found in db
+
+      if ($attr[$_STATUS] !~ m/R/i) {
+         ow::filelock::lock($folderfile, LOCK_EX) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
+         update_message_status($messageid, $attr[$_STATUS] . 'R', $folderdb, $folderfile);
+         ow::filelock::lock($folderfile, LOCK_UN);
+      }
    }
 }
 
 sub markasunread {
-   my $messageid = param('message_id');
-   return if ($messageid eq "");
+   my @messageids = (defined param('movebutton') || defined param('copybutton')) ? param('message_ids') : param('message_id');
+   return if scalar @messageids == 0;
 
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
-   my @attr = get_message_attributes($messageid, $folderdb);
-   return if ($#attr < 0); # msg not found in db
 
-   if ($attr[$_STATUS] =~ m/[RV]/i) {
-      # clear flag R(read), V(verified by mailfilter)
-      my $newstatus = $attr[$_STATUS];
-      $newstatus =~ s/[RV]//ig;
+   foreach my $messageid (@messageids) {
+      my @attr = get_message_attributes($messageid, $folderdb);
+      next if scalar @attr == 0; # msg not found in db
 
-      ow::filelock::lock($folderfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
-      update_message_status($messageid, $newstatus, $folderdb, $folderfile);
-      ow::filelock::lock($folderfile, LOCK_UN);
+      if ($attr[$_STATUS] =~ m/[RV]/i) {
+         # clear flag R(read), V(verified by mailfilter)
+         my $newstatus = $attr[$_STATUS];
+         $newstatus =~ s/[RV]//ig;
+
+         ow::filelock::lock($folderfile, LOCK_EX) or
+            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
+         update_message_status($messageid, $newstatus, $folderdb, $folderfile);
+         ow::filelock::lock($folderfile, LOCK_UN);
+      }
    }
 }
 

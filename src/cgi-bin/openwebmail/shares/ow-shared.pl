@@ -245,13 +245,17 @@ sub openwebmail_requestbegin {
    #
    #  $) = "5 5"
 
-   if ($> == 0) { $< = $nobodyuid; $( = $nobodygid; $) = "$nobodygid $nobodygid"; }
+   if ($> == 0) {
+     $< = $nobodyuid;
+     $( = $nobodygid;
+     $) = "$nobodygid $nobodygid";
+   }
 
    # ow::tool::zombie_cleaner();		# clear pending zombies
-   openwebmail_clearall() if ($_vars_used);	# clear global
-   $_vars_used=1;
-   $SIG{PIPE}=\&openwebmail_exit;		# for user stop
-   $SIG{TERM}=\&openwebmail_exit;		# for user stop
+   openwebmail_clearall() if $_vars_used;	# clear global
+   $_vars_used = 1;
+   $SIG{PIPE} = \&openwebmail_exit;		# for user stop
+   $SIG{TERM} = \&openwebmail_exit;		# for user stop
 }
 
 # routine used at CGI request end
@@ -266,13 +270,20 @@ sub openwebmail_requestend {
 
    # back euid to root if possible, required for setuid under persistent perl
    $> = 0;
-   if ($> == 0) { $< = $nobodyuid; $( = $nobodygid; $) = "$nobodygid $nobodygid"; }
+
+   if ($> == 0) {
+     $< = $nobodyuid;
+     $( = $nobodygid;
+     $) = "$nobodygid $nobodygid";
+   }
 }
 
 # routine used at exit
 sub openwebmail_exit {
    openwebmail_requestend();
-   exit $_[0];
+   my $exitcode = shift;
+   $exitcode = 1 if $exitcode !~ m/^\d+$/; # user stop (PIPE or TERM)
+   exit $exitcode;
 }
 
 sub userenv_init {

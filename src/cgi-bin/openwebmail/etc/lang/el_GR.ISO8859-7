@@ -14,6 +14,8 @@ package ow::el_GR_ISO8859_7;
    'virus-mail'     => 'Ιός',
    LEARNSPAM        => '--Μάθηση Spam--',
    LEARNHAM         => '--Μάθηση Ham--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--Διαβίβαση--',
    DELETE           => '--Διαγραφή--'
    );

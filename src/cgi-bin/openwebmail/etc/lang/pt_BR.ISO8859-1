@@ -17,6 +17,8 @@ package ow::pt_BR_ISO8859_1;
    'virus-mail'     => 'Vírus',
    LEARNSPAM        => '--APRENDER SPAM--',
    LEARNHAM         => '--APRENDER HAM--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--ENCAMINHAR--',
    DELETE           => '--APAGAR--'
    );

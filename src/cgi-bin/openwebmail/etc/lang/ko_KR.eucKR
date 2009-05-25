@@ -16,6 +16,8 @@ package ow::ko_KR_eucKR;
    'virus-mail'     => '바이러스 편지함',
    LEARNSPAM        => '--스팸으로 분류--',
    LEARNHAM         => '--스팸아님--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--전달--',
    DELETE           => '--삭제--'
    );

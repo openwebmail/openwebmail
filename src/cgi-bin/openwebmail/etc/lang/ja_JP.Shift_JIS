@@ -19,6 +19,8 @@ package ow::ja_JP_Shift_JIS;
    'virus-mail'     => 'ウィルス',
    LEARNSPAM        => '--スパムの学習--',
    LEARNHAM         => '--ハムの学習--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--FORWARD--',
    DELETE           => '--削除--'
    );

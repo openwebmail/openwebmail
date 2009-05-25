@@ -14,6 +14,8 @@ package ow::hr_HR_ISO8859_2;
    'virus-mail'     => 'Virus',
    LEARNSPAM        => '--OBILJE¾I SPAM--',
    LEARNHAM         => '--OBILJE¾I HAM--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--PROSLIJEDI--',
    DELETE           => '--IZBRI©I--'
    );

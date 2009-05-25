@@ -18,6 +18,8 @@ package ow::cs_CZ_ISO8859_2;
    'virus-mail'     => 'Virus',
    LEARNSPAM        => '--NAUÈIT SPAM--',
    LEARNHAM         => '--NAUÈIT HAM--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--PØEPOSLAT OZN.--',
    DELETE           => '--ODSTRANIT OZN.--'
    );

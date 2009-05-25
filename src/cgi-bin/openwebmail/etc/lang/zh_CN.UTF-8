@@ -14,6 +14,8 @@ package ow::zh_CN_UTF_8;
    'virus-mail'     => '病毒邮件箱',
    LEARNSPAM        => '--垃圾邮件学习--',
    LEARNHAM         => '--正常邮件学习--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--邮件转发--',
    DELETE           => '--直接删除--'
    );

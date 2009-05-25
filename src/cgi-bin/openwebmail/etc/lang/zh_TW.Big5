@@ -14,6 +14,8 @@ package ow::zh_TW_Big5;
    'virus-mail'     => '病毒信匣',
    LEARNSPAM        => '--廣告信學習--',
    LEARNHAM         => '--正常信學習--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--信件轉寄--',
    DELETE           => '--直接刪除--'
    );

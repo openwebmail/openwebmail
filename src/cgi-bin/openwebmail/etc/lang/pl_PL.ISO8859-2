@@ -20,6 +20,8 @@ package ow::pl_PL_ISO8859_2;
    'virus-mail'     => 'Wirusy',
    LEARNSPAM        => '--ZG£O¦ SPAM--',
    LEARNHAM         => '--ZG£O¦ HAM--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--PRZEKIERUJ--',
    DELETE           => '--USUÑ--'
    );

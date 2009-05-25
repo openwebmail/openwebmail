@@ -15,6 +15,8 @@ package ow::nl_NL_ISO8859_1;
    'virus-mail'     => 'Virus',
    LEARNSPAM        => '--LEER SPAM--',
    LEARNHAM         => '--LEER GOEDE MAIL--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--DOORSTUREN--',
    DELETE           => '--VERWIJDEREN--'
    );

@@ -14,6 +14,8 @@ package ow::tr_TR_ISO8859_9;
    'virus-mail'     => 'Virus',
    LEARNSPAM        => '--LEARN SPAM--',
    LEARNHAM         => '--LEARN HAM--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--FORWARD--',
    DELETE           => '--ÇÖPE AT--'
    );

@@ -14,6 +14,8 @@ package ow::ru_RU_KOI8_R;
    'virus-mail'     => 'קיעץףש',
    LEARNSPAM        => '--ןגץ‏יפר SPAM--',
    LEARNHAM         => '--ןגץ‏יפר HAM--',
+   MARKASREAD       => '--MARK AS READ--',
+   MARKASUNREAD     => '--MARK AS UNREAD--',
    FORWARD          => '--נועוףלבפר--',
    DELETE           => '--ץהבליפר--'
    );
