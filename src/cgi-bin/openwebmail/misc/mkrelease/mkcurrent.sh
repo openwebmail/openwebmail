@@ -15,28 +15,49 @@ if (`whoami` != "root") then
 endif
 
 if (-d "openwebmail-current") then
-   echo "Please remove the openwebmail-current directory before running this script... quitting."
+   echo "Please remove the openwebmail-current directory to successfully run this script... quitting."
    exit 1
 endif
 
+set SVNSERVER = "http://openwebmail.acatysmoof.com/svn/trunk/src"
+set REVISIONNUMBERHEAD = `svn info $SVNSERVER --revision HEAD | grep 'Last Changed Rev:' | awk '{print $4}'`
+
+# get revision information for -current
+if (-f "openwebmail-current.tar.gz") then
+   set REVISIONNUMBERLAST = `tar -xzOf openwebmail-current.tar.gz cgi-bin/openwebmail/etc/defaults/openwebmail.conf | grep Rev: | awk '{print $3}'`
+else
+   set REVISIONNUMBERLAST = 0
+endif
+
+# do we need to update?
+if ($REVISIONNUMBERLAST >= 0 && $REVISIONNUMBERHEAD > 0) then
+   if ($REVISIONNUMBERLAST == $REVISIONNUMBERHEAD) then
+      echo "Last revision ($REVISIONNUMBERLAST) == HEAD revision ($REVISIONNUMBERHEAD). No update required."
+      exit 0
+   else
+      echo "Updating last revision ($REVISIONNUMBERLAST) ==> HEAD revision ($REVISIONNUMBERHEAD)"
+   endif
+else
+   echo "Could not get Last revision number and HEAD revision number. Aborting."
+   exit 1
+endif
+
+# we're updating, remove the old one
 if (-f "openwebmail-current.tar.gz") then
    rm openwebmail-current.tar.gz
 endif
 
-set SVNSERVER = "svn://openwebmail.acatysmoof.com/openwebmail/trunk/src"
-
 # check out latest from SVN
-svn export $SVNSERVER openwebmail-current
+/usr/local/bin/svn export $SVNSERVER openwebmail-current > /dev/null
 cd openwebmail-current
 
 # generate changes.txt from SVN logs
 echo "Generating changes.txt file..."
-svn log -rHEAD:1 $SVNSERVER | sed 's/[    ]*$//;s/^[      ]*//;/./,/^$/\!d;s/ [0-9][0-9]:.*lines$//;s/^\(r[0-9]*\) | \([a-z0-9]*\) | \([0-9-]*\)/\3 (\1 \2)/;s/-\{72\}/----------/' > data/openwebmail/doc/changes.txt
+/usr/local/bin/svn log -rHEAD:1 $SVNSERVER | sed 's/[    ]*$//;s/^[      ]*//;/./,/^$/\!d;s/ [0-9][0-9]:.*lines$//;s/^\(r[0-9]*\) | \([a-z0-9]*\) | \([0-9-]*\)/\3 (\1 \2)/;s/-\{72\}/----------/' > data/openwebmail/doc/changes.txt
 
 # update the revision number to HEAD
 echo "Setting revision and release date..."
-set REVISIONNUMBER = `svn log -rHEAD $SVNSERVER | sed -n '2p' | cut -d' ' -f1 | sed s/r//`
-sed -e "s/^\(revision[[:space:]]*.*\) [0-9]* \(.*\)/\1 $REVISIONNUMBER \2/" -i '' cgi-bin/openwebmail/etc/defaults/openwebmail.conf
+sed -e "s/^\(revision[[:space:]]*.*\) [0-9]* \(.*\)/\1 $REVISIONNUMBERHEAD \2/" -i '' cgi-bin/openwebmail/etc/defaults/openwebmail.conf
 
 # update the release date
 set RELEASEDATE = `date "+%Y%m%d"`
@@ -49,7 +70,6 @@ chown -R 0:0 cgi-bin data
 
 chmod 755 cgi-bin/openwebmail data/openwebmail
 chown -R 0:0 cgi-bin/openwebmail data/openwebmail
-
 
 cd cgi-bin/openwebmail
 foreach DIR (etc/sites.conf etc/users.conf etc/defaults etc/templates etc/styles etc/holidays etc/maps misc)
@@ -80,6 +100,17 @@ cd ..
 # clean up
 echo "Cleaning up..."
 rm -rf openwebmail-current
+
+# writing md5
+md5 -r openwebmail-current.tar.gz | tee MD5SUM
+
+# updating homepage
+if (`hostname` == "gouda.acatysmoof.com") then
+  set CURRENTREVISIONDATE = `date "+%B %d, %Y"`
+  set CURRENTREVISIONSTRING = "$CURRENTREVISIONDATE Rev $REVISIONNUMBERHEAD"
+  echo "Updating homepage current: $CURRENTREVISIONSTRING ..."
+  sed -e "s/([[:alpha:]]*[[:space:]]*[0-9]*,[[:space:]]*[0-9]*[[:space:]]*Rev[[:space:]][0-9]*)/($CURRENTREVISIONSTRING)/" -i '' /home/alex/openwebmail.acatysmoof.com/index.html
+endif
 
 echo "done."
 
