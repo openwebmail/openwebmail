@@ -2089,8 +2089,7 @@ sub sendmessage {
          if ($msgformat eq 'text') {
             $contenttype="text/plain; charset=$composecharset";
 
-            $s=qq|Content-Type: text/plain;\n|.
-               qq|\tcharset=$composecharset\n|.
+            $s=qq|Content-Type: text/plain; charset=$composecharset\n|.
                qq|Content-Transfer-Encoding: 8bit\n|;
             dump_str($s, $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
             print $folderhandle "Status: R\n" or $saveerr++ if ($do_save && !$saveerr);
@@ -2107,8 +2106,7 @@ sub sendmessage {
          } elsif ($msgformat eq 'html') {
             $contenttype="text/html; charset=$composecharset";
 
-            $s=qq|Content-Type: text/html;\n|.
-               qq|\tcharset=$composecharset\n|.
+            $s=qq|Content-Type: text/html; charset=$composecharset\n|.
                qq|Content-Transfer-Encoding: quoted-printable\n|;
             dump_str($s, $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
             print $folderhandle "Status: R\n" or $saveerr++ if ($do_save && !$saveerr);
@@ -2361,8 +2359,8 @@ sub dump_bodytext {
        $smtp, $folderhandle, $do_send, $do_save, $r_senderr, $r_saveerr)=@_;
 
    my $s = qq|\n--$boundary\n|.
-           qq|Content-Type: text/plain;\n|.
-           qq|\tcharset=$composecharset\n\n|;
+           qq|Content-Type: text/plain; charset=$composecharset\n|.
+           qq|Content-Transfer-Encoding: 8bit\n\n|;
    if ($msgformat eq "text") {
       $s.=${$r_body}.qq|\n|;
    } else {
@@ -2384,8 +2382,7 @@ sub dump_bodyhtml {
        $smtp, $folderhandle, $do_send, $do_save, $r_senderr, $r_saveerr)=@_;
 
    my $s = qq|\n--$boundary\n|.
-           qq|Content-Type: text/html;\n|.
-           qq|\tcharset=$composecharset\n|.
+           qq|Content-Type: text/html; charset=$composecharset\n|.
            qq|Content-Transfer-Encoding: quoted-printable\n\n|;
    if ($msgformat eq "text") {
       $s.=encode_qp(ow::htmltext::text2html(${$r_body})).qq|\n|;
