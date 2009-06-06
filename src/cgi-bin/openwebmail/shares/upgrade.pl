@@ -460,6 +460,26 @@ sub upgrade_all {	# called if user releasedate is too old
       }
    }
 
+   if ( $user_releasedate lt "20090606" ) {
+      # users preferences need to be updated to add the preference to show lunar calendar days or not
+      my $rcfile = dotpath('openwebmailrc');
+      if (-f $rcfile) {
+         %prefs = readprefs();
+
+         # automatically show lunar days for zh_TW.* and zh_CN.* locales (like old behavior)
+         $prefs{calendar_showlunar} = $prefs{locale} =~ m/^(?:zh_TW|zh_CN)/ ? 1 : 0;
+
+         if (sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT)) {
+            foreach my $key (@openwebmailrcitem) {
+               print RC "$key=$prefs{$key}\n";
+            }
+            close(RC);
+            writehistory("release upgrade - openwebmailrc by 20090607");
+            writelog("release upgrade - openwebmailrc by 20090607");
+         }
+      }
+   }
+
    return;
 }
 

@@ -1113,6 +1113,8 @@ sub editprefs {
                                                                        selected => $_ eq $prefs{calendar_holidaydef}?1:0
                                                                   } } @holidays
                                                            ],
+                      disablecalendar_showlunar         => defined $config_raw{DEFAULT_calendar_showlunar}?1:0,
+                      calendar_showlunarchecked         => $prefs{calendar_showlunar},
                       disablecalendar_monthviewnumitemsselect => defined $config_raw{DEFAULT_calendar_monthviewnumitems}?1:0,
                       calendar_monthviewnumitemsselectloop => [
                                                                  map { {

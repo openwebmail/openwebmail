@@ -407,10 +407,6 @@ lunar_map
 -----------------------------------------------------------------------
 solar to lunar calendar mapping txt file (1936..2031)
 
-ps: g2b_map, b2g_map and lunar_map are used only if lang is 'zh_TW.Big5'
-    or 'zh_CN.GB2312', you may set these options to 'none' to skip the
-    creation of the map db
-
 
 header_pluginfile
 footer_pluginfile
@@ -2364,6 +2360,13 @@ locale such as 'en_US.UTF-8'. If this option is set to auto, then the
 definition file will be chosen based on the users locale preference
 setting. If this option is set to none, then no holiday definition file
 will be used.
+
+
+default_calendar_showlunar
+-----------------------------------------------------------------------
+show lunar calendar dates when viewing calendars. Lunar calendars are
+used for holidays and traditional events by many countries including
+China, Singapore, Japan, Thailand, and Korea.
 
 
 default_calendar_monthviewnumitems

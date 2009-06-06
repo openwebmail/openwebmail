@@ -79,7 +79,7 @@ foreach (qw(
    default_filter_badaddrformat default_filter_fakedsmtp
    default_filter_fakedfrom default_filter_fakedexecontenttype
    default_abook_defaultfilter default_abook_collapse
-   default_calendar_showemptyhours default_calendar_reminderforglobal
+   default_calendar_showemptyhours default_calendar_reminderforglobal default_calendar_showlunar
    default_webdisk_confirmmovecopy default_webdisk_confirmdel default_webdisk_confirmcompress
    default_uselightbar default_regexmatch default_hideinternal default_categorizedfolders
 )) { $is_config_option{'yesno'}{$_}=1}
@@ -146,7 +146,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
    }
 }
 
-@openwebmailrcitem=qw(
+@openwebmailrcitem = qw(
    locale language charset timeoffset timezone daylightsaving email replyto
    style iconset bgurl bgrepeat fontsize dateformat hourformat
    ctrlposition_folderview msgsperpage fieldorder sort msgdatetype useminisearchicon
@@ -164,7 +164,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
    abook_width abook_height abook_buttonposition
    abook_defaultfilter abook_defaultsearchtype abook_defaultkeyword
    abook_addrperpage abook_collapse abook_sort abook_listviewfieldorder
-   calendar_defaultview calendar_holidaydef
+   calendar_defaultview calendar_holidaydef calendar_showlunar
    calendar_monthviewnumitems calendar_weekstart
    calendar_starthour calendar_endhour calendar_interval calendar_showemptyhours
    calendar_reminderdays calendar_reminderforglobal

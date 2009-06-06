@@ -130,6 +130,9 @@
                 </tmpl_if>
               </tmpl_if>
               </a></nobr>
+              <tmpl_if weekday_lunar>
+              <br><span class="<tmpl_if weekday_lunar_new>smalltext<tmpl_else>smalllighttext</tmpl_if>"><tmpl_var weekday_lunar escape="html">
+              </tmpl_if>
             </tmpl_if>
             <tmpl_if is_timelabel_allday><tmpl_var timelabel escape="html"></tmpl_if>
             <tmpl_if is_timelabel_hour><tmpl_var timelabel escape="html"></tmpl_if>

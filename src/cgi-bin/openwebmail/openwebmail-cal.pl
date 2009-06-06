@@ -80,9 +80,10 @@ ow::tool::has_module('Compress/Zlib.pm');
 use vars qw(%config $thissession %prefs);
 
 # extern vars
-use vars qw($htmltemplatefilters);                                 # defined in ow-shared.pl
-use vars qw(%lang_folders %lang_text %lang_err);                   # defined in lang/xy
-use vars qw(%lang_month %lang_wday_abbrev %lang_wday %lang_order); # defined in lang/xy
+use vars qw($htmltemplatefilters);                     # defined in ow-shared.pl
+use vars qw(%lang_folders %lang_text %lang_err);       # defined in lang/xy
+use vars qw(%lang_month %lang_lunar_month %lang_lunar_day %lang_lunar
+            %lang_wday_abbrev %lang_wday %lang_order); # defined in lang/xy
 
 # local globals
 use vars qw($folder $sort $msgdatetype $page $longpage $keyword $searchtype $messageid);
@@ -390,7 +391,7 @@ sub viewmonth {
                pop @thisday_events while scalar @thisday_events > $prefs{calendar_monthviewnumitems};
             }
 
-            my ($lunar, $lunarnew) = lunar_day($dates->{year}, $dates->{month}, $day_this_month);
+            my ($lunar_string, $lunar_isnew) = lunar_string($dates->{year}, $dates->{month}, $day_this_month);
 
             # add this day to the month loop
             push(@{$monthloop->[$row]{columns}}, {
@@ -414,8 +415,8 @@ sub viewmonth {
                                                     year          => $dates->{year},
                                                     month         => $dates->{month},
                                                     day           => $day_this_month,
-                                                    lunar         => $lunar,
-                                                    lunarnew      => $lunarnew,
+                                                    lunar         => $lunar_string,
+                                                    lunarnew      => $lunar_isnew,
                                                     is_today      => (
                                                                        $dates->{year} == $dates->{current_year}
                                                                        && $dates->{month} == $dates->{current_month}
@@ -543,8 +544,6 @@ sub viewmonth {
 sub viewday {
    my $dates = dates(param('year'), param('month'), param('day'));
 
-   my ($lunar, $lunarnew) = lunar_day($dates->{year}, $dates->{month}, $dates->{day});
-
    my @thisday_events = events($dates->{year}, $dates->{month}, $dates->{day});
 
    # create 24 hour matrix grid of the events
@@ -600,6 +599,8 @@ sub viewday {
           )
    }
 
+   my ($lunar_string, $lunar_isnew) = lunar_string($dates->{year}, $dates->{month}, $dates->{day});
+
    # build the template
    my $template = HTML::Template->new(
                                         filename          => get_template("cal_dayview.tmpl"),
@@ -641,8 +642,8 @@ sub viewday {
                       weekstart               => $prefs{calendar_weekstart},
                       is_weekend              => $weekday_number == 6 || $weekday_number == 0 ? 1 : 0,
                       daysfromtoday           => $daysfromtoday,
-                      lunar                   => $lunar,
-                      lunarnew                => $lunarnew,
+                      lunar                   => $lunar_string,
+                      lunarnew                => $lunar_isnew,
                       matrix                  => $matrix,
                       dayselectloop           => [
                                                    map { {
@@ -737,19 +738,23 @@ sub viewweek {
 
       my @thisday_events = events($week_year, $week_month, $week_day);
 
+      my ($lunar_string, $lunar_isnew) = lunar_string($week_year, $week_month, $week_day);
+
       # create 24 hour matrix grid of this days events
       my $matrix = matrix_24h(@thisday_events);
 
       # make sure the first column of the first row notes the year, month, day this day of
       # the matrix covers, even if there is no event in the first column of the first row
-      $matrix->[0]{columns}[0]{year}     = $week_year;
-      $matrix->[0]{columns}[0]{month}    = $week_month;
-      $matrix->[0]{columns}[0]{day}      = $week_day;
-      $matrix->[0]{columns}[0]{is_today} = (
-                                             $week_year == $dates->{current_year}
-                                             && $week_month == $dates->{current_month}
-                                             && $week_day == $dates->{current_day}
-                                           ) ? 1 : 0;
+      $matrix->[0]{columns}[0]{year}      = $week_year;
+      $matrix->[0]{columns}[0]{month}     = $week_month;
+      $matrix->[0]{columns}[0]{day}       = $week_day;
+      $matrix->[0]{columns}[0]{lunar}     = $lunar_string;
+      $matrix->[0]{columns}[0]{lunar_new} = $lunar_isnew;
+      $matrix->[0]{columns}[0]{is_today}  = (
+                                              $week_year == $dates->{current_year}
+                                              && $week_month == $dates->{current_month}
+                                              && $week_day == $dates->{current_day}
+                                            ) ? 1 : 0;
 
       $maxallday       = $matrix->[0]{allday_count} if $matrix->[0]{allday_count} > $maxallday;
       $firsteventstart = $matrix->[0]{firsteventstart} if $matrix->[0]{firsteventstart} < $firsteventstart;
@@ -880,7 +885,7 @@ sub viewlist {
          my $dayoffset_from_current = $is_today ? 0 : sprintf("%+d", int(($time - $current_time)/86400));
 
          if (scalar @thisday_events > 0 || $is_today) {
-            my ($lunar, $lunarnew) = lunar_day($dates->{year}, $month_this_year, $day_this_month);
+            my ($lunar_string, $lunar_isnew) = lunar_string($dates->{year}, $dates->{month}, $day_this_month);
 
             push(@{$daysloop}, {
                                  # standard params
@@ -905,8 +910,8 @@ sub viewlist {
                                  dayname         => $lang_wday{ow::datetime::weekday_number($dates->{year},$month_this_year,$day_this_month)},
                                  daypadded       => sprintf("%02d",$day_this_month),
                                  uselightbar     => $prefs{uselightbar},
-                                 lunar           => $lunar,
-                                 lunarnew        => $lunarnew,
+                                 lunar           => $lunar_string,
+                                 lunarnew        => $lunar_isnew,
                                  is_today        => $is_today,
                                  eventsloop      => \@thisday_events,
                                  month_accesskey => ((qw(0 1 2 3 4 5 6 7 8 9 0 J Q))[$month_this_year]),
@@ -1509,6 +1514,8 @@ sub matrix_labelcols {
                                             weekday_month        => $matrix->[1]{columns}[$col]{month},
                                             weekday_monthname    => $lang_month{$matrix->[1]{columns}[$col]{month}},
                                             weekday_day          => $matrix->[1]{columns}[$col]{day},
+                                            weekday_lunar        => $matrix->[1]{columns}[$col]{lunar},
+                                            weekday_lunar_new    => $matrix->[1]{columns}[$col]{lunar_new},
                                           };
          } else {
             $matrix->[0]{columns}[$col]{skip} = 1;
@@ -1815,7 +1822,7 @@ sub addmod {
 
    if ($string !~ m/^\s+?$/) {
       # check for input that would corrupt our @@@ separated flatfile database format
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{at_char_not_allowed}") if $string =~ /\@\@\@/ || $link =~ /\@\@\@/;
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{at_char_not_allowed}") if $string =~ m/\@\@\@/ || $link =~ m/\@\@\@/;
 
       $string =~ s#\@$#\@ #; # do not allow trailing @ signs
       $string =~ s#^\@# \@#; # do not allow leading @ signs
@@ -1900,7 +1907,7 @@ sub addmod {
 
       if (defined $eventid && $eventid =~ m/^\d+$/ && exists $events->{$eventid}) {
          if ($idate ne $events->{$eventid}{idate}) {
-            # remove the eventid from the in-memory index for the dates on which it use to occur
+            # remove the eventid from the in-memory index for the dates on which it used to occur
             my $oldkey = $events->{$eventid}{idate} =~ m/[^\d]/ ? '*' : $events->{$eventid}{idate};
             @{$index->{$oldkey}} = grep { $_ != $eventid } @{$index->{$oldkey}};
 
@@ -2040,22 +2047,26 @@ sub hourmin2str {
    return $hourmin;
 }
 
-sub lunar_day {
-   # get big5 lunar string from a gregorian date, then convert it to target charset
+sub lunar_string {
+   # create a lunar calendar string for a given solar year, month, and day
    my ($year, $month, $day) = @_;
-   my $txt = '';
-   my $new = 0;
 
-   if ($prefs{locale} =~ m/^(?:zh_TW\.Big5|zh_CN\.GB2312)/) {
-      my ($lyear, $lmonth, $lday) = solar2lunar($year, $month, $day);
-      $txt = lunar2big5str((solar2lunar($year, $month, $day))[1, 2]);
-      if ($txt ne '') {
-         $new = ($txt =~ /ªì¤@/ || $txt=~/¤Q¤­/) ? 1 : 0;
-         $txt = (iconv('big5', $prefs{charset}, $txt))[0];
-      }
+   my $lunar_string = '';
+   my $lunar_isnew  = 0;
+
+   if ($prefs{calendar_showlunar}) {
+      my ($lunaryear, $lunarmonth, $lunarday) = solar2lunar($year, $month, $day);
+
+      $lunar_string = defined $lunarmonth && defined $lunarday
+                      ? $lunarmonth =~ m/^\+(\d+)/
+                        ? $lang_lunar{intercalary} . $lang_lunar_month{$1} . $lang_lunar_day{$lunarday}
+                        : $lang_lunar_month{$lunarmonth} . $lang_lunar_day{$lunarday}
+                      : '';
+
+      $lunar_isnew = $lunarday =~ m/^(?:01|15)$/ ? 1 : 0;
    }
 
-   return($txt, $new);
+   return($lunar_string, $lunar_isnew);
 }
 
 #                       OPENWEBMAIL CALENDAR DATA STRUCTURES
