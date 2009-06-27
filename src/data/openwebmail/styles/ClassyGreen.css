@@ -22,6 +22,7 @@ img.attachment { border: 2px solid #d2e0d8; }
 form { margin: 0; }
 input.mono { font-family: monospace; font-size: 80%; }
 select.mono { font-family: monospace; font-size: 80%; }
+pre { white-space: pre-wrap; }
 h1 { font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 140%; font-weight: bold; }
 a:link { text-decoration: none; color: #000000; }
 a:visited { text-decoration: none; color: #000000; }
