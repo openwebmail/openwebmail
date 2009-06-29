@@ -127,9 +127,14 @@ $page        = param('page') || 1;
 $searchtype  = param('searchtype') || 'subject';
 $sort        = param('sort') || $prefs{sort} || 'date_rev';
 
-$keyword     = '' if param('clearsearchbutton');
 $keyword     =~ s/^\s*//;
 $keyword     =~ s/\s*$//;
+
+if (param('clearsearchbutton')) {
+  $keyword  = '';
+  $longpage = 0;
+  $page     = 1;
+}
 
 # TODO: This action processing seems a little overly complicated. It could probably be cleaner and simpler.
 writelog("debug - request main begin, action=$action, folder=$folder - " .__FILE__.":". __LINE__) if ($config{debug_request});
