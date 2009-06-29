@@ -145,9 +145,10 @@ $keyword     = param('keyword') || '';
 
 writelog("debug - request read begin, action=$action, folder=$folder - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
 
-$action eq 'readmessage'      ? readmessage()                     :
-$action eq 'rebuildmessage'   ? rebuildmessage()                  :
-$action eq 'deleteattachment' ? delete_attachment($user, $folder) :
+$action eq 'readmessage'     ? readmessage()      :
+$action eq 'rebuildmessage'  ? rebuildmessage()   :
+$action eq 'deletenontext'   ? delete_nontext()   :
+$action eq 'downloadnontext' ? download_nontext() :
 openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
 
 writelog("debug - request read end, action=$action, folder=$folder - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
@@ -545,8 +546,8 @@ sub readmessage {
       ow::dbm::close(\%FDB, $folderdb);
    }
 
-   my $showhtmltexttoggle      = 0;
-   my $has_nontext_attachments = 0;
+   my $showhtmltexttoggle  = 0;
+   my $nontext_attachments = 0;
 
    # process each message for display
    for (my $i = 0; $i < scalar @{$messagesloop}; $i++) {
@@ -759,7 +760,7 @@ sub readmessage {
 
          $messagesloop->[$i]{attachment}[$n]{attnumber} = $n;
 
-         $has_nontext_attachments++ if (defined $messagesloop->[$i]{attachment}[$n]{'content-type'} && $messagesloop->[$i]{attachment}[$n]{'content-type'} !~ m/^text/i);
+         $nontext_attachments++ if (defined $messagesloop->[$i]{attachment}[$n]{'content-type'} && $messagesloop->[$i]{attachment}[$n]{'content-type'} !~ m/^text/i);
 
          my $attcharset = $convfrom;
          # if convfrom eq msgcharset, we will try to get the attcharset from the attheader - it may differ from the msgheader
@@ -998,7 +999,7 @@ sub readmessage {
          # process image/... attachments
          if ($messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^image#i) {
             if ($messagesloop->[$i]{attachment}[$n]{filename} =~ m/\.(?:jpg|jpeg|gif|png|bmp)$/i) {
-               if (!$prefs{showimgaslink}) {
+               unless ($prefs{showimgaslink}) {
                   # image_att2table
                   $messagesloop->[$i]{attachment}[$n]{is_misc}  = 0;
                   $messagesloop->[$i]{attachment}[$n]{is_image} = 1;
@@ -1100,31 +1101,31 @@ sub readmessage {
                       keyword                 => $keyword,
                       url_cgi                 => $config{ow_cgiurl},
                       url_html                => $config{ow_htmlurl},
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
+                      use_texticon            => ($prefs{iconset} =~ m/^Text\./ ? 1 : 0),
                       use_fixedfont           => $prefs{usefixedfont},
                       iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},
 
                       # read_readmessage.tmpl
                       folderselectloop        => $folderselectloop,
-                      textbrowser             => $ENV{HTTP_USER_AGENT} =~ m/(?:lynx|w3m)/i?1:0,
+                      textbrowser             => $ENV{HTTP_USER_AGENT} =~ m/(?:lynx|w3m)/i ? 1 : 0,
                       enable_quota            => $enable_quota,
                       quotashowusage          => $quotashowusage,
                       quotaoverthreshold      => $quotaoverthreshold,
                       quotabytesusage         => $quotabytesusage,
                       quotapercentusage       => $quotapercentusage,
                       quotalimit              => $quotalimit,
-                      quotaoverlimit          => ($quotalimit > 0 && $quotausage > $quotalimit)?1:0,
+                      quotaoverlimit          => ($quotalimit > 0 && $quotausage > $quotalimit) ? 1 : 0,
                       spoollimit              => $config{spool_limit},
-                      spooloverlimit          => ($config{spool_limit} > 0 && $inboxsize_k > $config{spool_limit})?1:0,
+                      spooloverlimit          => ($config{spool_limit} > 0 && $inboxsize_k > $config{spool_limit}) ? 1 : 0,
                       overlimit               => (($quotalimit > 0 && $quotausage > $quotalimit)
-                                                 || ($config{spool_limit} > 0 && $inboxsize_k > $config{spool_limit}))?1:0,
+                                                 || ($config{spool_limit} > 0 && $inboxsize_k > $config{spool_limit})) ? 1 : 0,
                       newmessages             => $newmessages,
                       totalmessages           => scalar @{$r_messageids},
                       message_num             => $message_num,
                       firstmessagesize        => lenstr($messagesloop->[0]{size},1),
-                      is_folder_saved_drafts  => ($folder eq 'saved-drafts')?1:0,
-                      is_folder_sent_mail     => ($folder eq 'sent-mail')?1:0,
+                      is_folder_saved_drafts  => ($folder eq 'saved-drafts') ? 1 : 0,
+                      is_folder_sent_mail     => ($folder eq 'sent-mail') ? 1 : 0,
                       messageid               => $messagesloop->[0]{'message-id'},
                       convfrom                => $convfrom,
                       headers                 => $headers,
@@ -1135,25 +1136,25 @@ sub readmessage {
                       calendar_defaultview    => $prefs{calendar_defaultview},
                       enable_webdisk          => $config{enable_webdisk},
                       enable_sshterm          => $config{enable_sshterm},
-                      use_ssh2                => -r "$config{ow_htmldir}/applet/mindterm2/mindterm.jar"?1:0,
-                      use_ssh1                => -r "$config{ow_htmldir}/applet/mindterm/mindtermfull.jar"?1:0,
+                      use_ssh2                => -r "$config{ow_htmldir}/applet/mindterm2/mindterm.jar" ? 1 : 0,
+                      use_ssh1                => -r "$config{ow_htmldir}/applet/mindterm/mindtermfull.jar" ? 1 : 0,
                       enable_preference       => $config{enable_preference},
 
                       enable_saprefs          => $config{enable_saprefs},
                       enable_webmail          => $config{enable_webmail},
-                      enable_learnham         => $config{enable_learnspam} && $folder eq 'spam-mail'?1:0,
-                      enable_learnspam        => $config{enable_learnspam} && $folder !~ m#^(?:saved-drafts|sent-mail|spam-mail|virus-mail)$#?1:0,
+                      enable_learnham         => $config{enable_learnspam} && $folder eq 'spam-mail' ? 1 : 0,
+                      enable_learnspam        => $config{enable_learnspam} && $folder !~ m#^(?:saved-drafts|sent-mail|spam-mail|virus-mail)$# ? 1 : 0,
                       messageaftermove        => $prefs{viewnextaftermsgmovecopy} ? ($messageid_next || $messageid_prev) : 0,
                       messageid_prev          => $messageid_prev,
                       messageid_next          => $messageid_next,
-                      confirmmsgmovecopy      => $prefs{confirmmsgmovecopy}?1:0,
+                      confirmmsgmovecopy      => $prefs{confirmmsgmovecopy} ? 1 : 0,
                       trashfolder             => $folder eq 'mail-trash' ? '' :
                                                  ($quotalimit > 0 && $quotausage >= $quotalimit) ? 'DELETE' : 'mail-trash',
-                      is_right_to_left        => $ow::lang::RTL{$prefs{locale}}?1:0,
-                      controlbartop           => $prefs{ctrlposition_msgread} eq 'top'?1:0,
-                      controlbarbottom        => $prefs{ctrlposition_msgread} ne 'top'?1:0,
+                      is_right_to_left        => $ow::lang::RTL{$prefs{locale}} ? 1 : 0,
+                      controlbartop           => $prefs{ctrlposition_msgread} eq 'top' ? 1 : 0,
+                      controlbarbottom        => $prefs{ctrlposition_msgread} ne 'top' ? 1 : 0,
                       charsetselectloop       => $charsetselectloop,
-                      enable_stationery       => $config{enable_stationery} && $folder !~ m#^(?:saved-drafts|sent-mail)$#?1:0,
+                      enable_stationery       => $config{enable_stationery} && $folder !~ m#^(?:saved-drafts|sent-mail)$# ? 1 : 0,
                       stationeryselectloop    => $stationeryselectloop,
                       destinationselectloop   => [
                                                     map { {
@@ -1161,17 +1162,17 @@ sub readmessage {
                                                              label    => exists $lang_folders{$_} ?
                                                                          (iconv($prefs{charset}, $displaycharset, $lang_folders{$_}))[0] :
                                                                          (iconv($prefs{fscharset}, $displaycharset, $_))[0],
-                                                             selected => $_ eq $destinationdefault?1:0
+                                                             selected => $_ eq $destinationdefault ? 1 : 0
                                                         } } @destinationfolders
                                                  ],
                       messagesloop            => $messagesloop,
                       enable_userfilter       => $config{enable_userfilter},
                       showhtmltexttoggle      => $showhtmltexttoggle,
-                      has_nontext_attachments => $has_nontext_attachments > 1?1:0,
+                      has_nontext_attachments => $nontext_attachments > 1 ? 1 : 0,
                       newmailsound            => $now_inbox_newmessages > $orig_inbox_newmessages &&
-                                                 -f "$config{ow_htmldir}/sounds/$prefs{newmailsound}"?$prefs{newmailsound}:0,
-                      popup_quotahitdelmail   => $quotahit_deltype eq 'quotahit_delmail'?1:0,
-                      popup_quotahitdelfile   => $quotahit_deltype eq 'quotahit_delfile'?1:0,
+                                                 -f "$config{ow_htmldir}/sounds/$prefs{newmailsound}" ? $prefs{newmailsound} : 0,
+                      popup_quotahitdelmail   => $quotahit_deltype eq 'quotahit_delmail' ? 1 : 0,
+                      popup_quotahitdelfile   => $quotahit_deltype eq 'quotahit_delfile' ? 1 : 0,
                       incomingmessagesloop    => $incomingmessagesloop,
                       newmailwindowtime       => $prefs{newmailwindowtime},
                       newmailwindowheight     => (scalar @{$incomingmessagesloop} * 16) + 70,
@@ -1259,11 +1260,120 @@ sub rebuildmessage {
    }
 }
 
-sub delete_attachment {
-   my $user      = shift;
-   my $folder    = shift;
-   my $nodeid    = param('nodeid') || '';
+sub download_nontext {
+   # download all non-text attachments at one time
+   # the attachments are bundled into a zip, tgz, or tar file and sent to the user
    my $messageid = param('message_id') || '';
+
+   return readmessage() unless $messageid;
+
+   my $messagesloop = [
+                         getmessage($user, $folder, $messageid, 'all'),
+                      ];
+
+   my @filelist = ();
+
+   for (my $i = 0; $i < scalar @{$messagesloop}; $i++) {
+      # update the messageid to this specific message!
+      # in the future we need to do this for conversation view
+      $messageid = $messagesloop->[$i]{'message-id'};
+
+      for (my $n = 0; $n < scalar @{$messagesloop->[$i]{attachment}}; $n++) {
+         next unless defined %{$messagesloop->[$i]{attachment}[$n]};
+
+         # skip this attachment if it is being referenced by a cid: or loc: link
+         next if $messagesloop->[$i]{attachment}[$n]{referencecount} > 0;
+
+         if (defined $messagesloop->[$i]{attachment}[$n]{'content-type'} && $messagesloop->[$i]{attachment}[$n]{'content-type'} !~ m/^text/i) {
+            my $content = ${$messagesloop->[$i]{attachment}[$n]{r_content}};
+
+            # decode the content if needed
+            if (defined $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'}) {
+               my $encoding = $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'};
+
+               $content = $encoding =~ m/^base64$/i           ? decode_base64($content)      :
+                          $encoding =~ m/^quoted-printable$/i ? decode_qp($content)          :
+                          $encoding =~ m/^x-uuencode$/i       ? ow::mime::uudecode($content) :
+                          $content;
+            }
+
+            # try to convert tnef content -> zip/tgz/tar
+            if ($messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^application/ms\-tnef#) {
+               my $tnefbin = ow::tool::findbin('tnef');
+               if ($tnefbin ne '') {
+                  my ($arcname, $r_arcdata) = ow::tnef::get_tnef_archive($tnefbin, $messagesloop->[$i]{attachment}[$n]{filename}, \$content);
+                  if ($arcname ne '') { # tnef extraction and conversion successed
+                     $messagesloop->[$i]{attachment}[$n]{filename} = $arcname;
+                     $content = ${$r_arcdata};
+                  }
+               }
+            }
+
+            my $tempfile = ow::tool::untaint("/tmp/$messagesloop->[$i]{attachment}[$n]{filename}");
+
+            sysopen(FILE, $tempfile, O_WRONLY|O_TRUNC|O_CREAT) or
+              openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_create} $tempfile ($!)\n");
+            binmode FILE; # to ensure images don't corrupt
+            print FILE $content;
+            close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $tempfile ($!)\n");
+
+            push(@filelist, $messagesloop->[$i]{attachment}[$n]{filename});
+         }
+      }
+   }
+
+   my $localtime = ow::datetime::time_gm2local(time(), $prefs{timeoffset}, $prefs{daylightsaving}, $prefs{timezone});
+   my @now       = ow::datetime::seconds2array($localtime);
+   my $dlname    = sprintf("%4d%02d%02d-%02d%02d", $now[5]+1900,$now[4]+1,$now[3], $now[2],$now[1]);
+
+   my @cmd = ();
+   my $zipbin = ow::tool::findbin('zip');
+   if ($zipbin ne '') {
+      @cmd = ($zipbin, '-ryq', '-');
+      $dlname .= ".zip";
+   } else {
+      my $gzipbin = ow::tool::findbin('gzip');
+      my $tarbin  = ow::tool::findbin('tar');
+      if ($gzipbin ne '') {
+         $ENV{PATH} = $gzipbin;
+         $ENV{PATH} =~ s#/gzip##; # for tar
+
+         @cmd = ($tarbin, '-zcpf', '-');
+         $dlname .= ".tgz";
+      } else {
+         @cmd = ($tarbin, '-cpf', '-');
+         $dlname .= ".tar";
+      }
+   }
+
+   my $contenttype = ow::tool::ext2contenttype($dlname);
+
+   # send a header that causes the browser to prompt the user with a "file save" dialog box
+   local $| = 1;
+   print qq|Connection: close\n|,
+         qq|Content-Type: $contenttype; name="$dlname"\n|;
+   if ($ENV{HTTP_USER_AGENT} =~ m/MSIE 5.5/) { # ie5.5 is broken with content-disposition: attachment
+      print qq|Content-Disposition: filename="$dlname"\n|;
+   } else {
+      print qq|Content-Disposition: attachment; filename="$dlname"\n|;
+   }
+   print qq|\n|;
+
+   chdir("/tmp") or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_chdirto} /tmp\n");
+
+   # set environment variables for cmd
+   $ENV{USER} = $ENV{LOGNAME} = $user;
+   $ENV{HOME} = $homedir;
+
+   $< = $>; # drop ruid by setting ruid = euid
+
+   exec(@cmd, @filelist) or print qq|Error in executing |.join(' ', @cmd, @filelist);
+}
+
+sub delete_nontext {
+   # delete all non-text attachments from a message
+   my $messageid = param('message_id') || '';
+   my $nodeid    = param('nodeid') || '';
 
    return readmessage() unless $nodeid;
 
@@ -1339,7 +1449,7 @@ sub delete_attachment {
    }
    ow::filelock::lock($folderfile, LOCK_UN);
 
-   writelog("delete attachment - error $err:$errmsg") if ($err < 0);
+   writelog("delete nontext attachments - error $err:$errmsg") if $err < 0;
 
    return readmessage();
 }

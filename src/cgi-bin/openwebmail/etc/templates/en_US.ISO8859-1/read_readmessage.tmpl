@@ -314,9 +314,7 @@
       </td>
     </tr>
     </table>
-  </tmpl_if>
-
-  <tmpl_unless is_partialmessage>
+  <tmpl_else>
   <!-- BODY -->
   <tmpl_unless is_multipart>
   <tmpl_var body escape="none">
@@ -332,11 +330,19 @@
 
   <tmpl_loop attachment>
 
+  <tmpl_if is_text>
+  <tmpl_var r_content escape="none">
+  </tmpl_if>
+
   <tmpl_if is_html>
   <tmpl_var r_content escape="none">
   </tmpl_if>
 
   <tmpl_if is_enriched>
+  <tmpl_var r_content escape="none">
+  </tmpl_if>
+
+  <tmpl_if is_message>
   <tmpl_var r_content escape="none">
   </tmpl_if>
 
@@ -362,14 +368,6 @@
       <td class="attachmentlight" align="center" width="10%" nowrap><a href="<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl/<tmpl_var filename escape="url">?action=viewattachment&amp;attachment_nodeid=<tmpl_var nodeid escape="url">&amp;message_id=<tmpl_var messageid escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">" <tmpl_if is_text>target="_new"</tmpl_if> accesskey="ALEX" title="download this attachment">Download</a></td>
     </tr>
     </table>
-  </tmpl_if>
-
-  <tmpl_if is_text>
-  <tmpl_var r_content escape="none">
-  </tmpl_if>
-
-  <tmpl_if is_message>
-  <tmpl_var r_content escape="none">
   </tmpl_if>
 
   <tmpl_if is_image>
@@ -416,7 +414,7 @@
 
   </tmpl_loop>
   <!-- END ATTACHMENTS -->
-  </tmpl_unless>
+  </tmpl_if>
   </td>
 </tr>
 
@@ -438,7 +436,8 @@
 </tmpl_loop>
 <tmpl_if has_nontext_attachments>
 <tr>
-  <td colspan="2" width="100%" class="windowlight" align="right"><a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=deleteattachment&amp;message_id=<tmpl_var messageid escape="url">&amp;nodeid=NONTEXT&amp;headers=<tmpl_var headers escape="url">&amp;attmode=<tmpl_var attmode escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="ALEX" title="delete all non-text attachments" onclick="return confirm('delete all non-text attachments?');">delete all non-text attachments</a>&nbsp;</td>
+  <td class="windowlight" align="left" nowrap>&nbsp;<a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=downloadnontext&amp;message_id=<tmpl_var messageid escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">" accesskey="ALEX" title="download all non-text attachments">download all non-text attachments</a></td>
+  <td  class="windowlight" align="right" nowrap><a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=deletenontext&amp;message_id=<tmpl_var messageid escape="url">&amp;nodeid=NONTEXT&amp;headers=<tmpl_var headers escape="url">&amp;attmode=<tmpl_var attmode escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="ALEX" title="delete all non-text attachments" onclick="return confirm('delete all non-text attachments?');">delete all non-text attachments</a>&nbsp;</td>
 </tr>
 </tmpl_if>
 
