@@ -11,6 +11,7 @@ require "modules/mime.pl";
 require "shares/iconv-chinese.pl";
 require "shares/iconv-japan.pl";
 
+use vars qw(%config);
 use vars qw(%charset_convlist %charset_equiv %charset_localname);
 use vars qw($_iconv_handle $_iconv_tag);
 use vars qw(%is_convertible_cache);
@@ -219,15 +220,14 @@ sub _iconv {
       $_iconv_handle = iconv_open($from, $to);
       $_iconv_tag = "$from#$to" if ($_iconv_handle ne '');
    }
-   return $s if ($_iconv_handle eq '');	        # no supported charset?
+   return $s if ($_iconv_handle eq '');	 # no supported charset?
 
    my $converted=$_iconv_handle->convert($s);
    if ($converted ne '') {
       return $converted;
    } else {
-      $_iconv_handle='';                        # terminate converter
-      return "[".uc($from)."?]".$s;             # add [charset?] at the beginning if convert failed
-                                                # TODO: This idea is terrible. It makes the text unreadable. Do something else.
+      $_iconv_handle=''; # terminate converter
+      return ($config{iconv_error_labels} ? "[".uc($from)."?]".$s : $s); # add [charset?] at the beginning if convert failed
    }
 }
 

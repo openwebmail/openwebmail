@@ -554,6 +554,19 @@ debug_mailfilter
 If this option is set to yes, details of mail filter will be logged
 
 
+iconv_error_labels
+-----------------------------------------------------------------------
+If this option is set to yes, characters that are not successfully
+converted will be prefixed with the character set that they failed to
+convert from, for example:
+
+[UTF-8?]foo
+
+This option is available to expose character conversion problems to
+developers. Since its results can be confusing to normal users it is
+recommended to be primarily used in developers per user config files.
+
+
 allowed_serverdomain
 -----------------------------------------------------------------------
 This limits the virtualdomain that openwebmail will serve.
