@@ -42,7 +42,7 @@ foreach (qw(
    smtpauth use_hashedmailspools use_homedirspools
    use_syshomedir create_syshomedir use_syshomedir_for_dotdir
    auth_withdomain deliver_use_gmt
-   error_with_debuginfo debug_request debug_fork debug_mailfilter
+   error_with_debuginfo debug_request debug_fork debug_mailfilter iconv_error_labels
    case_insensitive_login forced_ssl_login stay_ssl_afterlogin
    enable_domainselectmenu enable_strictvirtuser
    enable_changepwd enable_strictpwd
