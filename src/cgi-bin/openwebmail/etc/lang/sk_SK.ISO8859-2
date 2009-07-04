@@ -678,6 +678,7 @@ package ow::sk_SK_ISO8859_2;
    abook_listview_done => 'Done',
    abook_listview_viewselected => 'View list of selected addresses',
    abook_listview_unselectall => 'Unselect all selected addresses',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Checked And Ready For Exporting',
    abook_editform_destination => 'Destination',
    abook_editform_new_agent => 'This New Agent',

@@ -681,6 +681,7 @@ package ow::cs_CZ_ISO8859_2;
    abook_listview_done => 'Hotovo',
    abook_listview_viewselected => 'Zobrazit seznam vybraných adres',
    abook_listview_unselectall => 'Odznaèit v¹echny vybrané',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Checked And Ready For Exporting',
    abook_editform_destination => 'Cíl',
    abook_editform_new_agent => 'Nový zástupce (agent)',

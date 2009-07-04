@@ -678,6 +678,7 @@ package ow::fi_FI_ISO8859_1;
    abook_listview_done => 'Valmis',
    abook_listview_viewselected => 'Katso valittujen osoitteiden listaa',
    abook_listview_unselectall => 'Poista osoitevalinnat',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Tarkistus ok, valmiina vientiin',
    abook_editform_destination => 'Kohde',
    abook_editform_new_agent => 'Uusi agentti',

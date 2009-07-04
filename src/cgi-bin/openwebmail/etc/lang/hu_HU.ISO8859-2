@@ -678,6 +678,7 @@ package ow::hu_HU_ISO8859_2;
    abook_listview_done => 'Vége',
    abook_listview_viewselected => 'A kijelölt címek listája',
    abook_listview_unselectall => 'Kijelölés törlése',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Ellenõrizve és készen áll az exportálásra',
    abook_editform_destination => 'Cél',
    abook_editform_new_agent => 'This New Agent',

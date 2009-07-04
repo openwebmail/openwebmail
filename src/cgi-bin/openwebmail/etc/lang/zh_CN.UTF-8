@@ -677,6 +677,7 @@ package ow::zh_CN_UTF_8;
    abook_listview_done => '确认',
    abook_listview_viewselected => '检视所有已选择的收件者',
    abook_listview_unselectall => '取消所有已选择的收件者',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => '资料确认无误, 准备汇出',
    abook_editform_destination => '目的通讯录',
    abook_editform_new_agent => '这个新连络人',

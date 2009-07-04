@@ -677,6 +677,7 @@ package ow::zh_TW_Big5;
    abook_listview_done => '確認',
    abook_listview_viewselected => '檢視所有已選擇的收件者',
    abook_listview_unselectall => '取消所有已選擇的收件者',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => '資料確認無誤, 準備匯出',
    abook_editform_destination => '目的通訊錄',
    abook_editform_new_agent => '這個新連絡人',

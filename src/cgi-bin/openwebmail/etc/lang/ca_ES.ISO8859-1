@@ -678,6 +678,7 @@ package ow::ca_ES_ISO8859_1;
    abook_listview_done => 'Fet',
    abook_listview_viewselected => 'Mostra llista d\'adreces seleccionades',
    abook_listview_unselectall => 'Treu totes les adreces seleccionades',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Comprovat i a punt per exportar',
    abook_editform_destination => 'Destinació',
    abook_editform_new_agent => 'Aquest nou agent',

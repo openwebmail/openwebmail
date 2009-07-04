@@ -677,6 +677,7 @@ package ow::sl_SI_CP1250;
    abook_listview_done => 'Vredu',
    abook_listview_viewselected => 'Pregled izbranih naslovov',
    abook_listview_unselectall => 'Ne izberi vse izbrane naslove',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Preverjeno in pripravljeno za izvoz',
    abook_editform_destination => 'cilj',
    abook_editform_new_agent => 'Novi agent',

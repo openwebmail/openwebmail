@@ -682,6 +682,7 @@ package ow::ja_JP_UTF_8;
    abook_listview_done => '完了',
    abook_listview_viewselected => '選択アドレスの閲覧',
    abook_listview_unselectall => 'すべてを非選択にする',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Checked And Ready For Exporting',
    abook_editform_destination => 'アドレス帳',
    abook_editform_new_agent => 'This New Agent',

@@ -680,6 +680,7 @@ package ow::pt_BR_ISO8859_1;
    abook_listview_done => 'Terminado',
    abook_listview_viewselected => 'Ver lista de endereços selecionados',
    abook_listview_unselectall => 'Deselecionar todos endereços selecionados',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Selecionado e Pronto para Exportar',
    abook_editform_destination => 'Destino',
    abook_editform_new_agent => 'Este novo agente',

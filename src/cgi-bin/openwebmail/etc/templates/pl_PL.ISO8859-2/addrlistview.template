@@ -149,6 +149,16 @@ function popupNotice (msgOption) {
    if (msgOption == 'deletecontact') {
       return(confirm('Jeste¶ pewien, ¿e chcesz usun±æ ten kontakt?'));
    }
+   if (msgOption == 'deleteselected') {
+      for (var i=0;i<document.contactsForm.elements.length;i++) {
+         var e = document.contactsForm.elements[i];
+         if (e.type == 'checkbox' && e.checked == 1 && e.value != '') {
+            return(confirm('Are you sure you want to delete all selected contacts?'));
+         }
+      }
+      alert('No contacts selected');
+      return false;
+   }
 }
 
 function setchkbox (id) {

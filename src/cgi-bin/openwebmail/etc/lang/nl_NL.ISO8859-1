@@ -678,6 +678,7 @@ package ow::nl_NL_ISO8859_1;
    abook_listview_done => 'Klaar',
    abook_listview_viewselected => 'Bekijk een lijst van geselecteerde adressen',
    abook_listview_unselectall => 'De-selecteer alle adressen',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Gezelecteerd en klaar voor exporteren',
    abook_editform_destination => 'Doel',
    abook_editform_new_agent => 'Deze nieuwe waarnemer',

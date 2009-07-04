@@ -677,6 +677,7 @@ package ow::el_GR_ISO8859_7;
    abook_listview_done => 'Τέλος',
    abook_listview_viewselected => '¶νοιγμα λίστας επιλεγμένων διευθύνσεων',
    abook_listview_unselectall => 'Ξεδιάλεγμα επιλεγμένων διευθύνσεων',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Έτοιμο προς εξαγωγή',
    abook_editform_destination => 'Προορισμός',
    abook_editform_new_agent => 'Νέος αντιπρόσωπος',

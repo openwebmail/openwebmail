@@ -677,6 +677,7 @@ package ow::id_ID_ISO8859_1;
    abook_listview_done => 'Selesai',
    abook_listview_viewselected => 'Lihat buku alamat yang dipilih',
    abook_listview_unselectall => 'Semua daftar alamat yang dipilih sama sekali tidak terpilih',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Dicek dan siap untuk diekspor',
    abook_editform_destination => 'Tujuan',
    abook_editform_new_agent => 'Agen baru ini',

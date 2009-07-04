@@ -678,6 +678,7 @@ package ow::da_DK_ISO8859_1;
    abook_listview_done => 'Færdig',
    abook_listview_viewselected => 'Vis listen over markerede adresser',
    abook_listview_unselectall => 'Fjern markeringen af alle markerede adresser',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Markeret og klar til eksportering',
    abook_editform_destination => 'Destination',
    abook_editform_new_agent => 'Denne nye agent',

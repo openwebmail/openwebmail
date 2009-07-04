@@ -677,6 +677,7 @@ package ow::bg_BG_CP1251;
    abook_listview_done => 'завършено',
    abook_listview_viewselected => 'Списък от избраните адреси',
    abook_listview_unselectall => 'Отмени избора',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Проверени и готови за експорт',
    abook_editform_destination => 'Направление',
    abook_editform_new_agent => 'Нов агент',

@@ -1061,6 +1061,15 @@ sub addrlistview {
                                qq|accesskey="Q" href="#" onClick="javascript:window.open('$config{'ow_cgiurl'}/openwebmail-abook.pl?action=addrshowchecked&amp;sessionid=$thissession&amp;listviewmode=grabopenerdata','_checkedlist','width=550,height=500,resizable=yes,scrollbars=yes');"|);
          $temphtml .= iconlink("abookunselectall.gif", $lang_text{'abook_listview_unselectall'},
                                qq|accesskey="P" href="javascript:clearAll('contactsForm','to','cc','bcc','checkedto','checkedcc','checkedbcc'); document.contactsForm.submit();"|);
+
+         $temphtml .= "&nbsp;&nbsp;";
+         if ($prefs{confirmmsgmovecopy}) {
+            $temphtml .= iconlink("totrash.gif", $lang_text{'abook_listview_delete_selected'},
+                                  qq|accesskey="D" href="javascript:if(popupNotice('deleteselected')) { document.moveCopyForm.destinationabook.value='DELETE';  document.moveCopyForm.addrmoveaddresses.click(); }"|);
+         } else {
+            $temphtml .= iconlink("totrash.gif", $lang_text{'abook_listview_delete_selected'},
+                                  qq|accesskey="D" href="javascript:document.moveCopyForm.destinationabook.value='DELETE';  document.moveCopyForm.addrmoveaddresses.click();"|);
+         }
       }
    } else {	# export or composeselect
       $temphtml .= iconlink("abookviewselected.gif", $lang_text{'abook_listview_viewselected'},

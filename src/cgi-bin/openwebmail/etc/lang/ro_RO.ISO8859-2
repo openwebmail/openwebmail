@@ -677,6 +677,7 @@ package ow::ro_RO_ISO8859_2;
    abook_listview_done => 'Gata',
    abook_listview_viewselected => 'Listã adrese selectate',
    abook_listview_unselectall => 'Deselectare adrese selectate',
+   abook_listview_delete_selected => 'Delete selected addresses',
    abook_showchecked_export => 'Verificat ºi pregãtit pentru export',
    abook_editform_destination => 'Destinaþie',
    abook_editform_new_agent => 'Acest agent nou',
