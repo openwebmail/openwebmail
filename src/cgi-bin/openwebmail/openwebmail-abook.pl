@@ -2269,6 +2269,7 @@ sub addreditform {
       my $agenttarget = join(",",(-1,@targetagent));
       $temphtml .= submit(-name=>$lang_text{'abook_editform_save_and_return'},
                           -class=>"medtext",
+                          -accesskey=>"S",
                           -onClick=>"document.editForm.targetagent.value='$agenttarget'; return (popupNotice('agentmustsave') && savecheck('editForm'));");
       $temphtml .= "&nbsp;";
    }
@@ -2276,6 +2277,7 @@ sub addreditform {
        is_abookfolder_writable($abookfolder)) {	# old entry on writablebook
       $temphtml .= submit(-name=>$lang_text{'save'},
                           -class=>"medtext",
+                          -accesskey=>"S",
                           -onClick=> "return savecheck('editForm');");
    }
    $html =~ s/\@\@\@EDITFORMSUBMIT\@\@\@/$temphtml/;
@@ -2296,6 +2298,7 @@ sub addreditform {
                                    ). $abook_formparm.$webmail_formparm.
                   submit(-name=>"$lang_text{'abook_editform_cancel_and_return'}",
                          -class=>"medtext",
+                         -accesskey=>"C",
                          -onClick=>"return popupNotice('cancelchanges');",
                         ).
                   end_form();
@@ -2316,7 +2319,9 @@ sub addreditform {
                                  abookfolder => ow::tool::escapeURL($editformcaller),
                                 ). $abook_formparm.$webmail_formparm.
                submit(-name=>"$lang_text{'cancel'}",
-                      -class=>"medtext").
+                      -class=>"medtext",
+                      -accesskey=>"C",
+                     ).
                end_form();
    $html =~ s/\@\@\@CANCELEDITFORM\@\@\@/$temphtml/;
 
