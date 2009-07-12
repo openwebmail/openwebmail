@@ -787,8 +787,8 @@ A: This is due to a bug of tell() in perl 5.8. And RedHat 8.0 bundles Perl
    written by perl may operate improperly due to this bug
 
 Q: Some mails were not displayed right....
-A: please check
-   http://openwebmail.org/openwebmail/download/doc/changes.txt
+A: please check the changelogs at
+   http://openwebmail.acatysmoof.com/dev/svn/index.pl/openwebmail/log/trunk/src?limit=5
    to see if any update fixes your problem and download the
    openwebmail-current.tar.gz
 
@@ -821,7 +821,7 @@ Q: I could not add attachments?
    Open WebMail was hanged when I pressed the 'add' button to add attachments?
 A: 1. Your CGI or MIME-Base64 module may be too old,
       Please download CGI.pm-3.05.tar.gz and MIME-Base64-3.01.tar.gz in
-      http://openwebmail.org/openwebmail/download/packages/
+      http://openwebmail.acatysmoof.com/download/packages
       and install them to your system.
    2. Your proxy may limit the size of a POST request.
       Try to add attachments with no proxy setting in your browser.

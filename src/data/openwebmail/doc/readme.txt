@@ -81,7 +81,7 @@ lsof_4.73A.freebsd.tar.bz2    (optional, for openwebmail-tool --unlock)
 INSTALL REQUIRED PACKAGES
 -------------------------
 First, you have to download required packages from
-http://openwebmail.org/openwebmail/download/packages/
+http://openwebmail.acatysmoof.com/download/packages
 and copy them to /tmp
 
 
@@ -174,7 +174,7 @@ Text-Iconv-1.2 installation:
 INSTALL OPENWEBMAIL
 -------------------
 The latest released or current version is available at
-http://openwebmail.org/openwebmail/
+http://openwebmail.acatysmoof.com
 
 
 If you are using FreeBSD and install apache with pkg_add,

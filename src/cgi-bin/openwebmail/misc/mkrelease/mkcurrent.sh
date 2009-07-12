@@ -19,8 +19,9 @@ if (-d "openwebmail-current") then
    exit 1
 endif
 
+set SVNCOMMAND = "/usr/local/bin/svn"
 set SVNSERVER = "http://openwebmail.acatysmoof.com/svn/trunk/src"
-set REVISIONNUMBERHEAD = `svn info $SVNSERVER --revision HEAD | grep 'Last Changed Rev:' | awk '{print $4}'`
+set REVISIONNUMBERHEAD = `$SVNCOMMAND info $SVNSERVER --revision HEAD | grep 'Last Changed Rev:' | awk '{print $4}'`
 
 # get revision information for -current
 if (-f "openwebmail-current.tar.gz") then
@@ -48,12 +49,18 @@ if (-f "openwebmail-current.tar.gz") then
 endif
 
 # check out latest from SVN
-/usr/local/bin/svn export $SVNSERVER openwebmail-current > /dev/null
+$SVNCOMMAND export $SVNSERVER openwebmail-current > /dev/null
 cd openwebmail-current
 
 # generate changes.txt from SVN logs
 echo "Generating changes.txt file..."
-/usr/local/bin/svn log -rHEAD:1 $SVNSERVER | sed 's/[    ]*$//;s/^[      ]*//;/./,/^$/\!d;s/ [0-9][0-9]:.*lines$//;s/^\(r[0-9]*\) | \([a-z0-9]*\) | \([0-9-]*\)/\3 (\1 \2)/;s/-\{72\}/----------/' > data/openwebmail/doc/changes.txt
+$SVNCOMMAND log -rHEAD:1 $SVNSERVER | sed 's/[    ]*$//;s/^[      ]*//;/./,/^$/\!d;s/ [0-9][0-9]:.*lines$//;s/^\(r[0-9]*\) | \([a-z0-9]*\) | \([0-9-]*\)/\3 (\1 \2)/;s/-\{72\}/----------/' > data/openwebmail/doc/changes.txt
+
+# update the homepage mirror that ships with the software
+if (`hostname` == "gouda.acatysmoof.com") then
+   echo "Updating mirror homepage..."
+   sed 's#<head>#<head>\n\t<base href="http://openwebmail.acatysmoof.com/">#' < /home/alex/openwebmail.acatysmoof.com/index.html > data/openwebmail/openwebmail.html
+endif
 
 # update the revision number to HEAD
 echo "Setting revision and release date..."
