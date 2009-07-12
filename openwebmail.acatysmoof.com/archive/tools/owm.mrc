@@ -105,17 +105,17 @@ Advanced
 
 <DefineVar chop>
 THREAD-IDX-LABEL
-Thread&nbsp;Index
+Sort&nbsp;By&nbsp;Thread
 </DefineVar>
 
 <DefineVar chop>
 DATE-IDX-LABEL
-Date&nbsp;Index
+Sort&nbsp;By&nbsp;Date
 </DefineVar>
 
 <DefineVar chop>
 TOP-LINK-LABEL
-Top
+$LIST-NAME$&nbsp;Index
 </DefineVar>
 
 <DefineVar chop>
