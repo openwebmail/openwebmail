@@ -52,15 +52,20 @@ endif
 $SVNCOMMAND export $SVNSERVER openwebmail-current > /dev/null
 cd openwebmail-current
 
+# update the homepage mirror that ships with the software
+if (`hostname` == "gouda.acatysmoof.com") then
+  set CURRENTREVISIONDATE = `date "+%B %d, %Y"`
+  set CURRENTREVISIONSTRING = "$CURRENTREVISIONDATE Rev $REVISIONNUMBERHEAD"
+  echo "Updating homepage current: $CURRENTREVISIONSTRING ..."
+  sed -e "s/([[:alpha:]]*[[:space:]]*[0-9]*,[[:space:]]*[0-9]*[[:space:]]*Rev[[:space:]][0-9]*)/($CURRENTREVISIONSTRING)/" -i '' /home/alex/openwebmail.acatysmoof.com/index.html
+
+  echo "Updating mirror homepage..."
+  sed 's#<head>#<head><base href="http://openwebmail.acatysmoof.com/">#' < /home/alex/openwebmail.acatysmoof.com/index.html > data/openwebmail/openwebmail.html
+endif
+
 # generate changes.txt from SVN logs
 echo "Generating changes.txt file..."
 $SVNCOMMAND log -rHEAD:1 $SVNSERVER | sed 's/[    ]*$//;s/^[      ]*//;/./,/^$/\!d;s/ [0-9][0-9]:.*lines$//;s/^\(r[0-9]*\) | \([a-z0-9]*\) | \([0-9-]*\)/\3 (\1 \2)/;s/-\{72\}/----------/' > data/openwebmail/doc/changes.txt
-
-# update the homepage mirror that ships with the software
-if (`hostname` == "gouda.acatysmoof.com") then
-   echo "Updating mirror homepage..."
-   sed 's#<head>#<head>\n\t<base href="http://openwebmail.acatysmoof.com/">#' < /home/alex/openwebmail.acatysmoof.com/index.html > data/openwebmail/openwebmail.html
-endif
 
 # update the revision number to HEAD
 echo "Setting revision and release date..."
@@ -110,14 +115,6 @@ rm -rf openwebmail-current
 
 # writing md5
 md5 -r openwebmail-current.tar.gz | tee MD5SUM
-
-# updating homepage
-if (`hostname` == "gouda.acatysmoof.com") then
-  set CURRENTREVISIONDATE = `date "+%B %d, %Y"`
-  set CURRENTREVISIONSTRING = "$CURRENTREVISIONDATE Rev $REVISIONNUMBERHEAD"
-  echo "Updating homepage current: $CURRENTREVISIONSTRING ..."
-  sed -e "s/([[:alpha:]]*[[:space:]]*[0-9]*,[[:space:]]*[0-9]*[[:space:]]*Rev[[:space:]][0-9]*)/($CURRENTREVISIONSTRING)/" -i '' /home/alex/openwebmail.acatysmoof.com/index.html
-endif
 
 echo "done."
 
