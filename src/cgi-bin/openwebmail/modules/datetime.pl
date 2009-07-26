@@ -41,36 +41,37 @@ USZ4 +0500  USZ5 +0600  USZ6 +0700  UT   +0000  UTC  +0000
 UZ10 +1100  WAT  -0100  WEST +0100  WET  +0000  WST  +0800
 YDT  -0800  YST  -0900  ZP4  +0400  ZP5  +0500  ZP6  +0600 );
 
-########## GETTIMEOFFSET #########################################
-# notice! th difference between localtime and gmtime includes the dst shift
-# so we remove the dstshift before return timeoffset
-# since whether dst shift should be used depends on the date to be converted
 sub gettimeoffset {
-   my $t=time();		# the UTC sec from 1970/01/01
-   my @l=localtime($t);
-   my $sec=timegm(@l[0..5])-$t;	# diff between local and UTC
+   # notice the difference between localtime and gmtime includes the dst shift, so we remove
+   # the dstshift before returning the timeoffset since whether dst shift should be used
+   # depends on the date to be converted
+   my $timenow   = time();                              # the UTC sec from 1970/01/01
+   my @localized = localtime($timenow);                 # (sec,min,hour,mday,mon,year,wday,yday,isdst)
+   my $seconds   = timegm(@localized[0..5]) - $timenow; # diff between local and UTC (timegm from Time::Local)
 
-   $sec-=3600 if ($l[8]);	# is dst? (returned by localtime)
-   return sprintf(seconds2timeoffset($sec));
+   my $is_dst = $localized[8];
+   $seconds -= 3600 if $is_dst;
+   return sprintf(seconds2timeoffset($seconds));
 }
-########## END GETTIMEOFFSET #####################################
 
-########## TIMEOFFSET2SECONDS ####################################
 sub timeoffset2seconds {
-   my $seconds=0;
-   if ($_[0]=~/^[+\-]?(\d\d)(\d\d)$/) {	# $_[0] is timeoffset
-      $seconds=($1*60+$2)*60;
-      $seconds*=-1 if ($_[0]=~/^\-/);
+   my $timeoffset = shift;
+
+   my $seconds = 0;
+
+   if ($timeoffset =~ m/^[+-]?(\d\d)(\d\d)$/) {
+      $seconds = ($1 * 60 + $2) * 60;
+      $seconds *= -1 if $timeoffset =~ m/^-/;
    }
-   return($seconds);
+
+   return $seconds;
 }
 
 sub seconds2timeoffset {
-   my $seconds=abs($_[0]);
-   return(sprintf( "%s%02d%02d",
-	($_[0]>=0)?'+':'-', int($seconds/3600), int(($seconds%3600)/60) ));
+   my $seconds = shift;
+   my $abs_seconds = abs $seconds;
+   return sprintf('%s%02d%02d', ($seconds >= 0 ? '+' : '-'), int($abs_seconds / 3600), int(($abs_seconds % 3600) / 60));
 }
-########## END TIMEOFFSET2SECONDS ################################
 
 ########## SECONDS <-> DATEARRAY #################################
 sub seconds2array {
