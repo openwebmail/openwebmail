@@ -1,5 +1,6 @@
-Open WebMail Frequently Asked Questions
 $Id$
+
+Open WebMail Frequently Asked Questions
 
 0.  SPECIAL NOTE FOR SPEEDYCGI
 1.  INSTALLATION & STARTUP PROBLEMS
@@ -788,8 +789,8 @@ A: This is due to a bug of tell() in perl 5.8. And RedHat 8.0 bundles Perl
    written by perl may operate improperly due to this bug
 
 Q: Some mails were not displayed right....
-A: please check
-   http://openwebmail.acatysmoof.com/dev/svn/index.pl/openwebmail/log/trunk/?limit=5
+A: please check the changelogs at
+   http://openwebmail.acatysmoof.com/dev/svn/index.pl/openwebmail/log/trunk/src?limit=5
    to see if any update fixes your problem and download the
    openwebmail-current.tar.gz
 
@@ -822,7 +823,7 @@ Q: I could not add attachments?
    Open WebMail was hanged when I pressed the 'add' button to add attachments?
 A: 1. Your CGI or MIME-Base64 module may be too old,
       Please download CGI.pm-3.05.tar.gz and MIME-Base64-3.01.tar.gz in
-      http://openwebmail.acatysmoof.com/download/packages/
+      http://openwebmail.acatysmoof.com/download/packages
       and install them to your system.
    2. Your proxy may limit the size of a POST request.
       Try to add attachments with no proxy setting in your browser.
@@ -1745,16 +1746,12 @@ A: The best way to know all features of openwebmail is to check the
    cgi-bin/openwebmail/etc/openwebmail.conf.help. Please check it.
 
 Q: Can I use Open WebMail in a commercial web site?
-A: Yes. Open WebMail is GPLed software (please see copyright.txt for
-   detail of GPL). You can distribute/use/modify/sell it freely ONLY IF
+A: Yes.
 
-   a. The GPL Copyright page must be kept untouched.
-   b. Any improvement of Open WebMail or any product based on Open WebMail
-      must be released to the public for free in source form if it is not for
-      internal use.
-   c. Products based on Open Webmail must be also distributed under GPL.
+   OpenWebMail code before 20080227 was licensed under the GPL.
 
+   New code added after 20080227 is a complete re-write of the OpenWebMail system
+   and is licensed under the BSD License (please see LICENSE.txt for details of
+   the BSD License). You can do almost anything you like with the BSD licensed code,
+   provided you properly credit the project.
 
-Jan/06/2005
-
-openwebmail.AT.turtle.ee.ncku.edu.tw
