@@ -1,3 +1,5 @@
+OpenWebMail ReadMe Document
+$Id: readme.txt 349 2009-04-27 07:26:53Z ateslik $
 
 Open WebMail is a webmail system based on
 the Neomail version 1.14 from Ernie Miller.
@@ -81,7 +83,7 @@ lsof_4.73A.freebsd.tar.bz2    (optional, for openwebmail-tool --unlock)
 INSTALL REQUIRED PACKAGES
 -------------------------
 First, you have to download required packages from
-http://openwebmail.acatysmoof.com/download/packages
+http://openwebmail.acatysmoof.com/download/packages/
 and copy them to /tmp
 
 
@@ -235,10 +237,10 @@ ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by
 
 ps: Thomas Chung (tchung.AT.openwebmail.org) maintains the rpm for all
     released and current version of openwebmail, It is available at
-    http://openwebmail.org/openwebmail/download/redhat/rpm/.
+    http://openwebmail.acatysmoof.com/download/redhat/rpm/.
 
     Documents for RH7.3/RH8/RH9, RHEL3, FC1/FC2/FC3 are available at
-    http://openwebmail.org/openwebmail/download/redhat/howto/00-openwebmail.html
+    http://openwebmail.acatysmoof.com/download/redhat/howto/00-openwebmail.html
     You can get openwebmail working in 5 minutes with this :)
 
 
@@ -381,7 +383,7 @@ other messages in INBOX. To enable virus check support, you have to
 
 ps: Thomas Chung has written a document
     "HOWTO install and configure ClamAV for Open WebMail on Red Hat/Fedora Core"
-    It is available at http://openwebmail.org/openwebmail/download/redhat/howto/virus/ClamAV/HOWTO-clamav.txt
+    It is available at http://openwebmail.acatysmoof.com/download/redhat/howto/virus/ClamAV/HOWTO-clamav.txt
 
 
 SPAMCHECK SUPPORT
@@ -610,7 +612,7 @@ aspell package.
 
 ps: if you are compiling ispell from source, you may enhance your ispell
     by using a better dictionary source.
-    a. download http://openwebmail.org/openwebmail/download/contrib/words.gz
+    a. download http://openwebmail.acatysmoof.com/download/contrib/words.gz
     b. gzip -d words.gz
     c. mkdir /usr/dict; cp words /usr/dict/words
     d. start to make your ispell by reading README
@@ -1166,7 +1168,7 @@ you have to
 ps: If your are going to make Cool3D iconset for your language with Photoshop,
     you may start with the psd file created by Jan Bilik <jan.AT.bilik.org>,
     it could save some of your time. The psd file is available at
-    http://openwebmail.org/openwebmail/contrib/Cool3D.iconset.Photoshop.template.zip
+    http://openwebmail.acatysmoof.com/contrib/Cool3D.iconset.Photoshop.template.zip
 
 ps: If you wish the your new iconset to be included in the next release of
     openwebmail, please submit it to openwebmail.AT.turtle.ee.ncku.edu.tw
@@ -1189,7 +1191,7 @@ TEST
 
 If there is any problem, please check the faq.txt.
 The latest version of FAQ will be available at
-http://openwebmail.org/openwebmail/download/doc/faq.txt
+http://openwebmail.acatysmoof.com/doc/faq.txt
 
 
 PERSISTENT RUNNING through SpeedyCGI
@@ -1294,10 +1296,10 @@ ps: Kevin L. Ellis (kevin.AT.bluelavalamp.net) has written a tutorial
    The latest perl 5.8.4 does more strict check for suid scripts,
    and the following two may cause incompatibility for some users
 
-   a. the name of the perl interpreter must include the 'perl' string
+   a. the name of the perl interpreter must have the string 'perl'
 
-      We used suggest 'speedy_suid' as the name of suid speedy perl interpreter,
-      but we would like to suggest 'speedy_suidperl' as the name of speedy perl
+      We used to suggest 'speedy_suid' as the name of suid speedy perl interpreter,
+      but we would like to suggest 'speedy_suidperl' as the name of the speedy perl
       interpreter now.
 
    b. the parameter passed in the first line of the script must be the same

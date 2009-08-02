@@ -395,7 +395,7 @@ sub init {
       print qq|$content\n|.
              qq|No site report sent.\n|;
    } else {
-      print qq|Welcome to the OpenWebMail!\n\n|.
+      print qq|Welcome to OpenWebMail!\n\n|.
             qq|This program is going to send a short message back to the developer,\n|.
             qq|to give us statistics for future developments. The content to be sent is:\n\n|.
             qq|$content\n|.
@@ -406,7 +406,10 @@ sub init {
          send_mail("$id\@$hostname", $realname, $to, $date, $subject, "$content \n")
       }
    }
-   print qq|\nThank you.\n\n|;
+   print qq|report sent successfully.\n\n| .
+         qq|Show your support for OpenWebMail on Ohloh:\n| .
+         qq|http://www.ohloh.net/p/openwebmail\n\n| .
+         qq|Thank you.\n\n|;
    return 0;
 }
 
