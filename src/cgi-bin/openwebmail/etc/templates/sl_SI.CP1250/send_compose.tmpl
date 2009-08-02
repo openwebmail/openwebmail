@@ -338,12 +338,13 @@
 </table>
 </form>
 
-<form action="<tmpl_var url_cgi escape="none">/openwebmail-read.pl" method="post" name="cancelform" id="cancelform">
 <tmpl_if is_caller_readmessage>
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-read.pl" method="post" name="cancelform" id="cancelform">
 <input type="hidden" name="action" value="readmessage">
 <input type="hidden" name="headers" value="<tmpl_var headers escape="html">">
 <input type="hidden" name="message_id" value="<tmpl_var messageid escape="html">">
 <tmpl_else>
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-main.pl" method="post" name="cancelform" id="cancelform">
 <input type="hidden" name="action" value="listmessages">
 </tmpl_if>
 <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
