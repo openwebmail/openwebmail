@@ -371,7 +371,7 @@ sub editprefs {
       }
    }
 
-   my %userfrom = get_userfrom($logindomain, $loginuser, $user, $userrealname, dotpath('from.book'));
+   my $userfroms = get_userfroms();
 
    my $defaultlanguage    = join("_", (ow::lang::localeinfo($prefs{locale}))[0,2]);
    my $defaultcharset     = (ow::lang::localeinfo($prefs{locale}))[6];
@@ -606,7 +606,7 @@ sub editprefs {
                       quotaoverthreshold                => $quotaoverthreshold,
                       quotabytesusage                   => $quotabytesusage,
                       quotapercentusage                 => $quotapercentusage,
-                      userrealname                      => exists $userfrom{$prefs{email}}?$userfrom{$prefs{email}}:0,
+                      userrealname                      => exists $userfroms->{$prefs{email}} ? $userfroms->{$prefs{email}} : 0,
                       caller_calendar                   => $prefs_caller eq 'cal'?1:0,
                       calendardefaultview               => $prefs{calendar_defaultview},
                       caller_webdisk                    => $prefs_caller eq 'webdisk'?1:0,
@@ -661,9 +661,9 @@ sub editprefs {
                       fromemailselectloop               => [
                                                               map { {
                                                                        option   => $_,
-                                                                       label    => defined $userfrom{$_}?qq|"$userfrom{$_}" <$_>|:$_,
-                                                                       selected => defined $prefs{email} && $_ eq $prefs{email}?1:0
-                                                                  } } sort_emails_by_domainnames($config{domainnames}, keys %userfrom)
+                                                                       label    => defined $userfroms->{$_} ? qq|"$userfroms->{$_}" <$_>| : $_,
+                                                                       selected => defined $prefs{email} && $_ eq $prefs{email} ? 1 : 0,
+                                                                  } } sort_emails_by_domainnames($config{domainnames}, keys %{$userfroms})
                                                            ],
                       replyto                           => $prefs{replyto},
                       enable_setforward                 => $config{enable_setforward},
@@ -1404,14 +1404,14 @@ sub saveprefs {
    my $autoreplytext    = param('autoreplytext')    || '';
    $autoreply = 0 if !$config{enable_autoreply};
 
-   my %userfrom = get_userfrom($logindomain, $loginuser, $user, $userrealname, dotpath('from.book'));
+   my $userfroms = get_userfroms();
 
    # save .forward file
-   writedotforward($autoreply, $keeplocalcopy, $forwardaddress, keys %userfrom);
+   writedotforward($autoreply, $keeplocalcopy, $forwardaddress, keys %{$userfroms});
 
    # save .vacation.msg
    if ($config{enable_autoreply}) {
-      writedotvacationmsg($autoreply, $autoreplysubject, $autoreplytext, $newprefs{signature}, $newprefs{email}, $userfrom{$newprefs{email}}, $newprefs{charset} );
+      writedotvacationmsg($autoreply, $autoreplysubject, $autoreplytext, $newprefs{signature}, $newprefs{email}, $userfroms->{$newprefs{email}}, $newprefs{charset});
    }
 
    # save .signature
@@ -1944,7 +1944,7 @@ sub viewhistory {
 
 sub editfroms {
    my $frombookfile = dotpath('from.book');
-   my %userfrom     = get_userfrom($logindomain, $loginuser, $user, $userrealname, $frombookfile);
+   my $userfroms    = get_userfroms();
 
    # build the template
    my $template = HTML::Template->new(
@@ -1982,8 +1982,8 @@ sub editfroms {
                       fromsloop                  => [
                                                        map { {
                                                                 email    => $_,
-                                                                realname => $userfrom{$_}
-                                                           } } sort_emails_by_domainnames($config{domainnames}, keys %userfrom)
+                                                                realname => $userfroms->{$_}
+                                                           } } sort_emails_by_domainnames($config{domainnames}, keys %{$userfroms})
                                                     ],
 
                       # footer.tmpl
@@ -2007,24 +2007,24 @@ sub modfrom {
    my $frombookfile = dotpath('from.book');
 
    if ($email) {
-      my %userfrom = get_userfrom($logindomain, $loginuser, $user, $userrealname, $frombookfile);
+      my $userfroms = get_userfroms();
 
       if ($mode eq 'delete') {
-         delete $userfrom{$email};
+         delete $userfroms->{$email};
       } else {
          if ( (-s $frombookfile) >= ($config{maxbooksize} * 1024) ) {
             openwebmailerror(__FILE__, __LINE__, qq|$lang_err{abook_toobig} <a href="| . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editfroms&sessionid=$thissession&folder=$folder&message_id=$messageid&sort=$sort&page=$page&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . qq|">$lang_err{back}</a>$lang_err{tryagain}|, "passthrough");
 
          }
-         if (!$config{frombook_for_realname_only} || defined $userfrom{$email}) {
-            $userfrom{$email} = $realname;
+         if (!$config{frombook_for_realname_only} || defined $userfroms->{$email}) {
+            $userfroms->{$email} = $realname;
          }
       }
 
       sysopen(FROMBOOK, $frombookfile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} $frombookfile! ($!)");
-      foreach $email (sort_emails_by_domainnames($config{domainnames}, keys %userfrom)) {
-         print FROMBOOK "$email\@\@\@$userfrom{$email}\n";
+      foreach $email (sort_emails_by_domainnames($config{domainnames}, keys %{$userfroms})) {
+         print FROMBOOK "$email\@\@\@$userfroms->{$email}\n";
       }
       close(FROMBOOK) or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $frombookfile! ($!)");
    }

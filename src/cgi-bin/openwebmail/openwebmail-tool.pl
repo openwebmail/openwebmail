@@ -1480,8 +1480,8 @@ sub checknotify {
    $title=~s/yyyy/$year/; $title=~s/mm/$m/; $title=~s/dd/$d/;
    $title.=" (".hourmin($checkstart)."-".hourmin($checkend).")\n\n";
    my $from=$prefs{'email'};
-   my %userfrom=get_userfrom($logindomain, $loginuser, $user, $userrealname, dotpath('from.book'));
-   my $realname=$userfrom{$from};
+   my $userfroms=get_userfroms();
+   my $realname=$userfroms->{$from};
    foreach my $email (keys %message) {
       my $date = ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
       my $ret=send_mail($from, $realname, $email, $date, "calendar notification", $title.$message{$email});

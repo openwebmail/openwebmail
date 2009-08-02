@@ -1,0 +1,105 @@
+# This patch applies the code changes necessary to get xinha working with OpenWebMail
+
+Index: XinhaCore.js
+===================================================================
+--- XinhaCore.js	(revision 1191)
++++ XinhaCore.js	(working copy)
+@@ -934,6 +934,18 @@
+     ["separator","htmlmode","showhelp","about"]
+   ];
+ 
++  /** This array provides a list of filenames and their corresponding URLs, so that those images may be chosen
++   *  via a selection dropdown menu in the InsertImage dialog module. This enables integration with email or blog
++   *  software where users have uploaded images accessable via special URLs provided by those softwares, but not
++   *  immediately apparent to the user. A sample array should look like [['image1','url1'],['image2','url2']].
++   * Default value:
++   *<pre>
++   *xinha_config.selectableImages = [];
++   *</pre>
++   * @type Array
++   */
++  this.selectableImages = [];
++
+   /** The fontnames listed in the fontname dropdown
+    * Default value:
+    *<pre>
+Index: modules/InsertImage/insert_image.js
+===================================================================
+--- modules/InsertImage/insert_image.js	(revision 1191)
++++ modules/InsertImage/insert_image.js	(working copy)
+@@ -71,20 +71,50 @@
+ 	// Connect the OK and Cancel buttons
+ 	dialog.getElementById('ok').onclick = function() {self.apply();}
+ 
+-	dialog.getElementById('cancel').onclick = function() { self.dialog.hide()};
++	dialog.getElementById('cancel').onclick = function() {
++          dialog.getElementById('f_selectable').options.selectedIndex = 0;
++          dialog.getElementById('f_url').value = '';
++          dialog.getElementById('ipreview').src = '';
++          self.dialog.hide();
++        }
+ 
+-	dialog.getElementById('preview').onclick = function() { 
+-	  var f_url = dialog.getElementById("f_url");
++	dialog.getElementById('f_selectable').onchange = function() {
++          var f_url = dialog.getElementById('f_url');
++          var f_alt = dialog.getElementById('f_alt');
++
++          if (dialog.getElementById('f_selectable').options.selectedIndex > 0) {
++             var f_selectable = dialog.getElementById('f_selectable').options[dialog.getElementById('f_selectable').options.selectedIndex];
++             f_url.value = f_selectable.value;
++             f_alt.value = f_selectable.text;
++          } else {
++             f_url.value = '';
++             f_alt.value = '';
++             dialog.getElementById('ipreview').src = '';
++          }
++        }
++
++        // Populate the f_selectable selection list
++        for (var i=0; i<editor.config.selectableImages.length; i++) {
++          var text = editor.config.selectableImages[i][0];
++          var value = editor.config.selectableImages[i][1];
++          // preserve option 0 of the select list (the nothing selected option)
++          dialog.getElementById('f_selectable').options[i+1] = new Option(text, value);
++        }
++
++	dialog.getElementById('preview').onclick = function() {
++	  var f_url = dialog.getElementById('f_url');
+ 	  var url = f_url.value;
+ 
+ 	  if (!url) {
+ 	    alert(dialog._lc("You must enter the URL"));
+ 	    f_url.focus();
+-        return false;
+-      }
+-	  dialog.getElementById('ipreview').src = url;
++            return false;
++          }
++
++          dialog.getElementById('ipreview').src = url;
+ 	  return false;
+ 	}
++
+ 	this.dialog.onresize = function ()
+   {
+ 		var newHeightForPreview = 
+Index: modules/InsertImage/dialog.html
+===================================================================
+--- modules/InsertImage/dialog.html	(revision 1191)
++++ modules/InsertImage/dialog.html	(working copy)
+@@ -5,6 +5,14 @@
+   <tbody>
+ 
+   <tr>
++    <td style="width: 7em; text-align: right"><l10n>Attachments:</l10n></td>
++    <td>
++      <select size="1" name="[f_selectable]" id="[f_selectable]" style="width:75%" title="_(Select an attached image here)" />
++        <option value="0"><l10n>-- no attachments are selected --</l10n></option>
++      </select>
++    </td>
++  </tr>
++  <tr>
+     <td style="width: 7em; text-align: right"><l10n>Image URL:</l10n></td>
+     <td><input type="text" name="[f_url]" id="[f_url]" style="width:75%"
+       title="_(Enter the image URL here)" />

@@ -405,7 +405,7 @@ sub _email2nameaddr {
       $name    = '';
       $address = $1;
    } elsif ($email =~ m/(.+)/) {
-      $name    = '' ;
+      $name    = '';
       $address = $1;
    }
 
@@ -420,38 +420,46 @@ sub _email2nameaddr {
 }
 
 sub str2list {
-   my ($str, $keepnull)=@_;
-   my (@list, @tmp, $delimiter, $prevchar, $postchar);
+   my $str      = shift;
+   my $keepnull = shift || 0;
 
-   if ($str=~/,/) {
-      @tmp=split(/,/, $str);
-      $delimiter=',';
-   } elsif ($str=~/;/) {
-      @tmp=split(/;/, $str);
-      $delimiter=';';
+   my @list      = ();
+   my @tmp       = ();
+   my $delimiter = '';
+   my $prevchar  = '';
+   my $postchar  = '';
+
+   if ($str =~ m/,/) {
+      @tmp = split(m/,/, $str);
+      $delimiter = ',';
+   } elsif ($str =~ m/;/) {
+      @tmp = split(m/;/, $str);
+      $delimiter = ';';
    } else {
       return($str);
    }
 
-   my $pairmode=0;
+   my $pairmode = 0;
    foreach my $token (@tmp) {
-      next if ($token=~/^\s*$/ && !$keepnull);
+      next if $token =~ m/^\s*$/ && !$keepnull;
       if ($pairmode) {
-         push(@list, pop(@list).$delimiter.$token);
-         $pairmode=0 if ($token=~/\Q$postchar\E/ && $token!~/\Q$prevchar\E.*\Q$postchar\E/);
+         push(@list, pop(@list) . $delimiter . $token);
+         $pairmode = 0 if $token =~ m/\Q$postchar\E/ && $token !~ m/\Q$prevchar\E.*\Q$postchar\E/;
       } else {
          push(@list, $token);
-         if ($token=~/^.*?(['"\(])/) {
-            $prevchar=$postchar=$1;
-            $postchar=')' if ($prevchar eq '(' );
-            $pairmode=1 if ($token!~/\Q$prevchar\E.*\Q$postchar\E/);
+         if ($token =~ m/^.*?(['"\(])/) {
+            $prevchar = $postchar = $1;
+            $postchar = ')' if $prevchar eq '(';
+            $pairmode = 1 if $token !~ m/\Q$prevchar\E.*\Q$postchar\E/;
          }
       }
    }
 
    foreach (@list) {
-      s/^\s+//; s/\s+$//;
+      s/^\s+//;
+      s/\s+$//;
    }
+
    return(@list);
 }
 
@@ -467,39 +475,38 @@ sub is_tainted {
 }
 
 sub is_regex {
-   return eval { m!$_[0]!; 1; };
+   my $teststring = shift;
+   return eval { m/$teststring/; 1; };
 }
 
 sub zombie_cleaner {
+   #
+   # Note: zombie_cleaner is called at the begin/end of each request
+   #
+   # Openwebmail doesn't put zombie_cleaner() into $SIG{CHLD} because
+   # 1. if $SIG{CHLD} is set some signal handler, even a very simple one,
+   #    we got "recursive call...,out of memory!" in httpd error log occasionally
+   # 2. if $SIG{CHLD} is set to 'IGNORE', we got warning in system log
+   #    "application bug: perl5.8.3 has SIGCHLD set to SIG_IGN but calls wait()..."
+   #
    while (waitpid(-1,WNOHANG)>0) {}
 }
-#
-# Note: zombie_cleaner is called at the begin/end of each request
-#
-# Openwebmail doesn't put zombie_cleaner() into $SIG{CHLD} because
-# 1. if $SIG{CHLD} is set some signal handler, even a very simple one,
-#    we got "recursive call...,out of memory!" in httpd error log occasionally
-# 2. if $SIG{CHLD} is set to 'IGNORE', we got warning in system log
-#    "application bug: perl5.8.3 has SIGCHLD set to SIG_IGN but calls wait()..."
-#
 
 sub stacktrace {
    return Carp::longmess(join(' ', @_));
 }
 
-# for profiling and debugging
 sub log_time {
-   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
-   my ($today, $time);
-
-   ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =localtime;
-   $today=sprintf("%4d%02d%02d", $year+1900, $mon+1, $mday);
-   $time=sprintf("%02d%02d%02d",$hour,$min, $sec);
+   # for profiling and debugging
+   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
+   my $today = sprintf("%4d%02d%02d", $year+1900, $mon+1, $mday);
+   my $time  = sprintf("%02d%02d%02d", $hour, $min, $sec);
 
    open(Z, ">> /tmp/openwebmail.debug");
 
    # unbuffer mode
-   select(Z); local $| = 1;
+   select(Z);
+   local $| = 1;
    select(STDOUT);
 
    print Z "$today $time ", join(" ",@_), "\n";	# @_ contains msgs to log

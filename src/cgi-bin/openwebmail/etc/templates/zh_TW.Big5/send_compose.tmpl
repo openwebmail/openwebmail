@@ -1,0 +1,601 @@
+<tmpl_var header_template escape="none">
+
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-send.pl" method="post" enctype="multipart/form-data" name="composeform" id="composeform">
+<input type="hidden" name="action" value="sendmessage">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+<input type="hidden" name="msgdatetype" value="<tmpl_var msgdatetype escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+<input type="hidden" name="searchtype" value="<tmpl_var searchtype escape="html">">
+<input type="hidden" name="keyword" value="<tmpl_var keyword escape="html">">
+<input type="hidden" name="compose_caller" value="<tmpl_var compose_caller escape="html">">
+<input type="hidden" name="composetype" value="continue">
+<input type="hidden" name="composecharset" value="<tmpl_var composecharset escape="html">">
+<input type="hidden" name="mymessageid" value="<tmpl_var mymessageid escape="html">">
+<input type="hidden" name="inreplyto" value="<tmpl_var inreplyto escape="html">">
+<input type="hidden" name="references" value="<tmpl_var references escape="html">">
+<input type="hidden" name="show_phonekbd" value="<tmpl_var show_phonekbd escape="html">">
+<input type="hidden" name="session_noupdate" value="0">
+<input type="hidden" name="deleteattfile" value="">
+<input type="hidden" name="message_id" value="<tmpl_var messageid escape="html">">
+
+<table cellpadding="1" cellspacing="1" border="0" align="center" width="95%">
+<tr>
+  <td colspan="2" class="titlebar">Compose Message</td>
+</tr>
+<tr>
+  <td colspan="2" class="menubar">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td>
+      <tmpl_if is_caller_readmessage>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=readmessage&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=simple&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to message reading<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to message reading" alt="back to message reading" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+      </tmpl_if>
+
+      <tmpl_if is_caller_addrlistview>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;abookfolder=<tmpl_var abookfolder escape="url">&amp;abookpage=<tmpl_var abookpage escape="url">&amp;abooksort=<tmpl_var abooksort escape="url">&amp;abookkeyword=<tmpl_var abookkeyword escape="url">&amp;abooksearchtype=<tmpl_var abooksearchtype escape="url">&amp;abookcollapse=<tmpl_var abookcollapse escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to addressbook listing<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to addressbook listing" alt="back to addressbook listing" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+      </tmpl_if>
+
+      <tmpl_if is_caller_listmessages>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to message listing<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to message listing" alt="back to message listing" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+      </tmpl_if>
+
+        <!--
+          this refresh button is actually the same as the add button, because
+          we need to post the request to keep user input data in the submission
+        -->
+        <a href="javascript:document.composeform.addbutton.click();" accesskey="R" class="icon"><tmpl_if use_texticon>refresh<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/refresh.gif" title="refresh" alt="refresh" border="0" align="absmiddle"></tmpl_if></a>
+      </td>
+      <td align="right">
+        <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td>Charset for composing: </td>
+          <td>
+            <select name="convto" accesskey="I" onchange="javascript:bodygethtml(); return(sessioncheck() && submit());">
+            <tmpl_loop convtoselectloop>
+              <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+            </select>
+            &nbsp;
+          </td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td class="windowdarkbold" align="right" nowrap>From:</td>
+  <td class="windowdark">
+    <table cellpadding="0" cellspacing="1" border="0">
+    <tr>
+      <td>
+        <select name="from" accesskey="F">
+        <tmpl_loop fromselectloop>
+          <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+        </tmpl_loop>
+        </select>
+        &nbsp;&nbsp;
+      </td>
+      <td class="windowdarkbold">Priority:</td>
+      <td>
+        <select name="priority" accesskey="F">
+        <tmpl_loop priorityselectloop>
+          <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+        </tmpl_loop>
+        </select>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td class="windowdarkbold" align="right" nowrap>To:</td>
+  <td class="windowdark">
+   <input type="text" name="to" id="to" value="<tmpl_var to escape="html">" size="66" accesskey="T">
+    <tmpl_if enable_addressbook>
+    <a href="javascript:GoAddressWindow();" accesskey="K" class="icon"><tmpl_if use_texticon>addressbook<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/addrbook.s.gif" title="addressbook" alt="addressbook" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+    </tmpl_if>
+  </td>
+</tr>
+<tr>
+  <td class="windowdarkbold" align="right" nowrap>Cc:</td>
+  <td class="windowdark">
+    <input type="text" name="cc" id="cc" value="<tmpl_var cc escape="html">" size="66" accesskey="C">
+  </td>
+</tr>
+<tr>
+  <td class="windowdarkbold" align="right" nowrap>Bcc:</td>
+  <td class="windowdark">
+    <input type="text" name="bcc" id="bcc" value="<tmpl_var bcc escape="html">" size="66">
+  </td>
+</tr>
+<tr>
+  <td class="windowdarkbold" align="right" nowrap>Reply-To:</td>
+  <td class="windowdark">
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td><input type="text" name="replyto" value="<tmpl_var replyto escape="html">" size="45" accesskey="R">&nbsp;&nbsp;</td>
+      <td class="windowdarkbold">Confirm Reading</td>
+      <td>
+        <input type="checkbox" name="confirmreading" value="1" <tmpl_if confirmreading>checked</tmpl_if>>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td class="windowdarkbold" align="right" nowrap>Attachment:</td>
+  <td class="windowdark">
+    <tmpl_if attachmentsloop>
+    <table cellpadding="0" cellspacing="0" border="0" width="70%">
+    <tr valign="bottom">
+      <td>
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tmpl_loop attachmentsloop>
+        <tr align="top">
+          <td><a href="<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl/<tmpl_var attachment_name escape="url">?action=viewattfile&amp;attfile=<tmpl_var attachment_file escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" <tmpl_if open_newwindow>target="_new"</tmpl_if>><em><tmpl_var converted_name escape="html"></em></a></td>
+          <td align="right" nowrap><tmpl_var attachment_size escape="html"></td>
+          <td nowrap>
+            <tmpl_if attachment_file><a href="javascript:DeleteAttFile('<tmpl_var attachment_file escape="js">','<tmpl_var attachment_name escape="js">',<tmpl_var is_referenced escape="js">);">&nbsp;[Delete]</a></tmpl_if>
+            <tmpl_if save_to_webdisk><a href="#here" title="save to webdisk" onclick="window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=sel_saveattfile&amp;attfile=<tmpl_var attachment_file escape="js">&amp;attname=<tmpl_var attachment_name escape="js">&amp;attnamecharset=<tmpl_var attachment_namecharset escape="js">&amp;sessionid=<tmpl_var sessionid escape="js">', '_blank','width=500,height=330,scrollbars=yes,resizable=yes,location=no'); return false;">&nbsp;[Webdisk]</a></tmpl_if>
+            <tmpl_if show_wordpreview><a href="<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl/<tmpl_var attachment_name escape="url">?action=viewattfile&amp;attfile=<tmpl_var attachment_file escape="url">&amp;wordpreview=1&amp;sessionid=<tmpl_var sessionid escape="url">" title="ms word preview" target="_new">&nbsp;[Preview]</a></tmpl_if>
+          </td>
+        </tr>
+        </tmpl_loop>
+        </table>
+      </td>
+      <td align="right" nowrap>
+        <em><tmpl_var attfiles_totalsize_kb escape="html"> Kb<tmpl_if attachments_limit> of <tmpl_var attachments_limit escape="html"> Kb</tmpl_if></em>
+      </td>
+    </tr>
+    </table>
+    </tmpl_if>
+    <input type="file" name="attachment" size="45" accesskey="A">
+    <input type="submit" name="addbutton" value="Add" onclick="bodygethtml(); return sessioncheck();">
+    <tmpl_if enable_webdisk>
+    <input type="hidden" name="webdiskselection" value="">
+    <a href="#" onclick="bodygethtml(); window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=sel_addattachment&amp;sessionid=<tmpl_var sessionid escape="url">', '_addatt','width=500,height=330,scrollbars=yes,resizable=yes,location=no'); return false;" class="icon"><tmpl_if use_texticon>webdisk<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/webdisk.s.gif" title="webdisk" alt="webdisk" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+    </tmpl_if>
+    <tmpl_if enable_urlattach>
+    <input type="hidden" name="urlselection" value="">
+    <a href="#" onclick="bodygethtml(); addurlattachment(); return false;" class="icon"><tmpl_if use_texticon>url<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/cal-link.gif" title="url" alt="url" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+    </tmpl_if>
+  </td>
+</tr>
+<tr>
+  <td class="windowdarkbold" align="right" nowrap>Subject:</td>
+  <td class="windowdark">
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td>
+        <input type="text" name="subject" value="<tmpl_var subject escape="html">" size="<tmpl_if enable_backupsent>45<tmpl_else>66</tmpl_if>" accesskey="S">&nbsp;&nbsp;
+      </td>
+      <tmpl_if enable_backupsent>
+      <td class="windowdarkbold">Backup sent message</td>
+      <td><input type="checkbox" name="backupsent" value="1" <tmpl_if backupsent>checked</tmpl_if>></td>
+      </tmpl_if>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td colspan="2" class="windowlight">
+    <tmpl_if sendbuttons_before>
+    <table cellpadding="2" cellspacing="2" border="0">
+    <tr>
+      <td align="center">
+        <input type="submit" name="sendbutton" value="send" onclick="bodygethtml(); return (sessioncheck() && sendcheck());" accesskey="G">
+      </td>
+      <tmpl_if enable_savedraft>
+      <td align="center">
+        <input type="submit" name="savedraftbutton" value="save draft" onclick="bodygethtml(); return sessioncheck();" accesskey="W">
+      </td>
+      </tmpl_if>
+
+      <tmpl_if enable_spellcheck>
+      <td align="center" nowrap>
+        <table cellpadding="2" cellspacing="2" border="0">
+        <tr>
+          <td>
+            <input type="button" name="spellcheckbutton" value="spellcheck" onclick="owmspellcheck(); return (sessioncheck() && document.spellcheckform.submit());" title="<tmpl_var spellcheck_program escape="html">">
+          </td>
+          <td>
+            <select name="dictionary2" onChange="document.spellcheckform.dictionary.value = this.value;">
+            <tmpl_loop dictionaryselectloop>
+              <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+            </select>
+          </td>
+        </tr>
+        </table>
+      </td>
+      </tmpl_if>
+
+      <td align="center">
+        <table cellpadding="1" cellspacing="1" border="0">
+        <tr>
+          <td align="right" nowrap>&nbsp;Message Format:</td>
+          <td>
+            <select name="newmsgformat" <tmpl_if enable_htmlcompose>onChange="return (sessioncheck() && msgfmtchangeconfirm());"<tmpl_else>onclick="alert('Sorry, your browser is not able to support HTML composing.');"</tmpl_if>>
+            <tmpl_loop newmsgformatselectloop>
+              <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+            </select>
+            <input type="hidden" name="msgformat" value="<tmpl_var msgformat escape="html">">
+          </td>
+        </tr>
+        </table>
+      </td>
+
+      <td align="center">
+        <input type="button" name="cancelbutton" value="cancel" onclick="document.cancelform.submit();">
+      </td>
+
+      <tmpl_if show_phonekbd_button>
+      <td>
+        <a href="javascript:document.composeform.show_phonekbd.value=1; bodygethtml(); document.composeform.submit();">
+        <img src="<tmpl_var url_html escape="none">/images/kbd.gif" border="0" align="absmiddle" alt="Åã¥Üª`­µÁä½L"></a>
+      </td>
+      </tmpl_if>
+    </tr>
+    </table>
+    </tmpl_if>
+
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tmpl_if show_phonekbd>
+    <tr>
+      <td colspan="3">
+        <a href="javascript:document.composeform.show_phonekbd.value=0; bodygethtml(); document.composeform.submit();"><img src="<tmpl_var url_html escape="none">/images/phonekbd.gif" border="0" align="absmiddle" alt="ÁôÂÃ"></a>
+      </td>
+    </tr>
+    </tmpl_if>
+    <tr valign="top">
+      <td width="2"></td>
+      <td class="msgbody">
+        <tmpl_if is_msgformattext>
+        <textarea name="body" id="body" rows="<tmpl_var editrows escape="html">" cols="<tmpl_var editcolumns escape="html">" accesskey="M" wrap="hard"><tmpl_var body escape="none"></textarea>
+        <tmpl_else>
+        <textarea name="body" id="body" rows="<tmpl_var editrows escape="html">" cols="<tmpl_var editcolumns escape="html">" accesskey="M" style="width: 100%;"><tmpl_var body escape="html"></textarea>
+        </tmpl_if>
+      </td>
+      <td width="2"></td>
+    </tr>
+    </table>
+
+    <tmpl_if sendbuttons_after>
+    <table cellpadding="2" cellspacing="2" border="0">
+    <tr>
+      <td align="center">
+        <input type="submit" name="sendbutton" value="send" onclick="bodygethtml(); return (sessioncheck() && sendcheck());" accesskey="G">
+      </td>
+      <tmpl_if enable_savedraft>
+      <td align="center">
+        <input type="submit" name="savedraftbutton" value="save draft" onclick="bodygethtml(); return sessioncheck();" accesskey="W">
+      </td>
+      </tmpl_if>
+
+      <tmpl_unless sendbuttons_before>
+      <tmpl_if enable_spellcheck>
+      <td align="center" nowrap>
+        <table cellpadding="2" cellspacing="2" border="0">
+        <tr>
+          <td>
+            <input type="button" name="spellcheckbutton" value="spellcheck" onclick="owmspellcheck(); return (sessioncheck() && document.spellcheckform.submit());" title="<tmpl_var spellcheck_program escape="html">">
+          </td>
+          <td>
+            <select name="dictionary2" -onChange="document.spellcheckform.dictionary.value = this.value;">
+            <tmpl_loop dictionaryselectloop>
+              <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+            </select>
+          </td>
+        </tr>
+        </table>
+      </td>
+      </tmpl_if>
+
+      <td align="center">
+        <table cellpadding="1" cellspacing="1" border="0">
+        <tr>
+          <td align="right" nowrap>&nbsp;Message Format:</td>
+          <td>
+            <input type="hidden" name="msgformat" value="<tmpl_var msgformat escape="html">">
+            <select name="newmsgformat" <tmpl_if enable_htmlcompose>onChange="return (sessioncheck() && msgfmtchangeconfirm());"<tmpl_else>onclick="alert('Sorry, your browser is not able to support HTML composing.');"</tmpl_if>>
+            <tmpl_loop newmsgformatselectloop>
+              <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+            </select>
+          </td>
+        </tr>
+        </table>
+      </td>
+      </tmpl_unless>
+
+      <td align="center">
+        <input type="button" name="cancelbutton" value="cancel" onclick="document.cancelform.submit();">
+      </td>
+
+      <tmpl_unless sendbuttons_before>
+      <tmpl_if show_phonekbd_button>
+      <td>
+        <a href="javascript:document.composeform.show_phonekbd.value=1; bodygethtml(); document.composeform.submit();">
+        <img src="<tmpl_var url_html escape="none">/images/kbd.gif" border="0" align="absmiddle" alt="Åã¥Üª`­µÁä½L"></a>
+      </td>
+      </tmpl_if>
+      </tmpl_unless>
+    </tr>
+    </table>
+    </tmpl_if>
+  </td>
+</tr>
+</table>
+</form>
+
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-read.pl" method="post" name="cancelform" id="cancelform">
+<tmpl_if is_caller_readmessage>
+<input type="hidden" name="action" value="readmessage">
+<input type="hidden" name="headers" value="<tmpl_var headers escape="html">">
+<input type="hidden" name="message_id" value="<tmpl_var messageid escape="html">">
+<tmpl_else>
+<input type="hidden" name="action" value="listmessages">
+</tmpl_if>
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+<input type="hidden" name="msgdatetype" value="<tmpl_var msgdatetype escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+<input type="hidden" name="searchtype" value="<tmpl_var searchtype escape="html">">
+<input type="hidden" name="keyword" value="<tmpl_var keyword escape="html">">
+</form>
+
+<tmpl_if enable_spellcheck>
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-spell.pl" method="post" name="spellcheckform" id="spellcheckform" target="_spellcheck">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="htmlmode" value="<tmpl_if msgformattext>0<tmpl_else>1</tmpl_if>">
+<input type="hidden" name="form" value="">
+<input type="hidden" name="field" value="">
+<input type="hidden" name="string" value="">
+<input type="hidden" name="dictionary" value="<tmpl_var spellcheck_dictionary escape="html">">
+</form>
+</tmpl_if>
+
+<!-- autosuggest support -->
+<!--
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/ajax.js"></script>
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup.js"></script>
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/autosuggestpopup.js"></script>
+
+<div id="send_compose_autosuggest_popup">
+  <div class="send_compose_autosuggest_result" onmouseover="this.className='rowhilite';" onmouseout="this.className='send_compose_autosuggest_result';" onclick="alert('selecting this');">john doe</div>
+  <div class="send_compose_autosuggest_result_selected" onmouseover="this.className='rowhilite';" onmouseout="this.className='send_compose_autosuggest_result_selected';" onclick="alert('selecting this');">joe bloggs</div>
+</div>
+-->
+
+<tmpl_if enable_htmlcompose>
+<tmpl_if is_msgformathtml>
+<script type="text/javascript">
+   var _editor_url  = '<tmpl_var url_html escape="none">/javascript/xinha/';
+   var _editor_lang = 'en';
+   var _editor_skin = "openwebmail";
+</script>
+
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/xinha/XinhaCore.js"></script>
+
+<script type="text/javascript">
+   xinha_editors = null;
+   xinha_init    = null;
+   xinha_config  = null;
+   xinha_plugins = null;
+
+   xinha_init = xinha_init ? xinha_init : function() {
+     xinha_editors = xinha_editors ? xinha_editors : [ 'body' ];
+     xinha_plugins = xinha_plugins ? xinha_plugins : [ 'CharacterMap' ];
+
+     if(!Xinha.loadPlugins(xinha_plugins, xinha_init)) return; // do not modify
+
+     xinha_config = xinha_config ? xinha_config() : new Xinha.Config();
+     xinha_config.showLoading = true;
+     xinha_config.autofocus = document.composeform.to.value == '' ? false : true;
+     xinha_config.statusBar = false;
+     xinha_config.flowToolbars = false;
+     xinha_config.sizeIncludesBars = false;
+     xinha_config.sizeIncludesPanels = false;
+     xinha_config.mozParaHandler = 'built-in';
+     xinha_config.pageStyle = 'body { font-family: ' + document.styleSheets[0].cssRules[0].style.fontFamily + '; font-size: ' + document.body.style.fontSize + '; direction: <tmpl_var languagedirection>; }';
+
+     xinha_config.toolbar =
+       [
+         ["popupeditor"],
+         ["separator","undo","redo"], (Xinha.is_gecko ? [] : ["cut","copy","paste","overwrite","saveas"]),
+         ["separator","bold","italic","underline","strikethrough"],
+         ["separator","justifyleft","justifycenter","justifyright","justifyfull"],
+         ["separator","forecolor","hilitecolor"],
+         ["separator","formatblock","fontname","fontsize"],
+         ["linebreak","subscript","superscript","lefttoright","righttoleft"],
+         ["separator","insertorderedlist","insertunorderedlist","outdent","indent"],
+         ["separator","inserthorizontalrule","createlink","insertimage","inserttable"],
+         ["separator","killword","clearfonts","removeformat"],
+         ["separator","htmlmode","showhelp","about"]
+       ];
+
+     xinha_config.selectableImages =
+       [
+         <tmpl_loop selectableimagesloop>
+         ['<tmpl_var converted_name escape="js">', '<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl/<tmpl_var attachment_name escape="js">?action=viewattfile&attfile=<tmpl_var attachment_file escape="js">&sessionid=<tmpl_var sessionid escape="js">']<tmpl_unless last>,</tmpl_unless>
+         </tmpl_loop>
+       ];
+
+     xinha_editors = Xinha.makeEditors(xinha_editors, xinha_config, xinha_plugins);
+
+     Xinha.startEditors(xinha_editors);
+   }
+
+   xinha_init();
+</script>
+</tmpl_if>
+</tmpl_if>
+
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_message.js"></script>
+
+<script type="text/javascript">
+<!--
+   var popUp = null; // global to prevent unnecessary reloading
+
+   if (document.composeform.to.value == '') {
+      document.composeform.to.focus();
+   } else {
+      document.composeform.body.focus();
+   }
+
+   function OnLoadHandler() {
+      document.composeform.to.focus();
+   }
+
+   function GoAddressWindow() {
+      var url = '<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&listviewmode=composeselect&sessionid=<tmpl_var sessionid escape="js">';
+
+      url += '&to=' + escape (document.composeform.to.value);
+      url += '&cc=' + escape (document.composeform.cc.value);
+      url += '&bcc=' + escape (document.composeform.bcc.value);
+
+      if (popUp == null || popUp.closed) {
+         popUp = window.open(url,'_addressbook','width=<tmpl_var abookpopupwidth escape="js">,height=<tmpl_var abookpopupheight escape="js">,resizable=yes,scrollbars=yes');
+
+         // early browsers do not auto-support opener, so manually set it
+         if (!popUp.opener) {
+            popUp.opener = self;
+         }
+      } else {
+         if (window.focus) {
+            popUp.focus();
+         }
+      }
+      focusSearch();
+   }
+
+   function focusSearch() {
+      if (popUp != null && popUp.document && popUp.document.searchForm && popUp.document.searchForm.abookkeyword) {
+         popUp.document.searchForm.abookkeyword.focus();
+         popUp.document.searchForm.abookkeyword.select();
+      } else {
+         setTimeout('focusSearch();', 1000)
+      }
+   }
+
+   function DeleteAttFile(deleteattfile, shortfilename, is_referenced) {
+      if (is_referenced) {
+         if(confirm('The attachment:\n\n' + shortfilename + '\n\nis being used in the message.\nIt will not appear in the message if you delete it.\nDelete the attachment?')) {
+            document.composeform.deleteattfile.value = deleteattfile;
+            bodygethtml();
+            document.composeform.submit();
+            return true;
+         } else {
+            return void(0);
+         }
+      } else {
+         document.composeform.deleteattfile.value = deleteattfile;
+         bodygethtml();
+         document.composeform.submit();
+      }
+   }
+
+   function msgfmtchangeconfirm() {
+      if (document.composeform.msgformat.value == 'text') {
+         if (document.composeform.newmsgformat.value == 'html' || document.composeform.newmsgformat.value == 'both') {
+            // text -> (html || both)
+            document.composeform.submit();
+            return true;
+         }
+      }
+
+      if (document.composeform.msgformat.value == 'html' || document.composeform.msgformat.value == 'both') {
+         if (document.composeform.newmsgformat.value == 'text') {
+            // (html || both) -> text
+            if (confirm('The HTML data format will be lost after the conversion, are you sure to change to Text mode?')) {
+               bodygethtml();
+               document.composeform.submit();
+               return true;
+            } else {
+               // reset newmsgformat back to html || both
+               document.composeform.newmsgformat.value = document.composeform.msgformat.value;
+               return false;
+            }
+         } else if (document.composeform.newmsgformat.value == 'html' || document.composeform.newmsgformat.value == 'both') {
+            // both -> html || html -> both: follow new format but no need to submit to CGI
+            document.composeform.msgformat.value = document.composeform.newmsgformat.value;
+            return true;
+         }
+      }
+   }
+
+   function bodygethtml() {
+      if (document.composeform.msgformat.value != 'text') {
+         document.composeform.body.value = xinha_editors.body.getEditorContent();
+      }
+   }
+
+   function bodysethtml() {
+      if (document.composeform.msgformat.value != 'text') {
+         xinha_editors.body.setEditorContent(document.composeform.body.value);
+      }
+   }
+
+   function owmspellcheck() {
+      bodygethtml();
+      document.spellcheckform.form.value   = 'composeform';
+      document.spellcheckform.field.value  = 'body';
+      document.spellcheckform.string.value = document.composeform.body.value;
+      window.open('','_spellcheck','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+      return true;
+   }
+
+   function sendcheck() {
+      if (document.composeform.to.value == '' && document.composeform.cc.value == '' && document.composeform.bcc.value == '') {
+         alert('To, Cc, and Bcc are empty. Please specify the recipients before sending.');
+         return false;
+      }
+
+      if (document.composeform.subject.value == '' || document.composeform.subject.value == 'N/A' ) {
+         return(confirm('This message has no subject, do you still want to send it?'));
+      }
+
+      return true;
+   }
+
+   <tmpl_if enable_urlattach>
+   function addurlattachment() {
+      attachmenturl = prompt('Please enter the URL of a file to attach', 'http://');
+      if (attachmenturl == null || attachmenturl == '' || attachmenturl == 'http://') {
+         return false;
+      } else {
+         document.composeform.urlselection.value = attachmenturl;
+         document.composeform.submit();
+         return true;
+      }
+   }
+   </tmpl_if>
+
+   <tmpl_if savedraftbeforetimeout>
+   function sessionlastsecond() {
+      // save the draft the user is working on if we are in the last second of this session,
+      // before it times out. This function is called by the timeout code in footer.tmpl.
+      document.composeform.session_noupdate.value = 1;
+      document.composeform.savedraftbutton.click();
+   }
+   </tmpl_if>
+
+   <tmpl_if popup_draftsaved>
+   popup_message('<tmpl_var charset escape="js">', 'Draft Saved', 'Draft <tmpl_var subject escape="js"> has been saved successfully', 'close', '_savedraft', 400, 100, 6);
+   </tmpl_if>
+//-->
+</script>
+
+<tmpl_var footer_template escape="none">

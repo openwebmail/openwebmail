@@ -1047,8 +1047,10 @@ sub readmessage {
       # if this is unread message, confirm to transmit read receipt if requested
       if (defined $messagesloop->[$i]{status} && defined $messagesloop->[$i]{'disposition-notification-to'}) {
          if ($messagesloop->[$i]{status} !~ m#R#i && $messagesloop->[$i]{'disposition-notification-to'} ne '') {
-            $messagesloop->[$i]{sendreadreceipt_ask} = $prefs{sendreceipt} eq 'ask'?1:0;
-            $messagesloop->[$i]{sendreadreceipt_yes} = $prefs{sendreceipt} eq 'yes'?1:0;
+            if ($prefs{sendreceipt} ne 'no') {
+               $messagesloop->[$i]{sendreadreceipt} = 1;
+               $messagesloop->[$i]{sendreadreceipt_ask} = $prefs{sendreceipt} eq 'ask'?1:0;
+            }
          }
       }
 

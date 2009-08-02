@@ -1,0 +1,13 @@
+This directory was created via a direct export from the xinha project SVN:
+
+svn export http://svn.xinha.org/trunk xinha
+
+the export was then modified with the openwebmail_xinha.patch:
+
+patch < openwebmail_xinha.patch
+
+finally, a custom skin and custom iconset were added:
+
+unzip openwebmail_xinha_skin_iconset.zip
+
+thats it!

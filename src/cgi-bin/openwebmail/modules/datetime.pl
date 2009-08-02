@@ -201,22 +201,22 @@ sub time_local2gm {
 }
 ########## END TIME GM <-> LOCAL #################################
 
-########## GMTIME <-> DATESERIAL #################################
-# dateserial is used as an equivalent internal format to gmtime
-# the is_dst effect won't be not counted in dateserial until
-# the dateserial is converted to datefield, delimeterfield or str
 sub gmtime2dateserial {
-   # time() is used if $_[0] undefined
-   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=seconds2array($_[0]||time());
-   return(sprintf("%4d%02d%02d%02d%02d%02d", $year+1900, $mon+1, $mday, $hour, $min, $sec));
+   # dateserial is used as an equivalent internal format to gmtime
+   # the is_dst effect won't be not counted in dateserial until
+   # the dateserial is converted to datefield, delimeterfield or str
+   # a serialized date looks like: 20090727074535
+   my $time = shift || time();
+   my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = seconds2array($time);
+   return sprintf('%4d%02d%02d%02d%02d%02d', $year+1900, $mon+1, $mday, $hour, $min, $sec);
 }
 
 sub dateserial2gmtime {
-   $_[0] =~ m/(\d\d\d\d)(\d\d)(\d\d)(\d\d)?(\d\d)?(\d\d)?/;
-   my ($year, $mon, $mday, $hour, $min, $sec)=($1, $2, $3, $4, $5, $6);
-   return array2seconds($sec,$min,$hour, $mday,$mon-1,$year-1900);
+   # convert a serialize date like 20090727074535 back to a gmtime object
+   my $serial = shift;
+   my ($year, $mon, $mday, $hour, $min, $sec) = $serial =~ m/(\d\d\d\d)(\d\d)(\d\d)(\d\d)?(\d\d)?(\d\d)?/;
+   return array2seconds($sec, $min, $hour, $mday, $mon-1, $year-1900);
 }
-########## END GMTIME <-> DATESERIAL #############################
 
 ########## DELIMITER <-> DATESERIAL ##############################
 sub delimiter2dateserial {	# return dateserial of GMT
@@ -303,18 +303,21 @@ sub datefield2dateserial {	# return dateserial of GMT
 }
 
 sub dateserial2datefield {
-   my ($dateserial, $timeoffset, $daylightsaving, $timezone)=@_;
+   my ($dateserial, $timeoffset, $daylightsaving, $timezone) = @_;
 
-   # both datetime and the timezone str in date field include the dst shift
-   # so we calc datetime, timeoffset_with_dst through timegm and timelocal
-   my $timegm=dateserial2gmtime($dateserial);
-   my $timelocal=time_gm2local($timegm, $timeoffset, $daylightsaving, $timezone);
-   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=seconds2array($timelocal);
-   my $timeoffset_with_dst=seconds2timeoffset($timelocal-$timegm);
+   # both datetime and the timezone string in date field include the dst shift
+   # so we calculate datetime, timeoffset_with_dst through timegm and timelocal
+   my $timegm    = dateserial2gmtime($dateserial);
+   my $timelocal = time_gm2local($timegm, $timeoffset, $daylightsaving, $timezone);
+   my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = seconds2array($timelocal);
 
-   #Date: Wed, 9 Sep 1998 19:30:17 +0800 (CST)
-   return(sprintf("%3s, %d %3s %4d %02d:%02d:%02d %s",
-              $wday_en[$wday], $mday,$month_en[$mon],$year+1900, $hour,$min,$sec, $timeoffset_with_dst));
+   my $timeoffset_with_dst = seconds2timeoffset($timelocal-$timegm);
+
+   # Wed, 9 Sep 1998 19:30:17 +0800 (CST)
+   return sprintf(
+                   '%3s, %d %3s %4d %02d:%02d:%02d %s',
+                   $wday_en[$wday], $mday, $month_en[$mon], $year+1900, $hour, $min, $sec, $timeoffset_with_dst
+                 );
 }
 ########## END DATEFIELD <-> DATESERIAL ##########################
 

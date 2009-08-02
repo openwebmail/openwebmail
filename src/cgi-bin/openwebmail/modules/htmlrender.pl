@@ -174,16 +174,23 @@ sub html4attachments {
       my $cid = $r_attachments->[$i]{'content-id'} || '';
       my $loc = $r_attachments->[$i]{'content-location'} || '';
 
-      if ( ($cid ne '' && $html =~ s#(?:cid:)+\Q$cid\E#$link#sig ) ||
-           ($loc ne '' && $html =~ s#(?:cid:)*\Q$loc\E#$link#sig ) ||
-           ($filename ne "" && 			# ugly hack for strange CID
-              ($html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig ||
-               $html =~ s#(background|src)\s*=\s*"[^\s\<\>"]{0,256}?/$filename"#$1="$link"#sig) )
+      if (
+           ($cid ne '' && $html =~ s#(?:cid:)+\Q$cid\E#$link#sig )
+           || ($loc ne '' && $html =~ s#(?:cid:)*\Q$loc\E#$link#sig )
+           || (
+                $filename ne ""
+                &&
+                ( # ugly hack for strange CID
+                  $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig
+                  || $html =~ s#(background|src)\s*=\s*"[^\s\<\>"]{0,256}?/$filename"#$1="$link"#sig
+                )
+              )
          ) {
          # this attachment is referenced by the html
          $r_attachments->[$i]{referencecount}++;
       }
    }
+
    return $html;
 }
 
@@ -191,12 +198,11 @@ sub html4attfiles {
    # this routine is used to resolve cid or loc in a html message to
    # the cgi openwebmail-viewatt.pl links of cross referenced mime objects
    # this is for message composing
-   my ($html, $r_attfiles, $scripturl, $scriptparm)=@_;
+   my ($html, $r_attfiles, $scripturl, $scriptparm) = @_;
 
    for (my $i = 0; $i <= $#{$r_attfiles}; $i++) {
       my $filename = ow::tool::escapeURL($r_attfiles->[$i]{name});
-      my $link = qq|$scripturl/$filename?$scriptparm&amp;| .
-                 qq|attfile=| . ow::tool::escapeURL($r_attfiles->[$i]{file}) . qq|&amp;|;
+      my $link = qq|$scripturl/$filename?$scriptparm&amp;attfile=$r_attfiles->[$i]{file}&amp;|;
       my $cid = "cid:$r_attfiles->[$i]{'content-id'}";
       my $loc = $r_attfiles->[$i]{'content-location'};
 
@@ -214,6 +220,7 @@ sub html4attfiles {
          $r_attfiles->[$i]{referencecount}++;
       }
    }
+
    return $html;
 }
 
@@ -221,29 +228,33 @@ sub html4attfiles_link2cid {
    # this routine is used to revert links of crossreferenced mime objects
    # back to their cid or loc equivelents. This is the reverse operation
    # of html4attfiles() and is used for message sending
-   my ($html, $r_attfiles, $scripturl)=@_;
-   $html =~ s#(src|background|href)\s*=\s*("?https?://[\w\.\-]+?/?[^\s<>]*[\w/"])([\b|\n| ]*)#_link2cid($1,$2,$3, $r_attfiles, $scripturl)#egis;
+   my ($html, $r_attfiles, $scripturl) = @_;
+   $html =~ s#(src|background|href)\s*=\s*("?\Q$scripturl\E/?[^\s<>]*[\w/"])([\b|\n| ]*)#_link2cid($1,$2,$3, $r_attfiles)#egis;
    return($html);
 }
 
 sub _link2cid {
-   my ($type, $url, $end, $r_attfiles, $scripturl)=@_;
+   my ($type, $url, $end, $r_attfiles) = @_;
+
    for (my $i = 0; $i <= $#{$r_attfiles}; $i++) {
-      my $filename    = ow::tool::escapeURL($r_attfiles->[$i]{name});
-      my $attfileparm = 'attfile=' . ow::tool::escapeURL($r_attfiles->[$i]{file});
-      if ($url =~ m/\Q$scripturl\E/ && $url =~ m/\Q$attfileparm\E/) {
+      my $filename    = $r_attfiles->[$i]{name};
+      my $attfileparm = "attfile=$r_attfiles->[$i]{file}";
+      if ($url =~ m#\Q$attfileparm\E#) {
          $r_attfiles->[$i]{referencecount}++;
 
          my $cid = "cid:$r_attfiles->[$i]{'content-id'}";
+         return(qq|$type="$cid"$end|) if $cid ne 'cid:';
+
          my $loc = $r_attfiles->[$i]{'content-location'};
-         return qq|$type="$cid"$end| if $cid ne 'cid:';
-         return qq|$type="$loc"$end| if defined $loc && $loc;
-         # construct strange CID from attserial
-         $r_attfiles->[$i]{file} =~ m/([\w\d\-]+)$/;
-         return qq|$type="cid:{$1}/$filename"$end| if $filename;
+         return(qq|$type="$loc"$end|) if $loc;
+
+         # construct strange cid from attserial
+         my ($attserial) = $r_attfiles->[$i]{file} =~ m#([\w\d\-]+)$#;
+         return(qq|$type="cid:$attserial/$filename"$end|) if $filename;
       }
    }
-   return ("$type=$url".$end);
+
+   return("$type=$url$end");
 }
 
 sub html4mailto {

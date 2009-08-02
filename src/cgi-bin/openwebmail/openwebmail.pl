@@ -654,6 +654,16 @@ sub login {
                            @expire
                         ));
 
+   # cookie for remembering browser javascript support level (none,nn4,ie,dom)
+   # used to detect html composing support (wysiwyg textareas)
+   my $browserjavascript = param('browserjavascript') || 'none';
+   push(@cookies, cookie(
+                           -name  => "ow-browserjavascript",
+                           -value => $browserjavascript,
+                           -path  => '/',
+                           @expire
+                        ));
+
    # cookie for autologin and other apps to find openwebmail loginname
    # and default_logindomain. Expires 1 month later
    push(@cookies, cookie(
@@ -711,6 +721,7 @@ sub login {
                       activelastminute        => $activelastminute,
                       activelastfiveminute    => $activelastfiveminute,
                       activelastfifteenminute => $activelastfifteenminute,
+                      browserjavascript       => $browserjavascript,
 
                       # footer.tmpl
                       footer_template         => get_footer($config{footer_template_file}),

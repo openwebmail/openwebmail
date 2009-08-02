@@ -37,31 +37,31 @@
 
         <tmpl_unless overlimit>
         <tmpl_if is_folder_saved_drafts>
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;composetype=editdraft&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=read&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="E" class="icon"><tmpl_if use_texticon>edit draft<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/editdraft.gif" title="edit draft" alt="edit draft" border="0" align="absmiddle"></tmpl_if></a>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=editdraft&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="E" class="icon"><tmpl_if use_texticon>edit draft<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/editdraft.gif" title="edit draft" alt="edit draft" border="0" align="absmiddle"></tmpl_if></a>
         </tmpl_if>
         <tmpl_if is_folder_sent_mail>
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;composetype=editdraft&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=read&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="E" class="icon"><tmpl_if use_texticon>edit draft<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/editdraft.gif" title="edit draft" alt="edit draft" border="0" align="absmiddle"></tmpl_if></a>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=editdraft&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="E" class="icon"><tmpl_if use_texticon>edit draft<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/editdraft.gif" title="edit draft" alt="edit draft" border="0" align="absmiddle"></tmpl_if></a>
 
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;composetype=forward&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=read&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="F" class="icon"><tmpl_if use_texticon>forward<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forward.gif" title="forward" alt="forward" border="0" align="absmiddle"></tmpl_if></a>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=forward&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="F" class="icon"><tmpl_if use_texticon>forward<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forward.gif" title="forward" alt="forward" border="0" align="absmiddle"></tmpl_if></a>
 
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;composetype=forwardasatt&amp;compose_caller=read&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="M" class="icon"><tmpl_if use_texticon>forward as attachment<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forwardasatt.gif" title="forward as attachment" alt="forward as attachment" border="0" align="absmiddle"></tmpl_if></a>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=forwardasatt&amp;compose_caller=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="M" class="icon"><tmpl_if use_texticon>forward as attachment<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forwardasatt.gif" title="forward as attachment" alt="forward as attachment" border="0" align="absmiddle"></tmpl_if></a>
 
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;composetype=forwardasorig&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=read&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="O" class="icon"><tmpl_if use_texticon>forward as original<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forwardasorig.gif" title="forward as original" alt="forward as original" border="0" align="absmiddle"></tmpl_if></a>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=forwardasorig&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="O" class="icon"><tmpl_if use_texticon>forward as original<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forwardasorig.gif" title="forward as original" alt="forward as original" border="0" align="absmiddle"></tmpl_if></a>
         </tmpl_if>
 
         <tmpl_unless is_folder_saved_drafts>
           <tmpl_unless is_folder_sent_mail>
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;compose_caller=read&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="C" class="icon"><tmpl_if use_texticon>compose new message<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/compose.gif" title="compose new message" alt="compose new message" border="0" align="absmiddle"></tmpl_if></a>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;compose_caller=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="C" class="icon"><tmpl_if use_texticon>compose new message<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/compose.gif" title="compose new message" alt="compose new message" border="0" align="absmiddle"></tmpl_if></a>
 
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;composetype=reply&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=read&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="R" class="icon"><tmpl_if use_texticon>reply<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/reply.gif" title="reply" alt="reply" border="0" align="absmiddle"></tmpl_if></a>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=reply&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="R" class="icon"><tmpl_if use_texticon>reply<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/reply.gif" title="reply" alt="reply" border="0" align="absmiddle"></tmpl_if></a>
 
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;composetype=replyall&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=read&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="A" class="icon"><tmpl_if use_texticon>reply all<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/replyall.gif" title="reply all" alt="reply all" border="0" align="absmiddle"></tmpl_if></a>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=replyall&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="A" class="icon"><tmpl_if use_texticon>reply all<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/replyall.gif" title="reply all" alt="reply all" border="0" align="absmiddle"></tmpl_if></a>
 
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;composetype=forward&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=read&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="F" class="icon"><tmpl_if use_texticon>forward<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forward.gif" title="forward" alt="forward" border="0" align="absmiddle"></tmpl_if></a>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=forward&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="F" class="icon"><tmpl_if use_texticon>forward<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forward.gif" title="forward" alt="forward" border="0" align="absmiddle"></tmpl_if></a>
 
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;composetype=forwardasatt&amp;compose_caller=read&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="M" class="icon"><tmpl_if use_texticon>forward as attachment<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forwardasatt.gif" title="forward as attachment" alt="forward as attachment" border="0" align="absmiddle"></tmpl_if></a>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=forwardasatt&amp;compose_caller=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="M" class="icon"><tmpl_if use_texticon>forward as attachment<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forwardasatt.gif" title="forward as attachment" alt="forward as attachment" border="0" align="absmiddle"></tmpl_if></a>
 
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;composetype=forwardasorig&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=read&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="O" class="icon"><tmpl_if use_texticon>forward as original<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forwardasorig.gif" title="forward as original" alt="forward as original" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=forwardasorig&amp;convfrom=<tmpl_var convfrom escape="url">&amp;compose_caller=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;message_id=<tmpl_var messageid escape="url">" accesskey="O" class="icon"><tmpl_if use_texticon>forward as original<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/forwardasorig.gif" title="forward as original" alt="forward as original" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
           </tmpl_unless>
         </tmpl_unless>
         </tmpl_unless>
@@ -141,9 +141,9 @@
         <tr valign="center">
           <td>
             <form action="<tmpl_var url_cgi escape="none">/openwebmail-send.pl" method="post" name="stationeryForm">
-            <input type="hidden" name="action" value="composemessage">
+            <input type="hidden" name="action" value="compose">
             <input type="hidden" name="composetype" value="reply">
-            <input type="hidden" name="compose_caller" value="read">
+            <input type="hidden" name="compose_caller" value="readmessage">
             <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
             <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
             <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
@@ -418,21 +418,27 @@
   </td>
 </tr>
 
-<tmpl_if sendreadreceipt_ask>
-<script type="text/javascript">
-<!--
-   replyreceiptconfirm('<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=replyreceipt&sessionid=<tmpl_var sessionid escape="url">&folder=<tmpl_var folder escape="url">&message_id=<tmpl_var messageid escape="url">', 0);
-//-->
-</script>
-</tmpl_if>
-<tmpl_if sendreadreceipt_yes>
-<script type="text/javascript">
-<!--
-   replyreceiptconfirm('<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=replyreceipt&sessionid=<tmpl_var sessionid escape="url">&folder=<tmpl_var folder escape="url">&message_id=<tmpl_var messageid escape="url">', 1);
-//-->
-</script>
-</tmpl_if>
+<tmpl_if sendreadreceipt>
+ <script type="text/javascript">
+  <!--
+     function replyreceiptconfirm(url, ask) {
+        if (ask) {
+           if (!confirm('This message requests a read receipt, do you want to transmit?')) {
+              return false;
+           }
+        }
 
+        var hWnd = window.open("","_replyreceipt","width=100,height=50,resizable=no,scrollbars=no");
+        hWnd.document.open("text/html", "replace");
+        hWnd.document.write('Transmitting...');
+        hWnd.document.close();
+        hWnd.location.href=url;
+     }
+
+     replyreceiptconfirm('<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=replyreceipt&sessionid=<tmpl_var sessionid escape="url">&folder=<tmpl_var folder escape="url">&message_id=<tmpl_var messageid escape="url">', <tmpl_var sendreadreceipt_ask escape="html">);
+//-->
+</script>
+</tmpl_if>
 </tmpl_loop>
 <tmpl_if has_nontext_attachments>
 <tr>
@@ -503,13 +509,14 @@
         </table>
       </td>
       <td nowrap width="30%" align="center">
+        <tmpl_if enable_stationery>
         <table cellpadding="0" cellspacing="0" border="0">
         <tr valign="center">
           <td>
             <form action="<tmpl_var url_cgi escape="none">/openwebmail-send.pl" method="post" name="stationeryForm">
-            <input type="hidden" name="action" value="composemessage">
+            <input type="hidden" name="action" value="compose">
             <input type="hidden" name="composetype" value="reply">
-            <input type="hidden" name="compose_caller" value="read">
+            <input type="hidden" name="compose_caller" value="readmessage">
             <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
             <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
             <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
@@ -523,6 +530,7 @@
             <input type="hidden" name="attmode" value="<tmpl_var attmode escape="html">">
             <input type="hidden" name="convfrom" value="<tmpl_var convfrom escape="html">">
             <select name="stationeryname" accesskey="I" onchange="document.stationeryForm.submit();">
+              <option>-- Stationery for Reply --</option>
             <tmpl_loop stationeryselectloop>
               <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="none"></option>
             </tmpl_loop>
@@ -534,6 +542,9 @@
           </td>
         </tr>
         </table>
+        <tmpl_else>
+        &nbsp;
+        </tmpl_if>
       </td>
       <td nowrap width="35%" align="right">
         <table cellpadding="0" cellspacing="0" border="0">
@@ -586,20 +597,22 @@
 
 <script type="text/javascript">
 <!--
-   function replyreceiptconfirm(url, yes) {
-      if (yes == 1 || confirm('This message requests a read receipt, do you want to transmit?')) {
-         var hWnd = window.open("","_replyreceipt","width=100,height=50,resizable=no,scrollbars=no");
-         hWnd.document.open("text/html", "replace");
-         hWnd.document.write('Transmitting...');
-         hWnd.document.close();
-         hWnd.location.href=url;
+   setTimeout('checkForAllImagesLoaded()', 1);
+
+   function checkForAllImagesLoaded() {
+      for (var i=0; i<document.images.length; i++) {
+         if (!document.images[i].complete) {
+            setTimeout('checkForAllImagesLoaded()', 1);
+            return;
+         }
+
+         // all images are loaded
+         autoresizeimages();
       }
    }
 
-   /* 5 second delay for images to load or they will not have a width property */
-   setTimeout(autoresizeimages, 5000);
-
    function autoresizeimages() {
+      // auto-resize images to fit the current window
       var userwidth = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
       var ideal = Math.floor(userwidth * .80);
       for (var i=0; i<document.images.length; i++) {
@@ -609,26 +622,25 @@
       }
    }
 
-<tmpl_if popup_quotahitdelmail>
+   <tmpl_if popup_quotahitdelmail>
    popup_message('<tmpl_var charset escape="js">', 'QUOTA HIT', '<span class="warning">Warning: the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit. Oldest messages have been automatically removed.</span>', 'close', '_quotahit_delmail', 400, 100, 60);
-</tmpl_if>
+   </tmpl_if>
 
-<tmpl_if popup_quotahitdelfile>
+   <tmpl_if popup_quotahitdelfile>
    popup_message('<tmpl_var charset escape="js">', 'QUOTA HIT', '<span class="warning">Warning: the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit. Some files from the webdisk have been automatically removed.</span>', 'close', '_quotahit_delfile', 400, 100, 60);
-</tmpl_if>
+   </tmpl_if>
 
-<tmpl_if quotaoverlimit>
+   <tmpl_if quotaoverlimit>
    popup_message('<tmpl_var charset escape="js">', 'QUOTA HIT', '<span class="warning">You have exceeded your quota. Please delete some messages from mail folders or some files from the webdisk to free disk space.</span>', 'close', '_quotahit_alert', 400, 100, 60);
-</tmpl_if>
+   </tmpl_if>
 
-<tmpl_if spooloverlimit>
+   <tmpl_if spooloverlimit>
    popup_message('<tmpl_var charset escape="js">', 'QUOTA HIT', '<span class="warning">Your INBOX has exceeded the spool limit (<tmpl_var spoollimit escape="js"> kB). Please move some messages from your INBOX to other folders.</span>', 'close', '_spool_overlimit', 400, 100, 60);
-</tmpl_if>
+   </tmpl_if>
 
-<tmpl_if incomingmessagesloop>
+   <tmpl_if incomingmessagesloop>
    popup_message('<tmpl_var charset escape="js">', 'Incoming Messages', '<tmpl_loop incomingmessagesloop><tmpl_var incomingfolder escape="js">&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_loop>', 'close', '_incoming', 400, <tmpl_var newmailwindowheight escape="js">, <tmpl_var newmailwindowtime escape="js">);
-</tmpl_if>
-
+   </tmpl_if>
 //-->
 </script>
 

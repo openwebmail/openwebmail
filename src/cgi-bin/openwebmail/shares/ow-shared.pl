@@ -51,7 +51,7 @@ foreach (qw(
    cache_userinfo
    auto_createrc domainnames_override symboliclink_mbox
    enable_webmail enable_userfolders enable_addressbook enable_spellcheck enable_advsearch
-   enable_calendar enable_webdisk enable_sshterm enable_vdomain
+   enable_calendar enable_webdisk enable_urlattach enable_sshterm enable_vdomain
    enable_history enable_about about_info_software about_info_protocol
    about_info_server about_info_client about_info_scriptfilename
    enable_preference enable_setforward enable_strictforward
@@ -201,7 +201,7 @@ sub openwebmail_clearall {
    ow::filelock::closeall() if (defined %ow::filelock::opentable);
 
    # chdir back to openwebmail cgidir
-   chdir($config{'ow_cgidir'}) if (exists $config{'ow_cgidir'} && -d $config{'ow_cgidir'});
+   chdir($config{ow_cgidir}) if exists $config{ow_cgidir} && -d $config{ow_cgidir};
 
    # clear gobal variable for persistent perl
    undef(%SIG)		if (defined %SIG);
@@ -723,7 +723,7 @@ sub readprefs {
    #     2. store prefs value back to openwebmailrc file
    if ( -f $rcfile ) {
       sysopen(RC, $rcfile, O_RDONLY) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $rcfile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $rcfile! ($!)");
       while (<RC>) {
          ($key, $value) = split(/=/, $_);
          chomp($value);
@@ -741,29 +741,29 @@ sub readprefs {
       $signaturefile = "$homedir/.signature";
    }
    if (-f $signaturefile) {
-      $prefshash{"signature"} = '';
+      $prefshash{signature} = '';
       sysopen(SIGNATURE, $signaturefile, O_RDONLY) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $signaturefile! ($!)");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $signaturefile! ($!)");
       while (<SIGNATURE>) {
-         $prefshash{"signature"} .= $_;
+         $prefshash{signature} .= $_;
       }
       close(SIGNATURE);
    }
-   $prefshash{"signature"} =~ s/\s+$/\n/;
+   $prefshash{signature} =~ s/\s+$/\n/;
 
    # get default value from config for err/undefined/empty prefs entries
 
    # validate email with defaultemails if frombook is limited to change realname only
-   if ($config{'frombook_for_realname_only'} || $prefshash{'email'} eq "") {
-      my @defaultemails = get_defaultemails($logindomain, $loginuser, $user);
+   if ($config{frombook_for_realname_only} || $prefshash{email} eq "") {
+      my @defaultemails = get_defaultemails();
       my $valid = 0;
       foreach (@defaultemails) {
-         if ($prefshash{'email'} eq $_) {
+         if ($prefshash{email} eq $_) {
             $valid = 1;
             last;
          }
       }
-      $prefshash{'email'} = $defaultemails[0] if (!$valid);
+      $prefshash{email} = $defaultemails[0] if !$valid;
    }
 
    # all rc entries are disallowed to be empty
@@ -775,7 +775,7 @@ sub readprefs {
       }
    }
    # signature allowed to be empty but not undefined
-   foreach $key ( 'signature') {
+   foreach $key ('signature') {
       if (defined $config{'DEFAULT_'.$key}) {
          $prefshash{$key} = $config{'DEFAULT_'.$key};
       } elsif (!defined $prefshash{$key} && defined $config{'default_'.$key} ) {
@@ -784,34 +784,34 @@ sub readprefs {
    }
 
    # remove / and .. from variables that will be used in require statement for security
-   $prefshash{'locale'}  =~ s#/##g;
-   $prefshash{'locale'}  =~ s#\.\.##g;
-   $prefshash{'iconset'} =~ s#/##g;
-   $prefshash{'iconset'} =~ s#\.\.##g;
+   $prefshash{locale}  =~ s#/##g;
+   $prefshash{locale}  =~ s#\.\.##g;
+   $prefshash{iconset} =~ s#/##g;
+   $prefshash{iconset} =~ s#\.\.##g;
 
    # adjust bgurl in case the OWM has been reinstalled in different place
-   if ( $prefshash{'bgurl'} =~ m#^(/.+)/images/backgrounds/(.*)$#
-        && $1 ne $config{'ow_htmlurl'}
-        && -f "$config{'ow_htmldir'}/images/backgrounds/$2") {
-      $prefshash{'bgurl'} = "$config{'ow_htmlurl'}/images/backgrounds/$2";
+   if ( $prefshash{bgurl} =~ m#^(/.+)/images/backgrounds/(.*)$#
+        && $1 ne $config{ow_htmlurl}
+        && -f "$config{ow_htmldir}/images/backgrounds/$2") {
+      $prefshash{bgurl} = "$config{ow_htmlurl}/images/backgrounds/$2";
    }
 
    # entries related to ondisk dir or file
-   $prefshash{'locale'}  = $config{'default_locale'}  if (!-f "$config{'ow_langdir'}/$prefshash{'locale'}");
-   $prefshash{'style'}   = $config{'default_style'}   if (!-f "$config{'ow_stylesdir'}/$prefshash{'style'}");
-   $prefshash{'iconset'} = $config{'default_iconset'} if (!-d "$config{'ow_htmldir'}/images/iconsets/$prefshash{'iconset'}");
+   $prefshash{locale}  = $config{default_locale}  if (!-f "$config{ow_langdir}/$prefshash{locale}");
+   $prefshash{style}   = $config{default_style}   if (!-f "$config{ow_stylesdir}/$prefshash{style}");
+   $prefshash{iconset} = $config{default_iconset} if (!-d "$config{ow_htmldir}/images/iconsets/$prefshash{iconset}");
 
-   $prefshash{'refreshinterval'} = $config{'min_refreshinterval'} if ($prefshash{'refreshinterval'} < $config{'min_refreshinterval'});
+   $prefshash{refreshinterval} = $config{min_refreshinterval} if $prefshash{refreshinterval} < $config{min_refreshinterval};
 
    # rentries related to spamcheck or viruscheck limit
-   $prefshash{'viruscheck_source'}  = 'pop3' if ($prefshash{'viruscheck_source'} eq 'all' && $config{'viruscheck_source_allowed'} eq 'pop3');
-   $prefshash{'spamcheck_source'}   = 'pop3' if ($prefshash{'spamcheck_source'} eq 'all' && $config{'spamcheck_source_allowed'} eq 'pop3');
-   $prefshash{'viruscheck_maxsize'} = $config{'viruscheck_maxsize_allowed'} if ($prefshash{'viruscheck_maxsize'} > $config{'viruscheck_maxsize_allowed'});
-   $prefshash{'spamcheck_maxsize'}  = $config{'spamcheck_maxsize_allowed'} if ($prefshash{'spamcheck_maxsize'} > $config{'spamcheck_maxsize_allowed'});
+   $prefshash{viruscheck_source}  = 'pop3' if ($prefshash{viruscheck_source} eq 'all' && $config{viruscheck_source_allowed} eq 'pop3');
+   $prefshash{spamcheck_source}   = 'pop3' if ($prefshash{spamcheck_source} eq 'all' && $config{spamcheck_source_allowed} eq 'pop3');
+   $prefshash{viruscheck_maxsize} = $config{viruscheck_maxsize_allowed} if $prefshash{viruscheck_maxsize} > $config{viruscheck_maxsize_allowed};
+   $prefshash{spamcheck_maxsize}  = $config{spamcheck_maxsize_allowed} if $prefshash{spamcheck_maxsize} > $config{spamcheck_maxsize_allowed};
 
    # rentries related to addressbook
-   if ($prefshash{'abook_listviewfieldorder'} !~ m#(fullname|prefix|first|middle|last|suffix|email)#) {
-     $prefshash{'abook_listviewfieldorder'} = $config{'default_abook_listviewfieldorder'};
+   if ($prefshash{abook_listviewfieldorder} !~ m#(fullname|prefix|first|middle|last|suffix|email)#) {
+     $prefshash{abook_listviewfieldorder} = $config{default_abook_listviewfieldorder};
    }
 
    return %prefshash;
@@ -998,14 +998,14 @@ sub verifysession {
    my ($sessionkey, $ip, $userinfo) = sessioninfo($thissession);
    if ($config{session_checkcookie} && $client_sessionkey ne $sessionkey) {
       writelog("session error - request doesn't have proper cookie, access denied!");
-      writehistory("session error - request doesn't have proper cookie, access denied !");
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{sess_cookieerr}");
+      writehistory("session error - request doesn't have proper cookie, access denied!");
+      openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html($lang_err{sess_cookieerr}) . qq|&nbsp;<br><a href="$config{ow_cgiurl}/openwebmail.pl">$lang_text{loginagain}?</a>|, "passthrough");
    }
 
    if ( $config{'session_checksameip'} && ow::tool::clientip() ne $ip) {
       writelog("session error - request doesn't come from the same ip, access denied!");
-      writehistory("session error - request doesn't com from the same ip, access denied !");
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{sess_iperr}");
+      writehistory("session error - request doesn't com from the same ip, access denied!");
+      openwebmailerror(__FILE__, __LINE__, ow::htmltext::str2html($lang_err{sess_iperr}) . qq|&nbsp;<br><a href="$config{ow_cgiurl}/openwebmail.pl">$lang_text{loginagain}?</a>|, "passthrough");
    }
 
    # no_update is set to 1 if auto-refresh/timeoutwarning
@@ -1046,9 +1046,8 @@ sub sessioninfo {
    return($sessionkey, $ip, $userinfo);
 }
 
-########## VIRTUALUSER related ###################################
-# update index db of virtusertable
 sub update_virtuserdb {
+   # update index db of virtusertable
    my (%DB, %DBR, $metainfo) = ();
 
    # convert file name and path into a simple file name
@@ -1115,8 +1114,7 @@ sub update_virtuserdb {
 }
 
 sub get_user_by_virtualuser {
-   my %DB = ();
-   my $u  = '';
+   my $virtualuser = shift;
 
    # convert file name and path into a simple file name
    my $virtname = $config{virtusertable};
@@ -1125,33 +1123,38 @@ sub get_user_by_virtualuser {
 
    my $virtdb = ow::tool::untaint(("$config{ow_mapsdir}/$virtname"));
 
+   my %DB = ();
+   my $username = '';
+
    if (ow::dbm::exist($virtdb)) {
-      ow::dbm::open(\%DB, $virtdb, LOCK_SH) or return $u;
-      $u = $DB{$_[0]};	# $_[0] is virtualuser
+      ow::dbm::open(\%DB, $virtdb, LOCK_SH) or return $username;
+      $username = $DB{$virtualuser};
       ow::dbm::close(\%DB, $virtdb);
    }
 
-   return($u);
+   return $username;
 }
 
 sub get_virtualuser_by_user {
-   my %DBR = ();
-   my $vu  = '';
+   my $username = shift;
 
    # convert file name and path into a simple file name
    my $virtname = $config{virtusertable};
    $virtname =~ s#/#.#g;
    $virtname =~ s#^\.+##;
 
-   my $virtdbr = ow::tool::untaint(("$config{ow_mapsdir}/$virtname.rev"));
+   my $virtdb_reverse = ow::tool::untaint(("$config{ow_mapsdir}/$virtname.rev"));
 
-   if (ow::dbm::exist($virtdbr)) {
-      ow::dbm::open(\%DBR, $virtdbr, LOCK_SH) or return $vu;
-      $vu = $DBR{$_[0]}; # $_[0] is user
-      ow::dbm::close(\%DBR, $virtdbr);
+   my %DBR = ();
+   my $virtualuser = '';
+
+   if (ow::dbm::exist($virtdb_reverse)) {
+      ow::dbm::open(\%DBR, $virtdb_reverse, LOCK_SH) or return $virtualuser;
+      $virtualuser = $DBR{$username};
+      ow::dbm::close(\%DBR, $virtdb_reverse);
    }
 
-   return($vu);
+   return $virtualuser;
 }
 
 sub get_domain_user_userinfo {
@@ -1204,80 +1207,84 @@ sub get_domain_user_userinfo {
       return("", "", "", "", "", "");
    }
 }
-########## END VIRTUALUSER related ###############################
 
-########## GET_DEFAULTEMAILS, GET_USERFROM #######################
 sub get_defaultemails {
-   my ($logindomain, $loginuser, $user)=@_;
-   return (@{$config{'default_fromemails'}}) if (${$config{'default_fromemails'}}[0] ne 'auto');
+   return @{$config{default_fromemails}} if $config{default_fromemails}->[0] ne 'auto';
 
-   my %emails=();
-   my @defaultdomains=@{$config{'domainnames'}};
+   my %emails = ();
 
-   my $vu=get_virtualuser_by_user($user);
-   if ($vu ne "") {
-      foreach my $name (ow::tool::str2list($vu,0)) {
-         if ($name=~/^(.*)\@(.*)$/) {
-            next if ($1 eq "");	# skip whole @domain mapping
-            if ($config{'domainnames_override'}) {	# override the domainname found in virtual table
-               my $purename=$1;
+   my @defaultdomains = @{$config{domainnames}};
+
+   my $virtualuser = get_virtualuser_by_user($user);
+   if ($virtualuser ne '') {
+      foreach my $name (ow::tool::str2list($virtualuser,0)) {
+         if ($name =~ m/^(.*)\@(.*)$/) {
+            my $purename = $1;
+            next if $purename eq '';              # skip whole @domain mapping
+            if ($config{domainnames_override}) {  # override the domainname found in virtual table
                foreach my $host (@defaultdomains) {
-                  $emails{"$purename\@$host"}=1;
+                  $emails{"$purename\@$host"} = 1;
                }
             } else {
-               $emails{$name}=1;
+               $emails{$name} = 1;
             }
          } else {
             foreach my $host (@defaultdomains) {
-               $emails{"$name\@$host"}=1;
+               $emails{"$name\@$host"} = 1;
             }
          }
       }
    } else {
       foreach my $host (@defaultdomains) {
-         $emails{"$loginuser\@$host"}=1;
+         $emails{"$loginuser\@$host"} = 1;
       }
    }
 
-   return(keys %emails);
+   return keys %emails;
 }
 
-sub get_userfrom {
-   my ($logindomain, $loginuser, $user, $realname, $frombook) = @_;
+sub get_userfroms {
+   # return a hash of all of the from addresses this user has
+   my $froms = {};
 
-   my %from = ();
+   my $realname = defined $config{DEFAULT_realname} ? $config{DEFAULT_realname} : $userrealname;
 
-   $realname = $config{DEFAULT_realname} if defined $config{DEFAULT_realname};
+   # get default from email addresses
+   my @defaultemails = get_defaultemails();
+   $froms->{$_} = $realname for @defaultemails;
 
-   # get default fromemail
-   my @defaultemails = get_defaultemails($logindomain, $loginuser, $user);
-   $from{$_} = $realname for @defaultemails;
+   # get user defined from email addresses
+   my $frombook = dotpath('from.book');
 
-   # get user defined fromemail
    if ($config{enable_loadfrombook} && sysopen(FROMBOOK, $frombook, O_RDONLY)) {
-      while (<FROMBOOK>) {
-         my ($_email, $_realname) = split(/\@\@\@/, $_, 2);
-         chomp($_realname);
-         $_realname = $config{DEFAULT_realname} if defined $config{DEFAULT_realname};
-         if (!$config{frombook_for_realname_only} || defined $from{$_email}) {
-             $from{"$_email"} = $_realname;
+      while (my $line = <FROMBOOK>) {
+         my ($frombook_email, $frombook_realname) = split(/\@\@\@/, $line, 2);
+
+         chomp($frombook_realname);
+
+         $frombook_realname = $config{DEFAULT_realname} if defined $config{DEFAULT_realname};
+
+         if (!$config{frombook_for_realname_only} || exists $froms->{$frombook_email}) {
+             $froms->{$frombook_email} = $frombook_realname;
          }
       }
+
       close(FROMBOOK);
    }
 
-   return(%from);
+   return $froms;
 }
 
 sub sort_emails_by_domainnames {
-   my $r_domainnames=shift(@_);
-   my @email=sort(@_);
+   my $r_domainnames = shift;
+   my @email = sort(@_);
 
-   my @result;
+   my @result = ();
    foreach my $domain (@{$r_domainnames}) {
       for (my $i=0; $i<=$#email; $i++) {
-         if ($email[$i]=~/\@$domain$/) {
-            push(@result, $email[$i]); $email[$i]='';
+         if ($email[$i] =~ m/\@$domain$/) {
+            push(@result, $email[$i]);
+            $email[$i]='';
          }
       }
    }
@@ -1287,9 +1294,7 @@ sub sort_emails_by_domainnames {
 
    return(@result);
 }
-########## END GET_DEFAULTEMAILS GET_USERFROM ####################
 
-########## HTTPPRINT/HTMLHEADER/HTMLFOOTER #######################
 sub is_http_compression_enabled {
    if (cookie("ow-httpcompress")
        && $ENV{HTTP_ACCEPT_ENCODING} =~ /\bgzip\b/
@@ -1436,6 +1441,7 @@ sub get_header {
                       diagnostics        => "$$:$persistence_count",
                       bgrepeat           => $prefs{bgrepeat},
                       fontsize           => $prefs{fontsize},
+                      languagedirection  => $ow::lang::RTL{$prefs{locale}} ? 'rtl' : 'ltr',
                       headerpluginoutput => htmlplugin($config{header_pluginfile}, $config{header_pluginfile_charset}, $prefs{charset}),
                    );
 
@@ -2081,7 +2087,7 @@ foreach (qw(
 # return the path of files within openwebmail dot dir (~/.openwebmail/)
 sub dotpath {
    # passing global $domain, $user, $homedir as parameters
-   return _dotpath($_[0], $domain, $user, $homedir);
+   return _dotpath(shift, $domain, $user, $homedir);
 }
 
 # This _ version of routine is used by dotpath() and openwebmail-vdomain.pl
@@ -2089,24 +2095,25 @@ sub dotpath {
 # the param of vuser($vdomain, $vuser, $vhomedir) will be passed
 # instead of the globals($domain, $user, $homedir), which are param of vdomain adm himself
 sub _dotpath {
-   my ($name, $domain, $user, $homedir)=@_;
-   my $dotdir;
-   if ($config{'use_syshomedir_for_dotdir'}) {
-      $dotdir = "$homedir/$config{'homedirdotdirname'}";
+   my ($name, $domain, $user, $homedir) = @_;
+   my $dotdir = '';
+
+   if ($config{use_syshomedir_for_dotdir}) {
+      $dotdir = "$homedir/$config{homedirdotdirname}";
    } else {
-      my $owuserdir = "$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/$user":$user);
-      $dotdir = "$owuserdir/$config{'homedirdotdirname'}";
+      my $owuserdir = "$config{ow_usersdir}/" . ($config{auth_withdomain} ? "$domain/$user" : $user);
+      $dotdir = "$owuserdir/$config{homedirdotdirname}";
    }
-   return(ow::tool::untaint($dotdir)) if ($name eq '/');
 
-   return(ow::tool::untaint("$dotdir/$name"))         if ($_is_dotpath{'root'}{$name});
-   return(ow::tool::untaint("$dotdir/webmail/$name")) if ($_is_dotpath{'webmail'}{$name} || $name=~/^filter\.book/);
-   return(ow::tool::untaint("$dotdir/webaddr/$name")) if ($_is_dotpath{'webaddr'}{$name});
-   return(ow::tool::untaint("$dotdir/webcal/$name"))  if ($_is_dotpath{'webcal'}{$name});
-   return(ow::tool::untaint("$dotdir/webdisk/$name")) if ($_is_dotpath{'webdisk'}{$name});
-   return(ow::tool::untaint("$dotdir/pop3/$name"))    if ($_is_dotpath{'pop3'}{$name} || $name=~/^uidl\./);
+   return(ow::tool::untaint($dotdir))                 if ($name eq '/');
+   return(ow::tool::untaint("$dotdir/$name"))         if ($_is_dotpath{root}{$name});
+   return(ow::tool::untaint("$dotdir/webmail/$name")) if ($_is_dotpath{webmail}{$name} || $name =~ m/^filter\.book/);
+   return(ow::tool::untaint("$dotdir/webaddr/$name")) if ($_is_dotpath{webaddr}{$name});
+   return(ow::tool::untaint("$dotdir/webcal/$name"))  if ($_is_dotpath{webcal}{$name});
+   return(ow::tool::untaint("$dotdir/webdisk/$name")) if ($_is_dotpath{webdisk}{$name});
+   return(ow::tool::untaint("$dotdir/pop3/$name"))    if ($_is_dotpath{pop3}{$name} || $name =~ m/^uidl\./);
 
-   $name=~s!^/+!!;
+   $name =~ s#^/+##;
    return(ow::tool::untaint("$dotdir/$name"));
 }
 

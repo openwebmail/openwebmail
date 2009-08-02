@@ -1,5 +1,5 @@
 
-# Open WebMail configuration file HELP
+# OpenWebMail configuration file HELP
 
 ##############################################################################
 # host dependent configuration
@@ -59,7 +59,7 @@ It is used to map a virtualuser to the real userid in system.
 A virtualuser can be in the form a pure username or username@somedomain
 Pls Refer to http://www.sendmail.org/virtual-hosting.html for more detail
 
-When a user logins Open WebMail with a loginname,
+When a user logins OpenWebMail with a loginname,
 this loginname will be checked in the following order:
 1. Is this loginname a virtualuser defined in virtusertable?
 2. Is this loginname a real userid in system?
@@ -704,7 +704,7 @@ domainselectmenu_list	server1.domain1.com, server2.domain2.com
 enable_strictvirtuser
 -----------------------------------------------------------------------
 When an account has been mapped by a virtuser in virtusertable, both the
-account and the virtuser can be used as the login name in Open WebMail.
+account and the virtuser can be used as the login name in OpenWebMail.
 If this option is set to 'yes',  then only the virtuser can be used for
 login.
 
@@ -829,13 +829,27 @@ feature
 
 enable_calendar
 -----------------------------------------------------------------------
-Open WebMail has built-in clendar support,
+OpenWebMail has built-in clendar support,
 set this option to 'no' if you want to disable it.
 
 
 enable_webdisk
 -----------------------------------------------------------------------
-Open WebMail has built-in web disk support,
+OpenWebMail has built-in web disk support,
+set this option to 'no' if you want to disable it.
+
+
+enable_urlattach
+-----------------------------------------------------------------------
+Controls whether or not users may attach files when composing messages
+by providing a url. The file the url is pointing to is downloaded by the
+mailserver and attached to the message. This bandwidth of the mailserver
+is used to perform the download using the wget commandline program.
+
+The wget program is also required to be installed on the mailserver for
+this feature to work. If wget is not installed this feature is
+automatically disabled.
+
 set this option to 'no' if you want to disable it.
 
 
@@ -878,7 +892,7 @@ preference
 about_info_software
 -----------------------------------------------------------------------
 If cleared, the SOFTWARE part of the About dialog is not available. It
-contains OS, Perl and Open WebMail versions. You might find it
+contains OS, Perl and OpenWebMail versions. You might find it
 undesirable for these data to be printed, it could help someone identify
 your system software as vulnerable if, say, an openwebmail or Perl exploit
 were found.
@@ -972,20 +986,20 @@ you want to disable this feature.
 
 enable_userfilter
 -----------------------------------------------------------------------
-Open WebMail default allows user to define mail filters for his
+OpenWebMail default allows user to define mail filters for his
 incoming messages, set this option to 'no' if you want to disable it.
 
 
 enable_smartfilter
 -----------------------------------------------------------------------
-Open WebMail has 5 smart filters: repeatness filter, badformat from filter,
+OpenWebMail has 5 smart filters: repeatness filter, badformat from filter,
 fakedsmtp filter, fakedfrom filter and faked exe contenttype filter,
 set this option to 'no' if you want to disable it.
 
 
 smartfilter_bypass_goodmessage
 -----------------------------------------------------------------------
-If a message is sent by Open WebMail or is an reply message,
+If a message is sent by OpenWebMail or is an reply message,
 then we bypass the smart filters check for this message.
 Set this to 'no' if you hope to apply smart filters on these good messages
 
@@ -1136,7 +1150,7 @@ SpamAssassin user_prefs file (~/.spamassassin/user_prefs) in openwebmail.
 
 enable_pop3
 -----------------------------------------------------------------------
-Open WebMail has complete support as pop3 client. If you want to disable
+OpenWebMail has complete support as pop3 client. If you want to disable
 pop3 related functions from user, please set this to 'no'
 
 
