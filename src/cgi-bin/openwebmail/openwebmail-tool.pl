@@ -542,9 +542,6 @@ sub langconv {
    langconv_dir("$config{'ow_templatesdir'}/$srclocale", $srclocale,
                 "$config{'ow_templatesdir'}/$dstlocale", $dstlocale, $verbose);
 
-   langconv_dir("$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$srclocale", $srclocale,
-                "$config{'ow_htmldir'}/javascript/htmlarea.openwebmail/popups/$dstlocale", $dstlocale, $verbose);
-
    return 0;
 }
 
