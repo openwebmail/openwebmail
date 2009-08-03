@@ -410,12 +410,22 @@
      xinha_config.sizeIncludesBars = false;
      xinha_config.sizeIncludesPanels = false;
      xinha_config.mozParaHandler = 'built-in';
-     xinha_config.pageStyle = 'body { font-family: ' + document.styleSheets[0].cssRules[0].style.fontFamily + '; font-size: ' + document.body.style.fontSize + '; direction: <tmpl_var languagedirection>; }';
+
+     // access the css rules to carry over font size and family to xinha
+     theRules = document.styleSheets[0].cssRules ? document.styleSheets[0].cssRules :
+                document.styleSheets[0].rules ? document.styleSheets[0].rules :
+                null;
+
+     if (theRules) {
+        xinha_config.pageStyle = 'body { font-family: ' + theRules[0].style.fontFamily + '; font-size: ' + document.body.style.fontSize + '; direction: <tmpl_var languagedirection>; }';
+     } else {
+        xinha_config.pageStyle = 'body { direction: <tmpl_var languagedirection>; }';
+     }
 
      xinha_config.toolbar =
        [
          ["popupeditor"],
-         ["separator","undo","redo"], (Xinha.is_gecko ? [] : ["cut","copy","paste","overwrite","saveas"]),
+         ["separator","undo","redo"], (Xinha.is_gecko ? [] : ["separator","cut","copy","paste","overwrite","saveas"]),
          ["separator","bold","italic","underline","strikethrough"],
          ["separator","justifyleft","justifycenter","justifyright","justifyfull"],
          ["separator","forecolor","hilitecolor"],
