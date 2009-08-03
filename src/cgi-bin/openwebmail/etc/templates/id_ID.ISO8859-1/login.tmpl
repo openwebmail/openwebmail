@@ -93,10 +93,10 @@
 <!--
    // detect level of javascript support from users browser
    // to determine if html composing will be allowed
-   document.loginform.browserjavascript.value = (document.layers) ? 'nn4' :
-                                                   (document.all) ? 'ie'  :
-                       (document.getElementById && !document.all) ? 'dom' :
-                                                                    'none';
+   document.loginform.browserjavascript.value = (document.getElementById) ? 'dom' :
+                                                           (document.all) ? 'ie'  :
+                                                        (document.layers) ? 'nn4' :
+                                                                            'none';
 
    if (document.loginform.loginname.value == "") {
       document.loginform.loginname.focus()
