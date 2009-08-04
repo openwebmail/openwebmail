@@ -107,7 +107,7 @@ find . -type d -exec chmod 755 {} \;
 cd javascript/xinha
 ./openwebmail_compress.pl
 
-cd ../../..
+cd ../../../..
 
 # pack it up
 echo "Creating tarball..."
