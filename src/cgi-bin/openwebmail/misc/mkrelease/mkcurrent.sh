@@ -102,7 +102,12 @@ cd data/openwebmail
 chown -R 0:0 *
 chmod -R 644 *
 find . -type d -exec chmod 755 {} \;
-cd ../..
+
+# miniturize xinha javascript
+cd javascript/xinha
+./openwebmail_compress.pl
+
+cd ../../..
 
 # pack it up
 echo "Creating tarball..."
