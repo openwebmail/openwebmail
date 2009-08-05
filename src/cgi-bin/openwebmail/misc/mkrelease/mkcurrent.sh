@@ -105,7 +105,7 @@ find . -type d -exec chmod 755 {} \;
 
 # miniturize xinha javascript
 cd javascript/xinha
-./openwebmail_compress.pl
+perl ./openwebmail_compress.pl
 
 cd ../../../..
 

@@ -247,12 +247,6 @@ sub compose {
       unlink (ow::tool::untaint("$config{ow_sessionsdir}/$deleteattfile")) if $deleteattfile =~ m/^\Q$thissession-$attachments_uid\E/;
    } elsif ($addbutton || $webdiskselection || $urlselection) {
       my($attachment_filename, $attachment_contenttype) = add_attachment($attachments_uid);
-#   } elsif (
-#             ($sendbutton && $to eq '' && $cc eq '' && $bcc eq '') # send button pressed, but no receiver = keep editing
-#             || ($newmsgformat ne $msgformat)                      # changing message format between text and html
-#             || ($convto ne '')                                    # converting message character set format
-#           ) {
-#      # do nothing related to attachments
    } elsif ($composetype ne 'continue') {
       # remove previous aged attachments
       delete_attachments($attachments_uid);
@@ -284,14 +278,14 @@ sub compose {
    # format the original message body for inline display based on the compose type
    # there are 9 different compose types:
    # none           # user is composing a new mail
-   # sendto         # user is composing a new mail with a recipient already set
+   # continue       # user is adding an attachment or changing a parameter during compose
    # reply          # user is replying to the sender of a message
    # replyall       # user is replying to the sender and recipients of a message
    # forward        # user is forwarding the message as inline reply content
    # forwardasorig  # user is forwarding the message as if user composed it originally
    # forwardasatt   # user is forwarding the message as an attachment to a new message
    # editdraft      # user is editing a previously saved draft message
-   # continue       # user is adding an attachment or changing a parameter during compose
+   # sendto         # user is composing a new mail with a recipient already set
 
    if ($composetype eq 'none') {
       # ****************************
@@ -325,24 +319,24 @@ sub compose {
 
          $body .= "\n";
       }
-   } elsif ($composetype eq 'sendto') {
-      # *********************************************************
-      # user is composing a new mail with a recipient already set
-      # *********************************************************
-      $msgformat = 'text' if $msgformat eq 'auto';
+   } elsif ($composetype eq 'continue') {
+      # *******************************************************************
+      # user is adding an attachment or changing a parameter during compose
+      # *******************************************************************
+      $msgformat    = 'text' if $msgformat eq 'auto';
+      $newmsgformat = 'text' if $newmsgformat eq 'auto';
 
-      if (defined $prefs{autocc} && $prefs{autocc} ne '') {
-         $cc .= ', ' if $cc ne '';
-         $cc .= (iconv($prefs{charset}, $composecharset, $prefs{autocc}))[0];
+      ($body, $subject, $from, $to, $cc, $bcc, $replyto) = iconv($composecharset, $convto, $body,$subject,$from,$to,$cc,$bcc,$replyto);
+
+      $composecharset = $convto if ow::lang::is_charset_supported($convto) || exists $charset_convlist{$convto};
+
+      if ($msgformat eq 'text' && $newmsgformat ne 'text') {
+         $body = ow::htmltext::text2html($body);
+      } elsif ($msgformat ne 'text' && $newmsgformat eq 'text' ) {
+         $body = ow::htmltext::html2text($body);
       }
 
-      $replyto = (iconv($prefs{charset}, $composecharset, $prefs{replyto}))[0] if defined $prefs{replyto};
-
-      if ($prefs{signature} =~ m#[^\s]#) {
-         $body .= $msgformat eq 'text'
-                  ? "\n\n"     . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . "\n"
-                  : "<br><br>" . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . "<br>";
-      }
+      $msgformat = $newmsgformat;
 
       # remove tail blank line and space
       $body =~ s#\s+$#\n#s;
@@ -354,8 +348,6 @@ sub compose {
          # insert \n for long lines to keep them short so that the width of
          # an html message composer can always fit within screen resolution
          $body =~ s#([^\n\r]{1,80})( |&nbsp;)#$1$2\n#ig;
-
-         $body .= "\n";
       }
    } elsif ($composetype eq 'reply') {
       # *******************************************
@@ -364,85 +356,8 @@ sub compose {
       # get the original message with attachments (all mode)
       my $message = getmessage($user, $folder, $messageid, 'all');
 
-      my $bodyformat = 'text';
-
-      if ($message->{'content-type'} =~ m#^multipart/report#i) {
-         # handle the messages generated if sendmail is set up to send MIME error reports
-         foreach my $attachment_number (0 .. $#{$message->{attachment}}) {
-            if (
-                 exists $message->{attachment}[$attachment_number]{r_content}
-                 && defined ${$message->{attachment}[$attachment_number]{r_content}}
-               ) {
-               $body .= ${$message->{attachment}[$attachment_number]{r_content}};
-               shift @{$message->{attachment}};
-            }
-         }
-      } elsif ($message->{'content-type'} =~ m#^multipart#i) {
-         # If the first attachment is text, assume it's the body of a message in multipart format
-         if (defined $message->{attachment}[0] && $message->{attachment}[0]{'content-type'} =~ m#^text#i) {
-            $body = $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[0]{r_content}})          :
-                    $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[0]{r_content}})      :
-                    $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[0]{r_content}}) :
-                    ${$message->{attachment}[0]{r_content}};
-
-            $body = ow::enriched::enriched2html($body) if $message->{attachment}[0]{'content-type'} =~ m#^text/enriched#i;
-            $bodyformat = 'html' if $message->{attachment}[0]{'content-type'} =~ m#^text/(?:html|enriched)#i;
-
-            # handle mail with both text and html version
-            # rename html to other name so if the user is in text compose mode,
-            # the modified/forwarded text won't be overridden by html again
-            if (defined $message->{attachment}[1] && $message->{attachment}[1]{boundary} eq $message->{attachment}[0]{boundary}) {
-               # rename html attachment in the same alternative group
-               if (
-                    (
-                      $message->{attachment}[0]{subtype}           =~ m#alternative#i
-                      && $message->{attachment}[1]{subtype}        =~ m#alternative#i
-                      && $message->{attachment}[1]{'content-type'} =~ m#^text#i
-                      && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
-                    )
-                    ||
-                    ( # rename next if this=unknown.txt and next=unknown.html
-                      $message->{attachment}[0]{'content-type'}    =~ m#^text/(?:plain|enriched)#i
-                      && $message->{attachment}[0]{filename}       =~ m#^Unknown\.#
-                      && $message->{attachment}[1]{'content-type'} =~ m#^text/(?:html|enriched)#i
-                      && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
-                    )
-                  ) {
-                  if ($msgformat ne 'text' && $bodyformat eq 'text') {
-                     $body = $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[1]{r_content}})          :
-                             $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[1]{r_content}})      :
-                             $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[1]{r_content}}) :
-                             ${$message->{attachment}[1]{r_content}};
-
-                     $body = ow::enriched::enriched2html($body) if $message->{attachment}[1]{'content-type'} =~ m#^text/enriched#i;
-
-                     $bodyformat = 'html';
-                     shift @{$message->{attachment}}; # remove 1 attachment from the message's attachment list for html
-                  } else {
-                     $message->{attachment}[1]{filename} =~ s#^Unknown#Original#;
-                     $message->{attachment}[1]{header}   =~ s#^Content-Type: \s*text/(?:html|enriched);#Content-Type: text/$1;\n   name="OriginalMsg.htm";#i;
-                  }
-               }
-            }
-            # remove 1 attachment from the message's attachment list for text
-            shift @{$message->{attachment}};
-         } else {
-            $body = '';
-         }
-      } else {
-         $body = $message->{'body'} || '';
-
-         # handle mail programs that send the body encoded
-         if ($message->{'content-type'} =~ m#^text#i) {
-            $body = $message->{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp($body)          :
-                    $message->{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64($body)      :
-                    $message->{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode($body) :
-                    $body;
-         }
-
-         $body = ow::enriched::enriched2html($body) if $message->{'content-type'} =~ m#^text/enriched#i;
-         $bodyformat = 'html' if $message->{'content-type'} =~ m#^text/(?:html|enriched)#i;
-      }
+      my $bodyformat = '';
+      ($body, $bodyformat) = decode_message_body($msgformat, $message);
 
       if ($bodyformat eq 'html') {
          store_attachments($attachments_uid, $composecharset, $convfrom, $message);
@@ -627,85 +542,8 @@ sub compose {
       # get the original message with attachments (all mode)
       my $message = getmessage($user, $folder, $messageid, 'all');
 
-      my $bodyformat = 'text';
-
-      if ($message->{'content-type'} =~ m#^multipart/report#i) {
-         # handle the messages generated if sendmail is set up to send MIME error reports
-         foreach my $attachment_number (0 .. $#{$message->{attachment}}) {
-            if (
-                 exists $message->{attachment}[$attachment_number]{r_content}
-                 && defined ${$message->{attachment}[$attachment_number]{r_content}}
-               ) {
-               $body .= ${$message->{attachment}[$attachment_number]{r_content}};
-               shift @{$message->{attachment}};
-            }
-         }
-      } elsif ($message->{'content-type'} =~ m#^multipart#i) {
-         # If the first attachment is text, assume it's the body of a message in multipart format
-         if (defined $message->{attachment}[0] && $message->{attachment}[0]{'content-type'} =~ m#^text#i) {
-            $body = $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[0]{r_content}})          :
-                    $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[0]{r_content}})      :
-                    $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[0]{r_content}}) :
-                    ${$message->{attachment}[0]{r_content}};
-
-            $body = ow::enriched::enriched2html($body) if $message->{attachment}[0]{'content-type'} =~ m#^text/enriched#i;
-            $bodyformat = 'html' if $message->{attachment}[0]{'content-type'} =~ m#^text/(?:html|enriched)#i;
-
-            # handle mail with both text and html version
-            # rename html to other name so if the user is in text compose mode,
-            # the modified/forwarded text won't be overridden by html again
-            if (defined $message->{attachment}[1] && $message->{attachment}[1]{boundary} eq $message->{attachment}[0]{boundary}) {
-               # rename html attachment in the same alternative group
-               if (
-                    (
-                      $message->{attachment}[0]{subtype}           =~ m#alternative#i
-                      && $message->{attachment}[1]{subtype}        =~ m#alternative#i
-                      && $message->{attachment}[1]{'content-type'} =~ m#^text#i
-                      && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
-                    )
-                    ||
-                    ( # rename next if this=unknown.txt and next=unknown.html
-                      $message->{attachment}[0]{'content-type'}    =~ m#^text/(?:plain|enriched)#i
-                      && $message->{attachment}[0]{filename}       =~ m#^Unknown\.#
-                      && $message->{attachment}[1]{'content-type'} =~ m#^text/(?:html|enriched)#i
-                      && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
-                    )
-                  ) {
-                  if ($msgformat ne 'text' && $bodyformat eq 'text') {
-                     $body = $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[1]{r_content}})          :
-                             $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[1]{r_content}})      :
-                             $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[1]{r_content}}) :
-                             ${$message->{attachment}[1]{r_content}};
-
-                     $body = ow::enriched::enriched2html($body) if $message->{attachment}[1]{'content-type'} =~ m#^text/enriched#i;
-
-                     $bodyformat = 'html';
-                     shift @{$message->{attachment}}; # remove 1 attachment from the message's attachment list for html
-                  } else {
-                     $message->{attachment}[1]{filename} =~ s#^Unknown#Original#;
-                     $message->{attachment}[1]{header}   =~ s#^Content-Type: \s*text/(?:html|enriched);#Content-Type: text/$1;\n   name="OriginalMsg.htm";#i;
-                  }
-               }
-            }
-            # remove 1 attachment from the message's attachment list for text
-            shift @{$message->{attachment}};
-         } else {
-            $body = '';
-         }
-      } else {
-         $body = $message->{'body'} || '';
-
-         # handle mail programs that send the body encoded
-         if ($message->{'content-type'} =~ m#^text#i) {
-            $body = $message->{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp($body)          :
-                    $message->{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64($body)      :
-                    $message->{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode($body) :
-                    $body;
-         }
-
-         $body = ow::enriched::enriched2html($body) if $message->{'content-type'} =~ m#^text/enriched#i;
-         $bodyformat = 'html' if $message->{'content-type'} =~ m#^text/(?:html|enriched)#i;
-      }
+      my $bodyformat = '';
+      ($body, $bodyformat) = decode_message_body($msgformat, $message);
 
       if ($bodyformat eq 'html') {
          store_attachments($attachments_uid, $composecharset, $convfrom, $message);
@@ -909,85 +747,8 @@ sub compose {
       # get the original message with attachments (all mode)
       my $message = getmessage($user, $folder, $messageid, 'all');
 
-      my $bodyformat = 'text';
-
-      if ($message->{'content-type'} =~ m#^multipart/report#i) {
-         # handle the messages generated if sendmail is set up to send MIME error reports
-         foreach my $attachment_number (0 .. $#{$message->{attachment}}) {
-            if (
-                 exists $message->{attachment}[$attachment_number]{r_content}
-                 && defined ${$message->{attachment}[$attachment_number]{r_content}}
-               ) {
-               $body .= ${$message->{attachment}[$attachment_number]{r_content}};
-               shift @{$message->{attachment}};
-            }
-         }
-      } elsif ($message->{'content-type'} =~ m#^multipart#i) {
-         # If the first attachment is text, assume it's the body of a message in multipart format
-         if (defined $message->{attachment}[0] && $message->{attachment}[0]{'content-type'} =~ m#^text#i) {
-            $body = $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[0]{r_content}})          :
-                    $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[0]{r_content}})      :
-                    $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[0]{r_content}}) :
-                    ${$message->{attachment}[0]{r_content}};
-
-            $body = ow::enriched::enriched2html($body) if $message->{attachment}[0]{'content-type'} =~ m#^text/enriched#i;
-            $bodyformat = 'html' if $message->{attachment}[0]{'content-type'} =~ m#^text/(?:html|enriched)#i;
-
-            # handle mail with both text and html version
-            # rename html to other name so if the user is in text compose mode,
-            # the modified/forwarded text won't be overridden by html again
-            if (defined $message->{attachment}[1] && $message->{attachment}[1]{boundary} eq $message->{attachment}[0]{boundary}) {
-               # rename html attachment in the same alternative group
-               if (
-                    (
-                      $message->{attachment}[0]{subtype}           =~ m#alternative#i
-                      && $message->{attachment}[1]{subtype}        =~ m#alternative#i
-                      && $message->{attachment}[1]{'content-type'} =~ m#^text#i
-                      && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
-                    )
-                    ||
-                    ( # rename next if this=unknown.txt and next=unknown.html
-                      $message->{attachment}[0]{'content-type'}    =~ m#^text/(?:plain|enriched)#i
-                      && $message->{attachment}[0]{filename}       =~ m#^Unknown\.#
-                      && $message->{attachment}[1]{'content-type'} =~ m#^text/(?:html|enriched)#i
-                      && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
-                    )
-                  ) {
-                  if ($msgformat ne 'text' && $bodyformat eq 'text') {
-                     $body = $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[1]{r_content}})          :
-                             $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[1]{r_content}})      :
-                             $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[1]{r_content}}) :
-                             ${$message->{attachment}[1]{r_content}};
-
-                     $body = ow::enriched::enriched2html($body) if $message->{attachment}[1]{'content-type'} =~ m#^text/enriched#i;
-
-                     $bodyformat = 'html';
-                     shift @{$message->{attachment}}; # remove 1 attachment from the message's attachment list for html
-                  } else {
-                     $message->{attachment}[1]{filename} =~ s#^Unknown#Original#;
-                     $message->{attachment}[1]{header}   =~ s#^Content-Type: \s*text/(?:html|enriched);#Content-Type: text/$1;\n   name="OriginalMsg.htm";#i;
-                  }
-               }
-            }
-            # remove 1 attachment from the message's attachment list for text
-            shift @{$message->{attachment}};
-         } else {
-            $body = '';
-         }
-      } else {
-         $body = $message->{'body'} || '';
-
-         # handle mail programs that send the body encoded
-         if ($message->{'content-type'} =~ m#^text#i) {
-            $body = $message->{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp($body)          :
-                    $message->{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64($body)      :
-                    $message->{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode($body) :
-                    $body;
-         }
-
-         $body = ow::enriched::enriched2html($body) if $message->{'content-type'} =~ m#^text/enriched#i;
-         $bodyformat = 'html' if $message->{'content-type'} =~ m#^text/(?:html|enriched)#i;
-      }
+      my $bodyformat = '';
+      ($body, $bodyformat) = decode_message_body($msgformat, $message);
 
       store_attachments($attachments_uid, $composecharset, $convfrom, $message);
       ($attfiles_totalsize, $r_attfiles) = get_attachments($attachments_uid);
@@ -1095,85 +856,8 @@ sub compose {
       # get the original message with attachments (all mode)
       my $message = getmessage($user, $folder, $messageid, 'all');
 
-      my $bodyformat = 'text';
-
-      if ($message->{'content-type'} =~ m#^multipart/report#i) {
-         # handle the messages generated if sendmail is set up to send MIME error reports
-         foreach my $attachment_number (0 .. $#{$message->{attachment}}) {
-            if (
-                 exists $message->{attachment}[$attachment_number]{r_content}
-                 && defined ${$message->{attachment}[$attachment_number]{r_content}}
-               ) {
-               $body .= ${$message->{attachment}[$attachment_number]{r_content}};
-               shift @{$message->{attachment}};
-            }
-         }
-      } elsif ($message->{'content-type'} =~ m#^multipart#i) {
-         # If the first attachment is text, assume it's the body of a message in multipart format
-         if (defined $message->{attachment}[0] && $message->{attachment}[0]{'content-type'} =~ m#^text#i) {
-            $body = $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[0]{r_content}})          :
-                    $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[0]{r_content}})      :
-                    $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[0]{r_content}}) :
-                    ${$message->{attachment}[0]{r_content}};
-
-            $body = ow::enriched::enriched2html($body) if $message->{attachment}[0]{'content-type'} =~ m#^text/enriched#i;
-            $bodyformat = 'html' if $message->{attachment}[0]{'content-type'} =~ m#^text/(?:html|enriched)#i;
-
-            # handle mail with both text and html version
-            # rename html to other name so if the user is in text compose mode,
-            # the modified/forwarded text won't be overridden by html again
-            if (defined $message->{attachment}[1] && $message->{attachment}[1]{boundary} eq $message->{attachment}[0]{boundary}) {
-               # rename html attachment in the same alternative group
-               if (
-                    (
-                      $message->{attachment}[0]{subtype}           =~ m#alternative#i
-                      && $message->{attachment}[1]{subtype}        =~ m#alternative#i
-                      && $message->{attachment}[1]{'content-type'} =~ m#^text#i
-                      && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
-                    )
-                    ||
-                    ( # rename next if this=unknown.txt and next=unknown.html
-                      $message->{attachment}[0]{'content-type'}    =~ m#^text/(?:plain|enriched)#i
-                      && $message->{attachment}[0]{filename}       =~ m#^Unknown\.#
-                      && $message->{attachment}[1]{'content-type'} =~ m#^text/(?:html|enriched)#i
-                      && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
-                    )
-                  ) {
-                  if ($msgformat ne 'text' && $bodyformat eq 'text') {
-                     $body = $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[1]{r_content}})          :
-                             $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[1]{r_content}})      :
-                             $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[1]{r_content}}) :
-                             ${$message->{attachment}[1]{r_content}};
-
-                     $body = ow::enriched::enriched2html($body) if $message->{attachment}[1]{'content-type'} =~ m#^text/enriched#i;
-
-                     $bodyformat = 'html';
-                     shift @{$message->{attachment}}; # remove 1 attachment from the message's attachment list for html
-                  } else {
-                     $message->{attachment}[1]{filename} =~ s#^Unknown#Original#;
-                     $message->{attachment}[1]{header}   =~ s#^Content-Type: \s*text/(?:html|enriched);#Content-Type: text/$1;\n   name="OriginalMsg.htm";#i;
-                  }
-               }
-            }
-            # remove 1 attachment from the message's attachment list for text
-            shift @{$message->{attachment}};
-         } else {
-            $body = '';
-         }
-      } else {
-         $body = $message->{'body'} || '';
-
-         # handle mail programs that send the body encoded
-         if ($message->{'content-type'} =~ m#^text#i) {
-            $body = $message->{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp($body)          :
-                    $message->{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64($body)      :
-                    $message->{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode($body) :
-                    $body;
-         }
-
-         $body = ow::enriched::enriched2html($body) if $message->{'content-type'} =~ m#^text/enriched#i;
-         $bodyformat = 'html' if $message->{'content-type'} =~ m#^text/(?:html|enriched)#i;
-      }
+      my $bodyformat = '';
+      ($body, $bodyformat) = decode_message_body($msgformat, $message);
 
       store_attachments($attachments_uid, $composecharset, $convfrom, $message);
       ($attfiles_totalsize, $r_attfiles) = get_attachments($attachments_uid);
@@ -1333,85 +1017,8 @@ sub compose {
       # get the original message with attachments (all mode)
       my $message = getmessage($user, $folder, $messageid, 'all');
 
-      my $bodyformat = 'text';
-
-      if ($message->{'content-type'} =~ m#^multipart/report#i) {
-         # handle the messages generated if sendmail is set up to send MIME error reports
-         foreach my $attachment_number (0 .. $#{$message->{attachment}}) {
-            if (
-                 exists $message->{attachment}[$attachment_number]{r_content}
-                 && defined ${$message->{attachment}[$attachment_number]{r_content}}
-               ) {
-               $body .= ${$message->{attachment}[$attachment_number]{r_content}};
-               shift @{$message->{attachment}};
-            }
-         }
-      } elsif ($message->{'content-type'} =~ m#^multipart#i) {
-         # If the first attachment is text, assume it's the body of a message in multipart format
-         if (defined $message->{attachment}[0] && $message->{attachment}[0]{'content-type'} =~ m#^text#i) {
-            $body = $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[0]{r_content}})          :
-                    $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[0]{r_content}})      :
-                    $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[0]{r_content}}) :
-                    ${$message->{attachment}[0]{r_content}};
-
-            $body = ow::enriched::enriched2html($body) if $message->{attachment}[0]{'content-type'} =~ m#^text/enriched#i;
-            $bodyformat = 'html' if $message->{attachment}[0]{'content-type'} =~ m#^text/(?:html|enriched)#i;
-
-            # handle mail with both text and html version
-            # rename html to other name so if the user is in text compose mode,
-            # the modified/forwarded text won't be overridden by html again
-            if (defined $message->{attachment}[1] && $message->{attachment}[1]{boundary} eq $message->{attachment}[0]{boundary}) {
-               # rename html attachment in the same alternative group
-               if (
-                    (
-                      $message->{attachment}[0]{subtype}           =~ m#alternative#i
-                      && $message->{attachment}[1]{subtype}        =~ m#alternative#i
-                      && $message->{attachment}[1]{'content-type'} =~ m#^text#i
-                      && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
-                    )
-                    ||
-                    ( # rename next if this=unknown.txt and next=unknown.html
-                      $message->{attachment}[0]{'content-type'}    =~ m#^text/(?:plain|enriched)#i
-                      && $message->{attachment}[0]{filename}       =~ m#^Unknown\.#
-                      && $message->{attachment}[1]{'content-type'} =~ m#^text/(?:html|enriched)#i
-                      && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
-                    )
-                  ) {
-                  if ($msgformat ne 'text' && $bodyformat eq 'text') {
-                     $body = $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[1]{r_content}})          :
-                             $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[1]{r_content}})      :
-                             $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[1]{r_content}}) :
-                             ${$message->{attachment}[1]{r_content}};
-
-                     $body = ow::enriched::enriched2html($body) if $message->{attachment}[1]{'content-type'} =~ m#^text/enriched#i;
-
-                     $bodyformat = 'html';
-                     shift @{$message->{attachment}}; # remove 1 attachment from the message's attachment list for html
-                  } else {
-                     $message->{attachment}[1]{filename} =~ s#^Unknown#Original#;
-                     $message->{attachment}[1]{header}   =~ s#^Content-Type: \s*text/(?:html|enriched);#Content-Type: text/$1;\n   name="OriginalMsg.htm";#i;
-                  }
-               }
-            }
-            # remove 1 attachment from the message's attachment list for text
-            shift @{$message->{attachment}};
-         } else {
-            $body = '';
-         }
-      } else {
-         $body = $message->{'body'} || '';
-
-         # handle mail programs that send the body encoded
-         if ($message->{'content-type'} =~ m#^text#i) {
-            $body = $message->{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp($body)          :
-                    $message->{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64($body)      :
-                    $message->{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode($body) :
-                    $body;
-         }
-
-         $body = ow::enriched::enriched2html($body) if $message->{'content-type'} =~ m#^text/enriched#i;
-         $bodyformat = 'html' if $message->{'content-type'} =~ m#^text/(?:html|enriched)#i;
-      }
+      my $bodyformat = '';
+      ($body, $bodyformat) = decode_message_body($msgformat, $message);
 
       store_attachments($attachments_uid, $composecharset, $convfrom, $message);
       ($attfiles_totalsize, $r_attfiles) = get_attachments($attachments_uid);
@@ -1471,24 +1078,24 @@ sub compose {
 
          $body .= "\n";
       }
-   } elsif ($composetype eq 'continue') {
-      # *******************************************************************
-      # user is adding an attachment or changing a parameter during compose
-      # *******************************************************************
-      $msgformat    = 'text' if $msgformat eq 'auto';
-      $newmsgformat = 'text' if $newmsgformat eq 'auto';
+   } elsif ($composetype eq 'sendto') {
+      # *********************************************************
+      # user is composing a new mail with a recipient already set
+      # *********************************************************
+      $msgformat = 'text' if $msgformat eq 'auto';
 
-      ($body, $subject, $from, $to, $cc, $bcc, $replyto) = iconv($composecharset, $convto, $body,$subject,$from,$to,$cc,$bcc,$replyto);
-
-      $composecharset = $convto if ow::lang::is_charset_supported($convto) || exists $charset_convlist{$convto};
-
-      if ($msgformat eq 'text' && $newmsgformat ne 'text') {
-         $body = ow::htmltext::text2html($body);
-      } elsif ($msgformat ne 'text' && $newmsgformat eq 'text' ) {
-         $body = ow::htmltext::html2text($body);
+      if (defined $prefs{autocc} && $prefs{autocc} ne '') {
+         $cc .= ', ' if $cc ne '';
+         $cc .= (iconv($prefs{charset}, $composecharset, $prefs{autocc}))[0];
       }
 
-      $msgformat = $newmsgformat;
+      $replyto = (iconv($prefs{charset}, $composecharset, $prefs{replyto}))[0] if defined $prefs{replyto};
+
+      if ($prefs{signature} =~ m#[^\s]#) {
+         $body .= $msgformat eq 'text'
+                  ? "\n\n"     . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . "\n"
+                  : "<br><br>" . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . "<br>";
+      }
 
       # remove tail blank line and space
       $body =~ s#\s+$#\n#s;
@@ -1500,6 +1107,8 @@ sub compose {
          # insert \n for long lines to keep them short so that the width of
          # an html message composer can always fit within screen resolution
          $body =~ s#([^\n\r]{1,80})( |&nbsp;)#$1$2\n#ig;
+
+         $body .= "\n";
       }
    }
 
@@ -1712,6 +1321,96 @@ sub generate_messageid {
    return ($suffix =~ m/@(.*)$/ ? "<$fakeid\@$1>" : "<$fakeid\@$suffix>");
 }
 
+sub decode_message_body {
+   # given a message, decode the body of the message
+   # and determine if the body is text or html
+   my ($msgformat, $message) = @_;
+
+   my $bodyformat = 'text';
+
+   my $body = '';
+
+   if ($message->{'content-type'} =~ m#^multipart/report#i) {
+      # handle the messages generated if sendmail is set up to send MIME error reports
+      foreach my $attachment_number (0 .. $#{$message->{attachment}}) {
+         if (
+              exists $message->{attachment}[$attachment_number]{r_content}
+              && defined ${$message->{attachment}[$attachment_number]{r_content}}
+            ) {
+            $body .= ${$message->{attachment}[$attachment_number]{r_content}};
+            shift @{$message->{attachment}};
+         }
+      }
+   } elsif ($message->{'content-type'} =~ m#^multipart#i) {
+      # If the first attachment is text, assume it's the body of a message in multipart format
+      if (defined $message->{attachment}[0] && $message->{attachment}[0]{'content-type'} =~ m#^text#i) {
+         $body = $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[0]{r_content}})          :
+                 $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[0]{r_content}})      :
+                 $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[0]{r_content}}) :
+                 ${$message->{attachment}[0]{r_content}};
+
+         $body = ow::enriched::enriched2html($body) if $message->{attachment}[0]{'content-type'} =~ m#^text/enriched#i;
+         $bodyformat = 'html' if $message->{attachment}[0]{'content-type'} =~ m#^text/(?:html|enriched)#i;
+
+         # handle mail with both text and html versions
+         # rename html to other name so if the user is in text compose mode,
+         # the modified/forwarded text won't be overridden by html again
+         if (defined $message->{attachment}[1] && $message->{attachment}[1]{boundary} eq $message->{attachment}[0]{boundary}) {
+            # rename html attachment in the same alternative group
+            if (
+                 (
+                   $message->{attachment}[0]{subtype}           =~ m#alternative#i
+                   && $message->{attachment}[1]{subtype}        =~ m#alternative#i
+                   && $message->{attachment}[1]{'content-type'} =~ m#^text#i
+                   && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
+                 )
+                 ||
+                 ( # rename next if this=unknown.txt and next=unknown.html
+                   $message->{attachment}[0]{'content-type'}    =~ m#^text/(?:plain|enriched)#i
+                   && $message->{attachment}[0]{filename}       =~ m#^Unknown\.#
+                   && $message->{attachment}[1]{'content-type'} =~ m#^text/(?:html|enriched)#i
+                   && $message->{attachment}[1]{filename}       =~ m#^Unknown\.#
+                 )
+               ) {
+               if ($msgformat ne 'text' && $bodyformat eq 'text') {
+                  $body = $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[1]{r_content}})          :
+                          $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[1]{r_content}})      :
+                          $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[1]{r_content}}) :
+                          ${$message->{attachment}[1]{r_content}};
+
+                  $body = ow::enriched::enriched2html($body) if $message->{attachment}[1]{'content-type'} =~ m#^text/enriched#i;
+
+                  $bodyformat = 'html';
+                  shift @{$message->{attachment}}; # remove 1 attachment from the message's attachment list for html
+               } else {
+                  $message->{attachment}[1]{filename} =~ s#^Unknown#Original#;
+                  $message->{attachment}[1]{header}   =~ s#^Content-Type: \s*text/(?:html|enriched);#Content-Type: text/$1;\n   name="OriginalMsg.htm";#i;
+               }
+            }
+         }
+         # remove 1 attachment from the message's attachment list for text
+         shift @{$message->{attachment}};
+      } else {
+         $body = '';
+      }
+   } else {
+      $body = $message->{body} || '';
+
+      # handle mail programs that send the body encoded
+      if ($message->{'content-type'} =~ m#^text#i) {
+         $body = $message->{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp($body)          :
+                 $message->{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64($body)      :
+                 $message->{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode($body) :
+                 $body;
+      }
+
+      $body = ow::enriched::enriched2html($body) if $message->{'content-type'} =~ m#^text/enriched#i;
+      $bodyformat = 'html' if $message->{'content-type'} =~ m#^text/(?:html|enriched)#i;
+   }
+
+   return ($body, $bodyformat);
+}
+
 sub add_attachment {
    # user is trying to add an attachment -- we need to establish three things:
    #  - the attachment filename (with no path)
@@ -1723,10 +1422,10 @@ sub add_attachment {
 
    my $composecharset   = param('composecharset') || $prefs{charset};
    my $convfrom         = param('convfrom') || '';
-   my $addbutton        = param('addbutton') || '';        # add attachment button clicked
+   my $addbutton        = param('addbutton') || ''; # add attachment button clicked
    my $webdiskselection = param('webdiskselection') || ''; # attachment file selected from webdisk
-   my $urlselection     = param('urlselection') || '';     # attachment is a url we need to retrieve
-   my $attachment       = param('attachment') || '';       # uploaded attachment filename
+   my $urlselection     = param('urlselection') || ''; # attachment is a url we need to retrieve
+   my $attachment       = param('attachment') || ''; # uploaded attachment filename
 
    $composecharset = $prefs{charset} unless ow::lang::is_charset_supported($composecharset) || exists $charset_convlist{$composecharset};
 
