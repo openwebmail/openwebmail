@@ -42,12 +42,12 @@ if (-f "/etc/openwebmail_path.conf") {
    ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
 
-die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
+die("SCRIPT_DIR cannot be set") if $SCRIPT_DIR eq '';
 push (@INC, $SCRIPT_DIR);
 
 # secure the environment
 delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
-$ENV{PATH}='/bin:/usr/bin';
+$ENV{PATH} = '/bin:/usr/bin';
 
 # make sure the openwebmail group can write
 umask(0002);
@@ -90,9 +90,7 @@ use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
 use vars qw($_OFFSET $_STATUS %is_internal_dbkey);	# defined in maildb.pl
 
 # local globals
-use vars qw($folder);
-use vars qw($sort $page);
-use vars qw($escapedfolder);
+use vars qw($folder $sort $page);
 
 
 # BEGIN MAIN PROGRAM
@@ -100,33 +98,28 @@ use vars qw($escapedfolder);
 openwebmail_requestbegin();
 userenv_init();
 
-if (!$config{'enable_webmail'}) {
-   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
-}
+openwebmailerror(__FILE__, __LINE__, "$lang_text{webmail} $lang_err{access_denied}") if !$config{enable_webmail};
 
-$folder        = ow::tool::unescapeURL(param('folder')) || 'INBOX';
-$page          = param('page') || 1;
-$sort          = param('sort') || $prefs{'sort'} || 'date_rev';
-$escapedfolder = ow::tool::escapeURL($folder);
+$folder = param('folder') || 'INBOX';
+$page   = param('page') || 1;
+$sort   = param('sort') || $prefs{sort} || 'date_rev';
 
 my $action = param('action') || '';
 
-writelog("debug - request folder begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+writelog("debug - request folder begin, action=$action - " .__FILE__.":". __LINE__) if $config{debug_request};
 
-$action eq "editfolders"      ? editfolders()      :
-$action eq "refreshfolders"   ? refreshfolders()   :
-$action eq "markreadfolder"   ? markreadfolder()   :
-$action eq "chkindexfolder"   ? reindexfolder(0)   :
-$action eq "reindexfolder"    ? reindexfolder(1)   :
-$action eq "downloadfolder"   ? downloadfolder()   :
-$action eq "deletefolder"     ? deletefolder()     :
-$action eq "addfolder" 
- && $config{'enable_userfolders'} ? addfolder()    :
-$action eq "renamefolder" 
- && $config{'enable_userfolders'} ? renamefolder() :
-openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
+$action eq "editfolders"                                 ? editfolders()    :
+$action eq "refreshfolders"                              ? refreshfolders() :
+$action eq "markreadfolder"                              ? markreadfolder() :
+$action eq "chkindexfolder"                              ? reindexfolder(0) :
+$action eq "reindexfolder"                               ? reindexfolder(1) :
+$action eq "downloadfolder"                              ? downloadfolder() :
+$action eq "deletefolder"                                ? deletefolder()   :
+$action eq "addfolder"    && $config{enable_userfolders} ? addfolder()      :
+$action eq "renamefolder" && $config{enable_userfolders} ? renamefolder()   :
+openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
 
-writelog("debug - request folder end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+writelog("debug - request folder end, action=$action - " .__FILE__.":". __LINE__) if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -136,20 +129,21 @@ openwebmail_requestend();
 sub editfolders {
    my (@defaultfolders, @validfolders, $inboxusage, $folderusage);
    my @userfolders           = ();
-   my $enable_userfolders    = $config{'enable_userfolders'};
+   my $enable_userfolders    = $config{enable_userfolders};
    my $url_cgi               = $config{ow_cgiurl};
    my $url_html              = $config{ow_htmlurl};
-   my $foldername_maxlen     = $config{'foldername_maxlen'};
-   my $usingquota            = ($config{'quota_module'} ne "none") ? 1 : 0;
-   my $categorizedfolders    = $prefs{'categorizedfolders'};
-   my $categorizedfolders_fs = $prefs{'categorizedfolders_fs'} || '-';
+   my $foldername_maxlen     = $config{foldername_maxlen};
+   my $usingquota            = ($config{quota_module} ne 'none') ? 1 : 0;
+   my $categorizedfolders    = $prefs{categorizedfolders};
+   my $categorizedfolders_fs = $prefs{categorizedfolders_fs} || '-';
    my $total_newmessages     = 0;
    my $total_allmessages     = 0;
    my $total_foldersize      = 0;
-   my $currfolder;
-   my $percent;
+   my $currfolder            = '';
+   my $percent               = 0;
    my $foldersloop           = [];
-   my ($thiscategory, $lastcategory) = ("", "");
+   my $thiscategory          = '';
+   my $lastcategory          = '';
 
    getfolders(\@validfolders, \$inboxusage, \$folderusage);
    @defaultfolders = get_defaultfolders();
@@ -165,47 +159,49 @@ sub editfolders {
    }
 
    foreach $currfolder (@userfolders, @defaultfolders) {
-      my $folder_n            = scalar(@{$foldersloop});
-      my $userfolder          = $folder_n <= scalar(@userfolders);
-      my $categorizedfolder   = 0;
-      my $categorytitle       = "";
-      my $folderstr           = $lang_folders{$currfolder} || f2u($currfolder);
-      my $folderbasename      = $folderstr;
-      my ($newmessages, $allmessages, $foldersize);
- 
+      my $folder_n          = scalar @{$foldersloop};
+      my $userfolder        = $folder_n <= scalar(@userfolders);
+      my $categorizedfolder = 0;
+      my $categorytitle     = '';
+      my $folderstr         = $lang_folders{$currfolder} || f2u($currfolder);
+      my $folderbasename    = $folderstr;
+      my $newmessages       = '';
+      my $allmessages       = '';
+      my $foldersize        = '';
+
       if ($userfolder) {
-         if ($categorizedfolders 
-              && ($folderstr =~ /^(.+?)\Q$categorizedfolders_fs\E(.+)$/)) {
-            $categorizedfolder   = 1;
-            $thiscategory        = $1;
-            $categorytitle       = ($thiscategory ne $lastcategory) ? $thiscategory : ""; 
-            $lastcategory        = $thiscategory;
-            $folderbasename      = $2;
+         if ($categorizedfolders && ($folderstr =~ m/^(.+?)\Q$categorizedfolders_fs\E(.+)$/)) {
+            $categorizedfolder = 1;
+            $thiscategory      = $1;
+            $categorytitle     = ($thiscategory ne $lastcategory) ? $thiscategory : '';
+            $lastcategory      = $thiscategory;
+            $folderbasename    = $2;
          }
       }
       get_folderdata($currfolder, \$newmessages, \$allmessages, \$foldersize);
-      $total_newmessages  += $newmessages if ($newmessages ne "");
-      $total_allmessages  += $allmessages if ($allmessages ne "");
-      $total_foldersize   += $foldersize;
+      $total_newmessages += $newmessages if $newmessages ne '';
+      $total_allmessages += $allmessages if $allmessages ne '';
+      $total_foldersize  += $foldersize;
       push(@{$foldersloop}, {
-            url_cgi           => $url_cgi,
-            url_html          => $url_html,
-            sessionid         => $thissession,
-            iconset           => $prefs{iconset},
-            sort              => $sort,
-            page              => $page,
-            odd               => ($folder_n + 1) % 2, # for row color toggle
-            folder_n          => $folder_n,
-            categorytitle     => $categorytitle,
-            categorizedfolder => $categorizedfolder,
-            currfolder        => $currfolder,
-            folderbasename    => $folderbasename,
-            accesskey         => ($folder_n + 1) % 10,
-            inbox             => ($currfolder eq "INBOX") ? 1 : 0,
-            newmessages       => $newmessages,
-            allmessages       => $allmessages,
-            foldersize        => lenstr($foldersize)
-           });
+                               url_cgi           => $url_cgi,
+                               url_html          => $url_html,
+                               sessionid         => $thissession,
+                               iconset           => $prefs{iconset},
+                               sort              => $sort,
+                               page              => $page,
+                               odd               => ($folder_n + 1) % 2 > 0 ? 1 : 0,
+                               folder_n          => $folder_n,
+                               categorytitle     => $categorytitle,
+                               categorizedfolder => $categorizedfolder,
+                               currfolder        => $currfolder,
+                               folderbasename    => $folderbasename,
+                               accesskey         => ($folder_n + 1) % 10,
+                               inbox             => $currfolder eq 'INBOX' ? 1 : 0,
+                               newmessages       => $newmessages,
+                               allmessages       => $allmessages,
+                               foldersize        => lenstr($foldersize)
+                            }
+          );
    }
 
    # build the template
@@ -223,62 +219,63 @@ sub editfolders {
                       header_template     => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon        => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
-                      url_html            => $config{ow_htmlurl},
-                      url_cgi             => $config{ow_cgiurl},
-                      iconset             => $prefs{iconset},
-                      sessionid           => $thissession,
-                      folder              => $folder,
-                      sort                => $sort,
-                      page                => $page,
+                      use_texticon       => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      url_html           => $config{ow_htmlurl},
+                      url_cgi            => $config{ow_cgiurl},
+                      iconset            => $prefs{iconset},
+                      sessionid          => $thissession,
+                      folder             => $folder,
+                      sort               => $sort,
+                      page               => $page,
 
                       # editfolders.tmpl
-                      callerfoldername    => $lang_folders{$folder} || f2u($folder),
-                      enable_userfolders  => $enable_userfolders,
-                      foldername_maxlen   => $foldername_maxlen,
-                      foldersloop         => $foldersloop,
-                      total_newmessages   => $total_newmessages,
-                      total_allmessages   => $total_allmessages,
-                      total_foldersize    => lenstr($total_foldersize),
-                      quotausage          => $usingquota ? lenstr($quotausage * 1024, 1) : 0,
-                      overquota           => ($percent > 90) ? 1 : 0,
-                      quotalimit          => ($quotalimit > 0) ? lenstr($quotalimit * 1024, 1) : 0,
-                      percent             => $percent,
+                      callerfoldername   => $lang_folders{$folder} || f2u($folder),
+                      enable_userfolders => $enable_userfolders,
+                      foldername_maxlen  => $foldername_maxlen,
+                      foldersloop        => $foldersloop,
+                      total_newmessages  => $total_newmessages,
+                      total_allmessages  => $total_allmessages,
+                      total_foldersize   => lenstr($total_foldersize),
+                      quotausage         => $usingquota ? lenstr($quotausage * 1024, 1) : 0,
+                      overquota          => $percent > 90 ? 1 : 0,
+                      quotalimit         => $quotalimit > 0 ? lenstr($quotalimit * 1024, 1) : 0,
+                      percent            => $percent,
 
                       # footer.tmpl
-                      footer_template     => get_footer($config{footer_template_file}),
+                      footer_template    => get_footer($config{footer_template_file}),
                    );
 
 
    httpprint([], [$template->output]);
 }
- 
+
 sub get_folderdata {
    my ($currfolder, $r_newmessages, $r_allmessages, $r_foldersize) = @_;
+
    my %FDB;
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $currfolder);
 
    if (ow::dbm::exist("$folderdb")) {
       ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db " . f2u($folderdb));
-      ${$r_allmessages} = defined($FDB{'ALLMESSAGES'}) ? $FDB{'ALLMESSAGES'} : "";
-      ${$r_newmessages} = defined($FDB{'NEWMESSAGES'}) ? $FDB{'NEWMESSAGES'} : "";
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db " . f2u($folderdb));
+      ${$r_allmessages} = defined $FDB{ALLMESSAGES} ? $FDB{ALLMESSAGES} : '';
+      ${$r_newmessages} = defined $FDB{NEWMESSAGES} ? $FDB{NEWMESSAGES} : '';
       ow::dbm::close(\%FDB, $folderdb);
    } else {
-      ${$r_allmessages} = "";
-      ${$r_newmessages} = "";
+      ${$r_allmessages} = '';
+      ${$r_newmessages} = '';
    }
 
-   ${$r_foldersize} = (-s "$folderfile");
+   ${$r_foldersize} = (-s $folderfile);
 }
-  
+
 sub is_lang_defaultfolder {
-   foreach (keys %lang_folders) {	# defaultfolder locallized name check
+   foreach (keys %lang_folders) { # defaultfolder localized name check
       return 1 if ($_[0] eq $lang_folders{$_} && is_defaultfolder($_));
    }
    return 0;
 }
-   
+
 sub refreshfolders {
    my $errcount = 0;
 
@@ -289,70 +286,77 @@ sub refreshfolders {
       my ($folderfile,$folderdb) = get_folderpath_folderdb($user, $currfolder);
 
       ow::filelock::lock($folderfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile)."!");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
+
       if (update_folderindex($folderfile, $folderdb) < 0) {
          $errcount++;
          writelog("db error - Couldn't update db $folderdb");
          writehistory("db error - Couldn't update db $folderdb");
       }
+
       ow::filelock::lock($folderfile, LOCK_UN);
    }
 
    writelog("folder - refresh, $errcount errors");
    writehistory("folder - refresh, $errcount errors");
 
-   if ($config{'quota_module'} ne 'none') {
+   if ($config{quota_module} ne 'none') {
       $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
    }
    editfolders();
 }
 
 sub markreadfolder {
-   my $foldertomark = ow::tool::untaint(safefoldername(ow::tool::unescapeURL(param('foldername')))) || '';
+   my $foldertomark = ow::tool::untaint(safefoldername(param('foldername'))) || '';
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $foldertomark);
 
    my $ioerr = 0;
 
    ow::filelock::lock($folderfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile)."!");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
 
    if (update_folderindex($folderfile, $folderdb) < 0) {
       ow::filelock::lock($folderfile, LOCK_UN);
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db ".f2u($folderdb));
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_updatedb} db " . f2u($folderdb));
    }
 
    my (%FDB, %offset, %status);
+
    ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db ".f2u($folderdb));
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db " . f2u($folderdb));
+
    foreach my $messageid (keys %FDB) {
       next if ($is_internal_dbkey{$messageid});
       my @attr = string2msgattr($FDB{$messageid});
-      if ($attr[$_STATUS] !~ /R/i) {
+      if ($attr[$_STATUS] !~ m/R/i) {
          $offset{$messageid} = $attr[$_OFFSET];
          $status{$messageid} = $attr[$_STATUS];
       }
    }
-   ow::dbm::close(\%FDB, $folderdb);
-   my @unreadmsgids=(sort { $offset{$a}<=>$offset{$b} } keys %offset);
 
-   my $tmpdir  = ow::tool::mktmpdir("markread.tmp"); 
-   $ioerr++ if ($tmpdir eq '');
+   ow::dbm::close(\%FDB, $folderdb);
+
+   my @unreadmsgids = sort { $offset{$a} <=> $offset{$b} } keys %offset;
+
+   my $tmpdir  = ow::tool::mktmpdir('markread.tmp');
    my $tmpfile = ow::tool::untaint("$tmpdir/folder");
    my $tmpdb   = ow::tool::untaint("$tmpdir/db");
+
+   $ioerr++ if $tmpdir eq '';
 
    while (!$ioerr && $#unreadmsgids >= 0) {
       my @markids = ();
 
       sysopen(F, $tmpfile, O_WRONLY|O_TRUNC|O_CREAT); close(F);
       ow::filelock::lock($tmpfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $tmpfile");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} $tmpfile");
 
-      if (update_folderindex($tmpfile, $tmpdb)<0) {
+      if (update_folderindex($tmpfile, $tmpdb) < 0) {
          ow::filelock::lock($tmpfile, LOCK_UN);
          ow::dbm::unlink($tmpdb);
          unlink($tmpfile);
          rmdir($tmpdir);
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db $tmpdb");
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_updatedb} db $tmpdb");
       }
 
       while (!$ioerr && $#unreadmsgids >= 0) {
@@ -370,17 +374,19 @@ sub markreadfolder {
          }
 
          my $tmpsize = (stat($tmpfile))[7];
-         if ((!$ioerr 
-             && ($tmpsize > 10 * 1024 * 1024 || $#markids >= 999)) # tmpfolder size>10MB or marked==1000
-              || ($ioerr && $tmpsize > 0)   			                # any io error
-              || $#unreadmsgids < 0 ) { 		                      # no more unread msg
+         if (
+              ( !$ioerr && ($tmpsize > 10 * 1024 * 1024 || $#markids >= 999) ) # tmpfolder size > 10MB or marked == 1000
+              || ($ioerr && $tmpsize > 0)                                      # any io error
+              || $#unreadmsgids < 0                                            # no more unread msg
+            ) {
             # copy read msg back from tmp folder
             if ($#markids >= 0) {
-               $ioerr++ if ((operate_message_with_ids("delete", \@markids, $folderfile, $folderdb))[0] < 0);
+               $ioerr++ if ((operate_message_with_ids('delete', \@markids, $folderfile, $folderdb))[0] < 0);
                $ioerr++ if (folder_zapmessages($folderfile, $folderdb) < 0);
-               $ioerr++ if ((operate_message_with_ids("move", \@markids, $tmpfile, $tmpdb, $folderfile, $folderdb))[0] < 0);
+               $ioerr++ if ((operate_message_with_ids('move', \@markids, $tmpfile, $tmpdb, $folderfile, $folderdb))[0] < 0);
             }
-            last;	# renew tmp folder and @markids
+
+            last; # renew tmp folder and @markids
          }
       }
 
@@ -399,12 +405,12 @@ sub markreadfolder {
 }
 
 sub reindexfolder {
-   my $recreate = $_[0];
-   my $foldertoindex = ow::tool::untaint(safefoldername(ow::tool::unescapeURL(param('foldername')))) || '';
+   my $recreate = shift;
+   my $foldertoindex = ow::tool::untaint(safefoldername(param('foldername'))) || '';
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $foldertoindex);
 
    ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} ".f2u($folderfile));
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} " . f2u($folderfile));
 
    if ($recreate) {
       ow::dbm::unlink($folderdb);
@@ -413,14 +419,14 @@ sub reindexfolder {
       my %FDB;
       if (!ow::dbm::open(\%FDB, $folderdb, LOCK_SH)) {
          ow::filelock::lock($folderfile, LOCK_UN);
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} db ".f2u($folderdb));
+         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db " . f2u($folderdb));
       }
       @FDB{'METAINFO', 'LSTMTIME'} = ('RENEW', -1);
       ow::dbm::close(\%FDB, $folderdb);
    }
    if (update_folderindex($folderfile, $folderdb) < 0) {
       ow::filelock::lock($folderfile, LOCK_UN);
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_updatedb'} db ".f2u($folderdb));
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_updatedb} db " . f2u($folderdb));
    }
 
    if ($recreate) {
@@ -440,43 +446,46 @@ sub reindexfolder {
 
 sub addfolder {
    if ($quotalimit > 0 && ($quotausage > $quotalimit)) {
-      $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];	# get uptodate quotausage
+      $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2]; # get uptodate quotausage
       if ($quotausage > $quotalimit) {
-         openwebmailerror(__FILE__, __LINE__, $lang_err{'quotahit_alert'});
+         openwebmailerror(__FILE__, __LINE__, $lang_err{quotahit_alert});
       }
    }
 
-   my $foldertoadd = ow::tool::untaint(ow::tool::unescapeURL(param('foldername'))) || ''; # from js field
+   my $foldertoadd = ow::tool::untaint(param('foldername')) || ''; # from js field
    $foldertoadd = u2f($foldertoadd);
    is_safefoldername($foldertoadd) or
-      openwebmailerror(__FILE__, __LINE__, "$foldertoadd $lang_err{'has_illegal_chars'}");
+      openwebmailerror(__FILE__, __LINE__, "$foldertoadd $lang_err{has_illegal_chars}");
    $foldertoadd = safefoldername($foldertoadd);
-   return editfolders() if ($foldertoadd eq '');
+   return editfolders() if $foldertoadd eq '';
 
-   if (length($foldertoadd) > $config{'foldername_maxlen'}) {
-      my $msg = $lang_err{'foldername_long'};
-      $msg =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/;
+   if (length($foldertoadd) > $config{foldername_maxlen}) {
+      my $msg = $lang_err{foldername_long};
+      $msg =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{foldername_maxlen}/;
       openwebmailerror(__FILE__, __LINE__, $msg);
    }
-   if (is_defaultfolder($foldertoadd) 
-       || is_lang_defaultfolder($foldertoadd) 
-       || $foldertoadd eq "$user") {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'} (".f2u($foldertoadd).")");
+
+   if (
+        is_defaultfolder($foldertoadd)
+        || is_lang_defaultfolder($foldertoadd)
+        || $foldertoadd eq $user
+      ) {
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{cant_create_folder} (" . f2u($foldertoadd) . ')');
    }
 
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $foldertoadd);
    if (-f $folderfile) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'folder_with_name'} ".f2u($foldertoadd)." $lang_err{'already_exists'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{folder_with_name} " . f2u($foldertoadd) . " $lang_err{already_exists}");
    }
 
    sysopen(FOLDERTOADD, $folderfile, O_WRONLY|O_TRUNC|O_CREAT) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'} ".f2u($foldertoadd)."! ($!)");
-   close(FOLDERTOADD) or openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_close'} ".f2u($foldertoadd)."! ($!)");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{cant_create_folder} " . f2u($foldertoadd) . "! ($!)");
+   close(FOLDERTOADD) or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} " . f2u($foldertoadd) . "! ($!)");
 
    # create empty index dbm with mode 0600
    my %FDB;
    ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderdb));
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderdb));
    ow::dbm::close(\%FDB, $folderdb);
 
    writelog("create folder - $foldertoadd");
@@ -486,7 +495,7 @@ sub addfolder {
 }
 
 sub deletefolder {
-   my $foldertodel = safefoldername(ow::tool::unescapeURL(param('foldername'))) || '';
+   my $foldertodel = ow::tool::untaint(safefoldername(param('foldername'))) || '';
 
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $foldertodel);
    if (-f $folderfile) {
@@ -500,41 +509,44 @@ sub deletefolder {
       writehistory("delete folder - $foldertodel");
    }
 
-   if ($quotalimit > 0 && ($quotausage > $quotalimit)) {
+   if ($quotalimit > 0 && $quotausage > $quotalimit) {
       $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
    }
    editfolders();
 }
 
 sub renamefolder {
-   my $oldname = ow::tool::untaint(safefoldername(ow::tool::unescapeURL(param('foldername')))) || '';
+   my $oldname = ow::tool::untaint(safefoldername(param('foldername'))) || '';
    if ($oldname eq 'INBOX') {
       return editfolders();
    }
 
-   my $newnamestr = ow::tool::untaint(param('foldernewname')) || '';	# from js field
+   my $newnamestr = ow::tool::untaint(param('foldernewname')) || ''; # from js field
    my $newname = u2f($newnamestr);
    is_safefoldername($newname) or
-      openwebmailerror(__FILE__, __LINE__, "$newname $lang_err{'has_illegal_chars'}");
+      openwebmailerror(__FILE__, __LINE__, "$newname $lang_err{has_illegal_chars}");
    $newname = safefoldername($newname);
-   return editfolders() if ($newname eq '');
+   return editfolders() if $newname eq '';
 
-   if (length($newname) > $config{'foldername_maxlen'}) {
-      my $msg = $lang_err{'foldername_long'};
-      $msg =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{'foldername_maxlen'}/;
+   if (length($newname) > $config{foldername_maxlen}) {
+      my $msg = $lang_err{foldername_long};
+      $msg =~ s/\@\@\@FOLDERNAME_MAXLEN\@\@\@/$config{foldername_maxlen}/;
       openwebmailerror(__FILE__, __LINE__, $msg);
    }
-   if (is_defaultfolder($newname) 
-       || is_lang_defaultfolder($newname) 
-       || $newname eq "$user") {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'cant_create_folder'}");
+
+   if (
+        is_defaultfolder($newname)
+        || is_lang_defaultfolder($newname)
+        || $newname eq $user
+      ) {
+      openwebmailerror(__FILE__, __LINE__, $lang_err{cant_create_folder});
    }
 
    my ($oldfolderfile, $olddb) = get_folderpath_folderdb($user, $oldname);
    my ($newfolderfile, $newdb) = get_folderpath_folderdb($user, $newname);
 
    if (-f $newfolderfile) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'folder_with_name'} $newnamestr $lang_err{'already_exists'}");
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{folder_with_name} $newnamestr $lang_err{already_exists}");
    }
 
    if (-f $oldfolderfile) {
@@ -554,29 +566,27 @@ sub downloadfolder {
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
 
    ow::filelock::lock($folderfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} ".f2u($folderfile));
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile));
 
-   my ($cmd, $contenttype, $filename);
-   if (($cmd = ow::tool::findbin("zip")) ne "" ) {
+   my ($cmd, $contenttype, $filename) = ('','','');
+   if (($cmd = ow::tool::findbin("zip")) ne '') {
       $contenttype = 'application/x-zip-compressed';
       $filename = "$folder.zip";
       open(T, "-|") or
-         do { 
-              open(STDERR,">/dev/null"); 
-              exec(ow::tool::untaint($cmd), "-jrq", "-", $folderfile); 
-              exit 9 
+         do {
+              open(STDERR,">/dev/null");
+              exec(ow::tool::untaint($cmd), "-jrq", "-", $folderfile);
+              exit 9
             };
-
-   } elsif (($cmd = ow::tool::findbin("gzip")) ne "" ) {
+   } elsif (($cmd = ow::tool::findbin("gzip")) ne '') {
       $contenttype = 'application/x-gzip-compressed';
       $filename = "$folder.gz";
       open(T, "-|") or
-         do { 
-              open(STDERR,">/dev/null"); 
-              exec(ow::tool::untaint($cmd), "-c", $folderfile); 
-              exit 9 
+         do {
+              open(STDERR,">/dev/null");
+              exec(ow::tool::untaint($cmd), "-c", $folderfile);
+              exit 9
             };
-
    } else {
       $contenttype = 'text/plain';
       $filename = $folder;
@@ -588,7 +598,8 @@ sub downloadfolder {
    # disposition:attachment default to save
    print qq|Connection: close\n|,
          qq|Content-Type: $contenttype; name="$filename"\n|;
-   if ( $ENV{'HTTP_USER_AGENT'} =~ /MSIE 5.5/ ) {	# ie5.5 is broken with content-disposition: attachment
+   if ($ENV{HTTP_USER_AGENT} =~ m/MSIE 5.5/) {
+      # ie5.5 is broken with content-disposition: attachment
       print qq|Content-Disposition: filename="$filename"\n|;
    } else {
       print qq|Content-Disposition: attachment; filename="$filename"\n|;
@@ -596,7 +607,7 @@ sub downloadfolder {
    print qq|\n|;
 
    my $buff;
-   while ( read(T, $buff,32768) ) {
+   while (read(T, $buff, 32768)) {
      print $buff;
    }
 

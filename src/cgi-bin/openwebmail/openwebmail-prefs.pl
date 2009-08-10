@@ -106,7 +106,6 @@ use vars qw($persistence_count);
 use vars qw($action $folder $messageid);
 use vars qw($sort $page $longpage);
 use vars qw($userfirsttime $prefs_caller);
-use vars qw($urlparmstr $formparmstr);
 
 
 # BEGIN MAIN PROGRAM

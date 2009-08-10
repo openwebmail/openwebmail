@@ -1,26 +1,65 @@
 #!/usr/bin/perl -T
-#
-# openwebmail-viewatt.pl - attachment reading program
-#
 
-use vars qw($SCRIPT_DIR);
-if ( $0 =~ m!^(\S*)/[\w\d\-\.]+\.pl! ) { local $1; $SCRIPT_DIR=$1 }
-if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
-   $_=<F>; close(F); if ( $_=~/^(\S*)/) { local $1; $SCRIPT_DIR=$1 }
-}
-if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
-push (@INC, $SCRIPT_DIR);
-
-foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
-umask(0002); # make sure the openwebmail group can write
+#                              The BSD License
+#
+#  Copyright (c) 2009, The OpenWebMail Project
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in the
+#        documentation and/or other materials provided with the distribution.
+#      * Neither the name of The OpenWebMail Project nor the
+#        names of its contributors may be used to endorse or promote products
+#        derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project ``AS IS'' AND ANY
+#  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL The OpenWebMail Project BE LIABLE FOR ANY
+#  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use strict;
+use warnings;
+
+use vars qw($SCRIPT_DIR);
+
+if (-f "/etc/openwebmail_path.conf") {
+   my $pathconf = "/etc/openwebmail_path.conf";
+   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+   my $pathinfo = <F>;
+   close(F) or die("Cannot close $pathconf: $!");
+   ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
+} else {
+   ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
+}
+
+die("Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf!") if $SCRIPT_DIR eq '';
+push (@INC, $SCRIPT_DIR);
+
+# secure the environment
+delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
+$ENV{PATH}='/bin:/usr/bin';
+
+# make sure the openwebmail group can write
+umask(0002);
+
+# load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use MIME::Base64;
 use MIME::QuotedPrint;
 
+# load OWM libraries
 require "modules/dbm.pl";
 require "modules/suid.pl";
 require "modules/filelock.pl";
@@ -60,13 +99,14 @@ use vars qw($sort $page);
 use vars qw($searchtype $keyword);
 use vars qw($escapedkeyword);
 
-########## MAIN ##################################################
+
+
+# BEGIN MAIN PROGRAM
+
 openwebmail_requestbegin();
 userenv_init();
 
-if (!$config{'enable_webmail'}) {
-   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
-}
+openwebmailerror(__FILE__, __LINE__, "$lang_text{webmail} $lang_err{access_denied}") if !$config{enable_webmail};
 
 $folder = ow::tool::unescapeURL(param('folder')) || 'INBOX';
 $page = param('page') || 1;
@@ -76,26 +116,25 @@ $searchtype = param('searchtype') || 'subject';
 
 $escapedkeyword = ow::tool::escapeURL($keyword);
 
-my $action = param('action')||'';
-writelog("debug - request viewatt begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
-if ($action eq "viewattachment") {
-   viewattachment();
-} elsif ($action eq "saveattachment" && $config{'enable_webdisk'}) {
-   saveattachment();
-} elsif ($action eq "viewattfile") {
-   viewattfile();
-} elsif ($action eq "saveattfile" && $config{'enable_webdisk'}) {
-   saveattfile();
-} else {
-   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
-}
-writelog("debug - request viewatt end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+my $action = param('action') || '';
+writelog("debug - request viewatt begin, action=$action - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
+
+$action eq 'viewattachment'                            ? viewattachment() :
+$action eq 'viewattfile'                               ? viewattfile()    :
+$action eq 'saveattfile'    && $config{enable_webdisk} ? saveattfile()    :
+$action eq 'saveattachment' && $config{enable_webdisk} ? saveattachment() :
+openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
+
+writelog("debug - request viewatt end, action=$action - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
 
 openwebmail_requestend();
-########## END MAIN ##############################################
 
-########## VIEWATTACHMENT/SAVEATTACHMENT #########################
-sub viewattachment {	# view attachments inside a message
+
+
+# BEGIN SUBROUTINES
+
+sub viewattachment {
+   # view attachments inside a message
    my $messageid   = param('message_id') || '';
    my $nodeid      = param('attachment_nodeid');
    my $wordpreview = param('wordpreview') || 0;
@@ -191,16 +230,8 @@ sub getattachment {
          my $contenttype = ${$r_attachment}{'content-type'};
          my $filename = ${$r_attachment}{filename};
          $filename =~ s/\s$//;
-         my $content;
-         if (${$r_attachment}{'content-transfer-encoding'} =~ /^base64$/i) {
-            $content = decode_base64(${${$r_attachment}{r_content}});
-         } elsif (${$r_attachment}{'content-transfer-encoding'} =~ /^quoted-printable$/i) {
-            $content = decode_qp(${${$r_attachment}{r_content}});
-         } elsif (${$r_attachment}{'content-transfer-encoding'} =~ /^x-uuencode$/i) {
-            $content = ow::mime::uudecode(${${$r_attachment}{r_content}});
-         } else { ## Guessing it's 7-bit, at least sending SOMETHING back! :)
-            $content = ${${$r_attachment}{r_content}};
-         }
+
+         my $content = decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
 
          if ($contenttype =~ m#^application/ms\-tnef#) { # try to convert tnef -> zip/tgz/tar
             my $tnefbin = ow::tool::findbin('tnef');
@@ -291,9 +322,7 @@ sub getattachment {
    }
    # never reach
 }
-########## END VIEWATTACHMENT ####################################
 
-########## VIEWATTFILE/SAVEATTFILE ###############################
 sub viewattfile {	# view attachments uploaded to $config{'ow_sessionsdir'}
    my $attfile=param('attfile')||'';
    $attfile =~ s/\///g;  # just in case someone gets tricky ...
@@ -324,32 +353,28 @@ sub saveattfile {	# save attachments uploaded to $config{'ow_sessiondir'} to web
 }
 
 sub getattfile {
-   my ($attfile, $wordpreview)=@_;
+   my ($attfile, $wordpreview) = @_;
 
    # only allow to view attfiles belongs the $thissession
-   if ($attfile!~/^\Q$thissession\E/  || !-f "$config{'ow_sessionsdir'}/$attfile") {
+   if ($attfile !~ m/^\Q$thissession\E/ || !-f "$config{ow_sessionsdir}/$attfile") {
       openwebmailerror(__FILE__, __LINE__, "What the heck? Attfile $config{'ow_sessionsdir'}/$attfile seems to be gone!");
    }
 
-   my (%att, $attheader, $attcontent);
    sysopen(ATTFILE, "$config{'ow_sessionsdir'}/$attfile", O_RDONLY) or
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $config{'ow_sessionsdir'}/$attfile! ($!)");
-   local $/="\n\n"; $attheader=<ATTFILE>;	# read until 1st blank line
-   undef $/; $attcontent=<ATTFILE>;		# read until file end
+   local $/ = "\n\n";
+   my $attheader = <ATTFILE>;  # read until 1st blank line
+   undef $/;
+   my $attcontent = <ATTFILE>; # read until file end
    close(ATTFILE);
 
-   $att{'content-type'}='application/octet-stream';	# assume att is binary
+   my %att = ();
+   $att{'content-type'} = 'application/octet-stream'; # assume att is binary
    ow::mailparse::parse_header(\$attheader, \%att);
-   ($att{filename}, $att{filenamecharset})=
+   ($att{filename}, $att{filenamecharset}) =
       ow::mailparse::get_filename_charset($att{'content-type'}, $att{'content-disposition'});
 
-   if ($att{'content-transfer-encoding'} =~ /^base64$/i) {
-      $attcontent = decode_base64($attcontent);
-   } elsif ($att{'content-transfer-encoding'} =~ /^quoted-printable$/i) {
-      $attcontent = decode_qp($attcontent);
-   } elsif ($att{'content-transfer-encoding'} =~ /^x-uuencode$/i) {
-      $attcontent = ow::mime::uudecode($attcontent);
-   }
+   $attcontent = decode_content($attcontent, $att{'content-transfer-encoding'});
 
    if ($wordpreview && $att{filename} =~ /\.(?:doc|dot)$/i &&	# in wordpreview mode?
        msword2html(\$attcontent)) {
@@ -369,9 +394,7 @@ sub getattfile {
 
    return($att{filename}, $length, \$attheader, \$attcontent);
 }
-########## END VIEWATTATTFILE ####################################
 
-########## SAVEFILE2WEBDISK ######################################
 sub savefile2webdisk {
    my ($filename, $length, $r_content, $webdisksel)=@_;
 
@@ -416,9 +439,7 @@ sub savefile2webdisk {
 
    autoclosewindow($lang_text{'savefile'}, "$lang_text{'savefile'} $lang_text{'succeeded'} ($vpathstr)");
 }
-########## END SAVEFILE2WEBDISK ##################################
 
-########## MSWORD2HTML ###########################################
 sub msword2html {
    my $r_content=$_[0];
    my $antiwordbin=ow::tool::findbin('antiword');
@@ -446,4 +467,14 @@ sub msword2html {
                  qq|<body><pre>\n$stdout\n</pre></body></html>\n|;
    return 1;
 }
-########## MSWORD2HTML ###########################################
+
+sub decode_content {
+   my ($content, $encoding) = @_;
+
+   return $content unless defined $encoding;
+
+   $encoding =~ m/^quoted-printable/i ? return decode_qp($content)          :
+   $encoding =~ m/^base64/i           ? return decode_base64($content)      :
+   $encoding =~ m/^x-uuencode/i       ? return ow::mime::uudecode($content) :
+   return $content;
+}

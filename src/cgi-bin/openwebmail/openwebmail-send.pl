@@ -332,7 +332,7 @@ sub compose {
 
       if ($msgformat eq 'text' && $newmsgformat ne 'text') {
          $body = ow::htmltext::text2html($body);
-      } elsif ($msgformat ne 'text' && $newmsgformat eq 'text' ) {
+      } elsif ($msgformat ne 'text' && $newmsgformat eq 'text') {
          $body = ow::htmltext::html2text($body);
       }
 
@@ -1344,11 +1344,7 @@ sub decode_message_body {
    } elsif ($message->{'content-type'} =~ m#^multipart#i) {
       # If the first attachment is text, assume it's the body of a message in multipart format
       if (defined $message->{attachment}[0] && $message->{attachment}[0]{'content-type'} =~ m#^text#i) {
-         $body = $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[0]{r_content}})          :
-                 $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[0]{r_content}})      :
-                 $message->{attachment}[0]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[0]{r_content}}) :
-                 ${$message->{attachment}[0]{r_content}};
-
+         $body = decode_content(${$message->{attachment}[0]{r_content}}, $message->{attachment}[0]{'content-transfer-encoding'});
          $body = ow::enriched::enriched2html($body) if $message->{attachment}[0]{'content-type'} =~ m#^text/enriched#i;
          $bodyformat = 'html' if $message->{attachment}[0]{'content-type'} =~ m#^text/(?:html|enriched)#i;
 
@@ -1373,11 +1369,7 @@ sub decode_message_body {
                  )
                ) {
                if ($msgformat ne 'text' && $bodyformat eq 'text') {
-                  $body = $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp(${$message->{attachment}[1]{r_content}})          :
-                          $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64(${$message->{attachment}[1]{r_content}})      :
-                          $message->{attachment}[1]{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode(${$message->{attachment}[1]{r_content}}) :
-                          ${$message->{attachment}[1]{r_content}};
-
+                  $body = decode_content(${$message->{attachment}[1]{r_content}}, $message->{attachment}[1]{'content-transfer-encoding'});
                   $body = ow::enriched::enriched2html($body) if $message->{attachment}[1]{'content-type'} =~ m#^text/enriched#i;
 
                   $bodyformat = 'html';
@@ -1398,10 +1390,7 @@ sub decode_message_body {
 
       # handle mail programs that send the body encoded
       if ($message->{'content-type'} =~ m#^text#i) {
-         $body = $message->{'content-transfer-encoding'} =~ m#^quoted-printable#i ? decode_qp($body)          :
-                 $message->{'content-transfer-encoding'} =~ m#^base64#i           ? decode_base64($body)      :
-                 $message->{'content-transfer-encoding'} =~ m#^x-uuencode#i       ? ow::mime::uudecode($body) :
-                 $body;
+         $body = decode_content($body, $message->{'content-transfer-encoding'});
       }
 
       $body = ow::enriched::enriched2html($body) if $message->{'content-type'} =~ m#^text/enriched#i;
@@ -1744,10 +1733,7 @@ sub tnefatt2archive {
    my $tnefbin = ow::tool::findbin('tnef');
    return '' if $tnefbin eq '';
 
-   my $content = $r_attachment->{'content-transfer-encoding'} =~ m/^base64$/i           ? decode_base64(${$r_attachment->{r_content}})      :
-                 $r_attachment->{'content-transfer-encoding'} =~ m/^quoted-printable$/i ? decode_qp(${$r_attachment->{r_content}})          :
-                 $r_attachment->{'content-transfer-encoding'} =~ m#^x-uuencode#i        ? ow::mime::uudecode(${$r_attachment->{r_content}}) :
-                 ${$r_attachment->{r_content}};
+   my $content = decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
 
    my ($arcname, $r_arcdata, @arcfilelist) = ow::tnef::get_tnef_archive($tnefbin, $r_attachment->{filename}, \$content);
    return '' if $arcname eq '';
@@ -2785,7 +2771,7 @@ sub _convert_attfilename {
 sub folding {
    # folding the to, cc, bcc field so it won't violate the 998 char
    # limit (defined in RFC 2822 2.2.3) after base64/qp encoding
-   # ps: since qp may extend strlen for 3 times, we use 998/3=332 as limit
+   # ps: since qp may extend strlen by 3 times, we use 998/3=332 as limit
    my $string = shift;
 
    return $string if length($string) < 330;
@@ -3057,5 +3043,16 @@ sub replyreceipt {
                    );
 
    httpprint([], [$template->output]);
+}
+
+sub decode_content {
+   my ($content, $encoding) = @_;
+
+   return $content unless defined $encoding;
+
+   $encoding =~ m/^quoted-printable/i ? return decode_qp($content)          :
+   $encoding =~ m/^base64/i           ? return decode_base64($content)      :
+   $encoding =~ m/^x-uuencode/i       ? return ow::mime::uudecode($content) :
+   return $content;
 }
 

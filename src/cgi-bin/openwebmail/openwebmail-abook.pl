@@ -4858,19 +4858,21 @@ sub getmessageattachment {
       my $contenttype = ${$r_attachment}{'content-type'};
       my $filename = ${$r_attachment}{filename};
       $filename =~ s/\s$//;
-      my $content;
-      if (${$r_attachment}{'content-transfer-encoding'} =~ /^base64$/i) {
-         $content = decode_base64(${${$r_attachment}{r_content}});
-      } elsif (${$r_attachment}{'content-transfer-encoding'} =~ /^quoted-printable$/i) {
-         $content = decode_qp(${${$r_attachment}{r_content}});
-      } elsif (${$r_attachment}{'content-transfer-encoding'} =~ /^x-uuencode$/i) {
-         $content = ow::mime::uudecode(${${$r_attachment}{r_content}});
-      } else { ## Guessing it's 7-bit, at least sending SOMETHING back! :)
-         $content = ${${$r_attachment}{r_content}};
-      }
+      my $content = decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
       return ($content, length($content));
    }
    return ('',0);
+}
+
+sub decode_content {
+   my ($content, $encoding) = @_;
+
+   return $content unless defined $encoding;
+
+   $encoding =~ m/^quoted-printable/i ? return decode_qp($content)          :
+   $encoding =~ m/^base64/i           ? return decode_base64($content)      :
+   $encoding =~ m/^x-uuencode/i       ? return ow::mime::uudecode($content) :
+   return $content;
 }
 
 sub importvcard {

@@ -1,5 +1,10 @@
 <tmpl_var header_template escape="none">
-<table cellpadding="1" cellspacing="0" border="0" width="90%" align="center">
+
+<form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-advsearch.pl" name="advsearchform">
+<input type="hidden" name="action" value="advsearch">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+
+<table cellpadding="1" cellspacing="0" border="0" width="95%" align="center">
 <tr>
   <td nowrap class="titlebar">Advanced Search</td>
 </tr>
@@ -11,19 +16,15 @@
 <tr>
   <td>&nbsp;</td>
 </tr>
-<form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-advsearch.pl" enctype="multipart/form-data" name="advsearchform">
-<input type="hidden" name="action" value="advsearch">
-<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
-
 <tr>
   <td>
-    <table border="0" width="100%" cellpadding="0" cellspacing="0">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
       <td class="columnheader">Select Folder&nbsp;<input name="allbox" type="checkbox" value="1" <tmpl_if allbox>checked</tmpl_if> onClick="CheckAll();"></td>
     </tr>
     <tr>
       <td class="windowlight">
-        <table cols=4 width="100%">
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
           <tr>
           <tmpl_loop foldersloop>
             <td>
@@ -40,26 +41,16 @@
   </td>
 </tr>
 <tr>
+  <td>&nbsp;</td>
+</tr>
+<tr>
   <td>
-    <table border="0" width="100%" cellpadding="0" cellspacing="0">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
       <td class="columnheader" colspan=2>Date Range</td>
     </tr>
     <tr>
-      <td class="windowlight">Start 
-        
-        <tmpl_loop dateselloop>
-        <select name="<tmpl_var dateselname escape="html">">
-        <tmpl_loop selloop>
-          <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if> ><tmpl_var option escape="html"></option>
-        </tmpl_loop>
-        </select>
-        <tmpl_if datesep>&nbsp;<tmpl_var datesep escape="html">&nbsp;</tmpl_if>
-        <tmpl_unless datesep><tmpl_if firstdatesel>&nbsp;End</tmpl_if></tmpl_unless>
-        </tmpl_loop>
-
-      </td>
-      <td class="windowlight"> 
+      <td class="windowlight">Presets
         <select name="daterange" onchange="setdaterange(this.value)">
         <tmpl_loop daterange>
           <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if> >
@@ -75,6 +66,18 @@
         </tmpl_loop>
         </select>
       </td>
+
+      <td class="windowlight">Start
+        <tmpl_loop dateselloop>
+        <select name="<tmpl_var dateselname escape="html">">
+        <tmpl_loop selloop>
+          <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if> ><tmpl_var option escape="html"></option>
+        </tmpl_loop>
+        </select>
+        <tmpl_if datesep><tmpl_var datesep escape="html"></tmpl_if>
+        <tmpl_unless datesep><tmpl_if firstdatesel>&nbsp;&nbsp;&nbsp;End</tmpl_if></tmpl_unless>
+        </tmpl_loop>
+      </td>
     </tr>
     </table>
   </td>
@@ -84,7 +87,7 @@
 </tr>
 <tr>
   <td>
-    <table border="0" width="100%" cellpadding="0" cellspacing="0">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
       <td class="columnheader">Where</td>
       <td class="columnheader">Type of search</td>
@@ -125,7 +128,7 @@
         </select>
       </td>
       <td class="windowlight">
-        <input type="text" name="searchtext<tmpl_var n>"  size="40" accesskey="<tmpl_var n escape="html">" value="<tmpl_var text escape="html">" /> 
+        <input type="text" name="searchtext<tmpl_var n>"  size="40" accesskey="<tmpl_var n escape="html">" value="<tmpl_var text escape="html">">
         <tmpl_unless lastfiltersloop>&nbsp;and</tmpl_unless>
       </td>
       <td class="windowlight" align="center">
@@ -149,10 +152,9 @@
 </tr>
  <tr>
   <td>
-    <table border="0" width="100%" cellpadding="1" cellspacing="1">
+    <table cellpadding="1" cellspacing="1" border="0" width="100%">
     <tr>
-      <td colspan="5">
-         <b>Results: 
+      <td colspan="6" class="menubar">Results:
       <tmpl_if selectedfolders>
          <tmpl_var totalfound escape="html">
          <tmpl_if totalsizestr> ( <tmpl_var totalsizestr> ) </tmpl_if>
@@ -163,7 +165,6 @@
       <tmpl_else>
          No Folder selected
       </tmpl_if>
-         </b>
       </td>
     </tr>
     <tr>
@@ -184,10 +185,10 @@
     </td>
     <td nowrap class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">
       <tmpl_if contactinaddressbook><a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;abookkeyword=<tmpl_var from_address escape="url">&amp;abooksearchtype=email&amp;abookfolder=ALL&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon"><tmpl_if use_texticon>addressbook search<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/friend.gif" title="search addressbook for <tmpl_var from_address escape="html">" alt="search addressbook" border="0" align="absmiddle"></tmpl_if></a>&nbsp;</tmpl_if>
-      <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;composetype=sendto&amp;to=<tmpl_var from escape="url">" title="<tmpl_var from_address escape="html">"><tmpl_var from_name></a>
+      <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;sessionid=<tmpl_var sessionid escape="url">&amp;composetype=sendto&amp;to=<tmpl_var from escape="url">" title="<tmpl_var from_address escape="html">"><tmpl_var from_name></a>
     </td>
     <td nowrap class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">
-      <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=composemessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;composetype=sendto&amp;to=<tmpl_var to escape="url">" title="<tmpl_var to_address escape="html">"><tmpl_var to_name></a>
+      <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;sessionid=<tmpl_var sessionid escape="url">&amp;composetype=sendto&amp;to=<tmpl_var to escape="url">" title="<tmpl_var to_address escape="html">"><tmpl_var to_name></a>
     </td>
     <td nowrap class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">
       <a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="Charset: <tmpl_var msgcharset escape="html">"><tmpl_if subject><tmpl_var subject escape="html"><tmpl_else>N/A</tmpl_if></a>
@@ -198,73 +199,74 @@
     </tr>
     </tmpl_loop>
     </table>
-</form>
   </td>
 </tr>
 </table>
 
-<script language="javascript">
+</form>
+
+<script type="text/javascript">
 <!--
-   function CheckAll()
-   {
-      for (var i=0;i<document.advsearchform.folders.length;i++)
-      {
+   function CheckAll() {
+      for (var i = 0; i < document.advsearchform.folders.length; i++) {
          var e = document.advsearchform.folders[i];
-         if (e.type == 'checkbox' && e.name != 'allbox')
+         if (e.type == 'checkbox' && e.name != 'allbox') {
             e.checked = document.advsearchform.allbox.checked;
+         }
       }
    }
 
-   function setdaterange (range)
-   {
-      var todaydate=new Date();
-      var todayyear=todaydate.getYear() + 1900;
-      var todaymonth=todaydate.getMonth() + 1;
-      var todayday=todaydate.getDate();
+   function setdaterange(range) {
+      var todaydate  = new Date();
+      var todayyear  = todaydate.getYear() + 1900;
+      var todaymonth = todaydate.getMonth() + 1;
+      var todayday   = todaydate.getDate();
 
       var daysInMonth = new Array(0, 31,28,31,30,31,30,31,31,30,31,30,31);
       if ((todayyear % 4 == 0 && todayyear % 100 != 0) || todayyear % 400 == 0) {
          daysInMonth[1] = 29;
       }
 
-      var startyear=todayyear;
-      var startmonth=todaymonth;
-      var startday=todayday;
+      var startyear  = todayyear;
+      var startmonth = todaymonth;
+      var startday   = todayday;
 
-      if (range=='today') {
+      if (range == 'today') {
          // do nothing
-      } else if (range=='oneweek') {
-         startday-=6;
-      } else if (range=='twoweeks') {
-         startday-=13;
-      } else if (range=='onemonth') {
+      } else if (range == 'oneweek') {
+         startday -= 6;
+      } else if (range == 'twoweeks') {
+         startday -= 13;
+      } else if (range == 'onemonth') {
          startmonth--;
-      } else if (range=='threemonths') {
-         startmonth-=3;
-      } else if (range=='sixmonths') {
-         startmonth-=6;
-      } else if (range=='oneyear') {
+      } else if (range == 'threemonths') {
+         startmonth -= 3;
+      } else if (range == 'sixmonths') {
+         startmonth -= 6;
+      } else if (range == 'oneyear') {
          startyear--;
-      } else {	// 'all' or unknow range
-         startyear=1990;
-         startmonth=1;
-         startday=1;
+      } else {	// 'all' or unknown range
+         startyear  = 1990;
+         startmonth = 1;
+         startday   = 1;
       }
 
-      if (startday<1) {
+      if (startday < 1) {
          startmonth--;
-         if (startmonth<1) {
-            startday+=daysInMonth[startmont+12];
+         if (startmonth < 1) {
+            startday += daysInMonth[startmont+12];
          } else {
-            startday+=daysInMonth[startmonth];
+            startday += daysInMonth[startmonth];
          }
       }
-      if (startmonth<0) {
+
+      if (startmonth < 0) {
          startyear--;
-         startmonth+=12;
+         startmonth += 12;
       }
-      if (startday>daysInMonth[startmonth]) {
-         startday=daysInMonth[startmonth];
+
+      if (startday > daysInMonth[startmonth]) {
+         startday = daysInMonth[startmonth];
       }
 
       selectoption(document.advsearchform.year1, startyear);
@@ -277,21 +279,21 @@
       return;
    }
 
-   function selectoption (menu, value)
-   {
-      var i_default=0;
+   function selectoption(menu, value) {
+      var i_default = 0;
 
-      for (var i=0; i<menu.length; i++) {
-         if (menu.options[i].value==value) {
-            menu.options[i].selected=true;
+      for (var i = 0; i < menu.length; i++) {
+         if (menu.options[i].value == value) {
+            menu.options[i].selected = true;
             return i;
          }
+
          if (menu.options[i].defaultSelected) {
-            i_default=i;
+            i_default = i;
          }
       }
 
-      menu.options[i_default].selected=true;
+      menu.options[i_default].selected = true;
       return i_default;
    }
 //-->

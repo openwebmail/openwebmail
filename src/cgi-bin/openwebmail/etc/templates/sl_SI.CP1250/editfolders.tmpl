@@ -1,6 +1,5 @@
 <tmpl_var header_template escape="none">
 
-
 <table border="0" align="center" width="90%" cellpadding="0" cellspacing="0">
 <tr>
   <td colspan="5" class="titlebar">Edit Folders</td>
@@ -17,26 +16,28 @@
   <td colspan="5">&nbsp;</td>
 </tr>
 <tr>
-  <td class="columnheader">&nbsp;<b>Folder Name (<tmpl_var foldername_maxlen escape="html"> characters)</b></td>
-  <td align="center" class="columnheader"><b>New</b></td>
-  <td align="center" class="columnheader"><b>Mesg</b></td>
-  <td align="center" class="columnheader"><b>Size</b></td>
-  <td align="center" class="columnheader"><b>Action</b></td>
+  <td class="columnheader">&nbsp;Folder Name (<tmpl_var foldername_maxlen escape="html"> characters)</td>
+  <td align="center" class="columnheader">New</td>
+  <td align="center" class="columnheader">Mesg</td>
+  <td align="center" class="columnheader">Size</td>
+  <td align="center" class="columnheader">Action</td>
 </tr>
-<form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-folder.pl" enctype="multipart/form-data">
-<input type="hidden" name="action" value="addfolder">
-<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
-<input type="hidden" name="page" value="<tmpl_var page escape="html">">
-<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
-<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
 <tr>
-  <td class="rowlight">&nbsp;<input type="text" name="foldername"  size="24" maxlength="<tmpl_var foldername_maxlen escape="html">"></td>
-  <td align="center" class="rowlight">&nbsp;</td>
-  <td align="center" class="rowlight">&nbsp;</td>
-  <td align="center" class="rowlight">&nbsp;</td>
-  <td align="center" class="rowlight"><input type="submit" name="Add" value="Add" accesskey="A" class="medtext"></td>
+  <form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-folder.pl">
+  <input type="hidden" name="action" value="addfolder">
+  <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+  <input type="hidden" name="page" value="<tmpl_var page escape="html">">
+  <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+  <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+  <td class="rowlight">&nbsp;
+    <input type="text" name="foldername" size="24" maxlength="<tmpl_var foldername_maxlen escape="html">">
+  </td>
+  <td align="center" class="rowlight" colspan="3">&nbsp;</td>
+  <td align="center" class="rowlight">
+    <input type="submit" name="Add" value="Add" accesskey="A" class="medtext">
+  </td>
+  </form>
 </tr>
-</form>
 </tmpl_if>
 
 <tmpl_loop foldersloop>
@@ -50,73 +51,87 @@
   <td colspan="5">&nbsp;</td>
 </tr>
 <tr>
-  <td class="columnheader">&nbsp; <b>Default folders</b></td>
-  <td align="center" class="columnheader"><b>New</b></td>
-  <td align="center" class="columnheader"><b>Mesg</b></td>
-  <td align="center" class="columnheader"><b>Size</b></td>
-  <td align="center" class="columnheader"><b>Action</b></td>
+  <td class="columnheader">&nbsp; Default folders</td>
+  <td align="center" class="columnheader">New</td>
+  <td align="center" class="columnheader">Mesg</td>
+  <td align="center" class="columnheader">Size</td>
+  <td align="center" class="columnheader">Action</td>
 </tr>
   </tmpl_if>
-<tr><td class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"> &nbsp; &nbsp; <tmpl_if categorizedfolder> &nbsp; - &nbsp; </tmpl_if><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;folder=<tmpl_var currfolder escape="url">"><tmpl_var folderbasename escape="html"></a>&nbsp;
-<a accesskey="<tmpl_var accesskey>" href="<tmpl_var url_cgi escape="none">/openwebmail-folder.pl?sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var currfolder escape="url">&amp;action=downloadfolder" title="Download <tmpl_var currfolder escape="url">" class="icon"><tmpl_if use_texticon>download <tmpl_var currfolder escape="html"> <tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/download.gif" border="0" align="absmiddle" alt="Download <tmpl_var currfolder escape="html"> "></tmpl_if></a></td>
-<td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"><tmpl_var newmessages escape="html"></td><td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">&nbsp;<tmpl_var allmessages escape="html"></td><td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">&nbsp;<tmpl_var foldersize escape="html"></td>
-
-<td class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>" align="center">
-<form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-folder.pl" enctype="multipart/form-data" name="folderform<tmpl_var folder_n escape="html">">
-<input type="hidden" name="action" value="chkindexfolder">
-<input type="hidden" name="folder" value="<tmpl_var currfolder escape="html">">
-<input type="hidden" name="foldername" value="<tmpl_var currfolder escape="html">">
-<input type="hidden" name="foldernewname" value="">
-<input type="hidden" name="page" value="<tmpl_var page escape="html">">
-<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
-<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
-
-<input type="submit" name="MarkRead" value="MarkRead" onclick="return OpConfirm('folderform<tmpl_var folder_n escape="html">', 'markreadfolder', 'Are you going to mark read on all messages in this folder?'+' ( <tmpl_var currfolder escape="html"> )')" class="medtext" />
-<input type="submit" name="CheckIndex" value="CheckIndex" onclick="return OpConfirm('folderform<tmpl_var folder_n escape="html">', 'chkindexfolder', 'Are you going to check the index of this folder?'+' ( <tmpl_var currfolder escape="html"> )')" class="medtext" />
-<input type="submit" name="ReIndex" value="ReIndex" onclick="return OpConfirm('folderform<tmpl_var folder_n escape="html">', 'reindexfolder', 'Are you sure you want to reindex this folder?'+' ( <tmpl_var currfolder escape="html"> )')" class="medtext" />
-  <tmpl_unless inbox>
-<input type="submit" name="Rename" value="Rename" onclick="return OpConfirm('folderform<tmpl_var folder_n escape="html">', 'renamefolder', 'Please enter the new name for this folder'+' ( <tmpl_var currfolder escape="html"> )')" class="medtext" />
-  </tmpl_unless>
-<input type="submit" name="Delete" value="Delete" onclick="return OpConfirm('folderform<tmpl_var folder_n escape="html">', 'deletefolder', 'Are you sure you want to delete this folder and all its contents?'+' ( <tmpl_var currfolder escape="html"> )')" class="medtext" /></td></tr></form>
+<tr>
+  <td class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"> &nbsp; &nbsp; <tmpl_if categorizedfolder> &nbsp; - &nbsp; </tmpl_if>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;folder=<tmpl_var currfolder escape="url">"><tmpl_var folderbasename escape="html"></a>&nbsp;
+    <a accesskey="<tmpl_var accesskey>" href="<tmpl_var url_cgi escape="none">/openwebmail-folder.pl?sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var currfolder escape="url">&amp;action=downloadfolder" title="Download <tmpl_var currfolder escape="url">" class="icon"><tmpl_if use_texticon>download <tmpl_var currfolder escape="html"> <tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/download.gif" border="0" align="absmiddle" alt="Download <tmpl_var currfolder escape="html"> "></tmpl_if></a>
+  </td>
+  <td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"><tmpl_var newmessages escape="html"></td>
+  <td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">&nbsp;<tmpl_var allmessages escape="html"></td>
+  <td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">&nbsp;<tmpl_var foldersize escape="html"></td>
+  <td class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>" align="center">
+    <form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-folder.pl" name="folderform<tmpl_var folder_n escape="html">">
+    <input type="hidden" name="action" value="chkindexfolder">
+    <input type="hidden" name="folder" value="<tmpl_var currfolder escape="html">">
+    <input type="hidden" name="foldername" value="<tmpl_var currfolder escape="html">">
+    <input type="hidden" name="foldernewname" value="">
+    <input type="hidden" name="page" value="<tmpl_var page escape="html">">
+    <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+    <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+    <input type="submit" name="MarkRead" value="MarkRead" onclick="return OpConfirm('folderform<tmpl_var folder_n escape="html">', 'markreadfolder', 'Are you going to mark read on all messages in this folder?'+' ( <tmpl_var currfolder escape="html"> )')" class="medtext">
+    <input type="submit" name="CheckIndex" value="CheckIndex" onclick="return OpConfirm('folderform<tmpl_var folder_n escape="html">', 'chkindexfolder', 'Are you going to check the index of this folder?'+' ( <tmpl_var currfolder escape="html"> )')" class="medtext">
+    <input type="submit" name="ReIndex" value="ReIndex" onclick="return OpConfirm('folderform<tmpl_var folder_n escape="html">', 'reindexfolder', 'Are you sure you want to reindex this folder?'+' ( <tmpl_var currfolder escape="html"> )')" class="medtext">
+    <tmpl_unless inbox>
+    <input type="submit" name="Rename" value="Rename" onclick="return OpConfirm('folderform<tmpl_var folder_n escape="html">', 'renamefolder', 'Please enter the new name for this folder'+' ( <tmpl_var currfolder escape="html"> )')" class="medtext">
+    </tmpl_unless>
+    <input type="submit" name="Delete" value="Delete" onclick="return OpConfirm('folderform<tmpl_var folder_n escape="html">', 'deletefolder', 'Are you sure you want to delete this folder and all its contents?'+' ( <tmpl_var currfolder escape="html"> )')" class="medtext">
+    </form>
+  </td>
+</tr>
 </tmpl_loop>
 <tr>
   <td colspan="5">&nbsp;</td>
 </tr>
-<tr><td class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">&nbsp;<b>Total</b></td><td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"><b><tmpl_var total_newmessages escape="html"></b></td><td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"><b>&nbsp;<tmpl_var total_allmessages escape="html"></b></td><td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"><b>&nbsp;<tmpl_var total_foldersize escape="html"></b></td><td class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>" align="center"><tmpl_if quotausage><b><tmpl_if overquota><font class="colortext"></tmpl_if>Quota usage: <tmpl_var quotausage escape="html"><tmpl_if quotalimit> (<tmpl_var percent escape="html">%) &nbsp;Quota limit: <tmpl_var quotalimit escape="html"></tmpl_if><tmpl_if overquota></font></tmpl_if></b></tmpl_if></td></tr>
+<tr>
+  <td class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">&nbsp;<b>Total</b></td>
+  <td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"><b><tmpl_var total_newmessages escape="html"></b></td>
+  <td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"><b>&nbsp;<tmpl_var total_allmessages escape="html"></b></td>
+  <td align="center" class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"><b>&nbsp;<tmpl_var total_foldersize escape="html"></b></td>
+  <td class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>" align="center"><tmpl_if quotausage><b><tmpl_if overquota><span class="colortext"></tmpl_if>Quota usage: <tmpl_var quotausage escape="html"><tmpl_if quotalimit> (<tmpl_var percent escape="html">%) &nbsp;Quota limit: <tmpl_var quotalimit escape="html"></tmpl_if><tmpl_if overquota></span></tmpl_if></b></tmpl_if></td>
+</tr>
 </table>
-<script language="javascript">
+
+<script type="text/javascript">
 <!--
    function OpConfirm(formname, op, text) {
-      var newname='';
-      if ( op == 'markreadfolder' ) {
-         document.forms[formname].action.value='markreadfolder';
-         document.forms[formname].foldernewname.value='';
+      var newname = '';
+      if (op == 'markreadfolder') {
+         document.forms[formname].action.value = 'markreadfolder';
+         document.forms[formname].foldernewname.value = '';
          return(confirm(text));
-
-      } else if ( op == 'deletefolder' ) {
-         document.forms[formname].action.value='deletefolder';
-         document.forms[formname].foldernewname.value='';
+      } else if (op == 'deletefolder') {
+         document.forms[formname].action.value = 'deletefolder';
+         document.forms[formname].foldernewname.value = '';
          return(confirm(text));
-
-      } else if ( op == 'chkindexfolder' ) {
-         document.forms[formname].action.value='chkindexfolder';
-         document.forms[formname].foldernewname.value='';
+      } else if (op == 'chkindexfolder') {
+         document.forms[formname].action.value = 'chkindexfolder';
+         document.forms[formname].foldernewname.value = '';
          return(confirm(text));
-
-      } else if ( op == 'reindexfolder' ) {
-         document.forms[formname].action.value='reindexfolder';
-         document.forms[formname].foldernewname.value='';
+      } else if (op == 'reindexfolder') {
+         document.forms[formname].action.value = 'reindexfolder';
+         document.forms[formname].foldernewname.value = '';
          return(confirm(text));
+      } else {
+         // renamefolder
+         newname = prompt(text, document.forms[formname].foldername.value);
 
-      } else { // renamefolder
-         newname=prompt(text, document.forms[formname].foldername.value);
-         if ( newname==document.forms[formname].foldername.value ||
-              newname==null ||
-              newname==''      ) {
+         if (
+              newname == document.forms[formname].foldername.value
+              || newname == null
+              || newname == ''
+            ) {
             return false;
          }
-         document.forms[formname].action.value='renamefolder';
-         document.forms[formname].foldernewname.value=newname;
+
+         document.forms[formname].action.value = 'renamefolder';
+         document.forms[formname].foldernewname.value = newname;
          return true;
       }
 
