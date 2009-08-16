@@ -37,12 +37,12 @@
    USE Clickable;
    USE click_email = Clickable::Email;
    USE revision    = Subst
-     pattern     = '\s+(?:r|rev|revision)\s+(\d+)'
-     replacement = " <a href='${c.script}/${c.repos}/revision?rev=\$1' target='_new'>rev \$1</a>"
+     pattern     = '([\s(]r|rev|revision)(\s*)(\d+)'
+     replacement = " <a href='${c.script}/${c.repos}/revision?rev=\$2' target='_new'>\$1\$2\$3</a>"
      global      = 1;
    USE bugtracker  = Subst
-     pattern     = '\s+(?:b|bug)\s+#?(\d+)'
-     replacement = ' <a href="http://openwebmail.acatysmoof.com/dev/bugs/show_bug.cgi?id=$1" target="_new">bug $1</a>'
+     pattern     = '([\s(]bug)(\s+#?)(\d+)'
+     replacement = ' <a href="http://openwebmail.acatysmoof.com/dev/bugs/show_bug.cgi?id=$3" target="_new">$1$2$3</a>'
      global      = 1;
 
    MACRO log_msg(text)
