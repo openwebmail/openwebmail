@@ -147,7 +147,7 @@ writelog("debug - request read begin, action=$action, folder=$folder - " . __FIL
 
 $action eq 'readmessage'     ? readmessage()      :
 $action eq 'rebuildmessage'  ? rebuildmessage()   :
-$action eq 'deletenontext'   ? delete_nontext()   :
+$action eq 'deleteattnodes'  ? delete_attnodes()  :
 $action eq 'downloadnontext' ? download_nontext() :
 openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
 
@@ -1354,9 +1354,12 @@ sub download_nontext {
    exec(@cmd, @filelist) or print qq|Error in executing |.join(' ', @cmd, @filelist);
 }
 
-sub delete_nontext {
-   # delete all non-text attachments from a message
+sub delete_attnodes {
+   # delete the specified attachment nodes from a message
    my $messageid = param('message_id') || '';
+
+   # nodeid may be like '0-1-0' for a specific node,
+   # or like 'NONTEXT' for all nontext nodes
    my $nodeid    = param('nodeid') || '';
 
    return readmessage() unless $nodeid;
@@ -1415,7 +1418,8 @@ sub delete_nontext {
       $has_namedatt++ if (${$att[$i]}{filename} !~ m/^Unknown\./);
    }
    push(@datas, "\n--$boundary--\n\n");
-   return 0 if ($delatt == 0);
+
+   return readmessage() if $delatt == 0;
 
    $block          = join('', @datas);
    $attr[$_SIZE]   = length($block);
@@ -1433,7 +1437,7 @@ sub delete_nontext {
    }
    ow::filelock::lock($folderfile, LOCK_UN);
 
-   writelog("delete nontext attachments - error $err:$errmsg") if $err < 0;
+   writelog("delete attachment nodes - error $err\:$errmsg") if $err < 0;
 
    return readmessage();
 }
