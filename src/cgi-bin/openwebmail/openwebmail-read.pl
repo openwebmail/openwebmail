@@ -631,11 +631,7 @@ sub readmessage {
       # =============================================================
       # quoted-printable, base64, or uudecode the message body to make it readable
       if ($messagesloop->[$i]{'content-type'} =~ /^text/i && defined $messagesloop->[$i]{'content-transfer-encoding'}) {
-         $messagesloop->[$i]{body} =
-           $messagesloop->[$i]{'content-transfer-encoding'} =~ m/^base64/i           ? decode_base64($messagesloop->[$i]{body})      :
-           $messagesloop->[$i]{'content-transfer-encoding'} =~ m/^quoted-printable/i ? decode_qp($messagesloop->[$i]{body})          :
-           $messagesloop->[$i]{'content-transfer-encoding'} =~ m/^x-uuencode/i       ? ow::mime::uudecode($messagesloop->[$i]{body}) :
-           $messagesloop->[$i]{body};
+         $messagesloop->[$i]{body} = decode_content($messagesloop->[$i]{body}, $messagesloop->[$i]{'content-transfer-encoding'});
       }
 
       $messagesloop->[$i]{body} = (iconv($convfrom, $displaycharset, $messagesloop->[$i]{body}))[0];
@@ -783,16 +779,8 @@ sub readmessage {
          $messagesloop->[$i]{attachment}[$n]{'content-type'} =~ s/^(.+?);.*/$1/g;
 
          # decode the content if needed
-         if (defined $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'}) {
-            my $encoding = $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'};
-            my $content  = ${$messagesloop->[$i]{attachment}[$n]{r_content}};
-
-            ${$messagesloop->[$i]{attachment}[$n]{r_content}} =
-              $encoding =~ m/^base64$/i           ? decode_base64($content)      :
-              $encoding =~ m/^quoted-printable$/i ? decode_qp($content)          :
-              $encoding =~ m/^x-uuencode$/i       ? ow::mime::uudecode($content) :
-              $content;
-         }
+         ${$messagesloop->[$i]{attachment}[$n]{r_content}} =
+           decode_content(${$messagesloop->[$i]{attachment}[$n]{r_content}}, $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'});
 
          # assume all attachments are misc at first
          $messagesloop->[$i]{attachment}[$n]{is_misc}     = 1;
@@ -915,13 +903,13 @@ sub readmessage {
                ${$messagesloop->[$i]{attachment}[$n]{r_content}} =~ s/(\r?\n){2,}/\n\n/g;
                ${$messagesloop->[$i]{attachment}[$n]{r_content}} =~ s/^\s+//;
                ${$messagesloop->[$i]{attachment}[$n]{r_content}} =~ s/\n\s*$/\n/;
-               if ($prefs{'usesmileicon'}) {
+               if ($prefs{usesmileicon}) {
                   ${$messagesloop->[$i]{attachment}[$n]{r_content}} =~
                      s/(^|\D)(>?)([:;8])[-^]?([\(\)\>\<\|PpDdOoX\\\/])([\s\<])/$1 SMILY_$smilies{"$2$3$4"}\.png $5/g;
                   ${$messagesloop->[$i]{attachment}[$n]{r_content}} =
                      ow::htmltext::text2html(${$messagesloop->[$i]{attachment}[$n]{r_content}});
                   ${$messagesloop->[$i]{attachment}[$n]{r_content}} =~
-                     s/SMILY_(.+?\.png)/<img border="0" width="12" height="12" src="$config{'ow_htmlurl'}\/images\/smilies\/$1">/g;
+                     s#SMILY_(.+?\.png)#<img border="0" width="12" height="12" src="$config{ow_htmlurl}/images/smilies/$1">#g;
                } else {
                   ${$messagesloop->[$i]{attachment}[$n]{r_content}} =
                      ow::htmltext::text2html(${$messagesloop->[$i]{attachment}[$n]{r_content}});
@@ -948,21 +936,25 @@ sub readmessage {
             $msg{'content-type'} = 'N/A'; # assume msg is simple text
 
             ow::mailparse::parse_header(\$header, \%msg);
-            $attcharset = $1 if ($msg{'content-type'} =~ m#charset="?([^\s"';]*)"?\s?#i);
+            $attcharset = $1 if $msg{'content-type'} =~ m#charset="?([^\s"';]*)"?\s?#i;
 
-            $header = simpleheader($header); # from shares/maildb.pl
+            if ($messagesloop->[$i]{attachment}[$n]{'content-type'} !~ m#^message/(?:delivery-status|disposition-notification)#i) {
+               # keep all of the headers of message/delivery-status (MTA delivery status reports)
+               # and disposition-notification (confirm read reply messages) messages so user gets
+               # maximum info about the transaction from the headers
+               # In every other case simplify the headers:
+               $header = simpleheader($header); # from shares/maildb.pl
+            }
+
             $header = ow::htmltext::text2html($header);
 
             # decode the body if needed
-            $body = $msg{'content-transfer-encoding'} =~ m/^base64$/i           ?  decode_base64($body)      :
-                    $msg{'content-transfer-encoding'} =~ m/^quoted-printable$/i ?  decode_qp($body)          :
-                    $msg{'content-transfer-encoding'} =~ m/^x-uuencode$/i       ?  ow::mime::uudecode($body) :
-                    $body;
+            $body = decode_content($body, $msg{'content-transfer-encoding'});
 
             if ($msg{'content-type'} =~ m#^text/html#i) { # convert into html table
                $body = ow::htmlrender::html4nobase($body);
-               $body = ow::htmlrender::html4disablejs($body) if ($prefs{'disablejs'});
-               $body = ow::htmlrender::html4disableembcode($body) if ($prefs{'disableembcode'});
+               $body = ow::htmlrender::html4disablejs($body) if $prefs{disablejs};
+               $body = ow::htmlrender::html4disableembcode($body) if $prefs{disableembcode};
                $body = ow::htmlrender::html4disableemblink($body, $prefs{disableemblink}, "$config{ow_htmlurl}/images/backgrounds/Transparent.gif");
                $body = ow::htmlrender::html2table($body);
             } else {
@@ -1287,17 +1279,7 @@ sub download_nontext {
          next if $messagesloop->[$i]{attachment}[$n]{referencecount} > 0;
 
          if (defined $messagesloop->[$i]{attachment}[$n]{'content-type'} && $messagesloop->[$i]{attachment}[$n]{'content-type'} !~ m/^text/i) {
-            my $content = ${$messagesloop->[$i]{attachment}[$n]{r_content}};
-
-            # decode the content if needed
-            if (defined $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'}) {
-               my $encoding = $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'};
-
-               $content = $encoding =~ m/^base64$/i           ? decode_base64($content)      :
-                          $encoding =~ m/^quoted-printable$/i ? decode_qp($content)          :
-                          $encoding =~ m/^x-uuencode$/i       ? ow::mime::uudecode($content) :
-                          $content;
-            }
+            my $content = decode_content(${$messagesloop->[$i]{attachment}[$n]{r_content}}, $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'});
 
             # try to convert tnef content -> zip/tgz/tar
             if ($messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^application/ms\-tnef#) {
@@ -1455,3 +1437,15 @@ sub delete_nontext {
 
    return readmessage();
 }
+
+sub decode_content {
+   my ($content, $encoding) = @_;
+
+   return $content unless defined $encoding;
+
+   $encoding =~ m/^quoted-printable/i ? return decode_qp($content)          :
+   $encoding =~ m/^base64/i           ? return decode_base64($content)      :
+   $encoding =~ m/^x-uuencode/i       ? return ow::mime::uudecode($content) :
+   return $content;
+}
+

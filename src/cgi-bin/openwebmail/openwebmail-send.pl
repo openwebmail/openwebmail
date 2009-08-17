@@ -1264,7 +1264,7 @@ sub compose {
                                                            attachment_size  => $_->{size} > 1024
                                                                                ? int($_->{size} / 1024) . $lang_sizes{kb}
                                                                                : $_->{size} . $lang_sizes{byte},
-                                                           open_newwindow   => $_->{name} =~ m/\.(?:txt|jpg|jpeg|gif|png|bmp)$/i ? 1 : 0,
+                                                           open_newwindow   => $_->{name} =~ m/\.(?:txt|html?|jpg|jpeg|gif|png|bmp)$/i ? 1 : 0,
                                                            show_wordpreview => $_->{name} =~ m/\.(?:doc|dot)$/i ? 1 : 0,
                                                            save_to_webdisk  => $config{enable_webdisk} && !$config{webdisk_readonly} ? 1 : 0,
                                                            sessionid        => $thissession,
@@ -1330,18 +1330,7 @@ sub decode_message_body {
 
    my $body = '';
 
-   if ($message->{'content-type'} =~ m#^multipart/report#i) {
-      # handle the messages generated if sendmail is set up to send MIME error reports
-      foreach my $attachment_number (0 .. $#{$message->{attachment}}) {
-         if (
-              exists $message->{attachment}[$attachment_number]{r_content}
-              && defined ${$message->{attachment}[$attachment_number]{r_content}}
-            ) {
-            $body .= ${$message->{attachment}[$attachment_number]{r_content}};
-            shift @{$message->{attachment}};
-         }
-      }
-   } elsif ($message->{'content-type'} =~ m#^multipart#i) {
+   if ($message->{'content-type'} =~ m#^multipart#i) {
       # If the first attachment is text, assume it's the body of a message in multipart format
       if (defined $message->{attachment}[0] && $message->{attachment}[0]{'content-type'} =~ m#^text#i) {
          $body = decode_content(${$message->{attachment}[0]{r_content}}, $message->{attachment}[0]{'content-transfer-encoding'});

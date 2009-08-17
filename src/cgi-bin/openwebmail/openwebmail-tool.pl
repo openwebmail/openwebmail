@@ -400,14 +400,16 @@ sub init {
             qq|to give us statistics for future developments. The content to be sent is:\n\n|.
             qq|$content\n|.
             qq|Send the site report?(Y/n) |;
-      $_=<STDIN>;
-      if ($_!~/n/i) {
+      $_ = <STDIN>;
+      if ($_ !~ m/n/i) {
          print qq|sending report...\n|;
-         send_mail("$id\@$hostname", $realname, $to, $date, $subject, "$content \n")
+         send_mail("$id\@$hostname", $realname, $to, $date, $subject, "$content \n");
+         print qq|report sent successfully.\n|;
+      } else {
+         print "\n";
       }
    }
-   print qq|report sent successfully.\n\n| .
-         qq|Show your support for OpenWebMail on Ohloh:\n| .
+   print qq|\nShow your support for OpenWebMail on Ohloh:\n| .
          qq|http://www.ohloh.net/p/openwebmail\n\n| .
          qq|Thank you.\n\n|;
    return 0;
