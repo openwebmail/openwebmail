@@ -1322,7 +1322,7 @@ sub addrlistview {
       if (!$limited) {
          $temphtml = start_form(-name=>'composeForm',
                                 -action=>"$config{'ow_cgiurl'}/openwebmail-send.pl").
-                     ow::tool::hiddens(action=>'composemessage',
+                     ow::tool::hiddens(action=>'compose',
                                        sessionid=>$thissession,
                                        checkedto=>ow::htmltext::str2html($checkedto),
                                        checkedcc=>ow::htmltext::str2html($checkedcc),
@@ -1430,7 +1430,7 @@ sub addrlistview {
                     qq|editformcaller=$escapedabookfolder&amp;|.
                     qq|$webmail_urlparm&amp;|.
                     $abook_urlparm;
-      my $composeurl = qq|$config{'ow_cgiurl'}/openwebmail-send.pl?action=composemessage&amp;|.
+      my $composeurl = qq|$config{'ow_cgiurl'}/openwebmail-send.pl?action=compose&amp;|.
                        qq|composetype=sendto&amp;|.
                        qq|compose_caller=addrlistview&amp;|.
                        $urlparm;

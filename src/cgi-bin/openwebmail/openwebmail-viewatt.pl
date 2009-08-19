@@ -254,7 +254,7 @@ sub getattachment {
             $content = ow::htmlrender::html4disableembcode($content) if ($prefs{'disableembcode'});
             $content = ow::htmlrender::html4disableemblink($content, $prefs{disableemblink}, "$config{ow_htmlurl}/images/backgrounds/Transparent.gif");
             $content = ow::htmlrender::html4attachments($content, $r_attachments, "$config{'ow_cgiurl'}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=$thissession&amp;message_id=$escapedmessageid&amp;folder=$escapedfolder");
-#            $content = ow::htmlrender::html4mailto($content, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=composemessage&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto");
+#            $content = ow::htmlrender::html4mailto($content, "$config{'ow_cgiurl'}/openwebmail-send.pl", "action=compose&amp;sort=$sort&amp;keyword=$escapedkeyword&amp;searchtype=$searchtype&amp;folder=$escapedfolder&amp;page=$page&amp;sessionid=$thissession&amp;composetype=sendto");
          }
 
          ($filename)=iconv($charset, $prefs{'charset'}, $filename);

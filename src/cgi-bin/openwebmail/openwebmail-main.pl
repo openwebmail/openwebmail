@@ -153,7 +153,7 @@ if ($action eq "movemessage" || defined param('movebutton') || defined param('co
          close(FORWARDIDS)
             or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_sessionsdir}/$thissession-forwardids");
          my %params = (
-                        action         => 'composemessage',
+                        action         => 'compose',
                         composetype    => 'forwardids',
                         compose_caller => 'main',
                         folder         => $folder,

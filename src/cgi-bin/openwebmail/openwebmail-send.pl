@@ -1809,7 +1809,7 @@ sub sendmessage {
       $body = ow::htmlrender::html4attfiles_link2cid($body, $r_attfiles, "$config{ow_cgiurl}/openwebmail-viewatt.pl");
 
       # replace url#anchor with #anchor (to remove url added by some wysiwyg html editors)
-      $body =~ s#https?://$ENV{HTTP_HOST}$config{ow_cgiurl}/openwebmail-send.pl.*?action=composemessage.*?\##\##gs;
+      $body =~ s#https?://$ENV{HTTP_HOST}$config{ow_cgiurl}/openwebmail-send.pl.*?action=compose.*?\##\##gs;
    }
 
    # convert message to prefs{sendcharset}

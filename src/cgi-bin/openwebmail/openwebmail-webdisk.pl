@@ -1449,7 +1449,7 @@ sub dirfilesel {
    my $showhidden=param('showhidden')||0;
    my $singlepage=param('singlepage')||0;
 
-   # for sel_saveattfile, used in composemessage to save attfile
+   # for sel_saveattfile, used in compose to save attfile
    my $attfile=param('attfile')||'';
    my $attachment_nodeid=param('attachment_nodeid');
    my $convfrom=param('convfrom')||'';
