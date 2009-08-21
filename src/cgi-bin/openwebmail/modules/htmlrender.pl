@@ -171,22 +171,28 @@ sub html4attachments {
    for (my $i = 0; $i <= $#{$r_attachments}; $i++) {
       my $filename = ow::tool::escapeURL($r_attachments->[$i]{filename});
       my $link = qq|$scripturl/$filename?$scriptparm&amp;attachment_nodeid=$r_attachments->[$i]{nodeid}&amp;|;
+
       my $cid = $r_attachments->[$i]{'content-id'} || '';
       my $loc = $r_attachments->[$i]{'content-location'} || '';
 
+      $r_attachments->[$i]{referencecount} = 0;
+
+      # replace all the content-id (cid:) occurences
+      $r_attachments->[$i]{referencecount}++ if ($cid ne '' && $html =~ s#="*(?:cid:)+\Q$cid\E"*#="$link"#sig);
+
+      # replace all the content-location occurences
+      $r_attachments->[$i]{referencecount}++ if ($loc ne '' && $html =~ s#=(?:cid:|")*\Q$loc\E"*#="$link"#sig);
+
+      # ugly hack for strange CID
       if (
-           ($cid ne '' && $html =~ s#(?:cid:)+\Q$cid\E#$link#sig )
-           || ($loc ne '' && $html =~ s#(?:cid:)*\Q$loc\E#$link#sig )
-           || (
-                $filename ne ""
-                &&
-                ( # ugly hack for strange CID
-                  $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig
-                  || $html =~ s#(background|src)\s*=\s*"[^\s\<\>"]{0,256}?/$filename"#$1="$link"#sig
-                )
+            $r_attachments->[$i]{referencecount} == 0
+            && $filename ne ''
+            &&
+              (
+                $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig
+                || $html =~ s#(background|src)\s*=\s*"[^\s\<\>"]{0,256}?/$filename"#$1="$link"#sig
               )
          ) {
-         # this attachment is referenced by the html
          $r_attachments->[$i]{referencecount}++;
       }
    }

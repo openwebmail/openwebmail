@@ -1000,7 +1000,14 @@ sub readmessage {
          }
 
          # process application/ms-tnef attachments - convert them into links to download as zip, tar, or tgz files
-         if ($messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^application/ms-tnef#i) {
+         if (
+              $messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^application/ms-tnef#i
+              ||
+              (
+                $messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^application/octet-stream#i
+                && $messagesloop->[$i]{attachment}[$n]{'filename'} =~ m/^winmail.dat$/i
+              )
+            ) {
             my @filelist        = ();
             my $archivefilename = '';
             my $tnefbin         = ow::tool::findbin('tnef');
