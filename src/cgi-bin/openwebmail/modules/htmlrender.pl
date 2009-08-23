@@ -210,13 +210,13 @@ sub html4attfiles {
       my $filename = ow::tool::escapeURL($r_attfiles->[$i]{name});
       my $link = qq|$scripturl/$filename?$scriptparm&amp;attfile=$r_attfiles->[$i]{file}&amp;|;
 
-      my $cid = "cid:$r_attfiles->[$i]{'content-id'}";
+      my $cid = $r_attfiles->[$i]{'content-id'};
       my $loc = $r_attfiles->[$i]{'content-location'};
 
       $r_attfiles->[$i]{referencecount} = 0;
 
       # replace all the content-id (cid:) occurences
-      $r_attfiles->[$i]{referencecount}++ if ($cid ne 'cid:' && $html =~ s#="*(?:cid:)+\Q$cid\E"*#="$link"#sig);
+      $r_attfiles->[$i]{referencecount}++ if ($cid ne '' && $html =~ s#="*(?:cid:)+\Q$cid\E"*#="$link"#sig);
 
       # replace all the content-location occurences
       $r_attfiles->[$i]{referencecount}++ if ($loc ne '' && $html =~ s#=(?:cid:|")*\Q$loc\E"*#="$link"#sig);

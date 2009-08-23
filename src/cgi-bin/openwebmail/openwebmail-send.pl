@@ -1331,8 +1331,8 @@ sub decode_message_body {
    my $body = '';
 
    if ($message->{'content-type'} =~ m#^multipart#i) {
-      # If the first attachment is text, assume it's the body of a message in multipart format
       if (defined $message->{attachment}[0] && $message->{attachment}[0]{'content-type'} =~ m#^text#i) {
+         # If the first attachment is text, assume it's the body of a message in multipart format
          $body = decode_content(${$message->{attachment}[0]{r_content}}, $message->{attachment}[0]{'content-transfer-encoding'});
          $body = ow::enriched::enriched2html($body) if $message->{attachment}[0]{'content-type'} =~ m#^text/enriched#i;
          $bodyformat = 'html' if $message->{attachment}[0]{'content-type'} =~ m#^text/(?:html|enriched)#i;
@@ -1340,7 +1340,20 @@ sub decode_message_body {
          # handle mail with both text and html versions
          # rename html to other name so if the user is in text compose mode,
          # the modified/forwarded text won't be overridden by html again
-         if (defined $message->{attachment}[1] && $message->{attachment}[1]{boundary} eq $message->{attachment}[0]{boundary}) {
+         if (
+               defined $message->{attachment}[1]
+               &&
+               (
+                 $message->{attachment}[1]{boundary} eq $message->{attachment}[0]{boundary}
+                 ||
+                 (
+                   # support apple mail encapsulation of html part in multipart/relative sub-part
+                   # which makes the boundarys not match exactly
+                   $message->{attachment}[0]{boundary} =~ m#^--Apple-Mail#
+                   && $message->{attachment}[1]{boundary} =~ m#^--Apple-Mail#
+                 )
+               )
+            ) {
             # rename html attachment in the same alternative group
             if (
                  (
