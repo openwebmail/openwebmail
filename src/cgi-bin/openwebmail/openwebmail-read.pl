@@ -932,6 +932,8 @@ sub readmessage {
 
             my ($header, $body) = split(/\n\r*\n/, ${$messagesloop->[$i]{attachment}[$n]{r_content}}, 2);
 
+            $body = '' unless defined $body;
+
             my %msg;
             $msg{'content-type'} = 'N/A'; # assume msg is simple text
 

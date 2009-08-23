@@ -1303,7 +1303,9 @@ sub compose {
                       abookpopupwidth         => $prefs{abook_width} eq 'max' ? 'screen.availWidth' : $prefs{abook_width},
                       abookpopupheight        => $prefs{abook_height} eq 'max' ? 'screen.availHeight' : $prefs{abook_height},
                       selectableimagesloop    => $selectableimagesloop,
-                      languagedirection       => $composecharset eq $prefs{charset} && $ow::lang::RTL{$prefs{locale}} ? 'rtl' : 'ltr',
+                      languagedirection       => $composecharset eq $prefs{charset}
+                                                 && defined $ow::lang::RTL{$prefs{locale}}
+                                                 && $ow::lang::RTL{$prefs{locale}} ? 'rtl' : 'ltr',
                       popup_draftsaved        => $savedraftbutton && $session_noupdate == 0 ? 1 : 0,
                       savedraftbeforetimeout  => $savedraftbutton && $session_noupdate == 1 ? 0 : 1,
 
@@ -1640,7 +1642,8 @@ sub get_attachments {
 
             $att{'content-type'} = 'application/octet-stream'; # assume attachment is binary at first
             ow::mailparse::parse_header(\$attheader, \%att);   # parse the attheader to get the actual headers
-            $att{'content-id'} =~ s/^\s*<(.+)>\s*$/$1/;        # strip enclosing space or <>'s
+
+            $att{'content-id'} =~ s/^\s*<(.+)>\s*$/$1/ if exists $att{'content-id'} && defined $att{'content-id'}; # strip enclosing space or <>'s
 
             ($att{name}, $att{namecharset}) = ow::mailparse::get_filename_charset($att{'content-type'}, $att{'content-disposition'});
             $att{name} =~ s/Unknown/attachment_$#attachmentfiles/;

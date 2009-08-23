@@ -210,8 +210,8 @@ sub html4attfiles {
       my $filename = ow::tool::escapeURL($r_attfiles->[$i]{name});
       my $link = qq|$scripturl/$filename?$scriptparm&amp;attfile=$r_attfiles->[$i]{file}&amp;|;
 
-      my $cid = $r_attfiles->[$i]{'content-id'};
-      my $loc = $r_attfiles->[$i]{'content-location'};
+      my $cid = $r_attfiles->[$i]{'content-id'} || '';
+      my $loc = $r_attfiles->[$i]{'content-location'} || '';
 
       $r_attfiles->[$i]{referencecount} = 0;
 

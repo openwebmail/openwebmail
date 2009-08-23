@@ -1296,7 +1296,7 @@ sub root_open {
    my ($action, $file)=($1, $2);
 
    # create a file handle
-   my $fh = do { local *FH };
+   my $fh = do { no warnings 'once'; local *FH };
 
    # switch to root
    my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();

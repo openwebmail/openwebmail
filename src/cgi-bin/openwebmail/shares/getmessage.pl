@@ -47,7 +47,7 @@ sub getmessage {
    #         return-path from to cc bcc reply-to date subject status
    #         message-id content-type encoding in-reply-to references priority
    $message{$_} = 'N/A' for qw(from to date subject content-type);
-   $message{$_} = ''    for qw(return-path cc reply-to status in-reply-to references charset priority);
+   $message{$_} = ''    for qw(return-path cc bcc reply-to status in-reply-to references charset priority);
 
    # $r_attachment is a reference to attachment array!
    if ($mode eq "all") {
@@ -110,7 +110,8 @@ sub getmessage {
    $message{charset} = official_charset($message{charset});
 
    foreach (qw(from reply-to to cc bcc subject)) {
-      $message{$_} = decode_mimewords_iconv($message{$_}, 'utf-8') if ($message{$_} ne 'N/A');
+      $message{$_} = '' unless defined $message{$_};
+      $message{$_} = decode_mimewords_iconv($message{$_}, 'utf-8') if $message{$_} ne 'N/A';
    }
 
    return \%message;

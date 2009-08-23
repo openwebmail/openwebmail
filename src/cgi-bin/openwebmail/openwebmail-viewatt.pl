@@ -171,7 +171,8 @@ sub getattachment {
    my ($folder, $messageid, $nodeid, $wordpreview) = @_;
 
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
-   my $folderhandle = do { local *FH };
+
+   my $folderhandle = do { no warnings 'once'; local *FH };
 
    my ($msgsize, $errmsg, $block);
    ($msgsize, $errmsg) = lockget_message_block($messageid, $folderfile, $folderdb, \$block);

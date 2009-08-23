@@ -36,6 +36,7 @@ use warnings;
 
 sub html2text {
    my $t = shift;
+   return $t unless $t =~ m/\S/;
 
    # turn <pre>...</pre> into pure html with <br>
    $t =~ s#<!--+-->#\n#isg;
@@ -106,6 +107,7 @@ sub html2text {
 
 sub _pre2html {
    my $t = shift;
+   return $t unless $t =~ m/\S/;
 
    # $t =~ s#\"#&quot;#g;
    # $t =~ s#<#&lt;#g;
@@ -119,6 +121,8 @@ sub _pre2html {
 sub text2html {
    my $t = shift;
    my $skiplinkify = shift || 0;
+
+   return $t unless $t =~ m/\S/;
 
    $t =~ s/&#(\d\d\d+);/ESCAPE_UNICODE_$1/g;
    $t =~ s#&#ESCAPE_AMP#g;
@@ -152,6 +156,8 @@ sub text2html_nolink { return text2html(shift,1) };
 
 sub str2html {
    my $t = shift;
+
+   return $t unless $t =~ m/\S/;
 
    $t =~ s/&#(\d\d\d+);/ESCAPE_UNICODE_$1/g;
    $t =~ s/&/ESCAPE_AMP/g;

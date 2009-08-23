@@ -23,6 +23,9 @@ $WORDCHARS = "a-zA-Z0-9 \\x7F-\\xFF";	# char used in regular words
 sub decode_mimewords {
     my $encstr = shift;
     my %params = @_;
+
+    return (wantarray ? () : $encstr) unless defined $encstr;
+
     my @tokens;
     $@ = '';           ### error-return
 

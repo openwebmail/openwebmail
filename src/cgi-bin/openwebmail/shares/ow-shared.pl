@@ -1774,18 +1774,23 @@ sub writehistory {
 }
 ########## END WRITELOG/WRITEHISTORY #############################
 
-########## DECODE_MIMEWORDS_ICONV ################################
-# decode mimewords and do iconv with the charset in =?CHARSET?(B|Q)?...?=
+
 sub decode_mimewords_iconv {
-   my @str=ow::mime::decode_mimewords($_[0]);
-   my $tocharset=$_[1];
-   my $result;
-   foreach my $r (@str) {	# r->[0]=decoded str, r->[1]=charset of str
-      $result.=(iconv(${$r}[1], $tocharset, ${$r}[0]))[0];
+   # decode mimewords and iconv to the requested charset
+   # mimeword example: =?CHARSET?(B|Q)?...?=
+   my ($string, $tocharset) = @_;
+   my @decoded_strings = ow::mime::decode_mimewords($string);
+
+   my $result = '';
+   foreach my $decoded_array (@decoded_strings) {
+      my $decoded_string  = $decoded_array->[0];
+      my $decoded_charset = $decoded_array->[1];
+      $result .= (iconv($decoded_charset, $tocharset, $decoded_string))[0];
    }
+
    return $result;
 }
-########## END DECODE_MIMEWORDS_ICONV ############################
+
 
 ########## UPDATE_AUTHPOP3BOOK ###################################
 sub update_authpop3book {

@@ -381,11 +381,13 @@ sub email2nameaddr {
    # separates the email name from the email address.
    # always returns defined values, although name may be ''
    my ($name, $address) = _email2nameaddr(shift);
+
    if ($name eq '') {
       $name = $address;
       $name =~ s/\@.+$//;
       $name = $address if (length($name) <= 2);
    }
+
    return ($name, $address);
 }
 
@@ -393,7 +395,8 @@ sub _email2nameaddr {
    # name may be coming in null
    my $email = shift;
 
-   my ($name, $address);
+   my $name    = '';
+   my $address = '';
 
    if ($email =~ m/^\s*"?<?(.+?)>?"?\s*<(.*)>$/) {
       $name    = $1;
