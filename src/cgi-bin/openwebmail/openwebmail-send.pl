@@ -2412,14 +2412,14 @@ sub sendmessage {
 
             $messageheader .= $s . "Status: R\n";
 
-            $s = qq|\n| . encode_qp($body) . qq|\n|;
+            $s = qq|\n| . ow::mime::encode_qp($body) . qq|\n|;
             $smtp->datasend($s) or $senderr++ if ($do_send && !$senderr);
 
             $s =~ s/^From />From /gm;
             print $folderhandle $s or $saveerr++ if ($do_save && !$saveerr);
 
             if ( $config{'mailfooter'}=~/[^\s]/) {
-               $s = encode_qp(str2str($config{mailfooter}, $msgformat))."\n";
+               $s = ow::mime::encode_qp(str2str($config{mailfooter}, $msgformat))."\n";
                $smtp->datasend($s) or $senderr++ if ($do_send && !$senderr);
             }
          } elsif ($msgformat eq 'both') {
@@ -2700,9 +2700,9 @@ sub dump_bodyhtml {
            qq|Content-Transfer-Encoding: quoted-printable\n\n|;
 
    if ($msgformat eq "text") {
-      $s .= encode_qp(ow::htmltext::text2html(${$r_body})) . qq|\n|;
+      $s .= ow::mime::encode_qp(ow::htmltext::text2html(${$r_body})) . qq|\n|;
    } else {
-      $s .= encode_qp(${$r_body}) . qq|\n|;
+      $s .= ow::mime::encode_qp(${$r_body}) . qq|\n|;
    }
    $smtp->datasend($s) or ${$r_senderr}++ if ($do_send && !${$r_senderr});
 
@@ -2710,7 +2710,7 @@ sub dump_bodyhtml {
    print $folderhandle $s or ${$r_saveerr}++ if ($do_save && !${$r_saveerr});
 
    if ($config{mailfooter} =~ m/[^\s]/) {
-      $s = encode_qp(str2str($config{mailfooter}, $msgformat)) . "\n";
+      $s = ow::mime::encode_qp(str2str($config{mailfooter}, $msgformat)) . "\n";
       $smtp->datasend($s) or ${$r_senderr}++ if ($do_send && !${$r_senderr});
    }
 }
