@@ -6,6 +6,7 @@
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
+use MIME::Base64;
 
 # extern vars, defined in caller openwebmail-xxx.pl
 use vars qw(%config %prefs %lang_text %lang_err);

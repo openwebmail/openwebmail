@@ -18,8 +18,6 @@ package ow::mailparse;
 #       }
 
 use strict;
-use MIME::Base64;
-use MIME::QuotedPrint;
 require "modules/tool.pl";
 require "modules/mime.pl";
 
@@ -437,7 +435,7 @@ sub parse_uuencode_body {
                       qq|Content-Transfer-Encoding: base64\n|.
                       qq|Content-Disposition: attachment;\n|.
                       qq|\tfilename="$uufilename"|;
-         $uubody=encode_base64(ow::mime::uudecode($uubody));
+         $uubody = ow::mime::encode_base64(ow::mime::uudecode($uubody));
 
          push( @attachments, make_attachment("","", $uuheader,\$uubody, length($uubody),
 		"base64",$uutype, "attachment; filename=$uufilename","","","uuencoded attachment", "$nodeid-$i") );

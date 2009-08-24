@@ -1541,7 +1541,7 @@ sub add_attachment {
       my $readbuffer      = '';
       my $attachment_size = 0;
       while (read($attachment, $readbuffer, 400*57)) {
-         $readbuffer = encode_base64($readbuffer);
+         $readbuffer = ow::mime::encode_base64($readbuffer);
          $attachment_size += length($readbuffer);
          print ATTFILE $readbuffer;
       }
@@ -1761,7 +1761,7 @@ sub tnefatt2archive {
                    qq|Content-Transfer-Encoding: base64\n|;
    $attheader .= qq|Content-Description: $arcdescription\n| if scalar @arcfilelist > 0;
 
-   $content = encode_base64(${$r_arcdata});
+   $content = ow::mime::encode_base64(${$r_arcdata});
 
    return($attheader, \$content);
 }
