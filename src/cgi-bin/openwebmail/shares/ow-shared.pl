@@ -1774,7 +1774,6 @@ sub writehistory {
 }
 ########## END WRITELOG/WRITEHISTORY #############################
 
-
 sub decode_mimewords_iconv {
    # decode mimewords and iconv to the requested charset
    # mimeword example: =?CHARSET?(B|Q)?...?=
@@ -1790,7 +1789,6 @@ sub decode_mimewords_iconv {
 
    return $result;
 }
-
 
 ########## UPDATE_AUTHPOP3BOOK ###################################
 sub update_authpop3book {

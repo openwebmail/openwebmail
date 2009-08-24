@@ -12,13 +12,27 @@ package ow::mime;
 
 use strict;
 use MIME::Base64;
+use MIME::QuotedPrint;
 use vars qw($NONPRINT $BIG5CHARS $WORDCHARS);
 
-### Nonprintables (controls + x7F + 8bit):
-$NONPRINT = "\\x00-\\x1F\\x7F-\\xFF";
+$NONPRINT  = "\\x00-\\x1F\\x7F-\\xFF";  # Nonprintables (controls + x7F + 8bit):
+$BIG5CHARS = "0-9 \\x40-\\xFF";         # char used in big5 words
+$WORDCHARS = "a-zA-Z0-9 \\x7F-\\xFF";   # char used in regular words
 
-$BIG5CHARS = "0-9 \\x40-\\xFF";		# char used in big5 words
-$WORDCHARS = "a-zA-Z0-9 \\x7F-\\xFF";	# char used in regular words
+sub decode_content {
+   # decode content based on the provided encoding
+   # base64 content is tested to make sure it contains no illegal
+   # characters before decoding, since MIME::Base64 does not return
+   # error codes or messages on bad decodes based on illegal chars
+   my ($content, $encoding) = @_;
+
+   return $content unless defined $content && defined $encoding;
+
+   $encoding =~ m/^quoted-printable/i                               ? return decode_qp($content)     :
+   $encoding =~ m/^base64/i && $content !~ m#[^A-Za-z0-9+/=\n\r]#sg ? return decode_base64($content) :
+   $encoding =~ m/^x-uuencode/i                                     ? return uudecode($content)      :
+   return $content;
+}
 
 sub decode_mimewords {
     my $encstr = shift;

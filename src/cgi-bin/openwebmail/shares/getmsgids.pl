@@ -6,8 +6,8 @@
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use MIME::Base64;
-use MIME::QuotedPrint;
+
+require "modules/mime.pl";
 
 use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
             $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES); # defined in maildb.pl
@@ -242,15 +242,10 @@ sub search_info_messages_for_keyword {
          if ($searchtype eq 'all' || $searchtype eq 'textcontent') {
             # check body
             if ( $attr[$_CONTENT_TYPE] =~ m/^text/i || $attr[$_CONTENT_TYPE] eq 'N/A' ) { # read all for text/plain,text/html
-               if ( $header =~ m/content-transfer-encoding:\s+quoted-printable/i) {
-                  $body = decode_qp($body);
-               } elsif ($header =~ m/content-transfer-encoding:\s+base64/i) {
-                  $body = decode_base64($body);
-               } elsif ($header =~ m/content-transfer-encoding:\s+x-uuencode/i) {
-                  $body = ow::mime::uudecode($body);
-               }
+               my ($encoding) = $header =~ m/content-transfer-encoding:\s+([^\s+])/i;
+               $body = ow::mime::decode_content($body, $encoding);
 
-               ($body) = iconv($msgcharset, $prefs_charset, $body);
+               $body = (iconv($msgcharset, $prefs_charset, $body))[0];
 
                if (($regexmatch && $body =~ m/$keyword/im) || $body =~ m/\Q$keyword\E/im ) {
                   $found{$messageid} = 1;
@@ -261,14 +256,7 @@ sub search_info_messages_for_keyword {
             # check attachments
             foreach my $r_attachment (@{$r_attachments}) {
                if ( $r_attachment->{'content-type'} =~ m/^text/i || $r_attachment->{'content-type'} eq 'N/A' ) { # read all for text/plain. text/html
-                  my $content = ${$r_attachment->{r_content}};
-                  if ( $r_attachment->{'content-transfer-encoding'} =~ m/^quoted-printable/i ) {
-                     $content = decode_qp(${$r_attachment->{r_content}});
-                  } elsif ( $r_attachment->{'content-transfer-encoding'} =~ m/^base64/i ) {
-                     $content = decode_base64(${$r_attachment->{r_content}});
-                  } elsif ( $r_attachment->{'content-transfer-encoding'} =~ m/^x-uuencode/i ) {
-                     $content = ow::mime::uudecode(${$r_attachment->{r_content}});
-                  }
+                  my $content = ow::mime::decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
 
                   my $attcharset = $r_attachment->{charset} || $msgcharset;
                   ($content) = iconv($attcharset, $prefs_charset, $content);

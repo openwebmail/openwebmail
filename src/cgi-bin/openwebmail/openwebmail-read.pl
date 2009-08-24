@@ -56,8 +56,6 @@ umask(0002);
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
-use MIME::Base64;
-use MIME::QuotedPrint;
 
 # load OWM libraries
 require "modules/dbm.pl";
@@ -629,9 +627,8 @@ sub readmessage {
       # =============================================================
       # perform presentation formatting on the message body as needed
       # =============================================================
-      # quoted-printable, base64, or uudecode the message body to make it readable
       if ($messagesloop->[$i]{'content-type'} =~ /^text/i && defined $messagesloop->[$i]{'content-transfer-encoding'}) {
-         $messagesloop->[$i]{body} = decode_content($messagesloop->[$i]{body}, $messagesloop->[$i]{'content-transfer-encoding'});
+         $messagesloop->[$i]{body} = ow::mime::decode_content($messagesloop->[$i]{body}, $messagesloop->[$i]{'content-transfer-encoding'});
       }
 
       $messagesloop->[$i]{body} = (iconv($convfrom, $displaycharset, $messagesloop->[$i]{body}))[0];
@@ -778,9 +775,8 @@ sub readmessage {
 
          $messagesloop->[$i]{attachment}[$n]{'content-type'} =~ s/^(.+?);.*/$1/g;
 
-         # decode the content if needed
          ${$messagesloop->[$i]{attachment}[$n]{r_content}} =
-           decode_content(${$messagesloop->[$i]{attachment}[$n]{r_content}}, $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'});
+           ow::mime::decode_content(${$messagesloop->[$i]{attachment}[$n]{r_content}}, $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'});
 
          # assume all attachments are misc at first
          $messagesloop->[$i]{attachment}[$n]{is_misc}     = 1;
@@ -950,8 +946,7 @@ sub readmessage {
 
             $header = ow::htmltext::text2html($header);
 
-            # decode the body if needed
-            $body = decode_content($body, $msg{'content-transfer-encoding'});
+            $body = ow::mime::decode_content($body, $msg{'content-transfer-encoding'});
 
             if ($msg{'content-type'} =~ m#^text/html#i) { # convert into html table
                $body = ow::htmlrender::html4nobase($body);
@@ -1288,7 +1283,7 @@ sub download_nontext {
          next if $messagesloop->[$i]{attachment}[$n]{referencecount} > 0;
 
          if (defined $messagesloop->[$i]{attachment}[$n]{'content-type'} && $messagesloop->[$i]{attachment}[$n]{'content-type'} !~ m/^text/i) {
-            my $content = decode_content(${$messagesloop->[$i]{attachment}[$n]{r_content}}, $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'});
+            my $content = ow::mime::decode_content(${$messagesloop->[$i]{attachment}[$n]{r_content}}, $messagesloop->[$i]{attachment}[$n]{'content-transfer-encoding'});
 
             # try to convert tnef content -> zip/tgz/tar
             if ($messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^application/ms\-tnef#) {
@@ -1449,16 +1444,5 @@ sub delete_attnodes {
    writelog("delete attachment nodes - error $err\:$errmsg") if $err < 0;
 
    return readmessage();
-}
-
-sub decode_content {
-   my ($content, $encoding) = @_;
-
-   return $content unless defined $encoding;
-
-   $encoding =~ m/^quoted-printable/i ? return decode_qp($content)          :
-   $encoding =~ m/^base64/i           ? return decode_base64($content)      :
-   $encoding =~ m/^x-uuencode/i       ? return ow::mime::uudecode($content) :
-   return $content;
 }
 

@@ -56,8 +56,6 @@ umask(0002);
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
-use MIME::Base64;
-use MIME::QuotedPrint;
 
 # load OWM libraries
 require "modules/dbm.pl";
@@ -232,7 +230,7 @@ sub getattachment {
          my $filename = ${$r_attachment}{filename};
          $filename =~ s/\s$//;
 
-         my $content = decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
+         my $content = ow::mime::decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
 
          if ($contenttype =~ m#^application/ms\-tnef#) { # try to convert tnef -> zip/tgz/tar
             my $tnefbin = ow::tool::findbin('tnef');
@@ -375,7 +373,7 @@ sub getattfile {
    ($att{filename}, $att{filenamecharset}) =
       ow::mailparse::get_filename_charset($att{'content-type'}, $att{'content-disposition'});
 
-   $attcontent = decode_content($attcontent, $att{'content-transfer-encoding'});
+   $attcontent = ow::mime::decode_content($attcontent, $att{'content-transfer-encoding'});
 
    if ($wordpreview && $att{filename} =~ /\.(?:doc|dot)$/i &&	# in wordpreview mode?
        msword2html(\$attcontent)) {
@@ -469,13 +467,3 @@ sub msword2html {
    return 1;
 }
 
-sub decode_content {
-   my ($content, $encoding) = @_;
-
-   return $content unless defined $encoding;
-
-   $encoding =~ m/^quoted-printable/i ? return decode_qp($content)          :
-   $encoding =~ m/^base64/i           ? return decode_base64($content)      :
-   $encoding =~ m/^x-uuencode/i       ? return ow::mime::uudecode($content) :
-   return $content;
-}

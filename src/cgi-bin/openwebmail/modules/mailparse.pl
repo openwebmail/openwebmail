@@ -343,14 +343,8 @@ sub parse_attblock {
 
    } elsif ($att{'content-type'} =~ /^message/i ) {
       if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
-         my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
-         if ( $att{'content-transfer-encoding'} =~ /^quoted-printable/i) {
-            $attcontent = decode_qp($attcontent);
-         } elsif ($att{'content-transfer-encoding'} =~ /^base64/i) {
-            $attcontent = decode_base64($attcontent);
-         } elsif ($att{'content-transfer-encoding'} =~ /^x-uuencode/i) {
-            $attcontent = ow::mime::uudecode($attcontent);
-         }
+         my $attcontent = substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
+         $attcontent = ow::mime::decode_content($attcontent, $att{'content-transfer-encoding'});
          my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$attcontent, "$nodeid-0", $searchid);
          if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
             $header2 = ow::mime::decode_mimewords($header2);

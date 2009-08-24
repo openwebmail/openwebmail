@@ -587,10 +587,8 @@ sub search_folders2 {
                      # check body
                      if ($attr[$_CONTENT_TYPE] =~ m/^text/i || $attr[$_CONTENT_TYPE] eq 'N/A') {
                         # read all for text/plain,text/html
-                        $body = $header =~ m/content-transfer-encoding:\s+quoted-printable/i ? decode_qp($body)          :
-                                $header =~ m/content-transfer-encoding:\s+base64/i           ? decode_base64($body)      :
-                                $header =~ m/content-transfer-encoding:\s+x-uuencode/i       ? ow::mime::uudecode($body) :
-                                $body;
+                        my ($encoding) = $header =~ m/content-transfer-encoding:\s+([^\s]+)/i;
+                        $body = ow::mime::decode_content($body, $encoding);
 
                         $body = (iconv($msgcharset, $prefs{charset}, $body))[0];
 
@@ -604,7 +602,7 @@ sub search_folders2 {
                            # read all for text/plain. text/html
                            my $charset = $r_attachment->{charset} || $msgcharset;
 
-                           my $content = decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
+                           my $content = ow::mime::decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
 
                            $content = (iconv($charset, $prefs{charset}, $content))[0];
 
@@ -673,13 +671,3 @@ sub is_matched {
           ? 1 : 0;
 }
 
-sub decode_content {
-   my ($content, $encoding) = @_;
-
-   return $content unless defined $encoding;
-
-   $encoding =~ m/^quoted-printable/i ? return decode_qp($content)          :
-   $encoding =~ m/^base64/i           ? return decode_base64($content)      :
-   $encoding =~ m/^x-uuencode/i       ? return ow::mime::uudecode($content) :
-   return $content;
-}

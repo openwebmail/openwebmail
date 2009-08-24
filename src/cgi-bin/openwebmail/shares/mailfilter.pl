@@ -14,8 +14,8 @@
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use MIME::Base64;
-use MIME::QuotedPrint;
+
+require "modules/mime.pl";
 require "shares/filterbook.pl";
 
 # extern vars
@@ -372,17 +372,12 @@ sub filter_allmessageids {
 
                   # check body text
                   if (!$is_body_decoded) {
-                     if ( $attr[$_CONTENT_TYPE] =~ /^text/i ||
-                          $attr[$_CONTENT_TYPE] eq 'N/A' ) {	# for text/plain. text/html
-                        if ( $header =~ /content-transfer-encoding:\s+quoted-printable/i) {
-                           $body = decode_qp($body);
-                        } elsif ($header =~ /content-transfer-encoding:\s+base64/i) {
-                           $body = decode_base64($body);
-                        } elsif ($header =~ /content-transfer-encoding:\s+x-uuencode/i) {
-                           $body = ow::mime::uudecode($body);
-                        }
+                     if ($attr[$_CONTENT_TYPE] =~ /^text/i || $attr[$_CONTENT_TYPE] eq 'N/A') {
+                        # for text/plain. text/html
+                        my ($encoding) = $header =~ m/content-transfer-encoding:\s+([^\s+])/i;
+                        $body = ow::mime::decode_content($body, $encoding);
                      }
-                     $is_body_decoded=1;
+                     $is_body_decoded = 1;
                   }
                   if ( $attr[$_CONTENT_TYPE] =~ /^text/i ||
                        $attr[$_CONTENT_TYPE] eq 'N/A' ) {		# for text/plain. text/html
@@ -396,18 +391,12 @@ sub filter_allmessageids {
                   if (!$is_matched) {
                      if (!$is_attachments_decoded) {
                         foreach my $r_attachment (@{$r_attachments}) {
-                           if ( ${$r_attachment}{'content-type'} =~ /^text/i ||
-                                ${$r_attachment}{'content-type'} eq "N/A" ) { # read all for text/plain. text/html
-                              if ( ${$r_attachment}{'content-transfer-encoding'} =~ /^quoted-printable/i ) {
-                                 ${${$r_attachment}{r_content}} = decode_qp( ${${$r_attachment}{r_content}});
-                              } elsif ( ${$r_attachment}{'content-transfer-encoding'} =~ /^base64/i ) {
-                                 ${${$r_attachment}{r_content}} = decode_base64( ${${$r_attachment}{r_content}});
-                              } elsif ( ${$r_attachment}{'content-transfer-encoding'} =~ /^x-uuencode/i ) {
-                                 ${${$r_attachment}{r_content}} = ow::mime::uudecode( ${${$r_attachment}{r_content}});
-                              }
+                           if ($r_attachment->{'content-type'} =~ /^text/i || $r_attachment->{'content-type'} eq 'N/A') {
+                              # read all for text/plain. text/html
+                              ${$r_attachment->{r_content}} = ow::mime::decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
                            }
                         }
-                        $is_attachments_decoded=1;
+                        $is_attachments_decoded = 1;
                      }
                      foreach my $r_attachment (@{$r_attachments}) {
                         if ( ${$r_attachment}{'content-type'} =~ /^text/i ||

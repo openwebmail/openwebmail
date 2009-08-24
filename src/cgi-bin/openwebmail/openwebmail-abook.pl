@@ -19,8 +19,6 @@ use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 # use Data::Dumper; $Data::Dumper::Sortkeys=1; $Data::Dumper::Deepcopy=1; $Data::Dumper::Purity=1;
-use MIME::Base64;
-use MIME::QuotedPrint;
 
 require "modules/dbm.pl";
 require "modules/suid.pl";
@@ -4858,21 +4856,10 @@ sub getmessageattachment {
       my $contenttype = ${$r_attachment}{'content-type'};
       my $filename = ${$r_attachment}{filename};
       $filename =~ s/\s$//;
-      my $content = decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
+      my $content = ow::mime::decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
       return ($content, length($content));
    }
    return ('',0);
-}
-
-sub decode_content {
-   my ($content, $encoding) = @_;
-
-   return $content unless defined $encoding;
-
-   $encoding =~ m/^quoted-printable/i ? return decode_qp($content)          :
-   $encoding =~ m/^base64/i           ? return decode_base64($content)      :
-   $encoding =~ m/^x-uuencode/i       ? return ow::mime::uudecode($content) :
-   return $content;
 }
 
 sub importvcard {

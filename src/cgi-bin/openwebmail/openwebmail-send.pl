@@ -58,8 +58,6 @@ umask(0002);
 use Fcntl qw(:DEFAULT :flock);
 use CGI qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
-use MIME::Base64;
-use MIME::QuotedPrint;
 use Net::SMTP;
 
 # load OWM libraries
@@ -1335,7 +1333,7 @@ sub decode_message_body {
    if ($message->{'content-type'} =~ m#^multipart#i) {
       if (defined $message->{attachment}[0] && $message->{attachment}[0]{'content-type'} =~ m#^text#i) {
          # If the first attachment is text, assume it's the body of a message in multipart format
-         $body = decode_content(${$message->{attachment}[0]{r_content}}, $message->{attachment}[0]{'content-transfer-encoding'});
+         $body = ow::mime::decode_content(${$message->{attachment}[0]{r_content}}, $message->{attachment}[0]{'content-transfer-encoding'});
          $body = ow::enriched::enriched2html($body) if $message->{attachment}[0]{'content-type'} =~ m#^text/enriched#i;
          $bodyformat = 'html' if $message->{attachment}[0]{'content-type'} =~ m#^text/(?:html|enriched)#i;
 
@@ -1373,7 +1371,7 @@ sub decode_message_body {
                  )
                ) {
                if ($msgformat ne 'text' && $bodyformat eq 'text') {
-                  $body = decode_content(${$message->{attachment}[1]{r_content}}, $message->{attachment}[1]{'content-transfer-encoding'});
+                  $body = ow::mime::decode_content(${$message->{attachment}[1]{r_content}}, $message->{attachment}[1]{'content-transfer-encoding'});
                   $body = ow::enriched::enriched2html($body) if $message->{attachment}[1]{'content-type'} =~ m#^text/enriched#i;
 
                   $bodyformat = 'html';
@@ -1394,7 +1392,7 @@ sub decode_message_body {
 
       # handle mail programs that send the body encoded
       if ($message->{'content-type'} =~ m#^text#i) {
-         $body = decode_content($body, $message->{'content-transfer-encoding'});
+         $body = ow::mime::decode_content($body, $message->{'content-transfer-encoding'});
       }
 
       $body = ow::enriched::enriched2html($body) if $message->{'content-type'} =~ m#^text/enriched#i;
@@ -1738,7 +1736,7 @@ sub tnefatt2archive {
    my $tnefbin = ow::tool::findbin('tnef');
    return '' if $tnefbin eq '';
 
-   my $content = decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
+   my $content = ow::mime::decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
 
    my ($arcname, $r_arcdata, @arcfilelist) = ow::tnef::get_tnef_archive($tnefbin, $r_attachment->{filename}, \$content);
    return '' if $arcname eq '';
@@ -3048,16 +3046,5 @@ sub replyreceipt {
                    );
 
    httpprint([], [$template->output]);
-}
-
-sub decode_content {
-   my ($content, $encoding) = @_;
-
-   return $content unless defined $encoding;
-
-   $encoding =~ m/^quoted-printable/i ? return decode_qp($content)          :
-   $encoding =~ m/^base64/i           ? return decode_base64($content)      :
-   $encoding =~ m/^x-uuencode/i       ? return ow::mime::uudecode($content) :
-   return $content;
 }
 
