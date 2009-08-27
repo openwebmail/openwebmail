@@ -1,9 +1,23 @@
 #!/usr/bin/perl
 #
-# simplely dump out content of a dbm
+# simply dump out content of a dbm
+# the first argument should be the full path to the db WITHOUT THE EXTENSION
+# dumpdb.pl /path/to/db/file
+# would dump file.db
 #
-dbmopen (%DB, $ARGV[0], undef);
-foreach (sort keys %DB) {
-   print "key=$_, value=$DB{$_}\n";
-}
+use strict;
+use warnings;
+use Data::Dumper;
+$Data::Dumper::Sortkeys++;
+
+my $dbfile = $ARGV[0];
+
+my %DB = ();
+
+dbmopen (%DB, $dbfile, 0700) or die "cannot open db $dbfile\: $!";
+
+print Dumper(\%DB);
+
 dbmclose(%DB);
+
+
