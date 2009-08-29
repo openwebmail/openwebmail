@@ -2073,6 +2073,12 @@ whether to append original message into the body of the reply message,
 available value: at_beginning, at_end, none
 
 
+default_sigbeforeforward
+-----------------------------------------------------------------------
+changes the default behavior from appending the signature after a 
+forwarded message text to before the forwarded message text
+
+
 default_backupsentmsg
 -----------------------------------------------------------------------
 backup outgoing messages to SENT folder

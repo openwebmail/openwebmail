@@ -74,7 +74,7 @@ foreach (qw(
    default_moveoldmsgfrominbox forced_moveoldmsgfrominbox
    default_readwithmsgcharset default_usefixedfont default_usesmileicon
    default_showhtmlastext default_showimgaslink
-   default_disablejs default_disableembcode
+   default_disablejs default_disableembcode default_sigbeforeforward
    default_reparagraphorigmsg default_backupsentmsg default_backupsentoncurrfolder
    default_filter_badaddrformat default_filter_fakedsmtp
    default_filter_fakedfrom default_filter_fakedexecontenttype
@@ -155,7 +155,7 @@ foreach my $opttype ('yesno', 'none', 'list') {
    confirmmsgmovecopy defaultdestination smartdestination
    viewnextaftermsgmovecopy autopop3 autopop3wait
    bgfilterthreshold bgfilterwait moveoldmsgfrominbox
-   msgformat editcolumns editrows sendbuttonposition
+   msgformat editcolumns editrows sendbuttonposition sigbeforeforward
    reparagraphorigmsg replywithorigmsg autocc backupsentmsg backupsentoncurrfolder sendcharset
    viruscheck_source viruscheck_maxsize viruscheck_minbodysize
    spamcheck_source spamcheck_maxsize spamcheck_threshold

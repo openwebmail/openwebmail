@@ -486,7 +486,7 @@
   <td colspan="2">&nbsp;</td>
 </tr>
 <tr>
-  <td colspan="2" class="columnheader">Message Replying Options</td>
+  <td colspan="2" class="columnheader">Message Composing/Sending Options</td>
 </tr>
 <tr>
   <td align="right" class="windowdarkbold">Message format:</td>
@@ -539,6 +539,12 @@
       <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
     </tmpl_loop>
     </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Signature before forwarded text:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="sigbeforeforward" value="1" <tmpl_if sigbeforeforwardchecked>checked</tmpl_if> <tmpl_if disablesigbeforeforward>disabled="1"</tmpl_if>>
   </td>
 </tr>
 <tr>

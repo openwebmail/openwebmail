@@ -904,6 +904,8 @@ sub editprefs {
                                                                        selected => $_ eq $defaultreplywithorigmsg?1:0
                                                                   } } qw(at_beginning at_end none)
                                                            ],
+                      disablesigbeforeforward           => defined $config_raw{DEFAULT_sigbeforeforward}?1:0,
+                      sigbeforeforwardchecked           => $prefs{sigbeforeforward},
                       disableautocc                     => defined $config_raw{DEFAULT_autocc}?1:0,
                       autocctext                        => $prefs{autocc} || '',
                       enable_backupsent                 => $config{enable_backupsent},

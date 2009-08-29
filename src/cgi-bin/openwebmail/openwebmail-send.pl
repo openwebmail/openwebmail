@@ -818,7 +818,15 @@ sub compose {
 
       my $endofline = $msgformat eq 'text' ? "\n" : "<br>";
       $body .= $endofline . $endofline;
-      $body .= str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . $endofline if $prefs{signature} =~ m/[^\s]/;
+      if ($prefs{signature} =~ m/[^\s]/)
+      {
+         if ($prefs{sigbeforeforward})
+         {
+            $body = $endofline . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . $endofline . $body . $endofline; 
+         } else {
+            $body .= str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . $endofline; 
+         }
+      }
 
       $cc = (iconv($prefs{charset}, $composecharset, $prefs{autocc}))[0] if defined $prefs{autocc};
       $replyto = (iconv($prefs{charset}, $composecharset, $prefs{replyto}))[0] if defined $prefs{replyto};
