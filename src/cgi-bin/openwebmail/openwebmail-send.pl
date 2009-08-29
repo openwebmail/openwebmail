@@ -822,7 +822,7 @@ sub compose {
       {
          if ($prefs{sigbeforeforward})
          {
-            $body = $endofline . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . $endofline . $body . $endofline; 
+            $body = $endofline . $endofline . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . $endofline . $body . $endofline; 
          } else {
             $body .= str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . $endofline; 
          }
