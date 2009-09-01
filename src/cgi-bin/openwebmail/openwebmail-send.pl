@@ -1128,8 +1128,8 @@ sub compose {
          $prefs{locale} = $composelocale;
          $prefs{charset} = $composecharset;
       } else {
-         # or else switch to en_US.UTF8 and hope for the best
-         $prefs{locale} = 'en_US.UTF8';
+         # or else switch to en_US.UTF-8 and hope for the best
+         $prefs{locale} = 'en_US.UTF-8';
          $prefs{charset} = $composecharset;
       }
    }
