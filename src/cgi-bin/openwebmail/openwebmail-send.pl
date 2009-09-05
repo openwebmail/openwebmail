@@ -2117,7 +2117,7 @@ sub sendmessage {
    $messageheader .= $s;
 
    if ($to ne '') {
-      $s = "To: " . ow::mime::encode_mimewords(folding($to), ('Charset' => $composecharset)) . "\n";
+      $s = "To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($to,0))), ('Charset' => $composecharset)) . "\n";
       dump_str($s, $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
       $messageheader .= $s;
    } elsif ($bcc ne '' && $cc eq '') {
@@ -2128,7 +2128,7 @@ sub sendmessage {
    }
 
    if ($cc ne '') {
-      $s = "Cc: " . ow::mime::encode_mimewords(folding($cc), ('Charset' => $composecharset)) . "\n";
+      $s = "Cc: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($cc,0))), ('Charset' => $composecharset)) . "\n";
       dump_str($s, $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
       $messageheader .= $s;
    }
