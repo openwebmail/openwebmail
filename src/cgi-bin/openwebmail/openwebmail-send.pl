@@ -818,13 +818,12 @@ sub compose {
 
       my $endofline = $msgformat eq 'text' ? "\n" : "<br>";
       $body .= $endofline . $endofline;
-      if ($prefs{signature} =~ m/[^\s]/)
-      {
-         if ($prefs{sigbeforeforward})
-         {
-            $body = $endofline . $endofline . str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . $endofline . $body . $endofline; 
+      if ($prefs{signature} =~ m/[^\s]/) {
+         my $signature = str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat);
+         if ($prefs{sigbeforeforward}) {
+            $body = $endofline . $endofline . $signature . $endofline . $body . $endofline;
          } else {
-            $body .= str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . $endofline; 
+            $body = $body . $signature . $endofline;
          }
       }
 

@@ -423,47 +423,48 @@ sub _email2nameaddr {
 }
 
 sub str2list {
-   my $str      = shift;
-   my $keepnull = shift || 0;
+   # given a string of email addresses from user-generated to,cc,or bcc lines,
+   # return an array of the individual addresses
+   my $str = shift;
 
-   my @list      = ();
-   my @tmp       = ();
-   my $delimiter = '';
-   my $prevchar  = '';
-   my $postchar  = '';
+   my @list = ();
 
-   if ($str =~ m/,/) {
-      @tmp = split(m/,/, $str);
-      $delimiter = ',';
-   } elsif ($str =~ m/;/) {
-      @tmp = split(m/;/, $str);
-      $delimiter = ';';
-   } else {
-      return($str);
+   if ($str !~ m/,|;/) {
+      push(@list, $str);
+      return @list;
    }
 
-   my $pairmode = 0;
-   foreach my $token (@tmp) {
-      next if $token =~ m/^\s*$/ && !$keepnull;
-      if ($pairmode) {
-         push(@list, pop(@list) . $delimiter . $token);
-         $pairmode = 0 if $token =~ m/\Q$postchar\E/ && $token !~ m/\Q$prevchar\E.*\Q$postchar\E/;
-      } else {
-         push(@list, $token);
-         if ($token =~ m/^.*?(['"\(])/) {
-            $prevchar = $postchar = $1;
-            $postchar = ')' if $prevchar eq '(';
-            $pairmode = 1 if $token !~ m/\Q$prevchar\E.*\Q$postchar\E/;
-         }
-      }
-   }
+   # escape internal commas, semicolons, singlequotes, and doublequotes
+   # for all the addresses contained in the string
+   $str =~ s/(?:^|(?<=;|,|\s))('|")([^'"]*)\1/{
+         $b = $1;
+         $a = $2;
+         $a =~ s',':#comma#:'g;
+         $a =~ s';':#semic#:'g;
+         $b eq "'" ? ":#squote#:$a:#squote#:" : ":#dquote#:$a:#dquote#:";
+         }/ge;
 
-   foreach (@list) {
-      s/^\s+//;
-      s/\s+$//;
-   }
+   $str =~ s/(?:^|(?<=;|,|\s))\(([^\)]*)\)/{
+         $a = $1;
+         $a =~ s',':#comma#:'g;
+         $a =~ s';':#semic#:'g;
+         "($a)";
+         }/ge;
 
-   return(@list);
+   # split the string into individual addresses
+   @list = grep { !m/^$/ }
+            map {
+                  s/^\s+//;
+                  s/\s+$//;
+                  s/:#comma#:/,/g;
+                  s/:#semic#:/;/g;
+                  s/:#squote#:/'/g;
+                  s/:#dquote#:/"/g;
+                  $_;
+                }
+           split(m/,|;/, $str);
+
+   return @list;
 }
 
 sub untaint {
