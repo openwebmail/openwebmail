@@ -2134,13 +2134,13 @@ sub sendmessage {
 
    if ($bcc ne '') {
       # put bcc header in folderfile only, not in outgoing msg
-      $s = "Bcc: " . ow::mime::encode_mimewords(folding($bcc), ('Charset' => $composecharset)) . "\n";
+      $s = "Bcc: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($bcc,0))), ('Charset' => $composecharset)) . "\n";
       print $folderhandle $s or $saveerr++ if ($do_save && !$saveerr);
       $messageheader .= $s;
    }
 
    $s  = '';
-   $s .= "Reply-To: " . ow::mime::encode_mimewords($replyto, ('Charset' => $composecharset)) . "\n" if $replyto;
+   $s .= "Reply-To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($replyto,0))), ('Charset' => $composecharset)) . "\n" if $replyto;
    $s .= "Subject: " . ow::mime::encode_mimewords($subject, ('Charset' => $composecharset)) . "\n";
    $s .= "Date: $date\n";
    $s .= "Message-Id: $mymessageid\n";
@@ -2150,8 +2150,8 @@ sub sendmessage {
    $s .= safexheaders($config{xheaders});
    if ($confirmreading) {
       if ($replyto ne '') {
-         $s .= "X-Confirm-Reading-To: " . ow::mime::encode_mimewords($replyto, ('Charset' => $composecharset)) . "\n";
-         $s .= "Disposition-Notification-To: " . ow::mime::encode_mimewords($replyto, ('Charset' => $composecharset)) . "\n";
+         $s .= "X-Confirm-Reading-To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($replyto,0))), ('Charset' => $composecharset)) . "\n";
+         $s .= "Disposition-Notification-To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($replyto,0))), ('Charset' => $composecharset)) . "\n";
       } else {
          $s .= "X-Confirm-Reading-To: $from\n";
          $s .= "Disposition-Notification-To: $from\n";
@@ -2954,7 +2954,7 @@ sub replyreceipt {
             $s .= "From: " . ow::mime::encode_mimewords(qq|$from|, ('Charset' => $prefs{charset})) . "\n";
          }
 
-         $s .= "To: " . ow::mime::encode_mimewords($to, ('Charset' => $prefs{charset})) . "\n";
+         $s .= "To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($to,0))), ('Charset' => $prefs{charset})) . "\n";
 
          $s .= "Reply-To: " . ow::mime::encode_mimewords($prefs{replyto}, ('Charset' => $prefs{charset})) . "\n" if $prefs{replyto};
 
