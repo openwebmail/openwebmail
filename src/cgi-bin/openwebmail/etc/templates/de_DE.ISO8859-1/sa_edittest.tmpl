@@ -1,0 +1,231 @@
+<tmpl_var header_template escape="none">
+<table cellpadding="1" cellspacing="0" border="0" width="90%" align="center">
+<tr>
+  <td nowrap class="titlebar">Edit Spamassassin Test Rules</td>
+</tr>
+<tr>
+  <td colspan="3" class="menubar">
+    <tmpl_unless prefs_caller>
+      <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to <tmpl_var callerfoldername escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to <tmpl_var callerfoldername escape="html">" alt="back to <tmpl_var callerfoldername escape="html">" border="0" align="absmiddle"></tmpl_if></a>
+    <tmpl_else>
+      <a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editprefs&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to user preferences<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to user preferences" alt="back to user preferences" border="0" align="absmiddle"></tmpl_if></a>
+    </tmpl_unless>
+    &nbsp;
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=edittest&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" class="icon"><tmpl_if use_texticon>edit test rules<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/satest.gif" title="edit test rules" alt="edit test rules" border="0" align="absmiddle"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=editwhitelist&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" class="icon"><tmpl_if use_texticon>edit white list<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/sawhitelist.gif" title="edit white list" alt="edit white list" border="0" align="absmiddle"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=editblacklist&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" class="icon"><tmpl_if use_texticon>edit black list<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/sablacklist.gif" title="edit black list" alt="edit black list" border="0" align="absmiddle"></tmpl_if></a>
+  </td>
+</tr>
+</table>
+&nbsp;
+<table class="windowdark" border="0" cellspacing="0" cellpadding="2" align="center" width="90%">
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl" method="post" name="addtest">
+<input type="hidden" name="action" value="addtest">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="prefs_caller" value="<tmpl_var prefs_caller escape="html">">
+<tr>
+  <td class="windowdarkbold">TestName:</td>
+  <td class="windowdark" colspan="2"><input type="text" name="testname"  size="45" />&nbsp;(letters, digits &amp; underline only)</td>
+</tr>
+<tr>
+  <td class="windowdarkbold">Description:</td>
+  <td class="windowdark" colspan="2"><input type="text" name="testdesc"  size="60" /></td>
+</tr>
+<tr>
+  <td class="windowdarkbold">TestType:</td>
+  <td class="windowdark" colspan="2">
+    <table border="0" cellpadding="0" cellspacing="0">
+    <tr>
+      <td class="windowdark">
+<select name="testtype"  onchange="sethheaderdivvisibility();">
+<option selected="selected" value="header">Message Header</option>
+<option value="body">Text in Msgbody (HTML tag removed)</option>
+<option value="uri">Links in Message Body</option>
+<option value="rawbody">Text in Msgbody and Attachments (HTML tag reserved)</option>
+<option value="full">Undecoded Msgbody and Attachments</option>
+</select>
+&nbsp;
+      </td>
+      <td class="windowdark">
+        <div id="headerdiv" style="position:relative; visibility:visible;" width="100%" height="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td class="windowdark">Attr&nbsp;</td>
+          <td class="windowdark"> 
+<select name="testheaderattr_sel"  onchange="setheaderattrfield();">
+<option value="ALL">All</option>
+<option value="Subject">Subject</option>
+<option value="From">From</option>
+<option value="To">To</option>
+<option value="Cc">Cc</option>
+<option value="ToCc">To and Cc</option>
+<option value="MESSAGEID">Message Id</option>
+<option selected="selected" value="USERDEFINE">User Define</option>
+</select> 
+          </td>
+          <td class="windowdark"><input type="text" name="testheaderattr"  size="15" /></td>
+          <td class="windowdark">
+<select name="testop" >
+<option selected="selected" value="=~">Include</option>
+<option value="!~">Exclude</option>
+</select>
+          </td>
+        </tr>
+        </table>
+        </div>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td class="windowdarkbold">Expression:</td>
+  <td class="windowdark" colspan="2"><input type="text" name="pattern"  size="45" /> &nbsp; Ignore Case<label><input type="checkbox" name="ignorecase" value="1" /></label> &nbsp; SingleLine Match<label><input type="checkbox" name="singleline" value="1" /></label></td>
+</tr>
+<tr>
+  <td class="windowdarkbold">Score:</td>
+  <td class="windowdark">
+<select name="score" >
+<tmpl_loop scoreloop>
+  <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+</tmpl_loop>
+</select>  (set score&gt;0 for Spam, score &lt;0 for Ham)
+  </td>
+  <td class="windowdark" align="right"><input type="submit" name="Add/Modify" value="Add/Modify" class="medtext" /> &nbsp; </td>
+</tr>
+<div><input type="hidden" name=".cgifields" value="ignorecase"  /><input type="hidden" name=".cgifields" value="singleline"  /></div>
+</form>
+</table>
+&nbsp;
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="2">
+
+<tmpl_loop testloop>
+<form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl" enctype="multipart/form-data">
+<INPUT TYPE="hidden" NAME="action" VALUE="deletetest">
+<INPUT TYPE="hidden" NAME="testname" VALUE="<tmpl_var testname escape="html">">
+<INPUT TYPE="hidden" NAME="folder" VALUE="<tmpl_var folder escape="html">">
+<INPUT TYPE="hidden" NAME="message_id" VALUE="<tmpl_var message_id escape="html">">
+<INPUT TYPE="hidden" NAME="page" VALUE="<tmpl_var page escape="html">">
+<INPUT TYPE="hidden" NAME="prefs_caller" VALUE="<tmpl_var prefs_caller escape="html">">
+<INPUT TYPE="hidden" NAME="sessionid" VALUE="<tmpl_var sessionid escape="html">">
+<INPUT TYPE="hidden" NAME="sort" VALUE="<tmpl_var sort escape="html">">
+<tr <tmpl_if uselightbar>class="rowlight" onMouseOver='this.className="rowhilite";' onMouseOut='this.className="rowlight";'<tmpl_else>class=<tmpl_if odd>"rowlight"<tmpl_else>"rowdark"</tmpl_if></tmpl_if> onClick="update('<tmpl_var testname escape="js">', '<tmpl_var testdesc escape="js">', '<tmpl_var testtype escape="js">', '<tmpl_var testheaderattr escape="js">', '<tmpl_var testop escape="js">', '<tmpl_var pattern escape="js">', <tmpl_var ignorecase escape="js">, <tmpl_var singleline escape="js">, <tmpl_var score escape="js">)" >
+  <td class="columnheadercolor" align="center"><tmpl_var testnum escape="html"></td>
+  <td>
+    <table width="100%" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="15%">Name&nbsp;</td>
+      <td><tmpl_var testname escape="html"></td>
+    </tr>
+    <tr>
+      <td>Description&nbsp;</td>
+      <td><tmpl_var testdesc escape="html"></td>
+    </tr>
+    <tr>
+      <td>Test Type&nbsp;</td>
+      <td><tmpl_var testtype escape="html"> <tmpl_var testheaderattr escape="html"> <tmpl_var testop escape="html"></td>
+    </tr>
+    <tr>
+      <td>Expression&nbsp;</td>
+      <td>/<tmpl_var pattern escape="html">/<tmpl_if ignorecase>i</tmpl_if><tmpl_if singleline>s</tmpl_if></td>
+    </tr>
+    <tr>
+      <td>Score&nbsp;</td>
+      <td><tmpl_var score escape="html"></td>
+    </tr>
+    </table>
+  </td>
+  <td align="center" ><input type="submit" name="Delete" value="Delete" class="medtext" /></td>
+</tr>
+</form>
+</tmpl_loop>
+
+</table>
+
+<script language="javascript">
+<!--
+   function setheaderattrfield () {
+      var s=document.addtest.testheaderattr_sel.value;
+      if (s=='User Define') {
+         document.addtest.testheaderattr.value='';
+      } else {
+         document.addtest.testheaderattr.value=s;
+      }
+   }
+
+   function sethheaderdivvisibility() {
+      var div=document.getElementById('headerdiv');
+      if (document.addtest.testtype.value == "header") {
+         div.style.visibility='visible';
+      } else {
+    div.style.visibility='hidden';
+      }
+   }
+
+   function update (testname, desc, type, headerattr, op, pattern, ignorecase, singleline, score) {
+      var e;
+
+      document.addtest.testname.value = testname;
+      document.addtest.testdesc.value = desc;
+
+      selectoption(document.addtest.testtype, type);
+
+      if (type=='header') {
+         document.addtest.testheaderattr.value = headerattr;
+         selectoption(document.addtest.testheaderattr_sel, headerattr);
+         selectoption(document.addtest.testop, op);
+      }
+
+      document.addtest.pattern.value = pattern;
+
+      document.addtest.ignorecase.checked = (ignorecase==1)?true:false;
+      document.addtest.singleline.checked = (singleline==1)?true:false;
+
+      e=document.addtest.score;
+
+      for (var i=0; i<e.length; i++) {
+         if (e.options[i].value<=score) {
+            e.options[i].selected=true;
+            break;
+         }
+      }
+
+      setheaderattrfield();
+      sethheaderdivvisibility();
+   }
+
+   function addcheck() {
+      if (document.addtest.testname.value  == "") {
+         alert("Please specify the test name.");
+         return false;
+      }
+      if (document.addtest.pattern.value  == "") {
+         alert("Please specify the test expression.");
+         return false;
+      }
+      return true;
+   }
+
+   function selectoption (menu, value) {
+      var i_default=0;
+
+      for (var i=0; i<menu.length; i++) {
+         if (menu.options[i].value==value) {
+            menu.options[i].selected=true;
+            return i;
+         }
+         if (menu.options[i].defaultSelected) {
+            i_default=i;
+         }
+      }
+      menu.options[i_default].selected=true;
+      return i_default;
+   }
+//-->
+</script>
+
+<tmpl_var footer_template escape="none">
