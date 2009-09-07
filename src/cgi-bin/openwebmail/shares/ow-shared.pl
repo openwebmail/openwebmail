@@ -1217,7 +1217,7 @@ sub get_defaultemails {
 
    my $virtualuser = get_virtualuser_by_user($user);
    if ($virtualuser ne '') {
-      foreach my $name (ow::tool::str2list($virtualuser,0)) {
+      foreach my $name (ow::tool::str2list($virtualuser)) {
          if ($name =~ m/^(.*)\@(.*)$/) {
             my $purename = $1;
             next if $purename eq '';              # skip whole @domain mapping

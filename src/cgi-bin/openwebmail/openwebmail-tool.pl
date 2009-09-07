@@ -1557,7 +1557,7 @@ sub send_mail {
    $smtp->mail($from);
 
    my @recipients=();
-   foreach (ow::tool::str2list($to,0)) {
+   foreach (ow::tool::str2list($to)) {
       my $email=(ow::tool::email2nameaddr($_))[1];
       next if ($email eq "" || $email=~/\s/);
       push (@recipients, $email);

@@ -462,7 +462,7 @@ sub listmessages {
 
       # from/to
       my (@to_namelist, @to_addrlist);
-      foreach my $recipient (ow::tool::str2list($to, 0)) {
+      foreach my $recipient (ow::tool::str2list($to)) {
          my ($name, $emailaddress) = ow::tool::email2nameaddr($recipient);
          next if !defined $name || !defined $emailaddress || $name =~ m/"/ || $emailaddress =~ m/"/; # eliminate incomplete addresses
          push(@to_namelist, $name);

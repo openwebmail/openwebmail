@@ -594,7 +594,7 @@ sub compose {
       # add everyone else who this message was sent to
       my @recv   = ();
       my $toaddr = (ow::tool::email2nameaddr($to))[1];
-      foreach my $email (ow::tool::str2list($message->{to},0)) {
+      foreach my $email (ow::tool::str2list($message->{to})) {
          my $addr = (ow::tool::email2nameaddr($email))[1];
          next if ($addr eq $fromemail || $addr eq $toaddr || $addr =~ m/^\s*$/ || $addr =~ m/undisclosed\-recipients:\s?;?/i);
          push(@recv, $email);
@@ -603,7 +603,7 @@ sub compose {
 
       # add everyone else who was cc'd
       @recv = ();
-      foreach my $email (ow::tool::str2list($message->{cc},0)) {
+      foreach my $email (ow::tool::str2list($message->{cc})) {
          my $addr = (ow::tool::email2nameaddr($email))[1];
          next if ($addr eq $fromemail || $addr eq $toaddr || $addr =~ m/^\s*$/ || $addr =~ m/undisclosed\-recipients:\s?;?/i);
          push(@recv, $email);
@@ -1899,7 +1899,7 @@ sub sendmessage {
 
       foreach my $recv ($to, $cc, $bcc) {
          next if ($recv eq "");
-         foreach (ow::tool::str2list($recv,0)) {
+         foreach (ow::tool::str2list($recv)) {
             my $addr = (ow::tool::email2nameaddr($_))[1];
             next if ($addr eq '' || $addr =~ m/\s/);
             push (@recipients, $addr);
@@ -2116,7 +2116,7 @@ sub sendmessage {
    $messageheader .= $s;
 
    if ($to ne '') {
-      $s = "To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($to,0))), ('Charset' => $composecharset)) . "\n";
+      $s = "To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($to))), ('Charset' => $composecharset)) . "\n";
       dump_str($s, $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
       $messageheader .= $s;
    } elsif ($bcc ne '' && $cc eq '') {
@@ -2127,20 +2127,20 @@ sub sendmessage {
    }
 
    if ($cc ne '') {
-      $s = "Cc: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($cc,0))), ('Charset' => $composecharset)) . "\n";
+      $s = "Cc: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($cc))), ('Charset' => $composecharset)) . "\n";
       dump_str($s, $smtp, $folderhandle, $do_send, $do_save, \$senderr, \$saveerr);
       $messageheader .= $s;
    }
 
    if ($bcc ne '') {
       # put bcc header in folderfile only, not in outgoing msg
-      $s = "Bcc: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($bcc,0))), ('Charset' => $composecharset)) . "\n";
+      $s = "Bcc: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($bcc))), ('Charset' => $composecharset)) . "\n";
       print $folderhandle $s or $saveerr++ if ($do_save && !$saveerr);
       $messageheader .= $s;
    }
 
    $s  = '';
-   $s .= "Reply-To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($replyto,0))), ('Charset' => $composecharset)) . "\n" if $replyto;
+   $s .= "Reply-To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($replyto))), ('Charset' => $composecharset)) . "\n" if $replyto;
    $s .= "Subject: " . ow::mime::encode_mimewords($subject, ('Charset' => $composecharset)) . "\n";
    $s .= "Date: $date\n";
    $s .= "Message-Id: $mymessageid\n";
@@ -2150,8 +2150,8 @@ sub sendmessage {
    $s .= safexheaders($config{xheaders});
    if ($confirmreading) {
       if ($replyto ne '') {
-         $s .= "X-Confirm-Reading-To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($replyto,0))), ('Charset' => $composecharset)) . "\n";
-         $s .= "Disposition-Notification-To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($replyto,0))), ('Charset' => $composecharset)) . "\n";
+         $s .= "X-Confirm-Reading-To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($replyto))), ('Charset' => $composecharset)) . "\n";
+         $s .= "Disposition-Notification-To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($replyto))), ('Charset' => $composecharset)) . "\n";
       } else {
          $s .= "X-Confirm-Reading-To: $from\n";
          $s .= "Disposition-Notification-To: $from\n";
@@ -2788,7 +2788,7 @@ sub folding {
 
    my ($folding, $line) = ('','');
 
-   foreach my $token (ow::tool::str2list($string,0)) {
+   foreach my $token (ow::tool::str2list($string)) {
       if (length($line) + length($token) < 330) {
          $line .= ",$token";
       } else {
@@ -2882,7 +2882,7 @@ sub replyreceipt {
          $from     =~ s/['"]/ /g; # Get rid of shell escape attempts
 
          my @recipients = ();
-         foreach my $to_recipient (ow::tool::str2list($to,0)) {
+         foreach my $to_recipient (ow::tool::str2list($to)) {
             my $addr = (ow::tool::email2nameaddr($to_recipient))[1];
             next if ($addr eq '' || $addr =~ m/\s/);
             push (@recipients, $addr);
@@ -2954,7 +2954,7 @@ sub replyreceipt {
             $s .= "From: " . ow::mime::encode_mimewords(qq|$from|, ('Charset' => $prefs{charset})) . "\n";
          }
 
-         $s .= "To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($to,0))), ('Charset' => $prefs{charset})) . "\n";
+         $s .= "To: " . ow::mime::encode_mimewords(folding(join(', ', ow::tool::str2list($to))), ('Charset' => $prefs{charset})) . "\n";
 
          $s .= "Reply-To: " . ow::mime::encode_mimewords($prefs{replyto}, ('Charset' => $prefs{charset})) . "\n" if $prefs{replyto};
 

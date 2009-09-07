@@ -308,7 +308,7 @@ sub advsearch {
 
          my @namelist = ();
          my @addrlist = ();
-         my @recvlist = ow::tool::str2list($to,0);
+         my @recvlist = ow::tool::str2list($to);
          foreach my $recv (@recvlist) {
             my ($n, $a) = ow::tool::email2nameaddr($recv);
             # if $n or $a has ", $recv may be an incomplete addr
