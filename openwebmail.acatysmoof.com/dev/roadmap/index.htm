@@ -23,7 +23,8 @@
 
     <h3>CURRENT FOCUS</h3>
     <blockquote>
-      <p>OpenWebMail Development is currently focused on the separation of the templating system, the language system, and the logic code. There are several issues driving this focus:</p>
+      <p>OpenWebMail Development is currently focused on the separation of the templating system, the language system, and the logic code.</p>
+      <p>There are several issues driving this focus:</p>
       <ul>
         <li>The primary driver is unnecessary bloat. Currently, all of the template files contain message strings. Additional message strings are also contained in the language files that exist for each language. The message strings that occupy the templates create a situation in which each template file must be duplicated for every language. This duplication is currently consuming over 4Mb of the code base, which is almost 50% of the total code of the OpenWebMail system.<br><br></li>
         <li>The secondary driver is the need for a universally supported language file format. The current OpenWebMail language files are Perl hash tables. The message string values in the hash tables are referred to by their hash keys, and replace placeholders in the template files with their values. While this system is functional, OpenWebMail Translators can benefit from a move to the gettext PO format. A move to the gettext PO format will enable OpenWebMail Translators to use the several PO tools that are available. These tools simplify translation by quickly identifying untranslated strings. More importantly, they also provide access to translation databases that contain existing string translations that can be applied to OpenWebMail, reducing the time required to complete translations. Finally, the PO format identifies the exact file and line number where each message string originates, greatly helping the translator understand the context of each translation. As OpenWebMail grows these features will help the translators keep translations current and correct.<br><br></li>
@@ -59,6 +60,12 @@
                   <li>COMPLETE: preferences saved/continue</li>
                 </ul>
               </li>
+              <li>SpamAssassin Preferences
+                <ul>
+                  <li>COMPLETE: edit list (blacklist and whitelist)</li>
+                  <li>COMPLETE: edit test</li>
+                </ul>
+              </li>
               <li>Filters
                 <ul>
                   <li>COMPLETE: edit filters</li>
@@ -76,6 +83,11 @@
     	          <li>COMPLETE: manage/edit folders</li>
                   <li>COMPLETE: compose message</li>
                   <li>COMPLETE: read receipt popup</li>
+                </ul>
+              </li>
+              <li>Spellcheck
+                <ul>
+                  <li>spellcheck</li>
                 </ul>
               </li>
               <li>Addressbook
@@ -111,7 +123,6 @@
                 </ul>
               </li>
               <li>Virtual Users</li>
-              <li>COMPLETE: SpamAssassin Setup</li>
             </ul>
           </li>
         </ul><br><br>

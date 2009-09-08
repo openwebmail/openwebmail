@@ -6,7 +6,7 @@
 <br><br>
 Please don't try to download entire branches through this web interface. If you would like to download the latest bleeding edge code from this repository you will need to use a Subversion client. We provide a document that describes <a href="/doc/tech/svn">how to use SVN to work on OpenWebMail</a>.
 <br><br>
-Latest Official Releases of OpenWebMail are packaged as tarballs and are <a href="http://www.openwebmail.org">available at the OpenWebMail Project homepage</a>.
+Latest Official Releases of OpenWebMail are packaged as tarballs and are available at the <a href="http://openwebmail.acatysmoof.com">OpenWebMail Project homepage</a>.
 <br>
 </p>
 
