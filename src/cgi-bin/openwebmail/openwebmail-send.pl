@@ -599,7 +599,7 @@ sub compose {
          next if ($addr eq $fromemail || $addr eq $toaddr || $addr =~ m/^\s*$/ || $addr =~ m/undisclosed\-recipients:\s?;?/i);
          push(@recv, $email);
       }
-      $to .= "," . join(',', @recv) if scalar @recv > 0;
+      $to .= ', ' . join(', ', @recv) if scalar @recv > 0;
 
       # add everyone else who was cc'd
       @recv = ();
@@ -608,7 +608,7 @@ sub compose {
          next if ($addr eq $fromemail || $addr eq $toaddr || $addr =~ m/^\s*$/ || $addr =~ m/undisclosed\-recipients:\s?;?/i);
          push(@recv, $email);
       }
-      $cc = join(',', @recv) if scalar @recv > 0;
+      $cc = join(', ', @recv) if scalar @recv > 0;
 
       ($subject, $to, $cc) = iconv('utf-8',$composecharset,$subject,$to,$cc);
 
