@@ -96,18 +96,18 @@ $SIG{PIPE} = \&openwebmail_exit;	# for user stop
 $SIG{TERM} = \&openwebmail_exit;	# for user stop
 userenv_init();
 
-if (!$config{'enable_webmail'} || !$config{enable_saprefs}) {
-   openwebmailerror(__FILE__, __LINE__, "$lang_text{'webmail'} $lang_err{'access_denied'}");
+if (!$config{enable_webmail} || !$config{enable_saprefs}) {
+   openwebmailerror(__FILE__, __LINE__, "$lang_text{webmail} $lang_err{access_denied}");
 }
 
 $folder       = param('folder')       || 'INBOX';
 $page         = param('page')         || 1;
-$sort         = param('sort')         || $prefs{'sort'} || 'date_rev';
+$sort         = param('sort')         || $prefs{sort} || 'date_rev';
 $messageid    = param('message_id')   || '';
 $prefs_caller = param('prefs_caller') || '';
 my $action    = param('action')       || '';
 
-writelog("debug - request saprefs begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+writelog("debug - request saprefs begin, action=$action - " .__FILE__.":". __LINE__) if $config{debug_request};
 
 $action eq 'edittest'         ? edittest()                     :
 $action eq 'addtest'          ? modtest("add")                 :
@@ -118,9 +118,9 @@ $action eq 'deletewhitelist'  ? modlist("delete", "whitelist") :
 $action eq 'editblacklist'    ? editlist("blacklist")          :
 $action eq 'addblacklist'     ? modlist("add", "blacklist")    :
 $action eq 'deleteblacklist'  ? modlist("delete", "blacklist") :
-   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
 
-writelog("debug - request saprefs end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+writelog("debug - request saprefs end, action=$action - " .__FILE__.":". __LINE__) if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -140,16 +140,16 @@ sub edittest {
       my %test = %{${$r_rules}{$testname}};
 
       # modification on these records are not supported
-      next if ($test{type} eq 'meta' 
-               || defined $test{ifunset} 
+      next if ($test{type} eq 'meta'
+               || defined $test{ifunset}
                || defined $test{tflags});
 
-      my $score;
+      my $score = '';
       if (defined ${$test{score}}[0]) {
          $score = ${$test{score}}[0];
       } else {
-         $score = 1;				                  # default 1 for no score test
-         $score = 0.01 if ($testname =~ /^T_/); # default 0.01 if test is for testing only
+         $score = 1;                           # default 1 for no score test
+         $score = 0.01 if $testname =~ m/^T_/; # default 0.01 if test is for testing only
       }
       push(@{$testloop}, {
                            url_cgi        => $config{ow_cgiurl},
@@ -168,8 +168,8 @@ sub edittest {
                            testheaderattr => $test{headerattr},
                            testop         => $test{op},
                            pattern        => $test{pattern},
-                           ignorecase     => $test{modifier} =~ /i/ ? 1 : 0,
-                           singleline     => $test{modifier} =~ /s/ ? 1 : 0,
+                           ignorecase     => $test{modifier} =~ m/i/ ? 1 : 0,
+                           singleline     => $test{modifier} =~ m/s/ ? 1 : 0,
                            score          => $score,
                          }
           );
@@ -200,43 +200,42 @@ sub edittest {
 
    $template->param(
                       # header.tmpl
-                      header_template      => get_header($config{header_template_file}),
+                      header_template  => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon         => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
-                      url_html             => $config{ow_htmlurl},
-                      url_cgi              => $config{ow_cgiurl},
-                      iconset              => $prefs{iconset},
-                      sessionid            => $thissession,
-                      message_id           => $messageid,
-                      folder               => $folder,
-                      sort                 => $sort,
-                      page                 => $page,
+                      use_texticon     => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      url_html         => $config{ow_htmlurl},
+                      url_cgi          => $config{ow_cgiurl},
+                      iconset          => $prefs{iconset},
+                      sessionid        => $thissession,
+                      message_id       => $messageid,
+                      folder           => $folder,
+                      sort             => $sort,
+                      page             => $page,
 
                       # sa_edittest.pl
-                      prefs_caller         => $prefs_caller,
-                      callerfoldername     => ($lang_folders{$folder} || f2u($folder)),
-                      testloop             => $testloop,
-                      scoreloop            => [
-                                               map { {
-                                                       option      => $_,
-                                                       label       => $_,
-                                                       selected    => $_ eq 0 ? 1 : 0
-                                                   } } @scores
-                                              ],
-                      
+                      prefs_caller     => $prefs_caller,
+                      callerfoldername => ($lang_folders{$folder} || f2u($folder)),
+                      testloop         => $testloop,
+                      scoreloop        => [
+                                            map { {
+                                                    option   => $_,
+                                                    label    => $_,
+                                                    selected => $_ eq 0 ? 1 : 0
+                                                } } @scores
+                                          ],
+
                       # footer.tmpl
-                      footer_template     => get_footer($config{footer_template_file}),
+                      footer_template  => get_footer($config{footer_template_file}),
                    );
    httpprint([], [$template->output]);
-
 }
 
 sub modtest {
    my $mode     =  shift;
-   my $testname =  param('testname') || ''; 
+   my $testname =  param('testname') || '';
    $testname    =~ s/^\s*//;
-   $testname    =~ s/\s*$//; 
+   $testname    =~ s/\s*$//;
    return edittest() if ($testname eq '');
 
    my %test;
@@ -244,19 +243,21 @@ sub modtest {
    my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from) = read_saprefs($saprefsfile);
 
    if ($mode eq 'add') {
-      $test{type}    =  param('testtype'); 
-      $test{type}    =~ s/^\s*//;
-      $test{type}    =~ s/\s*$//; 
+      $test{type} =  param('testtype');
+      $test{type} =~ s/^\s*//;
+      $test{type} =~ s/\s*$//;
 
-      $test{pattern} =  param('pattern'); 
+      $test{pattern} = param('pattern');
+
       # remove preceding/trailing spaces and // from pattern
       $test{pattern} =~ s/^\s*\///;
       $test{pattern} =~ s/\/\s*$//;
+
       # ensure all / are properly escaped
-      $test{pattern} =~ s#\\/#/#g; 
+      $test{pattern} =~ s#\\/#/#g;
       $test{pattern} =~ s#/#\\/#g;
 
-      if ($test{type} ne '' 
+      if ($test{type} ne ''
          && $test{pattern} ne ''
          && ow::tool::is_regex($test{pattern})) {
 
@@ -308,17 +309,17 @@ sub editlist {
       next if ($email =~ /[^\d\w_\@\%\*\!\&\.#]/);
 
       push(@{$testloop}, {
-                           url_cgi        => $config{ow_cgiurl},
-                           folder         => $folder,
-                           page           => $page,
-                           sort           => $sort,
-                           message_id     => $messageid,
-                           sessionid      => $thissession,
-                           prefs_caller   => $prefs_caller,
-                           uselightbar    => $prefs{uselightbar},
-                           odd            => $i % 2,
-                           email          => $email,
-                           whitelist      => $listtype eq 'whitelist' ? 1 : 0
+                           url_cgi      => $config{ow_cgiurl},
+                           folder       => $folder,
+                           page         => $page,
+                           sort         => $sort,
+                           message_id   => $messageid,
+                           sessionid    => $thissession,
+                           prefs_caller => $prefs_caller,
+                           uselightbar  => $prefs{uselightbar},
+                           odd          => $i % 2,
+                           email        => $email,
+                           whitelist    => $listtype eq 'whitelist' ? 1 : 0
                          }
           );
       $i++;
@@ -336,39 +337,38 @@ sub editlist {
 
    $template->param(
                       # header.tmpl
-                      header_template      => get_header($config{header_template_file}),
+                      header_template  => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon         => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
-                      url_html             => $config{ow_htmlurl},
-                      url_cgi              => $config{ow_cgiurl},
-                      iconset              => $prefs{iconset},
-                      sessionid            => $thissession,
-                      message_id           => $messageid,
-                      folder               => $folder,
-                      sort                 => $sort,
-                      page                 => $page,
+                      use_texticon     => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      url_html         => $config{ow_htmlurl},
+                      url_cgi          => $config{ow_cgiurl},
+                      iconset          => $prefs{iconset},
+                      sessionid        => $thissession,
+                      message_id       => $messageid,
+                      folder           => $folder,
+                      sort             => $sort,
+                      page             => $page,
 
                       # sa_edittest.pl
-                      prefs_caller         => $prefs_caller,
-                      callerfoldername     => ($lang_folders{$folder} || f2u($folder)),
-                      testloop             => $testloop,
-                      whitelist      => $listtype eq 'whitelist' ? 1 : 0,
-                      
+                      prefs_caller     => $prefs_caller,
+                      callerfoldername => ($lang_folders{$folder} || f2u($folder)),
+                      testloop         => $testloop,
+                      whitelist        => $listtype eq 'whitelist' ? 1 : 0,
+
                       # footer.tmpl
-                      footer_template     => get_footer($config{footer_template_file}),
+                      footer_template  => get_footer($config{footer_template_file}),
                    );
    httpprint([], [$template->output]);
-
 }
 
 sub modlist {
    my ($mode, $listtype) = @_;
    return edittest() if ($listtype ne 'whitelist' && $listtype ne 'blacklist');
 
-   my $email =  param('email') || ''; 
+   my $email =  param('email') || '';
    $email    =~ s/^\s*//;
-   $email    =~ s/\s*$//; 
+   $email    =~ s/\s*$//;
    return editlist($listtype) if ($email eq '' || $email =~ /[^\d\w_\@\%\*\!\&\.#]/);
 
    my $saprefsfile = "$homedir/.spamassassin/user_prefs";
@@ -417,8 +417,8 @@ sub read_saprefs {
       # ruleset related lines
       if ($line =~ /^(?:score|describe|tflags|header|uri|body|full|rawbody|meta)\s/) {
          while (defined $lines[$i + 1] && $lines[$i + 1] =~ /^ /) {
-            $i++; 
-            $line .= $lines[$i]; 
+            $i++;
+            $line .= $lines[$i];
             $line =~ s/\s*$//;
          }
 
