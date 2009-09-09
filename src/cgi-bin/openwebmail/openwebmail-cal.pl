@@ -1001,7 +1001,7 @@ sub events {
                                searchtype   => $searchtype,
                                keyword      => $keyword,
 
-                               cal_caller   => param('cal_caller') || $action || $prefs{calendar_defaultview},
+                               cal_caller   => param('cal_caller') || param('action') || $prefs{calendar_defaultview},
                                year         => $year,
                                month        => $month,
                                day          => $day,
@@ -1503,6 +1503,7 @@ sub matrix_labelcols {
                                             searchtype           => $searchtype,
                                             keyword              => $keyword,
 
+                                            cal_caller           => param('action') || $prefs{calendar_defaultview},
                                             colspan              => $matrix->[1]{columns}[$col]{colspan},
                                             rowspan              => 1,
                                             timelabel            => $lang_wday{$weekday_number},
