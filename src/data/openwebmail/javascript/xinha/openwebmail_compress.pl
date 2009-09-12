@@ -24,7 +24,7 @@ find(
                              && m/\.js$/
                              && $File::Find::name !~ m#/(?:\.svn|lang|abbr|HtmlEntities)/#
                           ) {
-                          if (system("java -jar $yui_jar --charset UTF-8 " . quotemeta($_) . " -o " . quotemeta($_)) == 0) {
+                          if (system("/usr/local/bin/java -jar $yui_jar --charset UTF-8 " . quotemeta($_) . " -o " . quotemeta($_)) == 0) {
                              print ".";
                           } else {
                              print "error: $File::Find::name failed to compress ($! $?)\n";

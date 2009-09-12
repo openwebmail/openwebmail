@@ -6,8 +6,17 @@ the export was then modified with the openwebmail_xinha.patch:
 
 patch < openwebmail_xinha.patch
 
-finally, a custom skin and custom iconset were added:
+a custom skin and custom iconset were added:
 
 unzip openwebmail_xinha_skin_iconset.zip
+
+all plugins requiring PHP were removed:
+
+cd plugins
+find . -name "*.php" -type f | cut -d/ -f2 | sort | uniq | xargs -t -I % -R 1 rm -rf %
+
+that find command is for FreeBSD 7, so careful there.
+
+finally, it was committed to the repository.
 
 thats it!
