@@ -14,8 +14,10 @@ all plugins requiring PHP were removed:
 
 cd plugins
 find . -name "*.php" -type f | cut -d/ -f2 | sort | uniq | xargs -t -I % -R 1 rm -rf %
+cd ../unsupported_plugins
+find . -name "*.php" -type f | cut -d/ -f2 | sort | uniq | xargs -t -I % -R 1 rm -rf %
 
-that find command is for FreeBSD 7, so careful there.
+those find commands are for FreeBSD 7, so careful there.
 
 finally, it was committed to the repository.
 
