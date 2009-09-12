@@ -306,7 +306,7 @@ sub editlist {
    my $testloop = [];
 
    foreach my $email (@list) {
-      next if ($email =~ /[^\d\w_\@\%\*\!\&\.#]/);
+      next if ($email !~ /^(?:[-\w%*!&.#\$'+\/=?^`{}|~]+@)?[%*a-zA-Z0-9.-]+$/);
 
       push(@{$testloop}, {
                            url_cgi      => $config{ow_cgiurl},
@@ -369,7 +369,7 @@ sub modlist {
    my $email =  param('email') || '';
    $email    =~ s/^\s*//;
    $email    =~ s/\s*$//;
-   return editlist($listtype) if ($email eq '' || $email =~ /[^\d\w_\@\%\*\!\&\.#]/);
+   return editlist($listtype) if ($email eq '' || $email !~ /^(?:[-\w%*!&.#\$'+\/=?^`{}|~]+@)?[%*a-zA-Z0-9.-]+$/);
 
    my $saprefsfile = "$homedir/.spamassassin/user_prefs";
    my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from) = read_saprefs($saprefsfile);
