@@ -33,8 +33,8 @@
   <td colspan="2">&nbsp;</td>
 </tr>
 <tr>
-  <td nowrap class="columnheader"><tmpl_if whitelist>Whitelist From Email Address<tmpl_else>Blacklist From Email Address</tmpl_if></td>
-  <td align="center" class="columnheader">Action</td>
+  <td nowrap class="columnheader" width="80%"><tmpl_if whitelist>Whitelist From Email Address<tmpl_else>Blacklist From Email Address</tmpl_if></td>
+  <td align="center" class="columnheader" width="20%">Action</td>
 </tr>
 <tr>
   <td nowrap class="windowdark"><input type="text" name="email" size="60" /></td>
@@ -50,8 +50,8 @@
 </tr>
 <tmpl_loop testloop>
 <tr <tmpl_if uselightbar>class="rowlight" onMouseOver='this.className="rowhilite";' onMouseOut='this.className="rowlight";'<tmpl_else>class=<tmpl_if odd>"rowlight"<tmpl_else>"rowdark"</tmpl_if></tmpl_if> onClick="document.addlist.email.value='<tmpl_var email escape="js">';">
-  <td >&nbsp;<tmpl_var email escape="html"></td>
-  <td align="center">
+  <td width="80%">&nbsp;<tmpl_var email escape="html"></td>
+  <td align="center" width="20%">
     <form action="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl" method="post">
     <input type="hidden" name="action" value=<tmpl_if whitelist>"deletewhitelist"<tmpl_else>"deleteblacklist"</tmpl_if>>
     <input type="hidden" name="email" value="<tmpl_var email escape="html">">
