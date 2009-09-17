@@ -1058,8 +1058,8 @@ sub update_virtuserdb {
    my $virtdb = ow::tool::untaint(("$config{ow_mapsdir}/$virtname"));
 
    if (! -e $config{virtusertable}) {
-      ow::dbm::unlink($virtdb) if ow::dbm::exist($virtdb);
-      ow::dbm::unlink("$virtdb.rev") if ow::dbm::exist("$virtdb.rev");
+      ow::dbm::unlink($virtdb) if (ow::dbm::exist($virtdb));
+      ow::dbm::unlink("$virtdb.rev") if (ow::dbm::exist("$virtdb.rev"));
       return;
    }
 
@@ -1067,63 +1067,45 @@ sub update_virtuserdb {
 
    if (ow::dbm::exist($virtdb)) {
       ow::dbm::open(\%DB, $virtdb, LOCK_SH) or return;
-      my $dbmetainfo = $DB{'METAINFO'};
+      my $dbmetainfo=$DB{'METAINFO'};
       ow::dbm::close(\%DB, $virtdb);
-      return if $dbmetainfo eq $metainfo;
+      return if ( $dbmetainfo eq $metainfo );
    }
 
    writelog("update $virtdb");
 
    ow::dbm::open(\%DB, $virtdb, LOCK_EX, 0644) or return;
-   my $ret = ow::dbm::open(\%DBR, "$virtdb.rev", LOCK_EX, 0644);
+   my $ret=ow::dbm::open(\%DBR, "$virtdb.rev", LOCK_EX, 0644);
    if (!$ret) {
       ow::dbm::close(\%DB, $virtdb);
       return;
    }
-
-   %DB  = (); # empty virtdb
-   %DBR = (); # empty reverse virtdb
+   %DB=();	# ensure the virdb is empty
+   %DBR=();
 
    # parse the virtusertable
-   # valid virtusertable examples include:
-   #     virtual_address     real_address
-   #     john@domain.com     john              # mapped to local user john
-   #     alex@domain.com     alexander         # mapped to local user alexander
-   #     bill@domain.com     bill@example.com  # mapped to remote user bill at example.com
-   #     nick@domain.com     %1@example.com    # mapped to remote user nick at example.com
-   #         @domain.com     xx-%1             # mapped to local user of the same name with an 'xx-' prefix
-   sysopen(VIRT, $config{virtusertable}, O_RDONLY);
+   sysopen(VIRT, $config{'virtusertable'}, O_RDONLY);
    while (<VIRT>) {
-      s/^\s+//; # remove leading whitespace
-      s/\s+$//; # remove trailing whitespace
-      s/#.*$//; # remove trailing comments and comment lines
+      s/^\s+//;                         # remove leading whitespace
+      s/\s+$//;                         # remove trailing whitespace
+      s/#.*$//;                         # remove comment lines
+      s/(.*?)\@(.*?)%1/$1\@$2$1/;       # resolve %1 in virtusertable
+                                        # user@domain.com     %1@example.com
 
-      my ($virtual_address, $real_address) = split(/\s+/);
+      my ($vu, $u)=split(/[\s\t]+/);
+      next if ($vu eq "" || $u eq "");
+      next if ($vu =~ /^@/);            # ignore entries for whole domain mapping
 
-      next unless defined $virtual_address && $virtual_address ne '';
-      next unless defined $real_address && $real_address ne '' && $real_address !~ m/^\s*error:/;
-
-      my ($virtual_localpart, $virtual_domain) = split(/\@/,$virtual_address);
-
-      # replace real address substitution placeholders such as %1
-      if ($real_address =~ m/\%1/) {
-         if (defined $virtual_localpart && $virtual_localpart ne '') {
-            $real_address =~ s/\%1/$virtual_localpart/g;
-         } else {
-            $real_address =~ s/\%1/$loginuser/g;
-            $virtual_address = "$loginuser\@$virtual_domain";
-         }
+      $DB{$vu}=$u;
+      if (defined $DBR{$u}) {
+         $DBR{$u}.=",$vu";
+      } else {
+         $DBR{$u}.="$vu";
       }
-
-      # add to the virtdb
-      $DB{$virtual_address} = $real_address;
-
-      # add to the reverse virtdb
-      $DBR{$real_address} .= defined $DBR{$real_address} ? ",$virtual_address" : $virtual_address;
    }
    close(VIRT);
 
-   $DB{METAINFO} = $metainfo;
+   $DB{'METAINFO'}=$metainfo;
 
    ow::dbm::close(\%DBR, "$virtdb.rev");
    ow::dbm::close(\%DB, $virtdb);
@@ -1180,16 +1162,14 @@ sub get_domain_user_userinfo {
    my ($domain, $user, $realname, $uid, $gid, $homedir) = ();
 
    $user = get_user_by_virtualuser($loginuser);
-   if ($user eq '') {
+   if ($user eq "") {
       my @domainlist = ($logindomain);
-
       if (exists $config{domain_equiv}{list}{$logindomain} && defined @{$config{domain_equiv}{list}{$logindomain}}) {
          push(@domainlist, @{$config{domain_equiv}{list}{$logindomain}});
       }
-
       foreach (@domainlist) {
          $user = get_user_by_virtualuser("$loginuser\@$_");
-         last if $user ne '';
+         last if ($user ne '');
       }
    }
 
@@ -1221,10 +1201,10 @@ sub get_domain_user_userinfo {
    writelog("userinfo error - $config{auth_module}, ret $errcode, $errmsg") if ($errcode != 0);
 
    $realname = $loginuser if ($realname eq "");
-   if ($uid ne '') {
+   if ($uid ne "") {
       return($domain, $user, $realname, $uid, $gid, $homedir);
    } else {
-      return('', '', '', '', '', '');
+      return("", "", "", "", "", "");
    }
 }
 
