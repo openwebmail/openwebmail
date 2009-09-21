@@ -1055,13 +1055,38 @@ one of the default folders
 
 enable_spamcheck
 -----------------------------------------------------------------------
-This option enables external spam checker (spamassassin). The spam
-checker in OpenWebMail is intended to check messages that arrive without
-going through the system MTA - such as POP3 messages. However it can
-also be used to check all messages by configuring the
-spamcheck_source_allowed option, in the case that the MTA does not
-perform spam checking - although it is recommended to check messages at
-the MTA and not OpenWebMail whenever possible.
+This option enables external spam checker (spamassassin).
+
+The spam checker in OpenWebMail is intended to check messages that arrive
+without going through the system MTA. This means by default it will only
+check messages fetched using the POP3 protocol
+
+It -can- be configured to check ALL messages, when used in conjunction with
+the spamcheck_source_allowed option. This is for cases where the MTA does
+not perform spam checking. However, it is strongly recommended to configure
+spam checking at the MTA level and not OpenWebMail whenever possible
+
+
+spamcheck_source_allowed
+-----------------------------------------------------------------------
+This option limits the value that a user can choose for the spamcheck_source
+in their preferences
+
+The 'all' setting will allow users to set the spamcheck_source to check all
+messages that arrive in their inbox, even if they have already been checked
+by the MTA. This setting is not recommended since it will delay login while
+all incoming messages are checked
+
+The 'pop3' setting will allow users to set the spamcheck_source to check
+only messages that arrive via the POP3 protocol. This is the default
+
+The 'none' setting disables the users ability to select the spamcheck_source
+
+The 'all' and 'pop3' options also include the 'none' option for the user. To
+force a selection that the user cannot change use the
+DEFAULT_spamcheck_source_allowed override version of this configuration option
+
+Available values: none, all, pop3
 
 
 spamcheck_pipe
@@ -1080,12 +1105,6 @@ If the spamcheck_pipe is configured to return a report on which spam
 tests were hit, this option will include that report in the header of
 the spammy message. Convenient for determining why a message has been
 flagged as spam.
-
-
-spamcheck_source_allowed
------------------------------------------------------------------------
-This option limits the value that user can set for viruscheck_source
-in preference. available value: all, pop3
 
 
 spamcheck_maxsize_allowed
@@ -2227,10 +2246,11 @@ threshold won't be passed to virus check program (in KB)
 
 default_spamcheck_source
 -----------------------------------------------------------------------
-the option specifies the mails to be checked by spam check program
-available value: all, pop3
-all - all incoming messages will be checked for spam
+the option specifies which messages will be checked by spam check program
+available values: all, pop3, none
+all  - all incoming messages will be checked for spam
 pop3 - only messages fetched from pop3 servers will be checked for spam
+none - no messages will be checked for spam
 
 ps: this option sets the default source of spamcheck for user,
     but the actual sources user can choose is limited by the option
