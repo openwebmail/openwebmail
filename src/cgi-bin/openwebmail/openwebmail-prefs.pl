@@ -955,8 +955,8 @@ sub editprefs {
                                                                        option   => $_,
                                                                        label    => $lang_checksourcelabels{$_},
                                                                        selected => $_ eq $prefs{spamcheck_source}?1:0
-                                                                  } } $config{spamcheck_source_allowed} eq 'all'  ? qw(none pop3 all) :
-                                                                      $config{spamcheck_source_allowed} eq 'pop3' ? qw(none pop3) :
+                                                                  } } $config{enable_spamcheck} && $config{spamcheck_source_allowed} eq 'all'  ? qw(none pop3 all) :
+                                                                      $config{enable_spamcheck} && $config{spamcheck_source_allowed} eq 'pop3' ? qw(none pop3) :
                                                                       qw(none)
                                                            ],
                       disablespamcheck_maxsizeselect    => defined $config_raw{DEFAULT_spamcheck_maxsize}?1:0,
