@@ -1480,6 +1480,9 @@ ps: These programs can do decompression recursively.
     if the users are running in same uid, since the the user may untar
     files containing symbolic links to files other than his own.
 
+webdisk_allow_chmod
+-----------------------------------------------------------------------
+If this option is set to 'no', the user can not chmod files in webdisk.
 
 spool_limit
 -----------------------------------------------------------------------

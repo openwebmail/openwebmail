@@ -66,6 +66,7 @@ foreach (qw(
    webdisk_allow_symlinkcreate webdisk_allow_symlinkout webdisk_allow_thumbnail
    webdisk_allow_untar webdisk_allow_unzip webdisk_allow_unrar
    webdisk_allow_unarj webdisk_allow_unace webdisk_allow_unlzh
+   webdisk_allow_chmod
    abook_globaleditable enable_ldap_abook
    delmail_ifquotahit delfile_ifquotahit
    default_bgrepeat default_useminisearchicon

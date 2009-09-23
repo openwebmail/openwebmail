@@ -171,7 +171,8 @@ if ($action eq "mkdir" || defined param('mkdirbutton') ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "chmod" || defined param('chmodbutton')) {
+} elsif ( $config{'webdisk_allow_chmod'} && 
+	 ($action eq "chmod" || defined param('chmodbutton')) ) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } else {
@@ -482,6 +483,9 @@ sub chmoddirfiles {
    } elsif ($perm!~/^0/) {	# should leading with 0
       $perm='0'.$perm;
    }
+   if (!$config{'webdisk_allow_chmod'}) {
+      return("chmod disabled\n");
+   }
 
    my @filelist;
    foreach (@selitems) {
@@ -507,7 +511,7 @@ sub chmoddirfiles {
 
    my $notchanged=$#filelist+1 - chmod(oct(ow::tool::untaint($perm)), @filelist);
    if ($notchanged!=0) {
-      return("$notchanged item(s) not chnaged ($!)");
+      return("$notchanged item(s) not changed ($!)");
    }
    return($msg);
 }
@@ -2479,10 +2483,12 @@ sub showdir {
                         -accesskey=>'Y',
                         -onClick=>"return (anyfileselected() && opconfirm('$lang_wdbutton{delete}', $prefs{webdisk_confirmdel}));",
                         -value=>$lang_wdbutton{'delete'});
+      if ($config{'webdisk_allow_chmod'}) {
       $temphtml.=submit(-name=>'chmodbutton',
                         -accesskey=>'O',
                         -onClick=>"return (anyfileselected() && chmodinput());",
                         -value=>$lang_wdbutton{'chmod'});
+      }
       $temphtml.=qq|&nbsp;\n|;
    }
 
