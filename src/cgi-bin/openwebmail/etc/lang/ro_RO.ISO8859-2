@@ -394,6 +394,7 @@ package ow::ro_RO_ISO8859_2;
    gzip     => 'Arhivã GZ',
    mkzip    => 'Arhivã ZIP',
    mktgz    => 'Arhivã TGZ',
+   mktar    => 'Arhivã Tar',
    mkthumbnail => 'Creazã Icoanã',
    download => 'Descarcã',
    upload   => 'Încarcã',

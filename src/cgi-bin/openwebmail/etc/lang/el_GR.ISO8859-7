@@ -394,6 +394,7 @@ package ow::el_GR_ISO8859_7;
    gzip     => 'Gzip Συμπίεση',
    mkzip    => 'Δημιουργία ZIP',
    mktgz    => 'Δημιουργία TGZ',
+   mktar    => 'Δημιουργία Tar',
    mkthumbnail => 'Δημιουργία Μικρογραφίας',
    download => 'Download',
    upload   => 'Upload',

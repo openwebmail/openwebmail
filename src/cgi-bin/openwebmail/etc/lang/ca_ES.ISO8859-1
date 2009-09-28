@@ -395,6 +395,7 @@ package ow::ca_ES_ISO8859_1;
    gzip     => 'Crea gzip',
    mkzip    => 'Crea zip',
    mktgz    => 'Crea tgz',
+   mktar    => 'Crea tar',
    mkthumbnail => 'Crea miniatura',
    download => 'Descàrrega',
    upload   => 'Càrrega'

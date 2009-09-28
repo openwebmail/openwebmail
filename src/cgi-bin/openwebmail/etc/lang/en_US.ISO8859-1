@@ -394,6 +394,7 @@ package ow::en_US_ISO8859_1;
    gzip     => 'gzCompress',
    mkzip    => 'MkZip',
    mktgz    => 'MkTgz',
+   mktar    => 'MkTar',
    mkthumbnail => 'MkThumb',
    download => 'Download',
    upload   => 'Upload',

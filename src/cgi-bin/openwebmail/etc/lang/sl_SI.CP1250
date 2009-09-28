@@ -394,6 +394,7 @@ package ow::sl_SI_CP1250;
    gzip     => 'Ustvari gz',
    mkzip    => 'Ustvari zip',
    mktgz    => 'Ustvari tgz',
+   mktar    => 'Ustvari tar',
    mkthumbnail => 'Ustvari slièico',
    download => 'Prenesi s strenika',
    upload   => 'Prenesi na strenik',

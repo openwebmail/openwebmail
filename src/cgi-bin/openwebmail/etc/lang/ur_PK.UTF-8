@@ -394,6 +394,7 @@ package ow::ur_PK_UTF_8;
    gzip     => 'gzCompress',
    mkzip    => 'MkZip',
    mktgz    => 'MkTgz',
+   mktar    => 'MkTar',
    mkthumbnail => 'MkThumb',
    download => 'download',
    upload   => 'upload',

@@ -398,6 +398,7 @@ package ow::cs_CZ_ISO8859_2;
    gzip     => 'GZip',
    mkzip    => 'Zip',
    mktgz    => 'TAR+GZip',
+   mktar    => 'TAR',
    mkthumbnail => 'Vytv. náhled',
    download => 'Stáhnout z Webdisku',
    upload   => 'Ulo¾it na WebDisk',

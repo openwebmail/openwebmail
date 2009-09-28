@@ -394,6 +394,7 @@ package ow::no_NO_ISO8859_1;
    gzip     => 'gz-komprimere',
    mkzip    => 'Lag zip',
    mktgz    => 'Lag tgz',
+   mktar    => 'Lag tar',
    mkthumbnail => 'Lag miniatyr',
    download => 'Last ned',
    upload   => 'Last opp',

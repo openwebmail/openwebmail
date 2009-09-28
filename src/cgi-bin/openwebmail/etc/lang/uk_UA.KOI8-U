@@ -394,6 +394,7 @@ package ow::uk_UA_KOI8_U;
    gzip     => 'Стиснути gz',
    mkzip    => 'Створити zip',
    mktgz    => 'Створити tgz',
+   mktar    => 'Створити tar',
    mkthumbnail => 'Створити п╕ктограми',
    download => 'Завантажити',
    upload   => 'В╕двантажити',

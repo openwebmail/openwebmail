@@ -394,6 +394,7 @@ package ow::zh_CN_UTF_8;
    gzip     => 'gz 压缩',
    mkzip    => '建 zip 文件',
    mktgz    => '建 tgz 文件',
+   mktar    => '建 tar 文件',
    mkthumbnail => '建缩略图',
    download => '下载',
    upload   => '上传',

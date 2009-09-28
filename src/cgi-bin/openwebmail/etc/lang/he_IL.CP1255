@@ -395,6 +395,7 @@ package ow::he_IL_CP1255;
    gzip     => 'gzCompress',
    mkzip    => 'MkZip',
    mktgz    => 'MkTgz',
+   mktar    => 'MkTar',
    mkthumbnail => 'MkThumb',
    download => 'הורד',
    upload   => 'העלה',

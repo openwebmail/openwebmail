@@ -396,6 +396,7 @@ package ow::ko_KR_eucKR;
    gzip     => 'gz 압축',
    mkzip    => 'Zip 압축',
    mktgz    => 'Tgz 압축',
+   mktar    => 'Tar 압축',
    mkthumbnail => '간단한 그림 만들기',
    download => '내려받기',
    upload   => '올리기',

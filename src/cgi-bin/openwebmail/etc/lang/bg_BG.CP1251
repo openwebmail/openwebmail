@@ -394,6 +394,7 @@ package ow::bg_BG_CP1251;
    gzip     => 'gz-компр.',
    mkzip    => 'създ. zip',
    mktgz    => 'създ. tgz',
+   mktar    => 'създ. tar',
    mkthumbnail => 'създ. Thumb',
    download => 'даунлоуд',
    upload   => 'ъплоуд',

@@ -396,6 +396,7 @@ package ow::de_DE_ISO8859_1;
    gzip     => 'Packen mit gzip',
    mkzip    => 'Packen mit zip',
    mktgz    => 'tgz-Archiv erstellen',
+   mktar    => 'tar-Archiv erstellen',
    mkthumbnail => 'Vorschaubilder erstellen',
    download => 'Download',
    upload   => 'Hinzufügen',

@@ -395,6 +395,7 @@ package ow::fr_FR_ISO8859_1;
    gzip     => 'Créer gz',
    mkzip    => 'Créer zip',
    mktgz    => 'Créer tgz',
+   mktar    => 'Créer tar',
    mkthumbnail => 'Créer vignette',
    download => 'Télécharger',
    upload   => 'Envoyer',

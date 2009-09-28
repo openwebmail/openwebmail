@@ -394,6 +394,7 @@ package ow::es_AR_ISO8859_1;
    gzip     => 'Crear gzip',
    mkzip    => 'Crear zip',
    mktgz    => 'Crear tgz',
+   mktar    => 'Crear tar',
    mkthumbnail => 'Crear Imagen',
    download => 'Descargar',
    upload   => 'Almacenar',

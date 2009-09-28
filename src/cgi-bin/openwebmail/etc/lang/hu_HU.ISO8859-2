@@ -395,6 +395,7 @@ package ow::hu_HU_ISO8859_2;
    gzip     => 'gzip',
    mkzip    => 'zip',
    mktgz    => 'tgz',
+   mktar    => 'tar',
    mkthumbnail => 'Ikonkészítés',
    download => 'Letöltés',
    upload   => 'Feltöltés',

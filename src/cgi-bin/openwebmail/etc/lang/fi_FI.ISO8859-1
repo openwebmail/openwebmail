@@ -395,6 +395,7 @@ package ow::fi_FI_ISO8859_1;
    gzip     => 'Pakkaa (gzip)',
    mkzip    => 'Pakkaa (zip)',
    mktgz    => 'Pakkaa (tgz)',
+   mktar    => 'Pakkaa (tar)',
    mkthumbnail => 'Tee näytekuva',
    download => 'Lataa (download)',
    upload   => 'Lähetä (upload)',

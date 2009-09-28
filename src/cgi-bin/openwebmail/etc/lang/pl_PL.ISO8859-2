@@ -400,6 +400,7 @@ package ow::pl_PL_ISO8859_2;
    gzip     => 'KompresujGz',
    mkzip    => 'UtwZip',
    mktgz    => 'UtwTgz',
+   mktar    => 'UtwTar',
    mkthumbnail => 'UtwMin',
    download => 'Pobierz',
    upload   => 'Wy¶lij',

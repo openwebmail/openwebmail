@@ -395,6 +395,7 @@ package ow::sk_SK_ISO8859_2;
    gzip     => 'gzKomprimova»',
    mkzip    => 'VytvorZip',
    mktgz    => 'VytvorTgz',
+   mktar    => 'VytvorTar',
    mkthumbnail => 'VytorNáhµad',
    download => 'Stiahnu»',
    upload   => 'Nahra»',

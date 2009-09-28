@@ -394,6 +394,7 @@ package ow::lt_LT_CP1257;
    gzip     => 'gzCompress',
    mkzip    => 'Zip',
    mktgz    => 'Tgz',
+   mktar    => 'Tar',
    mkthumbnail => 'MkThumb',
    download => 'Atsiøsti',
    upload   => 'Nusiøsti',

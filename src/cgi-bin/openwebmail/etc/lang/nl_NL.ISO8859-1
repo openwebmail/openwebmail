@@ -395,6 +395,7 @@ package ow::nl_NL_ISO8859_1;
    gzip     => 'gz Inpakken',
    mkzip    => 'Maak Zip',
    mktgz    => 'Maak TGZ',
+   mktar    => 'Maak Tar',
    mkthumbnail => 'Maak Voorbeeld',
    download => 'Ophalen',
    upload   => 'Voeg toe',

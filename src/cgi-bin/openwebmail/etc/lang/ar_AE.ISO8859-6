@@ -394,6 +394,7 @@ package ow::ar_AE_ISO8859_6;
    gzip     => 'gzCompress',
    mkzip    => 'MkZip',
    mktgz    => 'MkTgz',
+   mktar    => 'MkTar',
    mkthumbnail => 'MkThumb',
    download => 'КНекд еж ЗдОЗПе',
    upload   => 'КНекд Здй ЗдОЗПе',

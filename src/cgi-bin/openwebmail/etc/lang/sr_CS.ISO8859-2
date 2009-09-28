@@ -394,6 +394,7 @@ package ow::sr_CS_ISO8859_2;
    gzip     => 'Napravi gz',
    mkzip    => 'Napravi zip',
    mktgz    => 'Napravi tgz',
+   mktar    => 'Napravi tar',
    mkthumbnail => 'Napravi slièicu',
    download => 'Prenesi sa servera',
    upload   => 'Prebaci na server',

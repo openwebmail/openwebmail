@@ -394,6 +394,7 @@ package ow::zh_TW_Big5;
    gzip     => 'gz 壓縮',
    mkzip    => '建 zip 檔',
    mktgz    => '建 tgz 檔',
+   mktar    => '建 tar 檔',
    mkthumbnail => '建縮圖',
    download => '下載',
    upload   => '上傳',

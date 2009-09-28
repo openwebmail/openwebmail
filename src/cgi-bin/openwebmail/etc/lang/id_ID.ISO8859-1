@@ -394,6 +394,7 @@ package ow::id_ID_ISO8859_1;
    gzip     => 'Simpan ke dalam format gz',
    mkzip    => 'Simpan ke dalam format zip',
    mktgz    => 'Simpan ke dalam format tgz',
+   mktar    => 'Simpan ke dalam format tar',
    mkthumbnail => 'Simpan gambar kecil',
    download => 'Download',
    upload   => 'Upload',

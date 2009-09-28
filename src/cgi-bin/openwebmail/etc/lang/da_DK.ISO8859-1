@@ -395,6 +395,7 @@ package ow::da_DK_ISO8859_1;
    gzip     => 'Pak m. gz',
    mkzip    => 'Pak m. Zip',
    mktgz    => 'Pak m. Tgz',
+   mktar    => 'Pak m. Tar',
    mkthumbnail => 'Lav miniature',
    download => 'Hent',
    upload   => 'Overfør',

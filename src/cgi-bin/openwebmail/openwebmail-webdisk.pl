@@ -171,7 +171,7 @@ if ($action eq "mkdir" || defined param('mkdirbutton') ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ( $config{'webdisk_allow_chmod'} && 
+} elsif ( $config{'webdisk_allow_chmod'} &&
 	 ($action eq "chmod" || defined param('chmodbutton')) ) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
@@ -202,7 +202,8 @@ if ($action eq "mkdir" || defined param('mkdirbutton') ) {
       autoclosewindow($lang_text{'quotahit'}, $lang_err{'quotahit_alert'});
    }
 
-} elsif ($action eq "gzip" || defined param('gzipbutton')) {
+} elsif ( $config{'webdisk_allow_gzip'} &&
+         ($action eq "gzip" || defined param('gzipbutton')) ) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -212,7 +213,8 @@ if ($action eq "mkdir" || defined param('mkdirbutton') ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "mkzip" || defined param('mkzipbutton')) {
+} elsif ( $config{'webdisk_allow_zip'} &&
+         ($action eq "mkzip" || defined param('mkzipbutton')) ) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -222,7 +224,8 @@ if ($action eq "mkdir" || defined param('mkdirbutton') ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "mktgz" || defined param('mktgzbutton')) {
+} elsif ( $config{'webdisk_allow_tar'} &&
+	 ($action eq "mktgz" || defined param('mktgzbutton')) ) {
    if ($config{'webdisk_readonly'}) {
       $msg="$lang_err{'webdisk_readonly'}\n";
    } elsif (is_quota_available(0)) {
@@ -246,7 +249,8 @@ if ($action eq "mkdir" || defined param('mkdirbutton') ) {
    }
    showdir($currentdir, $gotodir, $filesort, $page, $msg);
 
-} elsif ($action eq "listarchive" || defined param('listarchivebutton')) {
+} elsif ( $config{'webdisk_allow_listarchive'} &&
+	 ($action eq "listarchive" || defined param('listarchivebutton')) ) {
    if ($#selitems==0) {
       $msg=listarchive($currentdir, $selitems[0]);
    } else {
@@ -707,7 +711,7 @@ sub savefile {
 ########## END SAVEFILE ##########################################
 
 ########## COMPRESSFILES #########################################
-sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
+sub compressfiles {	# pack files with gzip, zip or tgz (tar -zcvf)
    my ($ztype, $currentdir, $destname, @selitems)=@_;
    $destname=u2f($destname);
 
@@ -749,16 +753,28 @@ sub compressfiles {	# pack files with zip or tgz (tar -zcvf)
 
    my @cmd;
    if ($ztype eq "gzip") {
+      if (!$config{'webdisk_allow_gzip'}) {
+         return "gzip disabled";
+      }
       my $gzipbin=ow::tool::findbin('gzip');
       return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if ($gzipbin eq '');
       @cmd=($gzipbin, '-rq');
    } elsif ($ztype eq "mkzip") {
+      if (!$config{'webdisk_allow_zip'}) {
+         return "zip disabled";
+      }
       my $zipbin=ow::tool::findbin('zip');
       return("$lang_text{'program'} zip $lang_err{'doesnt_exist'}\n") if ($zipbin eq '');
       @cmd=($zipbin, '-ryq', "$webdiskrootdir/$vpath2");
    } elsif ($ztype eq "mktgz") {
+      if (!$config{'webdisk_allow_tar'}) {
+         return "tar disabled";
+      }
       my $gzipbin=ow::tool::findbin('gzip');
       my $tarbin=ow::tool::findbin('tar');
+      if (!$config{'webdisk_allow_gzip'}) {
+         $gzipbin = '';
+      }
       if ($gzipbin ne '') {
          $ENV{'PATH'}=$gzipbin; $ENV{'PATH'}=~s|/gzip||; # for tar
          @cmd=($tarbin, '-zcpf', "$webdiskrootdir/$vpath2");
@@ -797,26 +813,30 @@ sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, ace,
    return("$lang_err{'access_denied'} ($vpathstr: $err)\n") if ($err);
 
    my @cmd;
-   if ($vpath=~/\.(tar\.g?z||tgz)$/i && $config{'webdisk_allow_untar'}) {
+   if ($vpath=~/\.(tar\.g?z||tgz)$/i && $config{'webdisk_allow_untar'} && $config{'webdisk_allow_ungzip'}) {
       my $gzipbin=ow::tool::findbin('gzip');
       return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if ($gzipbin eq '');
       my $tarbin=ow::tool::findbin('tar');
       $ENV{'PATH'}=$gzipbin; $ENV{'PATH'}=~s|/gzip||; # for tar
       @cmd=($tarbin, '-zxpf');
 
-   } elsif ($vpath=~/\.(tar\.bz2?||tbz)$/i && $config{'webdisk_allow_untar'}) {
+   } elsif ($vpath=~/\.(tar\.bz2?||tbz)$/i && $config{'webdisk_allow_untar'} && $config{'webdisk_allow_unbzip2'}) {
       my $bzip2bin=ow::tool::findbin('bzip2');
       return("$lang_text{'program'} bzip2 $lang_err{'doesnt_exist'}\n") if ($bzip2bin eq '');
       my $tarbin=ow::tool::findbin('tar');
       $ENV{'PATH'}=$bzip2bin; $ENV{'PATH'}=~s|/bzip2||;	# for tar
       @cmd=($tarbin, '-yxpf');
 
-   } elsif ($vpath=~/\.g?z$/i) {
+   } elsif ($vpath=~/\.tar?$/i && $config{'webdisk_allow_untar'}) {
+      my $tarbin=ow::tool::findbin('tar');
+      @cmd=($tarbin, '-xpf');
+
+   } elsif ($vpath=~/\.g?z$/i && $config{'webdisk_allow_ungzip'}) {
       my $gzipbin=ow::tool::findbin('gzip');
       return("$lang_text{'program'} gzip $lang_err{'doesnt_exist'}\n") if ($gzipbin eq '');
       @cmd=($gzipbin, '-dq');
 
-   } elsif ($vpath=~/\.bz2?$/i) {
+   } elsif ($vpath=~/\.bz2?$/i && $config{'webdisk_allow_unbzip2'}) {
       my $bzip2bin=ow::tool::findbin('bzip2');
       return("$lang_text{'program'} bzip2 $lang_err{'doesnt_exist'}\n") if ($bzip2bin eq '');
       @cmd=($bzip2bin, '-dq');
@@ -846,7 +866,7 @@ sub decompressfile {	# unpack tar.gz, tgz, tar.bz2, tbz, gz, zip, rar, arj, ace,
       return("$lang_text{'program'} lha $lang_err{'doesnt_exist'}\n") if ($lhabin eq '');
       @cmd=($lhabin, '-xfq');
 
-   } elsif ($vpath=~/\.tne?f$/i) {
+   } elsif ($vpath=~/\.tne?f$/i && $config{'webdisk_allow_untnef'}) {
       my $tnefbin=ow::tool::findbin('tnef');
       return("$lang_text{'program'} tnef $lang_err{'doesnt_exist'}\n") if ($tnefbin eq '');
       @cmd=($tnefbin, '--overwrite', '-v', '-f');
@@ -876,6 +896,10 @@ sub listarchive {
 
    my ($html, $temphtml);
    $html = applystyle(readtemplate("listarchive.template"));
+   if (!$config{'webdisk_allow_listarchive'}) {
+      autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_err{'access_denied'}");
+      return;
+   }
 
    if (! -f "$webdiskrootdir/$vpath") {
       autoclosewindow($lang_wdbutton{'listarchive'}, "$lang_text{'file'} $vpathstr $lang_err{'doesnt_exist'}");
@@ -2261,10 +2285,13 @@ sub showdir {
                           qq|">[$lang_wdbutton{'edit'}]</a>|;
                }
             } elsif ($p=~/\.(?:zip|rar|arj|ace|lzh|t[bg]z|tar\.g?z|tar\.bz2?|tne?f)$/i ) {
-               $opstr=qq|<a href=#here onClick="window.open('|.
-                      qq|$wd_url&amp;action=listarchive&amp;selitems=|.ow::tool::escapeURL($p).
-                      qq|','_editfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');|.
-                      qq|">[$lang_wdbutton{'listarchive'}]</a>|;
+	       $opstr='';
+	       if ($config{'webdisk_allow_listarchive'}) {
+            	    $opstr=qq|<a href=#here onClick="window.open('|.
+                    	   qq|$wd_url&amp;action=listarchive&amp;selitems=|.ow::tool::escapeURL($p).
+                    	   qq|','_editfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');|.
+                    	   qq|">[$lang_wdbutton{'listarchive'}]</a>|;
+	       }
                if (!$config{'webdisk_readonly'} &&
                    (!$quotalimit||$quotausage<$quotalimit) ) {
                   my $onclickstr;
@@ -2273,11 +2300,13 @@ sub showdir {
                      $onclickstr=qq|onclick="return confirm('$lang_wdbutton{extract}? ($pstr)');"|;
                   }
                   my $allow_extract=1;
-                  if ($p=~/\.(?:t[bg]z|tar\.g?z|tar\.bz2?)$/i && !$config{'webdisk_allow_untar'} ||
+                  if ($p=~/\.(?:t[bg]z|tar\.g?z)$/i && (!$config{'webdisk_allow_untar'} || !$config{'webdisk_allow_ungzip'})||
+		      $p=~/\.(?:tar\.bz2?)$/i && (!$config{'webdisk_allow_untar'} || !$config{'webdisk_allow_unbzip2'}) ||
                       $p=~/\.zip$/i && !$config{'webdisk_allow_unzip'} ||
                       $p=~/\.rar$/i && !$config{'webdisk_allow_unrar'} ||
                       $p=~/\.arj$/i && !$config{'webdisk_allow_unarj'} ||
                       $p=~/\.ace$/i && !$config{'webdisk_allow_unace'} ||
+		      $p=~/\.tar$/i && !$config{'webdisk_allow_untar'} ||
                       $p=~/\.lzh$/i && !$config{'webdisk_allow_unlzh'} ) {
                      $allow_extract=0;
                   }
@@ -2286,8 +2315,19 @@ sub showdir {
                           ow::tool::escapeURL($p).qq|" $onclickstr>[$lang_wdbutton{'extract'}]</a>|;
                   }
                }
-            } elsif ($p=~/\.(?:g?z|bz2?)$/i ) {
-               if (!$config{'webdisk_readonly'} &&
+            } elsif ($p=~/\.(?:bz2?)$/i ) {
+               if (!$config{'webdisk_readonly'} && $config{'webdisk_allow_unbzip2'} &&
+                   (!$quotalimit||$quotausage<$quotalimit) ) {
+                  my $onclickstr;
+                  if ($prefs{'webdisk_confirmcompress'}) {
+                     my $pstr=f2u($p); $pstr=~s/'/\\'/g;	# escape for javascript
+                     $onclickstr=qq|onclick="return confirm('$lang_wdbutton{decompress}? ($pstr)');"|;
+                  }
+                  $opstr=qq|<a href="$wd_url_sort_page&amp;action=decompress&amp;selitems=|.
+                         ow::tool::escapeURL($p).qq|" $onclickstr>[$lang_wdbutton{'decompress'}]</a>|;
+               }
+            } elsif ($p=~/\.(?:g?z?)$/i ) {
+               if (!$config{'webdisk_readonly'} && $config{'webdisk_allow_ungzip'} &&
                    (!$quotalimit||$quotausage<$quotalimit) ) {
                   my $onclickstr;
                   if ($prefs{'webdisk_confirmcompress'}) {
@@ -2494,18 +2534,29 @@ sub showdir {
 
    if (!$config{'webdisk_readonly'} &&
        (!$quotalimit||$quotausage<$quotalimit) ) {
-      $temphtml.=submit(-name=>'gzipbutton',
-                        -accesskey=>'Z',
-                        -onClick=>"return(anyfileselected() && opconfirm('$lang_wdbutton{gzip}', $prefs{webdisk_confirmcompress}));",
-                        -value=>$lang_wdbutton{'gzip'});
-      $temphtml.=submit(-name=>'mkzipbutton',
-                        -accesskey=>'Z',
-                        -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_thezip}') && opconfirm('$lang_wdbutton{mkzip}', $prefs{webdisk_confirmcompress}));",
-                        -value=>$lang_wdbutton{'mkzip'});
-      $temphtml.=submit(-name=>'mktgzbutton',
-                        -accesskey=>'Z',
-                        -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_thetgz}') && opconfirm('$lang_wdbutton{mktgz}', $prefs{webdisk_confirmcompress}));",
-                        -value=>$lang_wdbutton{'mktgz'});
+      if ($config{'webdisk_allow_gzip'}) {
+         $temphtml.=submit(-name=>'gzipbutton',
+                    	    -accesskey=>'Z',
+                    	    -onClick=>"return(anyfileselected() && opconfirm('$lang_wdbutton{gzip}', $prefs{webdisk_confirmcompress}));",
+                    	    -value=>$lang_wdbutton{'gzip'});
+      }
+      if ($config{'webdisk_allow_zip'}) {
+         $temphtml.=submit(-name=>'mkzipbutton',
+                    	   -accesskey=>'Z',
+                    	   -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_thezip}') && opconfirm('$lang_wdbutton{mkzip}', $prefs{webdisk_confirmcompress}));",
+                    	   -value=>$lang_wdbutton{'mkzip'});
+      }
+      if ($config{'webdisk_allow_tar'} && $config{'webdisk_allow_gzip'}) {
+         $temphtml.=submit(-name=>'mktgzbutton',
+                    	   -accesskey=>'Z',
+                           -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_thetgz}') && opconfirm('$lang_wdbutton{mktgz}', $prefs{webdisk_confirmcompress}));",
+                           -value=>$lang_wdbutton{'mktgz'});
+      } elsif ($config{'webdisk_allow_tar'}) {
+         $temphtml.=submit(-name=>'mktgzbutton',
+                    	   -accesskey=>'Z',
+                           -onClick=>"return(anyfileselected() && destnamefilled('$lang_text{dest_of_thetgz}') && opconfirm('$lang_wdbutton{mktar}', $prefs{webdisk_confirmcompress}));",
+                           -value=>$lang_wdbutton{'mktar'});
+      }
       if ($config{'webdisk_allow_thumbnail'}) {
          $temphtml.=submit(-name=>'mkthumbnailbutton',
                            -accesskey=>'Z',

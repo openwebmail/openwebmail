@@ -394,6 +394,7 @@ package ow::th_TH_TIS_620;
    gzip     => 'ย่อโดย gz',
    mkzip    => 'สร้าง zip',
    mktgz    => 'สร้าง tgz',
+   mktar    => 'สร้าง tar',
    mkthumbnail => 'สร้างตัวอย่างรูป',
    download => 'ดาวน์โหลด',
    upload   => 'อัปโหลด',

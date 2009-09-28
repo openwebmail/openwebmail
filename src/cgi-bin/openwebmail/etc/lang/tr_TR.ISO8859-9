@@ -394,6 +394,7 @@ package ow::tr_TR_ISO8859_9;
    gzip     => 'gzSýkýþtýr',
    mkzip    => 'Ziple',
    mktgz    => 'TgzYap',
+   mktar    => 'TarYap',
    mkthumbnail => 'KüçükresimYap',
    download => 'Ýndir',
    upload   => 'Yükle',

@@ -397,6 +397,7 @@ package ow::pt_BR_ISO8859_1;
    gzip     => 'Gzip',
    mkzip    => 'Zip',
    mktgz    => 'Tar-gzip',
+   mktar    => 'Tar',
    mkthumbnail => 'Miniatura',
    download => 'Download',
    upload   => 'Upload',

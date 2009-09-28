@@ -394,6 +394,7 @@ package ow::it_IT_ISO8859_1;
    gzip     => 'Comprimi_gz',
    mkzip    => 'Crea_Zip',
    mktgz    => 'Crea_Tgz',
+   mktar    => 'Crea_Tar',
    mkthumbnail => 'Crea_Miniatura',
    download => 'Scarica',
    upload   => 'Carica',

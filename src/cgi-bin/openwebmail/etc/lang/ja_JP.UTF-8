@@ -399,6 +399,7 @@ package ow::ja_JP_UTF_8;
    gzip     => 'gz圧縮',
    mkzip    => 'zipの作成',
    mktgz    => 'tgzの作成',
+   mktar    => 'tarの作成',
    mkthumbnail => 'サムネールの作成',
    download => 'ダウンロード',
    upload   => 'アップロード',

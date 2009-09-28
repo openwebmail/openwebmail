@@ -394,6 +394,7 @@ package ow::ru_RU_KOI8_R;
    gzip     => 'gzЗапаковать',
    mkzip    => 'СоздZip',
    mktgz    => 'СоздTgz',
+   mktar    => 'СоздTar',
    mkthumbnail => 'СоздЭскиз',
    download => 'Скачать',
    upload   => 'Закачать',
