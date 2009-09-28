@@ -948,7 +948,7 @@ sub editprefs {
                                                                          selected => $_ eq $prefs{viruscheck_minbodysize}?1:0
                                                                     } } qw(0 0.5 1 1.5 2)
                                                              ],
-                      enable_spamcheck                  => $config{enable_spamcheck} || 1,
+                      enable_spamcheck                  => $config{enable_spamcheck},
                       disablespamcheck_sourceselect     => defined $config_raw{DEFAULT_spamcheck_source}?1:0,
                       spamcheck_sourceselectloop        => [
                                                               map { {

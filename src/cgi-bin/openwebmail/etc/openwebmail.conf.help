@@ -130,7 +130,7 @@ quota_du.pl		user quota reported by 'du' program
 IMPORTANT!!!
 
 You may get more information by reading the description in the beginning
-of each auth module script.
+of each quota module script in the quota directory.
 
 
 mailspooldir
