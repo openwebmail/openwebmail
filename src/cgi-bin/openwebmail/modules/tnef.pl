@@ -30,7 +30,7 @@ sub get_tnef_filelist {
       do {
             open(STDERR,">/dev/null");
             open(STDOUT,">&=".fileno($outfh));
-            exec($tnefbin, "-t");
+            exec($tnefbin, "-t", "--save-body=messagebody");
             exit 9;
          };
    close($outfh);
@@ -71,7 +71,7 @@ sub get_tnef_archive {
       do {
             open(STDERR,">/dev/null");
             open(STDOUT,">/dev/null");
-            exec($tnefbin, "--overwrite", "-C", $tmpdir);
+            exec($tnefbin, "--overwrite", "--save-body=messagebody", "-C", $tmpdir);
             exit 9;
          };
    print F ${$r_tnef};
