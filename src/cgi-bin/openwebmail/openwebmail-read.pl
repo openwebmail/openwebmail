@@ -157,13 +157,13 @@ openwebmail_requestend();
 # BEGIN SUBROUTINES
 
 sub readmessage {
-   my $messageid      = shift || param('message_id') || ''; # arg may come from rebuildmessage sub
-   my $headers        = param('headers') || $prefs{headers} || 'simple';
-   my $attmode        = param('attmode') || 'simple';
-   my $receivers      = param('receivers') || 'simple';
-   my $printfriendly  = param('printfriendly') || '';
-   my $showhtmlastext = param('showhtmlastext') || $prefs{showhtmlastext};
-   my $convfrom       = param('convfrom') || '';
+   my $messageid      = shift || param('message_id') || '';              # string (arg may come from rebuildmessage sub)
+   my $headers        = param('headers') || $prefs{headers} || 'simple'; # all, simple
+   my $attmode        = param('attmode') || 'simple';                    # all, simple
+   my $receivers      = param('receivers') || 'simple';                  # all, simple
+   my $printfriendly  = param('printfriendly') || '';                    # yes, null
+   my $convfrom       = param('convfrom') || '';                         # string (none, en_US.ISO8859-1, etc)
+   my $showhtmlastext = defined param('showhtmlastext') ? param('showhtmlastext') : $prefs{showhtmlastext}; # boolean flag
 
    my $orig_inbox_newmessages = 0;
    my $now_inbox_newmessages  = 0;

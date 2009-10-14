@@ -124,7 +124,7 @@ sub text2html {
 
    return $t unless $t =~ m/\S/;
 
-   $t =~ s/&#(\d\d\d+);/ESCAPE_UNICODE_$1/g;
+   $t =~ s/&#(\d{2,3});/ESCAPE_UNICODE_$1/g;
    $t =~ s#&#ESCAPE_AMP#g;
 
    # the spaces around these are removed later
@@ -146,8 +146,9 @@ sub text2html {
    $t =~ s#\t# &nbsp;&nbsp;&nbsp;&nbsp;#g;
    $t =~ s#\n# <br>\n#g;
 
-   $t =~ s#ESCAPE_AMP#&amp;#g;
-   $t =~ s/ESCAPE_UNICODE_(\d\d\d+)/&#$1;/g;
+   $t =~ s#ESCAPE_AMP#&#g;
+   $t =~ s#&(?![A-Za-z0-9]{2,8};)#&amp;#g;
+   $t =~ s/ESCAPE_UNICODE_(\d{2,3})/&#$1;/g;
 
    return($t);
 }
