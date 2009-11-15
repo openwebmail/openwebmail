@@ -1232,16 +1232,29 @@ sub compose {
                       messageid               => $messageid,
                       headers                 => $prefs{headers},
                       fromselectloop          => [
-                                                   map { {
-                                                           option   => $_,
-                                                           label    => $_,
-                                                           selected => $from eq $_ ? 1 : 0,
-                                                       } }
                                                    map {
-                                                          $userfroms->{$_} eq ''
-                                                          ? $_
-                                                          : iconv($prefs{charset}, $composecharset, qq|"$userfroms->{$_}" <$_>|)
-                                                       } sort_emails_by_domainnames($config{domainnames}, keys %{$userfroms})
+                                                         my $option = $_->{name}
+                                                                      ? (iconv($prefs{charset}, $composecharset, qq|"$_->{name}" <$_->{address}>|))[0]
+                                                                      : $_->{address};
+
+                                                         {
+                                                           option   => $option,
+                                                           label    => $option,
+                                                           selected => $from eq $option ? 1 : 0,
+                                                         }
+                                                       }
+                                                  sort {
+                                                          $a->{name} cmp $b->{name}
+                                                          || $a->{realuser} cmp $b->{realuser}
+                                                          || $a->{domain} cmp $b->{domain}
+                                                       }
+                                                   map {
+                                                          my ($name,$address)    = (($userfroms->{$_} || ''), $_);
+                                                          my ($realuser,$domain) = $address =~ m/^([^@]+)@([^@]+)$/;
+                                                          $realuser = $address unless defined $realuser && $realuser;
+                                                          $domain   = '' unless defined $domain && $domain;
+                                                          { name => $name, address => $address, realuser => $realuser, domain => $domain }
+                                                       } keys %{$userfroms}
                                                  ],
                       priorityselectloop      => [
                                                    map { {
