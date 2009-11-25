@@ -273,11 +273,11 @@
     <table cellpadding="2" cellspacing="2" border="0">
     <tr>
       <td align="center">
-        <input type="submit" name="sendbutton" value="send" onclick="bodygethtml(); return (sessioncheck() && sendcheck());" accesskey="G">
+        <input type="submit" name="sendbutton" value="send" onclick="bodygethtml(); return (sessioncheck() && sendcheck());" <tmpl_unless sendbuttons_before>accesskey="G"</tmpl_unless>>
       </td>
       <tmpl_if enable_savedraft>
       <td align="center">
-        <input type="submit" name="savedraftbutton" value="save draft" onclick="bodygethtml(); return sessioncheck();" accesskey="W">
+        <input type="submit" name="savedraftbutton" value="save draft" onclick="bodygethtml(); return sessioncheck();" <tmpl_unless sendbuttons_before>accesskey="W"</tmpl_unless>>
       </td>
       </tmpl_if>
 
