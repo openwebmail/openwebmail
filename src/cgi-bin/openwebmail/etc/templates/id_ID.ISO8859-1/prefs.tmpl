@@ -298,6 +298,16 @@
   </td>
 </tr>
 <tr>
+  <td align="right" class="windowdarkbold">Default search:</td>
+  <td class="windowdarkbold">
+    <select name="searchtype" <tmpl_if disablesearchtypeselect>disabled="1"</tmpl_if>>
+    <tmpl_loop searchtypeselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
   <td align="right" class="windowdarkbold">Timestamp used for message date:</td>
   <td class="windowdarkbold">
     <select name="msgdatetype" <tmpl_if disablemsgdatetypeselect>disabled="1"</tmpl_if>>

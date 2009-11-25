@@ -1885,6 +1885,15 @@ ps: date is oldest first, date_rev is newest first
     the default value for this option is date_rev
 
 
+default_searchtype
+-----------------------------------------------------------------------
+default search type to show in the pulldown next to the search field
+available values: from to subject date attfilename header textcontent all
+
+if 'from' is selected and the folder is sent-mail, the searchtype will
+be switched to 'to' automagically as a feature, not a bug
+
+
 default_msgdatetype
 -----------------------------------------------------------------------
 default datetype used for date field in message list

@@ -1336,6 +1336,7 @@ sub compose {
 
 sub generate_messageid {
    # create a valid and unique messageid, presumably for a new message
+   # example: 20091122050846.M22324@example.com
    my $suffix = shift;
    my $fakeid = ow::datetime::gmtime2dateserial() . '.M' . int(rand()*100000);
    return ($suffix =~ m/@(.*)$/ ? "<$fakeid\@$1>" : "<$fakeid\@$suffix>");

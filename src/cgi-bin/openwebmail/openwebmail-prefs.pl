@@ -763,6 +763,14 @@ sub editprefs {
                                                                        selected => $_ eq $prefs{sort}?1:0
                                                                   } } qw(date date_rev sender sender_rev size size_rev subject subject_rev status)
                                                            ],
+                      disablesearchtypeselect           => defined $config_raw{DEFAULT_searchtype}?1:0,
+                      searchtypeselectloop              => [
+                                                              map { {
+                                                                       option   => $_,
+                                                                       label    => $lang_text{$_},
+                                                                       selected => $_ eq $prefs{searchtype}?1:0
+                                                                  } } qw(from to subject date attfilename header textcontent all)
+                                                           ],
                       disablemsgdatetypeselect          => defined $config_raw{DEFAULT_msgdatetype}?1:0,
                       msgdatetypeselectloop             => [
                                                               map { {
