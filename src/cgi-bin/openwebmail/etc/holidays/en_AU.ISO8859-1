@@ -1,0 +1,21 @@
+# Australian Holidays File for OpenWebMail Calendar
+# Last update, 30 June 2007
+# Daylight saving time from first Sunday in October to first Sunday in April.
+# Some states have minor differences.
+#
+1@@@.*,01,01,.*@@@0@@@0@@@New Year's Day@@@0@@@0@@@1a@@@iso-8859-1@@@1
+2@@@.*,01,26,.*@@@0@@@0@@@Australia Day@@@0@@@0@@@1a@@@iso-8859-1@@@1
+3@@@.*,04,25,.*@@@0@@@0@@@Anzac Day@@@0@@@0@@@1a@@@iso-8859-1@@@1
+4@@@.*,06,((0[8-9])|(1[0-4])),Mon@@@0@@@0@@@Queens Birthday@@@0@@@0@@@1a@@@iso-8859-1@@@1
+5@@@.*,08,(0[1-7]),Mon@@@0@@@0@@@Bank Holiday (most states)@@@0@@@0@@@1a@@@iso-8859-1@@@1
+6@@@.*,10,(0[1-7]),Mon@@@0@@@0@@@Labour Day (most states)@@@0@@@0@@@1a@@@iso-8859-1@@@1
+7@@@.*,11,(0[1-7]),Mon@@@0@@@0@@@Melbourne Cup Day (Vic)@@@0@@@0@@@1a@@@iso-8859-1@@@1
+8@@@.*,12,25,.*@@@0@@@0@@@Christmas Day@@@0@@@0@@@1a@@@iso-8859-1@@@1
+9@@@.*,12,26,.*@@@0@@@0@@@Boxing Day@@@0@@@0@@@1a@@@iso-8859-1@@@1
+10@@@.*,10,(0[1-7]),Sun@@@0200@@@0@@@Daylight Saving begins (most states)@@@0@@@0@@@1c@@@iso-8859-1@@@1
+11@@@.*,04,(0[1-7]),Sun@@@0300@@@0@@@Daylight Saving ends (most states)@@@0@@@0@@@1c@@@iso-8859-1@@@1
+12@@@.*,easter,easter-2,.*@@@0@@@0@@@Good Friday@@@0@@@0@@@1a@@@iso-8859-1@@@1
+13@@@.*,easter,easter-1,.*@@@0@@@0@@@Easter Saturday@@@0@@@0@@@1a@@@iso-8859-1@@@1
+14@@@.*,easter,easter,.*@@@0@@@0@@@Easter Sunday@@@0@@@0@@@1a@@@iso-8859-1@@@1
+15@@@.*,easter,easter+1,.*@@@0@@@0@@@Easter Monday@@@0@@@0@@@1a@@@iso-8859-1@@@1
+
