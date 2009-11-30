@@ -651,7 +651,7 @@ sub listmessages {
                       calendar_defaultview    => $prefs{calendar_defaultview},
                       enable_learnham         => $config{enable_learnspam} && $folder eq 'spam-mail'?1:0,
                       enable_learnspam        => $config{enable_learnspam} && $folder !~ m#^(?:saved-drafts|sent-mail|spam-mail|virus-mail)$#?1:0,
-                      show_emptyfolder        => $folder =~ m#^(?:saved-drafts|mail-trash|spam-mail|virus-mail)$#?1:0,
+                      show_emptyfolder        => $folder =~ m#^(?:mail-trash|spam-mail|virus-mail)$#?1:0,
                       foldername              => exists $lang_folders{$folder}?$lang_folders{$folder}:f2u($folder),
                       folder_allmessages      => $folder_allmessages,
                       trashfolder             => $quotalimit > 0 && $quotausage > $quotalimit?'DELETE':'mail-trash',
