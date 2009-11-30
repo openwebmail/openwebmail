@@ -124,7 +124,7 @@ $keyword     = param('keyword') || '';
 $longpage    = param('longpage') || 0;
 $msgdatetype = param('msgdatetype') || $prefs{msgdatetype};
 $page        = param('page') || 1;
-$searchtype  = param('searchtype') || 'subject';
+$searchtype  = param('searchtype') || $prefs{searchtype} || 'subject';
 $sort        = param('sort') || $prefs{sort} || 'date_rev';
 
 $keyword     =~ s/^\s*//;
