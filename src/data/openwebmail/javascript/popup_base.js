@@ -1,4 +1,7 @@
-// When you want to include a DHTML popup in a page you MUST:
+// This is generic code to support working with DHMTL layers
+// including creating, positioning, showing, and hiding them
+//
+// If you want to include a DHTML popup in a page you MUST:
 // 1) create a named div for the popup to attach to in the page.
 //    It should look like <div id="mypopup"></div>. Do not put
 //    the div anywhere in a table. It should be outside tables.
@@ -8,11 +11,11 @@
 //              visibility: hidden;
 //              background-color: "#AABBCC";
 //              layer-background-color: "#AABBCC"; }
+//    This can be in your document, or in your css
 // 3) call the popup with code that looks like
-//    <a href="#" onClick="calPopup(this,'mypopup',-175,15,'additemform','valiDate');">
-//    where -175 and 15 are your desired x and y offsets from the link.
-//    The final argument indicates the validation script to run after
-//    the popup makes a change to the form. This argument is optional.
+//    <a href="javascript:void(0);" onclick="mypopup(your,popup,args);">
+//
+// see popup_calendar.js for an example of how to use this base code
 
 var nn4 = (document.layers) ? true : false;
 var ie  = (document.all) ? true : false;

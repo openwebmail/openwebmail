@@ -42,7 +42,7 @@
     <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=logout&amp;sessionid=<tmpl_var sessionid escape="url">" accesskey="Q" class="icon"><tmpl_if use_texticon>logout<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/logout.gif" title="logout" alt="logout" border="0" align="absmiddle"></tmpl_if></a>
   </td>
   <td nowrap class="menubar" align="right">
-    <a href="javascript:void();" onClick="calPopup(this,'mypopupCal',-175,15,'dateselform','submit_changed_dateselform');" title="calendar"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/cal-popup.gif" border="0" align="absmiddle" alt="calendar"></a>&nbsp;
+    <a href="javascript:void(0);" onclick="calPopup(this,document.forms['dateselform'].elements['year'].options[document.forms['dateselform'].elements['year'].selectedIndex].value,document.forms['dateselform'].elements['month'].options[document.forms['dateselform'].elements['month'].selectedIndex].value,document.forms['dateselform'].elements['day'].options[document.forms['dateselform'].elements['day'].selectedIndex].value,'change_dateselform','popup_calendar',-175,15);" title="calendar"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/cal-popup.gif" border="0" align="absmiddle" alt="calendar"></a>&nbsp;
     <select name="month"  accesskey="G" onchange="submit()">
     <tmpl_loop monthselectloop>
       <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
@@ -160,18 +160,18 @@
     </tr>
     <tr>
       <td colspan="2" nowrap>
-        <a href="javascript:void();" onClick="calPopup(this,'mypopupCal',-175,15,'additemform','valiDate');" title="calendar"><IMG SRC="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/cal-popup.gif" border="0" align="absmiddle" alt="calendar"></a>&nbsp;
-        <select name="month" onchange="valiDate('additemform')">
+        <a href="javascript:void(0);" onclick="calPopup(this,document.forms['additemform'].elements['year'].options[document.forms['additemform'].elements['year'].selectedIndex].value,document.forms['additemform'].elements['month'].options[document.forms['additemform'].elements['month'].selectedIndex].value,document.forms['additemform'].elements['day'].options[document.forms['additemform'].elements['day'].selectedIndex].value,'change_additemform','popup_calendar',-175,15);" title="calendar"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/cal-popup.gif" border="0" align="absmiddle" alt="calendar"></a>&nbsp;
+        <select name="month" onchange="cal_update_recurrence('additemform')">
         <tmpl_loop monthselectloop>
           <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
         </tmpl_loop>
         </select>
-        <select name="day" onchange="valiDate('additemform')">
+        <select name="day" onchange="cal_update_recurrence('additemform')">
         <tmpl_loop dayselectloop>
           <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
         </tmpl_loop>
         </select>
-        <select name="year" onchange="valiDate('additemform')">
+        <select name="year" onchange="cal_update_recurrence('additemform')">
         <tmpl_loop yearselectloop>
           <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
         </tmpl_loop>
@@ -300,45 +300,54 @@
 </table>
 </form>
 
-<div id="mypopupCal"></div>
+<div id="popup_calendar"></div>
 
 <script type="text/javascript">
 <!--
-// calpopup.js tmpl vars
-var wStart   = <tmpl_var weekstart>;
-var min_year = <tmpl_var min_year>;
-
-// calpopup.js language and preferences
+// popup_calendar.js language and preferences
+var wStart     = <tmpl_var weekstart escape="js">;
 var wDay       = new Array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
 var wDayAbbrev = new Array('S','M','T','W','T','F','S');
 var wMonth     = new Array('January','February','March','April','May','June','July','August','September','October','November','December');
 var wOrder     = new Array('1st','2nd','3rd','4th','last');
 
-// validate.js language and preferences
+// cal_update_recurrence.js language and preferences
 var thisdayonlytxt = 'This day\'s date only';
 var everyoddmonththisyeartxt = 'Every odd month this year';
 var everyevenmonththisyeartxt = 'Every even month this year';
 
-function thewdayofthismonthtxt(wOrdn,wDayn) {
-   return 'The ' + wOrder[(wOrdn-1)] + ' ' + wDay[(wDayn)] + ' of the month';
+function thewdayofthismonthtxt(wOrderNumber,wDayNumber) {
+   return 'The ' + wOrder[(wOrderNumber-1)] + ' ' + wDay[wDayNumber] + ' of the month';
 }
 
-function everywdaythismonthtxt(wDayn) {
-   return 'Every ' + wDay[(wDayn)] + ' this month';
+function everywdaythismonthtxt(wDayNumber) {
+   return 'Every ' + wDay[wDayNumber] + ' this month';
 }
 
 function alerttxt(selectedmonth,daysinmonth,formYear,daysinmonth) {
    return 'Sorry, ' + selectedmonth + ' only has ' + daysinmonth + ' days in ' + formYear + '.\nChanging the day to ' + daysinmonth + '.';
 }
 
-function submit_changed_dateselform() {
+function change_dateselform(year,month,day) {
+   // called when a date is selected in the dateselform calPopup
+   document.forms['dateselform'].elements['year'].selectedIndex  = year - <tmpl_var min_year escape="js">;
+   document.forms['dateselform'].elements['month'].selectedIndex = month - 1;
+   document.forms['dateselform'].elements['day'].selectedIndex   = day - 1;
    document.dateselform.submit();
+}
+
+function change_additemform(year,month,day) {
+   // called when a date is selected in the additemform calPopup
+   document.forms['additemform'].elements['year'].selectedIndex  = year - <tmpl_var min_year escape="js">;
+   document.forms['additemform'].elements['month'].selectedIndex = month - 1;
+   document.forms['additemform'].elements['day'].selectedIndex   = day - 1;
+   cal_update_recurrence('additemform');
 }
 //-->
 </script>
 
-<script src="<tmpl_var url_html escape="none">/javascript/popup.js" type="text/javascript"></script>
-<script src="<tmpl_var url_html escape="none">/javascript/calpopup.js" type="text/javascript"></script>
-<script src="<tmpl_var url_html escape="none">/javascript/validate.js" type="text/javascript"></script>
+<script src="<tmpl_var url_html escape="none">/javascript/popup_base.js" type="text/javascript"></script>
+<script src="<tmpl_var url_html escape="none">/javascript/popup_calendar.js" type="text/javascript"></script>
+<script src="<tmpl_var url_html escape="none">/javascript/cal_update_recurrence.js" type="text/javascript"></script>
 
 <tmpl_var footer_template escape="none">

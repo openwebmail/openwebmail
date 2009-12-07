@@ -1,10 +1,11 @@
-Alt-Key shortcuts in Open WebMail
+Accesskey shortcuts in OpenWebMail
 
-ps: the Alt-key shortcut feature are only supported on recent browsers,
-    eg: Mozilla, IE 5.0 or above
+Accesskeys provide keyboard shortcuts to features in a webpage. The keys used to activate an accesskey vary by operating system and browser. Some of the most common are listed here:
 
-ps: If the [Alt] key is not available in your keyboard,
-    please try [Meta] key instead.
+* Windows Internet Explorer – Hold Alt, press access key, release, press enter
+* Windows Firefox, Netscape – Hold Alt, press access key
+* Mac OSX Internet Explorer, Safari, Firefox – Hold CTRL, press access key
+* Opera – Hold Shift, press escape, release, press access key
 
 
 General Keys
@@ -16,6 +17,7 @@ B: back to folder view
 M: webmail
 K: calendar
 E: webdisk
+T: ssh terminal
 X: logout
 
 

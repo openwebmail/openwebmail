@@ -1,4 +1,5 @@
-function valiDate(formName) {
+function cal_update_recurrence(formName) {
+   // update the recurrance pulldowns to reflect the currently selected event date
    var formYear = document.forms[formName].elements['year'].options[document.forms[formName].elements['year'].selectedIndex].value;
    var formMonth = document.forms[formName].elements['month'].options[document.forms[formName].elements['month'].selectedIndex].value;
    var formDay = document.forms[formName].elements['day'].options[document.forms[formName].elements['day'].selectedIndex].value;
