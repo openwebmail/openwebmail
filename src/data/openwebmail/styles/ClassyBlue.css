@@ -69,7 +69,7 @@ a.messagebody:hover { color: #0000ff; }
 .eventcolor2f { background-color: #f8f890; border: solid 1px #dada5d; }
 
 /* popup calendar styles */
-#mypopupCal{ position: absolute; visibility: hidden; }
+#popup_calendar { position: absolute; visibility: hidden; }
 .stylecal { font-size: 90%; color: #000000; }
 td.todayhilite { background-color: #f89090; font-weight: bold; border: solid 1px #da5d5d; }
 a.notmonth:link { font-size: 90%; color: #cccccc; }
