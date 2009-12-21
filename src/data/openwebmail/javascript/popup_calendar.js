@@ -27,9 +27,9 @@ function makeCalHtml(id, year, month, day, callback) {
    var todayDate = new Date();
 
    // use today as the date if year, month, day are not valid numbers
-   year = isNaN(year) ? todayDate.getFullYear : year;
-   month = isNaN(month) ? todayDate.getMonth : month;
-   day = isNaN(day) ? todayDate.getDate : day;
+   year = isNaN(parseInt(year,10)) ? todayDate.getFullYear() : year;
+   month = isNaN(parseInt(month,10)) ? todayDate.getMonth() + 1 : month;
+   day = isNaN(parseInt(day,10)) ? todayDate.getDate() : day;
 
    var daysInMonth = new Array(0,31,28,31,30,31,30,31,31,30,31,30,31);
 
