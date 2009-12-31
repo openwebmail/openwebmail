@@ -34,7 +34,7 @@ if ($dictionary_letters{english} eq '') {
    );
 }
 
-use vars qw (%memdic);	# static dic in mem :)
+use vars qw(%memdic); # static dic in mem :)
 if (!$memdic{a}) {
    foreach (qw(
       a an the this that one any none these those other another
