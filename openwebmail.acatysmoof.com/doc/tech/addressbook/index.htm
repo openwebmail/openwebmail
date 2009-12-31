@@ -22,6 +22,53 @@
     <p>The OpenWebMail addressbook is completely vCard 3.0 and 2.1 compliant, and therefore compatible with any system that is also vCard compliant including Microsoft Outlook and Apple Addressbook. OpenWebMail addressbook developers are encouraged to download and read the vCard 3.0 (<a href="http://www.imc.org/rfc2425" target="_new">RFC2425</a> and <a href="http://www.ietf.org/rfc/rfc2426.txt" target="_new">RFC2426</a>) and <a href="http://www.imc.org/pdi/vcard-21.rtf" target="_new">vCard 2.1</a> Specifications used to implement the system.</p>
     </blockquote>
 
+    <h3>vCard Supported Fields Summary</h3>
+    <blockquote>
+    <pre>
+        # Property Name    # Defining Specification
+        'BEGIN'            # vCard 2.1 (required) and 3.0 (required)
+        'END'              # vCard 2.1 (required) and 3.0 (required)
+        'REV'              # vCard 2.1 and 3.0
+        'VERSION'          # vCard 2.1 (required) and 3.0 (required)
+        'PROFILE'          # vCard 3.0
+        'CATEGORIES'       # vCard 3.0
+        'PHOTO'            # vCard 2.1 and 3.0
+        'N'                # vCard 2.1 (required) and 3.0 (required)
+        'FN'               # vCard 2.1 and 3.0 (required)
+        'SOUND'            # vCard 2.1 and 3.0
+        'NICKNAME'         # vCard 3.0
+        'SORT-STRING'      # vCard 3.0
+        'BDAY'             # vCard 2.1 and 3.0
+        'EMAIL'            # vCard 2.1 and 3.0
+        'TEL'              # vCard 2.1 and 3.0
+        'ADR'              # vCard 2.1 and 3.0
+        'LABEL'            # vCard 2.1 and 3.0 - OWM Bundles into ADR
+        'LOGO'             # vCard 2.1 and 3.0
+        'TITLE'            # vCard 2.1 and 3.0 - OWM Bundles into ORG
+        'ROLE'             # vCard 2.1 and 3.0 - OWM Bundles into ORG
+        'ORG'              # vCard 2.1 and 3.0
+        'URL'              # vCard 2.1 and 3.0
+        'TZ'               # vCard 2.1 and 3.0
+        'GEO'              # vCard 2.1 and 3.0
+        'MAILER'           # vCard 2.1 and 3.0
+        'NOTE'             # vCard 2.1 and 3.0
+        'KEY'              # vCard 2.1 and 3.0
+        'AGENT'            # vCard 2.1 and 3.0
+        'CLASS'            # vCard 3.0
+        'SOURCE'           # vCard 3.0
+        'NAME'             # vCard 3.0
+        'UID'              # vCard 2.1 and 3.0
+        'PRODID'           # vCard 3.0
+
+        # These are X- extension propertynames
+        'X-OWM-UID'        # Openwebmail: our system unique id
+        'X-OWM-BOOK'       # Openwebmail: remember addressbook name
+        'X-OWM-GROUP'      # Openwebmail: vcard is a group if defined
+        'X-OWM-CHARSET'    # Openwebmail: vcard character set support
+        'X-OWM-CUSTOM'     # Openwebmail: support user-defined custom fields
+    </pre>
+    </blockquote>
+
     <h3>Data Locations and Structures</h3>
     <blockquote>
     <p>The actual location of the directories that store user addressbook data depends on the site configuration as set in the openwebmail.conf file. By default, user addressbook data in OpenWebMail is stored in the ~USER/.openwebmail/webaddr directory. By default, the global addressbook data is stored in the cgi-bin/openwebmail/etc/addressbooks directory. Regardless of where the directories are located, the contents are always the same - numerous flat text files each containing multiple vCards.</p>
@@ -333,7 +380,7 @@
 </table>
 
 <center>
-<p><font size="2">$Id$<br>Copyright &copy; 2001-2006 The OpenWebMail Project</font></p>
+<p><font size="2">$Id$<br>Copyright &copy; 2001-2010 The OpenWebMail Project</font></p>
 </center>
 
 </body>
