@@ -4599,7 +4599,7 @@ sub addrimport {
       $lang_err{'abook_import_unsupfmt'} =~ s/\@\@\@FORMAT\@\@\@/$importformat/;
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_import_unsupfmt'}! ($!)");
    }
-   my ($importfileext) = $importfile =~ m/\.(\S+)$/;
+   my ($importfileext) = $importfile =~ m/\.(...)$/;
    if (lc($importfileext) ne $supportedimportexportformat{$importformat}[3]) {
       openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_ext_notsupported'} $supportedimportexportformat{$importformat}[2]!");
    }
