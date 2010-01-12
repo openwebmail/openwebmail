@@ -1380,7 +1380,8 @@ sub get_header {
    my $titleinfo = join(" - ", grep { defined && $_ } (
                                                          $extra_info,
                                                          ($user?$prefs{email}:''),
-                                                         ($user && $config{quota_module} ne "none"?$quotausagebytes . '(' . $quotausagepercentoflimit . '%)':''),
+                                                         ($user && $config{quota_module} ne "none"?$quotausagebytes . 
+                                                          ($quotausagepercentoflimit ne ''?'(' . $quotausagepercentoflimit . '%)':''):''),
                                                          "$timedatestring $timeoffset",
                                                          $prefs{locale},
                                                          $config{name} . ($mode?' ' . $mode:''),
