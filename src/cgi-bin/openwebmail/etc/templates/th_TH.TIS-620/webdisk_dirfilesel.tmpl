@@ -1,0 +1,187 @@
+<tmpl_var header_template escape="none">
+
+<form method="post" action=<tmpl_if sel_saveattfile>"javascript:saveattfile_and_close('<tmpl_var attfile escape="js">');"<tmpl_else><tmpl_if sel_saveattachment>"javascript:saveattachment_and_close('<tmpl_var folder escape="js">','<tmpl_var message_id escape="js">','<tmpl_var attachment_nodeid escape="js">');"<tmpl_else><tmpl_if sel_addattachment>"javascript:addattachment_and_close();"</tmpl_if></tmpl_if></tmpl_if> enctype="multipart/form-data" name="selform">
+
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
+<tr>
+  <td class="titlebar"><tmpl_if sel_saveattfile>Save file to Webdisk<tmpl_else><tmpl_if sel_saveattachment>Save attachment to Webdisk<tmpl_else><tmpl_if sel_addattachment>Add attachment from Webdisk</tmpl_if></tmpl_if></tmpl_if></td>
+</tr>
+</table>
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
+<tr>
+  <td>
+    <table border="0" cellpadding="0" cellspacing="0">
+    <tr>
+      <td nowrap>
+      <tmpl_if isroot>
+        <img src="<tmpl_var url_html escape="none">/images/file/disk.gif" align="absmiddle" border="0"> &nbsp;
+      <tmpl_else>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?currentdir=<tmpl_var currentdir escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url"><tmpl_if sel_saveattfile>&amp;attfile=<tmpl_var attfile escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_saveattachment>&amp;attachment_nodeid=<tmpl_var attachment_nodeid escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;attname=<tmpl_var attname escape="url"></tmpl_if></tmpl_if>&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;page=<tmpl_var page escape="url">&amp;action=<tmpl_var action escape="url">&amp;gotodir=<tmpl_var parentdir escape="url">" class="icon"><img src="<tmpl_var url_html escape="none">/images/file/dirup.gif" align="absmiddle" border="0"> &nbsp;</a>
+      </tmpl_if>
+      </td>
+      <td><b>Dir&nbsp;
+      <tmpl_loop pathloop> 
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?currentdir=<tmpl_var currentdir escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url"><tmpl_if sel_saveattfile>&amp;attfile=<tmpl_var attfile escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_saveattachment>&amp;attachment_nodeid=<tmpl_var attachment_nodeid escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;attname=<tmpl_var attname escape="url"></tmpl_if></tmpl_if>&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;page=<tmpl_var page escape="url">&amp;action=<tmpl_var action escape="url">&amp;gotodir=<tmpl_var dir escape="url">"><tmpl_var dirstr escape="html"></a>
+      </tmpl_loop>
+      </b></td>
+    </tr>
+    </table>
+  </td>
+  <td align="right">
+    <table border="0" cellpadding="0" cellspacing="0">
+    <tr><tmpl_if enablehidden>
+      <td>Show hidden files</td>
+      <td><label><input type="checkbox" name="showhidden" value="1"<tmpl_if showhidden> checked="checked"</tmpl_if> onclick="window.location.href='<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?currentdir=<tmpl_var currentdir escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url"><tmpl_if sel_saveattfile>&amp;attfile=<tmpl_var attfile escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_saveattachment>&amp;attachment_nodeid=<tmpl_var attachment_nodeid escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;attname=<tmpl_var attname escape="url"></tmpl_if></tmpl_if>&amp;action=<tmpl_var action escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;page=<tmpl_var page escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;showhidden=<tmpl_if showhidden>0<tmpl_else>1</tmpl_if>'; return false;" /></label></td></tmpl_if>
+      <td>Single page</td>
+      <td><label><input type="checkbox" name="singlepage" value="1"<tmpl_if singlepage> checked="checked"</tmpl_if> onclick="window.location.href='<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?currentdir=<tmpl_var currentdir escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url"><tmpl_if sel_saveattfile>&amp;attfile=<tmpl_var attfile escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_saveattachment>&amp;attachment_nodeid=<tmpl_var attachment_nodeid escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;attname=<tmpl_var attname escape="url"></tmpl_if></tmpl_if>&amp;action=<tmpl_var action escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;page=<tmpl_var page escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_if singlepage>0<tmpl_else>1</tmpl_if>'; return false;" /></label></td>
+    </tr>
+    </table>
+  </td>
+</tr>
+</table>
+
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="1">
+<tr>
+   <tmpl_loop headersloop>
+      <tmpl_if nameheader>
+  <td class="columnheader" width="50%" align="left">
+      <tmpl_else><tmpl_if sizeheader>
+  <td class="columnheader" width="10%" align="right">
+      <tmpl_else><tmpl_if timeheader>
+  <td class="columnheader" width="40%" align="center">
+      </tmpl_if></tmpl_if></tmpl_if>
+    <a accesskey="G" href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?currentdir=<tmpl_var currentdir escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url"><tmpl_if sel_saveattfile>&amp;attfile=<tmpl_var attfile escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_saveattachment>&amp;attachment_nodeid=<tmpl_var attachment_nodeid escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;attname=<tmpl_var attname escape="url"></tmpl_if></tmpl_if>&amp;action=<tmpl_var action escape="url">&amp;gotodir=<tmpl_var gotodir escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;page=<tmpl_var page escape="url">&amp;filesort=<tmpl_var newfilesort escape="url">">
+      <tmpl_if nameheader>
+Filename
+      <tmpl_else><tmpl_if sizeheader>
+Size
+      <tmpl_else><tmpl_if timeheader>
+Last modified time
+      </tmpl_if></tmpl_if></tmpl_if>
+    </a>
+      <tmpl_if revsort>
+    <img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/up.gif" class="icon" border="0" align="absmiddle" alt="^">
+      <tmpl_else><tmpl_if fwdsort>
+    <img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/down.gif" class="icon" border="0" align="absmiddle" alt="v">
+      </tmpl_if></tmpl_if>
+  </td>
+   </tmpl_loop>
+</tr>
+<tmpl_if filesloop>
+<tmpl_loop filesloop>
+<tmpl_if isdir>
+<tr<tmpl_if uselightbar> class="rowlight" onmouseover="this.style.backgroundColor='rowhilite';" onmouseout="this.style.backgroundColor='rowlight';" onclick="window.location.href='<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?currentdir=<tmpl_var currentdir escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url"><tmpl_if sel_saveattfile>&amp;attfile=<tmpl_var attfile escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_saveattachment>&amp;attachment_nodeid=<tmpl_var attachment_nodeid escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_addattachment></tmpl_if></tmpl_if></tmpl_if>&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;page=<tmpl_var page escape="url">&amp;action=<tmpl_var action escape="url">&amp;gotodir=<tmpl_var filename escape="url">';"</tmpl_if>>
+<td<tmpl_unless uselightbar> class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless>><table width="100%" border=0 cellspacing=0 cellpadding=0><tr><td><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?currentdir=<tmpl_var currentdir escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url"><tmpl_if sel_saveattfile>&amp;attfile=<tmpl_var attfile escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_saveattachment>&amp;attachment_nodeid=<tmpl_var attachment_nodeid escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;attname=<tmpl_var attname escape="url"></tmpl_if></tmpl_if>&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;page=<tmpl_var page escape="url">&amp;action=<tmpl_var action escape="url">&amp;gotodir=<tmpl_var filename escape="url">" class="icon" accesskey="<tmpl_var accesskeynr escape="html">"><tmpl_if ficon><img src="<tmpl_var url_html escape="none">/images/file/<tmpl_var ficon escape="url">" align="absmiddle" border="0"></tmpl_if>&nbsp;<b><tmpl_var filenamestr escape="html"><tmpl_var flinkstr escape="html"></b></a></td>
+<td align="right" nowrap>
+<a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?currentdir=<tmpl_var currentdir escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url"><tmpl_if sel_saveattfile>&amp;attfile=<tmpl_var attfile escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_saveattachment>&amp;attachment_nodeid=<tmpl_var attachment_nodeid escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;attname=<tmpl_var attname escape="url"></tmpl_if></tmpl_if>&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;page=<tmpl_var page escape="url">&amp;action=<tmpl_var action escape="url">&amp;gotodir=<tmpl_var filename escape="url">"><b>&lt;Dir&gt;</b></a>
+</td></tr></table>
+</td> 
+<tmpl_else>
+<tr<tmpl_if uselightbar> class="rowlight" onmouseover="this.style.backgroundColor='rowhilite';" onmouseout="this.style.backgroundColor='rowlight';" onclick="filldestname('<tmpl_var vpathstr escape="js">', '<tmpl_var vpath escape="js">');"</tmpl_if>>
+<td<tmpl_unless uselightbar> class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless>><table width="100%" border=0 cellspacing=0 cellpadding=0><tr><td><a href="javascript:void(0);" onclick="filldestname('<tmpl_var vpathstr escape="js">', '<tmpl_var vpath escape="js">');" class="icon" accesskey="<tmpl_var accesskeynr escape="html">"><tmpl_if ficon><img src="<tmpl_var url_html escape="none">/images/file/<tmpl_var ficon escape="url">" align="absmiddle" border="0"></tmpl_if>&nbsp;<tmpl_var filenamestr escape="html"><tmpl_var flinkstr escape="html"></a></td>
+<td align="right" nowrap></td></tr></table>
+</td> 
+</tmpl_if>
+<td<tmpl_unless uselightbar> class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless> align="right">
+<a title="<tmpl_var fsizestr escape="html">"><tmpl_var fsize escape="html"></a>
+</td>
+<td<tmpl_unless uselightbar> class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless> align="center">
+<tmpl_var datestr escape="html">
+</td>
+</tr>
+</tmpl_loop>
+<tmpl_else>
+<tr>
+<td class="rowlight" align=center><table><tr><td><font class="lighttext">No item found</font></td</tr></table></td>
+<td class="rowlight">&nbsp;</td>
+<td class="rowlight">&nbsp;</td>
+</tr>
+</tmpl_if>
+</table>
+
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
+<tr>
+  <td align="center" nowrap>
+<tmpl_if pagelinksloop>
+<tmpl_if prevpage><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?currentdir=<tmpl_var currentdir escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url"><tmpl_if sel_saveattfile>&amp;attfile=<tmpl_var attfile escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_saveattachment>&amp;attachment_nodeid=<tmpl_var attachment_nodeid escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;attname=<tmpl_var attname escape="url"></tmpl_if></tmpl_if>&amp;action=<tmpl_var action escape="url">&amp;gotodir=<tmpl_var gotodir escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;page=<tmpl_var prevpage escape="url">" accesskey="U" class="icon"><tmpl_if use_texticon><tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left>right.gif<tmpl_else>left.gif</tmpl_if>" title="previous page" alt="<tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if>" border="0" align="absmiddle"></tmpl_if></a><tmpl_else><tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left>right-grey.gif<tmpl_else>left-grey.gif</tmpl_if>" title="no previous page" alt="-" border="0" align="absmiddle"></tmpl_if></tmpl_if>
+&nbsp;
+<tmpl_loop pagelinksloop>
+ <tmpl_if thispage>
+  <b><tmpl_var pagenr escape="html"></b>&nbsp;
+ <tmpl_else>
+  <a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?currentdir=<tmpl_var currentdir escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url"><tmpl_if sel_saveattfile>&amp;attfile=<tmpl_var attfile escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_saveattachment>&amp;attachment_nodeid=<tmpl_var attachment_nodeid escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;attname=<tmpl_var attname escape="url"></tmpl_if></tmpl_if>&amp;action=<tmpl_var action escape="url">&amp;gotodir=<tmpl_var gotodir escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;page=<tmpl_var pagenr escape="url">"><tmpl_var pagenr escape="html"></a>&nbsp;
+ </tmpl_if>
+</tmpl_loop>
+<tmpl_if nextpage><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?currentdir=<tmpl_var currentdir escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url"><tmpl_if sel_saveattfile>&amp;attfile=<tmpl_var attfile escape="url">&amp;attname=<tmpl_var attname escape="url"><tmpl_else><tmpl_if sel_saveattachment>&amp;attachment_nodeid=<tmpl_var attachment_nodeid escape="url">&amp;convfrom=<tmpl_var convfrom escape="url">&amp;attname=<tmpl_var attname escape="url"></tmpl_if></tmpl_if>&amp;action=<tmpl_var action escape="url">&amp;gotodir=<tmpl_var gotodir escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;page=<tmpl_var nextpage escape="url">" accesskey="D" class="icon"><tmpl_if use_texticon><tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left>left.gif<tmpl_else>right.gif</tmpl_if>" title="next page" alt="<tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if>" border="0" align="absmiddle"></tmpl_if></a><tmpl_else><tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left>left-grey.gif<tmpl_else>right-grey.gif</tmpl_if>" title="no next page" alt="-" border="0" align="absmiddle"></tmpl_if></tmpl_if>
+</tmpl_if>
+  </td>
+</tr>
+</table>
+
+<table border="0" align="center" width="95%" cellpadding="2" cellspacing="0">
+<tr>
+  <td class="menubar" nowrap width="5%">Filename&nbsp;</td>
+  <td class="menubar" nowrap width="40%"><input type="text" name="destname" accesskey="N" size="35" <tmpl_if sel_addattachment> disabled="1" /><input type="hidden" name="destname2" value=""/><tmpl_else> value="<tmpl_var defaultname escape="html">" /></tmpl_if>&nbsp;</td>
+  <td class="menubar" nowrap>
+<input type="submit" name="okbutton" value="Ok" onclick="javascript:<tmpl_if sel_saveattfile>saveattfile_and_close('<tmpl_var attfile escape="js">');<tmpl_else><tmpl_if sel_saveattachment>saveattachment_and_close('<tmpl_var folder escape="js">','<tmpl_var message_id escape="js">','<tmpl_var attachment_nodeid escape="js">');<tmpl_else><tmpl_if sel_addattachment>addattachment_and_close();</tmpl_if></tmpl_if></tmpl_if> return false;"/>
+<input type="submit" name="cancelbutton" value="Cancel" onclick="window.close();" />
+
+</td>
+</tr>
+</table>
+</form>
+
+<form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl" enctype="multipart/form-data" name="saveattfileform">
+<input type="hidden" name="action" value="saveattfile">
+<input type="hidden" name="attfile" value="">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="webdisksel" value="">
+</form>
+<form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl" enctype="multipart/form-data" name="saveattachmentform">
+<input type="hidden" name="action" value="saveattachment">
+<input type="hidden" name="attachment_nodeid" value="saveattfile">
+<input type="hidden" name="folder" value="">
+<input type="hidden" name="message_id" value="">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="webdisksel" value="">
+</form>
+
+<script language="javascript">
+<!--
+   function filldestname(name, escapedname) {
+      document.selform.destname.value  = name;		// to be dispalyed
+      document.selform.destname2.value = escapedname;	// to be copied to composeform in send.pl
+      document.selform.okbutton.focus();
+   }
+
+   function addattachment_and_close() {
+      if (document.selform.destname.value != "") {
+         // composeform may be in a different charset (composecharset) than the webdisk prefs{charset},
+         // so escape the value copied between webdiskform and composeform to avoid blank charset
+         // conversion by javascript interpreter in browser
+         window.opener.document.composeform.webdiskselection.value = document.selform.destname2.value;
+         window.opener.document.composeform.submit();
+         window.close();
+      }
+   }
+
+   function saveattfile_and_close(attfile) {
+      if (document.selform.destname.value != "") {
+         document.saveattfileform.attfile.value = attfile;
+         document.saveattfileform.webdisksel.value = document.selform.destname.value;
+         document.saveattfileform.submit();
+      }
+   }
+
+   function saveattachment_and_close(folder, messageid, attachment_nodeid) {
+      if (document.selform.destname.value != "") {
+         document.saveattachmentform.folder.value = folder;
+         document.saveattachmentform.message_id.value = messageid;
+         document.saveattachmentform.attachment_nodeid.value = attachment_nodeid;
+         document.saveattachmentform.webdisksel.value = document.selform.destname.value;
+         document.saveattachmentform.submit();
+      }
+   }
+//-->
+</script>
+<tmpl_var footer_template escape="none">

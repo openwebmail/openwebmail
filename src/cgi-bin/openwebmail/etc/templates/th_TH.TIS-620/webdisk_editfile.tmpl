@@ -1,0 +1,59 @@
+<tmpl_var header_template escape="none">
+
+<form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl" name="editfile">
+<input type="hidden" name="currentdir" value="<tmpl_var currentdir escape="html">">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="action" value="savefile">
+
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
+<tr>
+  <td class="titlebar">Edit file</td>
+</tr>
+<tr>
+  <td class="windowdark">&nbsp;</td>
+</tr>
+<tr>
+  <td align="center" class="windowdark">
+    <table border="0" cellpadding="0" cellspacing="0">
+    <tr>
+      <td class="windowdarkbold">Filename&nbsp;</td>
+      <td><input type="text" name="destname" value="<tmpl_var vpathstr escape="html">" size="66" /></td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td align="center" class="windowdarkbold">Content<br><textarea name="filecontent" rows="<tmpl_var rows escape="html">" cols="<tmpl_var columns escape="html">" wrap="soft"><tmpl_var filecontent escape="html"></textarea></td>
+</tr>
+<tr>
+  <td class="windowdark">&nbsp;</td>
+</tr>
+<tr>
+  <td align="center" class="windowdark"><input type="submit" name="Save" value="Save" /> <tmpl_if is_html><input type="submit" name="previewbutton" value="Preview" override="1" onclick="preview(); return false;" /></tmpl_if> <input type="button"  name="cancelbutton" value="Cancel" onclick="window.close();" override="1" /></td>
+</tr>
+<tr>
+  <td class="windowdark">&nbsp;</td>
+</tr>
+</table>
+</form>
+
+<form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl" enctype="multipart/form-data" target="_preview" name="previewform">
+<input type="hidden" name="action" value="preview">
+<input type="hidden" name="currentdir" value="<tmpl_var currentdir escape="html">">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="filecontent" value="">
+<input type="hidden" name="selitems" value="">
+</form>
+
+<script language="javascript">
+<!--
+   function preview() {
+      document.previewform.sessionid.value = document.editfile.sessionid.value;
+      document.previewform.selitems.value = document.editfile.destname.value;
+      document.previewform.filecontent.value = document.editfile.filecontent.value;
+      document.previewform.submit();
+   }
+//-->
+</script>
+
+<tmpl_var footer_template escape="none">
