@@ -1576,7 +1576,7 @@ sub mkheadersloop {
 }
 
 sub mkpagelinksloop {
-   my ($currentidir, $page, $filesort, $totalpage, $caller_showdir) = @_;
+   my ($currentdir, $page, $filesort, $totalpage, $caller_showdir) = @_;
    my $showthumbnail =  param('showthumbnail') || 0;
    my $showhidden    =  param('showhidden')    || 0;
    my $singlepage    =  param('singlepage')    || 0;
