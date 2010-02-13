@@ -1,0 +1,138 @@
+<tmpl_var header_template escape="none">
+
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl" method="post" enctype="multipart/form-data" name="importForm" id="importForm">
+<input type="hidden" name="action" value="addrimport">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+<input type="hidden" name="msgdatetype" value="<tmpl_var msgdatetype escape="html">">
+<input type="hidden" name="message_id" value="<tmpl_var messageid escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+<input type="hidden" name="searchtype" value="<tmpl_var searchtype escape="html">">
+<input type="hidden" name="keyword" value="<tmpl_var keyword escape="html">">
+
+<input type="hidden" name="abooksort" value="<tmpl_var abooksort escape="html">">
+<input type="hidden" name="abookcollapse" value="<tmpl_var abookcollapse escape="html">">
+
+<input type="hidden" name="importfile" value="<tmpl_var importfile escape="html">">
+<input type="hidden" name="importserial" value="<tmpl_var importserial escape="html">">
+<input type="hidden" name="importformat" value="<tmpl_var importformat escape="html">">
+<input type="hidden" name="importcharset" value="<tmpl_var importcharset escape="html">">
+<input type="hidden" name="importdestination" value="<tmpl_var importdestination escape="html">">
+
+<table cellpadding="0" cellspacing="0" border="0" width="95%" align="center">
+<tr>
+  <td class="titlebar">Import Contacts :: Field Selection</td>
+  <td class="titlebar" align="right"><tmpl_var availablefreespace escape="html"> KB Available</td>
+</tr>
+<tr>
+  <td class="menubar" colspan="2">
+     <a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=simple&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;abookfolder=<tmpl_var abookfolder escape="url">&amp;abookpage=<tmpl_var abookpage escape="url">&amp;abooksort=<tmpl_var abooksort escape="url">&amp;abookkeyword=<tmpl_var abookkeyword escape="url">&amp;abooksearchtype=<tmpl_var abooksearchtype escape="url">&amp;abookcollapse=<tmpl_var abookcollapse escape="url">" accesskey="B" class="icon" name="backlink" id="backlink"><tmpl_if use_texticon>back to <tmpl_var abookfolder_label escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to <tmpl_var abookfolder_label escape="html">" alt="back to <tmpl_var abookfolder_label escape="html">" border="0" align="absmiddle"></tmpl_if></a>
+  </td>
+</tr>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+
+<tr>
+  <td colspan="2" align="center" class="windowlight">
+    <table cellpadding="0" cellspacing="0" border="0" width="85%" align="center">
+    <tr>
+      <td><br><b>Defining The Import Fields</b><br>We need help understanding how to organize the data you are importing.<br>Please define the fields for the import data. Fields may be used more than once, and undefined fields will be discarded.</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>
+        <table cellpadding="2" cellspacing="1" border="0">
+        <tr>
+          <td class="columnheader">Please Assign Field Names</td>
+          <td class="columnheader">Import Data Sample 1</td>
+          <td class="columnheader">Import Data Sample 2</td>
+          <td class="columnheader">Import Data Sample 3</td>
+        </tr>
+        <tmpl_loop importfieldsloop>
+        <tr>
+          <td class="<tmpl_if odd>rowdark<tmpl_else>rowlight</tmpl_if>" nowrap>
+            <select name="importfield">
+              <option value="none" selected>---</option>
+              <option value="FN.VALUE">Name: Full Name</option>
+              <option value="N.VALUE.NAMEPREFIX">Name: Prefix</option>
+              <option value="N.VALUE.GIVENNAME">Name: First</option>
+              <option value="N.VALUE.ADDITIONALNAMES">Name: Middle</option>
+              <option value="N.VALUE.FAMILYNAME">Name: Last</option>
+              <option value="N.VALUE.NAMESUFFIX">Name: Suffix</option>
+              <option value="NICKNAME.VALUE">Nickname</option>
+              <option value="SORT-STRING.VALUE">Sort String</option>
+              <option value="BDAY.VALUE.DAY">Birthday: Day</option>
+              <option value="BDAY.VALUE.MONTH">Birthday: Month</option>
+              <option value="BDAY.VALUE.YEAR">Birthday: Year</option>
+              <option value="EMAIL.VALUE">Email Address</option>
+              <option value="TEL.VALUE">Telephone Number</option>
+              <option value="LABEL.VALUE">Address Full</option>
+              <option value="ADR.VALUE.STREET">Address: Street</option>
+              <option value="ADR.VALUE.EXTENDEDADDRESS">Address: Suite / Apartment</option>
+              <option value="ADR.VALUE.POSTOFFICEADDRESS">Address: P.O. Box</option>
+              <option value="ADR.VALUE.LOCALITY">Address: City</option>
+              <option value="ADR.VALUE.REGION">Address: State / Province</option>
+              <option value="ADR.VALUE.POSTALCODE">Address: Zip / Postal Code</option>
+              <option value="ADR.VALUE.COUNTRY">Address: Country</option>
+              <option value="ORG.VALUE.ORGANIZATIONNAME">Company Name</option>
+              <option value="ORG.VALUE.TITLE">Job Title</option>
+              <option value="ORG.VALUE.ROLE">Job Classification</option>
+              <option value="ORG.VALUE.ORGANIZATIONALUNITS.0">Job Division / Department</option>
+              <option value="URL.VALUE">Website</option>
+              <option value="TZ.VALUE">Timezone</option>
+              <option value="GEO.VALUE.LONGITUDE">Longitude</option>
+              <option value="GEO.VALUE.LATITUDE">Latitude</option>
+              <option value="MAILER.VALUE">Mailer Program</option>
+              <option value="NOTE.VALUE">Note</option>
+              <option value="CLASS.VALUE">Public or Private</option>
+              <option value="SOURCE.VALUE">Contact Source URL</option>
+              <option value="NAME.VALUE">Contact Source URL Description</option>
+              <option value="UID.VALUE">External Unique ID</option>
+              <option value="PRODID.VALUE">Contact Creator Program</option>
+            </select>
+            &nbsp;&nbsp;
+          </td>
+          <td class="<tmpl_if odd>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var datasampleone escape="html"></td>
+          <td class="<tmpl_if odd>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var datasampletwo escape="html"></td>
+          <td class="<tmpl_if odd>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var datasamplethree escape="html"></td>
+        </tr>
+        </tmpl_loop>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>Import the first column of sample data above?<input type="radio" name="importfirstrow" value="1">Yes&nbsp;<input type="radio" name="importfirstrow" value="0" checked>No</td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td nowrap>
+        <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+          <td nowrap><input type="submit" name="import" value="import"></td>
+          <td nowrap>&nbsp;<input type="button" name="cancel" value="cancel" onclick="document.location.href = document.links['backlink'].href;"></td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td height="30">&nbsp;</td>
+    </tr>
+    </table>
+  </td>
+</tr>
+</table>
+
+</form>
+
+<tmpl_var footer_template escape="none">

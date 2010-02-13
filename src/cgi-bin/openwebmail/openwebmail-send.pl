@@ -143,13 +143,9 @@ openwebmail_requestend();
 sub compose {
    my $compose_caller   = param('compose_caller') || '';
 
-   my $to               = param('to') || '';
-   my $cc               = param('cc') || '';
-   my $bcc              = param('bcc') || '';
-
-   my $checkedto        = param('checkedto')  || '';                         # from addressbook checklist
-   my $checkedcc        = param('checkedcc')  || '';                         # from addressbook checklist
-   my $checkedbcc       = param('checkedbcc') || '';                         # from addressbook checklist
+   my @tos              = param('to');
+   my @ccs              = param('cc');
+   my @bccs             = param('bcc');
 
    my $messageid        = param('message_id') || '';                         # messageid for the original message being replied/forwarded/edited
    my $mymessageid      = param('mymessageid') ||'';                         # messageid for the message we are composing
@@ -194,14 +190,11 @@ sub compose {
    my $abooksearchtype  = param('abooksearchtype') || '';
    my $abookcollapse    = param('abookcollapse') || 0;
 
-   # build unique to, cc, and bcc lists. Also strip off xowmuid tracker stuff after '%@#' delimiter.
+   # build unique to, cc, and bcc lists.
    my (%unique_to, %unique_cc, %unique_bcc) = ((),(),());
-   $unique_to{$_}++  for map { s/%@#(?:.*)$//; $_ } grep { defined && m/\S/ } ow::tool::str2list("$to,$checkedto");
-   $unique_cc{$_}++  for map { s/%@#(?:.*)$//; $_ } grep { defined && m/\S/ } ow::tool::str2list("$cc,$checkedcc");
-   $unique_bcc{$_}++ for map { s/%@#(?:.*)$//; $_ } grep { defined && m/\S/ } ow::tool::str2list("$bcc,$checkedbcc");
-   $to  = join(", ", sort { lc($a) cmp lc($b) } keys %unique_to);
-   $cc  = join(", ", sort { lc($a) cmp lc($b) } keys %unique_cc);
-   $bcc = join(", ", sort { lc($a) cmp lc($b) } keys %unique_bcc);
+   my $to  = join(", ", sort { lc $a cmp lc $b } grep { defined && m/\S/ && !$unique_to{$_}++ } map { ow::tool::str2list($_) } @tos) || '';
+   my $cc  = join(", ", sort { lc $a cmp lc $b } grep { defined && m/\S/ && !$unique_cc{$_}++ } map { ow::tool::str2list($_) } @ccs) || '';
+   my $bcc = join(", ", sort { lc $a cmp lc $b } grep { defined && m/\S/ && !$unique_bcc{$_}++ } map { ow::tool::str2list($_) } @bccs) || '';
 
    # establish the user from id unless there already is one
    my $userfroms = get_userfroms();
@@ -1318,14 +1311,16 @@ sub compose {
                                                  ],
                       sendbuttons_before      => $prefs{sendbuttonposition} =~ m#^(?:before|both)$# ? 1 : 0,
                       sendbuttons_after       => $prefs{sendbuttonposition} =~ m#^(?:after|both)$# ? 1 : 0,
-                      abookpopupwidth         => $prefs{abook_width} eq 'max' ? 'screen.availWidth' : $prefs{abook_width},
-                      abookpopupheight        => $prefs{abook_height} eq 'max' ? 'screen.availHeight' : $prefs{abook_height},
                       selectableimagesloop    => $selectableimagesloop,
                       languagedirection       => $composecharset eq $prefs{charset}
                                                  && defined $ow::lang::RTL{$prefs{locale}}
                                                  && $ow::lang::RTL{$prefs{locale}} ? 'rtl' : 'ltr',
                       popup_draftsaved        => $savedraftbutton && $session_noupdate == 0 ? 1 : 0,
                       savedraftbeforetimeout  => $savedraftbutton && $session_noupdate == 1 ? 0 : 1,
+                      selectpopupwidth        => $prefs{abook_width}  eq 'max' ? 0 : $prefs{abook_width},
+                      selectpopupheight       => $prefs{abook_height} eq 'max' ? 0 : $prefs{abook_height},
+                      abook_defaultkeyword    => $prefs{abook_defaultfilter} ? $prefs{abook_defaultkeyword} : '',
+                      abook_defaultsearchtype => $prefs{abook_defaultfilter} ? $prefs{abook_defaultsearchtype} : '',
 
                       # footer.tmpl
                       footer_template         => get_footer($config{footer_template_file}),

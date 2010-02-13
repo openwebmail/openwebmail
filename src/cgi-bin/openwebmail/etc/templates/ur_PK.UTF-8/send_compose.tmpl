@@ -100,7 +100,7 @@
   <td class="windowdark">
    <input type="text" name="to" id="to" value="<tmpl_var to escape="html">" size="66" accesskey="T">
     <tmpl_if enable_addressbook>
-    <a href="javascript:GoAddressWindow();" accesskey="K" class="icon"><tmpl_if use_texticon>addressbook<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/addrbook.s.gif" title="addressbook" alt="addressbook" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+    <a href="javascript:selectcontacts();" accesskey="K" class="icon"><tmpl_if use_texticon>addressbook<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/addrbook.s.gif" title="addressbook" alt="addressbook" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
     </tmpl_if>
   </td>
 </tr>
@@ -458,154 +458,142 @@
 
 <script type="text/javascript">
 <!--
-   var popUp = null; // global to prevent unnecessary reloading
+if (document.composeform.to.value == '') {
+   document.composeform.to.focus();
+} else {
+   document.composeform.body.focus();
+}
 
-   if (document.composeform.to.value == '') {
-      document.composeform.to.focus();
+function OnLoadHandler() {
+   document.composeform.to.focus();
+}
+
+function selectcontacts() {
+   // pop open a window where the user can select contacts from a list
+   var popupwidth  = <tmpl_var selectpopupwidth escape="js"> ? <tmpl_var selectpopupwidth escape="js"> : screen.availWidth;
+   var popupheight = <tmpl_var selectpopupheight escape="js"> ? <tmpl_var selectpopupheight escape="js"> : screen.availHeight;
+
+   var popupurl = "<tmpl_var url_cgi escape="js">/openwebmail-abook.pl?action=addrselectpopup&mode=compose&abookkeyword=<tmpl_var abook_defaultkeyword escape="js">&abooksearchtype=<tmpl_var abook_defaultsearchtype escape="js">&sessionid=<tmpl_var sessionid escape="js">";
+
+   var hWnd = window.open(popupurl,'_selectcontacts','width='+popupwidth+',height='+popupheight+',location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no');
+
+   if (hWnd) {
+      // early browsers do not set the opener so do it manually
+      if (document.window != null && !hWnd.opener) {
+         hWnd.opener = document.window;
+      }
+
+      hWnd.focus();
    } else {
-      document.composeform.body.focus();
+      alert('The select window was blocked.\nPlease unblock popups and try again.');
    }
+}
 
-   function OnLoadHandler() {
-      document.composeform.to.focus();
-   }
-
-   function GoAddressWindow() {
-      var url = '<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&listviewmode=composeselect&sessionid=<tmpl_var sessionid escape="js">';
-
-      url += '&to=' + escape (document.composeform.to.value);
-      url += '&cc=' + escape (document.composeform.cc.value);
-      url += '&bcc=' + escape (document.composeform.bcc.value);
-
-      if (popUp == null || popUp.closed) {
-         popUp = window.open(url,'_addressbook','width=<tmpl_var abookpopupwidth escape="js">,height=<tmpl_var abookpopupheight escape="js">,resizable=yes,scrollbars=yes');
-
-         // early browsers do not auto-support opener, so manually set it
-         if (!popUp.opener) {
-            popUp.opener = self;
-         }
-      } else {
-         if (window.focus) {
-            popUp.focus();
-         }
-      }
-      focusSearch();
-   }
-
-   function focusSearch() {
-      if (popUp != null && popUp.document && popUp.document.searchForm && popUp.document.searchForm.abookkeyword) {
-         popUp.document.searchForm.abookkeyword.focus();
-         popUp.document.searchForm.abookkeyword.select();
-      } else {
-         setTimeout('focusSearch();', 1000)
-      }
-   }
-
-   function DeleteAttFile(deleteattfile, shortfilename, is_referenced) {
-      if (is_referenced) {
-         if(confirm('The attachment:\n\n' + shortfilename + '\n\nis being used in the message.\nIt will not appear in the message if you delete it.\nDelete the attachment?')) {
-            document.composeform.deleteattfile.value = deleteattfile;
-            bodygethtml();
-            document.composeform.submit();
-            return true;
-         } else {
-            return void(0);
-         }
-      } else {
+function DeleteAttFile(deleteattfile, shortfilename, is_referenced) {
+   if (is_referenced) {
+      if(confirm('The attachment:\n\n' + shortfilename + '\n\nis being used in the message.\nIt will not appear in the message if you delete it.\nDelete the attachment?')) {
          document.composeform.deleteattfile.value = deleteattfile;
          bodygethtml();
          document.composeform.submit();
-      }
-   }
-
-   function msgfmtchangeconfirm() {
-      if (document.composeform.msgformat.value == 'text') {
-         if (document.composeform.newmsgformat.value == 'html' || document.composeform.newmsgformat.value == 'both') {
-            // text -> (html || both)
-            document.composeform.submit();
-            return true;
-         }
-      }
-
-      if (document.composeform.msgformat.value == 'html' || document.composeform.msgformat.value == 'both') {
-         if (document.composeform.newmsgformat.value == 'text') {
-            // (html || both) -> text
-            if (confirm('The HTML data format will be lost after the conversion, are you sure to change to Text mode?')) {
-               bodygethtml();
-               document.composeform.submit();
-               return true;
-            } else {
-               // reset newmsgformat back to html || both
-               document.composeform.newmsgformat.value = document.composeform.msgformat.value;
-               return false;
-            }
-         } else if (document.composeform.newmsgformat.value == 'html' || document.composeform.newmsgformat.value == 'both') {
-            // both -> html || html -> both: follow new format but no need to submit to CGI
-            document.composeform.msgformat.value = document.composeform.newmsgformat.value;
-            return true;
-         }
-      }
-   }
-
-   function bodygethtml() {
-      if (document.composeform.msgformat.value != 'text') {
-         document.composeform.body.value = xinha_editors.body.getEditorContent();
-      }
-   }
-
-   function bodysethtml() {
-      if (document.composeform.msgformat.value != 'text') {
-         xinha_editors.body.setEditorContent(document.composeform.body.value);
-      }
-   }
-
-   function owmspellcheck() {
-      bodygethtml();
-      document.spellcheckform.form.value   = 'composeform';
-      document.spellcheckform.field.value  = 'body';
-      document.spellcheckform.string.value = document.composeform.body.value;
-      window.open('','_spellcheck','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
-      return true;
-   }
-
-   function sendcheck() {
-      if (document.composeform.to.value == '' && document.composeform.cc.value == '' && document.composeform.bcc.value == '') {
-         alert('To, Cc, and Bcc are empty. Please specify the recipients before sending.');
-         return false;
-      }
-
-      if (document.composeform.subject.value == '' || document.composeform.subject.value == 'N/A' ) {
-         return(confirm('This message has no subject, do you still want to send it?'));
-      }
-
-      return true;
-   }
-
-   <tmpl_if enable_urlattach>
-   function addurlattachment() {
-      attachmenturl = prompt('Please enter the URL of a file to attach', 'http://');
-      if (attachmenturl == null || attachmenturl == '' || attachmenturl == 'http://') {
-         return false;
+         return true;
       } else {
-         document.composeform.urlselection.value = attachmenturl;
+         return void(0);
+      }
+   } else {
+      document.composeform.deleteattfile.value = deleteattfile;
+      bodygethtml();
+      document.composeform.submit();
+   }
+}
+
+function msgfmtchangeconfirm() {
+   if (document.composeform.msgformat.value == 'text') {
+      if (document.composeform.newmsgformat.value == 'html' || document.composeform.newmsgformat.value == 'both') {
+         // text -> (html || both)
          document.composeform.submit();
          return true;
       }
    }
-   </tmpl_if>
 
-   <tmpl_if savedraftbeforetimeout>
-   function sessionlastsecond() {
-      // save the draft the user is working on if we are in the last second of this session,
-      // before it times out. This function is called by the timeout code in footer.tmpl.
-      document.composeform.session_noupdate.value = 1;
-      document.composeform.savedraftbutton.click();
+   if (document.composeform.msgformat.value == 'html' || document.composeform.msgformat.value == 'both') {
+      if (document.composeform.newmsgformat.value == 'text') {
+         // (html || both) -> text
+         if (confirm('The HTML data format will be lost after the conversion, are you sure to change to Text mode?')) {
+            bodygethtml();
+            document.composeform.submit();
+            return true;
+         } else {
+            // reset newmsgformat back to html || both
+            document.composeform.newmsgformat.value = document.composeform.msgformat.value;
+            return false;
+         }
+      } else if (document.composeform.newmsgformat.value == 'html' || document.composeform.newmsgformat.value == 'both') {
+         // both -> html || html -> both: follow new format but no need to submit to CGI
+         document.composeform.msgformat.value = document.composeform.newmsgformat.value;
+         return true;
+      }
    }
-   </tmpl_if>
+}
 
-   <tmpl_if popup_draftsaved>
-   popup_message('<tmpl_var charset escape="js">', 'Draft Saved', 'Draft <tmpl_var subject escape="js"> has been saved successfully', 'close', '_savedraft', 400, 100, 6);
-   </tmpl_if>
+function bodygethtml() {
+   if (document.composeform.msgformat.value != 'text') {
+      document.composeform.body.value = xinha_editors.body.getEditorContent();
+   }
+}
+
+function bodysethtml() {
+   if (document.composeform.msgformat.value != 'text') {
+      xinha_editors.body.setEditorContent(document.composeform.body.value);
+   }
+}
+
+function owmspellcheck() {
+   bodygethtml();
+   document.spellcheckform.form.value   = 'composeform';
+   document.spellcheckform.field.value  = 'body';
+   document.spellcheckform.string.value = document.composeform.body.value;
+   window.open('','_spellcheck','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+   return true;
+}
+
+function sendcheck() {
+   if (document.composeform.to.value == '' && document.composeform.cc.value == '' && document.composeform.bcc.value == '') {
+      alert('To, Cc, and Bcc are empty. Please specify the recipients before sending.');
+      return false;
+   }
+
+   if (document.composeform.subject.value == '' || document.composeform.subject.value == 'N/A' ) {
+      return(confirm('This message has no subject, do you still want to send it?'));
+   }
+
+   return true;
+}
+
+<tmpl_if enable_urlattach>
+function addurlattachment() {
+   attachmenturl = prompt('Please enter the URL of a file to attach', 'http://');
+   if (attachmenturl == null || attachmenturl == '' || attachmenturl == 'http://') {
+      return false;
+   } else {
+      document.composeform.urlselection.value = attachmenturl;
+      document.composeform.submit();
+      return true;
+   }
+}
+</tmpl_if>
+
+<tmpl_if savedraftbeforetimeout>
+function sessionlastsecond() {
+   // save the draft the user is working on if we are in the last second of this session,
+   // before it times out. This function is called by the timeout code in footer.tmpl.
+   document.composeform.session_noupdate.value = 1;
+   document.composeform.savedraftbutton.click();
+}
+</tmpl_if>
+
+<tmpl_if popup_draftsaved>
+popup_message('<tmpl_var charset escape="js">', 'Draft Saved', 'Draft <tmpl_var subject escape="js"> has been saved successfully', 'close', '_savedraft', 400, 100, 6);
+</tmpl_if>
 //-->
 </script>
 

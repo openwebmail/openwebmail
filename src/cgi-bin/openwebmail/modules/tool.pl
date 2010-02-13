@@ -238,8 +238,10 @@ sub zh_dospath2fname {
 sub mktmpfile {
    my $fh= do { local *FH };
    for (1..5) {
-      my $n=rand(); $n=~s/^0.0*//; $n=substr($n,0,8);
-      my $fname=untaint("/tmp/.ow.$_[0].$$-$n");
+      my $n = rand();
+      $n =~ s/^0.0*//;
+      $n = substr($n,0,8);
+      my $fname = untaint("/tmp/.ow.$_[0].$$-$n");
       return($fh, $fname) if (sysopen($fh, $fname, O_RDWR|O_CREAT|O_EXCL));
    }
    return;
@@ -275,64 +277,65 @@ sub rotatefilename {
 }
 
 sub ext2contenttype {
-   my $ext=lc($_[0]); $ext=~s/^.*\.//;	# remove part before .
+   my $ext = lc shift;
+   $ext =~ s/^.*\.//; # remove part before .
 
-   return("text/plain")			if ($ext =~ /^(?:asc|te?xt|cc?|h|cpp|asm|pas|f77|lst|sh|pl)$/);
-   return("text/html")			if ($ext =~ /^html?$/);
-   return("text/xml")			if ($ext =~ /^(?:xml|xsl)$/);
-   return("text/richtext")		if ($ext eq "rtx");
-   return("text/sgml")			if ($ext =~ /^sgml?$/);
-   return("text/vnd.wap.wml")		if ($ext eq "wml");
-   return("text/vnd.wap.wmlscript")	if ($ext eq "wmls");
-   return("text/x-vcard")		if ($ext =~ /^(?:vcf|vcard)$/);
-   return("text/$1")			if ($ext =~ /^(?:css|rtf)$/);
+   return("text/plain")                    if ($ext =~ /^(?:asc|te?xt|cc?|h|cpp|asm|pas|f77|lst|sh|pl)$/);
+   return("text/html")                     if ($ext =~ /^html?$/);
+   return("text/xml")                      if ($ext =~ /^(?:xml|xsl)$/);
+   return("text/richtext")                 if ($ext eq 'rtx');
+   return("text/sgml")                     if ($ext =~ /^sgml?$/);
+   return("text/vnd.wap.wml")              if ($ext eq 'wml');
+   return("text/vnd.wap.wmlscript")        if ($ext eq 'wmls');
+   return("text/x-vcard")                  if ($ext =~ /^(?:vcf|vcard)$/);
+   return("text/$1")                       if ($ext =~ /^(?:css|rtf)$/);
 
-   return("model/vrml")			if ($ext =~ /^(?:wrl|vrml)$/);
+   return("model/vrml")                    if ($ext =~ /^(?:wrl|vrml)$/);
 
-   return("image/jpeg")			if ($ext =~ /^(?:jpe?g?)$/);
-   return("image/$1")			if ($ext =~ /^(bmp|gif|ief|png|psp)$/);
-   return("image/tiff")			if ($ext =~ /^tiff?$/);
-   return("image/x-xbitmap")		if ($ext eq "xbm");
-   return("image/x-xpixmap")		if ($ext eq "xpm");
-   return("image/x-cmu-raster")		if ($ext eq "ras");
-   return("image/x-portable-anymap")	if ($ext eq "pnm");
-   return("image/x-portable-bitmap")	if ($ext eq "pbm");
-   return("image/x-portable-grayma")	if ($ext eq "pgm");
-   return("image/x-portable-pixmap")	if ($ext eq "ppm");
-   return("image/x-rgb")		if ($ext eq "rgb");
+   return("image/jpeg")                    if ($ext =~ /^(?:jpe?g?)$/);
+   return("image/$1")                      if ($ext =~ /^(bmp|gif|ief|png|psp)$/);
+   return("image/tiff")                    if ($ext =~ /^tiff?$/);
+   return("image/x-xbitmap")               if ($ext eq 'xbm');
+   return("image/x-xpixmap")               if ($ext eq 'xpm');
+   return("image/x-cmu-raster")            if ($ext eq 'ras');
+   return("image/x-portable-anymap")       if ($ext eq 'pnm');
+   return("image/x-portable-bitmap")       if ($ext eq 'pbm');
+   return("image/x-portable-grayma")       if ($ext eq 'pgm');
+   return("image/x-portable-pixmap")       if ($ext eq 'ppm');
+   return("image/x-rgb")                   if ($ext eq 'rgb');
 
-   return("video/mpeg")			if ($ext =~ /^(?:mpeg?|mpg|mp2)$/);
-   return("video/x-msvideo")		if ($ext =~ /^(?:avi|dl|fli)$/);
-   return("video/quicktime")		if ($ext =~ /^(?:mov|qt)$/);
+   return("video/mpeg")                    if ($ext =~ /^(?:mpeg?|mpg|mp2)$/);
+   return("video/x-msvideo")               if ($ext =~ /^(?:avi|dl|fli)$/);
+   return("video/quicktime")               if ($ext =~ /^(?:mov|qt)$/);
 
-   return("audio/x-wav")		if ($ext eq "wav");
-   return("audio/mpeg")			if ($ext =~ /^(?:mp[23]|mpga)$/);
-   return("audio/midi")			if ($ext =~ /^(?:midi?|kar)$/);
-   return("audio/x-realaudio")		if ($ext eq "ra");
-   return("audio/basic")		if ($ext =~ /^(?:au|snd|pcm)$/);
-   return("audio/x-mpegurl")		if ($ext eq "m3u");
-   return("audio/x-aiff")		if ($ext =~ /^aif[fc]?$/);
-   return("audio/x-pn-realaudio")	if ($ext =~ /^ra?m$/);
+   return("audio/x-wav")                   if ($ext eq 'wav');
+   return("audio/mpeg")                    if ($ext =~ /^(?:mp[23]|mpga)$/);
+   return("audio/midi")                    if ($ext =~ /^(?:midi?|kar)$/);
+   return("audio/x-realaudio")             if ($ext eq 'ra');
+   return("audio/basic")                   if ($ext =~ /^(?:au|snd|pcm)$/);
+   return("audio/x-mpegurl")               if ($ext eq 'm3u');
+   return("audio/x-aiff")                  if ($ext =~ /^aif[fc]?$/);
+   return("audio/x-pn-realaudio")          if ($ext =~ /^ra?m$/);
 
-   return("application/msword") 	if ($ext eq "doc");
-   return("application/x-mspowerpoint") if ($ext eq "ppt");
-   return("application/x-msexcel") 	if ($ext eq "xls");
-   return("application/x-msvisio")	if ($ext eq "visio");
+   return("application/msword")            if ($ext eq 'doc');
+   return("application/x-mspowerpoint")    if ($ext eq 'ppt');
+   return("application/x-msexcel")         if ($ext eq 'xls');
+   return("application/x-msvisio")         if ($ext eq 'visio');
 
-   return("application/postscript")	if ($ext =~ /^(?:ps|eps|ai)$/);
-   return("application/mac-binhex40")	if ($ext eq "hqx");
-   return("application/xhtml+xml")	if ($ext =~ /^(?:xhtml|xht)$/);
-   return("application/x-javascript")	if ($ext eq "js");
-   return("application/x-httpd-php")	if ($ext =~ /^php[34]?$/);
-   return("application/x-shockwave-flash") if ($ext eq "swf");
-   return("application/x-texinfo")	if ($ext =~ /^(?:texinfo|texi)$/);
-   return("application/x-troff")	if ($ext =~ /^(?:tr|roff)$/);
-   return("application/x-troff-$1")     if ($ext =~ /^(man|me|ms)$/);
-   return("application/x-$1")		if ($ext =~ /^(dvi|latex|shar|tar|tcl|tex)$/);
-   return("application/ms-tnef")        if ($ext =~ /^tnef$/);
-   return("application/$1")		if ($ext =~ /^(pdf|zip|pgp|gpg)$/);
+   return("application/postscript")        if ($ext =~ /^(?:ps|eps|ai)$/);
+   return("application/mac-binhex40")      if ($ext eq 'hqx');
+   return("application/xhtml+xml")         if ($ext =~ /^(?:xhtml|xht)$/);
+   return("application/x-javascript")      if ($ext eq 'js');
+   return("application/x-httpd-php")       if ($ext =~ /^php[34]?$/);
+   return("application/x-shockwave-flash") if ($ext eq 'swf');
+   return("application/x-texinfo")         if ($ext =~ /^(?:texinfo|texi)$/);
+   return("application/x-troff")           if ($ext =~ /^(?:tr|roff)$/);
+   return("application/x-troff-$1")        if ($ext =~ /^(man|me|ms)$/);
+   return("application/x-$1")              if ($ext =~ /^(dvi|latex|shar|tar|tcl|tex)$/);
+   return("application/ms-tnef")           if ($ext =~ /^tnef$/);
+   return("application/$1")                if ($ext =~ /^(pdf|zip|pgp|gpg)$/);
 
-   return("application/x-x509-user-cert")	if ($ext =~ /^(?:x509)$/);
+   return("application/x-x509-user-cert")  if ($ext =~ /^(?:x509|pem|crt|p7b|p7c|p12)$/);
 
    return("application/octet-stream");
 }
@@ -425,11 +428,13 @@ sub _email2nameaddr {
 sub str2list {
    # given a string of email addresses from user-generated to,cc,or bcc lines,
    # return an array of the individual addresses
-   my $str = shift;
+   my $str = shift || '';
 
    my @list = ();
 
-   if ($str !~ m/,|;/) {
+   $str =~ s/\n/, /gs;
+
+   if ($str !~ m/[,;]/) {
       push(@list, $str);
       return @list;
    }
@@ -462,7 +467,7 @@ sub str2list {
                   s/:#dquote#:/"/g;
                   $_;
                 }
-           split(m/,|;/, $str);
+           split(/[,;]/, $str);
 
    return @list;
 }

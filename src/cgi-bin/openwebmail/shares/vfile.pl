@@ -435,6 +435,7 @@ sub is_entry_matched {
             $matched = is_entry_matched(${$r_entry}{$hashterm},${$r_searchterm}{$hashterm},$matched);
          } else {
             # no matching hash
+            print "$hashterm does not exist in both. No match\n" if $vfiledebug;
             $matched = 0;
          }
       }

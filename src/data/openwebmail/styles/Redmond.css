@@ -20,8 +20,10 @@ td.attachmentdark { background-color: #d3dae3; }
 td.attachmentlight { background-color: #eeeeee; }
 img.attachment { border: 2px solid #d3dae3; }
 form { margin: 0; }
+textarea { overflow: auto; }
 input.mono { font-family: monospace; font-size: 80%; }
-select.mono { font-family: monospace; font-size: 80%; }
+select.mono { font-family: monospace; font-size: 80%; offset: 0px; padding: 0px; margin: 0px; }
+iframe.map { border: 1px solid black; margin: 5px 0 0 0; }
 pre { white-space: pre-wrap; }
 h1 { font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 140%; font-weight: bold; }
 a:link { text-decoration: none; color: #000000; }
@@ -78,3 +80,6 @@ a.notmonth:hover { font-size: 90%; color: #ff0000; }
 a.stylecal:link { font-size: 90%; color: #000000; }
 a.stylecal:visited { font-size: 90%; color: #000000; }
 a.stylecal:hover { font-size: 90%; color: #ff0000; }
+
+/* popup note styles */
+#popup_note { position: absolute; visibility: hidden; }
