@@ -19,6 +19,11 @@ find . -name "*.php" -type f | cut -d/ -f2 | sort | uniq | xargs -t -I % -R 1 rm
 
 those find commands are for FreeBSD 7, so careful there.
 
+all unnecessary contrib files were removed:
+
+cd contrib
+rm compress* dojo_js_compressor.jar lc_* php-xinha.php test_server.py
+
 finally, it was committed to the repository.
 
 thats it!

@@ -12,15 +12,15 @@
     --
     --
     --  $HeadURL: http://svn.xinha.org/trunk/modules/InsertImage/insert_image.js $
-    --  $LastChangedDate: 2008-10-03 16:44:49 -0700 (Fri, 03 Oct 2008) $
-    --  $LastChangedRevision: 1055 $
-    --  $LastChangedBy: ray $
+    --  $LastChangedDate: 2009-11-09 18:56:25 -0800 (Mon, 09 Nov 2009) $
+    --  $LastChangedRevision: 1217 $
+    --  $LastChangedBy: gogo $
     --------------------------------------------------------------------------*/
   
 InsertImage._pluginInfo = {
   name          : "InsertImage",
   origin        : "Xinha Core",
-  version       : "$LastChangedRevision: 1055 $".replace(/^[^:]*:\s*(.*)\s*\$$/, '$1'),
+  version       : "$LastChangedRevision: 1217 $".replace(/^[^:]*:\s*(.*)\s*\$$/, '$1'),
   developer     : "The Xinha Core Developer Team",
   developer_url : "$HeadURL: http://svn.xinha.org/trunk/modules/InsertImage/insert_image.js $".replace(/^[^:]*:\s*(.*)\s*\$$/, '$1'),
   sponsor       : "",
@@ -34,6 +34,7 @@ function InsertImage(editor) {
 	var self = this;
 
    editor.config.btnList.insertimage[3] = function() { self.show(); }
+   if(typeof editor._insertImage == 'undefined') editor._insertImage = function() { self.show(); };
   }
   
 InsertImage.prototype._lc = function(string) {
