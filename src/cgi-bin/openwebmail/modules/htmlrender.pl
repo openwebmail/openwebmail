@@ -28,12 +28,11 @@ package ow::htmlrender;
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# htmlrender.pl
 # routines to reformat html for inline display.
 # Used by openwebmail-read.pl and openwebmail-viewatt.pl.
 #
 # it is suggested these routines be called in the following order:
-# html4nobase, html4link, html4disablejs, html4disableemblink, html4attachment, html4mailto, html2table
+# html4nobase, html4link, html4disablejs, html4disableemblink, html4blockimages, html4attachment, html4mailto, html2table
 
 use strict;
 use warnings;
@@ -55,7 +54,7 @@ sub html4nobase {
 
    my $urlbase = '';
 
-   if ($html =~ m#<base\s+href\s*=\s*"?([^<>]*?)"?>#i) {
+   if ($html =~ m#<base\s+href\s*=\s*['"]?([^<>]*?)['"]?>#i) {
       $urlbase = $1;
       $urlbase =~ s#/[^/]+$#/#;
    }
@@ -63,7 +62,7 @@ sub html4nobase {
    $html =~ s#<base\s+([^<>]*?)>##gi;
 
    if ($urlbase ne '' && $urlbase !~ m/^file:/i) {
-      $html =~ s#(<a\s+href|background|src|method|action)(=\s*"?)#$1$2$urlbase#gi;
+      $html =~ s#(<a\s+href|background|src|method|action)(=\s*['"]?)#$1$2$urlbase#gi;
       # recover links that should not be changed by base directive
       $html =~ s#\Q$urlbase\E(http://|https://|ftp://|mms://|cid:|mailto:|\#)#$1#gi;
    }
@@ -82,7 +81,7 @@ sub html4link {
 sub _link_target_blank {
    my $link = shift;
 
-   return $link if $link =~ m/(?:target=|javascript:|href="?#)/i;
+   return $link if $link =~ m/(?:target=|javascript:|href=['"]?#)/i;
 
    $link =~ s#<a\s+([^<>]*?)>#<a $1 target="_blank">#is;
 
@@ -144,22 +143,55 @@ sub html4disableemblink {
    # to avoid user email addresses being confirmed by spammer through embedded CGIs
    my ($html, $disableemblink, $blankimgurl) = @_;
    return $html if !defined $disableemblink || $disableemblink eq 'none';
-   $html =~ s#(src|background)\s*=\s*("?https?://[\w\.\-]+?/?[^\s<>]*)([\b|\n| ]*)#_clean_emblink($1,$2,$3,$disableemblink,$blankimgurl)#egis;
+   $html =~ s#(src|background)\s*=\s*(['"]?https?://[\w\.\-]+?/?[^\s<>]*)([\b|\n| ]*)#_clean_emblink($1,$2,$3,$disableemblink,$blankimgurl)#egis;
    return $html;
 }
 
 sub _clean_emblink {
    my ($type, $url, $end, $disableemblink, $blankimgurl) = @_;
+
    if ($url !~ /\Q$ENV{HTTP_HOST}\E/is) { # non-local URL found
-      if ($disableemblink eq 'cgionly' && $url =~ m/\?/s) {
-         $url =~ s/["']//g;
-         return(qq|$type="$blankimgurl" border="1" alt="Embedded CGI removed by OpenWebMail: $url" onclick="window.open('$url', '_extobj');"$end|);
-      } elsif ($disableemblink eq 'all') {
-         $url =~ s/["']//g;
-         return(qq|$type="$blankimgurl" border="1" alt="Embedded link removed by OpenWebMail: $url" onclick="window.open('$url', '_extobj');"$end|);
-      }
+      $url =~ s/["']//g; # remove leading " or '
+
+      return(qq|$type="$blankimgurl" border="1" title="embedded CGI removed by OpenWebMail" alt="embedded CGI removed by OpenWebMail: $url" onclick="window.open('$url', '_extobj');"$end|)
+        if $disableemblink eq 'cgionly' && $url =~ m/\?/s;
+
+      return(qq|$type="$blankimgurl" border="1" title="embedded link removed by OpenWebMail" alt="embedded link removed by OpenWebMail: $url" onclick="window.open('$url', '_extobj');"$end|)
+        if $disableemblink eq 'all';
    }
+
    return("$type=$url".$end);
+}
+
+sub html4blockimages {
+   # disable inline images to avoid user email addresses being
+   # confirmed by spammers through link tracking callbacks
+   # users may choose to disable this on a per-email basis
+   # or by updating their preferences
+   my ($html, $blankimgurl, $r_blockimagestoggle) = @_;
+
+   my $original_html = "$html";
+
+   # like: src="http://example.com/youremail.jpg"
+   $html =~ s#(src|background)\s*=\s*(['"]?https?://[\w\.\-]+?/?[^\s<>]*)([\b|\n| ]*)#_clean_imglink($1,$2,$3,$blankimgurl)#egis;
+   # like: style=background-image:url("http://example.com/youremail.jpg")
+   $html =~ s#(background-image|content)\s*:\s*url\s*\((['"]?https?://[\w\.\-]+?/?[^\s\)]*)\)([\b|\n| ]*)#_clean_styleimglink($1,$2,$3,$blankimgurl)#egis;
+
+   # if images blocked, turn on the switch to unblock them
+   ${$r_blockimagestoggle}++ if $original_html ne $html;
+
+   return $html;
+}
+
+sub _clean_imglink {
+   my ($type, $url, $end, $blankimgurl) = @_;
+   $url =~ s/["']//g;
+   return(qq|$type="$blankimgurl" border="1" alt="inline image blocked by OpenWebMail: $url" $end|);
+}
+
+sub _clean_styleimglink {
+   my ($type, $url, $end, $blankimgurl) = @_;
+   return(qq|$type:url('$blankimgurl')$end|);
 }
 
 sub html4attachments {
@@ -178,10 +210,10 @@ sub html4attachments {
       $r_attachments->[$i]{referencecount} = 0;
 
       # replace all the content-id (cid:) occurences
-      $r_attachments->[$i]{referencecount}++ if ($cid ne '' && $html =~ s#="*(?:cid:)+\Q$cid\E"*#="$link"#sig);
+      $r_attachments->[$i]{referencecount}++ if ($cid ne '' && $html =~ s#=['"]*(?:cid:)+\Q$cid\E['"]*#="$link"#sig);
 
       # replace all the content-location occurences
-      $r_attachments->[$i]{referencecount}++ if ($loc ne '' && $html =~ s#=(?:cid:|")*\Q$loc\E"*#="$link"#sig);
+      $r_attachments->[$i]{referencecount}++ if ($loc ne '' && $html =~ s#=(?:cid:|['"])*\Q$loc\E['"]*#="$link"#sig);
 
       # ugly hack for strange CID
       if (
@@ -190,7 +222,7 @@ sub html4attachments {
             &&
               (
                 $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig
-                || $html =~ s#(background|src)\s*=\s*"[^\s\<\>"]{0,256}?/$filename"#$1="$link"#sig
+                || $html =~ s#(background|src)\s*=\s*['"][^\s\<\>"']{0,256}?/$filename['"]#$1="$link"#sig
               )
          ) {
          $r_attachments->[$i]{referencecount}++;
@@ -216,10 +248,10 @@ sub html4attfiles {
       $r_attfiles->[$i]{referencecount} = 0;
 
       # replace all the content-id (cid:) occurences
-      $r_attfiles->[$i]{referencecount}++ if ($cid ne '' && $html =~ s#="*(?:cid:)+\Q$cid\E"*#="$link"#sig);
+      $r_attfiles->[$i]{referencecount}++ if ($cid ne '' && $html =~ s#=['"]*(?:cid:)+\Q$cid\E['"]*#="$link"#sig);
 
       # replace all the content-location occurences
-      $r_attfiles->[$i]{referencecount}++ if ($loc ne '' && $html =~ s#=(?:cid:|")*\Q$loc\E"*#="$link"#sig);
+      $r_attfiles->[$i]{referencecount}++ if ($loc ne '' && $html =~ s#=(?:cid:|['"])*\Q$loc\E['"]*#="$link"#sig);
 
       # ugly hack for strange CID
       if (
@@ -228,7 +260,7 @@ sub html4attfiles {
             &&
               (
                 $html =~ s#CID:\{[\d\w\-]+\}/$filename#$link#sig
-                || $html =~ s#(background|src)\s*=\s*"[^\s\<\>"]{0,256}?/$filename"#$1="$link"#sig
+                || $html =~ s#(background|src)\s*=\s*['"][^\s\<\>"']{0,256}?/$filename['"]#$1="$link"#sig
               )
          ) {
          $r_attfiles->[$i]{referencecount}++;
@@ -243,7 +275,7 @@ sub html4attfiles_link2cid {
    # back to their cid or loc equivelents. This is the reverse operation
    # of html4attfiles() and is used for message sending
    my ($html, $r_attfiles, $scripturl) = @_;
-   $html =~ s#(src|background|href)\s*=\s*("?\Q$scripturl\E/?[^\s<>]*[\w/"])([\b|\n| ]*)#_link2cid($1,$2,$3, $r_attfiles)#egis;
+   $html =~ s#(src|background|href)\s*=\s*(['"]?\Q$scripturl\E/?[^\s<>]*[\w/"'])([\b|\n| ]*)#_link2cid($1,$2,$3, $r_attfiles)#egis;
    return($html);
 }
 
@@ -279,7 +311,7 @@ sub html4mailto {
    # as a separated line
    my ($html, $ow_sendurl) = @_;
 
-   $html =~ s/(=\s*"?)mailto:\s*([^"'>]*?)(["'>])/_mailtoparm($1,$2,$ow_sendurl,$3)/egis;
+   $html =~ s/(=\s*"'?)mailto:\s*([^"'>]*?)(["'>])/_mailtoparm($1,$2,$ow_sendurl,$3)/egis;
 
    return $html;
 }
@@ -327,7 +359,7 @@ sub _htmlclean {
    $html =~ s#</style>#\nstyle end -->\n#gis;
    $html =~ s#<[^<>]*?stylesheet[^<>]*?>##gis;
    $html =~ s#(<div[^<>]*?)position\s*:\s*absolute\s*;([^<>]*?>)#$1$2#gis;
-   $html =~ s#(style\s*=\s*"?[^"'>]*?)position\s*:\s*absolute\s*;([^"'>]*?"?)#$1$2#gis;
+   $html =~ s#(style\s*=\s*['"]?[^"'>]*?)position\s*:\s*absolute\s*;([^"'>]*?['"]?)#$1$2#gis;
 
    return $html;
 }

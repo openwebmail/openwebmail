@@ -2010,6 +2010,17 @@ link instead of the image picutre. This is useful for users with slow
 link of network.
 
 
+default_blockimages
+-----------------------------------------------------------------------
+if set this option to 'yes', all inline images of messages will be
+blocked. User may choose to unblock messages on a per-message basis. User
+may choose to unblock all messages via their preferences.
+
+Displaying images from remote servers by default allows the sender to
+track if and when the message was read. This setting helps protect user
+privacy.
+
+
 default_readwithmsgcharset
 -----------------------------------------------------------------------
 If this option is set to 'yes', openwebmail will display message with

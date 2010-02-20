@@ -850,6 +850,8 @@ sub editprefs {
                       showhtmlastextchecked             => $prefs{showhtmlastext},
                       disableshowimgaslink              => defined $config_raw{DEFAULT_showimgaslink}?1:0,
                       showimgaslinkchecked              => $prefs{showimgaslink},
+                      disableblockimages                => defined $config_raw{DEFAULT_blockimages}?1:0,
+                      blockimageschecked                => $prefs{blockimages},
                       disabledisablejs                  => defined $config_raw{DEFAULT_disablejs}?1:0,
                       disablejschecked                  => $prefs{disablejs},
                       disabledisableembcode             => defined $config_raw{DEFAULT_disableembcode}?1:0,

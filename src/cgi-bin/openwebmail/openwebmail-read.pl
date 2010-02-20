@@ -164,6 +164,7 @@ sub readmessage {
    my $printfriendly  = param('printfriendly') || '';                    # yes, null
    my $convfrom       = param('convfrom') || '';                         # string (none, en_US.ISO8859-1, etc)
    my $showhtmlastext = defined param('showhtmlastext') ? param('showhtmlastext') : $prefs{showhtmlastext}; # boolean flag
+   my $blockimages    = defined param('blockimages') ? param('blockimages') : $prefs{blockimages};          # boolean flag
 
    my $orig_inbox_newmessages = 0;
    my $now_inbox_newmessages  = 0;
@@ -546,6 +547,7 @@ sub readmessage {
 
    my $showhtmltexttoggle  = 0;
    my $nontext_attachments = 0;
+   my $blockimagestoggle   = 0;
 
    # process each message for display
    for (my $i = 0; $i < scalar @{$messagesloop}; $i++) {
@@ -568,14 +570,15 @@ sub readmessage {
       $messagesloop->[$i]{use_texticon}          = ($prefs{iconset} =~ m/^Text\./?1:0),
       $messagesloop->[$i]{use_fixedfont}         = $prefs{usefixedfont},
       $messagesloop->[$i]{iconset}               = $prefs{iconset},
+
       # non-standard
       $messagesloop->[$i]{enable_userfilter}     = $config{enable_userfilter};
       $messagesloop->[$i]{enable_addressbook}    = $config{enable_addressbook};
       $messagesloop->[$i]{is_writeable_abook}    = $is_writeable_abook;
       $messagesloop->[$i]{enable_webdisk}        = $config{enable_webdisk};
-      $messagesloop->[$i]{is_writeable_webdisk}  = $config{webdisk_readonly}?0:1,
-      $messagesloop->[$i]{simpleheaders}         = $headers eq 'simple'?1:0,
-      $messagesloop->[$i]{simpleattachments}     = $attmode eq 'simple'?1:0,
+      $messagesloop->[$i]{is_writeable_webdisk}  = $config{webdisk_readonly} ? 0 : 1,
+      $messagesloop->[$i]{simpleheaders}         = $headers eq 'simple' ? 1 : 0,
+      $messagesloop->[$i]{simpleattachments}     = $attmode eq 'simple' ? 1 : 0,
       $messagesloop->[$i]{messageid}             = $messageid,
       $messagesloop->[$i]{convfrom}              = $convfrom,
       $messagesloop->[$i]{headers}               = $headers,
@@ -654,12 +657,14 @@ sub readmessage {
             $messagesloop->[$i]{body} =~ s#<a href=#<a class="messagebody" href=#ig;
          } elsif ($subtype eq 'html') {
             # modify html for safe display
+            my $safelink = "$config{ow_htmlurl}/images/backgrounds/Transparent.gif";
             $messagesloop->[$i]{body} = ow::htmlrender::html4nobase($messagesloop->[$i]{body});
             $messagesloop->[$i]{body} = ow::htmlrender::html4noframe($messagesloop->[$i]{body});
             $messagesloop->[$i]{body} = ow::htmlrender::html4link($messagesloop->[$i]{body});
             $messagesloop->[$i]{body} = ow::htmlrender::html4disablejs($messagesloop->[$i]{body}) if $prefs{disablejs};
             $messagesloop->[$i]{body} = ow::htmlrender::html4disableembcode($messagesloop->[$i]{body}) if $prefs{disableembcode};
-            $messagesloop->[$i]{body} = ow::htmlrender::html4disableemblink($messagesloop->[$i]{body}, $prefs{disableemblink}, "$config{ow_htmlurl}/images/backgrounds/Transparent.gif");
+            $messagesloop->[$i]{body} = ow::htmlrender::html4disableemblink($messagesloop->[$i]{body}, $prefs{disableemblink}, $safelink);
+            $messagesloop->[$i]{body} = ow::htmlrender::html4blockimages($messagesloop->[$i]{body}, $safelink, \$blockimagestoggle) if $blockimages;
             $messagesloop->[$i]{body} = ow::htmlrender::html4mailto($messagesloop->[$i]{body}, "$config{ow_cgiurl}/openwebmail-send.pl?action=compose&amp;compose_caller=readmessage&amp;message_id=" . ow::tool::escapeURL($messageid) . "&amp;sessionid=" . ow::tool::escapeURL($thissession) . "&amp;folder=" . ow::tool::escapeURL($folder) . "&amp;sort=" . ow::tool::escapeURL($sort) . "&amp;msgdatetype=" . ow::tool::escapeURL($msgdatetype) . "&amp;page=" . ow::tool::escapeURL($page) . "&amp;longpage=" . ow::tool::escapeURL($longpage) . "&amp;searchtype=" . ow::tool::escapeURL($searchtype) . "&amp;keyword=" . ow::tool::escapeURL($keyword));
          }
          # convert html message into a table to safely display inside our interface
@@ -688,6 +693,7 @@ sub readmessage {
          $messagesloop->[$i]{body} =~ s#^(&gt;.*<br>)$#<span class="quotedtext">$1</span>#img;
          $messagesloop->[$i]{body} =~ s#<a href=#<a class="$class" href=#ig;
       }
+
 
 
       # ====================================================================
@@ -809,6 +815,7 @@ sub readmessage {
                   ${$messagesloop->[$i]{attachment}[$n]{r_content}} =~ s#<a href=#<a class="messagebody" href=#ig;
                } else {
                   # modify html for safe display
+                  my $safelink = "$config{ow_htmlurl}/images/backgrounds/Transparent.gif";
                   ${$messagesloop->[$i]{attachment}[$n]{r_content}} =
                      ow::htmlrender::html4nobase(${$messagesloop->[$i]{attachment}[$n]{r_content}});
                   ${$messagesloop->[$i]{attachment}[$n]{r_content}} =
@@ -820,7 +827,9 @@ sub readmessage {
                   ${$messagesloop->[$i]{attachment}[$n]{r_content}} =
                      ow::htmlrender::html4disableembcode(${$messagesloop->[$i]{attachment}[$n]{r_content}}) if $prefs{disableembcode};
                   ${$messagesloop->[$i]{attachment}[$n]{r_content}} =
-                     ow::htmlrender::html4disableemblink(${$messagesloop->[$i]{attachment}[$n]{r_content}}, $prefs{disableemblink}, "$config{ow_htmlurl}/images/backgrounds/Transparent.gif");
+                     ow::htmlrender::html4disableemblink(${$messagesloop->[$i]{attachment}[$n]{r_content}}, $prefs{disableemblink}, $safelink);
+                  ${$messagesloop->[$i]{attachment}[$n]{r_content}} =
+                     ow::htmlrender::html4blockimages(${$messagesloop->[$i]{attachment}[$n]{r_content}}, $safelink, \$blockimagestoggle) if $blockimages;
 
                   # this subroutine detects cid: and loc: links in the html. It then finds the attachment that matches the
                   # cid: or loc: and increments its referencecount so that we don't display that attachment separately. The
@@ -949,10 +958,12 @@ sub readmessage {
             $body = ow::mime::decode_content($body, $msg{'content-transfer-encoding'});
 
             if ($msg{'content-type'} =~ m#^text/html#i) { # convert into html table
+               my $safelink = "$config{ow_htmlurl}/images/backgrounds/Transparent.gif";
                $body = ow::htmlrender::html4nobase($body);
                $body = ow::htmlrender::html4disablejs($body) if $prefs{disablejs};
                $body = ow::htmlrender::html4disableembcode($body) if $prefs{disableembcode};
-               $body = ow::htmlrender::html4disableemblink($body, $prefs{disableemblink}, "$config{ow_htmlurl}/images/backgrounds/Transparent.gif");
+               $body = ow::htmlrender::html4disableemblink($body, $prefs{disableemblink}, $safelink);
+               $body = ow::htmlrender::html4blockimages($body, $safelink, \$blockimagestoggle) if $blockimages;
                $body = ow::htmlrender::html2table($body);
             } else {
                $body = ow::htmltext::text2html($body);
@@ -961,6 +972,7 @@ sub readmessage {
 
             ($header, $body) = iconv($attcharset, $displaycharset, $header, $body);
 
+            # TODO: get this html out of here
             # header lang_text replacement should be done after iconv
             $header =~ s#Date: #<span class="messageheaderproperty">$lang_text{date}:</span> #i;
             $header =~ s#From: #<span class="messageheaderproperty">$lang_text{from}:</span> #i;
@@ -1038,9 +1050,13 @@ sub readmessage {
                $messagesloop->[$i]{attachment}[$n]{'content-description'} .= ", $orig_description";
             }
          }
+
+         $messagesloop->[$i]{attachment}[$n]{blockimages}       = $blockimages;
+         $messagesloop->[$i]{attachment}[$n]{blockimagestoggle} = $blockimagestoggle;
+         $messagesloop->[$i]{attachment}[$n]{showhtmlastext}    = $showhtmlastext;
       }
 
-      # if this is unread message, confirm to transmit read receipt if requested
+      # if this is an unread message, confirm to transmit read receipt if requested
       if (defined $messagesloop->[$i]{status} && defined $messagesloop->[$i]{'disposition-notification-to'}) {
          if ($messagesloop->[$i]{status} !~ m#R#i && $messagesloop->[$i]{'disposition-notification-to'} ne '') {
             if ($prefs{sendreceipt} ne 'no') {
@@ -1055,6 +1071,10 @@ sub readmessage {
          $orig_inbox_newmessages-- if ($folder eq 'INBOX' && $orig_inbox_newmessages > 0);
          $newmessages-- if ($newmessages > 0);
       }
+
+      $messagesloop->[$i]{blockimages}       = $blockimages;
+      $messagesloop->[$i]{blockimagestoggle} = $blockimagestoggle;
+      $messagesloop->[$i]{showhtmlastext}    = $showhtmlastext;
    }
 
    # show unread inbox messages count in titlebar
@@ -1129,6 +1149,10 @@ sub readmessage {
                       headers                 => $headers,
                       attmode                 => $attmode,
                       showhtmlastext          => $showhtmlastext,
+                      showhtmltexttoggle      => $showhtmltexttoggle,
+                      blockimages             => $blockimages,
+                      blockimagestoggle       => $blockimagestoggle,
+                      has_nontext_attachments => $nontext_attachments > 1 ? 1 : 0,
                       enable_addressbook      => $config{enable_addressbook},
                       enable_calendar         => $config{enable_calendar},
                       calendar_defaultview    => $prefs{calendar_defaultview},
@@ -1165,8 +1189,6 @@ sub readmessage {
                                                  ],
                       messagesloop            => $messagesloop,
                       enable_userfilter       => $config{enable_userfilter},
-                      showhtmltexttoggle      => $showhtmltexttoggle,
-                      has_nontext_attachments => $nontext_attachments > 1 ? 1 : 0,
                       newmailsound            => $now_inbox_newmessages > $orig_inbox_newmessages &&
                                                  -f "$config{ow_htmldir}/sounds/$prefs{newmailsound}" ? $prefs{newmailsound} : 0,
                       popup_quotahitdelmail   => $quotahit_deltype eq 'quotahit_delmail' ? 1 : 0,
