@@ -827,12 +827,10 @@ sub get_template {
 
    $locale = $locale || $prefs{locale} || $config{default_locale};
 
-   my $langfile   = "$config{ow_templatesdir}/$locale/$templatename";
-   my $commonfile = "$config{ow_templatesdir}/COMMON/$templatename";
+   my $langfile = "$config{ow_templatesdir}/$locale/$templatename";
 
    return (
-            -f $langfile   ? $langfile   :
-            -f $commonfile ? $commonfile :
+            -f $langfile ? $langfile :
             openwebmailerror(__FILE__, __LINE__, "$locale $templatename $lang_err{doesnt_exist}")
           );
 }

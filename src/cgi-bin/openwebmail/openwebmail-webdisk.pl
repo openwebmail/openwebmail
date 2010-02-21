@@ -2203,7 +2203,7 @@ sub showdir {
                       cantargz            => ($config{'webdisk_allow_tar'} && $config{'webdisk_allow_gzip'}),
                       cantar              => $config{'webdisk_allow_tar'},
                       canthumb            => $config{'webdisk_allow_thumbnail'},
-                      quotadellimit       => $quotadellimit,
+                      popup_quotadellimit => $quotadellimit,
                       charset             => $prefs{'charset'},
                       msg                 => $msg,
 

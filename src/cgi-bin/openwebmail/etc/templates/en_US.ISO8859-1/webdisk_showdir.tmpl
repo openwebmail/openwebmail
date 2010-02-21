@@ -269,139 +269,128 @@ Perm
   </td>
 </tr>
 </table>
+
 <br>
+
 <table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
 <tr>
   <td class="columnheader">Messages</td>
-
 </tr>
 <tr>
-  <td class="menubar"><textarea name="msg"  rows="3" cols="78" wrap="hard"><tmpl_var msg escape="html"></textarea></td>
+  <td class="menubar"><textarea name="msg" rows="3" cols="78" wrap="hard"><tmpl_var msg escape="html"></textarea></td>
 </tr>
-<div><input type="hidden" name=".cgifields" value="showhidden"  /><input type="hidden" name=".cgifields" value="singlepage"  /><input type="hidden" name=".cgifields" value="showthumbnail"  /><input type="hidden" name=".cgifields" value="allbox"  /></div>
 </table>
-</form>
-<tmpl_if quotadellimit>
-<script language="JavaScript">
-<!--
-   function showmsg (charset, title, msg, button, name, width, height, seconds) {
-      var hWnd = window.open("", name,"width="+width+",height="+height+",resizable=no,scrollbars=no");
-      hWnd.document.write('<html><head><meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset='+charset+'">\n');
-      hWnd.document.write('<title>'+title+'</title></head><body bgcolor="#ffffff">\n');
-      hWnd.document.write('<center><table width="95%" cellspacing="0" cellpadding="0" border="0"><tr><td>\n');
-      hWnd.document.write(msg);
-      hWnd.document.write('</td></tr></table><br>\n');
-      hWnd.document.write('<form name="showmsg"><input type="button" NAME="ok" value="'+button+'" onclick="window.close();"/></form>\n');
-      hWnd.document.write('<script language="JavaScript">\n');
-      hWnd.document.write('setTimeout("close()", '+seconds+'*1000);\n');
-      hWnd.document.write('<\/script>\n');
-      hWnd.document.write('</body></html>\n');
-      hWnd.focus();
-   }
-//-->
-</script>
-<script language="JavaScript">
-<!--
-showmsg('<tmpl_var charset escape="js">', 'QUOTA HIT', '<font size="-1" color="#cc0000">Warning, since the quota limit(<tmpl_var quotadellimit escape="js">kB) were hit, some files in the webdisk have been removed automatcially</font>', 'Close', '_quotahit_del', 400, 110, 60);
-//-->
-</script>
-</tmpl_if>
-<script language="javascript">
-<!--
-   function CheckAll(setbgcolor) {
-      for (var i=0;i<document.dirform.elements.length;i++) {
-         var e = document.dirform.elements[i];
-         if (e.type == 'checkbox' &&
-             e.name != 'showthumbnail' &&
-             e.name != 'showhidden' &&
-             e.name != 'singlepage' &&
-             e.name != 'allbox') {
-            e.checked = document.dirform.allbox.checked;
-            if (!document.layers && setbgcolor) {
-               var tr = document.getElementById('tr_'+e.id);
-               if (e.checked) {
-                  tr.style.backgroundColor="#DDDDDD";
-               } else {
-                  tr.style.backgroundColor="#EEEEEE";
-               }
-            }
-         }
-      }
-   }
-   function anyfileselected() {
-      for (var i=0;i<document.dirform.elements.length;i++) {
-         var e = document.dirform.elements[i];
-         if (e.type == 'checkbox' &&
-             e.name != 'showthumbnail' &&
-             e.name != 'showhidden' &&
-             e.name != 'singlepage' &&
-             e.name != 'allbox' &&
-             e.checked == 1 ) {
-            return true;
-         }
-      }
-      alert("There is no directory or file selected.");
-      return false;
-   }
-   function selectedstr() {
-      var str = '';
-      for (var i=0;i<document.dirform.elements.length;i++) {
-         var e = document.dirform.elements[i];
-         if (e.type == 'checkbox' &&
-             e.name != 'showthumbnail' &&
-             e.name != 'showhidden' &&
-             e.name != 'singlepage' &&
-             e.name != 'allbox' &&
-             e.checked == 1 ) {
-            var p = document.getElementById('p_'+e.id);
-            if (str == '') {
-               str=p.value;
-            } else {
-               str=str+', '+p.value;
-            }
-         }
-      }
-      return(str);
-   }
-   function destnamefilled(target) {
-      if (document.dirform.destname.value == '') {
-         alert('Please fill  < '+target+' >  first.');
-         return false;
-      } else {
-         return true;
-      }
-   }
-   function uploadfilled() {
-      if (document.dirform.upload.value == '') {
-         alert("Please choose the file to upload first.");
-         return false;
-      } else {
-         document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
-         return true;
-      }
-   }
-   function opconfirm(op, conf) {
-      if (conf) {
-         return(confirm('Are you sure you want to '+op+' the selected items? ( '+selectedstr()+' )'));
-      } else {
-         return true;
-      }
-   }
-   function chmodinput() {
-      var oldperm=document.dirform.permission.value;
-      var newperm;
-      newperm=prompt('Please enter the permission for selected items ( '+selectedstr()+' )\n\n'+
-                     'Permission examples:\n'+
-                     '0755 for shared directories , 0644 for shared files\n'+
-                     '0700 for private directories , 0600 for private files', oldperm);
-      if ( newperm==oldperm || newperm==null ) {
-         return false;
-      } else {
-         document.dirform.permission.value=newperm;
-         return true;
-      }
-   }
-//-->
-</script>
-<tmpl_var footer_template escape="none">
 
+</form>
+
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_message.js"></script>
+
+<script type="text/javascript">
+<!--
+function CheckAll(setbgcolor) {
+   for (var i=0;i<document.dirform.elements.length;i++) {
+      var e = document.dirform.elements[i];
+      if (e.type == 'checkbox' &&
+          e.name != 'showthumbnail' &&
+          e.name != 'showhidden' &&
+          e.name != 'singlepage' &&
+          e.name != 'allbox') {
+         e.checked = document.dirform.allbox.checked;
+         if (!document.layers && setbgcolor) {
+            var tr = document.getElementById('tr_'+e.id);
+            if (e.checked) {
+               tr.style.backgroundColor="#DDDDDD";
+            } else {
+               tr.style.backgroundColor="#EEEEEE";
+            }
+         }
+      }
+   }
+}
+
+function anyfileselected() {
+   for (var i=0;i<document.dirform.elements.length;i++) {
+      var e = document.dirform.elements[i];
+      if (e.type == 'checkbox' &&
+          e.name != 'showthumbnail' &&
+          e.name != 'showhidden' &&
+          e.name != 'singlepage' &&
+          e.name != 'allbox' &&
+          e.checked == 1 ) {
+         return true;
+      }
+   }
+   alert("There is no directory or file selected.");
+   return false;
+}
+
+function selectedstr() {
+   var str = '';
+   for (var i=0;i<document.dirform.elements.length;i++) {
+      var e = document.dirform.elements[i];
+      if (e.type == 'checkbox' &&
+          e.name != 'showthumbnail' &&
+          e.name != 'showhidden' &&
+          e.name != 'singlepage' &&
+          e.name != 'allbox' &&
+          e.checked == 1 ) {
+         var p = document.getElementById('p_'+e.id);
+         if (str == '') {
+            str=p.value;
+         } else {
+            str=str+', '+p.value;
+         }
+      }
+   }
+   return(str);
+}
+
+function destnamefilled(target) {
+   if (document.dirform.destname.value == '') {
+      alert('Please fill  < '+target+' >  first.');
+      return false;
+   } else {
+      return true;
+   }
+}
+
+function uploadfilled() {
+   if (document.dirform.upload.value == '') {
+      alert("Please choose the file to upload first.");
+      return false;
+   } else {
+      document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
+      return true;
+   }
+}
+
+function opconfirm(op, conf) {
+   if (conf) {
+      return(confirm('Are you sure you want to '+op+' the selected items? ( '+selectedstr()+' )'));
+   } else {
+      return true;
+   }
+}
+
+function chmodinput() {
+   var oldperm=document.dirform.permission.value;
+   var newperm;
+   newperm=prompt('Please enter the permission for selected items ( '+selectedstr()+' )\n\n'+
+                  'Permission examples:\n'+
+                  '0755 for shared directories , 0644 for shared files\n'+
+                  '0700 for private directories , 0600 for private files', oldperm);
+   if ( newperm==oldperm || newperm==null ) {
+      return false;
+   } else {
+      document.dirform.permission.value=newperm;
+      return true;
+   }
+}
+
+<tmpl_if popup_quotadellimit>
+popup_message('<tmpl_var charset escape="js">', 'QUOTA HIT', '<span class="warning">Warning: since the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit, some files in the webdisk have been automatically removed.</span>', 'close', '_quotahit_del', 400, 100, 60);
+</tmpl_if>
+//-->
+</script>
+
+<tmpl_var footer_template escape="none">
