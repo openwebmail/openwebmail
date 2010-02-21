@@ -23,7 +23,14 @@
 
 <table cellpadding="1" cellspacing="1" border="0" align="center" width="95%">
 <tr>
-  <td colspan="2" class="titlebar">Compose Message</td>
+  <td colspan="2">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td nowrap class="titlebar" width="50%">Compose Message</td>
+      <td nowrap class="titlebar" width="50%" align="right"><tmpl_if attachments_limit>Attachment Space Available: <tmpl_var attspaceavailable_kb escape="html"> Kb</tmpl_if>&nbsp;</td>
+    </tr>
+    </table>
+  </td>
 </tr>
 <tr>
   <td colspan="2" class="menubar">
@@ -152,7 +159,7 @@
         </table>
       </td>
       <td align="right" nowrap>
-        <em><tmpl_var attfiles_totalsize_kb escape="html"> Kb<tmpl_if attachments_limit> of <tmpl_var attachments_limit escape="html"> Kb</tmpl_if></em>
+        <em><tmpl_var attfiles_totalsize_kb escape="html"> Kb<tmpl_if attachments_limit> of <tmpl_var attachments_limit escape="html"> Kb</tmpl_if> Total</em>
       </td>
     </tr>
     </table>
@@ -593,6 +600,10 @@ function sessionlastsecond() {
 
 <tmpl_if popup_draftsaved>
 popup_message('<tmpl_var charset escape="js">', 'Draft Saved', 'Draft <tmpl_var subject escape="js"> has been saved successfully', 'close', '_savedraft', 400, 100, 6);
+</tmpl_if>
+
+<tmpl_if popup_attlimitreached>
+popup_message('<tmpl_var charset escape="js">', 'Attachment Limit Reached', 'Add attachment failed.<br>The attachment limit of <tmpl_var attachments_limit escape="js"> Kb was reached.', 'close', '_attlimit', 400, 100, 120);
 </tmpl_if>
 //-->
 </script>

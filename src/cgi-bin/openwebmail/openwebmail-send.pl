@@ -1284,6 +1284,7 @@ sub compose {
                                                  ],
                       attfiles_totalsize_kb   => int($attfiles_totalsize/1024),
                       attachments_limit       => $config{attlimit},
+                      attspaceavailable_kb    => $config{attlimit} - int($attfiles_totalsize/1024),
                       enable_webdisk          => $config{enable_webdisk},
                       enable_urlattach        => $config{enable_urlattach} && ow::tool::findbin('wget') ? 1 : 0,
                       enable_backupsent       => $config{enable_backupsent},
@@ -1317,6 +1318,7 @@ sub compose {
                                                  && $ow::lang::RTL{$prefs{locale}} ? 'rtl' : 'ltr',
                       popup_draftsaved        => $savedraftbutton && $session_noupdate == 0 ? 1 : 0,
                       savedraftbeforetimeout  => $savedraftbutton && $session_noupdate == 1 ? 0 : 1,
+                      popup_attlimitreached   => defined param('attlimitreached') ? 1 : 0,
                       selectpopupwidth        => $prefs{abook_width}  eq 'max' ? 0 : $prefs{abook_width},
                       selectpopupheight       => $prefs{abook_height} eq 'max' ? 0 : $prefs{abook_height},
                       abook_defaultkeyword    => $prefs{abook_defaultfilter} ? $prefs{abook_defaultkeyword} : '',
@@ -1429,10 +1431,10 @@ sub add_attachment {
 
    my $composecharset   = param('composecharset') || $prefs{charset};
    my $convfrom         = param('convfrom') || '';
-   my $addbutton        = param('addbutton') || ''; # add attachment button clicked
+   my $addbutton        = param('addbutton') || '';        # add attachment button clicked
    my $webdiskselection = param('webdiskselection') || ''; # attachment file selected from webdisk
-   my $urlselection     = param('urlselection') || ''; # attachment is a url we need to retrieve
-   my $attachment       = param('attachment') || ''; # uploaded attachment filename
+   my $urlselection     = param('urlselection') || '';     # attachment is a url we need to retrieve
+   my $attachment       = param('attachment') || '';       # uploaded attachment filename
 
    $composecharset = $prefs{charset} unless ow::lang::is_charset_supported($composecharset) || exists $charset_convlist{$composecharset};
 
@@ -1532,7 +1534,7 @@ sub add_attachment {
    # in our session directory for retrieval during message sending operations
    if ($config{attlimit} && (($attfiles_totalsize + (-s $attachment)) > ($config{attlimit} * 1024))) {
       close($attachment);
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{att_overlimit} $config{attlimit} $lang_sizes{kb}!");
+      param(-name => 'attlimitreached', -value => 1);
    } else {
       # store the attachment base64 encoded on disk until we're ready to send this message
       my $attachment_serial = time();
@@ -1828,6 +1830,7 @@ sub sendmessage {
 
    # add attachment if user forgot to press add
    my ($attachment_filename, $attachment_contenttype) = add_attachment($attachments_uid);
+   return compose() if defined param('attlimitreached');
 
    # get all of the attachments for this message
    my ($attfiles_totalsize, $r_attfiles) = get_attachments($attachments_uid);
