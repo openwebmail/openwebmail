@@ -750,7 +750,7 @@ sub listmessages {
 }
 
 sub get_upcomingevents {
-   # returns up to 6 upcoming events from multiple calendar sources
+   # returns up to 5 upcoming events from multiple calendar sources
    my $reminderdays = shift;
 
    return [] unless ($config{enable_calendar} && $reminderdays > 0);
@@ -846,7 +846,8 @@ sub get_upcomingevents {
                                            itemday          => $day,
                                         }
                    );
-               last if scalar @{$upcomingevents} > 5;
+
+               last if scalar @{$upcomingevents} == 5;
             }
          }
       }
