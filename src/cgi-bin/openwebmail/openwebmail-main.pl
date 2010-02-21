@@ -406,6 +406,9 @@ sub listmessages {
       $destinationdefault = 'mail-trash' if $folder eq $destinationdefault;
    }
 
+   # automatically switch search in sent-mail for convenience
+   $searchtype = 'to' if !defined param('searchtype') && !$keyword && $searchtype eq 'from' && $folder eq 'sent-mail';
+
    # get all the messageids, already sorted
    my ($totalsize, $newmessages, $r_messageids, $r_messagedepths) = getinfomessageids($user, $folder, $sort, $msgdatetype, $searchtype, $keyword);
 
@@ -666,7 +669,7 @@ sub listmessages {
                                                     map { {
                                                              option   => $_,
                                                              label    => $lang_text{$_},
-                                                             selected => $_ eq $searchtype?1:0
+                                                             selected => $_ eq $searchtype ? 1 : 0
                                                         } } qw(from to subject date attfilename header textcontent all)
                                                  ],
                       pageselectloop          => [
