@@ -326,7 +326,7 @@
   </tmpl_loop>
 
   <tmpl_loop note>
-  <td <tmpl_unless use_lightbar>class="<tmpl_if odd>rowdark<tmpl_else>rowlight</tmpl_if>"</tmpl_unless>><a href="javascript:void(0);" onclick="event.stopPropagation ? event.stopPropagation() : event.cancelBubble=true; popupNote(this,'popup_note',150,-25,'<tmpl_var VALUE escape="js">');" title="read full note"><tmpl_var shortnote escape="none"></a></td>
+  <td <tmpl_unless use_lightbar>class="<tmpl_if odd>rowdark<tmpl_else>rowlight</tmpl_if>"</tmpl_unless>><a href="javascript:void(0);" onclick="event.stopPropagation ? event.stopPropagation() : event.cancelBubble=true; popupNote(this,'popup_note',<tmpl_var noteoffset escape="js">,-25,'<tmpl_var VALUE escape="js">');" title="read full note"><tmpl_var shortnote escape="none"></a></td>
   </tmpl_loop>
 
   </tmpl_unless>

@@ -726,6 +726,9 @@ sub addrlistview {
                   $FIELD->{shortnote}   = substr($FIELD->{VALUE}, 0, 15) if length $FIELD->{shortnote} > 30 && length $FIELD->{VALUE} > 15;
                   $FIELD->{shortnote}  .= ' ...' if $FIELD->{shortnote} ne $FIELD->{VALUE};
 
+                  # calculate where the popup should be
+                  $FIELD->{noteoffset} = $col + 1 > (scalar @fieldorder / 2) + .5 ? -350 : 150;
+
                   # escape for html and linkify text
                   $FIELD->{VALUE} = ow::htmltext::text2html($FIELD->{VALUE});
 
