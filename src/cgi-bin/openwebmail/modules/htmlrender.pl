@@ -99,7 +99,7 @@ sub html4noframe {
 
 sub _frame2iframe {
    my $frame = shift;
-   return '' if ($frame !~ m#src=#i);
+   return '' if ($frame !~ m#src\s*=\s*#i); # remove remote frames
    $frame =~ s#<frame #<iframe width="100%" height="250" #is;
    $frame .= '</iframe>';
    return $frame;
@@ -123,6 +123,12 @@ sub html4disablejs {
    # disable inline javascript
    $html =~ s#<([^<]*?[='"\s]+)javascript:#<$1disable_javascript:#isg;
 
+   # disable inline css expression javascript
+   # IE 7 and earlier and IE 8 in quirks mode only
+   # like: background-color:expression(alert('hacked') && true ? "#000000" : "#ffffff")
+   # like: height:     expression(document.body.offsetHeight - 20 + "px");
+   $html =~ s#:\s*expression\(#:expression(return void(0);#isg;
+
    return $html;
 }
 
@@ -143,7 +149,10 @@ sub html4disableemblink {
    # to avoid user email addresses being confirmed by spammer through embedded CGIs
    my ($html, $disableemblink, $blankimgurl) = @_;
    return $html if !defined $disableemblink || $disableemblink eq 'none';
-   $html =~ s#(src|background)\s*=\s*(['"]?https?://[\w\.\-]+?/?[^\s<>]*)([\b|\n| ]*)#_clean_emblink($1,$2,$3,$disableemblink,$blankimgurl)#egis;
+   $html =~ s#(src|background)\s*=\s*(["']?https?://[\w\.\-]+?/?[^\s<>]*)([\b|\n| ]*)#_clean_emblink($1,$2,$3,$disableemblink,$blankimgurl)#egis;
+
+   # disallow inline data sources
+   $html =~ s#(src)\s*=\s*(["']?data:[^\s<>]*)([\b|\n| ]*)#_clean_emblink($1,$2,$3,$disableemblink,$blankimgurl)#egis;
    return $html;
 }
 
@@ -153,10 +162,10 @@ sub _clean_emblink {
    if ($url !~ /\Q$ENV{HTTP_HOST}\E/is) { # non-local URL found
       $url =~ s/["']//g; # remove leading " or '
 
-      return(qq|$type="$blankimgurl" border="1" title="embedded CGI removed by OpenWebMail" alt="embedded CGI removed by OpenWebMail: $url" onclick="window.open('$url', '_extobj');"$end|)
+      return(qq|$type="$blankimgurl" border="1" title="embedded CGI removed by OWM" alt="embedded CGI removed by OWM: $url" onclick="window.open('$url', '_extobj');"$end|)
         if $disableemblink eq 'cgionly' && $url =~ m/\?/s;
 
-      return(qq|$type="$blankimgurl" border="1" title="embedded link removed by OpenWebMail" alt="embedded link removed by OpenWebMail: $url" onclick="window.open('$url', '_extobj');"$end|)
+      return(qq|$type="$blankimgurl" border="1" title="embedded link removed by OWM" alt="embedded link removed by OWM: $url" onclick="window.open('$url', '_extobj');"$end|)
         if $disableemblink eq 'all';
    }
 
@@ -175,7 +184,7 @@ sub html4blockimages {
    # like: src="http://example.com/youremail.jpg"
    $html =~ s#(src|background)\s*=\s*(['"]?https?://[\w\.\-]+?/?[^\s<>]*)([\b|\n| ]*)#_clean_imglink($1,$2,$3,$blankimgurl)#egis;
    # like: style=background-image:url("http://example.com/youremail.jpg")
-   $html =~ s#(background-image|content)\s*:\s*url\s*\((['"]?https?://[\w\.\-]+?/?[^\s\)]*)\)([\b|\n| ]*)#_clean_styleimglink($1,$2,$3,$blankimgurl)#egis;
+   $html =~ s#\s*url\s*\((['"]?https?://[\w\.\-]+?/?[^\s\)]*)\)([\b|\n| ]*)#_clean_styleimglink($1,$2,$blankimgurl)#egis;
 
    # if images blocked, turn on the switch to unblock them
    ${$r_blockimagestoggle}++ if $original_html ne $html;
@@ -186,12 +195,12 @@ sub html4blockimages {
 sub _clean_imglink {
    my ($type, $url, $end, $blankimgurl) = @_;
    $url =~ s/["']//g;
-   return(qq|$type="$blankimgurl" border="1" alt="inline image blocked by OpenWebMail: $url" $end|);
+   return(qq|$type="$blankimgurl" border="1" alt="inline image blocked by OWM: $url" $end|);
 }
 
 sub _clean_styleimglink {
-   my ($type, $url, $end, $blankimgurl) = @_;
-   return(qq|$type:url('$blankimgurl')$end|);
+   my ($url, $end, $blankimgurl) = @_;
+   return(qq|url('$blankimgurl')$end|);
 }
 
 sub html4attachments {
@@ -357,7 +366,8 @@ sub _htmlclean {
    $html =~ s#<!--.*?-->##gis;
    $html =~ s#<style[^<>]*?>#\n<!-- style begin\n#gis;
    $html =~ s#</style>#\nstyle end -->\n#gis;
-   $html =~ s#<[^<>]*?stylesheet[^<>]*?>##gis;
+   $html =~ s#(<[^<>]*?stylesheet[^<>]*?>)#<!-- stylesheet link removed by OWM: $1 -->#gis;
+   $html =~ s#(<[^<>]*?prefetch[^<>]*?>)#<!-- prefetch link removed by OWM: $1 -->#gis;
    $html =~ s#(<div[^<>]*?)position\s*:\s*absolute\s*;([^<>]*?>)#$1$2#gis;
    $html =~ s#(style\s*=\s*['"]?[^"'>]*?)position\s*:\s*absolute\s*;([^"'>]*?['"]?)#$1$2#gis;
 

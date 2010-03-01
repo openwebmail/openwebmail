@@ -1201,7 +1201,8 @@ sub readmessage {
                       footer_template         => get_footer($config{footer_template_file}),
                    );
 
-   httpprint([], [$template->output]);
+   # turn off dns pre-fetch to avoid link tracking
+   httpprint(['-X-DNS-Prefetch-Control' => 'off'], [$template->output]);
 }
 
 sub rebuildmessage {

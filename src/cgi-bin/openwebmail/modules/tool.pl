@@ -237,23 +237,21 @@ sub zh_dospath2fname {
 
 sub mktmpfile {
    my $fh= do { local *FH };
-   for (1..5) {
-      my $n = rand();
-      $n =~ s/^0.0*//;
-      $n = substr($n,0,8);
-      my $fname = untaint("/tmp/.ow.$_[0].$$-$n");
-      return($fh, $fname) if (sysopen($fh, $fname, O_RDWR|O_CREAT|O_EXCL));
-   }
-   return;
+   my $n = rand();
+   $n =~ s/^0.0*//;
+   $n = substr($n,0,8);
+   my $fname = untaint("/tmp/.ow.$_[0].$$-$n");
+   sysopen($fh, $fname, O_RDWR|O_CREAT|O_EXCL) || croak("Cannot open filehandle $fname ($!)");
+   return($fh, $fname);
 }
 
 sub mktmpdir {
-   for (1..5) {
-      my $n=rand(); $n=~s/^0.0*//; $n=substr($n,0,8);
-      my $dirname=untaint("/tmp/.ow.$_[0].$$-$n");
-      return($dirname) if (mkdir($dirname, 0700));
-   }
-   return;
+   my $n = rand();
+   $n =~ s/^0.0*//;
+   $n = substr($n,0,8);
+   my $dirname = untaint("/tmp/.ow.$_[0].$$-$n");
+   mkdir($dirname, 0700) || croak("Cannot make directory $dirname ($!)");
+   return($dirname);
 }
 
 # rename fname.ext   to fname.0.ext
@@ -262,8 +260,10 @@ sub mktmpdir {
 #        fname.8.ext to fname.9.ext
 # so fname.ext won't be overwritten by uploaded file if duplicated name
 sub rotatefilename {
-   my ($base, $ext)=($_[0], ''); ($base,$ext)=($1,$2) if ($_[0]=~/(.*)(\..*)/);
-   my (%from, %to); $to{0}=1;
+   my ($base, $ext) = ($_[0], '');
+   ($base,$ext) = ($1,$2) if ($_[0]=~/(.*)(\..*)/);
+   my (%from, %to);
+   $to{0}=1;
    for my $i (0..9) {
       $from{$i}=1 if (-f "$base.$i$ext");
       $to{$i+1}=1 if ($to{$i} && $from{$i});
