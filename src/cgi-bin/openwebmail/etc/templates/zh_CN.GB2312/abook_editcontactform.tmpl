@@ -64,6 +64,10 @@
     <a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=readmessage&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=simple&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to message reading<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to message reading" alt="back to message reading" border="0" align="absmiddle"></tmpl_if></a>
     </tmpl_if>
 
+    <tmpl_if is_caller_listmessages>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to message listing<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to message listing" alt="back to message listing" border="0" align="absmiddle"></tmpl_if></a>
+    </tmpl_if>
+
     <tmpl_if is_caller_ALL>
     <a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=simple&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;abookfolder=ALL&amp;abookpage=<tmpl_var abookpage escape="url">&amp;abooksort=<tmpl_var abooksort escape="url">&amp;abookkeyword=<tmpl_var abookkeyword escape="url">&amp;abooksearchtype=<tmpl_var abooksearchtype escape="url">&amp;abookcollapse=<tmpl_var abookcollapse escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to all addressbooks<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to all addressbooks" alt="back to all addressbooks" border="0" align="absmiddle"></tmpl_if></a>
     </tmpl_if>
@@ -1382,10 +1386,27 @@
 
 </form>
 
+<tmpl_if is_caller_listmessages>
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-main.pl" method="post" name="cancelform" id="cancelform">
+<input type="hidden" name="action" value="listmessages">
+</tmpl_if>
+
+<tmpl_if is_caller_readmessage>
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-read.pl" method="post" name="cancelform" id="cancelform">
+<input type="hidden" name="action" value="readmessage">
+</tmpl_if>
+
+<tmpl_if is_caller_ALL>
 <form action="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl" method="post" name="cancelform" id="cancelform">
 <input type="hidden" name="action" value="addrlistview">
-<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+</tmpl_if>
 
+<tmpl_if is_caller_abookfolder>
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl" method="post" name="cancelform" id="cancelform">
+<input type="hidden" name="action" value="addrlistview">
+</tmpl_if>
+
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
 <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
 <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
 <input type="hidden" name="page" value="<tmpl_var page escape="html">">

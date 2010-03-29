@@ -83,6 +83,7 @@ require "shares/pop3book.pl";
 require "shares/calbook.pl";
 require "shares/filterbook.pl";
 require "shares/mailfilter.pl";
+require "shares/adrbook.pl";
 
 # optional module
 ow::tool::has_module('IO/Socket/SSL.pm');
@@ -409,6 +410,27 @@ sub listmessages {
    # automatically switch search in sent-mail for convenience
    $searchtype = 'to' if !defined param('searchtype') && !$keyword && $searchtype eq 'from' && $folder eq 'sent-mail';
 
+   # load the contacts map of email addresses to xowmuids
+   # so we can provide quick links to contact information
+   my $contacts = {};
+
+   if ($config{enable_addressbook}) {
+      foreach my $abookfoldername (get_readable_abookfolders()) {
+         my $abookfile = abookfolder2file($abookfoldername);
+
+         # filter based on searchterms and prune based on only_return
+         my $thisbook = readadrbook($abookfile, undef, { 'X-OWM-UID' => 1, 'X-OWM-GROUP' => 1, EMAIL => 1 });
+
+         foreach my $xowmuid (keys %{$thisbook}) {
+            next if exists $thisbook->{$xowmuid}{'X-OWM-GROUP'};
+            next unless exists $thisbook->{$xowmuid}{EMAIL};
+            $contacts->{lc($_->{VALUE})} = $xowmuid for @{$thisbook->{$xowmuid}{EMAIL}};
+         }
+      }
+   }
+
+   my $userbrowsercharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{available_locales})))[6];
+
    # get all the messageids, already sorted
    my ($totalsize, $newmessages, $r_messageids, $r_messagedepths) = getinfomessageids($user, $folder, $sort, $msgdatetype, $searchtype, $keyword);
 
@@ -431,9 +453,6 @@ sub listmessages {
 
    # process the messages that we have already retrieved above with getinfomessageids
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
-
-   my $userbrowsercharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{available_locales})))[6];
-   my $r_abookemailhash   = get_abookemailhash();
 
    ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db " . f2u($folderdb));
@@ -464,7 +483,8 @@ sub listmessages {
       $timeintransit *= -1 if $timeintransit < 0;
 
       # from/to
-      my (@to_namelist, @to_addrlist);
+      my @to_namelist = ();
+      my @to_addrlist = ();
       foreach my $recipient (ow::tool::str2list($to)) {
          my ($name, $emailaddress) = ow::tool::email2nameaddr($recipient);
          next if !defined $name || !defined $emailaddress || $name =~ m/"/ || $emailaddress =~ m/"/; # eliminate incomplete addresses
@@ -480,12 +500,22 @@ sub listmessages {
 
       my $to_keywords = join('|',@to_addrlist); # for searching
 
-      my $tocontactinaddressbook = scalar grep { exists $r_abookemailhash->{lc($_)} } @to_addrlist;
+      my $to_xowmuid = (scalar @to_addrlist == 1 && exists $contacts->{lc($to_addrlist[0])}) ? $contacts->{lc($to_addrlist[0])} : 0;
 
       my ($from_name, $from_addr) = ow::tool::email2nameaddr($from);
       $from_addr =~ s/"//g;
 
-      my $fromcontactinaddressbook = exists $r_abookemailhash->{lc($from_addr)};
+      my $from_xowmuid = exists $contacts->{lc($from_addr)} ? $contacts->{lc($from_addr)} : 0;
+
+      my ($add_givenname, $add_familyname, $add_email) =
+        $sort =~ m#^(?:sender|sender_rev)$# ? (split(/\s+/, $from_name, 2), $from_addr) :
+        scalar @to_addrlist == 1
+        && (
+             $sort =~ m#^(?:recipient|recipient_rev)$#
+             || $folder =~ m#^(?:sent-mail|saved-drafts)$#
+             || $folder =~ m#^\Q$lang_folders{'sent-mail'}\E[\Q$prefs{categorizedfolders_fs}\E\s_-]#i
+           ) ? (split(/\s+/, $to_names, 2), $to_addrs) :
+        (split(/\s+/, $from_name, 2), $from_addr);
 
       # subject
       $subject = substr($subject, 0, 64) . "..." if length $subject > 67;
@@ -523,12 +553,24 @@ sub listmessages {
                                 from_name            => $from_name,
                                 from_address         => $from_addr,
                                 contactinaddressbook => $config{enable_addressbook}
-                                                        && ($sort =~ m#^(?:sender|sender_rev)$#        ? $fromcontactinaddressbook :
-                                                            $sort =~ m#^(?:recipient|recipient_rev)$#  ? $tocontactinaddressbook   :
-                                                            $folder =~ m#^(?:sent-mail|saved-drafts)$# ? $tocontactinaddressbook   :
-                                                            $folder =~ m#^\Q$lang_folders{'sent-mail'}\E[\Q$prefs{categorizedfolders_fs}\E\s_-]#i ?
-                                                            $tocontactinaddressbook :
-                                                            $fromcontactinaddressbook)?1:0,
+                                                        ?  $sort =~ m#^(?:sender|sender_rev)$#
+                                                           ? $from_xowmuid
+                                                           : $sort =~ m#^(?:recipient|recipient_rev)$#
+                                                             || $folder =~ m#^(?:sent-mail|saved-drafts)$#
+                                                             || $folder =~ m#^\Q$lang_folders{'sent-mail'}\E[\Q$prefs{categorizedfolders_fs}\E\s_-]#i
+                                                             ? $to_xowmuid
+                                                             : $from_xowmuid
+                                                        : '',
+                                hide_contactadd      => !$config{enable_addressbook}
+                                                        || scalar @to_addrlist != 1
+                                                           && (
+                                                                $sort =~ m#^(?:recipient|recipient_rev)$#
+                                                                || $folder =~ m#^(?:sent-mail|saved-drafts)$#
+                                                                || $folder =~ m#^\Q$lang_folders{'sent-mail'}\E[\Q$prefs{categorizedfolders_fs}\E\s_-]#i
+                                                              ) ? 1 : 0,
+                                add_givenname        => $add_givenname,
+                                add_familyname       => $add_familyname,
+                                add_email            => $add_email,
                                 subjecttext          => $subject,
                                 subjectindent        => '&nbsp;' x $messagedepth,
                                 subject_keyword      => $subject_keyword,
@@ -595,8 +637,10 @@ sub listmessages {
    my $template = HTML::Template->new(
                                         filename          => get_template("main_listview.tmpl"),
                                         filter            => $htmltemplatefilters,
-                                        die_on_bad_params => 1,
+                                        die_on_bad_params => 0,
                                         loop_context_vars => 0,
+                                        # TODO get rid of global_vars by explicitly declaring vars in loops
+                                        # this is slow and makes a big mess of the loop vars
                                         global_vars       => 1,
                                         cache             => 1,
                                      );

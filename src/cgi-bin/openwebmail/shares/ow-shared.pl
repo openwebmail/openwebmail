@@ -2369,10 +2369,11 @@ sub del_staledb {
 }
 ########## END DEL_STALEDB #######################################
 
-########## GET_ABOOKEMAILHASH ####################################
-# this routine gets the EMAIL attributes in abookfiles directly
-# to avoid the overhead of vcard parsing
 sub get_abookemailhash {
+   # TODO get rid of this. its still used inside advsearch, but we should be using xowmuids
+
+   # this routine gets the EMAIL attributes in abookfiles directly
+   # to avoid the overhead of vcard parsing
    my (%emails, @userabookfiles, @globalabookfiles);
 
    my $webaddrdir = dotpath('webaddr');
@@ -2401,7 +2402,75 @@ sub get_abookemailhash {
 
    return(\%emails);
 }
-########## END GET_ABOOKEMAILHASH ################################
+
+sub get_user_abookfolders {
+   my $webaddrdir = dotpath('webaddr');
+
+   opendir(WEBADDR, $webaddrdir) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $webaddrdir ($!)");
+
+   my @books = sort { $a cmp $b }
+               grep {
+                      m/^[^.]/
+                      && !m/^categories\.cache$/
+                      && !-f "$config{ow_addressbooksdir}/$_"
+                      && -r "$webaddrdir/$_"
+                    }
+               readdir(WEBADDR);
+
+   closedir(WEBADDR) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $webaddrdir ($!)");
+
+   return @books;
+}
+
+sub get_global_abookfolders {
+   opendir(WEBADDR, $config{ow_addressbooksdir}) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_addressbooksdir} ($!)");
+
+   my @books = sort { $a cmp $b }
+               grep {
+                      m/^[^.]/
+                      && (
+                           -r "$config{ow_addressbooksdir}/$_"
+                           || (m/^ldapcache$/ && $config{enable_ldap_abook})
+                         )
+                    }
+               readdir(WEBADDR);
+
+   closedir(WEBADDR) or
+      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_addressbooksdir} ($!)");
+
+   return @books;
+}
+
+sub get_readable_abookfolders {
+   my @userbooks   = get_user_abookfolders();
+   my @globalbooks = get_global_abookfolders();
+   return(@userbooks, @globalbooks);
+}
+
+sub abookfolder2file {
+   # given a folder name, return the full path to the folder file
+   my $abookfoldername = shift;
+
+   if ($abookfoldername eq 'ALL') {
+      return '/nonexistent';
+   } elsif (is_abookfolder_global($abookfoldername)) {
+      return ow::tool::untaint("$config{ow_addressbooksdir}/$abookfoldername");
+   } else {
+      my $webaddrdir = dotpath('webaddr');
+      return ow::tool::untaint("$webaddrdir/$abookfoldername");
+   }
+}
+
+sub is_abookfolder_global {
+   my $abookfoldername = shift;
+   return 0 unless defined $abookfoldername;
+   return 1 if $abookfoldername =~ m/^(?:global|ldapcache)$/;
+   return 1 if -f "$config{ow_addressbooksdir}/$abookfoldername";
+   return 0;
+}
 
 sub f2u {
    # convert string from filesystem charset to userprefs charset

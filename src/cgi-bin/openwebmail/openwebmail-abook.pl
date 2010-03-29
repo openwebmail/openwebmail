@@ -157,6 +157,7 @@ my $action = param('action') || '';
 writelog("debug - request abook begin, action=$action - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
 
 $action eq "addrlistview"          ? addrlistview()          :
+$action eq "addrcardview"          ? addrcardview()          :
 $action eq "addrselectpopup"       ? addrselectpopup()       :
 $action eq "addreditform"          ? addreditform()          :
 $action eq "addrviewatt"           ? addrviewatt()           :
@@ -631,6 +632,8 @@ sub addrlistview {
                                                       && defined $contacts->{$xowmuid}{N}[0]{VALUE}{$_}
                                                    } qw(NAMEPREFIX GIVENNAME ADDITIONALNAMES FAMILYNAME NAMESUFFIX)
                                         );
+
+               $name =~ s/"/\\"/g;
 
                my $address = exists $contacts->{$xowmuid}{EMAIL}
                              ? exists $contacts->{$xowmuid}{'X-OWM-GROUP'}
@@ -1224,28 +1227,6 @@ sub addrmovecopydelete {
    return 1;
 }
 
-sub abookfolder2file {
-   # given a folder name, return the full path to the folder file
-   my $abookfoldername = shift;
-
-   if ($abookfoldername eq 'ALL') {
-      return '/nonexistent';
-   } elsif (is_abookfolder_global($abookfoldername)) {
-      return ow::tool::untaint("$config{ow_addressbooksdir}/$abookfoldername");
-   } else {
-      my $webaddrdir = dotpath('webaddr');
-      return ow::tool::untaint("$webaddrdir/$abookfoldername");
-   }
-}
-
-sub is_abookfolder_global {
-   my $abookfoldername = shift;
-   return 0 unless defined $abookfoldername;
-   return 1 if $abookfoldername =~ m/^(?:global|ldapcache)$/;
-   return 1 if -f "$config{ow_addressbooksdir}/$abookfoldername";
-   return 0;
-}
-
 sub addrbookedit {
    # manage the list of addressbooks for this user
    my $function = param('function') || '';
@@ -1552,6 +1533,224 @@ sub addrbookdownload {
    writehistory("download addressbook - $abookfolder");
 
    return;
+}
+
+sub addrcardview {
+   # given an xowmuid, output a summary of the contact, similar to a rolodex card
+   my $rootxowmuid    = param('rootxowmuid') || '';
+   my $xowmuid        = param('xowmuid') || $rootxowmuid;
+
+   openwebmailerror(__FILE__, __LINE__, "A valid xowmuid must be provided\n") unless $xowmuid;
+
+   my @readableabookfolders = get_readable_abookfolders();
+
+   # find the first xowmuid match for contact information
+   my $contact   = {};
+   my $abookfile = '';
+   foreach my $folder (@readableabookfolders) {
+      $abookfolder  = $folder;
+      $abookfile    = abookfolder2file($folder);
+      my $thisbook  = readadrbook($abookfile, undef, undef);
+
+      foreach my $thisbook_xowmuid (keys %{$thisbook}) {
+         if ($thisbook_xowmuid eq $xowmuid) {
+            $contact->{$xowmuid} = $thisbook->{$thisbook_xowmuid};
+            last;
+         }
+      }
+
+      last if scalar keys %{$contact};
+   }
+
+   # find out composecharset before processing each vcard propertyname so they iconv properly
+   my $composecharset = $contact->{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE} || $prefs{charset};
+
+   # TODO: the logic here could probably improve to handle more scenarios - this is the legacy logic
+   # TODO: this logic also exists in -send.pl and should be refactored to -shared.pl
+   if ($composecharset ne $prefs{charset}) {
+      my $composelocale = $prefs{language} . "." . ow::lang::charset_for_locale($composecharset);
+      if (exists $config{available_locales}->{$composelocale}) {
+         # switch to this character set in the users preferred language if it exists
+         $prefs{locale}  = $composelocale;
+         $prefs{charset} = $composecharset;
+      } else {
+         # or else switch to en_US.UTF-8 and hope for the best
+         $prefs{locale}  = 'en_US.UTF-8';
+         $prefs{charset} = $composecharset;
+      }
+   }
+
+   loadlang($prefs{locale});
+   charset($prefs{charset}) if $CGI::VERSION >= 2.58; # setup charset of CGI module
+
+   #################################################
+   # transform $contact for HTML::Template display #
+   #################################################
+
+   # all supported propertynames are listed here
+   # unsupported propertynames will be displayed generically
+   my %propertynames = (
+                          BEGIN   => 1, END        => 1, REV      => 1, VERSION       => 1,
+                          PROFILE => 1, CATEGORIES => 1, PHOTO    => 1, N             => 1,
+                          FN      => 1, SOUND      => 1, NICKNAME => 1, 'SORT-STRING' => 1,
+                          BDAY    => 1, EMAIL      => 1, TEL      => 1, ADR           => 1,
+                          LABEL   => 1, LOGO       => 1, TITLE    => 1, ROLE          => 1,
+                          ORG     => 1, URL        => 1, TZ       => 1, GEO           => 1,
+                          MAILER  => 1, NOTE       => 1, KEY      => 1, AGENT         => 1,
+                          CLASS   => 1, SOURCE     => 1, NAME     => 1, UID           => 1,
+                          PRODID  => 1,
+
+                          'X-OWM-UID'     => 1, 'X-OWM-BOOK'    => 1,
+                          'X-OWM-GROUP'   => 1, 'X-OWM-CHARSET' => 1,
+                          'X-OWM-CUSTOM'  => 1,
+                       );
+
+   # bundle information from one property into another property so they can be displayed together
+   my %bundlemap = (LABEL => 'ADR', TITLE => 'ORG', ROLE => 'ORG');
+   foreach my $from_property (keys %bundlemap) {
+      if (exists $contact->{$xowmuid}{$from_property}) {
+         my $to_property = $bundlemap{$from_property};
+
+         $contact->{$xowmuid}{$to_property}[$_]{VALUE}{$from_property} = $contact->{$xowmuid}{$from_property}[$_]{VALUE}
+           for(0..$#{$contact->{$xowmuid}{$from_property}});
+
+         delete $contact->{$xowmuid}{$from_property};
+      }
+   }
+
+   # internally sort the contacts so that PREF fields appear first
+   # and the fields are sorted case-insensitively by VALUE
+   $contact = internal_sort($contact);
+
+   # transform each field to be HTML::Template friendly
+   foreach my $propertyname (keys %{$contact->{$xowmuid}}) {
+      my $CHARSET = exists $contact->{$xowmuid}{'X-OWM-CHARSET'}
+                    ? $contact->{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE}
+                    : $prefs{charset};
+
+      # set the selected email address to the same as the one being used to view this card
+      if ($propertyname eq 'EMAIL') {
+         my $selected_email = param('email') || '';
+         my $name  = exists $contact->{$xowmuid}{FN}
+                            ? $contact->{$xowmuid}{FN}[0]{VALUE}
+                            : join (' ',  map { $contact->{$xowmuid}{N}[0]{VALUE}{$_} }
+                                         grep {
+                                                 exists $contact->{$xowmuid}{N}[0]{VALUE}{$_}
+                                                 && defined $contact->{$xowmuid}{N}[0]{VALUE}{$_}
+                                              } qw(NAMEPREFIX GIVENNAME ADDITIONALNAMES FAMILYNAME NAMESUFFIX)
+                                   );
+
+         $name =~ s/"/\\"/g;
+
+         foreach my $FIELD (@{$contact->{$xowmuid}{EMAIL}}) {
+            $FIELD->{selected}    = 1 if $FIELD->{VALUE} eq $selected_email;
+            $FIELD->{nameaddress} = $name ? qq|"$name" <$FIELD->{VALUE}>| : $FIELD->{VALUE};
+         }
+      }
+
+      for(my $i = 0; $i < scalar @{$contact->{$xowmuid}{$propertyname}}; $i++) {
+         my $FIELD = $contact->{$xowmuid}{$propertyname}[$i];
+
+         $FIELD->{sessionid}       = $thissession;
+         $FIELD->{url_cgi}         = $config{ow_cgiurl};
+         $FIELD->{url_html}        = $config{ow_htmlurl};
+         $FIELD->{use_texticon}    = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
+         $FIELD->{iconset}         = $prefs{iconset};
+
+         $FIELD->{count}           = $i;
+         $FIELD->{editformcaller}  = param('editformcaller') || '';
+         $FIELD->{xowmuid}         = $xowmuid;
+         $FIELD->{rootxowmuid}     = $rootxowmuid;
+         $FIELD->{abookfolder}     = $abookfolder;
+         $FIELD->{abookpage}       = $abookpage;
+         $FIELD->{abooklongpage}   = $abooklongpage;
+         $FIELD->{abooksort}       = $abooksort;
+         $FIELD->{abooksearchtype} = $abooksearchtype;
+         $FIELD->{abookkeyword}    = $abookkeyword;
+         $FIELD->{abookcollapse}   = $abookcollapse;
+         $FIELD->{folder}          = $folder;
+         $FIELD->{sort}            = $sort;
+         $FIELD->{msgdatetype}     = $msgdatetype;
+         $FIELD->{page}            = $page;
+         $FIELD->{longpage}        = $longpage;
+         $FIELD->{searchtype}      = $searchtype;
+         $FIELD->{keyword}         = $keyword;
+
+         # call a defined subroutine for this field (like HT_BDAY), or else just run it generic (HT_GENERIC)
+         no strict 'refs';
+         my $sub = "HT_$propertyname";
+         $sub =~ s/-/_/g; # X-OWM-CUSTOM becomes X_OWM_CUSTOM
+         ($FIELD, $CHARSET) = defined *$sub{CODE} ? $sub->($FIELD, $CHARSET) : HT_GENERIC->($FIELD, $CHARSET);
+
+         $contact->{$xowmuid}{$propertyname}[$i] = $FIELD;
+
+         if (!exists $propertynames{$propertyname}) {
+            $FIELD->{propertyname} = $propertyname;
+            push(@{$contact->{$xowmuid}{UNSUPPORTED}}, $FIELD);
+         }
+      }
+   }
+
+   $contact->{$xowmuid}{sessionid}    = $thissession;
+   $contact->{$xowmuid}{url_cgi}      = $config{ow_cgiurl};
+   $contact->{$xowmuid}{url_html}     = $config{ow_htmlurl};
+   $contact->{$xowmuid}{use_texticon} = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
+   $contact->{$xowmuid}{iconset}      = $prefs{iconset};
+
+   #############################################
+   # $contact is not modified after this point #
+   #############################################
+
+   # build the template
+   my $template = HTML::Template->new(
+                                        filename          => get_template('abook_cardview.tmpl'),
+                                        filter            => $htmltemplatefilters,
+                                        die_on_bad_params => 0,
+                                        loop_context_vars => 0,
+                                        global_vars       => 0,
+                                        cache             => 1,
+                                     );
+
+   $template->param(
+                      # header.tmpl
+                      header_template         => get_header($config{header_template_file}),
+
+                      # standard params
+                      sessionid               => $thissession,
+                      folder                  => $folder,
+                      sort                    => $sort,
+                      msgdatetype             => $msgdatetype,
+                      page                    => $page,
+                      longpage                => $longpage,
+                      searchtype              => $searchtype,
+                      keyword                 => $keyword,
+                      url_cgi                 => $config{ow_cgiurl},
+                      url_html                => $config{ow_htmlurl},
+                      use_texticon            => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_fixedfont           => $prefs{usefixedfont},
+                      use_lightbar            => $prefs{uselightbar},
+                      iconset                 => $prefs{iconset},
+                      charset                 => $prefs{charset},
+
+                      # addressbook params
+                      abookfolder             => $abookfolder,
+                      abookpage               => $abookpage,
+                      abooklongpage           => $abooklongpage,
+                      abooksort               => $abooksort,
+                      abooksearchtype         => $abooksearchtype,
+                      abookkeyword            => $abookkeyword,
+                      abookcollapse           => $abookcollapse,
+
+                      # abook_cardview.tmpl
+                      messageid               => $messageid,
+                      quotaoverlimit          => ($quotalimit > 0 && $quotausage > $quotalimit) ? 1 : 0,
+
+                      xowmuid                 => $xowmuid,
+                      rootxowmuid             => $rootxowmuid,
+                      contactloop             => [ $contact->{$xowmuid} ],
+                   );
+
+   httpprint([], [$template->output]);
 }
 
 sub addreditform {
@@ -1868,8 +2067,9 @@ sub addreditform {
 
                       abookfolder_label       => exists $lang_abookselectionlabels{$abookfolder} ? $lang_abookselectionlabels{$abookfolder} : f2u($abookfolder),
                       is_caller_readmessage   => $editformcaller eq 'readmessage' ? 1 : 0,
+                      is_caller_listmessages  => $editformcaller eq 'listmessages' ? 1 : 0,
                       is_caller_ALL           => $editformcaller eq 'ALL' ? 1 : 0,
-                      is_caller_abookfolder   => $editformcaller !~ m/(?:readmessage|ALL)/ ? 1 : 0,
+                      is_caller_abookfolder   => $editformcaller !~ m/(?:readmessage|listmessages|ALL)/ ? 1 : 0,
                       editformcaller          => $editformcaller,
                       xowmuid                 => $xowmuid,
                       rootxowmuid             => $rootxowmuid,
@@ -2515,6 +2715,17 @@ sub addredit {
                                         qq|&amp;msgdatetype=| . ow::tool::escapeURL($msgdatetype) .
                                         qq|&amp;message_id=|  . ow::tool::escapeURL($messageid)
                           );
+         } elsif ($editformcaller eq 'listmessages') {
+            print redirect(-location => qq|$config{ow_cgiurl}/openwebmail-main.pl?action=listmessages&amp;sessionid=$thissession| .
+                                        qq|&amp;folder=|      . ow::tool::escapeURL($folder)      .
+                                        qq|&amp;page=|        . ow::tool::escapeURL($page)        .
+                                        qq|&amp;longpage=|    . ow::tool::escapeURL($longpage)    .
+                                        qq|&amp;sort=|        . ow::tool::escapeURL($sort)        .
+                                        qq|&amp;searchtype=|  . ow::tool::escapeURL($searchtype)  .
+                                        qq|&amp;keyword=|     . ow::tool::escapeURL($keyword)     .
+                                        qq|&amp;msgdatetype=| . ow::tool::escapeURL($msgdatetype) .
+                                        qq|&amp;message_id=|  . ow::tool::escapeURL($messageid)
+                          );
          } elsif (param('quickadd')) {
             return 0;
          } else {
@@ -2634,53 +2845,6 @@ sub generate_xowmuid {
              '-' .
              $shortrandomstring;
    return $uid;
-}
-
-sub get_user_abookfolders {
-   my $webaddrdir = dotpath('webaddr');
-
-   opendir(WEBADDR, $webaddrdir) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $webaddrdir ($!)");
-
-   my @books = sort { $a cmp $b }
-               grep {
-                      m/^[^.]/
-                      && !m/^categories\.cache$/
-                      && !-f "$config{ow_addressbooksdir}/$_"
-                      && -r "$webaddrdir/$_"
-                    }
-               readdir(WEBADDR);
-
-   closedir(WEBADDR) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $webaddrdir ($!)");
-
-   return @books;
-}
-
-sub get_global_abookfolders {
-   opendir(WEBADDR, $config{ow_addressbooksdir}) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_addressbooksdir} ($!)");
-
-   my @books = sort { $a cmp $b }
-               grep {
-                      m/^[^.]/
-                      && (
-                           -r "$config{ow_addressbooksdir}/$_"
-                           || (m/^ldapcache$/ && $config{enable_ldap_abook})
-                         )
-                    }
-               readdir(WEBADDR);
-
-   closedir(WEBADDR) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_addressbooksdir} ($!)");
-
-   return @books;
-}
-
-sub get_readable_abookfolders {
-   my @userbooks   = get_user_abookfolders();
-   my @globalbooks = get_global_abookfolders();
-   return(@userbooks, @globalbooks);
 }
 
 sub get_writable_abookfolders {
@@ -3245,8 +3409,8 @@ sub addrexport {
       my $addresses   = {};
       my $searchterms = { 'X-OWM-UID' => [ { VALUE => join("|", @xowmuids) } ] };
 
-      foreach my $abookfolder (@allabookfolders) {
-         my $abookfile = abookfolder2file($abookfolder);
+      foreach my $folder (@allabookfolders) {
+         my $abookfile = abookfolder2file($folder);
          my $thisbook  = readadrbook($abookfile, $searchterms, undef);
 
          # remember what book this address came from
@@ -3401,7 +3565,7 @@ sub make_flathash {
 }
 
 sub addrimportattachment {
-   # import an attachment node from a given message
+   # import an attachment node from a given message (presumably a vcard, but import will check that)
    my $nodeid    = param('attachment_nodeid') || openwebmailerror(__FILE__, __LINE__, "No attachment node id provided");
    my $attname   = param('attname');
    my $attmode   = param('attmode') || 'simple';

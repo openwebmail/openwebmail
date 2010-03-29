@@ -83,3 +83,7 @@ a.stylecal:hover { font-size: 90%; color: #ff0000; }
 
 /* popup note styles */
 #popup_note { position: absolute; visibility: hidden; }
+
+/* popup contact styles */
+#popup_contact { position: absolute; visibility: hidden; }
+iframe.contact { border: 1px solid black; }

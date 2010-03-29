@@ -31,11 +31,11 @@
         </tr>
         <tr>
           <td align="right" nowrap>UserID:</td>
-          <td align="left"><input type="text" name="loginname" size="<tmpl_var loginfieldwidth escape="html">" onchange="focuspwd();"></td>
+          <td align="left"><input type="text" name="loginname" size="<tmpl_var loginfieldwidth escape="html">" onblur="document.loginform.password.focus();"></td>
         </tr>
         <tr>
           <td align="right" nowrap>Password:</td>
-          <td align="left"><input type="password" name="password" size="<tmpl_var loginfieldwidth escape="html">" onchange="focusloginbutton();"></td>
+          <td align="left"><input type="password" name="password" size="<tmpl_var loginfieldwidth escape="html">" onblur="document.loginform.loginbutton.focus();"></td>
         </tr>
 
         <tmpl_if enable_domainselect>
@@ -102,16 +102,6 @@
       document.loginform.loginname.focus()
    } else {
       document.loginform.password.focus()
-   }
-
-   function focuspwd() {
-      document.loginform.password.focus();
-      return true;
-   }
-
-   function focusloginbutton() {
-      document.loginform.loginbutton.focus();
-      return true;
    }
 
    function httpcompresshelp() {

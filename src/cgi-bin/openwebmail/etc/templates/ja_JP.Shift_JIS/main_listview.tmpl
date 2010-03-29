@@ -270,10 +270,20 @@
   <td <tmpl_unless uselightbar>class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless>>
     <table cellpadding="0" cellspacing="0" border="0">
     <tr>
+      <tmpl_if useminisearchicon>
       <td nowrap>
-        <tmpl_if useminisearchicon>
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;searchtype=<tmpl_if headingfrombysender>from<tmpl_else>to</tmpl_if>&amp;keyword=<tmpl_if headingfrombysender><tmpl_var from_address escape="url"><tmpl_else><tmpl_var to_keywords escape="url"></tmpl_if>" class="icon"><tmpl_if use_texticon>search<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/search.s.gif" title="<tmpl_if headingfrombysender>search for messages from <tmpl_var from_address escape="html"><tmpl_else>search for messages to same recipients</tmpl_if>" alt="search" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
-        <tmpl_if contactinaddressbook><a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;abookkeyword=<tmpl_if headingfrombysender><tmpl_var from_address escape="url"><tmpl_else><tmpl_var to_keywords escape="url"></tmpl_if>&amp;abooksearchtype=email&amp;abookfolder=ALL&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" class="icon"><tmpl_if use_texticon>addressbook search<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/friend.gif" title="<tmpl_if headingfrombysender>search addressbook for <tmpl_var from_address escape="html"><tmpl_else>search addressbook for recipients</tmpl_if>" alt="search addressbook" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>&nbsp;
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;searchtype=<tmpl_if headingfrombysender>from<tmpl_else>to</tmpl_if>&amp;keyword=<tmpl_if headingfrombysender><tmpl_var from_address escape="url"><tmpl_else><tmpl_var to_keywords escape="url"></tmpl_if>" class="icon"><tmpl_if use_texticon>search<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/search.s.gif" title="<tmpl_if headingfrombysender>search for messages from <tmpl_var from_address escape="html"><tmpl_else>search for messages to same recipients</tmpl_if>" alt="search" border="0" align="absmiddle"></tmpl_if></a>
+      </td>
+      </tmpl_if>
+      <td nowrap>
+        <tmpl_if contactinaddressbook>
+        <a href="javascript:void(0);" onclick="javascript:event.stopPropagation ? event.stopPropagation() : event.cancelBubble=true; popupContact(this, 'popup_contact', 50, -25, '<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrcardview&amp;rootxowmuid=<tmpl_var contactinaddressbook escape="url">&amp;email=<tmpl_var add_email escape="url">&amp;editformcaller=listmessages&amp;abookkeyword=&amp;abooksearchtype=&amp;abookfolder=&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">')" class="icon"><tmpl_if use_texticon>addressbook search<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/friend.gif" title="contact details" alt="contact details" border="0" align="absmiddle"></tmpl_if></a>
+        <tmpl_else>
+        <tmpl_unless hide_contactadd>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addreditform&amp;editformcaller=listmessages&amp;N.0.VALUE.GIVENNAME=<tmpl_var add_givenname escape="url">&amp;N.0.VALUE.FAMILYNAME=<tmpl_var add_familyname escape="url">&amp;FN.0.VALUE=<tmpl_var add_givenname escape="url"><tmpl_if add_familyname>%20<tmpl_var add_familyname escape="url"></tmpl_if>&amp;EMAIL.0.VALUE=<tmpl_var add_email escape="url">&amp;formchange=1&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var messageid escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=<tmpl_var attmode escape="url">" accesskey="Z" class="icon"><tmpl_if use_texticon>import contact<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/friendadd.gif" title="import contact" alt="import contact" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+        </tmpl_unless>
+        </tmpl_if>
+        &nbsp;
       </td>
       <td>
         <a <tmpl_unless overlimit>href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=sendto&amp;to=<tmpl_if headingfrombysender><tmpl_var from_nameandaddress escape="url"><tmpl_else><tmpl_var to_namesandaddresses escape="url"></tmpl_if>&amp;compose_caller=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">"</tmpl_unless> title="<tmpl_var from_address escape="html"> -&gt; <tmpl_var to_addresses escape="html">"><tmpl_if status_read><tmpl_if headingfrombysender><tmpl_var from_name escape="html"><tmpl_else><tmpl_if to_names><tmpl_var to_names escape="html"><tmpl_else>undisclosed-recipients</tmpl_if></tmpl_if><tmpl_else><b><tmpl_if headingfrombysender><tmpl_var from_name escape="html"><tmpl_else><tmpl_if to_names><tmpl_var to_names escape="html"><tmpl_else>undisclosed-recipients</tmpl_if></tmpl_if></b></tmpl_if>&nbsp;&nbsp;</a>
@@ -314,37 +324,6 @@
 
   <td <tmpl_unless uselightbar>class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless> align="center"><input type="checkbox" id="<tmpl_var messagenumber escape="html">" name="message_ids" value="<tmpl_var messageid escape="html">" <tmpl_if accesskey>accesskey="<tmpl_var accesskey escape="html">"</tmpl_if> <tmpl_if uselightbar>onclick="if (!document.layers) { this.checked =! this.checked }"</tmpl_if> <tmpl_if singlemessage>checked</tmpl_if>></td>
 </tr>
-
-<tmpl_if comment> Use all params used in the inner-looping to workaround global_vars H:T inheritance bug. We need to patch H:T before we can get rid of this uglyness. </tmpl_if>
-<tmpl_if odd></tmpl_if>
-<tmpl_if messagecharset></tmpl_if>
-<tmpl_if uselightbar></tmpl_if>
-<tmpl_if messagedatesent></tmpl_if>
-<tmpl_if messagedatereceived></tmpl_if>
-<tmpl_if showdatereceived></tmpl_if>
-<tmpl_if timeintransithour></tmpl_if>
-<tmpl_if timeintransitmin></tmpl_if>
-<tmpl_if timeintransitsec></tmpl_if>
-<tmpl_if timeintransitsign></tmpl_if>
-<tmpl_if to_namesandaddresses></tmpl_if>
-<tmpl_if to_names></tmpl_if>
-<tmpl_if to_nameshtml></tmpl_if>
-<tmpl_if to_addresses></tmpl_if>
-<tmpl_if to_addresseshtml></tmpl_if>
-<tmpl_if to_keywords></tmpl_if>
-<tmpl_if from_nameandaddress></tmpl_if>
-<tmpl_if from_name></tmpl_if>
-<tmpl_if from_namehtml></tmpl_if>
-<tmpl_if from_address></tmpl_if>
-<tmpl_if from_addresshtml></tmpl_if>
-<tmpl_if useminisearchicon></tmpl_if>
-<tmpl_if contactinaddressbook></tmpl_if>
-<tmpl_if subjecttext></tmpl_if>
-<tmpl_if subjectindent></tmpl_if>
-<tmpl_if subjecthtml></tmpl_if>
-<tmpl_if subject_keyword></tmpl_if>
-<tmpl_if messagesize></tmpl_if>
-<tmpl_if accesskey></tmpl_if>
 </tmpl_loop>
 
 </table>
@@ -435,8 +414,11 @@
 <embed src="<tmpl_var url_html escape="none">/sounds/<tmpl_var newmailsound escape="html">" autostart="true" hidden="true">
 </tmpl_if>
 
-<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_message.js"></script>
+<div id="popup_contact"></div>
 
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_base.js"></script>
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_contact.js"></script>
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_message.js"></script>
 <script type="text/javascript">
 <!--
    function CheckAll(setbgcolor) {
