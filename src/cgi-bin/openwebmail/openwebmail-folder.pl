@@ -165,9 +165,9 @@ sub editfolders {
       my $categorytitle     = '';
       my $folderstr         = $lang_folders{$currfolder} || f2u($currfolder);
       my $folderbasename    = $folderstr;
-      my $newmessages       = '';
-      my $allmessages       = '';
-      my $foldersize        = '';
+      my $newmessages       = 0;
+      my $allmessages       = 0;
+      my $foldersize        = 0;
 
       if ($userfolder) {
          if ($categorizedfolders && ($folderstr =~ m/^(.+?)\Q$categorizedfolders_fs\E(.+)$/)) {
@@ -178,6 +178,7 @@ sub editfolders {
             $folderbasename    = $2;
          }
       }
+
       get_folderdata($currfolder, \$newmessages, \$allmessages, \$foldersize);
       $total_newmessages += $newmessages if $newmessages ne '';
       $total_allmessages += $allmessages if $allmessages ne '';

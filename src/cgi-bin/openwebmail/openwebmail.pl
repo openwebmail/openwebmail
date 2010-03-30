@@ -224,7 +224,11 @@ sub loginmenu {
    # http compression options
    my $enable_httpcompression = 1;
    my $use_httpcompression    = 1;
-   if ($ENV{HTTP_ACCEPT_ENCODING} =~ m/\bgzip\b/ && ow::tool::has_module('Compress/Zlib.pm') ) {
+   if (
+        exists $ENV{HTTP_ACCEPT_ENCODING}
+        && $ENV{HTTP_ACCEPT_ENCODING} =~ m/\bgzip\b/
+        && ow::tool::has_module('Compress/Zlib.pm')
+      ) {
       $use_httpcompression = cookie("ow-httpcompress");
       $use_httpcompression = 1 unless (defined $use_httpcompression);
    } else {

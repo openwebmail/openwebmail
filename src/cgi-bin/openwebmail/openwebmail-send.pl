@@ -160,7 +160,8 @@ sub compose {
    my $references       = param('references') || '';
    my $priority         = param('priority') || 'normal';                     # normal, urgent, or non-urgent
    my $confirmreading   = param('confirmreading') || 0;
-   my $backupsent       = param('backupsent');
+   my $backupsent       = defined param('backupsent') && param('backupsent')
+                          ? param('backupsent') : $prefs{backupsentmsg};
 
    my $stationeryname   = param('stationeryname') || '';
 
@@ -181,7 +182,7 @@ sub compose {
 
    my $sendbutton       = param('sendbutton') || '';
    my $savedraftbutton  = param('savedraftbutton') || '';
-   my $session_noupdate = param('session_noupdate') || '';
+   my $session_noupdate = param('session_noupdate') || 0;
 
    my $abookfolder      = param('abookfolder') || '';
    my $abookpage        = param('abookpage') || 1;
@@ -1288,7 +1289,7 @@ sub compose {
                       enable_webdisk          => $config{enable_webdisk},
                       enable_urlattach        => $config{enable_urlattach} && ow::tool::findbin('wget') ? 1 : 0,
                       enable_backupsent       => $config{enable_backupsent},
-                      backupsent              => defined $backupsent ? $backupsent == 1 ? 1 : 0 : $prefs{backupsentmsg},
+                      backupsent              => $backupsent ? 1 : 0,
                       editrows                => $prefs{editrows} || 20,
                       editcolumns             => $prefs{editcolumns} || 78,
                       enable_savedraft        => $config{enable_savedraft},

@@ -2255,6 +2255,8 @@ sub addreditform_to_vcard {
    if (param('formchange')) {
       my ($formchange,$formchangeindex,$formchangeamount) = split(/,/, param('formchange'));
 
+      $formchangeamount = 0 unless defined $formchangeamount;
+
       if ($formchangeamount > 0 || $formchangeamount < 0) {
          # figure out the form change target
          my $formchangetarget = $formdata;
