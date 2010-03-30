@@ -465,7 +465,7 @@ sub listmessages {
       next if (!defined $FDB{$messageid});
 
       my @attr    = split(/\n/, $FDB{$messageid});
-      my $charset = $attr[$_CHARSET];
+      my $charset = $attr[$_CHARSET] || '';
 
       # assume msg is from sender using same language as the recipient's browser
       $charset = $userbrowsercharset if ($charset eq '' && $prefs{charset} eq 'utf-8');
@@ -1275,21 +1275,24 @@ sub clean_trash_spamvirus {
 
    my $trashcheckfile = dotpath('trash.check');
 
-   my $ftime = (stat($trashcheckfile))[9];
-
-   if (!$ftime) { # create if not exist
+   if (!-e $trashcheckfile) { # create if not exist
       sysopen(TRASHCHECK, $trashcheckfile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} " . f2u($trashcheckfile) . "! ($!)");
       print TRASHCHECK "trashcheck timestamp file";
       close(TRASHCHECK);
    }
 
-   my %reserveddays=('mail-trash' => $prefs{trashreserveddays},
-                     'spam-mail'  => $prefs{spamvirusreserveddays},
-                     'virus-mail' => $prefs{spamvirusreserveddays} );
+   my $ftime = (stat($trashcheckfile))[9] || $now;
+
+   my %reserveddays = (
+                        'mail-trash' => $prefs{trashreserveddays},
+                        'spam-mail'  => $prefs{spamvirusreserveddays},
+                        'virus-mail' => $prefs{spamvirusreserveddays},
+                      );
+
    my (@f, $msg);
-   push(@f, 'virus-mail') if ($config{has_virusfolder_by_default});
-   push(@f, 'spam-mail') if ($config{has_spamfolder_by_default});
+   push(@f, 'virus-mail') if $config{has_virusfolder_by_default};
+   push(@f, 'spam-mail') if $config{has_spamfolder_by_default};
    push(@f, 'mail-trash');
    foreach my $folder (@f) {
       next if ($reserveddays{$folder} < 0 || $reserveddays{$folder} >= 999999);
@@ -1299,13 +1302,14 @@ sub clean_trash_spamvirus {
       ow::filelock::lock($folderfile, LOCK_EX) or
          openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
 
-      if ($reserveddays{$folder} == 0) { # empty folder
+      if (exists $reserveddays{$folder} && $reserveddays{$folder} == 0) {
+         # empty folder
          my $ret = empty_folder($folderfile, $folderdb);
          if ($ret == 0) {
             $msg .= ', ' if (defined $msg && $msg ne '');
             $msg .= "all msg deleted from $folder";
          }
-      } elsif ( $now - $ftime > 43200 ) { # do clean only if last clean has passed for more than 0.5 day (43200 sec)
+      } elsif ($now - $ftime > 43200) { # do clean only if last clean has passed for more than 0.5 day (43200 sec)
          my $deleted = delete_message_by_age($reserveddays{$folder}, $folderdb, $folderfile);
          if ($deleted > 0) {
             $msg .= ', ' if (defined $msg && $msg ne '');
@@ -1314,14 +1318,16 @@ sub clean_trash_spamvirus {
       }
       ow::filelock::lock($folderfile, LOCK_UN);
    }
+
    if (defined $msg && $msg ne '') {
       writelog("clean trash - $msg");
       writehistory("clean trash - $msg");
    }
 
-   if ( $now-$ftime > 43200 ) {	# more than half day, update timestamp of checkfile
+   if ($now - $ftime > 43200) { # more than half day, update timestamp of checkfile
       utime($now - 1, $now - 1, ow::tool::untaint($trashcheckfile)); # -1 is trick for nfs
    }
+
    return;
 }
 
