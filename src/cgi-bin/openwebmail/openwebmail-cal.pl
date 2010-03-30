@@ -2021,8 +2021,8 @@ sub duration_minutes {
    # returns the duration in minutes between two military times
    my ($start, $end) = @_;
    return 0 unless defined $start;
-   return 0 unless $start =~ m/\d{4}/;
-   $end = $start + $prefs{calendar_interval} unless defined $end && $end =~ m/\d{4}/;
+   return 0 unless $start =~ m/\d{4}$/;
+   $end = $start + $prefs{calendar_interval} unless defined $end && $end =~ m/\d{4}$/;
    return 0 if $start > $end;
    my ($starthour, $startmin) = $start =~ m/(\d+)(\d{2})$/;
    my ($endhour, $endmin) = $end =~ m/(\d+)(\d{2})$/;

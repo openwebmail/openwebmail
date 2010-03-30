@@ -1945,7 +1945,7 @@ sub showdir {
          my $realpath = readlink("$webdiskrootdir/$vpath");
          $realpath    = "$webdiskrootdir/$vpath/../$realpath" if ($realpath !~ m!^/!);
          my $vpath2   = fullpath2vpath($realpath, $webdiskrootdir);
-         if ($vpath2 ne '') {
+         if (defined $vpath2 && $vpath2 ne '') {
             $flink{$filename} = " -> $vpath2";
          } else {
             next if (!$config{'webdisk_allow_symlinkout'});
