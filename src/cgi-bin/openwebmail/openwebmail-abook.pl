@@ -785,9 +785,14 @@ sub addrlistview {
 
                   # force check all group members if the all_members (row 0) box is checked
                   if (exists $FIELD->{is_group} && $row > 0) {
-                     $contacts->{$xowmuid}{rows}[$row]{to_checked}  = 1 if $contacts->{$xowmuid}{rows}[0]{to_checked} == 1;
-                     $contacts->{$xowmuid}{rows}[$row]{cc_checked}  = 1 if $contacts->{$xowmuid}{rows}[0]{cc_checked} == 1;
-                     $contacts->{$xowmuid}{rows}[$row]{bcc_checked} = 1 if $contacts->{$xowmuid}{rows}[0]{bcc_checked} == 1;
+                     $contacts->{$xowmuid}{rows}[$row]{to_checked}  = 1
+                       if exists $contacts->{$xowmuid}{rows}[0]{to_checked} && $contacts->{$xowmuid}{rows}[0]{to_checked} == 1;
+
+                     $contacts->{$xowmuid}{rows}[$row]{cc_checked}  = 1
+                       if exists $contacts->{$xowmuid}{rows}[0]{cc_checked} && $contacts->{$xowmuid}{rows}[0]{cc_checked} == 1;
+
+                     $contacts->{$xowmuid}{rows}[$row]{bcc_checked} = 1
+                       if exists $contacts->{$xowmuid}{rows}[0]{bcc_checked} && $contacts->{$xowmuid}{rows}[0]{bcc_checked} == 1;
                   }
                }
 
