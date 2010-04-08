@@ -332,9 +332,13 @@ sub readmessage {
          ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db " . f2u($folderdb));
 
+         $FDB{ALLMESSAGES}      = 0 unless defined $FDB{ALLMESSAGES} && $FDB{ALLMESSAGES};
+         $FDB{ZAPMESSAGES}      = 0 unless defined $FDB{ZAPMESSAGES} && $FDB{ZAPMESSAGES};
+         $FDB{INTERNALMESSAGES} = 0 unless defined $FDB{INTERNALMESSAGES} && $FDB{INTERNALMESSAGES};
+
          $allmessagesthisfolder  = $FDB{ALLMESSAGES} - $FDB{ZAPMESSAGES};
          $allmessagesthisfolder -= $FDB{INTERNALMESSAGES} if $prefs{hideinternal};
-         $newmessagesthisfolder  = $FDB{NEWMESSAGES};
+         $newmessagesthisfolder  = $FDB{NEWMESSAGES} || 0;
 
          # current message is turned from new to old after this read
          $newmessagesthisfolder-- if ($foldername eq $folder && $messagesloop->[0]{status} !~ m/R/i && $newmessagesthisfolder > 0);

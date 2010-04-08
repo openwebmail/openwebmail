@@ -361,9 +361,13 @@ sub listmessages {
          ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
                openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db " . f2u($folderdb));
 
+         $FDB{ALLMESSAGES}      = 0 unless defined $FDB{ALLMESSAGES} && $FDB{ALLMESSAGES};
+         $FDB{ZAPMESSAGES}      = 0 unless defined $FDB{ZAPMESSAGES} && $FDB{ZAPMESSAGES};
+         $FDB{INTERNALMESSAGES} = 0 unless defined $FDB{INTERNALMESSAGES} && $FDB{INTERNALMESSAGES};
+
          $allmessagesthisfolder  = $FDB{ALLMESSAGES} - $FDB{ZAPMESSAGES};
          $allmessagesthisfolder -= $FDB{INTERNALMESSAGES} if $prefs{hideinternal};
-         $newmessagesthisfolder  = $FDB{NEWMESSAGES};
+         $newmessagesthisfolder  = $FDB{NEWMESSAGES} || 0;
 
          if ($foldername eq 'INBOX') {
             $now_inbox_allmessages = $allmessagesthisfolder;
