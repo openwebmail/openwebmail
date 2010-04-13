@@ -1254,6 +1254,11 @@ Note: Don't try to fly before you can walk...
    ps: You will see a lot of /tmp/speedy.number files if your system is
        quite busy, so you may change this to value like /var/run/speedy
 
+   optionally you can change all openwebmail*.pl files by using a sed
+   one-line command:
+
+   sed -i '1s#/usr/bin/perl -T#/usr/bin/speedy_suidperl#' openwebmail*.pl
+
 4. test you openwebmail for the speedup.
 
 5. If you are installing openwebmail on a low end machine, then you may

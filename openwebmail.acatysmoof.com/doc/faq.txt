@@ -1,6 +1,6 @@
 $Id$
 
-Open WebMail Frequently Asked Questions
+OpenWebMail Frequently Asked Questions
 
 0.  SPECIAL NOTE FOR SPEEDYCGI
 1.  INSTALLATION & STARTUP PROBLEMS
@@ -28,13 +28,13 @@ Open WebMail Frequently Asked Questions
 SPECIAL NOTE FOR SPEEDYCGI
 ========================================================================
 
-We highly recommend using SpeedyCGI with Open WebMail.
-Open WebMail gets almost 5x to 10x speedup when running with SpeedyCGI.
+We highly recommend using SpeedyCGI with OpenWebMail.
+OpenWebMail gets almost 5x to 10x speedup when running with SpeedyCGI.
 
 Please refer to section "PERSISTENT RUNNING through SpeedyCGI" in
 readme.txt for how to install SpeedyCGI on your system.
 
-If you are using SpeedyCGI with Open WebMail
+If you are using SpeedyCGI with OpenWebMail
 and you have modified any file other than etc/openwebmail.conf...
 
 Don't forget to do 'touch openwebmail*.pl'
@@ -87,7 +87,7 @@ ps: If you are using Mandrake:
     httpd config file is located at /usr/local/etc/apache/httpd.conf
     httpd reload command is "/usr/local/sbin/apachectl restart"
 
-Q: I got "Internal server error" when running Open WebMail?
+Q: I got "Internal server error" when running OpenWebMail?
    I got "can not do setuid" error?
    I got "Software error: Can't locate etc/openwebmail.conf in @INC" error?
 A: There are many possible answers...
@@ -274,7 +274,7 @@ A: you can enforce the new one to use the same dbm package as the old one by
 
    where XXX_File.pm is the value you get by running dbmtest.pl on old machine.
 
-Q: When I installed Open WebMail on Fedora 3, --init generated no output?
+Q: When I installed OpenWebMail on Fedora 3, --init generated no output?
 A: Please turn the selinux feature off by
    setting "SELINUX=disabled" in /etc/selinux/config,
    then try to execute openwebmail-tool.pl --init again.
@@ -438,8 +438,8 @@ ps: Since openwebmail 20031128, you may set the option
 
 Q: My SENT folder shows -1 or other negative message size rather then
    regular message size?
-A: This problem occurs if you installed Open WebMail on the same partition
-   where quota is enabled. Open WebMail uses temp files in
+A: This problem occurs if you installed OpenWebMail on the same partition
+   where quota is enabled. OpenWebMail uses temp files in
    cgi-bin/openwebmail/etc/sessions folders.
    Solution is to move sessions folder to another partition with no Quota.
 
@@ -668,7 +668,7 @@ A: First, you have to decide whether to use real virtual hosting or
    including domainname, authentication module, quota limit, mailspooldir ...
 
    A more detailed example is described in the Kevin Ellis's webpage:
-   "How to setup virtual users on Open WebMail using Postfix & vm-pop3d"
+   "How to setup virtual users on OpenWebMail using Postfix & vm-pop3d"
    http://www.bluelavalamp.net/owmvirtual/
 
 Q: Could I have configuration file on per user basis?
@@ -811,7 +811,7 @@ A: Solution 1:
    attachment into openwebmail webdisk, than extract files through webdisk
    interface.
 
-ps: Open WebMail has supported tnef extraction since 2.32 20040719,
+ps: OpenWebMail has supported tnef extraction since 2.32 20040719,
     you may see the files encapsulated in tnef attachment directly
     without extract them in webdisk by yourself
 
@@ -820,7 +820,7 @@ COMPOSE MESSAGE
 ========================================================================
 
 Q: I could not add attachments?
-   Open WebMail was hanged when I pressed the 'add' button to add attachments?
+   OpenWebMail was hanged when I pressed the 'add' button to add attachments?
 A: 1. Your CGI or MIME-Base64 module may be too old,
       Please download CGI.pm-3.05.tar.gz and MIME-Base64-3.01.tar.gz in
       http://openwebmail.acatysmoof.com/download/packages
@@ -1316,27 +1316,27 @@ A: The GNU copyright page should be displayed for less than 1 second.
    trash cleaning..)
 
 Q: My openwebmail is slow, how can I make it faster?
-A: You may try to use Open WebMail with the SpeedyCGI package, you will
+A: You may try to use OpenWebMail with the SpeedyCGI package, you will
    get about 5x-10x speedup. Please refer to the readme.txt with keyword
    SpeedyCGI for more detail.
 
-Q: How SpeedyCGI speeds up Open WebMail?
-A: SpeedyCGI makes Open WebMail resident in memory at the first request,
+Q: How SpeedyCGI speeds up OpenWebMail?
+A: SpeedyCGI makes OpenWebMail resident in memory at the first request,
    then the following requests will be served immediately without the
    overhead of starting perl CGI.
 
    This resident copy will terminate if it is idle for a certain time,
    the default is 3600 seconds (1 hour)
-   You can set this with -t option in the Open WebMail scripts.
+   You can set this with -t option in the OpenWebMail scripts.
 
    eg: #!/usr/bin/speedy -T -- -t7200
 
-Q: Will the resident Open Webmail become larger and larger and finally
+Q: Will the resident OpenWebmail become larger and larger and finally
    a memory hog?
-A: No. We have tried our best to remove any memory leak from Open WebMail.
+A: No. We have tried our best to remove any memory leak from OpenWebMail.
    And a resident CGI will be restarted after it has served certain
    number of requests. The default maxrun number is 500.
-   You can set this with -r option in the Open WebMail scripts.
+   You can set this with -r option in the OpenWebMail scripts.
 
    eg: #!/usr/bin/speedy -T -- -t7200 -r250
 
@@ -1347,7 +1347,7 @@ A: They are the temporary files used by speedy and its backend program.
 
    eg: #!/usr/bin/speedy -T -- -t7200 -r250 -T/var/tmp/.speedy
 
-Q: Open WebMail is fast when it is resident in memory, but the firsttime
+Q: OpenWebMail is fast when it is resident in memory, but the firsttime
    startup delay is still long, is it possible to hide that delay from user?
 A: You can use the script preload.pl to preload openwebmail scripts,
    so the webmail user won't see the startup delay.
@@ -1371,16 +1371,16 @@ A: The preload.pl tries to connect the webmail server on localhost.
    Please check if your webserver is binding on localhost or
    change the variable $httphost in preload.pl
 
-Q: How do I know if my Open WebMail is running under SpeedyCGI?
+Q: How do I know if my OpenWebMail is running under SpeedyCGI?
 A: 1. Goto the user preference and click the 'about' button,
       if you see word 'Persistence' appear in the line of webmail,
       then your openwebmail is running under SpeedyCGI
    2. Check the top of webmail page window border,
-      if you see a '+' appear after  the 'Open WebMail' string,
+      if you see a '+' appear after  the 'OpenWebMail' string,
       then the page is generated under SpeedyCGI.
 
 Q: I saw a HTTP compression checkbox in login screen, what is it used for?
-A: When it is checked, web pages generated by Open WebMail will be
+A: When it is checked, web pages generated by OpenWebMail will be
    transmitted in gzip compressed format, this greatly reduces the time
    required for page download.
 
@@ -1403,12 +1403,12 @@ A: The HTTP compression feature won't be available if any one of the three
       please list your openwebmail server in exclusion table of proxy setting
       in your browser.
 
-Q: How do I know if my Open WebMail is running with HTTP compression enabled?
+Q: How do I know if my OpenWebMail is running with HTTP compression enabled?
 A: 1. Goto the user preference and click the 'about' button,
       if you see word 'HTTP Compression' appear in the line of webmail,
       then your openwebmail is running with HTTP compression enabled
    2. Check the top of webmail page window border,
-      if you see a 'z' appear after  the 'Open WebMail' string,
+      if you see a 'z' appear after  the 'OpenWebMail' string,
       then the page is generated with HTTP compression enabled.
 
 Q: Openwebmail uses lot of static images.
@@ -1553,7 +1553,7 @@ A: a. If your mail client program supports IMAP and your mail server has
 
        perl -pi -e "s/\r\n/\n/" folderfile
 
-Q: How can I upgrade from old version of Open Webmail?
+Q: How can I upgrade from old version of OpenWebmail?
 A: Each version of openwebmail is made to be backward compatible with
    old ones, no user setting or mail message will be lost after upgrade.
    The upgrade steps:
@@ -1562,8 +1562,8 @@ A: Each version of openwebmail is made to be backward compatible with
    3. update the new openwebmail.conf with the setting in old one.
 
 Q: How can I report problem?
-A: If your Open WebMail doesn't work, please post your problem on
-   openwebmail forum http://sourceforge.net/forum/forum.php?forum_id=108433
+A: If your OpenWebMail doesn't work, please post your problem on
+   openwebmail mailing list http://openwebmail.acatysmoof.com/archive
    with the following information
 
    OS
@@ -1579,12 +1579,12 @@ A: If your Open WebMail doesn't work, please post your problem on
    do you enable speedycgi?
    do you set any proxy server in browser?
 
-   If your Open WebMail works but it shows strange output for some messages,
+   If your OpenWebMail works but it shows strange output for some messages,
    please forward the message as an attachment to us
    (openwebmail.AT.turtle.ee.ncku.edu.tw)
    ps: clicking the 'forward as attachment' icon in message reading menu
 
-Q: How can I debug the Open WebMail by myself?
+Q: How can I debug the OpenWebMail by myself?
 A: First, you can try to set option error_with_debuginfo to yes in
    openwebmail.conf. This would give you more detailed information in case
    openwebmailerror() happens.
@@ -1674,9 +1674,9 @@ A: All you have to do is writing an auth_XYZ.pl for openwebmail.
 ps: you may modify the check_userpassword() in auth module that you already
     use in openwebmail as a start.
 
-Q: How can I setup IE to trigger Open WebMail compose window when I click
+Q: How can I setup IE to trigger OpenWebMail compose window when I click
    a "mailto:someone@somehost" link?
-   How can I set Open Webmail as the default mail client?
+   How can I set OpenWebmail as the default mail client?
 A: In Windows Explorer, if you go to Tools -> Folder Options, click on the
    File Types tab. In the window that appears, scroll down the list to the
    entry for  "URL:MailTo Protocol".  Highlight URL:MailTo and click edit.
@@ -1725,18 +1725,18 @@ A: Please create a file, index.html, like below. Either a or b is okay.
 Q: Can I install openwebmail without root privilege?
 A: Yes, try the auth_pop3.pl. Some information is available in it.
 
-Q: Can Open WebMail be used with mod_perl?
+Q: Can OpenWebMail be used with mod_perl?
 A: No, the most reason is mod_perl can't be used for setuid program.
-   But Open Webmail works great in persistent mode with SpeedyCGI.
+   But OpenWebmail works great in persistent mode with SpeedyCGI.
    It is very fast too.
 
-Q: Does Open WebMail support maildir and vpop3mail user by Qmail?
+Q: Does OpenWebMail support maildir and vpop3mail user by Qmail?
 A: The official release does still not support maildir, however,
    Laurent Frigault, lfrigault.AT.users.sourceforge.net has made patched
-   Open WebMail 2.01 to support maildir. It is available at
+   OpenWebMail 2.01 to support maildir. It is available at
    http://www.agneau.org/openwebmail/openwebmail-2.01-storage-20031027.tgz
 
-Q: Will maildir be merged to official release of Open WebMail?
+Q: Will maildir be merged to official release of OpenWebMail?
 A: Yes, but we need to reorganization the code of openwebmail first
    so the maildir patch could be merged into smoothly.
    This would take some time...
@@ -1745,7 +1745,7 @@ Q: Can Openwebmail do xxx function or have yyy control option?
 A: The best way to know all features of openwebmail is to check the
    cgi-bin/openwebmail/etc/openwebmail.conf.help. Please check it.
 
-Q: Can I use Open WebMail in a commercial web site?
+Q: Can I use OpenWebMail in a commercial web site?
 A: Yes.
 
    OpenWebMail code before 20080227 was licensed under the GPL.
