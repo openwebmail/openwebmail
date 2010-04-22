@@ -718,8 +718,8 @@ the web mail interface
 enable_strictpwd
 -----------------------------------------------------------------------
 Set this to 'yes' if you want openwebmail to do strict checking on the
-new password in chamging passowrd. It will deny password containing
-only alphabets or digits.
+new password while changing the old password. It will deny passwords
+containing only alphabets or digits.
 
 
 passwd_minlen

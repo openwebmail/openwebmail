@@ -105,7 +105,7 @@
 <tr>
   <td class="windowdarkbold" align="right" nowrap>To:</td>
   <td class="windowdark">
-   <input type="text" name="to" id="to" value="<tmpl_var to escape="html">" size="66" accesskey="T">
+   <input type="text" name="to" id="to" value="<tmpl_var to escape="html">" size="66" accesskey="T" <tmpl_if enable_htmlcompose><tmpl_if enable_addressbook>onkeydown="autosuggest(event, this);" onfocus="hideLayer('popup_autosuggest');" autocomplete="off"</tmpl_if></tmpl_if>>
     <tmpl_if enable_addressbook>
     <a href="javascript:selectcontacts();" accesskey="K" class="icon"><tmpl_if use_texticon>addressbook<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/addrbook.s.gif" title="addressbook" alt="addressbook" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
     </tmpl_if>
@@ -114,13 +114,13 @@
 <tr>
   <td class="windowdarkbold" align="right" nowrap>Cc:</td>
   <td class="windowdark">
-    <input type="text" name="cc" id="cc" value="<tmpl_var cc escape="html">" size="66" accesskey="C">
+    <input type="text" name="cc" id="cc" value="<tmpl_var cc escape="html">" size="66" accesskey="C" <tmpl_if enable_htmlcompose><tmpl_if enable_addressbook>onkeydown="autosuggest(event, this);" onfocus="hideLayer('popup_autosuggest');" autocomplete="off"</tmpl_if></tmpl_if>>
   </td>
 </tr>
 <tr>
   <td class="windowdarkbold" align="right" nowrap>Bcc:</td>
   <td class="windowdark">
-    <input type="text" name="bcc" id="bcc" value="<tmpl_var bcc escape="html">" size="66">
+    <input type="text" name="bcc" id="bcc" value="<tmpl_var bcc escape="html">" size="66" <tmpl_if enable_htmlcompose><tmpl_if enable_addressbook>onkeydown="autosuggest(event, this);" onfocus="hideLayer('popup_autosuggest');" autocomplete="off"</tmpl_if></tmpl_if>>
   </td>
 </tr>
 <tr>
@@ -375,18 +375,6 @@
 </form>
 </tmpl_if>
 
-<!-- autosuggest support -->
-<!--
-<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/ajax.js"></script>
-<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup.js"></script>
-<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/autosuggestpopup.js"></script>
-
-<div id="send_compose_autosuggest_popup">
-  <div class="send_compose_autosuggest_result" onmouseover="this.className='rowhilite';" onmouseout="this.className='send_compose_autosuggest_result';" onclick="alert('selecting this');">john doe</div>
-  <div class="send_compose_autosuggest_result_selected" onmouseover="this.className='rowhilite';" onmouseout="this.className='send_compose_autosuggest_result_selected';" onclick="alert('selecting this');">joe bloggs</div>
-</div>
--->
-
 <tmpl_if enable_htmlcompose>
 <tmpl_if is_msgformathtml>
 <script type="text/javascript">
@@ -462,6 +450,20 @@
 </tmpl_if>
 
 <script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_message.js"></script>
+
+<tmpl_if enable_htmlcompose>
+<tmpl_if enable_addressbook>
+<div id="popup_autosuggest"></div>
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/ajax.js"></script>
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_base.js"></script>
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_autosuggest.js"></script>
+<script type="text/javascript">
+<!--
+   var autosuggest_url = '<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrautosuggest&composecharset=' + document.forms['composeform'].elements['convto'].options[document.forms['composeform'].elements['convto'].selectedIndex].value + '&sessionid=<tmpl_var sessionid escape="js">';
+// -->
+</script>
+</tmpl_if>
+</tmpl_if>
 
 <script type="text/javascript">
 <!--

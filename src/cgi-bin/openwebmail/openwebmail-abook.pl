@@ -169,6 +169,7 @@ $action eq "addrimportfieldselect" ? addrimportfieldselect() :
 $action eq "addrimportattachment"  ? addrimportattachment()  :
 $action eq "addrbookedit"          ? addrbookedit()          :
 $action eq "addrbookdownload"      ? addrbookdownload()      :
+$action eq "addrautosuggest"       ? addrautosuggest()       :
 openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
 
 writelog("debug - request abook end, action=$action - " . __FILE__ . ':' . __LINE__) if $config{debug_request};
@@ -625,13 +626,13 @@ sub addrlistview {
          foreach my $xowmuid (@sorted_xowmuids) {
             if (exists $unique_xowmuid{$xowmuid}) {
                my $name = exists $contacts->{$xowmuid}{FN}
-                                 ? $contacts->{$xowmuid}{FN}[0]{VALUE}
-                                 : join (' ',  map { $contacts->{$xowmuid}{N}[0]{VALUE}{$_} }
-                                              grep {
-                                                      exists $contacts->{$xowmuid}{N}[0]{VALUE}{$_}
-                                                      && defined $contacts->{$xowmuid}{N}[0]{VALUE}{$_}
-                                                   } qw(NAMEPREFIX GIVENNAME ADDITIONALNAMES FAMILYNAME NAMESUFFIX)
-                                        );
+                          ? $contacts->{$xowmuid}{FN}[0]{VALUE}
+                          : join (' ',  map { $contacts->{$xowmuid}{N}[0]{VALUE}{$_} }
+                                       grep {
+                                              exists $contacts->{$xowmuid}{N}[0]{VALUE}{$_}
+                                              && defined $contacts->{$xowmuid}{N}[0]{VALUE}{$_}
+                                            } qw(NAMEPREFIX GIVENNAME ADDITIONALNAMES FAMILYNAME NAMESUFFIX)
+                                 );
 
                $name =~ s/"/\\"/g;
 
@@ -1637,13 +1638,13 @@ sub addrcardview {
       if ($propertyname eq 'EMAIL') {
          my $selected_email = param('email') || '';
          my $name  = exists $contact->{$xowmuid}{FN}
-                            ? $contact->{$xowmuid}{FN}[0]{VALUE}
-                            : join (' ',  map { $contact->{$xowmuid}{N}[0]{VALUE}{$_} }
-                                         grep {
-                                                 exists $contact->{$xowmuid}{N}[0]{VALUE}{$_}
-                                                 && defined $contact->{$xowmuid}{N}[0]{VALUE}{$_}
-                                              } qw(NAMEPREFIX GIVENNAME ADDITIONALNAMES FAMILYNAME NAMESUFFIX)
-                                   );
+                     ? $contact->{$xowmuid}{FN}[0]{VALUE}
+                     : join (' ',  map { $contact->{$xowmuid}{N}[0]{VALUE}{$_} }
+                                  grep {
+                                         exists $contact->{$xowmuid}{N}[0]{VALUE}{$_}
+                                         && defined $contact->{$xowmuid}{N}[0]{VALUE}{$_}
+                                       } qw(NAMEPREFIX GIVENNAME ADDITIONALNAMES FAMILYNAME NAMESUFFIX)
+                            );
 
          $name =~ s/"/\\"/g;
 
@@ -1753,6 +1754,111 @@ sub addrcardview {
                       xowmuid                 => $xowmuid,
                       rootxowmuid             => $rootxowmuid,
                       contactloop             => [ $contact->{$xowmuid} ],
+                   );
+
+   httpprint([], [$template->output]);
+}
+
+sub addrautosuggest {
+   # given a field of email addresses, look at the last typed
+   # text and provide address options to complete it
+   my $fieldname      = param('fieldname') || '';
+   my $fieldvalue     = param('fieldvalue') || '';
+   my $composecharset = param('composecharset') || $prefs{charset};
+
+   my @addresses = ow::tool::str2list($fieldvalue);
+
+   my $searchstring = pop(@addresses) || '';
+
+   my $matches = {};
+
+   if ($searchstring) {
+      my @readableabookfolders = get_readable_abookfolders();
+
+      # don't return full vcard data structures
+      # only return the fields we need, to keep memory down
+      my $only_return = {                       # Always return these ones because:
+                          'SORT-STRING'   => 1, # We need to be able to do sort overrides
+                          'X-OWM-CHARSET' => 1, # The charset of data in this vcard
+                          'X-OWM-GROUP'   => 1, # There is special handling for group entries
+                          'N'             => 1,
+                          'FN'            => 1,
+                          'EMAIL'         => 1,
+                          'NICKNAME'      => 1,
+                        };
+
+      foreach my $abookfoldername (@readableabookfolders) {
+         my $abookfile = abookfolder2file($abookfoldername);
+
+         # filter based on searchterms and prune based on only_return
+         my $thisbook = readadrbook($abookfile, undef, $only_return);
+
+         foreach my $xowmuid (keys %{$thisbook}) {
+            next if exists $thisbook->{$xowmuid}{'X-OWM-GROUP'};
+            next unless exists $thisbook->{$xowmuid}{EMAIL};
+
+            my $charset = $thisbook->{$xowmuid}{'X-OWM-CHARSET'}[0]{VALUE} || $prefs{charset};
+
+            my $name = exists $thisbook->{$xowmuid}{FN}
+                       ? $thisbook->{$xowmuid}{FN}[0]{VALUE}
+                       : join (' ',  map { $thisbook->{$xowmuid}{N}[0]{VALUE}{$_} }
+                                    grep {
+                                           exists $thisbook->{$xowmuid}{N}[0]{VALUE}{$_}
+                                           && defined $thisbook->{$xowmuid}{N}[0]{VALUE}{$_}
+                                         } qw(NAMEPREFIX GIVENNAME ADDITIONALNAMES FAMILYNAME NAMESUFFIX)
+                              );
+
+            next unless defined $name && $name;
+
+            my $name_escaped = $name;
+            $name_escaped =~ s/"/\\"/g;
+
+            foreach my $email (@{$thisbook->{$xowmuid}{EMAIL}}) {
+               my $option         = qq|$name <$email->{VALUE}>|;
+               my $option_escaped = qq|"$name_escaped" <$email->{VALUE}>|;
+
+               if (
+                     $option =~ m/\Q$searchstring\E/i
+                     || (exists $thisbook->{$xowmuid}{NICKNAME} && scalar grep { $_->{VALUE} =~ m/\Q$searchstring\E/i } @{$thisbook->{$xowmuid}{NICKNAME}})
+                  ) {
+                  # escape " and <> from the option_escape
+                  # HT escapes for js, but cannot simultaneously escape html
+                  $option_escaped = join(', ', (@addresses, (iconv($charset, $composecharset, $option_escaped))[0]));
+                  $option_escaped =~ s/"/&quot;/g;
+                  $option_escaped =~ s/</&lt;/g;
+                  $option_escaped =~ s/>/&gt;/g;
+
+                  $matches->{(iconv($charset, $composecharset, $option))[0]} = $option_escaped;
+                  last if scalar keys %{$matches} == 10;
+               }
+            }
+
+            last if scalar keys %{$matches} == 10;
+         }
+
+         last if scalar keys %{$matches} == 10;
+      }
+   }
+
+   # build the template
+   my $template = HTML::Template->new(
+                                        filename          => get_template('abook_autosuggest.tmpl'),
+                                        filter            => $htmltemplatefilters,
+                                        die_on_bad_params => 0,
+                                        loop_context_vars => 0,
+                                        global_vars       => 0,
+                                        cache             => 1,
+                                     );
+
+   $template->param(
+                      # abook_autosuggest.tmpl
+                      matchesloop => [
+                                        map { {
+                                                 option_escaped => $matches->{$_},
+                                                 option         => $_,
+                                                 fieldname      => $fieldname,
+                                            } } sort keys %{$matches},
+                                     ],
                    );
 
    httpprint([], [$template->output]);

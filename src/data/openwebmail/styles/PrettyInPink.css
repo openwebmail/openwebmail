@@ -4,20 +4,20 @@ set by the user - please do not set the body font-size here
 */
 body { background-color: #ffffff; color: #000000; font-family: Arial, Helvetica, sans-serif; }
 td { font-family: Arial, Helvetica, sans-serif; }
-td.login_titlebar { color: #ffffff; background-color: #3161bd; font-size: 125%; font-weight: bold; }
-td.login_border { background-color: #3161bd; }
-td.login_small { font-size: 75%; }
-td.background { background-color: #ffffff; }
-td.titlebar { background-color: #551144; color: #ffffff; font-size: 112%; font-weight: bold; }
-td.menubar { background-color: #ffdcdc; }
-td.windowdark { background-color: #ffdddd; }
-td.windowdarkbold { background-color: #ffdddd; font-weight: bold; }
-td.windowlight { background-color: #ffeeee; }
-td.columnheader { background-color: #ffdce3; font-weight: bold; }
-td.columnheadercolor { background-color: #ffdce3; }
-td.warning { color: #dd0000; font-weight: bold; }
-td.attachmentdark { background-color: #ffdddd; }
-td.attachmentlight { background-color: #ffe5e5; }
+.login_titlebar { color: #ffffff; background-color: #3161bd; font-size: 125%; font-weight: bold; }
+.login_border { background-color: #3161bd; }
+.login_small { font-size: 75%; }
+.background { background-color: #ffffff; }
+.titlebar { background-color: #551144; color: #ffffff; font-size: 112%; font-weight: bold; }
+.menubar { background-color: #ffdcdc; }
+.windowdark { background-color: #ffdddd; }
+.windowdarkbold { background-color: #ffdddd; font-weight: bold; }
+.windowlight { background-color: #ffeeee; }
+.columnheader { background-color: #ffdce3; font-weight: bold; }
+.columnheadercolor { background-color: #ffdce3; }
+.warning { color: #dd0000; font-weight: bold; }
+.attachmentdark { background-color: #ffdddd; }
+.attachmentlight { background-color: #ffe5e5; }
 img.attachment { border: 2px solid #ffdddd; }
 form { margin: 0; }
 textarea { overflow: auto; }
@@ -87,3 +87,8 @@ a.stylecal:hover { font-size: 90%; color: #ff0000; }
 /* popup contact styles */
 #popup_contact { position: absolute; visibility: hidden; }
 iframe.contact { border: 1px solid black; }
+
+/* popup autosuggest styles */
+#popup_autosuggest { position: absolute; visibility: hidden; }
+.suggest { background-color: #ffdcdc; padding: 0 2px 0 2px; }
+.suggesthilite { background-color: #ffcccc; padding: 0 2px 0 2px; }

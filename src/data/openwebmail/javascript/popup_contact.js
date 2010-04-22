@@ -22,7 +22,7 @@ function makeContactHtml(id,url) {
    html += '<table cellspacing="1" cellpadding="2" border="0" width="100%">\n';
    html += '<tr>\n';
    html += '<td align="center" valign="top" class="menubar">\n';
-   html += '<iframe width="99%" class="contact" src="' + url + '"></iframe>\n';
+   html += '<iframe width="99%" class="contact" frameborder="0" src="' + url + '"></iframe>\n';
    html += '\n</td>\n';
    html += '</tr>\n';
    html += '</table>\n';

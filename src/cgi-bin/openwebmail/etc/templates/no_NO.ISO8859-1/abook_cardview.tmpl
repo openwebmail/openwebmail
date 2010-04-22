@@ -1,10 +1,26 @@
 <tmpl_var header_template escape="none">
 
+<script type="text/javascript">
+   var theRules = document.styleSheets[0].cssRules ? document.styleSheets[0].cssRules :
+                  document.styleSheets[0].rules ? document.styleSheets[0].rules :
+                  null;
+
+   var targetrule = '';
+   for(i=0;i<theRules.length; i++) {
+     if (theRules[i].selectorText.toLowerCase() == 'td.windowdark') {
+        targetrule = theRules[i];
+     }
+   }
+
+   document.body.style.margin = "0px";
+   document.body.style.backgroundColor = targetrule.style.backgroundColor;
+</script>
+
 <tmpl_loop contactloop>
 <table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
 <tr>
   <td class="windowdark">
-    <table cellpadding="0" cellspacing="4" border="0" width="100%">
+    <table cellpadding="0" cellspacing="6" border="0" width="100%">
     <tr>
       <td valign="top"><!-- left side -->
         <table cellpadding="0" cellspacing="0" border="0" width="100%">
@@ -136,3 +152,5 @@
 </table>
 </tmpl_loop>
 
+</body>
+</html>

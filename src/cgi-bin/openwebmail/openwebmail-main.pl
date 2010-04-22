@@ -508,6 +508,7 @@ sub listmessages {
 
       my ($from_name, $from_addr) = ow::tool::email2nameaddr($from);
       $from_addr =~ s/"//g;
+      $from_name = substr($from_name, 0, 37) . '...' if length $from_name > 40;
 
       my $from_xowmuid = exists $contacts->{lc($from_addr)} ? $contacts->{lc($from_addr)} : 0;
 
