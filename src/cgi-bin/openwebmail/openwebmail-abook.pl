@@ -1827,6 +1827,7 @@ sub addrautosuggest {
                   $option_escaped =~ s/"/&quot;/g;
                   $option_escaped =~ s/</&lt;/g;
                   $option_escaped =~ s/>/&gt;/g;
+                  $option_escaped .= ', ' if $option_escaped;
 
                   $matches->{(iconv($charset, $composecharset, $option))[0]} = $option_escaped;
                   last if scalar keys %{$matches} == 10;

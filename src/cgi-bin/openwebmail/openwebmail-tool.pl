@@ -1504,12 +1504,14 @@ sub hourmin {
 
 
 sub send_mail {
-   my ($from, $realname, $to, $date, $subject, $body)=@_;
+   my ($from, $realname, $to, $date, $subject, $body) = @_;
 
-   $from =~ s/['"]/ /g;  # Get rid of shell escape attempts
+   $from     =~ s/['"]/ /g;  # Get rid of shell escape attempts
+
+   $realname = '' unless defined $realname && $realname;
    $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
-
    ($realname =~ /^(.+)$/) && ($realname = '"'.$1.'"');
+
    foreach ($from, $to, $date) { $_=ow::tool::untaint($_) }
 
    # fake a messageid for this message
