@@ -45,6 +45,8 @@
                   <li>COMPLETE: login page</li>
                   <li>COMPLETE: login pass/copyright notice</li>
                   <li>COMPLETE: login failed</li>
+                  <li>COMPLETE: auto close</li>
+                  <li>COMPLETE: session timeout</li>
                 </ul>
               </li>
               <li>Preferences
@@ -128,14 +130,136 @@
                   <li>COMPLETE: search</li>
                 </ul>
               </li>
-              <li>Virtual Users</li>
+              <li>Virtual Users
+                <ul>
+                  <li>???</li>
+                </ul>
+              </li>
             </ul>
           </li>
         </ul><br><br>
       </li>
-      <li>Language strings in the template files need to be converted into gettext syntax so that they can be extracted automatically. All language strings should be converted to a simple syntax such as:<br>
-        <pre>&lt;h1&gt;&lt;gettext("My Project Title")&gt;&lt;/h1&gt;</pre><br>
-        more details on this as we get to it.
+      <li>Language strings in the template files need to be converted into gettext syntax so that they can be extracted automatically. All language strings should be converted to a simple syntax:<br>
+        <pre>&lt;h1&gt;&lt;gettext('My Project Title')&gt;&lt;/h1&gt;</pre>
+        <pre>my $string = gettext('My String');</pre>
+        This will be the syntax in both the Perl and HTML::Template files.<br>
+        <pre>sprintf(ngettext('%d single string','%d plural strings', $number), $number)</pre>
+        This will be the syntax in the Perl files for plural strings. Since plurals must be processed through sprintf this syntax cannot appear in HTML::Template files.<br><br>
+        <ul>
+          <li>The following files need to be tagged for gettext:<br><br>
+            <ul>
+            <li>openwebmail-abook.pl</li>
+            <li>openwebmail-advsearch.pl</li>
+            <li>openwebmail-cal.pl</li>
+            <li>openwebmail-folder.pl</li>
+            <li>COMPLETE: openwebmail-main.pl</li>
+            <li>openwebmail-prefs.pl</li>
+            <li>COMPLETE: openwebmail-read.pl</li>
+            <li>openwebmail-saprefs.pl</li>
+            <li>openwebmail-send.pl</li>
+            <li>openwebmail-spell.pl</li>
+            <li>openwebmail-tool.pl</li>
+            <li>openwebmail-vdomain.pl</li>
+            <li>openwebmail-viewatt.pl</li>
+            <li>openwebmail-webdisk.pl</li>
+            <li>COMPLETE: openwebmail.pl</li>
+            <li>preload.pl</li>
+            <li>userstat.pl</li>
+            <li>vacation.pl</li>
+            <li>shares/adrbook.pl</li>
+            <li>shares/calbook.pl</li>
+            <li>shares/cut.pl</li>
+            <li>shares/fetchmail.pl</li>
+            <li>shares/filterbook.pl</li>
+            <li>shares/getmessage.pl</li>
+            <li>shares/getmsgids.pl</li>
+            <li>shares/iconv-chinese.pl</li>
+            <li>shares/iconv-japan.pl</li>
+            <li>shares/iconv.pl</li>
+            <li>shares/lockget.pl</li>
+            <li>shares/lunar.pl</li>
+            <li>shares/maildb.pl</li>
+            <li>shares/mailfilter.pl</li>
+            <li>COMPLETE: shares/ow-shared.pl</li>
+            <li>shares/pop3book.pl</li>
+            <li>shares/statbook.pl</li>
+            <li>shares/upgrade.pl</li>
+            <li>shares/vcard.pl</li>
+            <li>shares/vfile.pl</li>
+            <li>modules/datetime.pl</li>
+            <li>modules/dbm.pl</li>
+            <li>modules/enriched.pl</li>
+            <li>modules/execute.pl</li>
+            <li>modules/filelock.pl</li>
+            <li>modules/htmlrender.pl</li>
+            <li>modules/htmltext.pl</li>
+            <li>modules/lang.pl</li>
+            <li>modules/mailparse.pl</li>
+            <li>modules/mime.pl</li>
+            <li>modules/spamcheck.pl</li>
+            <li>modules/suid.pl</li>
+            <li>modules/tnef.pl</li>
+            <li>modules/tool.pl</li>
+            <li>modules/viruscheck.pl</li>
+            <li>modules/wget.pl</li>
+            <li>template/abook_autosuggest.tmpl</li>
+            <li>template/abook_cardview.tmpl</li>
+            <li>template/abook_editbooks.tmpl</li>
+            <li>template/abook_editcontactform.tmpl</li>
+            <li>template/abook_editgroupform.tmpl</li>
+            <li>template/abook_importfieldselect.tmpl</li>
+            <li>template/abook_importform.tmpl</li>
+            <li>template/abook_listview.tmpl</li>
+            <li>template/abook_listviewcompose.tmpl</li>
+            <li>template/abook_listviewexport.tmpl</li>
+            <li>template/abook_listviewgroup.tmpl</li>
+            <li>template/abook_selectgrabber.tmpl</li>
+            <li>template/advsearch.tmpl</li>
+            <li>COMPLETE: template/autoclose.tmpl</li>
+            <li>template/cal_dayview.tmpl</li>
+            <li>template/cal_edit.tmpl</li>
+            <li>template/cal_listview.tmpl</li>
+            <li>template/cal_monthview.tmpl</li>
+            <li>template/cal_weekview.tmpl</li>
+            <li>template/cal_yearview.tmpl</li>
+            <li>template/editfolders.tmpl</li>
+            <li>COMPLETE: template/footer.tmpl</li>
+            <li>COMPLETE: template/header.tmpl</li>
+            <li>COMPLETE: template/init_sslredirect.tmpl</li>
+            <li>COMPLETE: template/login.tmpl</li>
+            <li>COMPLETE: template/login_fail.tmpl</li>
+            <li>COMPLETE: template/login_pass.tmpl</li>
+            <li>COMPLETE: template/main_listview.tmpl</li>
+            <li>COMPLETE: template/main_logout.tmpl</li>
+            <li>template/prefs.tmpl</li>
+            <li>template/prefs_about.tmpl</li>
+            <li>template/prefs_editfilter.tmpl</li>
+            <li>template/prefs_editfroms.tmpl</li>
+            <li>template/prefs_editpassword.tmpl</li>
+            <li>template/prefs_editpassword_fail.tmpl</li>
+            <li>template/prefs_editpassword_pass.tmpl</li>
+            <li>template/prefs_editpop3.tmpl</li>
+            <li>template/prefs_editstationery.tmpl</li>
+            <li>template/prefs_saved.tmpl</li>
+            <li>template/prefs_timeoutwarning.tmpl</li>
+            <li>template/prefs_userfirsttime.tmpl</li>
+            <li>template/prefs_viewhistory.tmpl</li>
+            <li>COMPLETE: template/read_printmessage.tmpl</li>
+            <li>COMPLETE: template/read_readmessage.tmpl</li>
+            <li>COMPLETE: template/read_rebuildfailed.tmpl</li>
+            <li>template/sa_editlist.tmpl</li>
+            <li>template/sa_edittest.tmpl</li>
+            <li>template/send_compose.tmpl</li>
+            <li>template/send_replyreceipt.tmpl</li>
+            <li>COMPLETE: template/sessiontimeout.tmpl</li>
+            <li>template/webdisk_dirfilesel.tmpl</li>
+            <li>template/webdisk_editfile.tmpl</li>
+            <li>template/webdisk_listarchive.tmpl</li>
+            <li>template/webdisk_showdir.tmpl</li>
+            <li>template/webdisk_wordpreview.tmpl</li>
+            </ul>
+          </li>
+        </ul><br><br>
       </li>
     </ol>
     </blockquote>
