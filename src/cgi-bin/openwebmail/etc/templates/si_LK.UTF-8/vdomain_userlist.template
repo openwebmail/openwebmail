@@ -1,0 +1,17 @@
+@@@STARTFORM@@@
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="0">
+<tr>
+  <td colspan="2" bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Userlist of Domain @@@DOMAINNAME@@@</b></font></td>
+</tr>
+<tr>
+  <td colspan="2" bgcolor=@@@MENUBAR@@@>@@@MENUBARLINKS@@@</td>
+</tr>
+</table>
+
+<table border="0" align="center" width="90%" cellpadding="1" cellspacing="1">
+<tr>
+  <td colspan="4" bgcolor=@@@COLUMNHEADER@@@><b>Userlist</b> ( view by: @@@VIEWFMT@@@ )</td>
+</tr>
+@@@USERS@@@
+</table>
+@@@ENDFORM@@@

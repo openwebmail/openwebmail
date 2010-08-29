@@ -1,0 +1,9 @@
+﻿<br><br><br><br><br><br><br>
+<table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
+<tr>
+  <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Session Timeout</b></font></td>
+</tr>
+<tr>
+  <td align="center" bgcolor=@@@WINDOW_LIGHT@@@><br>කණගාටුයි, ඔබෙග් සැසියෙහි කාලය ඉකුත් වී ඇත! කරුණාකර ආපසු ගොස් නැවත  <a href="@@@STARTURL@@@">ලොගින් </a> වන්න.<br><br></td>
+</tr>
+</table>

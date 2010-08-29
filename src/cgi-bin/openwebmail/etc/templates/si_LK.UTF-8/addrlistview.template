@@ -1,0 +1,164 @@
+<table cellpadding="0" cellspacing="0" border="0" width="95%" align="center">
+<tr>
+  <td colspan="@@@TOTALSPAN@@@" bgcolor=@@@TITLEBAR@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td nowrap bgcolor=@@@TITLEBAR@@@ width="30%">@@@ABOOKSELECTIONFORM@@@</td>
+      <td nowrap bgcolor=@@@TITLEBAR@@@ align="center"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>&nbsp;</b></font></td>
+      <td nowrap bgcolor=@@@TITLEBAR@@@ align="right" width="30%"><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@FREESPACE@@@ Available</b></font>&nbsp;</td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td colspan="@@@TOTALSPAN@@@">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td bgcolor=@@@MENUBAR@@@>@@@MENUBARLINKSLEFT@@@</td>
+      <td bgcolor=@@@MENUBAR@@@ align="right" nowrap>@@@MENUBARLINKSRIGHT@@@</td>
+    </tr>
+    </table>
+  </td>
+</tr>
+@@@BEFORELISTVIEWEXTRAHTML@@@
+<tr>
+  <td colspan="@@@TOTALSPAN@@@">@@@PAGECONTROL@@@</td>
+</tr>
+<tr>
+  <td colspan="@@@TOTALSPAN@@@" bgcolor=@@@MENUBAR@@@>
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+       <td width="33%" nowrap>@@@SEARCHBARFORM@@@</td>
+       <td align="center" width="25%" nowrap>@@@PAGESELECTIONFORM@@@</td>
+       <td align="right" nowrap>@@@EXPANDCOLLAPSE@@@</td>
+       <td align="right" @@@MOVECOPYFORMWIDTH@@@ nowrap>@@@MOVECOPYFORM@@@</td>
+    </tr>
+    </table>
+  </td>
+</tr>
+@@@QUICKADDFORM@@@
+@@@BUTTONSBEFORE@@@
+</table>
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
+@@@COLUMNHEADINGS@@@
+@@@ADDRESSES@@@
+</table>
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
+<tr>
+  <td colspan="@@@TOTALSPAN@@@">@@@PAGECONTROL@@@</td>
+</tr>
+@@@BUTTONSAFTER@@@
+@@@AFTERLISTVIEWEXTRAHTML@@@
+</table>
+<style type="text/css">
+<!--
+#notepopup{ position: absolute;
+          visibility: hidden;
+          background-color: @@@MENUBAR@@@;
+          layer-background-color: @@@MENUBAR@@@; }
+-->
+</style>
+<div id="notepopup"></div>
+
+<script language="javascript">
+<!--
+function CheckAll(thisBox,formName,nameName,groupName) {
+   if (thisBox.type == 'checkbox') {
+      thisBox.toggle = thisBox.checked;
+   } else {
+      thisBox.toggle = !thisBox.toggle;
+   }
+   for (var i=0;i<document.forms[formName].elements.length;i++) {
+      var e = document.forms[formName].elements[i];
+      if (e.type == 'checkbox') {
+         if (groupName == null) {
+            if (e.name == nameName) {
+               e.checked = thisBox.toggle;
+            }
+         } else {
+            if (e.name == nameName &&
+                document.forms[formName].elements[i+1] != null &&
+                document.forms[formName].elements[i+1].name == escape(groupName)) {
+               e.checked = thisBox.toggle;
+               i++;
+            }
+         }
+      }
+   }
+}
+
+function addToForm(targetForm, sourceForm) {
+   // args 2 through infinity are the form elements to transfer
+   for (var a=2; a<arguments.length; a++) {
+      var elementName = arguments[a];
+      var valueString = '';
+      for (var i=0;i<document.forms[sourceForm].elements.length;i++) {
+         var e = document.forms[sourceForm].elements[i];
+         if (e.type == 'checkbox') {
+            if (e.name == elementName && e.checked == 1 && e.value != '') {
+               valueString += e.value+',';
+            }
+         }
+      }
+      document.forms[targetForm].elements[elementName].value=valueString;
+   }
+}
+
+function clearAll(sourceForm) {
+   for (var a=1; a<arguments.length; a++) {
+      // clear form input hiddens
+      var elementName = arguments[a];
+      if (document.forms[sourceForm].elements[elementName] != null) {
+         if (document.forms[sourceForm].elements[elementName].value != null) {
+            document.forms[sourceForm].elements[elementName].value='';
+         }
+      }
+
+      // clear checkboxes
+      for (var i=0;i<document.forms[sourceForm].elements.length;i++) {
+         var e = document.forms[sourceForm].elements[i];
+         if (e.type == 'checkbox') {
+            e.checked = 0;
+         }
+      }
+   }
+}
+
+function showCheckedList(sourceForm) {
+   var url = "@@@SHOWCHECKEDLISTURL@@@";
+
+   // add the to,cc,bcc stuff
+   var qString = '';
+   for (var a=1; a<arguments.length; a++) {
+      var elementName = arguments[a];
+      qString += '&'+elementName+'=';
+      for (var i=0;i<document.forms[sourceForm].elements.length;i++) {
+         var e = document.forms[sourceForm].elements[i];
+         if (e.type == 'checkbox') {
+            if (e.name == elementName && e.checked == 1 && e.value != '') {
+               qString += escape(e.value)+',';
+            }
+         }
+      }
+   }
+   url += qString;
+   window.open(url,"_checkedlist","width=550,height=500,resizable=yes,scrollbars=yes");
+}
+
+function popupNotice (msgOption) {
+   if (msgOption == 'deletecontact') {
+      return(confirm('Are you sure you want to delete this contact?'));
+   }
+}
+
+function setchkbox (id) {
+   if (!document.layers) {
+      var cb=document.getElementById(id);
+      cb.checked=!cb.checked;
+   }
+}
+//-->
+</script>
+
+@@@EXTRAJAVASCRIPT@@@
+

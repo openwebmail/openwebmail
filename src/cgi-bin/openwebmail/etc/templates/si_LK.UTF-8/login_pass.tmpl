@@ -1,0 +1,61 @@
+<tmpl_var header_template escape="none">
+
+<!-- ********************************************************************* -->
+<!-- * PLEASE DO NOT MODIFY THE LICENSE OR COPYRIGHT NOTICE PLACED BELOW * -->
+<!-- ********************************************************************* -->
+
+<style type="text/css">
+body { background: #ffffff; }
+</style>
+
+<script type="text/javascript">
+<!--
+   setTimeout("window.location.href='<tmpl_var url_refresh escape="none">'", 1000);
+//-->
+</script>
+
+<center>
+
+<br><br><a href="<tmpl_var url_refresh escape="none">" title="click to continue" class="loading">&nbsp; Loading ...</a><br><br>
+
+<a href="http://openwebmail.org/" title="<tmpl_var programname escape="html"> homepage" target="_blank" class="copyright">
+<tmpl_if enable_about>
+  <tmpl_if about_info_software>
+    <tmpl_var programname escape="html"> <tmpl_var programversion escape="html">.<tmpl_var programrevision escape="html"> <tmpl_var programreleasedate escape="html">
+  </tmpl_if>
+</tmpl_if>
+<br>
+Copyright (c) 2001-2008, The OpenWebMail Project, All rights reserved<br>
+<br>
+Active Developers<br>
+Thomas Chung, Alex Teslik, Scott Mazur, Joao S Veiga, Marian &#270;urkovi&#269;<br>
+<br>
+Special Thanks to Retired Developers<br>
+Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>
+Dattola Filippo, Bernd Bass<br>
+<br>
+Portions based on Neomail, Copyright (c) 2000 Ernie Miller<br>
+<br>
+</a>
+
+<a href="<tmpl_var url_html escape="none">/doc/LICENSE.txt" title="click to see The BSD License" target="_blank" class="copyright">
+THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project &apos;&apos;AS IS&apos;&apos; AND ANY<br>
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED<br>
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE<br>
+DISCLAIMED. IN NO EVENT SHALL The OpenWebMail Project BE LIABLE FOR ANY<br>
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES<br>
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;<br>
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND<br>
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT<br>
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS<br>
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.<br>
+<br>
+</a>
+
+<tmpl_if session_count_display>
+<a href="javascript:void(0);" title="number of active sessions in the past 1, 5, 15 minutes" class="copyright">Sessions&nbsp;:&nbsp;<tmpl_var activelastminute escape="html">,&nbsp;<tmpl_var activelastfiveminute escape="html">,&nbsp;<tmpl_var activelastfifteenminute escape="html"></a>
+</tmpl_if>
+
+</center>
+
+<tmpl_var footer_template escape="none">

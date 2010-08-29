@@ -1,0 +1,22 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=<tmpl_var charset escape="html">">
+  <title><tmpl_var titleinfo escape="html"></title>
+  <link rel="shortcut icon" href="<tmpl_var url_ico escape="none">">
+  <link rel="stylesheet" type="text/css" href="<tmpl_var url_styles escape="none">/<tmpl_var stylesheet escape="html">">
+
+  <tmpl_if showaltstyles>
+  <tmpl_loop stylesheetsloop>
+  <link rel="alternate stylesheet" type="text/css" href="<tmpl_var url_styles escape="none">/<tmpl_var stylesheet escape="html">" title="<tmpl_var stylesheet escape="html">">
+  </tmpl_loop>
+  </tmpl_if>
+</head>
+
+<!-- <tmpl_var diagnostics> -->
+
+<body onhelp="window.open('<tmpl_var url_help escape="none">', '_help'); return false;" style="background-image: url(<tmpl_var url_bg escape="none">); background-repeat: <tmpl_if bgrepeat>repeat<tmpl_else>no-repeat</tmpl_if>; font-size: <tmpl_var fontsize escape="html">; direction: <tmpl_var languagedirection escape="html">;">
+
+<tmpl_var headerpluginoutput escape="none">

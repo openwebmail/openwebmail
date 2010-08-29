@@ -1,0 +1,396 @@
+<tmpl_var header_template escape="none">
+
+<form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl" enctype="multipart/form-data" name="dirform">
+<input type="hidden" name="currentdir" value="<tmpl_var currentdir escape="html">">
+<input type="hidden" name="filesort" value="<tmpl_var filesort escape="html">">
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="gotodir" value="<tmpl_var gotodir escape="html">">
+<input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="permission" value="">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+
+<table cellpadding="0" cellspacing="0" border="0" width="95%" align="center">
+<tr>
+  <td class="titlebar" width="20%">Webdisk</td>
+  <td class="titlebar" width="20%" align="center"><tmpl_if quotausage>Quota usage: <tmpl_var quotausage escape="html"><tmpl_if peroverquota> (<tmpl_var peroverquota>%)</tmpl_if><tmpl_else>&nbsp;</tmpl_if></td>
+  <td class="titlebar" width="20%">&nbsp;</td>
+</tr>
+<tr>
+  <td class="menubar" colspan="3">
+    <a accesskey="G" href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;gotodir=%2F&amp;page=<tmpl_var page escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon"><tmpl_if use_texticon>back to homedir<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/home.gif" title="back to homedir" alt="back to homedir" border="0" align="absmiddle"></tmpl_if></a>
+    <a accesskey="R" href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=userrefresh&amp;gotodir=<tmpl_var currentdir escape="url">&amp;page=<tmpl_var page escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon"><tmpl_if use_texticon>refresh<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/refresh.gif" title="refresh" alt="refresh" border="0" align="absmiddle"></tmpl_if></a>
+<tmpl_if enable_webmail>
+  <tmpl_if message_id>
+    <a accesskey="M" href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=readmessage&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon"><tmpl_if use_texticon>back to <tmpl_var folderstr escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/owm.gif" title="back to <tmpl_var folderstr escape="html">" alt="back to <tmpl_var folderstr escape="html">" border="0" align="absmiddle"></tmpl_if></a> 
+  <tmpl_else>
+    <a accesskey="M" href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;folder=<tmpl_var folder escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon"><tmpl_if use_texticon>back to <tmpl_var folderstr escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/owm.gif" title="back to <tmpl_var folderstr escape="html">" alt="back to <tmpl_var folderstr escape="html">" border="0" align="absmiddle"></tmpl_if></a>
+  </tmpl_if>
+</tmpl_if>
+<tmpl_if enable_addressbook>
+    <a accesskey="A" href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;folder=<tmpl_var folder escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon"><tmpl_if use_texticon>address book<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/addrbook.gif" title="address book" alt="address book" border="0" align="absmiddle"></tmpl_if></a>
+</tmpl_if>
+<tmpl_if enable_calendar>
+    <a accesskey="K" href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=<tmpl_var calendardefaultview escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon"><tmpl_if use_texticon>calendar<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/calendar.gif" title="calendar" alt="calendar" border="0" align="absmiddle"></tmpl_if></a>
+</tmpl_if>
+<tmpl_if enable_sshterm>
+  <tmpl_if use_ssh2>
+    <a href="javascript:void(0);" onclick="window.open('<tmpl_var url_html escape="none">/applet/mindterm2/ssh2.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');" accesskey="T" class="icon"><tmpl_if use_texticon>ssh terminal<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/sshterm.gif" title="ssh terminal" alt="ssh terminal" border="0" align="absmiddle"></tmpl_if></a>
+<tmpl_else><tmpl_if use_ssh1>
+    <a href="javascript:void(0);" onclick="window.open('<tmpl_var url_html escape="none">/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');" accesskey="T" class="icon"><tmpl_if use_texticon>ssh terminal<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/sshterm.gif" title="ssh terminal" alt="ssh terminal" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+  </tmpl_if>
+</tmpl_if>
+<tmpl_if enable_preference>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editprefs&amp;prefs_caller=webdisk&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;message_id=<tmpl_var message_id escape="url">" accesskey="O" class="icon"><tmpl_if use_texticon>user preferences<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/prefs.gif" title="user preferences" alt="user preferences" border="0" align="absmiddle"></tmpl_if></a>
+</tmpl_if>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=logout&amp;sessionid=<tmpl_var sessionid escape="url">" accesskey="Q" class="icon"><tmpl_if use_texticon>logout<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/logout.gif" title="logout" alt="logout" border="0" align="absmiddle"></tmpl_if></a>
+  </td>
+</tr>
+</table>
+
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
+<tr>
+  <td>
+    <table border="0" cellpadding="0" cellspacing="0">
+    <tr>
+      <td nowrap>
+      <tmpl_if isroot>
+        <img src="<tmpl_var url_html escape="none">/images/file/disk.gif" align="absmiddle" border="0"> &nbsp;
+      <tmpl_else>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;gotodir=<tmpl_var parentdir escape="url">&amp;page=<tmpl_var page escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon"><img src="<tmpl_var url_html escape="none">/images/file/dirup.gif" align="absmiddle" border="0"> &nbsp;</a>
+      </tmpl_if>
+      </td>
+      <td>
+        <b>
+      <tmpl_if keyword>Search<tmpl_else>Dir</tmpl_if> &nbsp;
+      <tmpl_loop pathloop> 
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;gotodir=<tmpl_var dir escape="url">&amp;page=<tmpl_var page escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">"><tmpl_var dirstr escape="html"></a>
+      </tmpl_loop>
+        </b>
+      </td>
+    </tr>
+    </table>
+  </td>
+  <td align="right">
+    <table border="0" cellpadding="0" cellspacing="0">
+    <tr><tmpl_if enablehidden>
+      <td>Show hidden files</td>
+      <td><label><input type="checkbox" name="showhidden" value="1"<tmpl_if showhidden> checked="checked"</tmpl_if> onclick="document.dirform.submit();" /></label></td></tmpl_if>
+      <tmpl_if allowthumbnails>
+      <td>Thumbnails</td>
+      <td><label><input type="checkbox" name="showthumbnail" value="1"<tmpl_if showthumbnail> checked="checked"</tmpl_if> onclick="document.dirform.submit();" /></label></td>
+      </tmpl_if>
+      <td>Single page</td>
+      <td><label><input type="checkbox" name="singlepage" value="1"<tmpl_if singlepage> checked="checked"</tmpl_if> onclick="document.dirform.submit();" /></label></td>
+    </tr>
+    </table>
+  </td>
+</tr>
+</table>
+
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="1">
+<tr>
+   <tmpl_loop headersloop>
+      <tmpl_if nameheader>
+  <td class="columnheader" width="56%" align="left">
+      <tmpl_else><tmpl_if sizeheader>
+  <td class="columnheader" width="12%" align="right">
+      <tmpl_else><tmpl_if timeheader>
+  <td class="columnheader" width="22%" align="center">
+      <tmpl_else><tmpl_if permheader>
+  <td class="columnheader" width="7%" align="center">
+      </tmpl_if></tmpl_if></tmpl_if></tmpl_if>
+    <a accesskey="G" href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;gotodir=<tmpl_var currentdir escape="url">&amp;page=<tmpl_var page escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;filesort=<tmpl_var newfilesort escape="url">">
+      <tmpl_if nameheader>
+Filename
+      <tmpl_else><tmpl_if sizeheader>
+Size
+      <tmpl_else><tmpl_if timeheader>
+Last modified time
+      <tmpl_else><tmpl_if permheader>
+Perm
+      </tmpl_if></tmpl_if></tmpl_if></tmpl_if>
+    </a>
+      <tmpl_if revsort>
+    <img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/up.gif" class="icon" border="0" align="absmiddle" alt="^">
+      <tmpl_else><tmpl_if fwdsort>
+    <img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/down.gif" class="icon" border="0" align="absmiddle" alt="v">
+      </tmpl_if></tmpl_if>
+  </td>
+   </tmpl_loop>
+  <td class="columnheader" width="3%" align ="center"><label><input type="checkbox" name="allbox" value="1" onclick="CheckAll(<tmpl_var uselightbar escape="js">);"/></label></td>
+</tr>
+<tmpl_if filesloop>
+<tmpl_loop filesloop>
+<tr id="tr_<tmpl_var filenumber escape="html">" <tmpl_if uselightbar>class="rowlight" onclick="if (!document.layers) { var cb = document.getElementById('<tmpl_var filenumber escape="js">'); cb.checked=!cb.checked }" onmouseover="this.className='rowhilite';" onmouseout="this.className=document.getElementById('<tmpl_var filenumber escape="js">').checked?'rowdark':'rowlight';"</tmpl_if>>
+  <td<tmpl_unless uselightbar> class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless>>
+    <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr>
+      <td>
+<tmpl_if isdir>
+<a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;gotodir=<tmpl_var filename escape="url">&amp;page=<tmpl_var page escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon" title="<tmpl_var ownerstr escape="html">" accesskey="<tmpl_var accesskeynr escape="html">"><tmpl_if ficon><img src="<tmpl_var url_html escape="none">/images/file/<tmpl_var ficon escape="url">" align="absmiddle" border="0"></tmpl_if>&nbsp;<b><tmpl_var filenamestr escape="html"><tmpl_var flinkstr escape="html"></b></a>
+      </td>
+      <td align="right" nowrap>
+<a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;gotodir=<tmpl_var filename escape="url">&amp;page=<tmpl_var page escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">"><b>&lt;Dir&gt;</b></a>
+<tmpl_else>
+<tmpl_if ficon><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl/<tmpl_var fname escape="url">?action=download&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon" title="<tmpl_var ownerstr escape="html">" accesskey="<tmpl_var accesskeynr escape="html">"<tmpl_if blank> target="_blank"</tmpl_if>><img src="<tmpl_var url_html escape="none">/images/file/<tmpl_var ficon escape="url">" align="absmiddle" border="0"></a>&nbsp;</tmpl_if>
+ <tmpl_if dname>
+<a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;gotodir=<tmpl_var dname escape="url">&amp;page=<tmpl_var page escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon" accesskey="<tmpl_var accesskeynr escape="html">"><tmpl_var dnamestr escape="html"></a>
+ </tmpl_if>
+<a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl/<tmpl_var fname escape="url">?action=download&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" title="<tmpl_var ownerstr escape="html">" accesskey="<tmpl_var accesskeynr escape="html">"<tmpl_if blank> target="_blank"</tmpl_if>><tmpl_var fnamestr escape="html"><tmpl_var flinkstr escape="html"></a>
+      </td>
+      <td align="right" nowrap>
+ <tmpl_if mkpspdf>
+<a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=<tmpl_var mkpspdf escape="url">&amp;selitems=<tmpl_var filename escape="url">&amp;page=<tmpl_var page escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">"<tmpl_if mkps><tmpl_if withconfirm> onclick="return confirm('Make PS? (<tmpl_var filename escape="js">)');"</tmpl_if>>[Make PS]<tmpl_else><tmpl_if withconfirm> onclick="return confirm('Make PDF? (<tmpl_var filename escape="js">)');"</tmpl_if>>[Make PDF]</tmpl_if></a>
+ </tmpl_if>
+ <tmpl_if preview>
+<a href="javascript:void(0);" onClick="window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=preview&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">','_previewfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');">[Preview]</a>
+ </tmpl_if>
+ <tmpl_if editfile>
+<a href="javascript:void(0);" onClick="window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=editfile&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">','_editfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');">[Edit]</a>
+ </tmpl_if>
+ <tmpl_if listarchive>
+<a href="javascript:void(0);" onClick="window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=listarchive&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">','_editfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');">[List]</a>
+ </tmpl_if>
+ <tmpl_if wordpreview>
+<a href="javascript:void(0);" onClick="window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=wordpreview&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">','_wordpreview','width=780,height=550,scrollbars=yes,resizable=yes,location=no');">[Preview]</a>
+ </tmpl_if>
+ <tmpl_if candeflate>
+<a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=decompress&amp;selitems=<tmpl_var filename escape="url">&amp;page=<tmpl_var page escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">"<tmpl_if archive><tmpl_if withconfirm> onclick="return confirm('Extract? (<tmpl_var filename escape="js">)');"</tmpl_if>>[Extract]<tmpl_else><tmpl_if withconfirm> onclick="return confirm('Decompress? (<tmpl_var filename escape="js">)');"</tmpl_if>>[Decompress]</tmpl_if></a>
+ </tmpl_if>
+ <tmpl_if thumbnail>
+<a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl/<tmpl_var fname escape="url">?action=download&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon"<tmpl_if blank> target="_blank"</tmpl_if>><img src="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=download&amp;selitems=<tmpl_var thumbnail escape="url">&amp;page=<tmpl_var page escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" align="absmiddle" border="0"></a>
+ </tmpl_if>
+</tmpl_if>
+      </td>
+    </tr>
+    </table>
+  </td>
+  <td<tmpl_unless uselightbar> class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless> align="right">
+<a title="<tmpl_var fsizestr escape="html">"><tmpl_var fsize escape="html"></a>
+  </td>
+  <td<tmpl_unless uselightbar> class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless> align="center">
+<tmpl_var datestr escape="html">
+  </td>
+  <td<tmpl_unless uselightbar> class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless> align="center">
+<a title="<tmpl_var fmode escape="html">"><tmpl_var fperm escape="html"></a>
+  </td>
+  <td<tmpl_unless uselightbar> class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless> align="center">
+<label><input type="checkbox" name="selitems" value="<tmpl_var filename escape="url">" id="<tmpl_var filenumber escape="html">"<tmpl_if uselightbar> onclick="if (!document.layers) {this.checked=!this.checked}"</tmpl_if> /></label><input type="hidden" name="p_<tmpl_var filenumber escape="html">" id="p_<tmpl_var filenumber escape="html">" value="<tmpl_var filenamestr escape="html">">
+  </td>
+</tr>
+</tmpl_loop>
+<tmpl_else>
+<tr>
+<td class="rowlight" align=center><table><tr><td><font class="lighttext">No item found</font></td</tr></table></td>
+<td class="rowlight">&nbsp;</td>
+<td class="rowlight">&nbsp;</td>
+<td class="rowlight">&nbsp;</td>
+<td class="rowlight">&nbsp;</td>
+</tr>
+</tmpl_if>
+
+</table>
+
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
+<tr>
+  <td width="15%" nowrap>&nbsp;<tmpl_var dcount escape="html"> Dirs, <tmpl_var fcount escape="html"> Files</td>
+  <td align="center" nowrap>
+<tmpl_if pagelinksloop>
+<tmpl_if prevpage><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;gotodir=<tmpl_var currentdir escape="url">&amp;page=<tmpl_var prevpage escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=0&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" accesskey="U" class="icon"><tmpl_if use_texticon><tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left>right.gif<tmpl_else>left.gif</tmpl_if>" title="previous page" alt="<tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if>" border="0" align="absmiddle"></tmpl_if></a><tmpl_else><tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left>right-grey.gif<tmpl_else>left-grey.gif</tmpl_if>" title="no previous page" alt="-" border="0" align="absmiddle"></tmpl_if></tmpl_if>
+&nbsp;
+<tmpl_loop pagelinksloop>
+ <tmpl_if thispage>
+  <b><tmpl_var pagenr escape="html"></b>&nbsp;
+ <tmpl_else>
+  <a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;gotodir=<tmpl_var currentdir escape="url">&amp;page=<tmpl_var pagenr escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=0&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">"><tmpl_var pagenr escape="html"></a>&nbsp;
+ </tmpl_if>
+</tmpl_loop>
+<tmpl_if nextpage><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;gotodir=<tmpl_var currentdir escape="url">&amp;page=<tmpl_var nextpage escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=0&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" accesskey="D" class="icon"><tmpl_if use_texticon><tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left>left.gif<tmpl_else>right.gif</tmpl_if>" title="next page" alt="<tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if>" border="0" align="absmiddle"></tmpl_if></a><tmpl_else><tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left>left-grey.gif<tmpl_else>right-grey.gif</tmpl_if>" title="no next page" alt="-" border="0" align="absmiddle"></tmpl_if></tmpl_if>
+</tmpl_if>
+  </td>
+  <td width="15%" nowrap align="right">Listed file size: <tmpl_var totsize escape="html">&nbsp;</td>
+</tr>
+</table>
+
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
+<tr>
+  <td class="columnheader">Operation</td>
+</tr>
+<tr>
+  <td class="menubar">
+    <table border="0" cellpadding="1" cellspacing="1">
+    <tr>
+      <td width="10%">TargetName:</td>
+      <td width="90%"><input type="text" name="destname"  size="35" accesskey="N" />
+ <input type="submit" name="chdirbutton" value="ChDir" accesskey="J" onclick="if (document.dirform.keyword.value != '') {return true;}; return destnamefilled('the target directory');" /><tmpl_if canwrite><input type="submit" name="mkdirbutton" value="MkDir" accesskey="M" onclick="return destnamefilled('the directory name to create');" /><input type="submit" name="newfilebutton" value="NewFile" accesskey="F" onclick="return destnamefilled('the filename to create');" /></tmpl_if>
+      </td>
+    </tr>
+    <tr>
+      <td nowrap colspan="2">
+<tmpl_if notreadonly><tmpl_if underquota><input type="submit" name="copybutton" value="Copy" accesskey="C" onclick="return(anyfileselected() &amp;&amp; destnamefilled('the target directory or file for the copy') &amp;&amp; opconfirm('Copy', 1));" /><input type="submit" name="movebutton" value="Move" accesskey="V" onclick="return(anyfileselected() &amp;&amp; destnamefilled('the target directory or file for the move') &amp;&amp; opconfirm('Move', 1));" /><tmpl_if cansymlink><input type="submit" name="symlinkbutton" value="Symlink" accesskey="N" onclick="return(anyfileselected() &amp;&amp; destnamefilled('the target directory or file of the link') &amp;&amp; opconfirm('Symlink', 1));" /></tmpl_if></tmpl_if><input type="submit" name="deletebutton" value="Delete" accesskey="Y" onclick="return (anyfileselected() &amp;&amp; opconfirm('Delete', 1));" /><tmpl_if canchmod><input type="submit" name="chmodbutton" value="Chmod" accesskey="O" onclick="return (anyfileselected() &amp;&amp; chmodinput());" /></tmpl_if>&nbsp;</tmpl_if>
+<tmpl_if canwrite><tmpl_if cangzip><input type="submit" name="gzipbutton" value="gzCompress" accesskey="Z" onclick="return(anyfileselected() &amp;&amp; opconfirm('gzCompress', 1));" /></tmpl_if><tmpl_if canzip><input type="submit" name="mkzipbutton" value="MkZip" accesskey="Z" onclick="return(anyfileselected() &amp;&amp; destnamefilled('the filename for the new zip') &amp;&amp; opconfirm('MkZip', 1));" /></tmpl_if><tmpl_if cantargz><input type="submit" name="mktgzbutton" value="MkTgz" accesskey="Z" onclick="return(anyfileselected() &amp;&amp; destnamefilled('the filename for the new tgz') &amp;&amp; opconfirm('MkTgz', 1));" /><tmpl_else><tmpl_if cantar><input type="submit" name="mktgzbutton" value="MkTar" accesskey="Z" onclick="return(anyfileselected() &amp;&amp; destnamefilled('the filename for the new tgz') &amp;&amp; opconfirm('MkTar', 1));" /></tmpl_if></tmpl_if><tmpl_if canthumb><input type="submit" name="mkthumbnailbutton" value="MkThumb" accesskey="Z" onclick="return(anyfileselected() &amp;&amp; opconfirm('MkThumb', 1));" /></tmpl_if>&nbsp;
+</tmpl_if><input type="submit" name="downloadbutton" value="Download" accesskey="L" onclick="return anyfileselected();" />
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
+<tr>
+  <td>
+    <table border="0" width="100%" cellpadding="1" cellspacing="1">
+
+    <tr>
+      <td nowrap class="columnheader">Search</td>
+    </tr>
+    <tr>
+      <td nowrap class="menubar"><select name="searchtype" >
+<option selected="selected" value="filename">Filename</option>
+<option value="textcontent">TextContent</option>
+</select><input type="text" name="keyword" value="<tmpl_var keyword escape="html">" size="20" accesskey="S" onchange="document.dirform.searchbutton.focus();" /><input type="submit" name="searchbutton" value="Search" /></td>
+    </tr>
+
+    </table>
+  </td>
+  <td>
+   <tmpl_if canwrite>
+    <table border="0" width="100%" cellpadding="1" cellspacing="1">
+    <tr>
+      <td nowrap class="columnheadercolor"><b>Upload</b> ( filename or URL )</td>
+    </tr>
+
+    <tr>
+      <td nowrap class="menubar"><input type="file" name="upload"  size="25" accesskey="W" /><input type="submit" name="uploadbutton" value="Upload" onclick="return uploadfilled();" /></td>
+    </tr>
+    </table>
+  </tmpl_if>
+  </td>
+</tr>
+</table>
+
+<br>
+
+<table border="0" align="center" width="95%" cellpadding="1" cellspacing="1">
+<tr>
+  <td class="columnheader">Messages</td>
+</tr>
+<tr>
+  <td class="menubar"><textarea name="msg" rows="3" cols="78" wrap="hard"><tmpl_var msg escape="html"></textarea></td>
+</tr>
+</table>
+
+</form>
+
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_message.js"></script>
+
+<script type="text/javascript">
+<!--
+function CheckAll(setbgcolor) {
+   for (var i=0;i<document.dirform.elements.length;i++) {
+      var e = document.dirform.elements[i];
+      if (e.type == 'checkbox' &&
+          e.name != 'showthumbnail' &&
+          e.name != 'showhidden' &&
+          e.name != 'singlepage' &&
+          e.name != 'allbox') {
+         e.checked = document.dirform.allbox.checked;
+         if (!document.layers && setbgcolor) {
+            var tr = document.getElementById('tr_'+e.id);
+            if (e.checked) {
+               tr.style.backgroundColor="#DDDDDD";
+            } else {
+               tr.style.backgroundColor="#EEEEEE";
+            }
+         }
+      }
+   }
+}
+
+function anyfileselected() {
+   for (var i=0;i<document.dirform.elements.length;i++) {
+      var e = document.dirform.elements[i];
+      if (e.type == 'checkbox' &&
+          e.name != 'showthumbnail' &&
+          e.name != 'showhidden' &&
+          e.name != 'singlepage' &&
+          e.name != 'allbox' &&
+          e.checked == 1 ) {
+         return true;
+      }
+   }
+   alert("There is no directory or file selected.");
+   return false;
+}
+
+function selectedstr() {
+   var str = '';
+   for (var i=0;i<document.dirform.elements.length;i++) {
+      var e = document.dirform.elements[i];
+      if (e.type == 'checkbox' &&
+          e.name != 'showthumbnail' &&
+          e.name != 'showhidden' &&
+          e.name != 'singlepage' &&
+          e.name != 'allbox' &&
+          e.checked == 1 ) {
+         var p = document.getElementById('p_'+e.id);
+         if (str == '') {
+            str=p.value;
+         } else {
+            str=str+', '+p.value;
+         }
+      }
+   }
+   return(str);
+}
+
+function destnamefilled(target) {
+   if (document.dirform.destname.value == '') {
+      alert('Please fill  < '+target+' >  first.');
+      return false;
+   } else {
+      return true;
+   }
+}
+
+function uploadfilled() {
+   if (document.dirform.upload.value == '') {
+      alert("Please choose the file to upload first.");
+      return false;
+   } else {
+      document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
+      return true;
+   }
+}
+
+function opconfirm(op, conf) {
+   if (conf) {
+      return(confirm('Are you sure you want to '+op+' the selected items? ( '+selectedstr()+' )'));
+   } else {
+      return true;
+   }
+}
+
+function chmodinput() {
+   var oldperm=document.dirform.permission.value;
+   var newperm;
+   newperm=prompt('Please enter the permission for selected items ( '+selectedstr()+' )\n\n'+
+                  'Permission examples:\n'+
+                  '0755 for shared directories , 0644 for shared files\n'+
+                  '0700 for private directories , 0600 for private files', oldperm);
+   if ( newperm==oldperm || newperm==null ) {
+      return false;
+   } else {
+      document.dirform.permission.value=newperm;
+      return true;
+   }
+}
+
+<tmpl_if popup_quotadellimit>
+popup_message('<tmpl_var charset escape="js">', 'QUOTA HIT', '<span class="warning">Warning: since the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit, some files in the webdisk have been automatically removed.</span>', 'close', '_quotahit_del', 400, 100, 60);
+</tmpl_if>
+//-->
+</script>
+
+<tmpl_var footer_template escape="none">

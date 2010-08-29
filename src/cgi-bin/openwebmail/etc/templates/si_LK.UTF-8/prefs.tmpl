@@ -1,0 +1,1262 @@
+<tmpl_var header_template escape="none">
+
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl" method="post" name="prefsform">
+<input type="hidden" name="action" value="saveprefs">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+<input type="hidden" name="userfirsttime" value="<tmpl_var userfirsttime escape="html">">
+<input type="hidden" name="prefs_caller" value="<tmpl_var prefs_caller escape="html">">
+
+<tmpl_loop hiddenprefsloop>
+<!-- first time users get a limited menu - all other preferences are hidden here -->
+<input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
+</tmpl_loop>
+
+<table cellpadding="1" cellspacing="0" border="0" width="95%" align="center">
+<tr>
+  <td nowrap class="titlebar" width="30%">User Preference</td>
+  <td nowrap class="titlebar" align="center"><tmpl_if enable_quota><tmpl_if quotashowusage>Quota Usage: <tmpl_var quotabytesusage> </tmpl_if><tmpl_if quotaoverthreshold>(<tmpl_var quotapercentusage>%) </tmpl_if><tmpl_else>&nbsp;</tmpl_if></td>
+  <td nowrap class="titlebar" width="30%" align="right"><tmpl_if userrealname><tmpl_var userrealname></tmpl_if>&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="3" class="menubar">
+    <tmpl_unless userfirsttime>
+      <tmpl_if caller_main><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to <tmpl_var callerfoldername escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to <tmpl_var callerfoldername escape="html">" alt="back to <tmpl_var callerfoldername escape="html">" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+      <tmpl_if caller_calendar><a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=<tmpl_var calendardefaultview escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to calendar<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to calendar" alt="back to calendar" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+      <tmpl_if caller_webdisk><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to webdisk<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to webdisk" alt="back to webdisk" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+      <tmpl_if caller_addrlistview><a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to addressbook<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to addressbook" alt="back to addressbook" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+      <tmpl_if caller_read><a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>back to <tmpl_var callerfoldername escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to <tmpl_var callerfoldername escape="html">" alt="back to <tmpl_var callerfoldername escape="html">" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+      &nbsp;
+
+      <tmpl_if enable_webmail>
+        <tmpl_if enable_editfrombook><a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editfroms&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="F" class="icon"><tmpl_if use_texticon>edit personal email addresses<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/editfroms.gif" title="edit personal email addresses" alt="edit personal email addresses" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+        <tmpl_if enable_stationery><a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editstat&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="S" class="icon"><tmpl_if use_texticon>edit stationery<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/editst.gif" title="edit stationery" alt="edit stationery" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+        <tmpl_if enable_pop3><a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editpop3&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="G" class="icon"><tmpl_if use_texticon>POP3 setup<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/pop3setup.gif" title="POP3 setup" alt="POP3 setup" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+        <tmpl_if enable_spamcheck>
+        <tmpl_if enable_saprefs><a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=edittest&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="N" class="icon"><tmpl_if use_texticon>edit spam preferences<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/saprefs.gif" title="edit spam preferences" alt="edit spam preferences" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+        </tmpl_if>
+
+        &nbsp;
+
+      </tmpl_if>
+
+      <tmpl_if enable_changepwd><a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editpassword&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="C" class="icon"><tmpl_if use_texticon>change password<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/chpwd.gif" title="change password" alt="change password" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+      <tmpl_if vdomainadmin><a href="<tmpl_var url_cgi escape="none">/openwebmail-vdomain.pl?action=display_vuserlist&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="V" class="icon"><tmpl_if use_texticon>virtual domain user management<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/vdusers.gif" title="virtual domain user management" alt="virtual domain user management" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+      <tmpl_if enable_history><a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=viewhistory&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="H" class="icon"><tmpl_if use_texticon>view history<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/history.gif" title="view history" alt="view history" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+    </tmpl_unless>
+
+    <tmpl_if enable_about><a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=about&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="I" class="icon"><tmpl_if use_texticon>about <tmpl_var programname escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/info.gif" title="about <tmpl_var programname escape="html">" alt="about <tmpl_var programname escape="html">" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+  </td>
+</tr>
+</table>
+
+&nbsp;
+
+<table cellpadding="1" cellspacing="1" border="0" width="95%" align="center">
+<tr>
+  <td colspan="2" class="columnheader">Personal Information</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold" <tmpl_if userfirsttime>width="40%"</tmpl_if>>Language:</td>
+  <td class="windowdarkbold">
+    <select name="language" accesskey="1" onchange="javascript:if (this.value != null) { window.location.href='<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editprefs&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">&amp;charset='+document.forms['prefsform'].elements['charset'].options[document.forms['prefsform'].elements['charset'].selectedIndex].value+'&amp;language='+this.value; }"<tmpl_if disablelanguageselect> disabled="1"</tmpl_if>>
+    <tmpl_loop languageselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+
+    Charset:
+    <select name="charset" onchange="javascript:if (this.value != null) { window.location.href='<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editprefs&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">&amp;language='+document.forms['prefsform'].elements['language'].options[document.forms['prefsform'].elements['language'].selectedIndex].value+'&amp;charset='+this.value; }"<tmpl_if disablecharsetselect> disabled="1"</tmpl_if>>
+    <tmpl_loop charsetselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">TimeZone offset:</td>
+  <td class="windowdarkbold">
+    <select name="timezone" <tmpl_if disabletimezoneselect>disabled="1"</tmpl_if>>
+    <tmpl_loop timezoneselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+    &nbsp;<a href="<tmpl_var url_html escape="none">/images/timezone.jpg" target="_timezonemap"><tmpl_if use_texticon>timezone map<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/earth.gif" title="timezone map" alt="timezone map" border="0" align="absmiddle"></tmpl_if></a>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Daylight Saving Time:</td>
+  <td class="windowdarkbold">
+    <select name="daylightsaving" <tmpl_if disabledstselect>disabled="1"</tmpl_if>>
+    <tmpl_loop dstselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+
+<!-- start enable_webmail options-->
+<tmpl_if enable_webmail>
+<tr>
+  <td align="right" class="windowdarkbold">From:</td>
+  <td class="windowdarkbold">
+    <select name="email">
+    <tmpl_loop fromemailselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+    <tmpl_if enable_editfrombook>
+    &nbsp;<a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editfroms&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">"><tmpl_if use_texticon>edit personal email addresses<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/editfroms.s.gif" title="edit personal email addresses" alt="edit personal email addresses" border="0" align="absmiddle"></tmpl_if></a>
+    </tmpl_if>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Reply-to:</td>
+  <td class="windowdarkbold"><input type="text" size="40" name="replyto" value="<tmpl_var replyto escape="html">"></td>
+</tr>
+
+<tmpl_if enable_setforward>
+<tr>
+  <td align="right" class="windowdarkbold">Forward mail to:</td>
+  <td class="windowdarkbold">
+    <input type="text" size="30" name="forwardaddress" value="<tmpl_var forwardaddress escape="html">">&nbsp;
+    <input type="checkbox" name="keeplocalcopy" value="1" <tmpl_if keeplocalcopy>checked</tmpl_if>> Keep local copy
+  </td>
+</tr>
+</tmpl_if>
+
+<tmpl_if enable_autoreply>
+<tr>
+  <td align="right" class="windowdarkbold">Auto Reply:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="autoreply" value="1" <tmpl_if autoreplychecked>checked</tmpl_if>>
+    &nbsp;Subject: <input type="text" size="40" name="autoreplysubject" value="<tmpl_var autoreplysubject escape="html">">
+  </td>
+</tr>
+<tr>
+  <td colspan="2" align="center" class="windowdarkbold <tmpl_if usefixedfontchecked>monospacetext</tmpl_if>">
+    Auto Reply Text (500 characters or less)<br>
+    <textarea name="autoreplytext" rows="5" cols="<tmpl_var textareacolumns escape="html">" wrap="hard"><tmpl_var autoreplytext escape="html"></textarea>
+  </td>
+</tr>
+</tmpl_if>
+<tr>
+  <td colspan="2" align="center" class="windowdarkbold <tmpl_if usefixedfontchecked>monospacetext</tmpl_if>">
+    Signature (500 characters or less)<br>
+    <textarea name="signature" rows="5" cols="<tmpl_var textareacolumns escape="html">" wrap="hard" <tmpl_if disablesignature>disabled="1"</tmpl_if>><tmpl_var signaturetext escape="html"></textarea>
+    <br>&nbsp;
+  </td>
+</tr>
+</tmpl_if>
+<!-- end enable_webmail options-->
+
+<tmpl_unless userfirsttime>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">Display Preference</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Style:</td>
+  <td class="windowdarkbold">
+    <select name="style" accesskey="2" onchange="setCurrentStyle(document.forms['prefsform'].elements['style'].options[document.forms['prefsform'].elements['style'].selectedIndex].value+'.css');" <tmpl_if disablestyleselect>disabled="1"</tmpl_if>>
+    <tmpl_loop styleselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Icon set:</td>
+  <td class="windowdarkbold">
+    <select name="iconset" <tmpl_if disableiconsetselect>disabled="1"</tmpl_if>>
+    <tmpl_loop iconsetselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Background image:</td>
+  <td class="windowdarkbold">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td width="10%">
+      <select name="background" onchange="seturldivvisibility(); document.prefsform.bgurl.value='';" <tmpl_if disablebackgroundselect>disabled="1"</tmpl_if>>
+      <tmpl_loop backgroundselectloop>
+        <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+      </tmpl_loop>
+      </select>
+      </td>
+      <td class="windowdarkbold">
+        <div id="urldiv" style="position:relative; visibility:visible;" width="100%" height="100%"><span style="font-size: 80%;">&nbsp;URL </span>
+          <input type="text" size="35" name="bgurl" value="<tmpl_var bgurl escape="html">" <tmpl_if disablebgurl>disabled="1"</tmpl_if>>
+        </div>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Background image repeated:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="bgrepeat" value="1" <tmpl_if bgrepeatchecked>checked</tmpl_if> <tmpl_if disablebgrepeat>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Font size:</td>
+  <td class="windowdarkbold">
+    <select name="fontsize" <tmpl_if disablefontsizeselect>disabled="1"</tmpl_if>>
+    <tmpl_loop fontsizeselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Date format:</td>
+  <td class="windowdarkbold">
+    <select name="dateformat" <tmpl_if disabledateformatselect>disabled="1"</tmpl_if>>
+    <tmpl_loop dateformatselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Hour format:</td>
+  <td class="windowdarkbold">
+    <select name="hourformat" <tmpl_if disablehourformatselect>disabled="1"</tmpl_if>>
+    <tmpl_loop hourformatselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> hour</option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+
+<tmpl_if enable_webmail>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">Messages Listing</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Controlbar position in messages list:</td>
+  <td class="windowdarkbold">
+    <select name="ctrlposition_folderview" accesskey="3" <tmpl_if disablectrlposselect>disabled="1"</tmpl_if>>
+    <tmpl_loop ctrlposselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Messages per page:</td>
+  <td class="windowdarkbold">
+    <select name="msgsperpage" <tmpl_if disablemsgsperpageselect>disabled="1"</tmpl_if>>
+    <tmpl_loop msgsperpageselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Field order:</td>
+  <td class="windowdarkbold">
+    <select name="fieldorder" <tmpl_if disablefieldorderselect>disabled="1"</tmpl_if>>
+    <tmpl_loop fieldorderselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Default sort:</td>
+  <td class="windowdarkbold">
+    <select name="msgsort" <tmpl_if disablemsgsortselect>disabled="1"</tmpl_if>>
+    <tmpl_loop msgsortselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Default search:</td>
+  <td class="windowdarkbold">
+    <select name="searchtype" <tmpl_if disablesearchtypeselect>disabled="1"</tmpl_if>>
+    <tmpl_loop searchtypeselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Timestamp used for message date:</td>
+  <td class="windowdarkbold">
+    <select name="msgdatetype" <tmpl_if disablemsgdatetypeselect>disabled="1"</tmpl_if>>
+    <tmpl_loop msgdatetypeselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Display mini search icon<tmpl_if use_texticon>mini search icon<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/search.s.gif" title="mini search icon" alt="mini search icon" border="0" align="absmiddle"></tmpl_if>:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="useminisearchicon" value="1" <tmpl_if useminisearchiconchecked>checked</tmpl_if> <tmpl_if disableuseminisearchicon>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+
+
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">Message Operation</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Confirm before message move/copy:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="confirmmsgmovecopy" value="1" accesskey="4" <tmpl_if confirmmsgmovecopychecked>checked</tmpl_if> <tmpl_if disableconfirmmsgmovecopy>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Default destination:</td>
+  <td class="windowdarkbold">
+    <select name="defaultdestination" <tmpl_if disabledefaultdestinationselect>disabled="1"</tmpl_if>>
+    <tmpl_loop defaultdestinationselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Smart Destination:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="smartdestination" value="1" <tmpl_if smartdestinationchecked>checked</tmpl_if> <tmpl_if disablesmartdestination>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">View next after message move/copy:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="viewnextaftermsgmovecopy" value="1" <tmpl_if viewnextaftermsgmovecopychecked>checked</tmpl_if> <tmpl_if disableviewnextaftermsgmovecopy>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tmpl_if enable_pop3>
+<tr>
+  <td align="right" class="windowdarkbold">Auto fetch POP3 at login:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="autopop3" value="1" <tmpl_if autopop3checked>checked</tmpl_if> <tmpl_if disableautopop3>disabled="1"</tmpl_if>>
+    <select name="autopop3wait" <tmpl_if disableautopop3waitselect>disabled="1"</tmpl_if>>
+    <tmpl_loop autopop3waitselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>>wait <tmpl_var label escape="html"> seconds after login to fetch</option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+</tmpl_if>
+<tr>
+  <td align="right" class="windowdarkbold">Run mail filter in the background:</td>
+  <td class="windowdarkbold">
+    <select name="bgfilterthreshold" <tmpl_if disablebgfilterthresholdselect>disabled="1"</tmpl_if>>
+    <tmpl_loop bgfilterthresholdselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Wait time for background mail filtering:</td>
+  <td class="windowdarkbold">
+    <select name="bgfilterwait" <tmpl_if disablebgfilterwaitselect>disabled="1"</tmpl_if>>
+    <tmpl_loop bgfilterwaitselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> seconds</option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tmpl_unless forced_moveoldmsgfrominbox>
+<tr>
+  <td align="right" class="windowdarkbold"><nobr>Move inbox messages to saved folder at logout:</nobr></td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="moveoldmsgfrominbox" value="1" <tmpl_if moveoldmsgfrominboxchecked>checked</tmpl_if> <tmpl_if disablemoveoldmsgfrominbox>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+</tmpl_unless>
+
+
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">Message Reading Options</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Controlbar position in message reading:</td>
+  <td class="windowdarkbold">
+    <select name="ctrlposition_msgread" accesskey="5" <tmpl_if disablectrlposition_msgreadselect>disabled="1"</tmpl_if>>
+    <tmpl_loop ctrlposition_msgreadselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Default headers:</td>
+  <td class="windowdarkbold">
+    <select name="headers" <tmpl_if disableheadersselect>disabled="1"</tmpl_if>>
+    <tmpl_loop headersselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Read with message charset:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="readwithmsgcharset" value="1" <tmpl_if readwithmsgcharsetchecked>checked</tmpl_if> <tmpl_if disablereadwithmsgcharset>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Use fixed-width font when reading messages:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="usefixedfont" value="1" <tmpl_if usefixedfontchecked>checked</tmpl_if> <tmpl_if disableusefixedfont>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Use smiley images when reading messages:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="usesmileicon" value="1" <tmpl_if usesmileiconchecked>checked</tmpl_if> <tmpl_if disableusesmileicon>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Show HTML message as plain text:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="showhtmlastext" value="1" <tmpl_if showhtmlastextchecked>checked</tmpl_if> <tmpl_if disableshowhtmlastext>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Show image attachment as link:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="showimgaslink" value="1" <tmpl_if showimgaslinkchecked>checked</tmpl_if> <tmpl_if disableshowimgaslink>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Block images inside message:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="blockimages" value="1" <tmpl_if blockimageschecked>checked</tmpl_if> <tmpl_if disableblockimages>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Disable JavaScript inside message:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="disablejs" value="1" <tmpl_if disablejschecked>checked</tmpl_if> <tmpl_if disabledisablejs>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Disable embed/object/applet tag inside message:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="disableembcode" value="1" <tmpl_if disableembcodechecked>checked</tmpl_if> <tmpl_if disabledisableembcode>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Disable embedded links inside message:</td>
+  <td class="windowdarkbold">
+    <select name="disableemblink" <tmpl_if disabledisableemblinkselect>disabled="1"</tmpl_if>>
+    <tmpl_loop disableemblinkselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Send 'confirm reading' receipt:</td>
+  <td class="windowdarkbold">
+    <select name="sendreceipt" <tmpl_if disablesendreceiptselect>disabled="1"</tmpl_if>>
+    <tmpl_loop sendreceiptselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+
+
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">Message Composing/Sending Options</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Message format:</td>
+  <td class="windowdarkbold">
+    <select name="msgformat" accesskey="6" <tmpl_if disablemsgformatselect>disabled="1"</tmpl_if>>
+    <tmpl_loop msgformatselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Size for mail edit area:</td>
+  <td class="windowdarkbold">
+    Width
+    <select name="editcolumns" <tmpl_if disableeditcolumnsselect>disabled="1"</tmpl_if>>
+    <tmpl_loop editcolumnsselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+    Height
+    <select name="editrows" <tmpl_if disableeditrowsselect>disabled="1"</tmpl_if>>
+    <tmpl_loop editrowsselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Send button position:</td>
+  <td class="windowdarkbold">
+    <select name="sendbuttonposition" <tmpl_if disablesendbuttonpositionselect>disabled="1"</tmpl_if>>
+    <tmpl_loop sendbuttonpositionselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Reparagraph message before reply:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="reparagraphorigmsg" value="1" <tmpl_if reparagraphorigmsgchecked>checked</tmpl_if> <tmpl_if disablereparagraphorigmsg>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Reply with original message:</td>
+  <td class="windowdarkbold">
+    <select name="replywithorigmsg" <tmpl_if disablereplywithorigmsgselect>disabled="1"</tmpl_if>>
+    <tmpl_loop replywithorigmsgselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Signature before forwarded text:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="sigbeforeforward" value="1" <tmpl_if sigbeforeforwardchecked>checked</tmpl_if> <tmpl_if disablesigbeforeforward>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Automatic CC:</td>
+  <td class="windowdarkbold">
+    <input type="text" size="40" name="autocc" value="<tmpl_var autocctext escape="html">" <tmpl_if disableautocc>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tmpl_if enable_backupsent>
+<tr>
+  <td align="right" class="windowdarkbold">Backup outgoing message to SENT folder:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="backupsentmsg" value="1" <tmpl_if backupsentmsgchecked>checked</tmpl_if> <tmpl_if disablebackupsentmsg>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Backup to current folder (if not Inbox/Draft):</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="backupsentoncurrfolder" value="1" <tmpl_if backupsentoncurrfolderchecked>checked</tmpl_if> <tmpl_if disablebackupsentoncurrfolder>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+</tmpl_if>
+<tr>
+  <td align="right" class="windowdarkbold">Charset for outgoing message:</td>
+  <td class="windowdarkbold">
+    <select name="sendcharset" <tmpl_if disablesendcharsetselect>disabled="1"</tmpl_if>>
+    <tmpl_loop sendcharsetselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+
+
+<tmpl_if enable_viruscheck>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">Virus Check</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Messages to be checked:</td>
+  <td class="windowdarkbold">
+    <select name="viruscheck_source" accesskey="7" <tmpl_if disableviruscheck_sourceselect>disabled="1"</tmpl_if>>
+    <tmpl_loop viruscheck_sourceselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Maximum size of the checked messages:</td>
+  <td class="windowdarkbold">
+    <select name="viruscheck_maxsize" <tmpl_if disableviruscheck_maxsizeselect>disabled="1"</tmpl_if>>
+    <tmpl_loop viruscheck_maxsizeselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> kB</option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold"><nobr>Minimum size of the body of checked messages:</nobr></td>
+  <td class="windowdarkbold">
+    <select name="viruscheck_minbodysize" <tmpl_if disableviruscheck_minbodysizeselect>disabled="1"</tmpl_if>>
+    <tmpl_loop viruscheck_minbodysizeselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+    KB
+  </td>
+</tr>
+</tmpl_if>
+
+
+<tmpl_if enable_spamcheck>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">Spam Check
+    <tmpl_if enable_saprefs>
+    &nbsp;<a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=edittest&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">"><tmpl_if use_texticon>edit spam preferences<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/saprefs.s.gif" title="edit spam preferences" alt="edit spam preferences" border="0" align="absmiddle"></tmpl_if></a>
+    </tmpl_if>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Messages to be checked:</td>
+  <td class="windowdarkbold">
+    <select name="spamcheck_source" accesskey="8" <tmpl_if disablespamcheck_sourceselect>disabled="1"</tmpl_if>>
+    <tmpl_loop spamcheck_sourceselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Maximum size of the checked messages:</td>
+  <td class="windowdarkbold">
+    <select name="spamcheck_maxsize" <tmpl_if disablespamcheck_maxsizeselect>disabled="1"</tmpl_if>>
+    <tmpl_loop spamcheck_maxsizeselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> kB</option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Threshold to determine Spam:</td>
+  <td class="windowdarkbold">
+    <select name="spamcheck_threshold" <tmpl_if disablespamcheck_thresholdselect>disabled="1"</tmpl_if>>
+    <tmpl_loop spamcheck_thresholdselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+</tmpl_if>
+
+
+<tmpl_if enable_smartfilter>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">Message Filtering Options</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Limit for repeated messages:</td>
+  <td class="windowdarkbold">
+    <select name="filter_repeatlimit" accesskey="9" <tmpl_if disablefilter_repeatlimitselect>disabled="1"</tmpl_if>>
+    <tmpl_loop filter_repeatlimitselectloop>
+      <tmpl_if option>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+      <tmpl_else>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>>Do not check for repeated messages</option>
+      </tmpl_if>
+    </tmpl_loop>
+    </select>
+    <tmpl_if filter_repeatlimitmatchcount>
+    &nbsp;(<a title="<tmpl_var filter_repeatlimitmatchdate escape="html">">Filtered: <tmpl_var filter_repeatlimitmatchcount escape="html"></a>)
+    </tmpl_if>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold"><nobr>Filter messages with bad email address formatting:</nobr></td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="filter_badaddrformat" value="1" <tmpl_if filter_badaddrformatchecked>checked</tmpl_if> <tmpl_if disablefilter_badaddrformat>disabled="1"</tmpl_if>>
+    <tmpl_if filter_badaddrformatmatchcount>
+    &nbsp;(<a title="<tmpl_var filter_badaddrformatmatchdate escape="html">">Filtered: <tmpl_var filter_badaddrformatmatchcount escape="html"></a>)
+    </tmpl_if>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Filter messages with faked SMTP:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="filter_fakedsmtp" value="1" <tmpl_if filter_fakedsmtpchecked>checked</tmpl_if> <tmpl_if disablefilter_fakedsmtp>disabled="1"</tmpl_if>>
+    <tmpl_if filter_fakedsmtpmatchcount>
+    &nbsp;(<a title="<tmpl_var filter_fakedsmtpmatchdate escape="html">">Filtered: <tmpl_var filter_fakedsmtpmatchcount escape="html"></a>)
+    </tmpl_if>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Filter messages with faked From field:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="filter_fakedfrom" value="1" <tmpl_if filter_fakedfromchecked>checked</tmpl_if> <tmpl_if disablefilter_fakedfrom>disabled="1"</tmpl_if>>
+    <tmpl_if filter_fakedfrommatchcount>
+    &nbsp;(<a title="<tmpl_var filter_fakedfrommatchdate escape="html">">Filtered: <tmpl_var filter_fakedfrommatchcount escape="html"></a>)
+    </tmpl_if>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Filter messages with faked exe content-type:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="filter_fakedexecontenttype" value="1" <tmpl_if filter_fakedexecontenttypechecked>checked</tmpl_if> <tmpl_if disablefilter_fakedexecontenttype>disabled="1"</tmpl_if>>
+    <tmpl_if filter_fakedexecontenttypematchcount>
+    &nbsp;(<a title="<tmpl_var filter_fakedexecontenttypematchdate escape="html">">Filtered: <tmpl_var filter_fakedexecontenttypematchcount escape="html"></a>)
+    </tmpl_if>
+  </td>
+</tr>
+</tmpl_if>
+</tmpl_if>
+<!-- end enable_webmail -->
+
+<tmpl_if enable_addressbook>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">AddressBook Options</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Size for addressbook window:</td>
+  <td class="windowdarkbold">
+    Width
+    <select name="abook_width" accesskey="0" <tmpl_if disableabook_widthselect>disabled="1"</tmpl_if>>
+    <tmpl_loop abook_widthselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> Pixels</option>
+    </tmpl_loop>
+    </select>
+    Height
+    <select name="abook_height" <tmpl_if disableabook_heightselect>disabled="1"</tmpl_if>>
+    <tmpl_loop abook_heightselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> Pixels</option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Addressbook button position:</td>
+  <td class="windowdarkbold">
+    <select name="abook_buttonposition" <tmpl_if disableabook_buttonpositionselect>disabled="1"</tmpl_if>>
+    <tmpl_loop abook_buttonpositionselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Addressbook default filter:</td>
+  <td class="windowdarkbold">
+    Enable&nbsp;<input type="checkbox" name="abook_defaultfilter" value="1" <tmpl_if abook_defaultfilterchecked>checked</tmpl_if> <tmpl_if disableabook_defaultfilter>disabled="1"</tmpl_if>>
+    <select name="abook_defaultsearchtype" <tmpl_if disableabook_defaultsearchtypeselect>disabled="1"</tmpl_if>>
+    <tmpl_loop abook_defaultsearchtypeselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+    <input type="text" size="16" name="abook_defaultkeyword" value="<tmpl_var abook_defaultkeywordtext escape="html">" <tmpl_if disableabook_defaultkeyword>disabled="1"</tmpl_if>></td>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Addresses displayed per page:</td>
+  <td class="windowdarkbold">
+    <select name="abook_addrperpage" <tmpl_if disableabook_addrperpageselect>disabled="1"</tmpl_if>>
+    <tmpl_loop abook_addrperpageselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Display only one line per contact:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="abook_collapse" value="1" <tmpl_if abook_collapsechecked>checked</tmpl_if> <tmpl_if disableabook_collapse>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Default addressbook sort order:</td>
+  <td class="windowdarkbold">
+    <select name="abook_sort" <tmpl_if disableabook_sortselect>disabled="1"</tmpl_if>>
+    <tmpl_loop abook_sortselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Listview field order:</td>
+  <td class="windowdarkbold" nowrap>
+    <select name="abook_listviewfieldorder" <tmpl_if disableabook_listviewfieldorderselect>disabled="1"</tmpl_if>>
+    <tmpl_loop abook_listviewfieldorder0selectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+    <select name="abook_listviewfieldorder" <tmpl_if disableabook_listviewfieldorderselect>disabled="1"</tmpl_if>>
+    <tmpl_loop abook_listviewfieldorder1selectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+    <select name="abook_listviewfieldorder" <tmpl_if disableabook_listviewfieldorderselect>disabled="1"</tmpl_if>>
+    <tmpl_loop abook_listviewfieldorder2selectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+    <select name="abook_listviewfieldorder" <tmpl_if disableabook_listviewfieldorderselect>disabled="1"</tmpl_if>>
+    <tmpl_loop abook_listviewfieldorder3selectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+    <select name="abook_listviewfieldorder" <tmpl_if disableabook_listviewfieldorderselect>disabled="1"</tmpl_if>>
+    <tmpl_loop abook_listviewfieldorder4selectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+</tmpl_if>
+<!-- end enable_addressbook -->
+
+<tmpl_if enable_calendar>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">Calendar Options</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Default calendar view:</td>
+  <td class="windowdarkbold">
+    <select name="calendar_defaultview" accesskey="A" <tmpl_if disablecalendar_defaultviewselect>disabled="1"</tmpl_if>>
+    <tmpl_loop calendar_defaultviewselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Holiday definition:</td>
+  <td class="windowdarkbold">
+    <select name="calendar_holidaydef" <tmpl_if disablecalendar_holidaydefselect>disabled="1"</tmpl_if>>
+    <tmpl_loop calendar_holidaydefselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Show lunar calendar labels:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="calendar_showlunar" value="1" <tmpl_if calendar_showlunarchecked>checked</tmpl_if> <tmpl_if disablecalendar_showlunar>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Number of items in month view:</td>
+  <td class="windowdarkbold">
+    <select name="calendar_monthviewnumitems" <tmpl_if disablecalendar_monthviewnumitemsselect>disabled="1"</tmpl_if>>
+    <tmpl_loop calendar_monthviewnumitemsselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Week start:</td>
+  <td class="windowdarkbold">
+    <select name="calendar_weekstart" <tmpl_if disablecalendar_weekstartselect>disabled="1"</tmpl_if>>
+    <tmpl_loop calendar_weekstartselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Start hour:</td>
+  <td class="windowdarkbold">
+    <select name="calendar_starthour" <tmpl_if disablecalendar_starthourselect>disabled="1"</tmpl_if>>
+    <tmpl_loop calendar_starthourselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">End hour:</td>
+  <td class="windowdarkbold">
+    <select name="calendar_endhour" <tmpl_if disablecalendar_endhourselect>disabled="1"</tmpl_if>>
+    <tmpl_loop calendar_endhourselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Time interval in dayview:</td>
+  <td class="windowdarkbold">
+    <select name="calendar_interval" <tmpl_if disablecalendar_intervalselect>disabled="1"</tmpl_if>>
+    <tmpl_loop calendar_intervalselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> minutes</option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Show empty hours:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="calendar_showemptyhours" value="1" <tmpl_if calendar_showemptyhourschecked>checked</tmpl_if> <tmpl_if disablecalendar_showemptyhours>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tmpl_if enable_webmail>
+<tr>
+  <td align="right" class="windowdarkbold">Event reminder check days:</td>
+  <td class="windowdarkbold">
+    <select name="calendar_reminderdays" <tmpl_if disablecalendar_reminderdaysselect>disabled="1"</tmpl_if>>
+    <tmpl_loop calendar_reminderdaysselectloop>
+      <tmpl_if option>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+      <tmpl_else>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>>None</option>
+      </tmpl_if>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Reminder for global calendar events:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="calendar_reminderforglobal" value="1" <tmpl_if calendar_reminderforglobalchecked>checked</tmpl_if> <tmpl_if disablecalendar_reminderforglobal>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+</tmpl_if>
+</tmpl_if>
+<!-- end enable_calendar -->
+
+<tmpl_if enable_webdisk>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">WebDisk Options</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Number of items in directory list:</td>
+  <td class="windowdarkbold">
+    <select name="webdisk_dirnumitems" accesskey="D" <tmpl_if disablewebdisk_dirnumitemsselect>disabled="1"</tmpl_if>>
+    <tmpl_loop webdisk_dirnumitemsselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Confirm before directory/file move/copy:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="webdisk_confirmmovecopy" value="1" <tmpl_if webdisk_confirmmovecopychecked>checked</tmpl_if> <tmpl_if disablewebdisk_confirmmovecopy>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Confirm before directory/file deletion:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="webdisk_confirmdel" value="1" <tmpl_if webdisk_confirmdelchecked>checked</tmpl_if> <tmpl_if disablewebdisk_confirmdel>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Confirm before directory/file compress:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="webdisk_confirmcompress" value="1" <tmpl_if webdisk_confirmcompresschecked>checked</tmpl_if> <tmpl_if disablewebdisk_confirmcompress>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Size for file edit window:</td>
+  <td class="windowdarkbold">
+    Width
+    <select name="webdisk_fileeditcolumns" <tmpl_if disablewebdisk_fileeditcolumnsselect>disabled="1"</tmpl_if>>
+    <tmpl_loop webdisk_fileeditcolumnsselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+    Height
+    <select name="webdisk_fileeditrows" <tmpl_if disablewebdisk_fileeditrowsselect>disabled="1"</tmpl_if>>
+    <tmpl_loop webdisk_fileeditrowsselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+</tmpl_if>
+<!-- end enable_webdisk -->
+
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">Misc Options</td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Default charset for file system:</td>
+  <td class="windowdarkbold">
+    <select name="fscharset" accesskey="E" <tmpl_if disablefscharsetselect>disabled="1"</tmpl_if>>
+    <tmpl_loop fscharsetselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Use lightbar for selection:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="uselightbar" value="1" <tmpl_if uselightbarchecked>checked</tmpl_if> <tmpl_if disableuselightbar>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+
+<tmpl_if enable_webmail>
+<tr>
+  <td align="right" class="windowdarkbold">Use Regex in search and filterrule:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="regexmatch" value="1" <tmpl_if regexmatchchecked>checked</tmpl_if> <tmpl_if disableregexmatch>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Hide folder internal data:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="hideinternal" value="1" <tmpl_if hideinternalchecked>checked</tmpl_if> <tmpl_if disablehideinternal>disabled="1"</tmpl_if>>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Categorized Folders list:</td>
+  <td class="windowdarkbold">
+    <input type="checkbox" name="categorizedfolders" value="1" <tmpl_if categorizedfolderschecked>checked</tmpl_if> <tmpl_if disablecategorizedfolders>disabled="1"</tmpl_if>>&nbsp;( Category-Folder Separator <input type="text" size="4" name="categorizedfolders_fs" value="<tmpl_var categorizedfolders_fstext escape="html">" <tmpl_if disablecategorizedfolders_fs>disabled="1"</tmpl_if>> )
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">New mail sound notification:</td>
+  <td class="windowdarkbold">
+    <select name="newmailsound" <tmpl_if disablenewmailsoundselect>disabled="1"</tmpl_if>>
+    <tmpl_loop newmailsoundselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+    &nbsp;<a onclick="playsound('<tmpl_var url_html escape="none">/sounds', document.prefsform.newmailsound[document.prefsform.newmailsound.selectedIndex].value);"><tmpl_if use_texticon>test sound<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/sound.gif" title="test sound" alt="test sound" border="0" align="absmiddle"></tmpl_if></a>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">New mail popup window notification:</td>
+  <td class="windowdarkbold">
+    <select name="newmailwindowtime" <tmpl_if disablenewmailwindowtimeselect>disabled="1"</tmpl_if>>
+    <tmpl_loop newmailwindowtimeselectloop>
+      <tmpl_if option>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> seconds</option>
+      <tmpl_else>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>>No window notification</option>
+      </tmpl_if>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Sent message popup window notification:</td>
+  <td class="windowdarkbold">
+    <select name="mailsentwindowtime" <tmpl_if disablemailsentwindowtimeselect>disabled="1"</tmpl_if>>
+    <tmpl_loop mailsentwindowtimeselectloop>
+      <tmpl_if option>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> seconds</option>
+      <tmpl_else>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>>No window notification</option>
+      </tmpl_if>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tmpl_if enable_spellcheck>
+<tr>
+  <td align="right" class="windowdarkbold">Dictionary for spellcheck:</td>
+  <td class="windowdarkbold">
+    <select name="dictionary" <tmpl_if disabledictionaryselect>disabled="1"</tmpl_if>>
+    <tmpl_loop dictionaryselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+</tmpl_if>
+<tr>
+  <td align="right" class="windowdarkbold">Trash folder messages lifetime:</td>
+  <td class="windowdarkbold">
+    <select name="trashreserveddays" <tmpl_if disabletrashreserveddaysselect>disabled="1"</tmpl_if>>
+    <tmpl_loop trashreserveddaysselectloop>
+      <tmpl_if option>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_if label><tmpl_var label escape="html"><tmpl_else><tmpl_var option escape="html"> days</tmpl_if></option>
+      <tmpl_else>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+      </tmpl_if>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tmpl_if enable_spamvirusreserveddays>
+<tr>
+  <td align="right" class="windowdarkbold">Spam/Virus folder messages lifetime:</td>
+  <td class="windowdarkbold">
+    <select name="spamvirusreserveddays" <tmpl_if disablespamvirusreserveddaysselect>disabled="1"</tmpl_if>>
+    <tmpl_loop spamvirusreserveddaysselectloop>
+      <tmpl_if option>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_if label><tmpl_var label escape="html"><tmpl_else><tmpl_var option escape="html"> days</tmpl_if></option>
+      <tmpl_else>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+      </tmpl_if>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+</tmpl_if>
+</tmpl_if>
+<!-- end enable_webmail -->
+
+<tr>
+  <td align="right" class="windowdarkbold">Auto-refresh message listing:</td>
+  <td class="windowdarkbold">
+    <select name="refreshinterval" <tmpl_if disablerefreshintervalselect>disabled="1"</tmpl_if>>
+    <tmpl_loop refreshintervalselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>>every <tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+<tr>
+  <td align="right" class="windowdarkbold">Session timeout:</td>
+  <td class="windowdarkbold">
+    <select name="sessiontimeout" <tmpl_if disablesessiontimeoutselect>disabled="1"</tmpl_if>>
+    <tmpl_loop sessiontimeoutselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+    </select>
+  </td>
+</tr>
+</tmpl_unless>
+<!-- end userfirsttime -->
+
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="windowdarkbold">
+    <table cellpadding="2" cellspacing="0" border="0" align="center">
+    <tr>
+      <td class="windowdarkbold"><input type="submit" name="savebutton" value="Save" accesskey="W"></td>
+</form>
+      <tmpl_unless userfirsttime>
+      <td class="windowdarkbold">
+        <!-- start the cancel button -->
+        <tmpl_if caller_main>
+        <form action="<tmpl_var url_cgi escape="none">/openwebmail-main.pl" method="post" name="cancelprefsform">
+        <input type="hidden" name="action" value="listmessages">
+        </tmpl_if>
+
+        <tmpl_if caller_calendar>
+        <form action="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl" method="post" name="cancelprefsform">
+        <input type="hidden" name="action" value="<tmpl_var calendardefaultview escape="html">">
+        </tmpl_if>
+
+        <tmpl_if caller_webdisk>
+        <form action="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl" method="post" name="cancelprefsform">
+        <input type="hidden" name="action" value="showdir">
+        </tmpl_if>
+
+        <tmpl_if caller_addrlistview>
+        <form action="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl" method="post" name="cancelprefsform">
+        <input type="hidden" name="action" value="addrlistview">
+        </tmpl_if>
+
+        <tmpl_if caller_read>
+        <form action="<tmpl_var url_cgi escape="none">/openwebmail-read.pl" method="post" name="cancelprefsform">
+        <input type="hidden" name="action" value="readmessage">
+        </tmpl_if>
+
+        <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+        <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+        <input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+        <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+        <input type="hidden" name="page" value="<tmpl_var page escape="html">">
+        <input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+        <input type="hidden" name="userfirsttime" value="<tmpl_var userfirsttime escape="html">">
+        <input type="hidden" name="prefs_caller" value="<tmpl_var prefs_caller escape="html">">
+        <input type="submit" name="cancelbutton" value="Cancel" accesskey="Q">
+        </form>
+      </td>
+      </tmpl_unless>
+    </tr>
+    </table>
+  </td>
+</tr>
+</table>
+
+<script type="text/javascript">
+<!--
+   function seturldivvisibility() {
+      if (document.getElementById) { // exclude old browsers
+         var div = document.getElementById('urldiv');
+         if (document.prefsform.background.value == 'USERDEFINE') {
+            div.style.visibility = 'visible';
+         } else {
+            div.style.visibility = 'hidden';
+         }
+      }
+   }
+
+   function playsound(url, soundname) {
+      if (soundname != "NONE" ) {
+         window.open(url+"/"+soundname);
+      }
+   }
+
+   function setCurrentStyle(title) {
+      if (document.getElementById) { // exclude old browsers
+         var i, a, main;
+         for (i=0; (a = document.getElementsByTagName("link")[i]); i++) {
+            if (a.getAttribute("rel").indexOf("style") != -1 && a.getAttribute("title")) {
+               a.disabled = true;
+               if (a.getAttribute("title") == title) {
+                  a.disabled = false;
+               }
+            }
+         }
+      }
+   }
+
+   seturldivvisibility();
+//-->
+</script>
+
+<tmpl_var footer_template escape="none">

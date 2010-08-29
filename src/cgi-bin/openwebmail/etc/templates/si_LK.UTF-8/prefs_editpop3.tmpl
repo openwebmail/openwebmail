@@ -1,0 +1,133 @@
+<tmpl_var header_template escape="none">
+
+<script type="text/javascript">
+<!--
+   function update(pop3host,pop3port,pop3ssl,pop3user,pop3passwd,pop3del,enable) {
+      document.pop3form.pop3host.value = pop3host;
+      document.pop3form.pop3port.value = pop3port;
+      if (pop3ssl == 1) {
+        document.pop3form.pop3ssl.checked = true;
+      } else {
+        document.pop3form.pop3ssl.checked = false;
+      }
+
+      document.pop3form.pop3user.value = pop3user;
+      document.pop3form.pop3passwd.value = pop3passwd;
+
+      if (pop3del == 1) {
+        document.pop3form.pop3del.checked = true;
+      } else {
+        document.pop3form.pop3del.checked = false;
+      }
+
+      if (enable == 1) {
+        document.pop3form.enable.checked = true;
+      } else {
+        document.pop3form.enable.checked = false;
+      }
+   }
+
+   function ssl() {
+      if (document.pop3form.pop3ssl.checked==true) {
+        document.pop3form.pop3port.value='995';
+      } else {
+        document.pop3form.pop3port.value='110';
+      }
+   }
+//-->
+</script>
+
+<table cellpadding="0" cellspacing="0" border="0" align="center" width="90%">
+<tr>
+  <td colspan="5" class="titlebar">Edit POP3 Book</td>
+  <td nowrap colspan="3" class="titlebar" align="right"><tmpl_var freespace escape="html"> KB Available</td>
+</tr>
+<tr>
+  <td colspan="8" class="menubar">
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editprefs&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="F" class="icon"><tmpl_if use_texticon>back to user preferences<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/backtofolder.gif" title="back to user preferences" alt="back to user preferences" border="0" align="absmiddle"></tmpl_if></a>
+    &nbsp;
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=pop3fetches&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="G" class="icon"><tmpl_if use_texticon>retreive pop3 mail<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/pop3.gif" title="retreive pop3 mail" alt="retreive pop3 mail" border="0" align="absmiddle"></tmpl_if></a>
+  </td>
+</tr>
+<tr>
+  <td colspan="8">&nbsp;</td>
+</tr>
+<tr>
+  <td nowrap class="columnheader">POP3 Server</td>
+  <td nowrap class="columnheader">Port</td>
+  <td nowrap class="columnheader" align="center"><tmpl_if is_ssl_supported>Use SSL<tmpl_else>&nbsp;</tmpl_if></td>
+  <td nowrap class="columnheader" align="center">User Id</td>
+  <td nowrap class="columnheader" align="center">Password</td>
+  <td nowrap class="columnheader" align="center"><tmpl_if pop3_delmail_hidden>&nbsp;<tmpl_else>Delete remote mail</tmpl_if></td>
+  <td nowrap class="columnheader" align="center">Enable</td>
+  <td nowrap class="columnheader" align="center">Action</td>
+</tr>
+
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl" method="post" name="pop3form">
+<input type="hidden" name="action" value="addpop3">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+<input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+<input type="hidden" name="userfirsttime" value="<tmpl_var userfirsttime escape="html">">
+<input type="hidden" name="prefs_caller" value="<tmpl_var prefs_caller escape="html">">
+
+<tr>
+  <td nowrap class="rowlight"><input type="text" size="24" name="pop3host" value="" onchange="document.pop3form.pop3passwd.value='';"></td>
+  <td nowrap class="rowlight"><input type="text" size="4" name="pop3port" value="<tmpl_if pop3_usessl_by_default>995<tmpl_else>110</tmpl_if>" onchange="document.pop3form.pop3passwd.value='';"></td>
+  <td nowrap class="rowlight" align="center">
+    <tmpl_if is_ssl_supported>
+    <input type="checkbox" name="pop3ssl" value="1" onclick="ssl();" <tmpl_if pop3_usessl_by_default>checked</tmpl_if>>
+    <tmpl_else>
+    <input type="hidden" name="pop3ssl" value="0">
+    </tmpl_if>
+  </td>
+  <td nowrap class="rowlight" align="center"><input type="text" size="16" name="pop3user" value="" onchange="document.pop3form.pop3passwd.value='';"></td>
+  <td nowrap class="rowlight" align="center"><input type="password" size="8" name="pop3passwd" value=""></td>
+  <td nowrap class="rowlight" align="center">
+    <tmpl_if pop3_delmail_hidden>
+    <input type="hidden" name="pop3del" value="<tmpl_var pop3_delmail_by_default escape="html">">
+    <tmpl_else>
+    <input type="checkbox" name="pop3del" value="1" <tmpl_if pop3_delmail_by_default>checked</tmpl_if>>
+    </tmpl_if>
+  </td>
+  <td nowrap class="rowlight" align="center"><input type="checkbox" name="enable" value="1" checked></td>
+  <td nowrap class="rowlight" align="center"><input type="submit" name="pop3formsubmit" value="Add/Modify"></td>
+</tr>
+
+</form>
+
+<tmpl_loop accountsloop>
+<tr>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><a href="javascript:update('<tmpl_var pop3host escape="js">','<tmpl_var pop3port escape="js">','<tmpl_var pop3ssl escape="js">','<tmpl_var pop3user escape="js">','******','<tmpl_var pop3del escape="js">','<tmpl_var enable escape="js">')" title="edit this account"><tmpl_var pop3host escape="html"></a></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>"><tmpl_var pop3port escape="html"></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><tmpl_if is_ssl_supported><tmpl_if pop3ssl>Yes<tmpl_else>No</tmpl_if><tmpl_else>&nbsp;</tmpl_if></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=pop3fetch&amp;pop3user=<tmpl_var pop3user escape="url">&amp;<tmpl_var pop3host escape="url">&amp;<tmpl_var pop3port escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;userfirsttime=<tmpl_var userfirsttime escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" title="click to retreive mail from this account"><tmpl_var pop3user escape="html"></a></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center">******</td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><tmpl_if pop3_delmail_hidden>&nbsp;<tmpl_else><tmpl_if pop3del>Delete<tmpl_else>Reserve</tmpl_if></tmpl_if></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><tmpl_if enable>Enabled<tmpl_else>Disabled</tmpl_if></td>
+  <td class="<tmpl_if __odd__>rowdark<tmpl_else>rowlight</tmpl_if>" align="center">
+    <form action="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl" method="post" name="deletepop3form">
+    <input type="hidden" name="action" value="deletepop3">
+    <input type="hidden" name="pop3host" value="<tmpl_var pop3host escape="html">">
+    <input type="hidden" name="pop3port" value="<tmpl_var pop3port escape="html">">
+    <input type="hidden" name="pop3user" value="<tmpl_var pop3user escape="html">">
+    <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+    <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+    <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+    <input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+    <input type="hidden" name="page" value="<tmpl_var page escape="html">">
+    <input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+    <input type="hidden" name="userfirsttime" value="<tmpl_var userfirsttime escape="html">">
+    <input type="hidden" name="prefs_caller" value="<tmpl_var prefs_caller escape="html">">
+    <input type="submit" name="deletepop3submit" value="Delete"></td>
+    </form>
+  </td>
+</tr>
+</tmpl_loop>
+
+</table>
+
+<tmpl_var footer_template escape="none">

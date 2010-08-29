@@ -1,0 +1,111 @@
+<tmpl_var header_template escape="none">
+
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl" method="post" name="dateselform">
+<input type="hidden" name="action" value="calyear">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+<input type="hidden" name="msgdatetype" value="<tmpl_var msgdatetype escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+<input type="hidden" name="searchtype" value="<tmpl_var searchtype escape="html">">
+<input type="hidden" name="keyword" value="<tmpl_var keyword escape="html">">
+<input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+
+<table cellpadding="0" cellspacing="0" border="0" width="95%" align="center">
+<tr>
+  <td nowrap class="titlebar" colspan="2">Year View</td>
+</tr>
+<tr>
+  <td nowrap class="menubar">
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calyear&amp;year=<tmpl_var year>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="Yearview <tmpl_var year>"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/yearview.gif" border="0" align="absmiddle" alt="Yearview <tmpl_var year>"></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calmonth&amp;year=<tmpl_var year>&amp;month=<tmpl_var current_month>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="Monthview <tmpl_var current_monthname escape="html"> <tmpl_var year>"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/monthview.gif" border="0" align="absmiddle" alt="Monthview <tmpl_var current_monthname escape="html"> <tmpl_var year>"></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calweek&amp;year=<tmpl_var year>&amp;month=<tmpl_var current_month>&amp;day=<tmpl_var current_day>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="Weekview Week <tmpl_var weekofyear>: <tmpl_var weekstart_monthname> <tmpl_var weekstart_day> <tmpl_var weekstart_year> - <tmpl_var weekstop_monthname> <tmpl_var weekstop_day> <tmpl_var weekstop_year>"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/weekview.gif" border="0" align="absmiddle" alt="Weekview Week <tmpl_var weekofyear>: <tmpl_var weekstart_monthname> <tmpl_var weekstart_day> <tmpl_var weekstart_year> - <tmpl_var weekstop_monthname> <tmpl_var weekstop_day> <tmpl_var weekstop_year>"></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calday&amp;year=<tmpl_var year>&amp;month=<tmpl_var current_month>&amp;day=<tmpl_var current_day>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="Dayview <tmpl_var current_monthname> <tmpl_var current_day> <tmpl_var year>"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/dayview.gif" border="0" align="absmiddle" alt="Dayview <tmpl_var current_monthname> <tmpl_var current_day> <tmpl_var year>"></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=callist&amp;year=<tmpl_var year>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="Listview <tmpl_var year>"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/listview.gif" border="0" align="absmiddle" alt="Listview <tmpl_var year>"></a>
+    <tmpl_unless is_current_year>
+    &nbsp;
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calyear&amp;year=<tmpl_var current_year>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="Return to Year <tmpl_var current_year>"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/refresh.gif" border="0" align="absmiddle" alt="Return to Year <tmpl_var current_year>"></a>
+    </tmpl_unless>
+    &nbsp;
+    <tmpl_if enable_webmail><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" accesskey="M" class="icon"><tmpl_if use_texticon>webmail<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/owm.gif" title="webmail" alt="webmail" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+    <tmpl_if enable_addressbook><a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview
+    &amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" accesskey="A" class="icon"><tmpl_if use_texticon>addressbook<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/addrbook.gif" title="addressbook" alt="addressbook" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+    <tmpl_if enable_webdisk><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" accesskey="E" class="icon"><tmpl_if use_texticon>webdisk<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/webdisk.gif" title="webdisk" alt="webdisk" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+    <tmpl_if enable_sshterm><tmpl_if use_ssh2><a href="#" onclick="window.open('<tmpl_var url_html escape="none">/applet/mindterm2/ssh2.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');" accesskey="T" class="icon"><tmpl_if use_texticon>ssh terminal<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/sshterm.gif" title="ssh terminal" alt="ssh terminal" border="0" align="absmiddle"></tmpl_if></a><tmpl_else><tmpl_if use_ssh1><a href="#" onclick="window.open('<tmpl_var url_html escape="none">/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');" accesskey="T" class="icon"><tmpl_if use_texticon>ssh terminal<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/sshterm.gif" title="ssh terminal" alt="ssh terminal" border="0" align="absmiddle"></tmpl_if></a></tmpl_if></tmpl_if></tmpl_if>
+
+    <tmpl_if enable_preference><a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editprefs&amp;prefs_caller=cal&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" accesskey="O" class="icon"><tmpl_if use_texticon>user preferences<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/prefs.gif" title="user preferences" alt="user preferences" border="0" align="absmiddle"></tmpl_if></a></tmpl_if>
+
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=logout&amp;sessionid=<tmpl_var sessionid escape="url">" accesskey="Q" class="icon"><tmpl_if use_texticon>logout<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/logout.gif" title="logout" alt="logout" border="0" align="absmiddle"></tmpl_if></a>
+  </td>
+  <td nowrap class="menubar" align="right">
+    <select name="year" accesskey="G" onchange="submit()">
+    <tmpl_loop yearselectloop>
+      <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+    </tmpl_loop>
+  </td>
+</tr>
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+</table>
+</form>
+
+<table cellpadding="1" cellspacing="0" border="0" width="95%" align="center">
+<tr>
+  <td nowrap align="center" class="columnheader">
+    <a accesskey="U" href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calyear&amp;year=<tmpl_var prev_year>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="Year <tmpl_var prev_year escape="html">"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/left.gif" border="0" align="absmiddle" alt="Year <tmpl_var prev_year escape="html">"></a>
+    <b>Year <tmpl_var year></b>
+    <a accesskey="D" href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calyear&amp;year=<tmpl_var next_year>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="Year <tmpl_var next_year escape="html">"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/right.gif" border="0" align="absmiddle" alt="Year <tmpl_var next_year escape="html">"></a>
+  </td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+</tr>
+</table>
+
+<table cellpadding="0" cellspacing="1" border="0" width="95%" align="center">
+<tmpl_loop yearloop>
+<tr>
+  <tmpl_loop columns>
+  <td valign="top" align="center" class="<tmpl_if is_current_month>rowdark<tmpl_else>rowlight</tmpl_if>" <tmpl_if uselightbar>onmouseover="this.className='rowhilite';" onmouseout="this.className='<tmpl_if is_current_month>rowdark<tmpl_else>rowlight</tmpl_if>';"</tmpl_if> onclick="window.location.href='<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calmonth&amp;year=<tmpl_var year>&amp;month=<tmpl_var month>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">';">
+    <table cellpadding="2" cellspacing="0" border="0" width="100%">
+    <tmpl_loop monthloop>
+    <tr>
+      <tmpl_loop columns>
+
+      <tmpl_if is_monthlabel>
+      <td align="center" colspan="<tmpl_var colspan>"><a accesskey="<tmpl_var month_accesskey>" href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calmonth&amp;year=<tmpl_var year>&amp;month=<tmpl_var month>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="Monthview <tmpl_var monthname escape="html"> <tmpl_var year>"><b><tmpl_var monthname escape="html"></b></a></td>
+      </tmpl_if>
+
+      <tmpl_if is_collabel>
+      <td align="center"><tmpl_var collabel></td>
+      </tmpl_if>
+
+      <tmpl_if is_rowlabel>
+      <td align="center"><a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calweek&amp;year=<tmpl_var year>&amp;month=<tmpl_var month>&amp;day=<tmpl_var weekofyearday>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="Week <tmpl_var weekofyear>"><span class="colortext"><tmpl_var weekofyear></span></a></td>
+      </tmpl_if>
+
+      <tmpl_if day>
+      <td align="center" <tmpl_if is_today>class="todayhilite"</tmpl_if>><a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calday&amp;year=<tmpl_var year>&amp;month=<tmpl_var month>&amp;day=<tmpl_var day>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="<tmpl_var eventstr escape=html>"><tmpl_if eventstr><b><tmpl_var day></b><tmpl_else><tmpl_var day></tmpl_if></a></td>
+      </tmpl_if>
+
+      <tmpl_if is_empty>
+      <td>&nbsp;</td>
+      </tmpl_if>
+
+      </tmpl_loop>
+    </tr>
+    </tmpl_loop>
+    </table>
+  </td>
+  </tmpl_loop>
+</tr>
+</tmpl_loop>
+</table>
+
+<tmpl_var footer_template escape="none">
+

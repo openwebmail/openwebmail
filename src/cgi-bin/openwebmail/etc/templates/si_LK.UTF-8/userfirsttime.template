@@ -1,0 +1,15 @@
+﻿<br><br><br><br><br><br><br>
+<table border="0" align="center" width="60%" cellpadding="1" cellspacing="1">
+<tr>
+  <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>@@@NAME@@@ වෙත සාදරයෙන් පිළිගනිමු!</b></font></td>
+</tr>
+<tr>
+  <td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
+    <table width="85%">
+    <tr>
+      <td align="center"><br>@@@NAME@@@ වෙත සාදරයෙන් පිළිගනිමු! ඔබ @@@NAME@@@ භාවිතා කරන ප්‍රථම වතාව බැවින් , ඔබගේ අවශ්‍යතාවයට ගැලපෙන අයුරින් @@@NAME@@@ සිටුවම් කිරීම සදහා ඔබගේ තොරතුරු අවශ්‍යය වේ. @@@NAME@@@ සිටුවම් කිරීම සදහා continue ක්ලික් කරන්න. @@@CONTINUEBUTTON@@@</td>
+    </tr>
+    </table>
+  </td>
+</tr>
+</table>

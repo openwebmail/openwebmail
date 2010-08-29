@@ -1,0 +1,66 @@
+<center>
+
+<table border="0" align="center" width="95%" cellpadding="0" cellspacing="0">
+<tr>
+  <td colspan="2" bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Week View</b></font></td>
+</tr>
+@@@STARTFORM@@@
+<tr>
+  <td bgcolor=@@@MENUBAR@@@>@@@MENUBARLINKS@@@</td>
+  <td bgcolor=@@@MENUBAR@@@ align="right">@@@DATESELMENU@@@&nbsp;</td>
+</tr>
+@@@ENDFORM@@@
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+</table>
+
+<table width="95%" cellpadding="1" cellspacing="0">
+<tr bgcolor=@@@TABLEROW_DARK@@@>
+  <td nowrap align=center>@@@PREV_LINK@@@ <b>@@@CALTITLE@@@</b> @@@NEXT_LINK@@@</td>
+</tr>
+</table>
+
+&nbsp;
+
+<table cellspacing="1" border="0" bgcolor=@@@BACKGROUND@@@ width="95%">
+<tr align="center">
+  <td width="14%" bgcolor=@@@COLUMNHEADER@@@ nowrap><b>@@@WEEKDAY0@@@</b></td>
+  <td width="14%" bgcolor=@@@COLUMNHEADER@@@ nowrap><b>@@@WEEKDAY1@@@</b></td>
+  <td width="14%" bgcolor=@@@COLUMNHEADER@@@ nowrap><b>@@@WEEKDAY2@@@</b></td>
+  <td width="14%" bgcolor=@@@COLUMNHEADER@@@ nowrap><b>@@@WEEKDAY3@@@</b></td>
+  <td width="14%" bgcolor=@@@COLUMNHEADER@@@ nowrap><b>@@@WEEKDAY4@@@</b></td>
+  <td width="14%" bgcolor=@@@COLUMNHEADER@@@ nowrap><b>@@@WEEKDAY5@@@</b></td>
+  <td width="14%" bgcolor=@@@COLUMNHEADER@@@ nowrap><b>@@@WEEKDAY6@@@</b></td>
+</tr>
+<tr>
+@@@DAY0@@@
+@@@DAY1@@@
+@@@DAY2@@@
+@@@DAY3@@@
+@@@DAY4@@@
+@@@DAY5@@@
+@@@DAY6@@@
+</tr>
+</table>
+
+</center>
+
+<style type="text/css">
+<!--
+#mypopupCal{ position: absolute;
+             visibility: hidden;
+             background-color: @@@MENUBAR@@@;
+             layer-background-color: @@@MENUBAR@@@; }
+// -->
+</style>
+
+<div id="mypopupCal"></div>
+
+<script language="javascript">
+<!--
+   function submit_changed_dateselform() {
+      document.dateselform.submit();
+   }
+//-->
+</script>

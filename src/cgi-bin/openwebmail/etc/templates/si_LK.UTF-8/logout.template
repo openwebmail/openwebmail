@@ -1,0 +1,9 @@
+<br><br><br><br><br><br><br>
+<table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
+<tr>
+  <td bgcolor=@@@TITLEBAR@@@><font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3"><b>Logout</b></font></td>
+</tr>
+<tr>
+  <td align="center" bgcolor=@@@WINDOW_LIGHT@@@><br>Logout successful, thank you.<br><br>@@@BUTTONS@@@</td>
+</tr>
+</table>

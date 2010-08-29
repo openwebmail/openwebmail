@@ -33,7 +33,7 @@ use vars qw(%config %prefs %lang_err);
 
 # define the version of the mail index database
 use vars qw($_DBVERSION);
-$_DBVERSION=20070808.1;
+$_DBVERSION=20100828.1;
 
 # globals, message attribute number constant
 use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);
@@ -438,7 +438,7 @@ sub _get_next_msgheader_buffered {
 }
 
 # search the buffered file for a block of text (delimited by '\n\n' or '\nFrom ')
-# we're only interested in returning the first 500 or less bytes of the block
+# we're only interested in returning the first 4096 or less bytes of the block
 sub _skip_to_next_text_block {
    my $block_content='';
 
@@ -450,15 +450,15 @@ sub _skip_to_next_text_block {
       # finst 1st occurance of "\n\n" or "\nFrom "
       my ($pos, $foundstr)=buffer_index(1, "\n\n", "\nFrom");
 
-      # get max 500 chars or to the end of the block
+      # get max 4096 chars or to the end of the block
       # then skip to the next block start
-      if ($pos>500) {
-         $block_content=buffer_getchars(500);
-         buffer_skipchars($pos-500);
+      if ($pos>4096) {
+         $block_content=buffer_getchars(4096);
+         buffer_skipchars($pos-4096);
       } elsif ($pos>=0) {
          $block_content=buffer_getchars($pos);
       } else { # pos==-1 means not found until eof
-         $block_content=buffer_getchars(500);
+         $block_content=buffer_getchars(4096);
       }
    }
    return ($block_content);
