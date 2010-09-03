@@ -2,8 +2,11 @@
 
 <head>
    <meta name="description" content="OpenWebMail Project :: Tech Specs">
-   <title>The OpenWebMail Project :: Tech Specs</title>
+   <title>The OpenWebMail Project :: Tech Specs :: Internationalization and Localization</title>
    <link rel="shortcut icon" href="/images/favicon.ico">
+   <style type="text/css">
+   li { margin-bottom: 5px; }
+   </style>
 </head>
 
 <body text="#555555" bgcolor="#ffffff" background="/images/Globe.gif">
@@ -16,10 +19,72 @@
 <tr>
   <td>
     <br>
-    <h3>This Tech Spec needs to be written!</h3>
+    <h3>Languages Overview</h3>
     <blockquote>
-    <p>Volunteer to write this on the owm-devel mailing list! Or, just write it and send it to openwebmail.AT.acatysmoof.com</p>
+    <p>OpenWebMail supports Internationalization (I18N) and Localization (L10N) through the implementation of GNU gettext PO language catalogs. PO catalog files are text files that contain language strings. Translators can easily translate those strings using simple free software. They can then send the translated files back to us, giving OpenWebMail full support for their language!</p>
     </blockquote>
+
+    <h3>Quick Start</h3>
+    <blockquote>
+    <ul>
+      <li>Download and install the <a href="http://www.poedit.net/download.php" target="_new">free poedit translation software</a></li>
+      <li>Choose to <a href="#update_translation">update an existing translation</a> or <a href="#new_translation">start a new translation</a></li>
+    </ul>
+    </blockquote>
+
+    <h3 id="new_translation">Start a New Translation</h3>
+    <blockquote>
+    <ul>
+      <li>Download the <a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/browse/trunk/src/cgi-bin/openwebmail/etc/lang/owm.pot">current PO template catalog file</a> for OpenWebMail</li>
+      <li>Create a new catalog from the POT file in PoEdit (File-&gt;New catalog from POT file...)</li>
+      <li>Adjust the settings for your language:<br><br><img src="./poedit_settings.png"><br><br><p>Plural Forms is a formula that describes how many different plurals there are in a language. English, for example, has only 2 plural forms (e.g. item, items). Arabic has 6 plural forms! In order to get all the translations for all the forms in your language you need to correctly set the plural forms formula before you begin translating. You can find the plural forms formula for your language at <a href="http://translate.sourceforge.net/wiki/l10n/pluralforms" target="_new">the Translate Toolkit website</a>. You can read more about plural forms at <a href="http://www.gnu.org/software/hello/manual/gettext/Plural-forms.html" target="_new">the GNU website</a></li>
+      <li>Save the PO file (happens automatically after settings)<br><i>Please use the naming convention of <b>locale.charset.po</b>, for example: en_US.UTF-8.po<br>Your locale is a combination of your <a href="http://www.loc.gov/standards/iso639-2/php/code_list.php" target="_new">ISO 639-1 language code</a> and your <a href="http://www.iso.org/iso/country_codes/iso_3166_code_lists/english_country_names_and_code_elements.htm" target="_new">ISO 3166-1 country code</a></i></li>
+      <li>Translate the strings (<a href="#tips">click here for help and tips</a>)</li>
+      <li>Save your work and email the PO file to the <a href="mailto:owm-i18n@openwebmail.acatysmoof.com">i18n mailing list</a> or <a href="mailto:openwebmail@acatysmoof.com">directly to the developers</a></li>
+    </ul>
+    </blockquote>
+
+
+
+    <h3 id="update_translation">Update an Existing Translation</h3>
+    <blockquote>
+    <ul>
+      <li>Download the <a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/browse/trunk/src/cgi-bin/openwebmail/etc/lang" target="_new">up-to-date PO file for your language</a>. If your language doesn't exist <a href="#new_translation">start a new translation</a>.</li>
+      <li>Open the PO file in PoEdit (File-&gt;Open...)</li>
+      <li>Translate the untranslated strings (<a href="#tips">click here for help and tips</a>)</li>
+      <li>Save your work and email the PO file to the <a href="mailto:owm-i18n@openwebmail.acatysmoof.com">i18n mailing list</a> or <a href="mailto:openwebmail@acatysmoof.com">directly to the developers</a></li>
+    </ul>
+    </blockquote>
+
+    <h3 id="tips">Help and Tips</h3>
+    <blockquote>
+    <ul>
+      <li><b>Where do I type my plurals translations?</b><br>There is a bug in PoEdit 1.4.6 where new catalogs do not display the plural translation boxes when the catalog is first created. Simply go to Catalog->Settings... and then click ok and the plural translation boxes will appear.</li>
+      <li><b>Why do some strings look like code?</b><br>Some strings may contain either HTML or javascript code. These strings should be more carefully translated so as not to break the code. The javascript strings almost always have single quote characters in them, for example:<br><br>'session time: ' + (remainingseconds - 5) + ' seconds left'<br><br>The text inbetween the single quotes (session time, seconds left) should be translated. The text that is not between single quotes (remainingseconds - 5) should not be translated. A string like this should be translated with extra care to maintain the single quotes at the start and end. If you know javascript you may change the position of the code that generates the number if your language translation requires it.<br><br>The HTML strings almost always have a &gt; or &lt; character in them, for example:<br><br>&lt;tmpl_var availablefreespace escape=\&quot;html\&quot;&gt; KB Available<br><br>The text inbetween the carat characters should not be translated (tmpl_var availablefreespace escape=\&quot;html\&quot;). The text outside the carats should be translated (KB Available). If you know HTML you may move the html variable around if your language translation requires it.</li>
+      <li><b>How can I automate some translations?</b><br>PoEdit supports automatic translations through the use of existing translations compiled into databases PoEdit calls "Translation Memories" (TM). PoEdit can reference the generated TM database and automatically translate matching strings that exist in the PO file you are translating. The use of TM is highly recommended for OpenWebMail translation because our PO files contain many country names for which translations already exist in almost all languages. Using these can be a big time saver.
+        <br><br>To create a TM database:<br><br>
+        <ul>
+          <li>Designate a directory to store the translation memory databases in PoEdit (Preferences->Translation Memory tab->Browse)<br><br><img src="TM_01.png"><br><br></li>
+          <li>Click the "Add" button to select your language</li>
+          <li>Make a directory in your TM database directory that -exactly- matches the abbreviated name of the language you just selected.<br>For example: /Users/alex/Desktop/TM/it for Italian</li>
+          <li>Download existing <a href="http://translationproject.org/latest/iso_3166">ISO 3166</a> and <a href="http://translationproject.org/latest/iso_639">ISO 639</a> translations for your language and put them into the abbreviated language directory you just made.</li>
+          <li>Click the "Generate database" button in PoEdit. You will be prompted for Search Paths. Click "Browse" and select the abbreviated language directory you made:<br><br><img src="TM_02.png"><br><br></li>
+          <li>Click the "Next &gt;" button. You should see that the PO files you downloaded previously are now listed:<br><br><img src="TM_03.png"><br><br></li>
+          <li>Click the "Finish" button. The TM databases are generated</li>
+        </ul>
+
+        <br><br>To use the TM database you created:<br><br>
+        <ul>
+          <li>With your PO file open, select "Catalog->Automatically translate using TM"</li>
+        </ul>
+
+        <br><br>PoEdit will translate all strings that have a match in the database.
+      </li>
+      <li><b>How can I see where a string is used in the program?</b><br>Right click any string in PoEdit to see where it is used throughout the OpenWebMail program. The context of its usage can sometimes help make a better translation.</li>
+      <li><b>Do I need to translate everything for my language?</b><br>Absolutely not. We appreciate anything you can do! Even if you only have time to translate one string thats okay. Someone else won't have to do that work, and the project will benefit. Thank you for your contribution!</li>
+    </ul>
+    </blockquote>
+
   </td>
 </tr>
 </table>
