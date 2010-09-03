@@ -691,7 +691,7 @@ sub available_locales {
 
    # make sure we have the language
    opendir(LANGDIR, "$config{ow_langdir}") || openwebmailerror(__FILE__, __LINE__, "Cannot read $config{ow_langdir}! ($!)");
-   $available_locales->{$_}++ for grep { !m/^\.+/ && !m#[/\\]# && -f "$config{ow_langdir}/$_" } readdir(LANGDIR);
+   $available_locales->{$_}++ for grep { !m/^\.+/ && !m#[/\\]# && !m/\.pot$/ && -f "$config{ow_langdir}/$_" } readdir(LANGDIR);
    closedir(LANGDIR) || openwebmailerror(__FILE__, __LINE__, "Cannot close $config{ow_langdir}! ($!)");
 
    # and make sure we have the templates
