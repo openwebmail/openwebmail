@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenWebMail\n"
-"PO-Revision-Date: 2010-09-02 18:26+0000\n"
+"PO-Revision-Date: 2010-09-06 17:19+0000\n"
 "Last-Translator: OpenWebMail Team <openwebmail@acatysmoof.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -368,12 +368,12 @@ msgstr ""
 msgid "Address: Zip / Postal Code"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/prefs.tmpl:816
-msgid "AddressBook Options"
-msgstr ""
-
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:48
 msgid "Addressbook Name"
+msgstr ""
+
+#: data/openwebmail/layouts/classic/templates/prefs.tmpl:816
+msgid "Addressbook Options"
 msgstr ""
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3342
@@ -5524,7 +5524,7 @@ msgid "click to continue"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/prefs_editpop3.tmpl:70
-msgid "click to retreive mail from this account"
+msgid "click to retrieve mail from this account"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/login_pass.tmpl:41
@@ -6107,11 +6107,7 @@ msgstr ""
 msgid "reply all"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/prefs_editpop3.tmpl:12
-msgid "retreive pop3 mail"
-msgstr ""
-
-#: data/openwebmail/layouts/classic/templates/main_listview.tmpl:55
+#: data/openwebmail/layouts/classic/templates/main_listview.tmpl:55, data/openwebmail/layouts/classic/templates/prefs_editpop3.tmpl:12
 msgid "retrieve pop3 mail"
 msgstr ""
 
@@ -6176,7 +6172,7 @@ msgid "sort alphanumerically"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:258, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:165, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:173
-msgid "sort by catagories ascending"
+msgid "sort by categories ascending"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:254, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:176, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:161, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:171
