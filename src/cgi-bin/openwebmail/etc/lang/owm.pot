@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenWebMail\n"
-"PO-Revision-Date: 2010-09-06 17:19+0000\n"
+"PO-Revision-Date: 2010-09-08 04:06+0000\n"
 "Last-Translator: OpenWebMail Team <openwebmail@acatysmoof.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -268,7 +268,7 @@ msgstr ""
 msgid "Access Classification"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:817
+#: cgi-bin/openwebmail/openwebmail.pl:818
 msgid "Access denied: all modules are disabled."
 msgstr ""
 
@@ -984,7 +984,7 @@ msgstr ""
 msgid "Cannot close file:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:405, cgi-bin/openwebmail/openwebmail.pl:419, cgi-bin/openwebmail/openwebmail.pl:434, cgi-bin/openwebmail/openwebmail.pl:491, cgi-bin/openwebmail/shares/ow-shared.pl:2229
+#: cgi-bin/openwebmail/openwebmail.pl:406, cgi-bin/openwebmail/openwebmail.pl:420, cgi-bin/openwebmail/openwebmail.pl:435, cgi-bin/openwebmail/openwebmail.pl:492, cgi-bin/openwebmail/shares/ow-shared.pl:2229
 msgid "Cannot create directory:"
 msgstr ""
 
@@ -1024,11 +1024,11 @@ msgstr ""
 msgid "Cannot open db:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2925, cgi-bin/openwebmail/openwebmail-abook.pl:2945, cgi-bin/openwebmail/openwebmail-prefs.pl:1003, cgi-bin/openwebmail/openwebmail-prefs.pl:245, cgi-bin/openwebmail/openwebmail-prefs.pl:330, cgi-bin/openwebmail/openwebmail-prefs.pl:439, cgi-bin/openwebmail/openwebmail-prefs.pl:448, cgi-bin/openwebmail/openwebmail-prefs.pl:457, cgi-bin/openwebmail/openwebmail-prefs.pl:994, cgi-bin/openwebmail/openwebmail-read.pl:500, cgi-bin/openwebmail/openwebmail-send.pl:1604, cgi-bin/openwebmail/openwebmail-send.pl:1668, cgi-bin/openwebmail/openwebmail-send.pl:2096, cgi-bin/openwebmail/openwebmail.pl:838, cgi-bin/openwebmail/shares/ow-shared.pl:1001, cgi-bin/openwebmail/shares/ow-shared.pl:1569, cgi-bin/openwebmail/shares/ow-shared.pl:1585, cgi-bin/openwebmail/shares/ow-shared.pl:1648, cgi-bin/openwebmail/shares/ow-shared.pl:2335, cgi-bin/openwebmail/shares/ow-shared.pl:2418, cgi-bin/openwebmail/shares/ow-shared.pl:2445, cgi-bin/openwebmail/shares/ow-shared.pl:2464
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2925, cgi-bin/openwebmail/openwebmail-abook.pl:2945, cgi-bin/openwebmail/openwebmail-prefs.pl:1003, cgi-bin/openwebmail/openwebmail-prefs.pl:245, cgi-bin/openwebmail/openwebmail-prefs.pl:330, cgi-bin/openwebmail/openwebmail-prefs.pl:439, cgi-bin/openwebmail/openwebmail-prefs.pl:448, cgi-bin/openwebmail/openwebmail-prefs.pl:457, cgi-bin/openwebmail/openwebmail-prefs.pl:994, cgi-bin/openwebmail/openwebmail-read.pl:500, cgi-bin/openwebmail/openwebmail-send.pl:1604, cgi-bin/openwebmail/openwebmail-send.pl:1668, cgi-bin/openwebmail/openwebmail-send.pl:2096, cgi-bin/openwebmail/openwebmail.pl:839, cgi-bin/openwebmail/shares/ow-shared.pl:1001, cgi-bin/openwebmail/shares/ow-shared.pl:1569, cgi-bin/openwebmail/shares/ow-shared.pl:1585, cgi-bin/openwebmail/shares/ow-shared.pl:1648, cgi-bin/openwebmail/shares/ow-shared.pl:2335, cgi-bin/openwebmail/shares/ow-shared.pl:2418, cgi-bin/openwebmail/shares/ow-shared.pl:2445, cgi-bin/openwebmail/shares/ow-shared.pl:2464
 msgid "Cannot open directory:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1195, cgi-bin/openwebmail/openwebmail-abook.pl:1222, cgi-bin/openwebmail/openwebmail-abook.pl:1416, cgi-bin/openwebmail/openwebmail-abook.pl:2561, cgi-bin/openwebmail/openwebmail-abook.pl:2577, cgi-bin/openwebmail/openwebmail-abook.pl:2739, cgi-bin/openwebmail/openwebmail-abook.pl:2816, cgi-bin/openwebmail/openwebmail-abook.pl:2879, cgi-bin/openwebmail/openwebmail-abook.pl:3189, cgi-bin/openwebmail/openwebmail-abook.pl:3313, cgi-bin/openwebmail/openwebmail-abook.pl:3348, cgi-bin/openwebmail/openwebmail-abook.pl:3374, cgi-bin/openwebmail/openwebmail-abook.pl:3763, cgi-bin/openwebmail/openwebmail-abook.pl:3780, cgi-bin/openwebmail/openwebmail-abook.pl:4145, cgi-bin/openwebmail/openwebmail-advsearch.pl:468, cgi-bin/openwebmail/openwebmail-advsearch.pl:506, cgi-bin/openwebmail/openwebmail-advsearch.pl:564, cgi-bin/openwebmail/openwebmail-folder.pl:363, cgi-bin/openwebmail/openwebmail-folder.pl:523, cgi-bin/openwebmail/openwebmail-main.pl:1014, cgi-bin/openwebmail/openwebmail-main.pl:1272, cgi-bin/openwebmail/openwebmail-main.pl:1315, cgi-bin/openwebmail/openwebmail-main.pl:150, cgi-bin/openwebmail/openwebmail-prefs.pl:1929, cgi-bin/openwebmail/openwebmail-prefs.pl:1940, cgi-bin/openwebmail/openwebmail-prefs.pl:1996, cgi-bin/openwebmail/openwebmail-prefs.pl:2399, cgi-bin/openwebmail/openwebmail-prefs.pl:2540, cgi-bin/openwebmail/openwebmail-read.pl:1343, cgi-bin/openwebmail/openwebmail-send.pl:1518, cgi-bin/openwebmail/openwebmail-send.pl:1567, cgi-bin/openwebmail/openwebmail-send.pl:1647, cgi-bin/openwebmail/openwebmail-send.pl:1689, cgi-bin/openwebmail/openwebmail-send.pl:2042, cgi-bin/openwebmail/openwebmail-send.pl:2126, cgi-bin/openwebmail/openwebmail-send.pl:2805, cgi-bin/openwebmail/openwebmail-send.pl:2885, cgi-bin/openwebmail/openwebmail-send.pl:2934, cgi-bin/openwebmail/openwebmail-send.pl:973, cgi-bin/openwebmail/openwebmail-send.pl:982, cgi-bin/openwebmail/openwebmail.pl:121, cgi-bin/openwebmail/openwebmail.pl:308, cgi-bin/openwebmail/openwebmail.pl:503, cgi-bin/openwebmail/openwebmail.pl:520, cgi-bin/openwebmail/shares/adrbook.pl:121, cgi-bin/openwebmail/shares/adrbook.pl:159, cgi-bin/openwebmail/shares/adrbook.pl:165, cgi-bin/openwebmail/shares/adrbook.pl:250, cgi-bin/openwebmail/shares/adrbook.pl:266, cgi-bin/openwebmail/shares/calbook.pl:109, cgi-bin/openwebmail/shares/calbook.pl:119, cgi-bin/openwebmail/shares/calbook.pl:57, cgi-bin/openwebmail/shares/maildb.pl:178, cgi-bin/openwebmail/shares/maildb.pl:1791, cgi-bin/openwebmail/shares/maildb.pl:214, cgi-bin/openwebmail/shares/ow-shared.pl:1018, cgi-bin/openwebmail/shares/ow-shared.pl:1038, cgi-bin/openwebmail/shares/ow-shared.pl:1201, cgi-bin/openwebmail/shares/ow-shared.pl:1803, cgi-bin/openwebmail/shares/ow-shared.pl:1839, cgi-bin/openwebmail/shares/ow-shared.pl:1855, cgi-bin/openwebmail/shares/ow-shared.pl:1860, cgi-bin/openwebmail/shares/ow-shared.pl:1874, cgi-bin/openwebmail/shares/ow-shared.pl:865
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1195, cgi-bin/openwebmail/openwebmail-abook.pl:1222, cgi-bin/openwebmail/openwebmail-abook.pl:1416, cgi-bin/openwebmail/openwebmail-abook.pl:2561, cgi-bin/openwebmail/openwebmail-abook.pl:2577, cgi-bin/openwebmail/openwebmail-abook.pl:2739, cgi-bin/openwebmail/openwebmail-abook.pl:2816, cgi-bin/openwebmail/openwebmail-abook.pl:2879, cgi-bin/openwebmail/openwebmail-abook.pl:3189, cgi-bin/openwebmail/openwebmail-abook.pl:3313, cgi-bin/openwebmail/openwebmail-abook.pl:3348, cgi-bin/openwebmail/openwebmail-abook.pl:3374, cgi-bin/openwebmail/openwebmail-abook.pl:3763, cgi-bin/openwebmail/openwebmail-abook.pl:3780, cgi-bin/openwebmail/openwebmail-abook.pl:4145, cgi-bin/openwebmail/openwebmail-advsearch.pl:468, cgi-bin/openwebmail/openwebmail-advsearch.pl:506, cgi-bin/openwebmail/openwebmail-advsearch.pl:564, cgi-bin/openwebmail/openwebmail-folder.pl:363, cgi-bin/openwebmail/openwebmail-folder.pl:523, cgi-bin/openwebmail/openwebmail-main.pl:1014, cgi-bin/openwebmail/openwebmail-main.pl:1272, cgi-bin/openwebmail/openwebmail-main.pl:1315, cgi-bin/openwebmail/openwebmail-main.pl:150, cgi-bin/openwebmail/openwebmail-prefs.pl:1929, cgi-bin/openwebmail/openwebmail-prefs.pl:1940, cgi-bin/openwebmail/openwebmail-prefs.pl:1996, cgi-bin/openwebmail/openwebmail-prefs.pl:2399, cgi-bin/openwebmail/openwebmail-prefs.pl:2540, cgi-bin/openwebmail/openwebmail-read.pl:1343, cgi-bin/openwebmail/openwebmail-send.pl:1518, cgi-bin/openwebmail/openwebmail-send.pl:1567, cgi-bin/openwebmail/openwebmail-send.pl:1647, cgi-bin/openwebmail/openwebmail-send.pl:1689, cgi-bin/openwebmail/openwebmail-send.pl:2042, cgi-bin/openwebmail/openwebmail-send.pl:2126, cgi-bin/openwebmail/openwebmail-send.pl:2805, cgi-bin/openwebmail/openwebmail-send.pl:2885, cgi-bin/openwebmail/openwebmail-send.pl:2934, cgi-bin/openwebmail/openwebmail-send.pl:973, cgi-bin/openwebmail/openwebmail-send.pl:982, cgi-bin/openwebmail/openwebmail.pl:121, cgi-bin/openwebmail/openwebmail.pl:309, cgi-bin/openwebmail/openwebmail.pl:504, cgi-bin/openwebmail/openwebmail.pl:521, cgi-bin/openwebmail/shares/adrbook.pl:121, cgi-bin/openwebmail/shares/adrbook.pl:159, cgi-bin/openwebmail/shares/adrbook.pl:165, cgi-bin/openwebmail/shares/adrbook.pl:250, cgi-bin/openwebmail/shares/adrbook.pl:266, cgi-bin/openwebmail/shares/calbook.pl:109, cgi-bin/openwebmail/shares/calbook.pl:119, cgi-bin/openwebmail/shares/calbook.pl:57, cgi-bin/openwebmail/shares/maildb.pl:178, cgi-bin/openwebmail/shares/maildb.pl:1791, cgi-bin/openwebmail/shares/maildb.pl:214, cgi-bin/openwebmail/shares/ow-shared.pl:1018, cgi-bin/openwebmail/shares/ow-shared.pl:1038, cgi-bin/openwebmail/shares/ow-shared.pl:1201, cgi-bin/openwebmail/shares/ow-shared.pl:1803, cgi-bin/openwebmail/shares/ow-shared.pl:1839, cgi-bin/openwebmail/shares/ow-shared.pl:1855, cgi-bin/openwebmail/shares/ow-shared.pl:1860, cgi-bin/openwebmail/shares/ow-shared.pl:1874, cgi-bin/openwebmail/shares/ow-shared.pl:865
 msgid "Cannot open file:"
 msgstr ""
 
@@ -2339,7 +2339,7 @@ msgstr ""
 msgid "Illegal characters in forward email address."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:467, cgi-bin/openwebmail/shares/ow-shared.pl:619
+#: cgi-bin/openwebmail/openwebmail.pl:468, cgi-bin/openwebmail/shares/ow-shared.pl:619
 msgid "Illegal characters in session id:"
 msgstr ""
 
@@ -2801,19 +2801,19 @@ msgstr ""
 msgid "Login Again"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:705
+#: cgi-bin/openwebmail/openwebmail.pl:706
 msgid "Login failed: authentication system error."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:703
+#: cgi-bin/openwebmail/openwebmail.pl:704
 msgid "Login failed: function not supported."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:706, cgi-bin/openwebmail/openwebmail.pl:707
+#: cgi-bin/openwebmail/openwebmail.pl:707, cgi-bin/openwebmail/openwebmail.pl:708
 msgid "Login failed: incorrect user name or password."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:704
+#: cgi-bin/openwebmail/openwebmail.pl:705
 msgid "Login failed: parameter format error."
 msgstr ""
 
@@ -4195,11 +4195,11 @@ msgstr ""
 msgid "Service is available over SSL only.<br>You will be redirected to the <a href=\"<tmpl_var start_url escape=\"none\">\">SSL login</a> page in 5 seconds..."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:185, cgi-bin/openwebmail/openwebmail.pl:290
+#: cgi-bin/openwebmail/openwebmail.pl:185, cgi-bin/openwebmail/openwebmail.pl:291
 msgid "Service is not available for the domain:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:342
+#: cgi-bin/openwebmail/openwebmail.pl:343
 msgid "Service is not available for user@domain:"
 msgstr ""
 
@@ -4215,7 +4215,7 @@ msgstr ""
 msgid "Session timeout:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:478, cgi-bin/openwebmail/shares/ow-shared.pl:687
+#: cgi-bin/openwebmail/openwebmail.pl:479, cgi-bin/openwebmail/shares/ow-shared.pl:687
 msgid "Setting effective group id to \"mail\" failed:"
 msgstr ""
 
@@ -4666,7 +4666,7 @@ msgstr ""
 msgid "The folder name is reserved by the system and cannot be used:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:191, cgi-bin/openwebmail/openwebmail.pl:297
+#: cgi-bin/openwebmail/openwebmail.pl:191, cgi-bin/openwebmail/openwebmail.pl:298
 msgid "The following script must be setuid root to read the mail spools:"
 msgstr ""
 
@@ -5190,7 +5190,7 @@ msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/login.tmpl:117
 msgid ""
-"When this feature is enabled you may login to openwebmail without re-entering your username and password, but only if you did not logout of your previous session and that session has not timed out.\n"
+"When this feature is enabled you may login to <tmpl_var programname escape=\"js\"> without re-entering your username and password, but only if you did not logout of your previous session and that session has not timed out.\n"
 "\n"
 "DO NOT ENABLE THIS FEATURE ON A PUBLIC COMPUTER or others will gain access to your account.\n"
 msgstr ""
@@ -5255,11 +5255,11 @@ msgstr ""
 msgid "Yoruba"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:351
+#: cgi-bin/openwebmail/openwebmail.pl:352
 msgid "You are not allowed to connect from this client domain:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:346
+#: cgi-bin/openwebmail/openwebmail.pl:347
 msgid "You are not allowed to connect from this client ip:"
 msgstr ""
 
@@ -5495,12 +5495,12 @@ msgstr ""
 msgid "check/uncheck all boxes for export"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:266
-msgid "check/uncheck all boxes for move, copy, or delete"
+#: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:177
+msgid "check/uncheck all boxes for group membership"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:177
-msgid "check/uncheck all for group membership"
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:266
+msgid "check/uncheck all boxes for move, copy, or delete"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1363, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:337
