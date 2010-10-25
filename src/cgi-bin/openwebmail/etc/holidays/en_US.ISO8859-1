@@ -17,8 +17,9 @@
 17@@@.*,11,2[2-8],Thu@@@0@@@0@@@Thanksgiving Day@@@0@@@0@@@none@@@iso-8859-1@@@1
 18@@@.*,12,24,.*@@@0@@@0@@@Christmas Eve@@@0@@@0@@@none@@@iso-8859-1@@@1
 19@@@.*,12,25,.*@@@0@@@0@@@Christmas Day@@@0@@@0@@@none@@@iso-8859-1@@@1
-20@@@.*,03,08,.*@@@0200@@@0@@@Daylight Saving Time begins@@@0@@@0@@@none@@@iso-8859-1@@@1
+20@@@.*,03,((0[8-9])|(1[0-4])),Sun@@@0200@@@0@@@Daylight Saving Time begins@@@0@@@0@@@none@@@iso-8859-1@@@1
 21@@@.*,04,2[1-7],Wed@@@0@@@0@@@Secretaries' Day@@@0@@@0@@@none@@@iso-8859-1@@@1
-22@@@.*,11,01,.*@@@0200@@@0@@@Daylight Saving Time ends@@@0@@@0@@@none@@@iso-8859-1@@@1
+22@@@.*,11,0[1-7],Sun@@@0200@@@0@@@Daylight Saving Time ends@@@0@@@0@@@none@@@iso-8859-1@@@1
 23@@@.*,easter,easter,.*@@@0@@@0@@@Easter@@@0@@@0@@@none@@@iso-8859-1@@@1
 24@@@.*,easter,easter-47,.*@@@0@@@0@@@Mardi Gras@@@0@@@0@@@none@@@iso-8859-1@@@1
+
