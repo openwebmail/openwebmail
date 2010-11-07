@@ -43,7 +43,7 @@ else
    exit 1
 endif
 
-# we're updating, remove the old one
+# we are updating, remove the old one
 if (-f "openwebmail-current.tar.gz") then
    rm openwebmail-current.tar.gz
 endif
@@ -76,16 +76,20 @@ set RELEASEDATE = `date "+%Y%m%d"`
 sed -e "s/^\(releasedate[[:space:]]*\)[0-9]*/\1$RELEASEDATE/" -i '' cgi-bin/openwebmail/etc/defaults/openwebmail.conf
 
 # generate owm.pot PO template and update en_US.ISO8859-1.po
-echo "Updating PO template and en_US.ISO8859-1.po..."
+echo "Generating POT template..."
 rm cgi-bin/openwebmail/etc/lang/owm.pot
-./cgi-bin/openwebmail/etc/lang/owm-xgettext.pl -f cgi-bin/openwebmail/*.pl cgi-bin/openwebmail/{shares,modules}/* data/openwebmail/layouts/classic/templates/* -o cgi-bin/openwebmail/etc/lang/owm.pot
+chmod 777 cgi-bin/openwebmail/misc/mkrelease/owm-xgettext.pl
+./cgi-bin/openwebmail/misc/mkrelease/owm-xgettext.pl -f cgi-bin/openwebmail/*.pl cgi-bin/openwebmail/{shares,modules}/* data/openwebmail/layouts/*/templates/* -o cgi-bin/openwebmail/etc/lang/owm.pot
+
+echo "Generating up to date en_US.ISO8859-1.po..."
 msgen -o cgi-bin/openwebmail/etc/lang/en_US.ISO8859-1.po cgi-bin/openwebmail/etc/lang/owm.pot
 
 # update all the PO files with the new strings
 foreach file (cgi-bin/openwebmail/etc/lang/*.po)
-   echo "Updating ${file}..."
+   echo "Updating ${file} with all new strings..."
    msgmerge --update --sort-output --no-wrap --quiet $file cgi-bin/openwebmail/etc/lang/owm.pot
 end
+
 rm cgi-bin/openwebmail/etc/lang/*~
 
 # fix permissions

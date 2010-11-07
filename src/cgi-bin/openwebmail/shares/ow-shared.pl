@@ -791,15 +791,15 @@ sub read_owconf {
 
    # cleanup auto values with server or client side runtime enviroment
    # since result may differ for different clients, this could not be done in load_owconf()
-   foreach $key ( keys %{$is_config_option{'auto'}} ) {
-      if ($is_config_option{'list'}{$key}) {
+   foreach $key ( keys %{$is_config_option{auto}} ) {
+      if ($is_config_option{list}{$key}) {
          next if (${${$r_config}{$key}}[0] ne 'auto');
          if ($key eq 'domainnames') {
-            if ($ENV{'HTTP_HOST'}=~/[A-Za-z]\./) {
-               $value=$ENV{'HTTP_HOST'};
-               $value=~s/:\d+$//;	# remove port number
+            if (exists $ENV{HTTP_HOST} && defined $ENV{HTTP_HOST} && $ENV{HTTP_HOST} =~ m/[A-Za-z]\./) {
+               $value = $ENV{HTTP_HOST};
+               $value =~ s/:\d+$//; # remove port number
             } else {
-               $value=ow::tool::hostname();
+               $value = ow::tool::hostname();
             }
             ${$r_config}{$key}=[$value];
          }
