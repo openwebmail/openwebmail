@@ -261,15 +261,14 @@ ps: No matter what value is set in this option,
     openwbemail.conf in %ow_cgidir%/etc
 
 
-ow_stylesdir
+ow_layoutsdir
 -----------------------------------------------------------------------
-the directory for styles definitions. This will be deprecated soon since
-styles will no longer be read and processed like templates.
+the path to the root directory for storing layouts.
 
 
-ow_stylesurl
+ow_layoutsurl
 -----------------------------------------------------------------------
-the url for styles definition files
+the url to the root directory for storing layouts.
 
 
 ow_langdir
@@ -547,6 +546,11 @@ If this option is set to yes, info of each request will be logged
 debug_fork
 -----------------------------------------------------------------------
 If this option is set to yes, info of forked process will be logged
+
+
+debug_maildb
+-----------------------------------------------------------------------
+If this option is set to yes, details of the maildb buffers will be logged
 
 
 debug_mailfilter
@@ -1425,8 +1429,8 @@ access to those directories or files starting with . (dot)
 webdisk_lsunixspec
 -----------------------------------------------------------------------
 If this option is set to 'no', the webdisk won't list and won't allow
-access to those directories or files which have specific meaning in unix.
-eg: FIFO, socket, block device, charact device
+access to those directories or files which have special meaning in unix.
+eg: FIFO, socket, block device, character device
 
 
 webdisk_lssymlink
@@ -1961,10 +1965,10 @@ ps: Foreground mail filtering guarentees that all messages are checked
     and filtered before the message list is shown to user, but the
     user have to wait to see the message list until the filter finishes.
 
-    On the other hand, backgound mail filtering returns if the mail
+    On the other hand, background mail filtering returns if the mail
     filtering is not finished in a certain period of time, but the user
     may see some spam/virus mails that are actually going to be
-    checked and filtered later by the backgound mail filter.
+    checked and filtered later by the background mail filter.
 
 
 default_moveoldmsgfrominbox
