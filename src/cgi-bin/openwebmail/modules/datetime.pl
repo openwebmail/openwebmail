@@ -1,4 +1,3 @@
-package ow::datetime;
 #
 # datetime.pl - date/time routines supporting timezone and daylightsaving
 #
@@ -8,38 +7,58 @@ package ow::datetime;
 # so it can handle multiple timezones other than where the server is.
 #
 
+package ow::datetime;
+
 use strict;
+use warnings;
+
 use Time::Local;
 use Fcntl qw(O_RDONLY);
-use vars qw(%months @month_en @wday_en %tzoffset);
 use POSIX qw(tzset);
 
-%months = qw(Jan 1 Feb 2 Mar 3 Apr 4  May 5  Jun 6
-             Jul 7 Aug 8 Sep 9 Oct 10 Nov 11 Dec 12);
+use vars qw(%months @month_en @wday_en %tzoffset);
+
+%months   = (
+               Jan => 1,
+               Feb => 2,
+               Mar => 3,
+               Apr => 4,
+               May => 5,
+               Jun => 6,
+               Jul => 7,
+               Aug => 8,
+               Sep => 9,
+               Oct => 10,
+               Nov => 11,
+               Dec => 12,
+            );
+
 @month_en = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
-@wday_en =  qw(Sun Mon Tue Wed Thu Fri Sat);
+
+@wday_en  = qw(Sun Mon Tue Wed Thu Fri Sat);
 
 %tzoffset = qw(
-ACDT +1030  ACST +0930  ADT  -0300  AEDT +1100  AEST +1000
-AHDT -0900  AHST -1000  AKDT -0800  AKST -0900  AST  -0400
-AT   -0200  AWDT +0900  AWST +0800  AZST +0400  BAT  +0300
-BDST +0200  BET  -1100  BRST -0200  BRT  -0300  BST  -0300
-BT   +0300  BZT2 -0300  CADT +1030  CAST +0930  CAT  -1000
-CCT  +0800  CDT  -0500  CED  +0200  CEST +0200  CET  +0100
-CST  -0600  EAST +1000  EDT  -0400  EED  +0300  EEST +0300
-EET  +0200  EST  -0500  FST  +0200  FWT  +0100  GMT  +0000
-GST  +1000  HADT -0900  HAST -1000  HDT  -0900  HKT  +0800
-HST  -1000  IDLE +1200  IDLW -1200  IDT  +0300  IST  +0530
-IT   +0330  JST  +0900  JT   +0700  KST  +0900  MDT  -0600
-MED  +0200  MEST +0200  MESZ +0200  MET  +0100  MEWT +0100
-MEZ  +0100  MSD  +0400  MSK  +0300  MST  -0700  MT   +0800
-NDT  -0230  NFT  -0330  NST  +0630  NT   -1100  NZ   +1100
-NZDT +1300  NZST +1200  NZT  +1200  PDT  -0700  PHT  +0800
-PST  -0800  ROK  +0900  SAD  +1000  SAST +0900  SAT  +0900
-SDT  +1000  SGT  +0800  SST  +0200  SWT  +0100  USZ3 +0400
-USZ4 +0500  USZ5 +0600  USZ6 +0700  UT   +0000  UTC  +0000
-UZ10 +1100  WAT  -0100  WEST +0100  WET  +0000  WST  +0800
-YDT  -0800  YST  -0900  ZP4  +0400  ZP5  +0500  ZP6  +0600 );
+                 ACDT +1030  ACST +0930  ADT  -0300  AEDT +1100  AEST +1000
+                 AHDT -0900  AHST -1000  AKDT -0800  AKST -0900  AST  -0400
+                 AT   -0200  AWDT +0900  AWST +0800  AZST +0400  BAT  +0300
+                 BDST +0200  BET  -1100  BRST -0200  BRT  -0300  BST  -0300
+                 BT   +0300  BZT2 -0300  CADT +1030  CAST +0930  CAT  -1000
+                 CCT  +0800  CDT  -0500  CED  +0200  CEST +0200  CET  +0100
+                 CST  -0600  EAST +1000  EDT  -0400  EED  +0300  EEST +0300
+                 EET  +0200  EST  -0500  FST  +0200  FWT  +0100  GMT  +0000
+                 GST  +1000  HADT -0900  HAST -1000  HDT  -0900  HKT  +0800
+                 HST  -1000  IDLE +1200  IDLW -1200  IDT  +0300  IST  +0530
+                 IT   +0330  JST  +0900  JT   +0700  KST  +0900  MDT  -0600
+                 MED  +0200  MEST +0200  MESZ +0200  MET  +0100  MEWT +0100
+                 MEZ  +0100  MSD  +0400  MSK  +0300  MST  -0700  MT   +0800
+                 NDT  -0230  NFT  -0330  NST  +0630  NT   -1100  NZ   +1100
+                 NZDT +1300  NZST +1200  NZT  +1200  PDT  -0700  PHT  +0800
+                 PST  -0800  ROK  +0900  SAD  +1000  SAST +0900  SAT  +0900
+                 SDT  +1000  SGT  +0800  SST  +0200  SWT  +0100  USZ3 +0400
+                 USZ4 +0500  USZ5 +0600  USZ6 +0700  UT   +0000  UTC  +0000
+                 UZ10 +1100  WAT  -0100  WEST +0100  WET  +0000  WST  +0800
+                 YDT  -0800  YST  -0900  ZP4  +0400  ZP5  +0500  ZP6  +0600
+              );
 
 sub gettimeoffset {
    # notice the difference between localtime and gmtime includes the dst shift, so we remove
@@ -51,6 +70,7 @@ sub gettimeoffset {
 
    my $is_dst = $localized[8];
    $seconds -= 3600 if $is_dst;
+
    return sprintf(seconds2timeoffset($seconds));
 }
 
@@ -73,37 +93,43 @@ sub seconds2timeoffset {
    return sprintf('%s%02d%02d', ($seconds >= 0 ? '+' : '-'), int($abs_seconds / 3600), int(($abs_seconds % 3600) / 60));
 }
 
-########## SECONDS <-> DATEARRAY #################################
 sub seconds2array {
-   return gmtime(shift);
+   # given seconds since the epoch, return an array
+   # ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) at GMT
+   my $seconds_since_epoch = shift;
+   return gmtime($seconds_since_epoch);
 }
 
 sub array2seconds {
-   my ($sec,$min,$hour, $d,$m,$y) = @_;
-   # avoid unexpected error exception from timegm
+   # given a datetime, return the number of seconds to
+   # that datetime since the system epoch in GMT
+   my ($sec, $min, $hour, $d, $m, $y) = @_;
+
+   # replace any invalid inputs with the "now" values for that input field
+   # in order to avoid unexpected error exceptions from the timegm routine
    my @t = gmtime();
-   $sec  = $t[0] if ($sec < 0 || $sec > 59);
-   $min  = $t[1] if ($min < 0 || $min > 59);
-   $hour = $t[2] if ($hour < 0 || $hour > 23);
-   $d    = $t[3] if ($d < 1 || $d > 31);
-   $m    = $t[4] if ($m < 0 || $m > 11);
-   $y    = $t[5] if ($y < 70 || $y > 137);	# invalid if outside 1970...2037
+   $sec  = $t[0] if !defined $sec  || $sec < 0  || $sec > 59;
+   $min  = $t[1] if !defined $min  || $min < 0  || $min > 59;
+   $hour = $t[2] if !defined $hour || $hour < 0 || $hour > 23;
+   $d    = $t[3] if !defined $d    || $d < 1    || $d > 31;
+   $m    = $t[4] if !defined $m    || $m < 0    || $m > 11;
+   $y    = $t[5] if !defined $y    || $y < 70   || $y > 137; # invalid if outside 1970...2037
+
    if ($d > 28) {
       my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
       my $year = 1900 + $y;
-      $days_in_month[2]++ if ( $year % 4 == 0 && ($year % 100 != 0 || $year % 400 == 0) );
-      $d = $days_in_month[$m+1] if ($d > $days_in_month[$m+1]);
+      $days_in_month[2]++ if $year % 4 == 0 && ($year % 100 != 0 || $year % 400 == 0);
+      $d = $days_in_month[$m + 1] if $d > $days_in_month[$m + 1];
    }
-   return timegm($sec,$min,$hour, $d,$m,$y); # Time::Local module
+
+   return timegm($sec, $min, $hour, $d, $m, $y); # Time::Local module
 }
-########## END SECONDS <-> DATEARRAY #############################
 
-########## MAKEZONELIST ##########################################
-# Creates the zonelist from the zoneinfo data
 sub makezonelist {
-   my $zonetab = $_[0];
+   # Creates the zonelist from the zoneinfo data
+   my $zonetab = shift;
 
-   if (($zonetab ne 'no') && sysopen(ZONETAB, $zonetab, O_RDONLY)) {
+   if ($zonetab ne 'no' && sysopen(ZONETAB, $zonetab, O_RDONLY)) {
       my @zones = ();
       while (<ZONETAB>) {
          next if (/^#/);
@@ -127,179 +153,223 @@ sub makezonelist {
       return ();
    }
 }
-########## END MAKEZONELIST ######################################
 
-########## IS_DST ################################################
-# Check if gmtime should be DST for timezone $timeoffset.
-# Since we use only 2 rules to calc daylight saving time for all timezones,
-# it is not very accurate but should be enough in most cases
-# reference: http://webexhibits.org/daylightsaving/g.html
-# If a timezone is informed, use this timezone data to define is_dst.
 sub is_dst {
-   if ($_[2]) {
-      $ENV{TZ} = ":$_[2]";
+   # Check if gmtime should be DST for timezone $timeoffset.
+   # Since we use only 2 rules to calc daylight saving time for all timezones,
+   # it is not very accurate but should be enough in most cases
+   # reference: http://webexhibits.org/daylightsaving/g.html
+   # If a timezone is provided, use this timezone data to define is_dst.
+   # $gmtime is any time given in seconds from epoch
+   my ($gmtime, $timeoffset, $timezone) = @_;
+
+   if (defined $timezone && $timezone) {
+      $ENV{TZ} = ":$timezone";
       POSIX::tzset();
-      my $is_dst = (localtime($_[0]))[8];
+      my $is_dst = (localtime($gmtime))[8];
       return $is_dst;
    } else {
-      my ($gmtime, $timeoffset)=@_;
-      my ($month,$year)=(seconds2array($gmtime))[4,5];	# $month 0..11
-      my $seconds=timeoffset2seconds($timeoffset);
+      my ($month, $year) = (seconds2array($gmtime))[4,5]; # $month 0..11
+      my $seconds = timeoffset2seconds($timeoffset);
 
-      my ($gm, $lt, $dow);
-      if ($seconds >= -9*3600 && $seconds <= -3*3600 ) {	# dst rule for us
-         return 1 if ($month>3 && $month<9);
-         if ($month==3) {
-            $lt=array2seconds(0,0,2, 1,3,$year);	# localtime Apr/1 2:00
-            $dow=(seconds2array($lt))[6];		# weekday of localtime Apr/1 2:00:01
-            $gm=$lt+(7-$dow)*86400-$seconds;	# gmtime of localtime Apr/1st Sunday
-            return 1 if ($gmtime>=$gm);
-         } elsif ($month==9) {
-            $lt=array2seconds(0,0,2, 30,9,$year);	# localtime Oct/30 2:00
-            $dow=(seconds2array($lt))[6];		# weekday of localtime Oct/30
-            $gm=$lt-$dow*86400-$seconds;		# gmtime of localtime Oct/last Sunday
-            return 1 if ($gmtime<=$gm);
+      if (($seconds >= -9 * 3600) && ($seconds <= -3 * 3600)) {
+         # very basic dst rule summary for the US
+         # U.S. and Canada beginning in 2007:
+         # Start: Second Sunday in March
+         # End: First Sunday in November
+         return 1 if $month >= 3 && $month <= 9;                         # April(3) through October(9)
+         if ($month == 2) {
+             my $startdstgmt         = array2seconds(0, 0, 2, 7, 2, $year);   # Mar/7 2:00am GMT ($sec, $min, $hour, $d, $m, $y)
+             my $startdstgmtdow      = (seconds2array($startdstgmt))[6]; # weekday of Mar/7 GMT
+             my $days_to_next_sunday = 7 - $startdstgmtdow;              # next Sunday after Mar/7 will always be the 2nd Sunday
+             my $startdst            = $startdstgmt + $days_to_next_sunday * 86400 - $seconds;
+             return 1 if $gmtime >= $startdst;
+         } elsif ($month == 10) {
+             my $enddstgmt           = array2seconds(0, 0, 2, 1, 10, $year);  # Nov/1 2:00am GMT ($sec, $min, $hour, $d, $m, $y)
+             my $enddstgmtdow        = (seconds2array($enddstgmt))[6];   # weekday of Nov/1 GMT
+             my $days_to_next_sunday = 7 - $enddstgmtdow;                # the first Sunday of Nov
+             my $enddst              = $enddstgmt - ($days_to_next_sunday < 7 ? $days_to_next_sunday : 0) * 86400 - $seconds;
+            return 1 if $gmtime <= $enddst;
          }
-      } elsif ($seconds >= 0 && $seconds <= 6*3600 ) {	# dst rule for europe
-         return 1 if ($month>2 && $month<9);
-         if ($month==2) {
-            $gm=array2seconds(0,0,1, 31,2,$year);	# gmtime Mar/31 1:00
-            $dow=(seconds2array($gm))[6];		# weekday of gmtime Mar/31
-            $gm-=$dow*86400;			# gmtime Mar/last Sunday
-            return 1 if ($gmtime>=$gm);
-         } elsif ($month==9) {
-            $gm=array2seconds(0,0,1, 30,9,$year);	# gmtime Oct/30 1:00
-            $dow=(seconds2array($gm))[6];		# weekday of gmtime Oct/30
-            $gm-=$dow*86400;			# gmtime Oct/last Sunday
-            return 1 if ($gmtime<=$gm);
+      } elsif ($seconds >= 0 && $seconds <= 6 * 3600 ) {
+         # very basic dst rule summary for europe
+         # Start: Last Sunday in March at 1 am UTC
+         # End: Last Sunday in October at 1 am UTC
+         return 1 if $month >= 3 && $month <= 8;                               # April(3) through September(8)
+         if ($month == 2) {
+            my $startdstgmt                = array2seconds(0, 0, 1, 31, 2, $year);  # Mar/31 1:00am GMT ($sec, $min, $hour, $d, $m, $y)
+            my $startdstgmtdow             = (seconds2array($startdstgmt))[6]; # weekday of Mar/31 GMT
+            my $seconds_to_previous_sunday = $startdstgmtdow * 86400;
+            my $startdst                   = $startdstgmt - $seconds_to_previous_sunday;
+            return 1 if $gmtime >= $startdst;
+         } elsif ($month == 9) {
+            my $enddstgmt                  =  array2seconds(0, 0, 1, 31, 9, $year); # Oct/31 1:00am GMT ($sec, $min, $hour, $d, $m, $y)
+            my $enddstgmtdow               = (seconds2array($enddstgmt))[6];   # weekday of Oct/31 GMT
+            my $seconds_to_previous_sunday = $enddstgmtdow * 86400;
+            my $enddst                     = $enddstgmt - $seconds_to_previous_sunday;
+            return 1 if $gmtime <= $enddst;
          }
       }
+
       return 0;
    }
 }
-########## END IS_DST ############################################
 
-########## TIME GM <-> LOCAL #####################################
 sub time_gm2local {
-   my ($g2l, $timeoffset, $daylightsaving, $timezone)=@_;
-   if ($daylightsaving eq 'on' ||
-       ($daylightsaving eq 'auto' && is_dst($g2l,$timeoffset,$timezone)) ) {
-      $g2l+=3600; # plus 1 hour if is_dst at this gmtime
-   }
-   $g2l+=timeoffset2seconds($timeoffset) if ($timeoffset);
+   my ($g2l, $timeoffset, $daylightsaving, $timezone) = @_;
+
+   # add a DST adjustment if this GMT falls in DST at our timeoffset or timezone
+   $g2l += 3600 if $daylightsaving eq 'on' || ($daylightsaving eq 'auto' && is_dst($g2l, $timeoffset, $timezone));
+
+   # add the offset from GMT to get us to our localtime
+   $g2l += timeoffset2seconds($timeoffset) if $timeoffset;
+
    return $g2l;
 }
 
 sub time_local2gm {
-   my ($l2g, $timeoffset, $daylightsaving, $timezone)=@_;
-   $l2g-=timeoffset2seconds($timeoffset);
-   if ($daylightsaving eq 'on' ||
-       ($daylightsaving eq 'auto' && is_dst($l2g,$timeoffset,$timezone)) ) {
-      $l2g-=3600; # minus 1 hour if is_dst at that gmtime
-   }
+   # given a time in seconds ($l2g), adjust that time to compensate for the timeoffset
+   # from GMT in seconds and any daylight savings adjustments as well
+   my ($l2g, $timeoffset, $daylightsaving, $timezone) = @_;
+
+   $daylightsaving = '' unless defined $daylightsaving;
+   $timezone       = '' unless defined $timezone;
+
+   # remove the offset from GMT to get us back to GMT
+   $l2g -= timeoffset2seconds($timeoffset);
+
+   # remove a DST adjustment if this GMT falls in DST at our timeoffset or timezone
+   $l2g -= 3600 if $daylightsaving eq 'on' || ($daylightsaving eq 'auto' && is_dst($l2g, $timeoffset, $timezone));
+
    return $l2g;
 }
-########## END TIME GM <-> LOCAL #################################
 
 sub gmtime2dateserial {
    # dateserial is used as an equivalent internal format to gmtime
-   # the is_dst effect won't be not counted in dateserial until
-   # the dateserial is converted to datefield, delimeterfield or str
+   # the is_dst effect will not be not counted in dateserial until
+   # the dateserial is converted to datefield, delimeterfield or string
    # a serialized date looks like: 20090727074535
    my $time = shift || time();
    my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = seconds2array($time);
-   return sprintf('%4d%02d%02d%02d%02d%02d', $year+1900, $mon+1, $mday, $hour, $min, $sec);
+   return sprintf('%4d%02d%02d%02d%02d%02d', $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
 }
 
 sub dateserial2gmtime {
    # convert a serialize date like 20090727074535 back to a gmtime object
    my $serial = shift;
-   my ($year, $mon, $mday, $hour, $min, $sec) = $serial =~ m/(\d\d\d\d)(\d\d)(\d\d)(\d\d)?(\d\d)?(\d\d)?/;
-   return array2seconds($sec, $min, $hour, $mday, $mon-1, $year-1900);
+   my ($year, $mon, $mday, $hour, $min, $sec) = $serial =~ m/(\d{4})(\d\d)(\d\d)(\d\d)?(\d\d)?(\d\d)?/;
+   return array2seconds(
+                          (defined $sec  ? $sec         : -1),
+                          (defined $min  ? $min         : -1),
+                          (defined $hour ? $hour        : -1),
+                          (defined $mday ? $mday        : -1),
+                          (defined $mon  ? $mon - 1     : -1),
+                          (defined $year ? $year - 1900 : -1)
+                       );
 }
 
-########## DELIMITER <-> DATESERIAL ##############################
-sub delimiter2dateserial {	# return dateserial of GMT
-   my ($delimiter, $deliver_use_gmt, $daylightsaving, $timezone)=@_;
+sub delimiter2dateserial {
+   # return dateserial of GMT
+   my ($delimiter, $deliver_use_gmt, $daylightsaving, $timezone) = @_;
 
    # extract date from the 'From ' line, it must be in this form
    # From Tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
    # From Tung@turtle.ee.ncku.edu.tw Mon Aug 20 18:24 CST 2001
-   # From Nssb@thumper.bellcore.com   Wed Mar 11 16:27:37 EST 1992
-   return('') if ($delimiter !~ /(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/);
+   # From Nssb@thumper.bellcore.com Wed Mar 11 16:27:37 EST 1992
+   return '' if $delimiter !~ m/(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d+)/;
 
-   my ($wdaystr, $monstr, $mday, $hour, $min, $sec, $zone, $year)
-					=($1, $2, $3, $4, $5, $6, $7, $8);
-   if ($year<50) {	# 2 digit year
-      $year+=2000;
-   } elsif ($year<=1900) {
-      $year+=1900;
-   }
-   my $mon=$months{$monstr};
+   my ($wdaystr, $monstr, $mday, $hour, $min, $sec, $zone, $year) = ($1, $2, $3, $4, $5, $6, $7, $8);
 
-   my $t=array2seconds($sec,$min,$hour, $mday,$mon-1,$year-1900);
-   if (!$deliver_use_gmt) {
-      # we don't trust the zone abbreviation in delimiter line because it is not unique.
-      # see http://www.worldtimezone.com/wtz-names/timezonenames.html for detail
-      # since delimiter is written by local deliver, so we use gettimeoffset() instead
-      $t=time_local2gm($t, gettimeoffset(), $daylightsaving, $timezone);
+   if ($year < 50) {
+      $year += 2000; # 2 digit year
+   } elsif ($year <= 1900) {
+      $year += 1900;
    }
-   return(gmtime2dateserial($t));
+
+   my $mon = $months{$monstr};
+
+   my $deliverytime = array2seconds($sec, $min, $hour, $mday, $mon - 1, $year - 1900);
+
+   # we do not trust the zone abbreviation in delimiter line because it is not unique.
+   # see http://www.worldtimezone.com/wtz-names/timezonenames.html for detail
+   # since delimiter is written by local deliver we use gettimeoffset() instead
+   $deliverytime = time_local2gm($deliverytime, gettimeoffset(), $daylightsaving, $timezone) unless $deliver_use_gmt;
+
+   return gmtime2dateserial($deliverytime);
 }
 
 sub dateserial2delimiter {
-   my ($dateserial, $timeoffset, $daylightsaving, $timezone)=@_;
+   my ($dateserial, $timeoffset, $daylightsaving, $timezone) = @_;
 
-   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=
+   my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) =
       seconds2array(time_gm2local(dateserial2gmtime($dateserial), $timeoffset, $daylightsaving, $timezone));
 
    # From Tung@turtle.ee.ncku.edu.tw Fri Jun 22 14:15:33 2001
-   return(sprintf("%3s %3s %2d %02d:%02d:%02d %4d",
-              $wday_en[$wday], $month_en[$mon],$mday, $hour,$min,$sec, $year+1900));
+   return sprintf("%3s %3s %2d %02d:%02d:%02d %4d", $wday_en[$wday], $month_en[$mon], $mday, $hour, $min, $sec, $year + 1900);
 }
-########## END DELIMITER <-> DATESERIAL ##########################
 
-########## DATEFIELD <-> DATESERIAL ##############################
-sub datefield2dateserial {	# return dateserial of GMT
-   my $datefield=$_[0];
-   my ($sec,$min,$hour, $mday,$mon,$year, $timeoffset,$timezone, $ampm);
+sub datefield2dateserial {
+   # given a datefield (Mon Aug 20 18:24 CST 2010) return a dateserial (20100820182400) in the GMT timezone
+   my $datefield = shift;
+   $datefield =~ s/GMT//;
 
-   $datefield=~s/GMT//;
-   foreach my $s (split(/[\s,]+/, $datefield)) {
-      if ($s=~/^\d\d?$/) {
-         if ($s<=31 && $mday eq "") {
-            $mday=$s;
+   my $sec        = '';
+   my $min        = '';
+   my $hour       = '';
+   my $mday       = '';
+   my $mon        = '';
+   my $year       = '';
+   my $timeoffset = '';
+   my $timezone   = '';
+   my $ampm       = '';
+
+   foreach my $string (split(/[\s,]+/, $datefield)) {
+      if ($string =~ m/^\d\d?$/) {
+         if ($string <= 31 && $mday eq '') {
+            $mday = $string;
          } else {
-            $year=$s+1900;
-            $year+=100 if ($year<1970);
+            $year = $string + 1900;
+            $year += 100 if $year < 1970;
          }
-      } elsif ($s=~/^[A-Z][a-z][a-z]/ ) {
-         for my $i (0..11) {
-            if ($s=~/^$month_en[$i]/i) {
-               $mon=$i+1; last;
+      } elsif ($string =~ m/^[A-Z][a-z][a-z]/) {
+         foreach my $i (0..11) {
+            if ($string =~ m/^$month_en[$i]/i) {
+               $mon = $i + 1;
+               last;
             }
          }
-      } elsif ($s=~/^\d\d\d\d$/) {
-         $year=$s;
-      } elsif ($s=~/^(\d+):(\d+):?(\d+)?$/) {
-         $hour=$1; $min=$2; $sec=$3;
-      } elsif ($s=~/^\(?([A-Z]{3,4}\d?)\)?$/) {
-         $timezone=$1;
-      } elsif ($s=~/^([\+\-]\d\d:?\d\d)$/) {
-         $timeoffset=$1;
-         $timeoffset=~s/://;
-      } elsif ($s=~/^pm$/i) {
-         $ampm='pm';
+      } elsif ($string =~ m/^\d{4}$/) {
+         $year = $string;
+      } elsif ($string =~ m/^(\d+):(\d+):?(\d+)?$/) {
+         $hour = $1;
+         $min  = $2;
+         $sec  = defined $3 ? $3 : "00";
+      } elsif ($string =~ m/^\(?([A-Z]{3,4}\d?)\)?$/) {
+         $timezone = $1;
+      } elsif ($string =~ m/^([\+\-]\d\d:?\d\d)$/) {
+         $timeoffset = $1;
+         $timeoffset =~ s/://;
+      } elsif ($string =~ /^pm$/i) {
+         $ampm = 'pm';
       }
    }
-   $hour+=12 if ($hour<12 && $ampm eq 'pm');
-   $timeoffset=$tzoffset{$timezone} if ($timeoffset eq "");
 
-   # NOTICE! The date field in msg header is generated by other machine
-   #         Both datetime and the timezone str in date field include the dst shift,
-   #         so we don't do daylightsaving here
-   my $gm=time_local2gm(array2seconds($sec,$min,$hour, $mday,$mon-1,$year-1900), $timeoffset, 0, 0);
-   return(gmtime2dateserial($gm));
+   $hour += 12 if $hour < 12 && $ampm eq 'pm';
+   $timeoffset = $tzoffset{$timezone} if $timeoffset eq '';
+
+   my $seconds_since_epoch_GMT = array2seconds($sec, $min, $hour, $mday, $mon - 1, $year - 1900);
+
+   # IMPORTANT:
+   # The date field in a message header is generated by another machine
+   # Both datetime and the timezone string in the date field already include the
+   # daylight savings time shift so we do not do a daylight saving time adjustment here
+   # 0 for daylightsavings adjustment, 0 for timezone
+
+   # apply the timeoffset in seconds from GMT to get
+   # us to the true seconds since the epoch in GMT
+   my $true_seconds_since_epoch_GMT = time_local2gm($seconds_since_epoch_GMT, $timeoffset, 0, 0);
+
+   return gmtime2dateserial($true_seconds_since_epoch_GMT);
 }
 
 sub dateserial2datefield {
@@ -319,12 +389,11 @@ sub dateserial2datefield {
                    $wday_en[$wday], $mday, $month_en[$mon], $year+1900, $hour, $min, $sec, $timeoffset_with_dst
                  );
 }
-########## END DATEFIELD <-> DATESERIAL ##########################
 
 sub dateserial2str {
    my ($dateserial, $timeoffset, $daylightsaving, $format, $hourformat, $timezone) = @_;
 
-   my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=
+   my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) =
       seconds2array(time_gm2local(dateserial2gmtime($dateserial), $timeoffset, $daylightsaving, $timezone));
    $year += 1900;
    $mon++;
@@ -398,9 +467,9 @@ sub week_of_year {
    # ISO 8601 provided the $weekstart is 1 (where 0 => Sunday, 1 => Monday, etc.)
    my ($year, $month, $day, $weekstart) = @_;
 
-   my $day_of_year = day_of_year($year,$month,$day);
+   my $day_of_year = day_of_year($year, $month, $day);
 
-   my $weekday_number = (weekday_number($year,$month,$day) + 7 - $weekstart) % 7;
+   my $weekday_number = (weekday_number($year, $month, $day) + 7 - $weekstart) % 7;
 
    my $day_of_nearest_thursday = $day_of_year - $weekday_number + 2;
 
@@ -426,7 +495,7 @@ sub yyyymmdd {
 
    my $date = sprintf("%04d%02d%02d", $year, $month, $day);
 
-   my $dayofweek = $ow::datetime::wday_en[weekday_number($year,$month,$day)]; # Mon, Tues, etc
+   my $dayofweek = $ow::datetime::wday_en[weekday_number($year, $month, $day)]; # Mon, Tues, etc
    my $date2     = sprintf("%04d,%02d,%02d,%s", $year, $month, $day, $dayofweek);
 
    return($date, $date2);
@@ -440,7 +509,7 @@ sub yyyymmdd {
 use vars qw(%_gregoria_cache %_orthodox_cache);
 sub easter_match {
    my ($year, $month, $day, $idate) = @_;
-   my @fields = split(/,/,$idate);
+   my @fields = split(/,/, $idate);
    return 0 unless ($year =~ /$fields[0]/);  # year matches?
 
    if ($idate =~ /easter/i) {

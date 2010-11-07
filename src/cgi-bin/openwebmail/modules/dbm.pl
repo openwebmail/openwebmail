@@ -8,40 +8,48 @@ package ow::dbm;
 # $dbm_errmsg will contain brief hint in case any error happens,
 # the caller routine may use it to form a more complete error message
 
-########## No configuration required from here ###################
 
 use strict;
+use warnings;
+
 use Fcntl qw(:DEFAULT :flock);
 require "modules/filelock.pl";
 require "modules/tool.pl";
 
 use vars qw($dbm_ext $dbmopen_ext $dbmopen_haslock);
 use vars qw($dbm_errno $dbm_errmsg $dbm_warning);
+use vars qw($_defaultdbtype);
 
-my %conf;
-if (($_=ow::tool::find_configfile('etc/dbm.conf', 'etc/defaults/dbm.conf')) ne '') {
-   my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
-   die $err if ($ret<0);
+my %conf = ();
+if (($_ = ow::tool::find_configfile('etc/dbm.conf', 'etc/defaults/dbm.conf')) ne '') {
+   my ($ret, $err) = ow::tool::load_configfile($_, \%conf);
+   die $err if $ret < 0;
 }
 
-$dbm_ext=$conf{'dbm_ext'}||'.db';
-$dbmopen_ext=$conf{'dbmopen_ext'}||''; $dbmopen_ext='' if ($dbmopen_ext eq 'none');
-$dbmopen_haslock=$conf{'dbmopen_haslock'}||'yes'; $dbmopen_haslock=($dbmopen_haslock=~/yes/i)?1:0;
+$dbm_ext         = $conf{dbm_ext} || '.db';
+$dbmopen_ext     = $conf{dbmopen_ext} || '';
+$dbmopen_ext     = '' if $dbmopen_ext eq 'none';
+$dbmopen_haslock = $conf{dbmopen_haslock} || 'yes';
+$dbmopen_haslock = $dbmopen_haslock =~ m/yes/i ? 1 : 0;
 
-########## end init ##############################################
 
-sub open {
-   my ($r_hash, $db, $flag, $perm)=@_;
+# SUBROUTINES
+
+sub opendb {
+   my ($r_hash, $db, $flag, $perm) = @_;
    $perm=0600 if (!$perm);
    ($dbm_errno, $dbm_errmsg, $dbm_warning)=(0, '', '');
 
    my ($openerror, $dbtype, $defaultdbtype)=('', '', '');
    for (my $retry=0; $retry<3; $retry++) {
       if (!$dbmopen_haslock) {
-         if (! -f "$db$dbm_ext") { # ensure dbm existance before lock
-            my (%t, $createerror);
+         if (! -f "$db$dbm_ext") { # ensure dbm existence before lock
+            my %t = ();
+            my $createerror = '';
+
             dbmopen(%t, "$db$dbmopen_ext", $perm) or $createerror=$!;
             dbmclose(%t);
+
             if ($createerror ne '') {
                ($dbm_errno, $dbm_errmsg)=(-1, $createerror);
                return 0;
@@ -93,8 +101,8 @@ sub open {
    return 0;
 }
 
-sub close {
-   my ($r_hash, $db)=@_;
+sub closedb {
+   my ($r_hash, $db) = @_;
    ($dbm_errno, $dbm_errmsg, $dbm_warning)=(0, '', '');
 
    dbmclose(%{$r_hash});
@@ -102,46 +110,51 @@ sub close {
    return 1;
 }
 
-sub exist {
-   ($dbm_errno, $dbm_errmsg, $dbm_warning)=(0, '', '');
+sub existdb {
+   ($dbm_errno, $dbm_errmsg, $dbm_warning) = (0, '', '');
    return 1 if (-f "$_[0]$dbm_ext");
    return 0;
 }
 
-sub rename {
-   my ($olddb, $newdb)=@_;
+sub renamedb {
+   my ($olddb, $newdb) = @_;
+
    ($dbm_errno, $dbm_errmsg, $dbm_warning)=(0, '', '');
 
    if ($dbm_ext eq '.dir' || $dbm_ext eq '.pag') {
-     return 1 if (rename("$olddb.dir", "$newdb.dir") &&
-                  rename("$olddb.pag", "$newdb.pag") );
+     return 1 if rename("$olddb.dir", "$newdb.dir") && rename("$olddb.pag", "$newdb.pag");
    } else {
-     return 1 if (rename("$olddb$dbm_ext", "$newdb$dbm_ext") );
+     return 1 if rename("$olddb$dbm_ext", "$newdb$dbm_ext");
    }
-   ($dbm_errno, $dbm_errmsg)=(-1, $!);
+
+   $dbm_errno  = -1;
+   $dbm_errmsg = $!;
+
    return 0;
 }
 
-sub chown {
-   my ($uid, $gid, @dblist)=@_;
+sub chowndb {
+   my ($uid, $gid, @dblist) = @_;
    ($dbm_errno, $dbm_errmsg, $dbm_warning)=(0, '', '');
    return 1 if (chown($uid, $gid, dblist2dbfiles(@dblist)));
    ($dbm_errno, $dbm_errmsg)=(-1, $!);
    return 0;
 }
 
-sub chmod {
-   my ($fmode, @dblist)=@_;
+sub chmoddb {
+   my ($fmode, @dblist) = @_;
    ($dbm_errno, $dbm_errmsg, $dbm_warning)=(0, '', '');
    return 1 if (chmod($fmode, dblist2dbfiles(@dblist)));
-   ($dbm_errno, $dbm_errmsg)=(-1, $!);
+   $dbm_errno  = -1;
+   $dbm_errmsg = $!;
    return 0;
 }
 
-sub unlink {
+sub unlinkdb {
    ($dbm_errno, $dbm_errmsg, $dbm_warning)=(0, '', '');
-   return 1 if (unlink(dblist2dbfiles(@_)));
-   ($dbm_errno, $dbm_errmsg)=(-1, $!);
+   return 1 if unlink(dblist2dbfiles(@_));
+   $dbm_errno  = -1;
+   $dbm_errmsg = $!;
    return 0;
 }
 
@@ -152,7 +165,8 @@ sub guessoptions {
    my $testdir=ow::tool::mktmpdir('dbmtest.tmp');
    return($dbm_ext, $dbmopen_ext, $dbmopen_haslock) if ($testdir eq '');
 
-   dbmopen(%DB, "$testdir/test", 0600); dbmclose(%DB);
+   dbmopen(%DB, "$testdir/test", 0600);
+   dbmclose(%DB);
    @delfiles=();
    opendir(TESTDIR, $testdir);
    while (defined(my $filename = readdir(TESTDIR))) {
@@ -162,9 +176,9 @@ sub guessoptions {
       }
    }
    closedir(TESTDIR);
-   unlink(@delfiles) if ($#delfiles>=0);
+   unlink(@delfiles) if scalar @delfiles > 0;
 
-   @filelist=reverse sort(@filelist);
+   @filelist = reverse sort(@filelist);
    if ($filelist[0]=~/(\..*)$/) {
       ($dbm_ext, $dbmopen_ext)=($1, '');
    } else {
@@ -193,22 +207,21 @@ sub guessoptions {
       push(@delfiles, ow::tool::untaint("$testdir/$filename")) if ($filename!~/^\./ );
    }
    closedir(TESTDIR);
-   unlink(@delfiles) if ($#delfiles>=0);
+   unlink(@delfiles) if scalar @delfiles > 0;
 
    rmdir($testdir);
 
    return($dbm_ext, $dbmopen_ext, $dbmopen_haslock);
 }
 
-########## misc support routine ##################################
-
-use vars qw($_defaultdbtype);
 sub get_defaultdbtype {
    if ($_defaultdbtype eq '') {
       my $tmpdir=ow::tool::mktmpdir("dbmtest.tmp");
       my $t=ow::tool::untaint("$tmpdir/t");
 
-      my %t; dbmopen(%t, "$t$dbmopen_ext", 0600); dbmclose(%t);
+      my %t;
+      dbmopen(%t, "$t$dbmopen_ext", 0600);
+      dbmclose(%t);
       $_defaultdbtype=get_dbtype("$t$dbm_ext");
 
       unlink ("$t$dbm_ext", "$t.dir", "$t.pag");
@@ -220,8 +233,11 @@ sub get_defaultdbtype {
 sub get_dbtype {
    open(F, "-|") or
       do { open(STDERR,">/dev/null"); exec(ow::tool::findbin("file"), $_[0]); exit 9 };
-   local $/; undef $/;
-   my $dbtype=<F>; $dbtype=~s/^.*?:\s*//; $dbtype=~s/\s*$//;
+   local $/;
+   undef $/;
+   my $dbtype = <F>;
+   $dbtype =~ s/^.*?:\s*//;
+   $dbtype =~ s/\s*$//;
    close(F);
 
    return($dbtype);

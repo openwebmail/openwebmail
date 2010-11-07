@@ -1,12 +1,38 @@
-package ow::mailparse;
+
+#                              The BSD License
 #
+#  Copyright (c) 2009-2010, The OpenWebMail Project
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in the
+#        documentation and/or other materials provided with the distribution.
+#      * Neither the name of The OpenWebMail Project nor the
+#        names of its contributors may be used to endorse or promote products
+#        derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project ``AS IS'' AND ANY
+#  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL The OpenWebMail Project BE LIABLE FOR ANY
+#  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 # mailparse.pl - mail parser with mime multiple decoding
 #
 # 1. it parse mail recursively.
-# 2. it converts uuencoded blocks into baed64-encoded attachments
+# 2. it converts uuencoded blocks into base64-encoded attachments
 #
 # Note: These parse_... routine are designed for CGI program !
-#       if (searchidid eq "") {
+#       if (searchid eq "") {
 #          # html display / content search mode
 #          only attachment contenttype of text/... or n/a will be returned
 #       } elsif (searchid eq "all") {
@@ -17,24 +43,34 @@ package ow::mailparse;
 #          only return attachment with the id
 #       }
 
+package ow::mailparse;
+
 use strict;
+use warnings;
+
 require "modules/tool.pl";
 require "modules/mime.pl";
 
 sub parse_header {
-   # concatenate folding lines in header but not the last blank line
-   my $header = ${$_[0]};
+   # given a message header string and a message attributes hash
+   # populate the hash with the field names and field bodies of the header lines
+   my ($r_header, $r_message) = @_;
+
+   # unfold the header lines, but not the last blank line
+   my $header = ${$r_header};
    $header =~ s/\s+$//s;
    $header =~ s/\s*\n\s+/ /sg;
-   my $r_message = $_[1];
 
-   my @lines = split(/\r*\n/, $header);
-   ${$r_message}{delimiter} = shift(@lines) if ($lines[0] =~ /^From /);
-   foreach (@lines) {
-      last if (! /(.+?):\s*(.*)/);
-      next if ($1 =~ /^(?:received|body|attachment)$/i);
-      ${$r_message}{lc($1)}=$2;
+   my @headerlines = split(/\r*\n/, $header);
+   $r_message->{delimiter} = shift(@headerlines) if $headerlines[0] =~ m/^From /;
+
+   foreach my $headerline (@headerlines) {
+      last if $headerline !~ m/(.+?):\s*(.*)/;
+      my ($fieldname, $fieldbody) = ($1, $2);
+      next if $fieldname =~ m/^(?:received|body|attachment)$/i;
+      $r_message->{lc($fieldname)} = $fieldbody;
    }
+
    return;
 }
 
@@ -233,10 +269,12 @@ sub parse_attblock {
    my $attheader=substr(${$r_buff}, $attblockstart, $attheaderlen);
    my $attcontentlength=$attblocklen-($attheaderlen+1);
 
-   my %att;
-   $att{'content-type'}='N/A';	# assume null content type
+   my %att = ();
+   $att{'content-type'} = 'N/A'; # assume null content type
+
    parse_header(\$attheader, \%att);
-   $att{'content-id'} =~ s/^\s*\<(.+)\>\s*$/$1/;
+
+   $att{'content-id'} =~ s/^\s*\<(.+)\>\s*$/$1/ if defined $att{'content-id'};
 
    if ($att{'content-type'} =~ /^multipart/i) {
       my ($subtype, $boundary, $boundarylen);
@@ -448,7 +486,7 @@ sub parse_uuencode_body {
 }
 
 # subtype and boundary are inherit from parent attblocks,
-# they are used to distingush if two attachments are winthin same group
+# they are used to distingush if two attachments are within the same group
 # note: the $r_attcontent is a reference to the contents of an attachment,
 #       this routine will save this reference to attachment hash directly.
 #       It means the caller must ensures the variable referenced by
@@ -459,20 +497,20 @@ sub make_attachment {
         $nodeid)=@_;
 
    my ($attcharset, $attfilename, $attfilenamecharset);
-   $attcharset=$1 if ($attcontenttype=~/charset="?([^\s"';]*)"?\s?/i);
-   ($attfilename, $attfilenamecharset)=get_filename_charset($attcontenttype, $attdisposition);
+   $attcharset=$1 if ($attcontenttype =~ /charset="?([^\s"';]*)"?\s?/i);
+   ($attfilename, $attfilenamecharset) = get_filename_charset($attcontenttype, $attdisposition);
 
    # guess a better contenttype
-   if ( $attcontenttype eq 'N/A' ||
-        $attcontenttype =~ m!(\Qvideo/mpg\E)!i ) {
+   if ($attcontenttype eq 'N/A' || $attcontenttype =~ m!(\Qvideo/mpg\E)!i) {
       my ($oldtype, $newtype)=($1, '');
       $attfilename=~ /\.([\w\d]*)$/; $newtype=ow::tool::ext2contenttype($1);
       $attcontenttype=~ s!$oldtype!$newtype!i;
    }
-   # remove file=... from disipotion
-   $attdisposition =~ s/;.*//;
 
-   $attdescription=ow::mime::decode_mimewords($attdescription);
+   # remove file=... from disipotion
+   $attdisposition =~ s/;.*// if defined $attdisposition;
+
+   $attdescription = ow::mime::decode_mimewords($attdescription);
 
    return({	# return reference of hash
 	subtype		=> $subtype,	# from parent block

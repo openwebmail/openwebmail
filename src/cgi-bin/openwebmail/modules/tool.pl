@@ -1,16 +1,47 @@
-package ow::tool;
+
+#                              The BSD License
 #
+#  Copyright (c) 2009-2010, The OpenWebMail Project
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in the
+#        documentation and/or other materials provided with the distribution.
+#      * Neither the name of The OpenWebMail Project nor the
+#        names of its contributors may be used to endorse or promote products
+#        derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project ``AS IS'' AND ANY
+#  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL The OpenWebMail Project BE LIABLE FOR ANY
+#  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 # tool.pl - routines independent with openwebmail systems
-#
+
+package ow::tool;
 
 use strict;
+use warnings;
 use Fcntl qw(:DEFAULT :flock);
 use Digest::MD5 qw(md5);
-use POSIX qw(:sys_wait_h);	# for WNOHANG in waitpid()
+use POSIX qw(:sys_wait_h); # for WNOHANG in waitpid()
 use Carp;
 $Carp::MaxArgNums = 0; # return all args in Carp output
 
 use vars qw(%_bincache);
+use vars qw(%_has_module_err);
+use vars qw(%_sbincache);
+
 sub findbin {
    return $_bincache{$_[0]} if (defined $_bincache{$_[0]});
    foreach my $p ('/usr/local/bin', '/usr/bin', '/bin', '/usr/X11R6/bin/', '/opt/bin') {
@@ -19,7 +50,6 @@ sub findbin {
    return ($_bincache{$_[0]}='');
 }
 
-use vars qw(%_sbincache);
 sub findsbin {
    return $_sbincache{$_[0]} if (defined $_sbincache{$_[0]});
    foreach my $p ('/usr/local/sbin', '/usr/sbin', '/sbin', '/usr/X11R6/sbin/', '/opt/sbin') {
@@ -42,80 +72,59 @@ sub find_configfile {
 }
 
 sub load_configfile {
-   my ($configfile, $r_config)=@_;
+   # open and parse an openwebmail style configuration
+   # file into a hash of keys and values
+   my ($configfile, $r_config) = @_;
+
+   my $blockmode = 0;
+   my ($key, $value) = ('','');
 
    sysopen(CONFIG, $configfile, O_RDONLY) or return(-1, $!);
 
-   my ($line, $key, $value, $blockmode);
-   $blockmode=0;
-   while (($line=<CONFIG>)) {
+   while (my $line = <CONFIG>) {
       chomp $line;
-      $line=~s/\s+$//;
+      $line =~ s/\s+$//;
       if ($blockmode) {
-         if ( $line =~ m!</$key>! ) {
-            $blockmode=0;
-            ${$r_config}{$key}=untaint($value);
+         if ($line =~ m#</$key>#) {
+            $blockmode = 0;
+            $r_config->{$key} = untaint($value);
          } else {
             $value .= "$line\n";
          }
       } else {
-         $line=~s/\s*#.*$//;
-         $line=~s/^\s+//;
-         next if ($line eq '');
-         if ( $line =~ m!^<\s*(\S+)\s*>$! ) {
-            $blockmode=1;
-            $key=$1; $value='';
-         } elsif ( $line =~ m!(\S+)\s+(.+)! ) {
-            ${$r_config}{$1}=untaint($2);
+         $line =~ s/\s*#.*$//;
+         $line =~ s/^\s+//;
+         next if $line eq '';
+         if ($line =~ m#^<\s*(\S+)\s*>$#) {
+            $blockmode = 1;
+            $key   = $1;
+            $value = '';
+         } elsif ($line =~ m#(\S+)\s+(.+)#) {
+            $r_config->{$1} = untaint($2);
          }
       }
    }
+
    close(CONFIG);
-   if ($blockmode) {
-      return(-2, "unclosed $key block");
-   }
+
+   return(-2, "unclosed $key block") if $blockmode;
 
    return 0;
 }
 
-# use 'require' to load the package ow::$file
-# then alias ow::$file::symbol to $newpkg::symbol
-# through Glob and 'tricky' symbolic reference feature
-sub loadmodule {
-   my ($newpkg, $moduledir, $modulefile, @symlist)=@_;
-   $modulefile=~s|/||g; $modulefile=~s|\.\.||g; # remove / and .. for path safety
-
-   # this would be done only once because of %INC
-   my $modulepath=ow::tool::untaint("$moduledir/$modulefile");
-   require $modulepath;
-
-   # . - is not allowed for package name
-   my $modulepkg='ow::'.$modulefile;
-   $modulepkg=~s/\.pl//;
-   $modulepkg=~s/[\.\-]/_/g;
-
-   # release strict refs until block end
-   no strict 'refs';
-   # use symbol table of package $modulepkg if no symbol passed in
-   @symlist=keys %{$modulepkg.'::'} if ($#symlist<0);
-
-   foreach my $sym (@symlist) {
-      # alias symbol of sub routine into current package
-      *{$newpkg.'::'.$sym}=*{$modulepkg.'::'.$sym};
-   }
-
-   return;
-}
-
 sub hostname {
-   my $hostname=`/bin/hostname`; chomp ($hostname);
-   return($hostname) if ($hostname=~/\./);
+   my $hostname = `/bin/hostname`;
+   chomp($hostname);
+   return($hostname) if $hostname =~ m/\./;
 
-   my $domain="unknown";
-   open(R, "/etc/resolv.conf");
+   my $domain = 'unknown';
+   open(R, '/etc/resolv.conf');
    while (<R>) {
       chomp;
-      if (/domain\s+\.?(.*)/i) {$domain=$1;last;}
+      if (/domain\s+\.?(.*)/i) {
+        $domain = $1;
+        last;
+      }
    }
    close(R);
    return("$hostname.$domain");
@@ -134,7 +143,6 @@ sub clientip {
    return $clientip;
 }
 
-use vars qw(%_has_module_err);
 sub has_module {
    my $module = shift;
    return 1 if (defined $INC{$module});
@@ -148,30 +156,30 @@ sub has_module {
    }
 }
 
-# return a string composed by the modify time & size of a file
 sub metainfo {
-   return '' if (!-e $_[0]);
-   # dev, ino, mode, nlink, uid, gid, rdev, size, atime, mtime, ctime, blksize, blocks
-   my @a=stat($_[0]);
-   return("mtime=$a[9] size=$a[7]");
+   # given the full path to a file, return a string describing the file modification time and size
+   my $file = shift;
+   return '' unless defined $file && -e $file;
+
+   my @stats = stat($file);
+   return("mtime=$stats[9] size=$stats[7]");
 }
 
-# generate a unique (well nearly) checksum through MD5
 sub calc_checksum {
-   my $checksum = md5(${$_[0]});
-   # remove any \n so it doesn't react with ow folder db index delimiter
-   $checksum =~ s/[\r\n]/./sg;
+   my $r_string = shift;             # a scalar reference to a string to be MD5 checksummed
+   my $checksum = md5(${$r_string}); # generate the unique checksum for this string
+   $checksum =~ s/[\r\n]/./sg;       # remove any \n so it does not react with ow folder db index delimiter
    return $checksum;
 }
 
-# escape & unescape routine are not available in CGI.pm 3.0
-# so we borrow the 2 routines from 2.xx version of CGI.pm
 sub unescapeURL {
-    my $todecode = shift;
-    return undef if (!defined $todecode);
-    $todecode =~ tr/+/ /;       # pluses become spaces
-    $todecode =~ s/%([0-9a-fA-F]{2})/pack("c",hex($1))/ge;
-    return $todecode;
+   # escape & unescape routine are not available in CGI.pm 3.0
+   # so we borrow the 2 routines from 2.xx version of CGI.pm
+   my $todecode = shift;
+   return undef if (!defined $todecode);
+   $todecode =~ tr/+/ /;       # pluses become spaces
+   $todecode =~ s/%([0-9a-fA-F]{2})/pack("c",hex($1))/ge;
+   return $todecode;
 }
 
 sub escapeURL {
@@ -181,11 +189,11 @@ sub escapeURL {
     return $toencode;
 }
 
-# convert UCS4 to UTF8:
-# string passed by with javascript escape() will encode CJK char to unicode
-# like %u5B78%u9577, this is used to turn %u.... back to the CJK char
-# eg: $str=~ s/%u([0-9a-fA-F]{4})/ucs4_to_utf8(hex($1))/ge;
 sub ucs4_to_utf8 {
+   # convert UCS4 to UTF8:
+   # string passed by with javascript escape() will encode CJK char to unicode
+   # like %u5B78%u9577, this is used to turn %u.... back to the CJK char
+   # eg: $str=~ s/%u([0-9a-fA-F]{4})/ucs4_to_utf8(hex($1))/ge;
    my ($val)=@_;
    my $c;
    if ($val < 0x7f){		#0000-007f
@@ -200,9 +208,9 @@ sub ucs4_to_utf8 {
    }
 }
 
-# generate html code for hidden options, faster than the one in CGI.pm
-# limitation: no escape for keyname, value can not be an array
 sub hiddens {
+   # generate html code for hidden options, faster than the one in CGI.pm
+   # limitation: no escape for keyname, value can not be an array
    my %h=@_;
    my ($temphtml, $key);
    foreach my $key (sort keys %h) {
@@ -211,9 +219,9 @@ sub hiddens {
    return $temphtml;
 }
 
-# big5: hi 81-FE, lo 40-7E A1-FE, range a440-C67E C940-F9D5 F9D6-F9FE
-# gbk : hi 81-FE, lo 40-7E 80-FE, range hi*lo
 sub zh_dospath2fname {
+   # big5: hi 81-FE, lo 40-7E A1-FE, range a440-C67E C940-F9D5 F9D6-F9FE
+   # gbk : hi 81-FE, lo 40-7E 80-FE, range hi*lo
    my ($dospath, $newdelim)=@_;
    my $buff='';
    while ( 1 ) {
@@ -254,12 +262,12 @@ sub mktmpdir {
    return($dirname);
 }
 
-# rename fname.ext   to fname.0.ext
-#        fname.0.ext to fname.1.ext
-#        .....
-#        fname.8.ext to fname.9.ext
-# so fname.ext won't be overwritten by uploaded file if duplicated name
 sub rotatefilename {
+   # rename fname.ext   to fname.0.ext
+   #        fname.0.ext to fname.1.ext
+   #        .....
+   #        fname.8.ext to fname.9.ext
+   # so fname.ext won't be overwritten by uploaded file if duplicated name
    my ($base, $ext) = ($_[0], '');
    ($base,$ext) = ($1,$2) if ($_[0]=~/(.*)(\..*)/);
    my (%from, %to);
@@ -473,19 +481,20 @@ sub str2list {
 }
 
 sub untaint {
-   local $_ = shift;	# this line makes param into a new variable. don't remove it.
-   local $1; 		# fix perl $1 taintness propagation bug
+   local $_ = shift; # this line makes param into a new variable. do not remove it.
+   local $1;         # fix perl $1 taintness propagation bug
    m/^(.*)$/s;
    return $1;
 }
 
 sub is_tainted {
-   return ! eval { join('',@_), kill 0; 1; };
+   # this subroutine comes from perlsec
+   return ! eval { eval('#' . substr(join('', @_), 0, 0)); 1 };
 }
 
 sub is_regex {
    my $teststring = shift;
-   return eval { m/$teststring/; 1; };
+   return eval { defined $teststring && m/$teststring/; 1; };
 }
 
 sub zombie_cleaner {
@@ -523,8 +532,8 @@ sub log_time {
    chmod(0666, "/tmp/openwebmail.debug");
 }
 
-# dump data stru with its reference for debugging
 sub dumpref {
+   # dump data stru with its reference for debugging
    my ($var, $c)=@_;
    return("too many levels") if ($c>128);
    my $type=ref($var);
