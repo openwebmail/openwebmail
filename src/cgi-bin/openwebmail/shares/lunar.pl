@@ -1,6 +1,3 @@
-#
-# lunar.pl - convert solar calendar to chinese lunar calendar
-#
 
 #                              The BSD License
 #
@@ -29,24 +26,43 @@
 #  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# lunar.pl - convert solar calendar to chinese lunar calendar
+
 use strict;
-use vars qw(%config);
+use warnings;
+
 use Fcntl qw(:DEFAULT :flock);
 
+use vars qw(%config);
+
 sub mkdb_lunar {
-   my %LUNAR;
+   # -1: cannot open db
+   # -2: cannot open file
    my $lunardb = ow::tool::untaint("$config{ow_mapsdir}/lunar");
 
-   ow::dbm::open(\%LUNAR, $lunardb, LOCK_EX, 0644) or return -1;
-   sysopen(T, $config{lunar_map}, O_RDONLY);
-   $_ = <T>;
-   while (<T>) {
-      s/\s//g;
-      my @a = split(/,/, $_, 2);
+   my %LUNAR = ();
+
+   if (!ow::dbm::opendb(\%LUNAR, $lunardb, LOCK_EX, 0644)) {
+      writelog("cannot open db $lunardb");
+      return -1;
+   }
+
+   if (!sysopen(T, $config{lunar_map}, O_RDONLY)) {
+      writelog("cannot open file $config{lunar_map} ($!)");
+      return -2;
+   }
+
+   $_ = <T>; # skip first line
+
+   while (my $line = <T>) {
+      $line =~ s/\s//g;
+      my @a = split(/,/, $line, 2);
       $LUNAR{$a[0]} = $a[1];
    }
-   close(T);
-   ow::dbm::close(\%LUNAR, $lunardb);
+
+   close(T) or writelog("cannot close file $config{lunar_map} ($!)");
+
+   ow::dbm::closedb(\%LUNAR, $lunardb) or writelog("cannot close db $lunardb");
 
    return 0;
 }
@@ -56,17 +72,21 @@ sub solar2lunar {
 
    my $lunardb = ow::tool::untaint("$config{ow_mapsdir}/lunar");
 
-   if (ow::dbm::exist($lunardb)) {
+   if (ow::dbm::existdb($lunardb)) {
       my %LUNAR = {};
+
       my $date  = sprintf("%04d%02d%02d", $year, $mon, $day);
 
-      ow::dbm::open(\%LUNAR, $lunardb, LOCK_SH);
+      ow::dbm::opendb(\%LUNAR, $lunardb, LOCK_SH) or writelog("cannot open db $lunardb");
+
       my ($lunaryear, $lunarmonth, $lunarday) = split(/,/, $LUNAR{$date});
-      ow::dbm::close(\%LUNAR, $lunardb);
+
+      ow::dbm::closedb(\%LUNAR, $lunardb) or writelog("cannot close db $lunardb");
 
       return ($lunaryear, $lunarmonth, $lunarday);
    } else {
-      return(); # return undef
+      writelog("db $lunardb does not exist");
+      return undef;
    }
 }
 

@@ -1,694 +1,942 @@
+
+#                              The BSD License
 #
+#  Copyright (c) 2009-2010, The OpenWebMail Project
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in the
+#        documentation and/or other materials provided with the distribution.
+#      * Neither the name of The OpenWebMail Project nor the
+#        names of its contributors may be used to endorse or promote products
+#        derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project ``AS IS'' AND ANY
+#  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL The OpenWebMail Project BE LIABLE FOR ANY
+#  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 # maildb.pl - mail indexing routines
-#
-# 2001/12/21 tung.AT.turtle.ee.ncku.edu.tw
-# 2004/03/22 scott.AT.littlefish.ca
-# - optimized delete old message replacing 'foreach' with 'each' index scan.
-# - rewrote update_folderindex.  fixed indexing bug.
-# - Added md5 checksums to the index to positively validate message headers.
-# - minor tweaks here and there :)
-#
-
-# TODO: The Filehandle module is a memory hog and somewhat outdated. It would be nice to rewrite it out.
-
-# IMPORTANT!!!
-#
-# This module speeds up the message folder access by caching important
-# information with perl dbm.
-#
-# Functions in this file don't do locks for folderfile/folderhandle.
-# They rely the caller to do that lock
-#
-# Functions with folderfile/folderhandle in argument must be inside
-# a folderfile lock session
-#
-# Functions may change the current folderfile read position!!
+#   - This module speeds up the message folder access by caching important information with perl dbm.
+#   - Functions in this file do not do locks for folderfile/folderhandle. They rely on the caller to do that lock.
+#   - Functions with folderfile/folderhandle in argument must be inside a folderfile lock session.
+#   - Functions may change the current folderfile read position! Be careful!
 
 use strict;
-use Fcntl qw(:DEFAULT :flock);
-use FileHandle;
+use warnings;
 
-# extern vars, defined in caller openwebmail-xxx.pl or etc/lang/*
-use vars qw(%config %prefs %lang_err);
+use Fcntl qw(:DEFAULT :flock);
+
+# extern vars
+use vars qw(%config %prefs);
 
 # define the version of the mail index database
 use vars qw($_DBVERSION);
-$_DBVERSION=20100828.1;
+$_DBVERSION = 20100828.1;
 
 # globals, message attribute number constant
-use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);
-($_OFFSET, $_SIZE, $_HEADERSIZE, $_HEADERCHKSUM, $_RECVDATE, $_DATE, $_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_CHARSET, $_STATUS, $_REFERENCES)
-=(0,1,2,3,4,5,6,7,8,9,10,11,12);
+use vars qw(
+              $_OFFSET
+              $_SIZE
+              $_HEADERSIZE
+              $_HEADERCHKSUM
+              $_RECVDATE
+              $_DATE
+              $_FROM
+              $_TO
+              $_SUBJECT
+              $_CONTENT_TYPE
+              $_CHARSET
+              $_STATUS
+              $_REFERENCES
+           );
+
+$_OFFSET       = 0;
+$_SIZE         = 1;
+$_HEADERSIZE   = 2;
+$_HEADERCHKSUM = 3;
+$_RECVDATE     = 4;
+$_DATE         = 5;
+$_FROM         = 6;
+$_TO           = 7;
+$_SUBJECT      = 8;
+$_CONTENT_TYPE = 9;
+$_CHARSET      = 10;
+$_STATUS       = 11;
+$_REFERENCES   = 12;
 
 # we devide messages in a folder into the following 4 types exclusively
-# ZAPPED: msg deleted by user but still not removed from folder, has Z flag in status in db
-# INTERNAL: msg with is_internal_subject ret=1
-# NEW: msg has R flag in status
-# OLD: msgs not in the above 3 types
+# ZAPPED:   message deleted by user but still not removed from folder, has Z flag in status in db
+# INTERNAL: message with is_internal_subject ret=1
+# NEW:      message has R flag in status
+# OLD:      message not in the above 3 types
 use vars qw(%is_internal_dbkey);
-%is_internal_dbkey= (
-   DBVERSION => 1,		# for db format checking
-   METAINFO => 1,		# for db consistence check
-   LSTMTIME => 1,		# for msg membership check, used by getmsgids.pl
-   ALLMESSAGES => 1,
-   NEWMESSAGES => 1,
-   INTERNALMESSAGES => 1,
-   INTERNALSIZE => 1,
-   ZAPMESSAGES => 1,
-   ZAPSIZE => 1,
-   "" => 1
-);
-
-use vars qw($BUFF_blocksize);
-$BUFF_blocksize=32768;
+%is_internal_dbkey = (
+                        DBVERSION        => 1, # for db format checking
+                        METAINFO         => 1, # for db consistence check
+                        LSTMTIME         => 1, # for message membership check, used by getmsgids.pl
+                        ALLMESSAGES      => 1,
+                        NEWMESSAGES      => 1,
+                        INTERNALMESSAGES => 1,
+                        INTERNALSIZE     => 1,
+                        ZAPMESSAGES      => 1,
+                        ZAPSIZE          => 1,
+                        ''               => 1,
+                     );
 
 use vars qw($BUFF_filehandle $BUFF_filestart $BUFF_fileoffset $BUFF_start $BUFF_size $BUFF_buff $BUFF_EOF);
-use vars qw($BUFF_blocksizemax $BUFF_regex);
-$BUFF_blocksizemax=$BUFF_blocksize+512;
-$BUFF_regex=qr/^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/;
 
-########## UPDATE_FOLDERDB #######################################
-# this routine indexes the mesgs in folder and mark duplicated msgs with Z (to be zapped)
+use vars qw($BUFF_blocksize $BUFF_blocksizemax $BUFF_regex);
+$BUFF_blocksize    = 32768;
+$BUFF_blocksizemax = $BUFF_blocksize + 512;
+$BUFF_regex        = qr/^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/;
+
 sub update_folderindex {
+   # this routine indexes the messages in a folder and
+   # marks duplicated messages with a 'Z' (to be zapped)
    my ($folderfile, $folderdb) = @_;
-   my $is_db_reuseable=0;	# 0: not exist, 1: reuseable, -1: not directly reuseable
-   my (%FDB, %OLDFDB);
-   my @oldmessageids=();
-   my $dberr=0;
-   my $folderhandle=FileHandle->new();
-   my $foldermeta=ow::tool::metainfo($folderfile);
+   $folderdb = ow::tool::untaint($folderdb);
 
-   $folderdb=ow::tool::untaint($folderdb);
+   my $is_db_reuseable = 0; # 0: not exist, 1: reuseable, -1: not reuseable
+   my @oldmessageids   = ();
+   my $folderhandle    = do { no warnings 'once'; local *FH };
+   my $foldermeta      = ow::tool::metainfo($folderfile);
 
-   if (ow::dbm::exist($folderdb)) {
-      ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return -1;
+   my %FDB    = ();
+   my %OLDFDB = ();
 
-      if ($FDB{'DBVERSION'} eq $_DBVERSION) {
-         my $is_folderattrs_ok=0;
-         $foldermeta=~/^mtime=\d+ size=(\d+)$/;	# $1 is foldersize
-         if ($FDB{'NEWMESSAGES'}>=0 &&
-             $FDB{'INTERNALMESSAGES'}>=0 &&
-             $FDB{'INTERNALSIZE'}>=0 &&
-             $FDB{'ZAPMESSAGES'}>=0 &&
-             $FDB{'ZAPSIZE'}>=0 &&
-             $FDB{'ALLMESSAGES'} >= $FDB{'NEWMESSAGES'}+$FDB{'INTERNALMESSAGES'}+$FDB{'ZAPMESSAGES'} &&
-             $1 >= $FDB{'INTERNALSIZE'}+$FDB{'ZAPSIZE'}) {
-            $is_folderattrs_ok=1;	# folder attrs are basicly correct
+   if (ow::dbm::existdb($folderdb)) {
+      ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
+         openwebmailerror(gettext('Cannot open db:') . " $folderdb ($!)");
+
+      if ($FDB{DBVERSION} eq $_DBVERSION) {
+         my ($foldersize) = $foldermeta =~ m/^mtime=\d+ size=(\d+)$/;
+
+         if (
+               $FDB{NEWMESSAGES} >= 0
+               && $FDB{INTERNALMESSAGES} >= 0
+               && $FDB{INTERNALSIZE} >= 0
+               && $FDB{ZAPMESSAGES} >= 0
+               && $FDB{ZAPSIZE} >= 0
+               && $FDB{ALLMESSAGES} >= $FDB{NEWMESSAGES} + $FDB{INTERNALMESSAGES} + $FDB{ZAPMESSAGES}
+               && $foldersize >= $FDB{INTERNALSIZE} + $FDB{ZAPSIZE}
+               && $FDB{METAINFO} eq $foldermeta
+            ) {
+            # folder attributes are correct - no update needed
+            ow::dbm::closedb(\%FDB, $folderdb) or
+               openwebmailerror(gettext('Cannot close db:') . " $folderdb ($!)");
+
+            return 0; # all ok
          }
 
-         if ($is_folderattrs_ok &&
-             $FDB{'METAINFO'} eq $foldermeta) {
-            ow::dbm::close(\%FDB, $folderdb);
-            return 0;
-         }
+         $is_db_reuseable = -1;
+         @oldmessageids = get_messageids_sorted_by_offset_db(\%FDB);
 
-         $is_db_reuseable=-1;
-         @oldmessageids=get_messageids_sorted_by_offset_db(\%FDB);
-         # assume the db is reuseable if the last few records in db are consistent with msgs in folder
-         if ($is_folderattrs_ok &&
-             $FDB{'METAINFO'}=~/^mtime=\d+ size=\d+$/ &&	# not forced reindex (which put RENEW or ERR as metainfo)
-             $FDB{'ALLMESSAGES'}==$#oldmessageids+1) {		# mesg count is correct
-            $is_db_reuseable=1;
+         # check if the db is reuseable or if it needs to be rebuilt
+         if (
+               $FDB{NEWMESSAGES} >= 0
+               && $FDB{INTERNALMESSAGES} >= 0
+               && $FDB{INTERNALSIZE} >= 0
+               && $FDB{ZAPMESSAGES} >= 0
+               && $FDB{ZAPSIZE} >= 0
+               && $FDB{ALLMESSAGES} >= $FDB{NEWMESSAGES} + $FDB{INTERNALMESSAGES} + $FDB{ZAPMESSAGES}
+               && $foldersize >= $FDB{INTERNALSIZE} + $FDB{ZAPSIZE}
+               && $FDB{METAINFO} =~ m/^mtime=\d+ size=\d+$/  # not forced reindex (which sets RENEW or ERR as the metainfo)
+               && $FDB{ALLMESSAGES} == ($#oldmessageids + 1) # message count is correct
+            ) {
+            $is_db_reuseable = 1;
 
-            my (@i, $i, @attr);
-            if ($#oldmessageids>=4) {
-               my $d=int(($#oldmessageids-1)/3);
-               for ($i=0; $i<$#oldmessageids-1; $i+=$d) { push (@i, $i) };
-               push(@i, $#oldmessageids-1, $#oldmessageids);
+            # seems to be reusable - double check against the folder itself
+            # assume the db is reuseable if the last few records in db
+            # are consistent against the old messages in the folder
+            my @oldmessageidindexes_to_check = ();
+
+            if ($#oldmessageids >= 4) {
+               my $checkevery = int(($#oldmessageids - 1) / 3);
+
+               for (my $index = 0; $index < $#oldmessageids - 1; $index += $checkevery) {
+                  push (@oldmessageidindexes_to_check, $index);
+               }
+
+               push(@oldmessageidindexes_to_check, $#oldmessageids - 1, $#oldmessageids);
             } else {
-               @i=(0..$#oldmessageids);
+               @oldmessageidindexes_to_check = (0..$#oldmessageids);
             }
-            if ($#i>=0) {
-               sysopen($folderhandle, $folderfile, O_RDONLY);
-               foreach $i (@i) {
-                  #@attr=_get_validated_msgattr($folderhandle, \%FDB, $oldmessageids[$i]);
-                  @attr = string2msgattr( $FDB{$oldmessageids[$i]} );
+
+            if ($#oldmessageidindexes_to_check >= 0) {
+               sysopen($folderhandle, $folderfile, O_RDONLY) or
+                  openwebmailerror(gettext('Cannot open file:') . " $folderfile ($!)");
+
+               foreach my $index (@oldmessageidindexes_to_check) {
+                  my @attr = string2msgattr($FDB{$oldmessageids[$index]});
                   if (!is_msgattr_consistent_with_folder(\@attr, $folderhandle)) {
-                     $is_db_reuseable=-1; last;
+                     $is_db_reuseable = -1;
+                     last;
                   }
                }
-               close($folderhandle);
+
+               close($folderhandle) or
+                  openwebmailerror(gettext('Cannot close file:') . " $folderfile ($!)");
             }
          }
-         ow::dbm::close(\%FDB, $folderdb);
 
+         ow::dbm::closedb(\%FDB, $folderdb) or
+            openwebmailerror(gettext('Cannot close db:') . " $folderdb ($!)");
       } else {
-         ow::dbm::close(\%FDB, $folderdb);
-         ow::dbm::unlink($folderdb);
+         # old db version - remove it so we can make a new one
+         ow::dbm::closedb(\%FDB, $folderdb) or
+            openwebmailerror(gettext('Cannot close db:') . " $folderdb ($!)");
+
+         ow::dbm::unlinkdb($folderdb) or
+            openwebmailerror(gettext('Cannot delete db:') . " $folderdb ($!)");
       }
    }
 
-   my $messagenumber=-1;
-   my $totalsize=0;
-   my ($newmessages, $internalmessages, $internalsize, $zapmessages, $zapsize) = (0, 0, 0, 0, 0);
+   my $totalmessages    = -1; # so first message is index 0
+   my $totalsize        = 0;
+   my $newmessages      = 0;
+   my $internalmessages = 0;
+   my $internalsize     = 0;
+   my $zapmessages      = 0;
+   my $zapsize          = 0;
 
-   sysopen($folderhandle, $folderfile, O_RDONLY);
-   my $foldersize=(stat($folderhandle))[7];
+   sysopen($folderhandle, $folderfile, O_RDONLY) or
+      openwebmailerror(gettext('Cannot open file:') . " $folderfile ($!)");
 
-   if ($is_db_reuseable==0) {		# new db
-      ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or return -1;
-      %FDB=();	# ensure the folderdb is empty
+   my $foldersize = (stat($folderhandle))[7];
 
-   } elsif ($is_db_reuseable>0) {	# reuse db
-      ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or return -1;
-      $messagenumber=$FDB{'ALLMESSAGES'}-1;
-      if ($messagenumber>=0) {	# refer db summary only if old records found in db
-         ($newmessages, $internalmessages, $internalsize, $zapmessages, $zapsize)
-            =@FDB{'NEWMESSAGES', 'INTERNALMESSAGES', 'INTERNALSIZE', 'ZAPMESSAGES', 'ZAPSIZE'};
-         my @attr = string2msgattr( $FDB{$oldmessageids[$#oldmessageids]} );
-         $totalsize=$attr[$_OFFSET]+$attr[$_SIZE];
+   if ($is_db_reuseable == 0) {
+      # db does not exist for this folder - make a new db
+      ow::dbm::opendb(\%FDB, $folderdb, LOCK_EX) or
+         openwebmailerror(gettext('Cannot open db:') . " $folderdb ($!)");
+
+      # ensure the folderdb is empty
+      %FDB = ();
+   } elsif ($is_db_reuseable > 0) {
+      # the existing db is reuseable - we just need to append the new messages information to it
+      ow::dbm::opendb(\%FDB, $folderdb, LOCK_EX) or
+         openwebmailerror(gettext('Cannot open db:') . " $folderdb ($!)");
+
+      $totalmessages = $FDB{ALLMESSAGES} - 1;
+
+      if ($totalmessages >= 0) {
+         # refer to the db summary keys only if old records are found in the db
+         $newmessages      = $FDB{NEWMESSAGES};
+         $internalmessages = $FDB{INTERNALMESSAGES};
+         $internalsize     = $FDB{INTERNALSIZE};
+         $zapmessages      = $FDB{ZAPMESSAGES};
+         $zapsize          = $FDB{ZAPSIZE};
+
+         my @attr = string2msgattr($FDB{$oldmessageids[$#oldmessageids]});
+         $totalsize = $attr[$_OFFSET] + $attr[$_SIZE];
       }
+   } elsif ($is_db_reuseable < 0) {
+      # db is inconsistent and cannot be used entirely
+      # to save overhead, try to salvage as many records as possible from
+      # the old database into our new updated database
+      ow::dbm::renamedb($folderdb, "$folderdb.old") or
+         openwebmailerror(gettext('Cannot rename db:') . " $folderdb -> $folderdb.old ($!)");
 
-   } elsif ($is_db_reuseable<0) {	# available, but can't be reused directly
-      # we will try to reference records in old folderdb if possible
-      ow::dbm::rename($folderdb, "$folderdb.old");
-      ow::dbm::open(\%OLDFDB, "$folderdb.old", LOCK_SH) or return -1;
+      ow::dbm::opendb(\%OLDFDB, "$folderdb.old", LOCK_SH) or
+         openwebmailerror(gettext('Cannot open db:') . " $folderdb.old ($!)");
 
-      ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or return -1;
-      %FDB=();	# ensure the folderdb is empty
+      ow::dbm::opendb(\%FDB, $folderdb, LOCK_EX) or
+         openwebmailerror(gettext('Cannot open db:') . " $folderdb ($!)");
 
-      # copy records from oldhdb as many as possible
-      my $lastsize=0;
-      my $lastid='';
-      my ($last_is_new, $last_is_internal, $last_is_zap)=(0, 0, 0);
+      # ensure the new db is empty
+      %FDB = ();
+
+      # copy as many records as possible from the old db
+      my $lastsize         = 0;
+      my $lastid           = '';
+      my $last_is_new      = 0;
+      my $last_is_internal = 0;
+      my $last_is_zap      = 0;
+
       foreach my $id (@oldmessageids) {
-         my ($size, $offset, $status, $subject) = (_get_validated_msgattr($folderhandle, \%OLDFDB, $id))[$_SIZE, $_OFFSET, $_STATUS, $_SUBJECT];
-         last if ( !$size or $offset<0 or $offset != $totalsize+$lastsize);
-         if ($messagenumber>=0) {
-            $FDB{$lastid}=$OLDFDB{$lastid};
+         my $size    = 0;
+         my $offset  = -1;
+         my $status  = '';
+         my $subject = '';
+
+         # capture the attributes for this message from the old db
+         if (defined $OLDFDB{$id}) {
+            # check if the message attributes in the db are valid against the folder file
+            # assume that if the message header is valid (via checksum) than the body is valid
+            my @attr = string2msgattr($OLDFDB{$id});
+
+            if (
+                  $attr[$_OFFSET] >= 0
+                  && $attr[$_HEADERSIZE] > 0
+                  && $attr[$_SIZE] > $attr[$_HEADERSIZE]
+               ) {
+               my $buff = '';
+               seek($folderhandle, $attr[$_OFFSET], 0);
+               my $readlen = read($folderhandle, $buff, $attr[$_HEADERSIZE]);
+               if (
+                     $readlen == $attr[$_HEADERSIZE]
+                     && $buff =~ m/^From /
+                     && $attr[$_HEADERCHKSUM] eq ow::tool::calc_checksum(\$buff)
+                  ) {
+                  # looks valid
+                  $size    = $attr[$_SIZE];
+                  $offset  = $attr[$_OFFSET];
+                  $status  = $attr[$_STATUS];
+                  $subject = $attr[$_SUBJECT];
+               }
+            }
+         }
+
+         last if !$size || $offset < 0 || $offset != $totalsize + $lastsize;
+
+         if ($totalmessages >= 0) {
+            $FDB{$lastid} = $OLDFDB{$lastid};
+
             $totalsize += $lastsize;
+
             if ($last_is_zap) {
-               $zapmessages++; $zapsize+=$lastsize;
+               $zapmessages++;
+               $zapsize += $lastsize;
             } elsif ($last_is_internal) {
-               $internalmessages++; $internalsize+=$lastsize;
+               $internalmessages++;
+               $internalsize += $lastsize;
             } elsif ($last_is_new) {
                $newmessages++;
             }
          }
-         $messagenumber++;
-         ($lastsize, $lastid) = ($size, $id);
-         # note: a message will be in one of the 4 types: zapped, internal, new, old
-         ($last_is_new, $last_is_internal, $last_is_zap)=(0, 0, 0);
-         if ($status=~/Z/i) {
-            $last_is_zap=1;
-         } elsif (is_internal_subject($subject)) {
-            $last_is_internal=1;
-         } elsif ($status !~ m/R/i) {
-            $last_is_new=1;
-         }
-      } # end scanning old index
 
-      if ($messagenumber>=0) { #at least one message header matched?
-         my $is_last_ok=0;
+         $totalmessages++;
+
+         $lastsize = $size;
+         $lastid   = $id;
+
+         # message will be in one of the 4 types: zapped, internal, new, old
+         $last_is_new      = 0;
+         $last_is_internal = 0;
+         $last_is_zap      = 0;
+         if ($status =~ m/Z/i) {
+            $last_is_zap = 1;
+         } elsif (is_internal_subject($subject)) {
+            $last_is_internal = 1;
+         } elsif ($status !~ m/R/i) {
+            $last_is_new = 1;
+         }
+      }
+
+      if ($totalmessages >= 0) {
+         # at least one message header matched
+         my $is_last_ok = 0;
+
          # did the last successful match make it exactly to the end of the folder?
-         if ($totalsize+$lastsize == $foldersize) {
-            $is_last_ok=1;
+         if ($totalsize + $lastsize == $foldersize) {
+            $is_last_ok = 1;
          } else {
             # did the last valid header match end at the start at a new message?
-            seek( $folderhandle, $totalsize+$lastsize-1, 0 );
-            my $buff; read($folderhandle, $buff, 6);
-            $is_last_ok=1 if ($buff eq "\nFrom ");
+            seek($folderhandle, $totalsize + $lastsize - 1, 0);
+            my $buff = '';
+            read($folderhandle, $buff, 6);
+            $is_last_ok = 1 if $buff eq "\nFrom ";
          }
+
          if ($is_last_ok) {
-            $FDB{$lastid}=$OLDFDB{$lastid};
+            $FDB{$lastid} = $OLDFDB{$lastid};
+
             $totalsize += $lastsize;
+
             if ($last_is_zap) {
-               $zapmessages++; $zapsize+=$lastsize;
+               $zapmessages++;
+               $zapsize += $lastsize;
             } elsif ($last_is_internal) {
-               $internalmessages++; $internalsize+=$lastsize;
+               $internalmessages++;
+               $internalsize += $lastsize;
             } elsif ($last_is_new) {
                $newmessages++;
             }
          } else {
-            $messagenumber--;
+            $totalmessages--;
          }
       }
    }
 
-   buffer_reset($folderhandle, $totalsize);
+   # db is now ready for updating
+   $BUFF_filehandle = $folderhandle;
+   $BUFF_filestart  = $totalsize;
+   $BUFF_fileoffset = $BUFF_filestart;
+   $BUFF_start      = $BUFF_filestart;
+   $BUFF_size       = 0;
+   $BUFF_buff       = '';
+   $BUFF_EOF        = 0;
 
-   my ($header_offset, $r_content) = _get_next_msgheader_buffered(0);
-   $totalsize=$header_offset;
+   buffer_readblock();
 
-   my $r_message;
-   my %flag=();		# internal flag, member: T(has att), V(verified), Z(to be zapped);
+   my ($header_offset, $r_header_content) = _get_next_msgheader_buffered(0);
+   $totalsize = $header_offset;
 
-   while ($header_offset >=0 and !$dberr) {
-      $messagenumber++;
-      foreach (qw(T V Z)) { $flag{$_}=0 }
-      $r_message=_get_msghash_from_header($header_offset, $r_content);
+   my %flag = (); # internal flag
 
-      # check if msg info recorded in old folderdb, we can seek to msg end quickly
-      # and skip scanning the content types
-      my ($skip, $oldstatus, $oldcharset, $oldchksum ) = (string2msgattr( $OLDFDB{$$r_message{'message-id'}} ))[$_SIZE, $_STATUS, $_CHARSET, $_HEADERCHKSUM];
-      $skip = 0 if ($oldchksum ne $$r_message{headerchksum});
-      if ( $skip ) {  #old message match
-         # copy internal flags
-         foreach (qw(T V Z)) {
-            $flag{$_}=1 if ($oldstatus=~/$_/i);
-         }
-         $$r_message{charset}=$oldcharset;
-         # skip past this message, we're already positioned at the end of the header
-         $skip -= $$r_message{headersize};
-      } else {	# new msg
-         if ($$r_message{msg_type} eq 'm') {
+   while ($header_offset >= 0) {
+      $totalmessages++;
+
+      $flag{$_} = 0 for qw(T V Z); # T(has att), V(verified), Z(to be zapped)
+
+      # create a hash of attributes for this message,
+      # extracting the information from the header lines
+      my %message = (
+                       from           => 'N/A',
+                       to             => 'N/A',
+                       date           => 'N/A',
+                       subject        => 'N/A',
+                       'content-type' => 'N/A',
+                       'message-id'   => '',
+                       status         => '',
+                       references     => '',
+                       charset        => '',
+                       'in-reply-to'  => '',
+                    );
+
+      ow::mailparse::parse_header($r_header_content, \%message);
+
+      if ($message{'content-type'} =~ m/^multipart/i) {
+         $message{msg_type} = 'm';
+      } elsif ($message{'content-type'} eq 'N/A' || $message{'content-type'} =~ m#^text/plain#i ) {
+         $message{msg_type} = 'p';
+      } else {
+         $message{msg_type} = '';
+      }
+
+      writelog("debug - database mail header parsed" . join("\n", map { "$_ => $message{$_}" } sort keys %message)) if $config{debug_maildb};
+
+      $message{offset}       = $header_offset;
+      $message{headersize}   = length ${$r_header_content};
+      $message{headerchksum} = ow::tool::calc_checksum($r_header_content);
+
+      # check if this message info was recorded into the old folderdb so we can seek to the
+      # message end quickly and skip scanning all the content type parts
+      my ($skip, $oldstatus, $oldcharset, $oldchksum) = (string2msgattr($OLDFDB{$message{'message-id'}}))[$_SIZE, $_STATUS, $_CHARSET, $_HEADERCHKSUM];
+
+      $oldstatus  = '' unless defined $oldstatus;
+      $oldcharset = '' unless defined $oldcharset;
+      $oldchksum  = '' unless defined $oldchksum;
+
+      $skip = 0 if $oldchksum ne $message{headerchksum};
+
+      if ($skip) {
+         # the old db has this message - copy the info from the old db
+         $flag{$1} = 1 if $oldstatus =~ m/(T|V|Z)/i;
+
+         $message{charset} = $oldcharset;
+
+         # skip past this message - we are already positioned at the end of the header
+         $skip -= $message{headersize};
+      } else {
+         # the old db does not have this message - parse it to get its info
+         writelog("debug - database parsing message header_offset=$header_offset") if $config{debug_maildb};
+
+         if ($message{msg_type} eq 'm') {
             # multipart message
-            my $block=_skip_to_next_text_block();
-            while ( $block ne '') {
-               if ($$r_message{charset} eq '' and
-                   $block=~/^--/ and
-                   # note the match 'm' option to check multiple lines
-                   $block=~/^content-type:.*;\s*charset="?([^\s"';]*)"?/ims ) {	# att header
-                  $$r_message{charset}=$1;
-               }
-               if ( !$flag{T} and
-                    ($block=~/^content-type:.*;\s*name\s*\*?=/ims or
-                     $block=~/^content-disposition:.*;\s*filename\s*\*?=/ims) ) {
-                  $flag{T}=1;
-               }
-               if (!$flag{T} or $$r_message{charset} eq '') {
-                  $block=_skip_to_next_text_block();
-               } else {
-                  $block='';
-               }
-            }
+            my $block = _skip_to_next_text_block();
 
-         } elsif ( $$r_message{msg_type} eq 'p') {
+            while ($block ne '') {
+               $message{charset} = $1 if (
+                                            # is att header?
+                                            $message{charset} eq ''
+                                            && $block =~ m/^--/
+                                            && $block =~ m/^content-type:.*;\s*charset="?([^\s"';]*)"?/ims # 'm' to check multiple lines
+                                         );
+
+               writelog("debug - detected message block charset='$message{charset}'") if $config{debug_maildb};
+
+               $flag{T} = 1 if (  # has_att?
+                                  !$flag{T}
+                                  && (
+                                        $block =~ m/^content-type:.*;\s*name\s*\*?=/ims
+                                        ||
+                                        $block =~ m/^content-disposition:.*;\s*filename\s*\*?=/ims
+                                     )
+                               );
+
+               writelog("debug - detected message block attachments flag T=$flag{T}") if $config{debug_maildb};
+
+               $block = (!$flag{T} || $message{charset} eq '') ? _skip_to_next_text_block() : '';
+            }
+         } elsif ($message{msg_type} eq 'p') {
             # plain text message
-            my $block=_skip_to_next_text_block();
-            while ( $block ne '') {
-               if ( $block=~/^begin [0-7][0-7][0-7][0-7]? [^\n\r]+/mi) {
-                  $flag{T}=1;
-                  $block='';
+            my $block = _skip_to_next_text_block();
+
+            while ($block ne '') {
+               if ($block =~ m/^begin [0-7][0-7][0-7][0-7]? [^\n\r]+/mi) {
+                  $flag{T} = 1;
+                  $block   = '';
                } else {
-                  $block=_skip_to_next_text_block();
+                  $block = _skip_to_next_text_block();
                }
             }
-
          }
       }
-      ($header_offset, $r_content) = _get_next_msgheader_buffered($skip);
-      if ( $header_offset>=0 ) {	# next msg start found
-         $$r_message{size}=$header_offset-$totalsize;
-         $totalsize=$header_offset;
-      } else {				# folder end
-         # compare metainfo since folder may be changed by other processs that don't check filelock
-         my $foldermeta2=ow::tool::metainfo($folderfile);
-         if ($foldermeta2 ne $foldermeta) {	# folder file is changed during indexing
+
+      ($header_offset, $r_header_content) = _get_next_msgheader_buffered($skip);
+
+      if ($header_offset >= 0) {
+         # next message start found
+         $message{size} = $header_offset - $totalsize;
+         $totalsize = $header_offset;
+      } else {
+         # folder end
+         # compare metainfo since folder may have been changed by another processes that did not respect filelock
+         my $foldermeta2 = ow::tool::metainfo($folderfile);
+
+         if ($foldermeta2 ne $foldermeta) {
+            # folder file was changed during indexing
             writelog("db warning - folder $folderfile changed during indexing - [$foldermeta] -> [$foldermeta2]");
-            $foldermeta=$foldermeta2;
-            $foldersize=(stat($folderhandle))[7];
-            if ($foldersize==0) {		# folder file is cleaned druing indexing
-               %FDB=();
-               $messagenumber=-1;
-               ($newmessages, $internalmessages, $internalsize, $zapmessages, $zapsize) = (0, 0, 0, 0, 0);
+            $foldermeta = $foldermeta2;
+            $foldersize = (stat($folderhandle))[7];
+
+            if ($foldersize == 0) {
+               # folder file was cleaned during indexing
+               %FDB              = ();
+               $totalmessages    = -1;
+               $newmessages      = 0;
+               $internalmessages = 0;
+               $internalsize     = 0;
+               $zapmessages      = 0;
+               $zapsize          = 0;
                last;
             }
          }
-         $$r_message{size}=$foldersize-$totalsize;
+
+         $message{size} = $foldersize - $totalsize;
       }
 
-      _prepare_msghash($r_message, \%flag);
+      # perform additional processing on the message hash attributes for maildb:
 
-      my $id=$$r_message{'message-id'};
-      if (defined $FDB{$id}) {	# duplicated msg found?
-         if ( $$r_message{status}!~/Z/i ) {	# this is not zap, mark prev as zap
-            my @attr0=string2msgattr($FDB{$id});
-            if ($attr0[$_STATUS]!~/Z/i) {	# try to mark prev as zap
-               $attr0[$_STATUS].='Z';
-               $zapmessages++; $zapsize+=$attr0[$_SIZE];
+      # message dateserial (Mon Aug 20 18:24 CST 2010 -> 20100820182400)
+      $message{date}     = ow::datetime::datefield2dateserial($message{date}) if exists $message{date} && $message{date};
+      $message{recvdate} = ow::datetime::delimiter2dateserial($message{delimiter}, $config{deliver_use_gmt}, $prefs{daylightsaving}, $prefs{timezone})
+                               || ow::datetime::gmtime2dateserial();
+      $message{date}     = $message{recvdate} unless exists $message{date} && $message{date};
+
+      # try to get charset from contenttype header
+      $message{charset} = $1 if $message{charset} eq '' && $message{'content-type'} =~ m/charset\s*=\s*"?([^\s"';]*)"?\s?/i;
+
+      # decode mime and convert from/to/subject to message charset with iconv
+      $message{$_} = decode_mimewords_iconv($message{$_}, 'utf-8') for qw(from to subject);
+
+      # in most cases, a message references field should already contain
+      # ids in in-reply-to: field, but do check it again here
+      if ($message{'in-reply-to'} =~ m/\S/) {
+         # <someone@somehost> "desc..."
+         my $string = $message{'in-reply-to'};
+         $string =~ s/^.*?(\<\S+\>).*$/$1/;
+         $message{references} .= " $string" if $message{references} !~ m/\Q$string\E/;
+      }
+
+      $message{references} =~ s/\s{2,}/ /g;
+
+      if ($message{'message-id'} eq '') {
+         # fake messageid with date and from
+         $message{'message-id'} = "$message{date}." . (ow::tool::email2nameaddr($message{from}))[1];
+         $message{'message-id'} =~ s![<>()\s/"':]!!g;
+         $message{'message-id'} = "<$message{'message-id'}>";
+      } elsif (length $message{'message-id'} >= 128) {
+         $message{'message-id'} = '<' . substr($message{'message-id'}, 1, 125) . '>';
+      }
+
+      # message status
+      $message{status} .= $message{'x-status'} if exists $message{'x-status'} && defined $message{'x-status'};
+      $message{status} .= 'I' if exists $message{priority} && $message{priority} =~ m/urgent/i;
+
+      # flags used by openwebmail internally
+      $message{status} .= 'T' if exists $flag{T} && $flag{T}; # has attachment
+      $message{status} .= 'V' if exists $flag{V} && $flag{V}; # verified
+      $message{status} .= 'Z' if exists $flag{Z} && $flag{Z}; # to be zap
+
+      $message{status} =~ s/\s//g;
+
+      my $id = $message{'message-id'};
+
+      if (defined $FDB{$id}) {
+         # duplicated message found?
+         if ($message{status} !~ m/Z/i) {
+            # this is not zap, mark prev as zap
+            my @attr0 = string2msgattr($FDB{$id});
+            if ($attr0[$_STATUS] !~ m/Z/i) {
+               # try to mark prev as zap
+               $attr0[$_STATUS] .= 'Z';
+               $zapmessages++;
+               $zapsize += $attr0[$_SIZE];
                if (is_internal_subject($attr0[$_SUBJECT])) {
-                  $internalmessages--; $internalsize-=$attr0[$_SIZE];
-               } elsif ($attr0[$_STATUS]!~/R/i) {
+                  $internalmessages--;
+                  $internalsize -= $attr0[$_SIZE];
+               } elsif ($attr0[$_STATUS] !~ m/R/i) {
                   $newmessages--;
                }
             }
-            $FDB{"DUP$attr0[$_OFFSET]-$id"}=msgattr2string(@attr0);
+            $FDB{"DUP$attr0[$_OFFSET]-$id"} = msgattr2string(@attr0);
             delete $FDB{$id};
-         } else {				# this is zap, chang messageid
-            $id="DUP$$r_message{offset}-$id";
+         } else {
+            # this is zap, change messageid
+            $id = "DUP$message{offset}-$id";
          }
       }
-      if ($$r_message{status}=~/Z/i) {
-         $zapmessages++; $zapsize+=$$r_message{size};
-      } elsif (is_internal_subject($$r_message{subject})) {
-         $internalmessages++; $internalsize+=$$r_message{size};
-      } elsif($$r_message{status}!~/R/i ) {
+
+      if ($message{status} =~ m/Z/i) {
+         $zapmessages++;
+         $zapsize += $message{size};
+      } elsif (is_internal_subject($message{subject})) {
+         $internalmessages++;
+         $internalsize += $message{size};
+      } elsif($message{status} !~ m/R/i) {
          $newmessages++;
       }
-      $dberr=_update_index_with_msghash(\%FDB, $id, $r_message);
+
+      # write this message to the db (tied db)
+      $FDB{$id} = msgattr2string(
+                                   $message{offset},
+                                   $message{size},
+                                   $message{headersize},
+                                   $message{headerchksum},
+                                   $message{recvdate},
+                                   $message{date},
+                                   $message{from},
+                                   $message{to},
+                                   $message{subject},
+                                   $message{'content-type'},
+                                   $message{charset},
+                                   $message{status},
+                                   $message{references},
+                                );
    }
 
-   close($folderhandle);
+   close($folderhandle) or
+      openwebmailerror(gettext('Cannot close file:') . " $folderfile ($!)");
 
-   if ( !$dberr ) {
-      @FDB{'ALLMESSAGES', 'NEWMESSAGES', 'INTERNALMESSAGES', 'INTERNALSIZE', 'ZAPMESSAGES', 'ZAPSIZE'}
-         =($messagenumber+1, $newmessages, $internalmessages, $internalsize, $zapmessages, $zapsize);
-      $FDB{'DBVERSION'}=$_DBVERSION;
-      $FDB{'METAINFO'}=$foldermeta;
-      $FDB{'LSTMTIME'}=time();
-   }
+   $FDB{ALLMESSAGES}      = $totalmessages + 1;
+   $FDB{NEWMESSAGES}      = $newmessages;
+   $FDB{INTERNALMESSAGES} = $internalmessages;
+   $FDB{INTERNALSIZE}     = $internalsize;
+   $FDB{ZAPMESSAGES}      = $zapmessages;
+   $FDB{ZAPSIZE}          = $zapsize;
+   $FDB{DBVERSION}        = $_DBVERSION;
+   $FDB{METAINFO}         = $foldermeta;
+   $FDB{LSTMTIME}         = time();
 
-   ow::dbm::close(\%FDB, $folderdb);
+   ow::dbm::closedb(\%FDB, $folderdb) or
+      openwebmailerror(gettext('Cannot close db:') . " $folderdb ($!)");
 
    # remove old folderdb
-   if ( ow::dbm::exist("$folderdb.old") ) {
-      ow::dbm::close(\%OLDFDB, "$folderdb.old");
-      ow::dbm::unlink("$folderdb.old");
+   if (ow::dbm::existdb("$folderdb.old")) {
+      ow::dbm::closedb(\%OLDFDB, "$folderdb.old") or
+         openwebmailerror(gettext('Cannot close db:') . " $folderdb.old ($!)");
+
+      ow::dbm::unlinkdb("$folderdb.old") or
+         openwebmailerror(gettext('Cannot delete db:') . " $folderdb.old ($!)");
    }
 
-   return -1 if ($dberr);
    return 1;
 }
 
-# verify an index entry against the folder file contents
-# We're only checking the message header contents here
-# Making an assumption that as long as the header matches, the body will too.
-# Note we're modifiying the folder current position pointer (and not putting it back!)
-# size attribute will be zero if the index can't be validated
-sub _get_validated_msgattr {
-   my ($folderhandle, $r_FDB, $msgid) =@_;
-
-   if ( defined $$r_FDB{$msgid} ) {
-      my @attr = string2msgattr( $$r_FDB{$msgid} );
-      # now validate the index attributes;
-      if ( $attr[$_OFFSET] >=0 and
-           $attr[$_HEADERSIZE] >0 and
-           $attr[$_SIZE] > $attr[$_HEADERSIZE] ) {
-         my $buff='';
-         seek( $folderhandle, $attr[$_OFFSET], 0 );
-         my $readlen=read($folderhandle, $buff, $attr[$_HEADERSIZE]);
-         if ( $readlen == $attr[$_HEADERSIZE] and
-              $buff=~/^From / and
-              $attr[$_HEADERCHKSUM] eq ow::tool::calc_checksum(\$buff) ) {
-            return @attr;
-         }
-      }
-   }
-   return ();
-}
-
-# get msgheader attrs to msghash with minimum process
-sub _get_msghash_from_header {
-   my ($header_offset, $r_header_content)=@_;
-
-   my %message=();
-
-   foreach (qw(from to date subject content-type)) { $message{$_}='N/A' }
-   foreach (qw(message-id status references charset in-reply-to)) { $message{$_}='' }
-
-   ow::mailparse::parse_header($r_header_content, \%message);
-   if ($message{'content-type'}=~/^multipart/i) {
-      $message{msg_type}='m';
-   } elsif ($message{'content-type'} eq 'N/A' or $message{'content-type'}=~/^text\/plain/i ) {
-      $message{msg_type}='p';
-   }
-
-   $message{offset} = $header_offset;
-   $message{headersize}=length($$r_header_content);
-   $message{headerchksum}=ow::tool::calc_checksum($r_header_content);
-
-   return \%message;
-}
-
-# returns: $offset, $r_content
 sub _get_next_msgheader_buffered {
-   my ($skip)=@_;
+   # returns: $offset, $r_header_content
+   my $skip = shift; # number of bytes to skip in the buffer
 
-   my $pos=0;
-   my $offset=-1;
-   my $content='';
+   my $pos            = 0;
+   my $offset         = -1;
+   my $header_content = '';
 
-   buffer_skipchars($skip) if ($skip);
+   buffer_skipchars($skip) if $skip;
 
    # locate the start of the message
    while ($offset < 0 and $pos >= 0) {
-      $pos=(buffer_index(0, "From "))[0];
-      $offset = buffer_startmsgchk($pos) if ($pos>=0);
+      $pos    = (buffer_index(0, 'From '))[0];
+      $offset = buffer_startmsgchk($pos) if $pos >= 0;
    }
 
-   # get msgheader until to the first nlnl (pos>0) or end of file(pos=-1)
-   # note: the 1st nl is counted as part of the msgheader
-   if ($offset >=0) {
-      $pos=(buffer_index(1, "\n\n"))[0];
-      $pos++ if ($pos>=0);		# count 1st nl into msgheader
-      $content=buffer_getchars($pos);
+   # get msgheader until the first \n\n (pos > 0) or EOF (pos = -1)
+   # note: the first \n is counted as part of the msgheader
+   if ($offset >= 0) {
+      $pos = (buffer_index(1, "\n\n"))[0];
+      $pos++ if $pos >= 0; # count first \n into msgheader
+      $header_content = buffer_getchars($pos);
    }
-   return ($offset, \$content);
+
+   return ($offset, \$header_content);
 }
 
-# search the buffered file for a block of text (delimited by '\n\n' or '\nFrom ')
-# we're only interested in returning the first 4096 or less bytes of the block
 sub _skip_to_next_text_block {
-   my $block_content='';
+   # search the buffer for a block of text (delimited by '\n\n' or '\nFrom ')
+   # we are only interested in returning the first 4096 or less bytes of the block
+   my $block_content = '';
+
+   writelog("debug - _skip_to_next_text_block start") if $config{debug_maildb};
 
    # skip past any leading new line characters
    buffer_skipleading("\n");
 
-   # we're done if this is the next message block
-   if ( buffer_startmsgchk(0)<0 ) {
-      # finst 1st occurance of "\n\n" or "\nFrom "
-      my ($pos, $foundstr)=buffer_index(1, "\n\n", "\nFrom");
+   # we are done if this is the next message block
+   if (buffer_startmsgchk(0) < 0) {
+      # find first occurance of "\n\n" or "\nFrom "
+      my ($pos, $foundstring) = buffer_index(1, "\n\n", "\nFrom");
 
       # get max 4096 chars or to the end of the block
       # then skip to the next block start
-      if ($pos>4096) {
-         $block_content=buffer_getchars(4096);
-         buffer_skipchars($pos-4096);
-      } elsif ($pos>=0) {
-         $block_content=buffer_getchars($pos);
-      } else { # pos==-1 means not found until eof
-         $block_content=buffer_getchars(4096);
+      if ($pos > 4096) {
+         $block_content = buffer_getchars(4096);
+         buffer_skipchars($pos - 4096);
+      } elsif ($pos >= 0) {
+         $block_content = buffer_getchars($pos);
+      } else {
+         # pos == -1 means not found until EOF
+         $block_content = buffer_getchars(4096);
       }
    }
-   return ($block_content);
+
+   return $block_content;
 }
 
-# more process on msghash attributes for maildb
-sub _prepare_msghash {
-   my ($r_message, $r_flag)=@_;
-
-   # msg status
-   $$r_message{status}.=$$r_message{'x-status'} if (defined $$r_message{'x-status'});
-   $$r_message{status}.='I' if ($$r_message{priority}=~/urgent/i);
-
-   # msg dateserial
-   $$r_message{date}=ow::datetime::datefield2dateserial($$r_message{date});
-   $$r_message{recvdate}=ow::datetime::delimiter2dateserial($$r_message{delimiter}, $config{'deliver_use_gmt'}, $prefs{'daylightsaving'}, $prefs{'timezone'}) ||
-                         ow::datetime::gmtime2dateserial();
-   $$r_message{date}=$$r_message{recvdate} if ($$r_message{date} eq "");
-
-   # try to get charset from contenttype header
-   if ($$r_message{charset} eq "" &&
-       $$r_message{'content-type'}=~/charset\s*=\s*"?([^\s"';]*)"?\s?/i) {
-      $$r_message{charset}=$1;
-   }
-
-   # decode mime and convert from/to/subject to msg charset with iconv
-   foreach (qw(from to subject)) {
-      $$r_message{$_} = decode_mimewords_iconv($$r_message{$_}, 'utf-8');
-   }
-
-   # in most case, a msg references field should already contain
-   # ids in in-reply-to: field, but do check it again here
-   if ($$r_message{'in-reply-to'}=~/\S/) {	# <someone@somehost> "desc..."
-      my $s=$$r_message{'in-reply-to'}; $s=~s/^.*?(\<\S+\>).*$/$1/;
-      $$r_message{references} .= " $s" if ($$r_message{references} !~ m/\Q$s\E/);
-   }
-   $$r_message{references} =~ s/\s{2,}/ /g;
-
-   if ($$r_message{'message-id'} eq '') {	# fake messageid with date and from
-      $$r_message{'message-id'}="$$r_message{date}.".(ow::tool::email2nameaddr($$r_message{from}))[1];
-      $$r_message{'message-id'} =~s![\<\>\(\)\s\/"':]!!g;
-      $$r_message{'message-id'}="<$$r_message{'message-id'}>";
-   } elsif (length($$r_message{'message-id'})>=128) {
-      $$r_message{'message-id'}='<'.substr($$r_message{'message-id'}, 1, 125).'>';
-   }
-
-   # flags used by openwebmail internally
-   foreach (qw(T V Z)) { $$r_message{status} .= $_ if ($$r_flag{$_}) }
-   $$r_message{status} =~ s/\s//g;	# remove blanks
-}
-
-sub _update_index_with_msghash {
-   my ($r_FDB, $id, $r_message)=@_;
-   $$r_FDB{$id}=msgattr2string(${$r_message}{offset},
-      ${$r_message}{size}, ${$r_message}{headersize}, ${$r_message}{headerchksum},
-      ${$r_message}{recvdate}, ${$r_message}{date}, ${$r_message}{from}, ${$r_message}{to},
-      ${$r_message}{subject}, ${$r_message}{'content-type'}, ${$r_message}{charset},
-      ${$r_message}{status},${$r_message}{references});
-   return 0;
-}
-
-########## END UPDATE_FOLDERDB ####################################
-
-########## GET_MESSAGEIDS_SORTED_BY_OFFSET #######################
 sub get_messageids_sorted_by_offset {
-   my $folderdb=$_[0];
-   my (%FDB, @keys);
+   my $folderdb = shift;
 
-   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return ();
-   @keys = get_messageids_sorted_by_offset_db(\%FDB);
-   ow::dbm::close(\%FDB, $folderdb);
+   my %FDB = ();
+
+   ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
+      openwebmailerror(gettext('Cannot open db:') . " $folderdb ($!)");
+
+   my @keys = get_messageids_sorted_by_offset_db(\%FDB);
+
+   ow::dbm::closedb(\%FDB, $folderdb) or
+      openwebmailerror(gettext('Cannot close db:') . " $folderdb ($!)");
 
    return @keys;
 }
-########## END GET_MESSAGEIDS_SORTED_BY_OFFSET ###################
 
-########## GET_MESSAGEIDS_SORTED_BY_OFFSET_DB ####################
-# same as above, only no DBM open close
 sub get_messageids_sorted_by_offset_db {
-   my ($r_FDB)=@_;
-   my (%offset, $key, $data);
-   while ( ($key,$data)=each(%$r_FDB) ) {
-      $offset{$key}=(string2msgattr($data))[$_OFFSET] if (!$is_internal_dbkey{$key});
+   # same as above, only no DBM open close
+   my $r_FDB = shift;
+
+   my %offset = ();
+   while (my($key,$data) = each(%{$r_FDB})) {
+      $offset{$key} = (string2msgattr($data))[$_OFFSET] unless exists $is_internal_dbkey{$key} && $is_internal_dbkey{$key};
    }
-   return( sort { $offset{$a}<=>$offset{$b} } keys(%offset) );
+
+   return sort { $offset{$a} <=> $offset{$b} } keys %offset;
 }
-########## END GET_MESSAGEIDS_SORTED_BY_OFFSET_DB ################
 
-########## GET_INFO_MSGID2ATTRS ##################################
 sub get_msgid2attrs {
-   my ($folderdb, $ignore_internal, @attrnum)=@_;
+   my ($folderdb, $ignore_internal, @attrnum) = @_;
 
-   my %msgid2attr=();
-   my ($total, %FDB, $key, $data, @attr);
+   my %msgid2attr = ();
+   my $total      = 0;
+   my @attr       = ();
+   my %FDB        = ();
 
-   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return ($total, \%msgid2attr);
+   ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
+      openwebmailerror(gettext('Cannot open db:') . " $folderdb ($!)");
 
-   while ( ($key, $data)=each(%FDB) ) {
-      next if ($is_internal_dbkey{$key});
-      @attr=string2msgattr( $data );
-      next if ($attr[$_STATUS]=~/Z/i);
-      next if ($ignore_internal && is_internal_subject($attr[$_SUBJECT]));
+   while (my($key, $data) = each(%FDB)) {
+      next if exists $is_internal_dbkey{$key} && $is_internal_dbkey{$key};
+      @attr = string2msgattr($data);
+      next if defined $attr[$_STATUS] && $attr[$_STATUS] =~ m/Z/i;
+      next if $ignore_internal && is_internal_subject($attr[$_SUBJECT]);
       $total++;
-      my @attr2=@attr[@attrnum];
-      $msgid2attr{$key}=\@attr2;
+      my @attr2 = @attr[@attrnum];
+      $msgid2attr{$key} = \@attr2;
    }
 
-   ow::dbm::close(\%FDB, $folderdb);
+   ow::dbm::closedb(\%FDB, $folderdb) or
+      openwebmailerror(gettext('Cannot close db:') . " $folderdb ($!)");
 
    return($total, \%msgid2attr);
 }
-########## END GET_INFO_MSGID2ATTRS ##############################
 
-########## GET_MESSAGE_.... ######################################
 sub get_message_attributes {
-   my ($messageid, $folderdb)=@_;
-   my (%FDB, @attr);
+   # given a message id and database, open the database and convert
+   # the stored message attributes into an array
+   my ($messageid, $folderdb) = @_;
 
-   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return @attr;
-   @attr=string2msgattr( $FDB{$messageid} );
-   ow::dbm::close(\%FDB, $folderdb);
-   return(@attr);
+   my @attr = ();
+   my %FDB  = ();
+
+   ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
+      openwebmailerror(gettext('Cannot open db:') . " $folderdb ($!)");
+
+   @attr = string2msgattr($FDB{$messageid});
+
+   ow::dbm::closedb(\%FDB, $folderdb) or
+      openwebmailerror(gettext('Cannot close db:') . " $folderdb ($!)");
+
+   return (@attr);
 }
 
-# note: the blank line between header and msg body is not part of msg header bug msg body
-# thus the new header can be easily appended at the end of the msg header
 sub get_message_header {
-   my ($messageid, $folderdb, $folderhandle, $r_buff)=@_;
+   # given a message id, database, and mail spool filehandle, read the header from
+   # the mail spool using the byte range stored in the database and return its size
+   # this can be used as a checkpoint to verify consistency between the db and mail spool
+   # -1: message id not in database
+   # -2: invalid header size in database
+   # -3: header size mismatch read error
+   # -4: header start and end does not match index
+   my ($messageid, $folderdb, $folderhandle, $r_buff) = @_;
 
-   my @attr=get_message_attributes($messageid, $folderdb);
-   return(-1, "msg $messageid not found in $folderdb") if ($#attr<0);
+   my @attr = get_message_attributes($messageid, $folderdb);
 
-   if ($attr[$_HEADERSIZE]<0 || $attr[$_SIZE]<=$attr[$_HEADERSIZE]) {
-      return(-2, "msg $messageid in $folderdb has invalid header size $attr[$_HEADERSIZE]");
-   }
-   seek($folderhandle, $attr[$_OFFSET], 0);
-
-   my $size = read($folderhandle, ${$r_buff}, $attr[$_HEADERSIZE]);
-   if ($size !=  $attr[$_HEADERSIZE]) {	# unexpected end of folderfile?
-      return(-3, "msg $messageid in $folderdb hdrsize mismatched, hdrsize=$attr[$_HEADERSIZE], read=$size");
-   }
-   return($size);
-}
-
-sub get_message_block {
-   my ($messageid, $folderdb, $folderhandle, $r_buff)=@_;
-
-   my @attr=get_message_attributes($messageid, $folderdb);
-   return(-1, "msg $messageid not found in $folderdb") if ($#attr<0);
-
-   if ($attr[$_SIZE]<=0) {
-      return(-2, "msg $messageid in $folderdb has invalid msgsize $attr[$_SIZE]");
-   }
-   seek($folderhandle, $attr[$_OFFSET], 0);
-
-   my $size = read($folderhandle, ${$r_buff}, $attr[$_SIZE]);
-   if ($size != $attr[$_SIZE]) { # unexpected end of folderfile?
-      return(-3, "msg $messageid in $folderdb msgsize mismatched, msgsize=$attr[$_SIZE], read=$size");
-   }
-   return($size);
-}
-########## END GET_MESSAGE_.... ##################################
-
-########## UPDATE_MESSAGE_STATUS #################################
-sub update_message_status {
-   my ($messageid, $status, $folderdb, $folderfile) = @_;
-   my $folderhandle=FileHandle->new();
-   my %FDB;
-   my $ioerr=0;
-
-   if (update_folderindex($folderfile, $folderdb)<0) {
-      writelog("db error - Couldn't update index db $folderdb");
-      writehistory("db error - Couldn't update index db $folderdb");
+   if (scalar @attr == 0) {
+      writelog("message $messageid not found in db $folderdb");
       return -1;
    }
 
-   ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or return -1;
+   if ($attr[$_HEADERSIZE] < 0 || $attr[$_SIZE] <= $attr[$_HEADERSIZE]) {
+      writelog("header size $attr[$_HEADERSIZE] for message $messageid in db $folderdb is invalid");
+      return -2;
+   }
 
-   my @messageids=get_messageids_sorted_by_offset_db(\%FDB);
-   my $movement=0;
-   my @attr;
-   my $i;
+   seek($folderhandle, $attr[$_OFFSET], 0);
 
-   if (!sysopen($folderhandle, $folderfile, O_RDWR)) {
-      ow::dbm::close(\%FDB, $folderdb);
+   my $size = read($folderhandle, ${$r_buff}, $attr[$_HEADERSIZE]);
+
+   if ($size !=  $attr[$_HEADERSIZE]) {
+      writelog("message $messageid in db $folderdb header read error, headersize=$attr[$_HEADERSIZE], read=$size");
       return -3;
    }
-   # since setvbuf is only available before perl 5.8.0, we put this inside eval
-   eval { my $_vbuf; $folderhandle->setvbuf($_vbuf, _IOFBF,  $BUFF_blocksize) };
 
-   for ($i=0; $i<=$#messageids; $i++) {
+   if (substr(${$r_buff}, 0, 5) ne 'From ' || substr(${$r_buff}, $size - 1, 1) ne "\n") {
+      # message header should end with a \n
+      writelog("header start and end does not match db index for message $messageid in db $folderdb");
+      return -4;
+   }
+
+   return $size;
+}
+
+sub get_message_block {
+   # given a message id, database, and mail spool filehandle, read the message from
+   # the mail spool using the byte range stored in the database and return its size
+   # this can be used as a checkpoint to verify consistency between the db and mail spool
+   # -1: message id not in database
+   # -2: invalid message size in database
+   # -3: message size mismatch read error
+   # -4: message start and end does not match index
+   my ($messageid, $folderdb, $folderhandle, $r_buff) = @_;
+
+   my @attr = get_message_attributes($messageid, $folderdb);
+
+   if (scalar @attr == 0) {
+      writelog("message $messageid not found in db $folderdb");
+      return -1;
+   }
+
+   if ($attr[$_SIZE] <= 0) {
+      writelog("message size $attr[$_SIZE] for message $messageid in db $folderdb is invalid");
+      return -2;
+   }
+
+   seek($folderhandle, $attr[$_OFFSET], 0);
+
+   my $size = read($folderhandle, ${$r_buff}, $attr[$_SIZE]);
+
+   if ($size != $attr[$_SIZE]) {
+      writelog("message $messageid in db $folderdb read error, messagesize=$attr[$_SIZE], read=$size");
+      return -3;
+   }
+
+   if (substr(${$r_buff}, 0, 5) ne 'From ' || substr(${$r_buff}, $size - 1, 1) ne "\n") {
+      # message should end with a \n
+      writelog("message start and end does not match db index for message $messageid in db $folderdb");
+      return -4;
+   }
+
+   return $size;
+}
+
+sub update_message_status {
+   # -1: update index error
+   # -2: cannot open database
+   # -3: cannot open folderfile
+   # -4: header start does not match index db header start
+   # -5: io error
+   my ($messageid, $status, $folderdb, $folderfile) = @_;
+
+   if (update_folderindex($folderfile, $folderdb) < 0) {
+      writelog("db error - cannot update index db $folderdb");
+      writehistory("db error - cannot update index db $folderdb");
+      return -1;
+   }
+
+   my %FDB = ();
+
+   if (!ow::dbm::opendb(\%FDB, $folderdb, LOCK_EX)) {
+      writelog("cannot open db $folderdb");
+      return -2;
+   }
+
+   my @messageids   = get_messageids_sorted_by_offset_db(\%FDB);
+   my @attr         = ();
+   my $movement     = 0;
+   my $folderhandle = do { no warnings 'once'; local *FH };
+
+   if (!sysopen($folderhandle, $folderfile, O_RDWR)) {
+      writelog("cannot open file $folderfile");
+      ow::dbm::closedb(\%FDB, $folderdb) or writelog("cannot close db $folderdb");
+      return -3;
+   }
+
+   my $ioerr = 0;
+   my $i     = 0;
+
+   for ($i = 0; $i <= $#messageids; $i++) {
       if ($messageids[$i] eq $messageid) {
-
          @attr = string2msgattr( $FDB{$messageid} ) if ( defined $FDB{$messageid} );
 
-         my $messagestart=$attr[$_OFFSET];
-         my $headerlen=$attr[$_HEADERSIZE];
-         my $headerend=$messagestart+$headerlen;
+         my $messagestart = $attr[$_OFFSET];
+         my $headerlen    = $attr[$_HEADERSIZE];
+         my $headerend    = $messagestart + $headerlen;
 
-         my $header;
+         my $header = '';
          seek ($folderhandle, $messagestart, 0);
-         read ($folderhandle, $header, $headerlen);	# header ends with one \n
+         read ($folderhandle, $header, $headerlen); # header ends with one \n
 
-         if ($header!~/^From /) { # index not consistent with folder content
-            close($folderhandle);
+         if ($header !~ m/^From /) {
+            # index not consistent with folder content
+            close($folderhandle) or writelog("cannot close file $folderfile");
 
-            writelog("db warning - msg $messageid in $folderfile index inconsistence - ".__FILE__.':'.__LINE__);
-            writehistory("db warning - msg $messageid in $folderfile index inconsistence - ".__FILE__.':'.__LINE__);
+            writelog("db warning - msg $messageid in $folderfile header start does not match db header start - forcing reindex");
+            writehistory("db warning - msg $messageid in $folderfile header start does not match db header start - forcing reindex");
 
-            close($folderhandle);
-            @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
-            ow::dbm::close(\%FDB, $folderdb);
+            @FDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
+
+            ow::dbm::closedb(\%FDB, $folderdb) or writelog("cannot close db $folderdb");
 
             # forced reindex since metainfo = ERR
             update_folderindex($folderfile, $folderdb);
-            return -3;
+
+            return -4;
          }
-         last if ($attr[$_STATUS] eq $status);
+
+         last if $attr[$_STATUS] eq $status;
 
          # update status, flags from rfc2076
-         my $status_update = "";
-         if ($status=~/[RO]/i) {
-            $status_update .= "R" if ($status=~/R/i); # Read
-            $status_update .= "O" if ($status=~/O/i); # Old
+         my $status_update = '';
+
+         if ($status =~ m/[RO]/i) {
+            $status_update .= 'R' if $status =~ m/R/i; # Read
+            $status_update .= 'O' if $status =~ m/O/i; # Old
          } else {
-            $status_update .= "N" if ($status=~/N/i); # New
-            $status_update .= "U" if ($status=~/U/i); # still Undownloaded & Undeleted
+            $status_update .= 'N' if $status =~ m/N/i; # New
+            $status_update .= 'U' if $status =~ m/U/i; # still Undownloaded & Undeleted
          }
-         $status_update .= "D" if ($status=~/D/i); # to be Deleted
-         if ($status_update ne "") {
+
+         $status_update .= 'D' if $status =~ m/D/i;    # to be Deleted
+
+         if ($status_update ne '') {
             if (!($header =~ s/^status:.*\n/Status: $status_update\n/im)) {
                $header .= "Status: $status_update\n";
             }
@@ -697,11 +945,12 @@ sub update_message_status {
          }
 
 	 # update x-status
-         $status_update = "";
-         $status_update .= "A" if ($status=~/A/i); # Answered
-         $status_update .= "I" if ($status=~/I/i); # Important
-         $status_update .= "D" if ($status=~/D/i); # to be Deleted
-         if ($status_update ne "") {
+         $status_update = '';
+         $status_update .= 'A' if $status =~ m/A/i; # Answered
+         $status_update .= 'I' if $status =~ m/I/i; # Important
+         $status_update .= 'D' if $status =~ m/D/i; # to be Deleted
+
+         if ($status_update ne '') {
             if (!($header =~ s/^x-status:.*\n/X-Status: $status_update\n/im)) {
                $header .= "X-Status: $status_update\n";
             }
@@ -709,13 +958,13 @@ sub update_message_status {
             $header =~ s/^x-status:.*\n//im;
          }
 
-         my $newheaderlen=length($header);
-         $movement=ow::tool::untaint($newheaderlen-$headerlen);
+         my $newheaderlen = length($header);
+         $movement = ow::tool::untaint($newheaderlen - $headerlen);
 
-         my $foldersize=(stat($folderhandle))[7];
-         if (shiftblock($folderhandle, $headerend, $foldersize-$headerend, $movement)<0) {
-            writelog("data error - msg $messageids[$i] in $folderfile shiftblock failed");
-            writehistory("data error - msg $messageids[$i] in $folderfile shiftblock failed");
+         my $foldersize = (stat($folderhandle))[7];
+         if (shiftblock($folderhandle, $headerend, $foldersize - $headerend, $movement) < 0) {
+            writelog("data error - message $messageids[$i] in $folderfile shiftblock failed");
+            writehistory("data error - message $messageids[$i] in $folderfile shiftblock failed");
             $ioerr++;
          }
 
@@ -725,538 +974,716 @@ sub update_message_status {
          }
 
          if (!$ioerr) {
-            truncate($folderhandle, ow::tool::untaint($foldersize+$movement)) or writelog("truncate failed??");
-            if ($status=~/Z/i) {
-               $FDB{'ZAPSIZE'}+=$movement;
+            truncate($folderhandle, ow::tool::untaint($foldersize + $movement)) or
+               writelog("truncate failed on folder $folderfile");
+
+            if ($status =~ m/Z/i) {
+               $FDB{ZAPSIZE} += $movement;
             } elsif (is_internal_subject($attr[$_SUBJECT])) {
-               $FDB{'INTERNALSIZE'}+=$movement;
-            } else {	# okay, this is a nozapped, noninternal msg
+               $FDB{INTERNALSIZE} += $movement;
+            } else {
+               # okay, this is a nozapped, noninternal message
                # set attributes in folderdb for this status changed message
-               if ($attr[$_STATUS] !~ m/R/i && $status=~/R/i) {
-                  $FDB{'NEWMESSAGES'}--;
-                  $FDB{'NEWMESSAGES'}=0 if ($FDB{'NEWMESSAGES'}<0); # should not happen
-               } elsif ($attr[$_STATUS]=~/R/i && $status !~ m/R/i) {
-                  $FDB{'NEWMESSAGES'}++;
+               if ($attr[$_STATUS] !~ m/R/i && $status =~ m/R/i) {
+                  $FDB{NEWMESSAGES}--;
+                  $FDB{NEWMESSAGES} = 0 if $FDB{NEWMESSAGES} < 0;
+               } elsif ($attr[$_STATUS] =~ m/R/i && $status !~ m/R/i) {
+                  $FDB{NEWMESSAGES}++;
                }
             }
-            $attr[$_SIZE]+=$movement;
-            $attr[$_STATUS]=$status;
-            $attr[$_HEADERCHKSUM]=ow::tool::calc_checksum(\$header);
-            $attr[$_HEADERSIZE]=$newheaderlen;
-            $FDB{$messageid}=msgattr2string(@attr);
+
+            $attr[$_SIZE]        += $movement;
+            $attr[$_STATUS]       = $status;
+            $attr[$_HEADERCHKSUM] = ow::tool::calc_checksum(\$header);
+            $attr[$_HEADERSIZE]   = $newheaderlen;
+            $FDB{$messageid}      = msgattr2string(@attr);
          }
 
          last;
       }
    }
-   close($folderhandle);
 
-   writelog("db warning - msg $messageid in $folderfile index missing") if ($i>$#messageids);
+   close($folderhandle) or writelog("cannot close file $folderfile");
 
-   $i++;
+   writelog("db warning - message $messageid in $folderfile index missing") if $i > $#messageids;
 
    # if size of this message is changed
-   if ($movement!=0 && !$ioerr) {
-      #  change offset attr for messages after the above one
-      for (;$i<=$#messageids; $i++) {
-         @attr=string2msgattr( $FDB{$messageids[$i]} );
-         $attr[$_OFFSET]+=$movement;
-         $FDB{$messageids[$i]}=msgattr2string(@attr);
+   if ($movement != 0 && !$ioerr) {
+      # change offset attr for messages after the above one
+      for ($i = $i + 1; $i <= $#messageids; $i++) {
+         @attr = string2msgattr($FDB{$messageids[$i]});
+         $attr[$_OFFSET] += $movement;
+         $FDB{$messageids[$i]} = msgattr2string(@attr);
       }
    }
 
    # update folder metainfo
-   $FDB{'METAINFO'}=ow::tool::metainfo($folderfile) if (!$ioerr);
+   $FDB{METAINFO} = ow::tool::metainfo($folderfile) unless $ioerr;
 
-   ow::dbm::close(\%FDB, $folderdb);
+   ow::dbm::closedb(\%FDB, $folderdb) or writelog("cannot close db $folderdb");
 
-   if (!$ioerr) {
-      return 0;
-   } else {
-      return -3;
-   }
+   return ($ioerr ? -5 : 0);
 }
-########## END UPDATE_MESSAGE_STATUS #############################
 
-########## OP_MESSAGE_WITH_IDS ###################################
-# operate messages with @messageids from src folderfile to dst folderfile
-# available $op: "move", "copy", "delete"
 sub operate_message_with_ids {
+   # operate messages with @messageids from src folderfile to dst folderfile
+   # available $op: "move", "copy", "delete"
+
+   #  0: no message ids to process
+   # -1: cannot update db
+   # -2: cannot open source file
+   # -3: cannot open source db
+   # -4: cannot update destination index db
+   # -5: cannot open destination file
+   # -6: cannot open destination db
+   # -7: message $messageid in $srcfile index inconsistence
+   # -8: cannot write to destination
+
    my ($op, $r_messageids, $srcfile, $srcdb, $dstfile, $dstdb) = @_;
 
-   my (%FDB, %FDB2);
+   openwebmailerror(gettext('Invalid message operation:') . " ($op)")
+     if $op ne 'move' && $op ne 'copy' && $op ne 'delete';
 
-   my $opendst = 0;
+   return 0 if (defined $srcfile && defined $dstfile && $srcfile eq $dstfile) || scalar @{$r_messageids} == 0;
 
-   return (0, '') if ($srcfile eq $dstfile || $#{$r_messageids} < 0);
-   return (-1, $lang_err{inv_msg_op}) if ($op ne "move" && $op ne "copy" && $op ne "delete");
+   my %SRCDB = ();
+   my %DSTDB = ();
 
    if (update_folderindex($srcfile, $srcdb) < 0) {
-      writelog("db error - Couldn't update index db $srcdb");
-      writehistory("db error - Couldn't update index db $srcdb");
-      return (-1, "$lang_err{couldnt_updatedb} $srcdb");
+      writelog("db error - cannot update index db $srcdb");
+      return -1;
    }
 
-   my $srchandle = FileHandle->new();
-   return (-2, "$lang_err{couldnt_read} $srcfile ($!)") if (!sysopen($srchandle, $srcfile, O_RDONLY));
-   return (-1, "$lang_err{couldnt_read} $srcdb") if (!ow::dbm::open(\%FDB, $srcdb, LOCK_EX));
+   my $srchandle = do { no warnings 'once'; local *FH };
 
-   my $dsthandle = FileHandle->new();
+   if (!sysopen($srchandle, $srcfile, O_RDONLY)) {
+      writelog("cannot open source file $srcfile ($!)");
+      return -2;
+   }
+
+   if (!ow::dbm::opendb(\%SRCDB, $srcdb, LOCK_EX)) {
+      writelog("cannot open source db $srcdb ($!)");
+      return -3;
+   }
+
+   my $dsthandle = do { no warnings 'once'; local *FH };
    my $dstlength = 0;
    my $readlen   = 0;
-   if ($op eq "move" || $op eq "copy") {
+
+   if ($op eq 'move' || $op eq 'copy') {
       if (update_folderindex($dstfile, $dstdb) < 0) {
-         ow::dbm::close(\%FDB, $srcdb);
-         close($srchandle);
-         writelog("db error - Couldn't update index db $dstdb");
-         writehistory("db error - Couldn't update index db $dstdb");
-         return (-1, "$lang_err{couldnt_updatedb} $dstdb");
+         ow::dbm::closedb(\%SRCDB, $srcdb) or writelog("cannot close db $srcdb");
+
+         close($srchandle) or writelog("cannot close file $srcfile");
+
+         writelog("db error - cannot update index db $dstdb");
+
+         return -4;
       }
 
       if (!sysopen($dsthandle, $dstfile, O_WRONLY|O_APPEND|O_CREAT)) {
-         my $errmsg = $!;
-         ow::dbm::close(\%FDB, $srcdb);
-         close($srchandle);
-         return (-2, "$lang_err{couldnt_write} $dstfile ($errmsg)");
+         writelog("cannot open destination file $dstfile ($!)");
+
+         ow::dbm::closedb(\%SRCDB, $srcdb) or writelog("cannot close db $srcdb");
+
+         close($srchandle) or writelog("cannot close file $srcfile");
+
+         return -5;
       }
 
       $dstlength = (stat($dsthandle))[7];
 
-      # since setvbuf is only available before perl 5.8.0, we put this inside eval
-      # see Programming Perl third edition Chapter 32
-      eval {
-         my $_dstvbuf;
-         $dsthandle->setvbuf($_dstvbuf, _IOFBF,  $BUFF_blocksize)
-      };
+      if (!ow::dbm::opendb(\%DSTDB,$dstdb, LOCK_EX)) {
+         writelog("db error - cannot open db $dstdb");
 
-      if (!ow::dbm::open(\%FDB2,$dstdb, LOCK_EX)) {
-         close($dsthandle);
-         ow::dbm::close(\%FDB, $srcdb);
-         close($srchandle);
-         writelog("db error - Couldn't open index db $dstdb");
-         writehistory("db error - Couldn't open index db $dstdb");
-         return (-1, "$lang_err{'couldnt_write'} $dstdb");
+         close($dsthandle) or writelog("cannot close file $dstfile");
+
+         ow::dbm::closedb(\%SRCDB, $srcdb) or writelog("cannot close db $srcdb");
+
+         close($srchandle) or writelog("cannot close file $srcfile");
+
+         return -6;
       }
-      $opendst = 1;
    }
 
-   my $counted=0;
+   my $counted = 0;
+
    foreach my $messageid (@{$r_messageids}) {
-      next if (!defined $FDB{$messageid});
+      next unless defined $SRCDB{$messageid};
 
-      my @attr = string2msgattr($FDB{$messageid});
+      my @attr = string2msgattr($SRCDB{$messageid});
 
-      if (!is_msgattr_consistent_with_folder(\@attr, $srchandle)) { # index not consistent with folder content
-         writelog("db warning - msg $messageid in $srcfile index inconsistence - " . __FILE__ . ':' . __LINE__);
-         writehistory("db warning - msg $messageid in $srcfile index inconsistence - " . __FILE__ . ':' . __LINE__);
+      if (!is_msgattr_consistent_with_folder(\@attr, $srchandle)) {
+         # index is not consistent with folder content
+         writelog("db warning - message $messageid in $srcfile index inconsistence");
 
-         close($srchandle);
-         @FDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
-         ow::dbm::close(\%FDB, $srcdb);
+         close($srchandle) or writelog("cannot close file $srcfile");
+
+         @SRCDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
+
+         ow::dbm::closedb(\%SRCDB, $srcdb) or writelog("cannot close db $srcdb");
 
          # forced reindex since metainfo = ERR
          update_folderindex($srcfile, $srcdb);
 
-         if ($opendst) {
-            close($dsthandle);
-            @FDB2{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
-            ow::dbm::close(\%FDB2,$dstdb);
-            update_folderindex($dsthandle, $dstdb); # ensure msg cp/mv to dst are correctly indexed
+         if ($op eq 'move' || $op eq 'copy') {
+            close($dsthandle) or writelog("cannot close file $dstfile");
+
+            @DSTDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
+
+            ow::dbm::closedb(\%DSTDB,$dstdb) or writelog("cannot close db $dstdb");
+
+            # ensure other messages cp/mv to dst are correctly indexed
+            update_folderindex($dsthandle, $dstdb) if $counted;
          }
-         return (-3, "msg $messageid in $srcfile index inconsistence");
+
+         return -7;
       }
 
       $counted++;
 
-      # append msg to dst folder only if op=move/copy and msg doesn't exist in dstfile
-      if ($opendst) {
-         if (defined $FDB2{$messageid}) {
-            _mark_duplicated_messageid(\%FDB2, $messageid, $attr[$_SIZE]);
-         }
-         if (!defined $FDB2{$messageid}) { # cp message from $srchandle to $dsthandle
-            # since @attr will be used for FDB2 temporarily and $attr[$_OFFSET] will be modified
+      # append message to dst folder only if op=move/copy and message does not exist in dstfile
+      if ($op eq 'move' || $op eq 'copy') {
+         _mark_duplicated_messageid(\%DSTDB, $messageid, $attr[$_SIZE]) if defined $DSTDB{$messageid};
+
+         if (!defined $DSTDB{$messageid}) {
+            # cp message from $srchandle to $dsthandle
+            # since @attr will be used for DSTDB temporarily and $attr[$_OFFSET] will be modified
             # we save it in $srcoffset and copy it back after write of dst folder
             my $srcoffset = $attr[$_OFFSET];
+
             seek($srchandle, $srcoffset, 0);
 
-            my $left=$attr[$_SIZE];
-            my $buff='';
-            while ($left>0) {
-               my $dstioerr=0;
-               if ($left>$BUFF_blocksize) {
+            my $buff = '';
+            my $left = $attr[$_SIZE];
+
+            while ($left > 0) {
+               my $dstioerr = 0;
+
+               if ($left > $BUFF_blocksize) {
                   read($srchandle, $buff,  $BUFF_blocksize);
                } else {
                   read($srchandle, $buff, $left);
                }
-               print $dsthandle $buff or $dstioerr=1;
+
+               print $dsthandle $buff or $dstioerr = 1;
 
                if ($dstioerr) {
-                  writelog("data error - Couldn't write $dstfile, $!");
-                  close($srchandle);
-                  ow::dbm::close(\%FDB, $srcdb);
-                  truncate($dsthandle, ow::tool::untaint($dstlength));	# cut at last successful write
-                  close($dsthandle);
-                  @FDB2{'METAINFO', 'LSTMTIME'}=('ERR', -1);
-                  ow::dbm::close(\%FDB2, $dstdb);
-                  return (-3, "$lang_err{'couldnt_write'} $dstfile");;
+                  writelog("data error - cannot write $dstfile ($!)");
+
+                  close($srchandle) or writelog("cannot close file $srcfile");
+
+                  ow::dbm::closedb(\%SRCDB, $srcdb) or writelog("cannot close db $srcdb");
+
+                  # cut at last successful write
+                  truncate($dsthandle, ow::tool::untaint($dstlength));
+
+                  close($dsthandle) or writelog("cannot close file $dstfile");
+
+                  @DSTDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
+
+                  ow::dbm::closedb(\%DSTDB, $dstdb) or writelog("cannot close db $dstdb");
+
+                  return -8;
                }
 
-               $left-=$BUFF_blocksize;
+               $left -= $BUFF_blocksize;
             }
 
-            $FDB2{'ALLMESSAGES'}++;
-            if ($attr[$_STATUS]=~/Z/i) {
-               $FDB2{'ZAPMESSAGES'}++; $FDB2{'ZAPSIZE'}+=$attr[$_SIZE];
+            $DSTDB{ALLMESSAGES}++;
+
+            if ($attr[$_STATUS] =~ m/Z/i) {
+               $DSTDB{ZAPMESSAGES}++;
+               $DSTDB{ZAPSIZE} += $attr[$_SIZE];
             } elsif (is_internal_subject($attr[$_SUBJECT])) {
-               $FDB2{'INTERNALMESSAGES'}++; $FDB2{'INTERNALSIZE'}+=$attr[$_SIZE];
+               $DSTDB{INTERNALMESSAGES}++;
+               $DSTDB{INTERNALSIZE} += $attr[$_SIZE];
             } elsif ($attr[$_STATUS] !~ m/R/i) {
-               $FDB2{'NEWMESSAGES'}++;
+               $DSTDB{NEWMESSAGES}++;
             }
-            $attr[$_OFFSET]=$dstlength;
-            $dstlength+=$attr[$_SIZE];
-            $FDB2{$messageid}=msgattr2string(@attr);
-            $attr[$_OFFSET]=$srcoffset;
+
+            $attr[$_OFFSET] = $dstlength;
+            $dstlength += $attr[$_SIZE];
+            $DSTDB{$messageid} = msgattr2string(@attr);
+            $attr[$_OFFSET] = $srcoffset;
          }
       }
 
       if (($op eq 'move' || $op eq 'delete') && $attr[$_STATUS] !~ m/Z/i) {
-         $attr[$_STATUS].='Z';	# to be zapped in the future
-         $FDB{'ZAPMESSAGES'}++; $FDB{'ZAPSIZE'}+=$attr[$_SIZE];
+         $attr[$_STATUS] .= 'Z'; # to be zapped in the future
+
+         $SRCDB{ZAPMESSAGES}++;
+         $SRCDB{ZAPSIZE} += $attr[$_SIZE];
+
          if (is_internal_subject($attr[$_SUBJECT])) {
-            $FDB{'INTERNALMESSAGES'}--; $FDB{'INTERNALSIZE'}-=$attr[$_SIZE];
+            $SRCDB{INTERNALMESSAGES}--;
+            $SRCDB{INTERNALSIZE} -= $attr[$_SIZE];
          } elsif ($attr[$_STATUS] !~ m/R/i) {
-            $FDB{'NEWMESSAGES'}--;
+            $SRCDB{NEWMESSAGES}--;
          }
-         $FDB{$messageid}=msgattr2string(@attr);	# $attr[$_OFFSET] is used here
+
+         $SRCDB{$messageid} = msgattr2string(@attr); # $attr[$_OFFSET] is used here
       }
    }
 
-   if ($opendst) {
-      close($dsthandle);
-      $FDB2{'METAINFO'}=ow::tool::metainfo($dstfile);
-      $FDB2{'LSTMTIME'}=time();
-      ow::dbm::close(\%FDB2, $dstdb);
-   }
-   close($srchandle);
-   ow::dbm::close(\%FDB, $srcdb);
+   if ($op eq 'move' || $op eq 'copy') {
+      close($dsthandle) or writelog("cannot close file $dstfile");
 
-   return($counted, '');
+      $DSTDB{METAINFO} = ow::tool::metainfo($dstfile);
+      $DSTDB{LSTMTIME} = time();
+
+      ow::dbm::closedb(\%DSTDB, $dstdb) or writelog("cannot close db $dstdb");
+   }
+
+   close($srchandle) or writelog("cannot close file $srcfile");
+
+   ow::dbm::closedb(\%SRCDB, $srcdb) or writelog("cannot close db $srcdb");
+
+   return $counted;
 }
 
 sub append_message_to_folder {
-   my ($messageid, $r_attr, $r_message, $dstfile, $dstdb)=@_;
-   my @attr=@{$r_attr};
-   my %FDB;
-   my $ioerr=0;
+   #  0: no errors
+   # -1: cannot update index db
+   # -2: cannot open db
+   # -3: cannot open dstfile
+   # -4: cannot close db
+   # -5: io error printing to dstfile
+   my ($messageid, $r_attr, $r_message, $dstfile, $dstdb) = @_;
 
-   if (update_folderindex($dstfile, $dstdb)<0) {
-      ow::filelock::lock($dstfile, LOCK_UN);
-      writelog("db error - Couldn't update index db $dstdb");
-      writehistory("db error - Couldn't update index db $dstdb");
-      return(-2, "Couldn't update index db $dstdb");
+   my %FDB   = ();
+   my @attr  = @{$r_attr};
+   my $ioerr = 0;
+
+   if (update_folderindex($dstfile, $dstdb) < 0) {
+      writelog("cannot update index db $dstdb");
+      ow::filelock::lock($dstfile, LOCK_UN) or writelog("cannot unlock file $dstfile");
+      return -1;
    }
 
-   ow::dbm::open(\%FDB, $dstdb, LOCK_EX) or return(-1, "$dstdb dbm open error");
-   if (defined $FDB{$messageid}) {
-      _mark_duplicated_messageid(\%FDB, $messageid, $attr[$_SIZE]);
+   if (!ow::dbm::opendb(\%FDB, $dstdb, LOCK_EX)) {
+      writelog("cannot open db $dstdb");
+      return -2;
    }
-   if (!defined $FDB{$messageid}) {	# append only if not found in dstfile
-      if (! sysopen(DEST, $dstfile, O_RDWR)) {
-         ow::dbm::close(\%FDB, $dstdb);
-         return(-1, "$dstfile write open error");
+
+   _mark_duplicated_messageid(\%FDB, $messageid, $attr[$_SIZE]) if defined $FDB{$messageid};
+
+   if (!defined $FDB{$messageid}) {
+      # append only if not found in dstfile
+      if (!sysopen(DEST, $dstfile, O_RDWR)) {
+         writelog("cannot open file $dstfile ($!)");
+         ow::dbm::closedb(\%FDB, $dstdb) or writelog("cannot close db $dstdb");
+         return -3;
       }
-      $attr[$_OFFSET]=(stat(DEST))[7];
+
+      $attr[$_OFFSET] = (stat(DEST))[7];
+
       seek(DEST, $attr[$_OFFSET], 0);
-      $attr[$_SIZE]=length(${$r_message});
+
+      $attr[$_SIZE] = length(${$r_message});
+
       print DEST ${$r_message} or $ioerr++;
-      close(DEST);
+
+      close(DEST) or writelog("cannot close file $dstfile");
 
       if (!$ioerr) {
-         $FDB{$messageid}=msgattr2string(@attr);
+         $FDB{$messageid} = msgattr2string(@attr);
+
          if (is_internal_subject($attr[$_SUBJECT])) {
-            $FDB{'INTERNALMESSAGES'}++; $FDB{'INTERNALSIZE'}+=$attr[$_SIZE];
-         } elsif ($attr[$_STATUS]!~/R/i) {
-            $FDB{'NEWMESSAGES'}++;
+            $FDB{INTERNALMESSAGES}++;
+            $FDB{INTERNALSIZE} += $attr[$_SIZE];
+         } elsif ($attr[$_STATUS] !~ m/R/i) {
+            $FDB{NEWMESSAGES}++;
          }
-         $FDB{'ALLMESSAGES'}++;
-         $FDB{'METAINFO'}=ow::tool::metainfo($dstfile);
-         $FDB{'LSTMTIME'}=time();
+
+         $FDB{ALLMESSAGES}++;
+         $FDB{METAINFO} = ow::tool::metainfo($dstfile);
+         $FDB{LSTMTIME} = time();
       }
    }
-   ow::dbm::close(\%FDB, $dstdb);
-   return(-3, "$dstfile write error") if ($ioerr);
+
+   if (!ow::dbm::closedb(\%FDB, $dstdb)) {
+      writelog("cannot close db $dstdb");
+      return -4;
+   }
+
+   if ($ioerr) {
+      writelog("io error printing to file $dstfile");
+      return -5;
+   }
+
    return 0;
 }
 
 sub _mark_duplicated_messageid {
-   my ($r_FDB, $messageid, $newmsgsize)=@_;
-   my @attr=string2msgattr( ${$r_FDB}{$messageid} );
-   if ($attr[$_SIZE] eq $newmsgsize) {	# skip because new msg is same size as existing one
-      if ($attr[$_STATUS] =~ s/Z//ig) {	# undelete if the one in dest is zapped
-         ${$r_FDB}{$messageid}=msgattr2string(@attr);
-         ${$r_FDB}{'ZAPMESSAGES'}--; ${$r_FDB}{'ZAPSIZE'}-=$attr[$_SIZE];
+   my ($r_FDB, $messageid, $newmsgsize) = @_;
+
+   my @attr = string2msgattr($r_FDB->{$messageid});
+
+   if ($attr[$_SIZE] eq $newmsgsize) {
+      # skip because new message is same size as existing one
+      if ($attr[$_STATUS] =~ s/Z//ig) {
+         # undelete if the one in dest is zapped
+         $r_FDB->{$messageid} = msgattr2string(@attr);
+         $r_FDB->{ZAPMESSAGES}--;
+         $r_FDB->{ZAPSIZE} -= $attr[$_SIZE];
+
          if (is_internal_subject($attr[$_SUBJECT])) {
-            ${$r_FDB}{'INTERNALMESSAGES'}++; ${$r_FDB}{'INTERNALSIZE'}+=$attr[$_SIZE];
-         } elsif ($attr[$_STATUS]!~m/R/i) {
-            ${$r_FDB}{'NEWMESSAGES'}++;
+            $r_FDB->{INTERNALMESSAGES}++;
+            $r_FDB->{INTERNALSIZE} += $attr[$_SIZE];
+         } elsif ($attr[$_STATUS] !~ m/R/i) {
+            $r_FDB->{NEWMESSAGES}++;
          }
       }
    } else {
-      if ($attr[$_STATUS] !~ m/Z/i) {		# mark old duplicated one as zap
-         $attr[$_STATUS].='Z';
-         ${$r_FDB}{'ZAPMESSAGES'}++; ${$r_FDB}{'ZAPSIZE'}+=$attr[$_SIZE];
+      if ($attr[$_STATUS] !~ m/Z/i) {
+         # mark old duplicated one as zap
+         $attr[$_STATUS] .= 'Z';
+         $r_FDB->{ZAPMESSAGES}++;
+         $r_FDB->{ZAPSIZE} += $attr[$_SIZE];
+
          if (is_internal_subject($attr[$_SUBJECT])) {
-            ${$r_FDB}{'INTERNALMESSAGES'}--; ${$r_FDB}{'INTERNALSIZE'}-=$attr[$_SIZE];
-         } elsif ($attr[$_STATUS]!~m/R/i) {
-            ${$r_FDB}{'NEWMESSAGES'}--;
+            $r_FDB->{INTERNALMESSAGES}--;
+            $r_FDB->{INTERNALSIZE} -= $attr[$_SIZE];
+         } elsif ($attr[$_STATUS] !~ m/R/i) {
+            $r_FDB->{NEWMESSAGES}--;
          }
       }
-      ${$r_FDB}{"DUP$attr[$_OFFSET]-$messageid"}=msgattr2string(@attr);
-      delete ${$r_FDB}{$messageid};
+
+      $r_FDB->{"DUP$attr[$_OFFSET]-$messageid"} = msgattr2string(@attr); # NOT a subtraction, but a dash
+
+      delete $r_FDB->{$messageid};
    }
+
    return;
 }
 
 sub folder_zapmessages {
-   my ($srcfile, $srcdb)=@_;
-   my %FDB;
-   my $ioerr=0;
+   # returns number of zapped messages, or else error code
+   # -1: cannot update index db srcdb
+   # -2: cannot open db srcdb
+   # -3: cannot close db srcdb
+   # -4: cannot open file srcfile
+   # -5: index inconsistence
+   # -6: io error shiftblock failed
+   my ($srcfile, $srcdb) = @_;
 
-   if (update_folderindex($srcfile, $srcdb)<0) {
-      writelog("db error - Couldn't update index db $srcdb");
-      writehistory("db error - Couldn't update index db $srcdb");
-      return -2;
-   }
+   my %FDB   = ();
+   my $ioerr = 0;
 
-   return -1 if ( !ow::dbm::open(\%FDB, $srcdb, LOCK_SH) );
-   my $zapsize=$FDB{'ZAPSIZE'};
-   ow::dbm::close(\%FDB, $srcdb);
-   return 0 if ($zapsize==0);	# no zap messages in folder
-
-   my $folderhandle=FileHandle->new();
-   return -3 if (!sysopen($folderhandle, $srcfile, O_RDWR));
-   # since setvbuf is only available before perl 5.8.0, we put this inside eval
-   eval { my $_vbuf; $folderhandle->setvbuf($_vbuf, _IOFBF, $BUFF_blocksize) };
-
-   if ( !ow::dbm::open(\%FDB, $srcdb, LOCK_EX) ) {
-      close($folderhandle);
+   if (update_folderindex($srcfile, $srcdb) < 0) {
+      writelog("db error - cannot update index db $srcdb");
+      writehistory("db error - cannot update index db $srcdb");
       return -1;
    }
 
-   my @allmessageids=get_messageids_sorted_by_offset_db(\%FDB);
-
-   my ($blockstart, $blockend, $writepointer);
-   my $counted=0;
-
-   $blockstart=$blockend=$writepointer=0;
-
-   for (my $i=0; $i<=$#allmessageids; $i++) {
-      my $messageid=$allmessageids[$i];
-      my @attr=string2msgattr( $FDB{$messageid} );
-
-      if (!is_msgattr_consistent_with_folder(\@attr, $folderhandle)) {	# index not consistent with folder content
-         writelog("db warning - msg $messageid in $srcfile index inconsistence - ".__FILE__.':'.__LINE__);
-         writehistory("db warning - msg $messageid in $srcfile index inconsistence - ".__FILE__.':'.__LINE__);
-         @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
-         ow::dbm::close(\%FDB, $srcdb);
-         close($folderhandle);
-
-         return -10;
-      }
-
-      my $nextstart=ow::tool::untaint($attr[$_OFFSET]+$attr[$_SIZE]);
-      if ( $attr[$_STATUS]=~/Z/i ) {
-         $counted++;
-         if ( shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart)<0 ) {
-            writelog("data error - msg $messageid in $srcfile shiftblock failed, $!");
-            writehistory("data error - msg $messageid in $srcfile shiftblock failed, $!");
-            $ioerr++;
-         } else {
-            $writepointer=$writepointer+($blockend-$blockstart);
-            $blockstart=$blockend=$nextstart;
-         }
-         if (!$ioerr) {
-            $FDB{'ALLMESSAGES'}--;
-            $FDB{'ZAPMESSAGES'}--; $FDB{'ZAPSIZE'}-=$attr[$_SIZE];
-            delete $FDB{$messageid};
-         }
-
-      } else {						# msg to be kept in same folder
-         $blockend=$nextstart;
-         my $movement=$writepointer-$blockstart;
-         if ($movement<0) {
-            $attr[$_OFFSET]+=$movement;
-            $FDB{$messageid}=msgattr2string(@attr);
-         }
-      }
-
-      last if ($ioerr);
+   if(!ow::dbm::opendb(\%FDB, $srcdb, LOCK_SH)) {
+      writelog("cannot open db $srcdb");
+      return -2;
    }
 
-   if ($counted>0 && !$ioerr) {
-      if (shiftblock($folderhandle, $blockstart, $blockend-$blockstart, $writepointer-$blockstart)<0) {
-         writelog("data error - msgs in $srcfile shiftblock failed, $!");
-         writehistory("data error - msgs in $srcfile shiftblock failed, $!");
+   if($FDB{ZAPSIZE} == 0) {
+      # no messages to zap in folder
+      if (!ow::dbm::closedb(\%FDB, $srcdb)) {
+         writelog("cannot close db $srcdb");
+         return -3;
+      }
+
+      return 0;
+   }
+
+   my $folderhandle = do { no warnings 'once'; local *FH };
+
+   if (!sysopen($folderhandle, $srcfile, O_RDWR)) {
+      writelog("cannot open file $srcfile");
+      ow::dbm::closedb(\%FDB, $srcdb) or writelog("cannot close db $srcdb");
+      return -4;
+   }
+
+   my @allmessageids = get_messageids_sorted_by_offset_db(\%FDB);
+
+   my $blockstart   = 0;
+   my $blockend     = 0;
+   my $writepointer = 0;
+   my $counted      = 0;
+
+   for (my $i = 0; $i <= $#allmessageids; $i++) {
+      my $messageid = $allmessageids[$i];
+
+      my @attr = string2msgattr($FDB{$messageid});
+
+      if (!is_msgattr_consistent_with_folder(\@attr, $folderhandle)) {
+         # index not consistent with folder content
+         writelog("db warning - message $messageid in $srcfile index inconsistence");
+         writehistory("db warning - message $messageid in $srcfile index inconsistence");
+
+         @FDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
+
+         ow::dbm::closedb(\%FDB, $srcdb) or writelog("cannot close db $srcdb");
+
+         close($folderhandle) or writelog("cannot close file $srcfile");
+
+         return -5;
+      }
+
+      my $nextstart = ow::tool::untaint($attr[$_OFFSET] + $attr[$_SIZE]);
+
+      if ($attr[$_STATUS] =~ m/Z/i) {
+         $counted++;
+
+         if (shiftblock($folderhandle, $blockstart, $blockend - $blockstart, $writepointer - $blockstart) < 0) {
+            writelog("data error - message $messageid in $srcfile shiftblock failed ($!)");
+            writehistory("data error - message $messageid in $srcfile shiftblock failed ($!)");
+            $ioerr++;
+         } else {
+            $writepointer = $writepointer + ($blockend - $blockstart);
+            $blockstart = $blockend = $nextstart;
+         }
+
+         if (!$ioerr) {
+            $FDB{ALLMESSAGES}--;
+            $FDB{ZAPMESSAGES}--;
+            $FDB{ZAPSIZE} -= $attr[$_SIZE];
+            delete $FDB{$messageid};
+         }
+      } else {
+         # message to be kept in same folder
+         $blockend = $nextstart;
+         my $movement = $writepointer - $blockstart;
+
+         if ($movement < 0) {
+            $attr[$_OFFSET] += $movement;
+            $FDB{$messageid} = msgattr2string(@attr);
+         }
+      }
+
+      last if $ioerr;
+   }
+
+   if ($counted > 0 && !$ioerr) {
+      if (shiftblock($folderhandle, $blockstart, $blockend - $blockstart, $writepointer - $blockstart) < 0) {
+         writelog("data error - messages in $srcfile shiftblock failed ($!)");
+         writehistory("data error - messages in $srcfile shiftblock failed ($!)");
          $ioerr++;
       } else {
          truncate($folderhandle, ow::tool::untaint($writepointer+$blockend-$blockstart));
       }
    }
 
-   close($folderhandle);
+   close($folderhandle) or writelog("cannot close file $srcfile");
 
    if (!$ioerr) {
       foreach (qw(ALLMESSAGES NEWMESSAGES INTERNALMESSAGES INTERNALSIZE ZAPMESSAGES ZAPSIZE)) {
-         $FDB{$_}=0 if $FDB{$_}<0;	# should not happen
+         $FDB{$_} = 0 if $FDB{$_} < 0; # should not happen
       }
-      $FDB{'METAINFO'}=ow::tool::metainfo($srcfile);
-      $FDB{'LSTMTIME'}=time();
+
+      $FDB{METAINFO} = ow::tool::metainfo($srcfile);
+      $FDB{LSTMTIME} = time();
    } else {
-      @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
+      @FDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
    }
-   ow::dbm::close(\%FDB, $srcdb);
 
-   return -9 if ($ioerr);
-   return($counted);
+   ow::dbm::closedb(\%FDB, $srcdb) or writelog("cannot close db $srcdb");
+
+   return -6 if $ioerr;
+
+   return $counted;
 }
-########## END OP_MESSAGE_WITH_IDS ###############################
 
-########## DELETE_MESSAGE_BY_AGE #################################
-sub delete_message_by_age {	# use receiveddate instead of sentdate for age calculation
-   my ($dayage, $folderdb, $folderfile)=@_;
-   return 0 if ( ! -f $folderfile );
+sub delete_message_by_age {
+   # use receiveddate instead of sentdate for age calculation
+   # -1: cannot open db
+   my ($dayage, $folderdb, $folderfile) = @_;
+   return 0 unless -f $folderfile;
 
-   my (%FDB, $key, $data, @allmessageids, @agedids);
+   my %FDB           = ();
+   my @allmessageids = ();
+   my @agedids       = ();
 
-   if (update_folderindex($folderfile, $folderdb)<0) {
-      ow::filelock::lock($folderfile, LOCK_UN);
-      writelog("db error - Couldn't update index db $folderdb");
-      writehistory("db error - Couldn't update index db $folderdb");
+   if (update_folderindex($folderfile, $folderdb) < 0) {
+      ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile ($!)");
+      writelog("db error - cannot update index db $folderdb");
+      writehistory("db error - cannot update index db $folderdb");
       return 0;
    }
 
-   my $agestarttime=time()-$dayage*86400;
-   ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or return -1;
-   while ( ($key, $data)=each(%FDB) ) {
-      my @attr = string2msgattr( $data );
-      push(@agedids, $key) if (ow::datetime::dateserial2gmtime($attr[$_RECVDATE])<=$agestarttime); # too old
+   my $agestarttime = time() - $dayage * 86400;
+
+   if (!ow::dbm::opendb(\%FDB, $folderdb, LOCK_EX)) {
+      writelog("cannot open db $folderdb");
+      return -1;
    }
-   ow::dbm::close(\%FDB, $folderdb);
 
-   return 0 if ($#agedids==-1);
+   while (my ($key, $data) = each(%FDB)) {
+      my @attr = string2msgattr($data);
+      push(@agedids, $key) if ow::datetime::dateserial2gmtime($attr[$_RECVDATE]) <= $agestarttime; # too old
+   }
 
-   my $deleted=(operate_message_with_ids('delete', \@agedids, $folderfile, $folderdb))[0];
-   my $zapped=folder_zapmessages($folderfile, $folderdb);
+   ow::dbm::closedb(\%FDB, $folderdb) or writelog("cannot close db $folderdb");
 
-   return($zapped) if ($deleted<0);
-   return($deleted);
+   return 0 if scalar @agedids == 0;
+
+   my $deleted = operate_message_with_ids('delete', \@agedids, $folderfile, $folderdb);
+   my $zapped  = folder_zapmessages($folderfile, $folderdb);
+
+   return $zapped if $deleted < 0;
+
+   return $deleted;
 }
-########## END DELETE_MESSAGE_BY_AGE #############################
 
-########## MOVE_OLDMSG_FROM_FOLDER ###############################
 sub move_oldmsg_from_folder {
-   my ($srcfile, $srcdb, $dstfile, $dstdb)=@_;
+   # -1: cannot open db
+   my ($srcfile, $srcdb, $dstfile, $dstdb) = @_;
 
-   my (%FDB, $key, $data, @attr);
-   my @messageids=();
+   my %FDB        = ();
+   my @messageids = ();
 
-   ow::dbm::open(\%FDB, $srcdb, LOCK_SH) or return -1;
+   if (!ow::dbm::opendb(\%FDB, $srcdb, LOCK_SH)) {
+      writelog("cannot open db $srcdb");
+      return -1;
+   }
+
    # if oldmsg == internal msg or 0, then do not read ids
-   my $oldmessages=$FDB{'ALLMESSAGES'}-$FDB{'NEWMESSAGES'}-$FDB{'INTERNALMESSAGES'}-$FDB{'ZAPMESSAGES'};
-   if ( $oldmessages>0 ) {
-      while ( ($key, $data)=each(%FDB) ) {
-         next if ($is_internal_dbkey{$key});
-         @attr=string2msgattr( $data );
-         if ($attr[$_STATUS]!~m/Z/i &&			# not zap
-             !is_internal_subject($attr[$_SUBJECT])) {	# no internal
-            push(@messageids, $key) if ($attr[$_STATUS] =~ m/R/i);	# old msg
-         }
+   my $oldmessages = $FDB{ALLMESSAGES} - $FDB{NEWMESSAGES} - $FDB{INTERNALMESSAGES} - $FDB{ZAPMESSAGES};
+
+   if ($oldmessages > 0) {
+      while (my ($key, $data) = each(%FDB)) {
+         next if $is_internal_dbkey{$key};
+
+         my @attr = string2msgattr($data);
+
+         push(@messageids, $key) if $attr[$_STATUS] =~ m/R/i && $attr[$_STATUS] !~ m/Z/i && !is_internal_subject($attr[$_SUBJECT]);
       }
    }
-   ow::dbm::close(\%FDB, $srcdb);
+
+   ow::dbm::closedb(\%FDB, $srcdb) or writelog("cannot close db $srcdb");
 
    # no old msg found
-   return 0 if ($#messageids==-1);
+   return 0 if scalar @messageids == 0;
 
-   my $moved=(operate_message_with_ids('move', \@messageids, $srcfile, $srcdb, $dstfile, $dstdb))[0];
-   my $zapped=folder_zapmessages($srcfile, $srcdb);
+   my $moved  = operate_message_with_ids('move', \@messageids, $srcfile, $srcdb, $dstfile, $dstdb);
+   my $zapped = folder_zapmessages($srcfile, $srcdb);
 
-   return($zapped) if ($moved<0);
-   return($moved);
+   return $zapped if $moved < 0;
+
+   return $moved;
 }
-########## END MOVE_OLDMSG_FROM_FOLDER ###########################
 
-########## REBUILD_MESSAGE_WITH_PARTIALID ########################
-# rebuild orig msg with partial msgs in the same folder
 sub rebuild_message_with_partialid {
-   my ($folderfile, $folderdb, $partialid)=@_;
+   # rebuild original message with partial messages in the same folder
+   #  -1: cannot update index db
+   #  -2: cannot open db folderdb
+   #  -3: rebuild partial message failed - last part not found
+   #  -4: rebuild partial message part $i missing
+   #  -5: cannot make tempdir $tmpdir
+   #  -6: cannot lock tmpfile $tmpfile
+   #  -7: cannot open file $tmpfile
+   #  -8: cannot open file $foldefile
+   #  -9: cannot update index db $tmpdb
+   # -10: incorrect count of rebuild message ids
+   # -11: rebuild message size does not equal written message size
+   my ($folderfile, $folderdb, $partialid) = @_;
 
-   my (%FDB, $id, $data);
-   my ($partialtotal, @partialmsgids, @offset, @size);
+   my %FDB           = ();
+   my $partialtotal  = 0;
+   my @partialmsgids = ();
+   my @offset        = 0;
+   my @size          = 0;
 
-   if (update_folderindex($folderfile, $folderdb)<0) {
-      ow::filelock::lock($folderfile, LOCK_UN);
-      writelog("db error - Couldn't update index db $folderdb");
-      writehistory("db error - Couldn't update index db $folderdb");
+   if (update_folderindex($folderfile, $folderdb) < 0) {
+      ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot lock file $folderfile");
+      writelog("db error - cannot update index db $folderdb");
+      writehistory("db error - cannot update index db $folderdb");
       return -1;
    }
 
    # find all partial msgids
-   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or return -2;
+   if (!ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH)) {
+      writelog("cannot open db $folderdb");
+      return -2;
+   }
 
-   while ( ($id,$data)=each(%FDB) ) {
-      next if ($is_internal_dbkey{$id});
-      my @attr=string2msgattr($data);
-      next if ($attr[$_CONTENT_TYPE] !~ m/^message\/partial/i );
+   while (my ($id,$data) = each(%FDB)) {
+      next if exists $is_internal_dbkey{$id} && $is_internal_dbkey{$id};
 
-      $attr[$_CONTENT_TYPE]=~/;\s*id="(.+?)";?/i;
-      next if ($partialid ne $1);
+      my @attr = string2msgattr($data);
 
-      if ($attr[$_CONTENT_TYPE]=~/;\s*number="?(.+?)"?;?/i) {
-         my $n=$1;
-         $partialmsgids[$n]=$id;
-         $offset[$n]=$attr[$_OFFSET];
-         $size[$n]=$attr[$_SIZE];
-         $partialtotal=$1 if ($attr[$_CONTENT_TYPE]=~/;\s*total="?(.+?)"?;?/i);
+      next if $attr[$_CONTENT_TYPE] !~ m/^message\/partial/i;
+
+      $attr[$_CONTENT_TYPE] =~ m/;\s*id="(.+?)";?/i;
+
+      next if $partialid ne $1;
+
+      if ($attr[$_CONTENT_TYPE] =~ m/;\s*number="?(.+?)"?;?/i) {
+         my $n = $1;
+         $partialmsgids[$n] = $id;
+         $offset[$n] = $attr[$_OFFSET];
+         $size[$n] = $attr[$_SIZE];
+         $partialtotal = $1 if $attr[$_CONTENT_TYPE] =~ m/;\s*total="?(.+?)"?;?/i;
       }
    }
-   ow::dbm::close(\%FDB, $folderdb);
+
+   ow::dbm::closedb(\%FDB, $folderdb) or writelog("cannot close db $folderdb");
 
    # check completeness
-   if ($partialtotal<1) {	# last part not found
+   if ($partialtotal < 1) {
+      # last part not found
+      writelog("rebuild partial message failed - last part not found");
       return -3;
    }
-   for (my $i=1; $i<=$partialtotal; $i++) {
-      if ($partialmsgids[$i] eq "") {	# some part missing
+
+   for (my $i = 1; $i <= $partialtotal; $i++) {
+      if ($partialmsgids[$i] eq '') {
+         # some part missing
+         writelog("rebuild partial message part $i missing");
          return -4;
       }
    }
 
-   my $tmpdir=ow::tool::mktmpdir("rebuild.tmp"); return -5 if ($tmpdir eq '');
-   my $tmpfile=ow::tool::untaint("$tmpdir/folder");
-   my $tmpdb=ow::tool::untaint("$tmpdir/db");
+   my $tmpdir = ow::tool::mktmpdir("rebuild.tmp");
+   if ($tmpdir eq '') {
+      writelog("cannot make tempdir $tmpdir");
+      return -5;
+   }
+
+   my $tmpfile = ow::tool::untaint("$tmpdir/folder");
+
+   my $tmpdb   = ow::tool::untaint("$tmpdir/db");
 
    if (!ow::filelock::lock($tmpfile, LOCK_EX)) {
+      writelog("cannot lock tmpfile $tmpfile");
       rmdir($tmpdir);
       return -6;
    }
 
-   sysopen(TMP, $tmpfile, O_WRONLY|O_TRUNC|O_CREAT);
-   sysopen(FOLDER, $folderfile, O_RDONLY);
+   if (!sysopen(TMP, $tmpfile, O_WRONLY|O_TRUNC|O_CREAT)) {
+      writelog("cannot open file $tmpfile ($!)");
+      ow::filelock::lock($tmpfile, LOCK_UN) or writelog("cannot unlock file $tmpfile");
+      return -7;
+   }
+
+   if (!sysopen(FOLDER, $folderfile, O_RDONLY)) {
+      writelog("cannot open file $folderfile ($!)");
+      close(TMP) or writelog("cannot close file $tmpfile");
+      ow::filelock::lock($tmpfile, LOCK_UN) or writelog("cannot unlock file $tmpfile");
+      return -8;
+   }
 
    seek(FOLDER, $offset[1], 0);
+
    my $line = <FOLDER>;
    my $writtensize = length($line);
-   print TMP $line;	# copy delimiter line from 1st partial message
 
-   for (my $i=1; $i<=$partialtotal; $i++) {
-      my $currsize=0;
+   print TMP $line; # copy delimiter line from 1st partial message
+
+   for (my $i = 1; $i <= $partialtotal; $i++) {
+      my $currsize = 0;
       seek(FOLDER, $offset[$i], 0);
 
       # skip header of the partial message
       while (defined($line = <FOLDER>)) {
          $currsize += length($line);
-         last if ( $line=~/^\r*$/ );
+         last if $line =~ m/^\r*$/;
       }
 
       # read body of the partial message and copy to tmpfile
@@ -1264,156 +1691,178 @@ sub rebuild_message_with_partialid {
          $currsize += length($line);
          $writtensize += length($line);
          print TMP $line;
-         last if ( $currsize>=$size[$i] );
+         last if $currsize >= $size[$i];
       }
    }
 
-   close(TMP);
-   close(FOLDER);
+   close(TMP) or writelog("cannot close file $tmpfile ($!)");
+   close(FOLDER) or writelog("cannot close file $folderfile ($!)");
 
    # index tmpfile, get the msgid
-   if (update_folderindex($tmpfile, $tmpdb)<0) {
-      ow::filelock::lock($tmpfile, LOCK_UN);
-      unlink($tmpfile); ow::dbm::unlink($tmpdb); rmdir($tmpdir);
-      writelog("db error - Couldn't update index db $tmpdb");
-      writehistory("db error - Couldn't update index db $tmpdb");
-      return -7;
-   }
-
-   # check the rebuild integrity
-   my @rebuildmsgids=get_messageids_sorted_by_offset($tmpdb);
-   if ($#rebuildmsgids!=0) {
-      ow::filelock::lock($tmpfile, LOCK_UN);
-      unlink($tmpfile); ow::dbm::unlink($tmpdb); rmdir($tmpdir);
-      return -8;
-   }
-   my $rebuildsize=(get_message_attributes($rebuildmsgids[0], $tmpdb))[$_SIZE];
-   if ($writtensize!=$rebuildsize) {
-      ow::filelock::lock($tmpfile, LOCK_UN);
-      unlink($tmpfile); ow::dbm::unlink($tmpdb); rmdir($tmpdir);
+   if (update_folderindex($tmpfile, $tmpdb) < 0) {
+      writelog("db error - cannot update index db $tmpdb");
+      ow::filelock::lock($tmpfile, LOCK_UN) or writelog("cannot unlock file $tmpfile");
+      unlink($tmpfile);
+      ow::dbm::unlinkdb($tmpdb);
+      rmdir($tmpdir);
       return -9;
    }
 
-   operate_message_with_ids("move", \@rebuildmsgids, $tmpfile, $tmpdb, $folderfile, $folderdb);
+   # check the rebuild integrity
+   my @rebuildmsgids = get_messageids_sorted_by_offset($tmpdb);
 
-   ow::filelock::lock($tmpfile, LOCK_UN);
-   unlink($tmpfile); ow::dbm::unlink($tmpdb); rmdir($tmpdir);
+   if ($#rebuildmsgids != 0) {
+      writelog("incorrect count of rebuild message ids ($#rebuildmsgids)");
+      ow::filelock::lock($tmpfile, LOCK_UN) or writelog("cannot unlock file $tmpfile");
+      unlink($tmpfile);
+      ow::dbm::unlinkdb($tmpdb);
+      rmdir($tmpdir);
+      return -10;
+   }
 
-   return(0, $rebuildmsgids[0], @partialmsgids);
+   my $rebuildsize = (get_message_attributes($rebuildmsgids[0], $tmpdb))[$_SIZE];
+
+   if ($writtensize != $rebuildsize) {
+      writelog("rebuild message size does not equal written message size");
+      ow::filelock::lock($tmpfile, LOCK_UN) or writelog("cannot unlock file $tmpfile");
+      unlink($tmpfile);
+      ow::dbm::unlinkdb($tmpdb);
+      rmdir($tmpdir);
+      return -11;
+   }
+
+   operate_message_with_ids('move', \@rebuildmsgids, $tmpfile, $tmpdb, $folderfile, $folderdb);
+
+   ow::filelock::lock($tmpfile, LOCK_UN) or writelog("cannot unlock file $tmpfile");
+   unlink($tmpfile);
+   ow::dbm::unlinkdb($tmpdb);
+   rmdir($tmpdir);
+
+   return (0, $rebuildmsgids[0], @partialmsgids);
 }
-########## END REBUILD_MESSAGE_WITH_PARTIALID ####################
 
-########## SHIFTBLOCK ############################################
 sub shiftblock {
-   my ($fh, $start, $size, $movement)=@_;
-   return 0 if ($movement == 0 );
+   my ($fh, $start, $size, $movement) = @_;
 
-   my ($movestart, $buff);
-   my $ioerr=0;
-   my $left=$size;
+   return 0 if $movement == 0;
 
-   if ( $movement >0 ) {
-      while ($left>$BUFF_blocksize && !$ioerr) {
-          $movestart=$start+$left-$BUFF_blocksize;
+   my $movestart = 0;
+   my $buff      = '';
+   my $ioerr     = 0;
+   my $left      = $size;
+
+   if ($movement > 0) {
+      while ($left > $BUFF_blocksize && !$ioerr) {
+          $movestart = $start + $left - $BUFF_blocksize;
           seek($fh, $movestart, 0);
           read($fh, $buff, $BUFF_blocksize);
-          seek($fh, $movestart+$movement, 0);
+          seek($fh, $movestart + $movement, 0);
           print $fh $buff or $ioerr++;
-          $left=$left-$BUFF_blocksize;
+          $left = $left - $BUFF_blocksize;
       }
+
       if (!$ioerr) {
          seek($fh, $start, 0);
          read($fh, $buff, $left);
-         seek($fh, $start+$movement, 0);
+         seek($fh, $start + $movement, 0);
          print $fh $buff or $ioerr++;
       }
 
-   } elsif ( $movement <0 ) {
-      while ($left>$BUFF_blocksize && !$ioerr) {
-         $movestart=$start+$size-$left;
+   } elsif ($movement < 0) {
+      while ($left > $BUFF_blocksize && !$ioerr) {
+         $movestart = $start + $size - $left;
          seek($fh, $movestart, 0);
          read($fh, $buff, $BUFF_blocksize);
-         seek($fh, $movestart+$movement, 0);
+         seek($fh, $movestart + $movement, 0);
          print $fh $buff or $ioerr++;
-         $left=$left-$BUFF_blocksize;
+         $left = $left - $BUFF_blocksize;
       }
+
       if (!$ioerr) {
-         $movestart=$start+$size-$left;
+         $movestart = $start + $size - $left;
          seek($fh, $movestart, 0);
          read($fh, $buff, $left);
-         seek($fh, $movestart+$movement, 0);
+         seek($fh, $movestart + $movement, 0);
          print $fh $buff or $ioerr++;
       }
    }
 
-   return -1 if ($ioerr);
+   return -1 if $ioerr;
+
    return 1;
 }
-########## END SHIFTBLOCK ########################################
 
-########## EMPTY_FOLDER ###########################################
 sub empty_folder {
    my ($folderfile, $folderdb) = @_;
 
-   sysopen(F, $folderfile, O_WRONLY|O_TRUNC|O_CREAT) or return -1; close(F);
-   ow::dbm::unlink($folderdb);
-   return -2 if (update_folderindex($folderfile, $folderdb) <0);
+   sysopen(F, $folderfile, O_WRONLY|O_TRUNC|O_CREAT) or
+      openwebmailerror(gettext('Cannot open file:') . " $folderfile ($!)");
+
+   close(F) or
+      openwebmailerror(gettext('Cannot close file:') . " $folderfile ($!)");
+
+   ow::dbm::unlinkdb($folderdb) or
+      openwebmailerror(gettext('Cannot delete db:') . " $folderdb ($!)");
+
+   return -2 if update_folderindex($folderfile, $folderdb) < 0;
 
    return 0;
 }
-########## END EMPTY_FOLDER #######################################
 
-########## STRING <-> MSGATTR ####################################
-# we use \n as delimiter for attributes
-# since we assume max record len is 1024,
-# len(msgid) < 128, len(other fields)<60, len(delimiter)=10,
-# so len( from + to + subject + contenttype + references ) must < 826
 sub msgattr2string {
-   my (@attr)=@_;
+   # we use \n as delimiter for attributes
+   # since we assume max record len is 1024,
+   # len(msgid) < 128, len(other fields) < 60, len(delimiter) = 10,
+   # so len( from + to + subject + contenttype + references ) must < 826
+   my @attr = @_;
 
-   if ( $attr[$_OFFSET] <0 or
-        $attr[$_HEADERSIZE]<=0 or
-        $attr[$_SIZE] <= $attr[$_HEADERSIZE] ) {
-        writelog(ow::tool::stacktrace("msgattr error"));
-   }
+   writelog(ow::tool::stacktrace("message attributes error"))
+     if $attr[$_OFFSET] < 0 || $attr[$_HEADERSIZE] <= 0 || $attr[$_SIZE] <= $attr[$_HEADERSIZE];
 
    # remove delimiter \r,\n from string attributes
    for my $i ($_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_REFERENCES, $_CHARSET) {
-      $attr[$i]=~s/[\r\n]/ /sg;
+      $attr[$i] = '' unless defined $attr[$i];
+      $attr[$i] =~ s/[\r\n]/ /sg;
    }
 
-   my $value=join("\n", @attr);
-   if (length($value)>800) {
+   my $value = join("\n", @attr);
+
+   if (length $value > 800) {
+      # truncate TO, SUBJECT, and REFERENCES attributes to 256 characters
       foreach my $i ($_TO, $_SUBJECT, $_REFERENCES) {
-         $attr[$i]=substr($attr[$i],0,253).'...' if (length($attr[$i])>256);
+         $attr[$i] = substr($attr[$i],0,253) . '...' if length $attr[$i] > 256;
       }
-      $value=join("\n", @attr);
-      if (length($value)>800) {
+
+      $value = join("\n", @attr);
+
+      if (length $value > 800) {
+         # truncate FROM, TO, SUBJECT, CONTENT_TYPE, and REFERENCES to 160 characters
          foreach my $i ($_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_REFERENCES) {
-            $attr[$i]=substr($attr[$i],0,157).'...' if (length($attr[$i])>160);
+            $attr[$i] = substr($attr[$i],0,157) . '...' if length $attr[$i] > 160;
          }
-         $value=join("\n", @attr);
+
+         $value = join("\n", @attr);
       }
    }
+
    return $value;
 }
 
 sub string2msgattr {
-   return (split(/\n/, $_[0]));
+   my $string = shift;
+   return (defined $string ? split(/\n/, $string) : ());
 }
-########## END STRING <-> MSGATTR ################################
-
 
 sub simpleheader {
    my $fullheader = shift;
 
-   my $simpleheader = "";
-   my $lastline = 'NONE';
+   my $simpleheader        = '';
+   my $lastline            = 'NONE';
    my $regex_simpleheaders = qr/^(?:from|reply-to|to|cc|date|subject):\s?/i;
 
    foreach my $line (split(/\n/, $fullheader)) {
       if ($line =~ m/^\s+/) {
-         $simpleheader .= "$line\n" if ($lastline eq 'HEADER');
+         $simpleheader .= "$line\n" if $lastline eq 'HEADER';
       } elsif ($line =~ m/$regex_simpleheaders/) {
          $simpleheader .= "$line\n";
          $lastline = 'HEADER';
@@ -1421,201 +1870,222 @@ sub simpleheader {
          $lastline = 'NONE';
       }
    }
-   return($simpleheader);
+
+   return $simpleheader;
 }
 
-
-########## IS_INTERNAL_SUBJECT ###################################
 sub is_internal_subject {
-   return 1 if ($_[0]=~/(?:DON'T DELETE THIS MESSAGE|Message from mail server)/);
+   my $subject = shift;
+   return 1 if $subject =~ m/(?:DON'T DELETE THIS MESSAGE|Message from mail server)/;
    return 0;
 }
-########## END IS_INTERNAL_SUBJECT ###############################
 
-########## IS_MSGATTR_CONSISTENT_WITH_FOLDER #####################
-# check if a message is valid based on its attr
 sub is_msgattr_consistent_with_folder {
-   my ($r_attr, $folderhandle)=@_;
-   my $buff;
+   # check if a message is valid based on its attr
+   my ($r_attr, $folderhandle) = @_;
 
-   return 0 if (${$r_attr}[$_OFFSET]<0 ||
-                ${$r_attr}[$_HEADERSIZE]<=0 ||
-                ${$r_attr}[$_SIZE]<=${$r_attr}[$_HEADERSIZE]);
+   # fail if the db entry for this message is zeroed out or message not indexed yet
+   return 0 if (
+                  $r_attr->[$_OFFSET] < 0
+                  || $r_attr->[$_HEADERSIZE] <= 0
+                  || $r_attr->[$_SIZE] <= $r_attr->[$_HEADERSIZE]
+               );
 
-   seek($folderhandle, ${$r_attr}[$_OFFSET], 0);
+   my $buff = '';
+
+   # fail if the first 5 bytes at the db offset are not the 'From ' message starter
+   seek($folderhandle, $r_attr->[$_OFFSET], 0);
    read($folderhandle, $buff, 5);
-   return 0 if ($buff!~/^From /);
+   return 0 if $buff !~ m/^From /;
 
-   seek($folderhandle, ${$r_attr}[$_OFFSET]+${$r_attr}[$_SIZE], 0);
+   # fail if the 5 bytes after the message are defined, but are not the next message 'From ' starter
+   seek($folderhandle, $r_attr->[$_OFFSET] + $r_attr->[$_SIZE], 0);
    read($folderhandle, $buff, 5);
-   return 0 if ($buff!~/^From / && $buff ne "");
+   return 0 if defined $buff && $buff ne '' && $buff !~ m/^From /;
 
+   # the offset and size of this message seem to match what is in the db
    return 1;
 }
-########## END IS_MESSAGE_VALID ##################################
 
-########## BUFFERED FILE PROCESSING ##############################
-# use buffered file reads to quickly scan through a mail file for the next message header
-
-sub buffer_reset {
-   ($BUFF_filehandle, $BUFF_filestart)=@_;
-   $BUFF_fileoffset=$BUFF_filestart;
-   $BUFF_start=$BUFF_filestart;
-   $BUFF_size=0;
-   $BUFF_buff='';
-   $BUFF_EOF=0;
-   buffer_readblock();
-}
-
-# read a new block from the file to the buffer
 sub buffer_readblock {
+   # use buffered file reads to quickly scan through a mail file
+   # read a new block from the file to the buffer
+   # return the length of bytes read
+
+   writelog("debug - buffer_readblock - BUFF_EOF=$BUFF_EOF BUFF_fileoffset=$BUFF_fileoffset BUFF_size=$BUFF_size BUFF_start=$BUFF_start") if $config{debug_maildb};
+
    if (!$BUFF_EOF) {
-      # make sure we're still in the file where we think we should be
+      # make sure we are still in the file where we think we should be
       seek($BUFF_filehandle, $BUFF_fileoffset, 0);
 
-      my $readlen=read($BUFF_filehandle, $BUFF_buff, $BUFF_blocksize, $BUFF_size);
-      $BUFF_EOF=1 if ($readlen < $BUFF_blocksize);
-      $BUFF_start=$BUFF_fileoffset-$BUFF_size;
-      $BUFF_size+=$readlen;
-      $BUFF_fileoffset+=$readlen;
+      # read FILEHANDLE, SCALAR, LENGTH, OFFSET
+      my $readlen = read($BUFF_filehandle, $BUFF_buff, $BUFF_blocksize, $BUFF_size);
+
+      $BUFF_EOF = 1 if $readlen < $BUFF_blocksize;
+      $BUFF_start = $BUFF_fileoffset - $BUFF_size;
+      $BUFF_size += $readlen;
+      $BUFF_fileoffset += $readlen;
+
+      writelog("debug - buffer_readblock - BUFF_EOF=$BUFF_EOF BUFF_fileoffset=$BUFF_fileoffset BUFF_size=$BUFF_size BUFF_start=$BUFF_start readlen=$readlen") if $config{debug_maildb};
+
       return $readlen;
    }
+
+   writelog("debug - buffer_readblock - BUFF_EOF=1") if $config{debug_maildb};
+
    return 0;
 }
 
-# check for the start of a new message
 sub buffer_startmsgchk {
-   my ($pos)=@_;
+   # check for the start of a new message
+   my $pos = shift;
+
+   writelog("debug - buffer_startmsgchk - pos=$pos") if $config{debug_maildb};
 
    # verify preceding new line characters
    # if this fails, bump the position to invalidate it
-#   if ( $pos>1 ) {
-#      $pos++ if (substr($BUFF_buff, $pos-2, 2) ne "\n\n");
-#   } elsif ( $pos==1 ) {
-   if ( $pos>=1 ) {
-      $pos++ if (substr($BUFF_buff, $pos-1, 1) ne "\n");
-   }
+   $pos++ if $pos >= 1 && substr($BUFF_buff, $pos - 1, 1) ne "\n";
 
-   # clear out the old buffer contents so we don't scan through them again
-   buffer_skipchars($pos) if ($pos);
+   # clear out the old buffer contents so we do not scan through them again
+   buffer_skipchars($pos) if $pos;
 
    # just in case we got too close to the end of the buffer, better top it up
    # or we might not match the regex
-   buffer_readblock() if ($BUFF_size < 200);
+   buffer_readblock() if $BUFF_size < 200;
 
    # check this message start more closely (this will fail if the preceding newline characters check above failed)
-   if ( $BUFF_buff=~/$BUFF_regex/ ) {
+   if ($BUFF_buff =~ m/$BUFF_regex/) {
+      writelog("debug - buffer_startmsgchk - BUFF_start=$BUFF_start BUFF_regex=$BUFF_regex") if $config{debug_maildb};
+
+      # the buffer contains a line that matches the BUFF_regex
+      # qr/^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/;
       return $BUFF_start;
    } else {
-      # if a 'From' is not a msgstart, skip it so we won't meet it again
-      buffer_skipchars(4) if (substr($BUFF_buff, 0, 4) eq 'From');
+      # if a 'From' is not a msgstart, skip it so we will not meet it again
+      buffer_skipchars(4) if substr($BUFF_buff, 0, 4) eq 'From';
       return -1;
    }
 }
 
-# get chars from the buffer
-# up to the size, or to the delim chars (which ever comes first)
-# the entire buffer/file if size = -1
-# chars are removed from the buffer
 sub buffer_getchars {
-   my ($size, $delim)=@_;
+   # get chars from the buffer
+   #  - up to the given size in bytes
+   #  - or the entire buffer/file if size == -1
+   my $size = shift;
 
-   my $pos=-1;
-   my $offset=0;
-   my $len=length($delim);
-   $pos=index($BUFF_buff,$delim,$offset) if ($len);
+   writelog("debug - buffer_getchars - size=$size BUFF_size=$BUFF_size BUFF_EOF=$BUFF_EOF") if $config{debug_maildb};
 
    # make sure the buffer contains enough bytes to meet the request
-   while ( ( $size < 0 or $size > $BUFF_size) and $pos < 0 and ! $BUFF_EOF) {
-      $offset+=($BUFF_size-$len) if ($BUFF_size>$len);
-      buffer_readblock();
-      $pos=index($BUFF_buff,$delim,$offset) if ($len);
-   }
+   buffer_readblock() while (($size < 0 or $size > $BUFF_size) && !$BUFF_EOF);
 
-   $size=$pos if ($pos>=0);
-   $size=$BUFF_size if ($size<0);
-   my $content=substr($BUFF_buff, 0, $size);
-   buffer_skipchars($size);
+   $size = $BUFF_size if $size < 0;
+
+   my $content = substr($BUFF_buff, 0, $size);
+
+   buffer_skipchars($size); # gotten chars are removed from the buffer
+
+   writelog("debug - buffer_getchars - content='$content' taken from buffer") if $config{debug_maildb};
+
    return $content;
 }
 
-# skip past chars in the buffer
-# the entire buffer/file if size = -1
-# chars are removed from the buffer
 sub buffer_skipchars {
-   my ($skip)=@_;
+   # skip past chars in the buffer
+   # the entire buffer/file if size = -1
+   # chars are removed from the buffer
+   my $skip = shift;
+
+   writelog("debug - buffer_skipchars - skip=$skip") if $config{debug_maildb};
 
    if ($skip < 0) {
-      $BUFF_EOF = 1;
+      $BUFF_EOF  = 1;
       $BUFF_size = 0;
-      $BUFF_buff='';
+      $BUFF_buff = '';
    } elsif ($skip >= $BUFF_size) {
       # skipping passed the end of the buffer
-      $BUFF_size = 0;
-      $BUFF_buff='';
+      $BUFF_size       = 0;
+      $BUFF_buff       = '';
       $BUFF_fileoffset = $BUFF_start + $skip;
       buffer_readblock();
    } else {
       $BUFF_start += $skip;
-      $BUFF_size -= $skip;
-      $BUFF_buff = substr($BUFF_buff, $skip);
+      $BUFF_size  -= $skip;
+      $BUFF_buff   = substr($BUFF_buff, $skip);
    }
 }
 
-# skip past chars in the buffer
-# while $delim string is found
-# chars are removed from the buffer
 sub buffer_skipleading {
-   my ($delim)=@_;
-   my $len=length($delim);
-   return if (!$len);
+   # skip past chars in the buffer
+   # while $delim string is found
+   # chars are removed from the buffer
+   my $delim = shift;
+   my $len   = length $delim;
 
-   my $skip=0;
+   writelog("debug - buffer_skipleading - delim=$delim len=$len BUFF_size=$BUFF_size") if $config{debug_maildb};
 
-   buffer_readblock() if ($BUFF_size<$len);
-   while ( $BUFF_size>=$len and substr($BUFF_buff,$skip,$len) eq $delim ) {
-      $skip+=$len;
-      $BUFF_size-=$len;
+   return unless $len;
+
+   my $skip = 0;
+
+   buffer_readblock() if $BUFF_size < $len;
+
+   # shrink the buffer size to be the same as the length of the delimter
+   while ($BUFF_size >= $len && substr($BUFF_buff, $skip, $len) eq $delim) {
+      $skip += $len;
+      $BUFF_size -= $len;
+
+      writelog("debug - buffer_skipleading - while loop skip=$skip BUFF_size=$BUFF_size") if $config{debug_maildb};
+
       if ($BUFF_size < $len) {
+         writelog("debug - buffer_skipleading - BUFF_size=$BUFF_size < len=$len") if $config{debug_maildb};
+
          $BUFF_start += $skip;
          $BUFF_buff = substr($BUFF_buff, $skip);
          buffer_readblock();
-         $skip=0;
+         $skip = 0;
       }
    }
+
    $BUFF_start += $skip;
    $BUFF_buff = substr($BUFF_buff, $skip);
+
+   writelog("debug - buffer_skipleading - BUFF_start=$BUFF_start") if $config{debug_maildb};
 }
 
-# search the buffered file for a string
-# if $keep = 1 then buffer contents will grow until $str is found
-#  otherwise, previous contents of buffer are tossed.
 sub buffer_index {
-   my ($keep, @strs)=@_;
+   # search the buffer for a given string
+   # if $keep = 1 then buffer contents will grow until $str is found
+   # otherwise, previous contents of buffer are tossed.
+   my ($keep, @strings) = @_;
 
-   my $pos=-1;
-   my %i;
-   foreach my $str (@strs) {
-      $i{$str}{len}=length($str);
-      $i{$str}{offset}=0;
+   writelog("debug - buffer_index - keep=$keep strings=" . join(',', @strings)) if $config{debug_maildb};
+
+   my %strings = ();
+   foreach my $string (@strings) {
+      $strings{$string}{len}    = length $string;
+      $strings{$string}{offset} = 0;
    }
 
-   while ($pos<0) {
+   my $pos = -1;
+
+   while ($pos < 0) {
       # search the buffer for the next message start
-      foreach my $str (@strs) {
-         $pos=index($BUFF_buff, $str, $i{$str}{offset});
-         return ($pos, $str) if ($pos>=0);
+      foreach my $string (@strings) {
+         $pos = index($BUFF_buff, $string, $strings{$string}{offset});
+
+         writelog("debug - buffer_index - found string string='$string' at index pos=$pos") if $config{debug_maildb};
+
+         return ($pos, $string) if $pos >= 0;
       }
-      # keep the buffer size reasonable
-      if (!$keep && $BUFF_size > $BUFF_blocksizemax) {
-         buffer_skipchars($BUFF_size-1024);	# only keep last 1024 byte
-      }
-      foreach my $str (@strs) {
-         $i{$str}{offset}=$BUFF_size-$i{$str}{len};
-      }
-      last if ( !buffer_readblock() ); # nothing left to read?
+
+      # keep the buffer size reasonable	- only keep last 1024 byte
+      buffer_skipchars($BUFF_size - 1024) if !$keep && $BUFF_size > $BUFF_blocksizemax;
+
+      $strings{$_}{offset} = ($BUFF_size - $strings{$_}{len}) for @strings;
+      last unless buffer_readblock(); # stop at EOF
    }
-   return (-1, '');
+
+   return (-1, ''); # not reached
 }
 
 1;

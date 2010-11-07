@@ -1,26 +1,60 @@
+
+#                              The BSD License
 #
-# calbook.pl - read/write calbook.pl
+#  Copyright (c) 2009-2010, The OpenWebMail Project
+#  All rights reserved.
 #
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in the
+#        documentation and/or other materials provided with the distribution.
+#      * Neither the name of The OpenWebMail Project nor the
+#        names of its contributors may be used to endorse or promote products
+#        derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project ``AS IS'' AND ANY
+#  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL The OpenWebMail Project BE LIABLE FOR ANY
+#  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# calbook.pl - read and write calendar books
 
 use strict;
+use warnings;
+
 use Fcntl qw(:DEFAULT :flock);
 
-# read the user calendar and put the records into 2 hashes.
-# %items:
-# The keys are the index numbers of the items.
-# The value of each key is a hashref of this item's fields.
-# %indexes:
-# The keys are an idate string, number, or regex.
-# The value of each key is an arrayref of the indexes that belong to this idate.
-# $indexshift:
-# This is used to shift the index number so records in multiple calendars won't collide
+require "shares/ow-shared.pl"; # openwebmailerror and gettext support
+
 sub readcalbook {
+   # read the user calendar and put the records into 2 hashes.
+
+   # %items:
+   # The keys are the index numbers of the items.
+   # The value of each key is a hashref of this item's fields.
+
+   # %indexes:
+   # The keys are an idate string, number, or regex.
+   # The value of each key is an arrayref of the indexes that belong to this idate.
+
+   # $indexshift:
+   # This is used to shift the index number so records in multiple calendars won't collide
    my ($calbook, $r_items, $r_indexes, $indexshift) = @_;
    my $item_count = 0;
 
-   return 0 if (! -f $calbook);
+   openwebmailerror(gettext('File does not exist:') . " $calbook") unless -f $calbook;
 
-   sysopen(CALBOOK, $calbook, O_RDONLY) or return -1;
+   sysopen(CALBOOK, $calbook, O_RDONLY) or
+      openwebmailerror(gettext('Cannot open file:') . " $calbook ($!)");
 
    while (<CALBOOK>) {
       next if (/^#/);
@@ -29,7 +63,7 @@ sub readcalbook {
       my @a     = split(/\@{3}/, $_);
       my $index = $a[0] + $indexshift;
 
-      $a[9] = 1 if ($a[9] eq '');
+      $a[9] = 1 if !defined $a[9] || $a[9] eq '';
 
       $r_items->{$index} = {
                               idate         => $a[1],
@@ -44,7 +78,7 @@ sub readcalbook {
                            };
 
       my $idate = $a[1];
-      $idate= '*' if ($idate =~ m/[^\d]/); # use '*' for regex date
+      $idate = '*' if $idate =~ m/[^\d]/; # use '*' for regex date
 
       $r_indexes->{$idate} = [] unless exists $r_indexes->{$idate};
 
@@ -53,9 +87,10 @@ sub readcalbook {
       $item_count++;
    }
 
-   close(CALBOOK);
+   close(CALBOOK) or
+      openwebmailerror(gettext('Cannot close file:') . " $calbook ($!)");
 
-   return($item_count);
+   return $item_count;
 }
 
 sub writecalbook {
@@ -68,13 +103,21 @@ sub writecalbook {
 
    $calbook = ow::tool::untaint($calbook);
 
-   if (! -f "$calbook") {
-      sysopen(CALBOOK, $calbook, O_WRONLY|O_TRUNC|O_CREAT) or return -1;
-      close(CALBOOK);
+   if (! -f $calbook) {
+      # create the calbook file
+      sysopen(CALBOOK, $calbook, O_WRONLY|O_TRUNC|O_CREAT) or
+         openwebmailerror(gettext('Cannot open file:') . " $calbook ($!)");
+
+      close(CALBOOK) or
+         openwebmailerror(gettext('Cannot close file:') . " $calbook ($!)");
    }
 
-   ow::filelock::lock($calbook, LOCK_EX) or return -1;
-   sysopen(CALBOOK, $calbook, O_WRONLY|O_TRUNC|O_CREAT) or return -1;
+   ow::filelock::lock($calbook, LOCK_EX) or
+      openwebmailerror(gettext('Cannot lock file:') . " $calbook ($!)");
+
+   sysopen(CALBOOK, $calbook, O_WRONLY|O_TRUNC|O_CREAT) or
+      openwebmailerror(gettext('Cannot open file:') . " $calbook ($!)");
+
    my $written = 0;
    foreach my $eventid (@indexlist) {
       print CALBOOK join('@@@',
@@ -91,10 +134,14 @@ sub writecalbook {
                         ) . "\n";
       $written++;
    }
-   close(CALBOOK);
-   ow::filelock::lock($calbook, LOCK_UN);
 
-   return($written);
+   close(CALBOOK) or
+      openwebmailerror(gettext('Cannot close file:') . " $calbook ($!)");
+
+   ow::filelock::lock($calbook, LOCK_UN) or
+      openwebmailerror(gettext('Cannot unlock file:') . " $calbook ($!)");
+
+   return $written;
 }
 
 1;
