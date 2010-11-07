@@ -32,29 +32,29 @@ use warnings;
 
 use vars qw($SCRIPT_DIR);
 
-if (-f "/etc/openwebmail_path.conf") {
-   my $pathconf = "/etc/openwebmail_path.conf";
-   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+if (-f '/etc/openwebmail_path.conf') {
+   my $pathconf = '/etc/openwebmail_path.conf';
+   open(F, $pathconf) or die "Cannot open $pathconf: $!";
    my $pathinfo = <F>;
-   close(F) or die("Cannot close $pathconf: $!");
+   close(F) or die "Cannot close $pathconf: $!";
    ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
 } else {
    ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
 
-die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
+die 'SCRIPT_DIR cannot be set' if $SCRIPT_DIR eq '';
 push (@INC, $SCRIPT_DIR);
 
 # secure the environment
 delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
-$ENV{PATH}='/bin:/usr/bin';
+$ENV{PATH} = '/bin:/usr/bin';
 
 # make sure the openwebmail group can write
 umask(0002);
 
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :cgi charset);
+use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use HTML::Template 2.9;
 
@@ -98,8 +98,7 @@ use vars qw(%prefs);
 use vars qw($quotausage $quotalimit);
 
 # extern vars
-use vars qw($htmltemplatefilters); # defined in ow-shared.pl
-use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_sortlabels %lang_calendar %lang_wday); # defined in lang/locale
+use vars qw($htmltemplatefilters $po); # defined in ow-shared.pl
 use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES); # defined in maildb.pl
 
 # local globals
@@ -116,9 +115,8 @@ userenv_init();
 
 my $action = param('action') || '';
 
-if (!$config{enable_webmail} && $action ne "logout") {
-   openwebmailerror(__FILE__, __LINE__, "$lang_text{webmail} $lang_err{access_denied}");
-}
+openwebmailerror(gettext('Access denied: the webmail module is not enabled.'))
+   if !$config{enable_webmail} && $action ne 'logout';
 
 $folder      = param('folder') || 'INBOX';
 $keyword     = param('keyword') || '';
@@ -138,21 +136,24 @@ if (param('clearsearchbutton')) {
 }
 
 # TODO: This action processing seems a little overly complicated. It could probably be cleaner and simpler.
-writelog("debug - request main begin, action=$action, folder=$folder - " .__FILE__.":". __LINE__) if ($config{debug_request});
+writelog("debug - request main begin, action=$action, folder=$folder") if $config{debug_request};
 
-if ($action eq "movemessage" || defined param('movebutton') || defined param('copybutton') ) {
+if ($action eq 'movemessage' || defined param('movebutton') || defined param('copybutton') ) {
    my $destination = ow::tool::untaint(safefoldername(param('destination')));
 
    if ($destination eq 'FORWARD') {
-      my @messageids  = param('message_ids');
+      my @messageids = param('message_ids');
 
       if (scalar @messageids > 0) {
          # write the forwarding message-ids to a file for openwebmail-send to read
          sysopen(FORWARDIDS, "$config{ow_sessionsdir}/$thissession-forwardids", O_WRONLY|O_TRUNC|O_CREAT)
-            or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_open} $config{ow_sessionsdir}/$thissession-forwardids");
+            or openwebmailerror(gettext('Cannot open file:') . " $config{ow_sessionsdir}/$thissession-forwardids ($!)");
+
          print FORWARDIDS join("\n", @messageids);
+
          close(FORWARDIDS)
-            or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_sessionsdir}/$thissession-forwardids");
+            or openwebmailerror(gettext('Cannot close file:') . " $config{ow_sessionsdir}/$thissession-forwardids ($!)");
+
          my %params = (
                         action         => 'compose',
                         composetype    => 'forwardids',
@@ -180,14 +181,14 @@ if ($action eq "movemessage" || defined param('movebutton') || defined param('co
       listmessages();
    } else {
       # move/copy/delete messages
-      my @messageids  = param('message_ids');
+      my @messageids = param('message_ids');
       movemessage(\@messageids, $destination) if scalar @messageids > 0;
-      if (param('messageaftermove')) {
-         my $messageid = param('messageaftermove') || '';
-         $messageid    = $messageids[0] if defined param('copybutton'); # copy button pressed, msg not moved
 
+      if (param('messageaftermove')) {
          my $headers   = param('headers') || $prefs{headers} || 'simple';
          my $attmode   = param('attmode') || 'simple';
+         my $messageid = param('messageaftermove') || '';
+         $messageid    = $messageids[0] if defined param('copybutton'); # copy button pressed, msg not moved
 
          my $redirect = "$config{ow_cgiurl}/openwebmail-read.pl?action=readmessage&" .
                         join ("&", (
@@ -209,80 +210,64 @@ if ($action eq "movemessage" || defined param('movebutton') || defined param('co
          listmessages();
       }
    }
-} elsif ($action eq "listmessages_afterlogin") {
+} elsif ($action eq 'listmessages_afterlogin') {
    clean_trash_spamvirus();
 
-   if ($quotalimit > 0 && $quotausage > $quotalimit) {
-      $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
-   }
+   $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2] if $quotalimit > 0 && $quotausage > $quotalimit;
 
-   if (($config{forced_moveoldmsgfrominbox} || $prefs{moveoldmsgfrominbox}) && (!$quotalimit || ($quotausage < $quotalimit))) {
-      moveoldmsg2saved();
-   }
+   moveoldmsg2saved() if ($config{forced_moveoldmsgfrominbox} || $prefs{moveoldmsgfrominbox}) && (!$quotalimit || ($quotausage < $quotalimit));
 
    update_pop3check();
-   authpop3_fetch() if ($config{auth_module} eq 'auth_pop3.pl' || $config{auth_module} eq 'auth_ldap_vpopmail.pl');
-   pop3_fetches($prefs{autopop3wait}) if ($config{enable_pop3} && $prefs{autopop3});
+   authpop3_fetch() if $config{auth_module} eq 'auth_pop3.pl' || $config{auth_module} eq 'auth_ldap_vpopmail.pl';
+   pop3_fetches($prefs{autopop3wait}) if $config{enable_pop3} && $prefs{autopop3};
    listmessages();
-} elsif ($action eq "userrefresh") {
-   if ($folder eq 'INBOX') {
-      authpop3_fetch() if ($config{auth_module} eq 'auth_pop3.pl' || $config{auth_module} eq 'auth_ldap_vpopmail.pl');
-   }
+} elsif ($action eq 'userrefresh') {
+   authpop3_fetch() if $folder eq 'INBOX' && ($config{auth_module} eq 'auth_pop3.pl' || $config{auth_module} eq 'auth_ldap_vpopmail.pl');
 
-   if ($config{quota_module} ne 'none') {
-      $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
-   }
+   $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2] if $config{quota_module} ne 'none';
 
    listmessages();
 
-   if (update_pop3check()) {
-      pop3_fetches(0) if ($config{enable_pop3} && $prefs{autopop3});
-   }
-} elsif ($action eq "listmessages") {
-   my $update = 0;
-   $update = 1 if (update_pop3check());
-   if ($update) {
-      # get mail from auth pop3 server
-      authpop3_fetch() if ($config{auth_module} eq 'auth_pop3.pl' || $config{auth_module} eq 'auth_ldap_vpopmail.pl');
-   }
+   pop3_fetches(0) if update_pop3check() && $config{enable_pop3} && $prefs{autopop3};
+} elsif ($action eq 'listmessages') {
+   my $update = update_pop3check() ? 1 : 0;
+
+   # get mail from auth pop3 server
+   authpop3_fetch() if $update && ($config{auth_module} eq 'auth_pop3.pl' || $config{auth_module} eq 'auth_ldap_vpopmail.pl');
 
    listmessages();
 
-   if ($update) {
-      # get mail from misc pop3 servers
-      pop3_fetches(0) if ($config{enable_pop3} && $prefs{autopop3});
-   }
-} elsif ($action eq "markasread") {
+   # get mail from misc pop3 servers
+   pop3_fetches(0) if $update && $config{enable_pop3} && $prefs{autopop3};
+} elsif ($action eq 'markasread') {
    markasread();
    listmessages();
-} elsif ($action eq "markasunread") {
+} elsif ($action eq 'markasunread') {
    markasunread();
    listmessages();
-} elsif ($action eq "pop3fetches" && $config{enable_pop3}) {
+} elsif ($action eq 'pop3fetches' && $config{enable_pop3}) {
    www_pop3_fetches();
    listmessages();
-} elsif ($action eq "pop3fetch" && $config{enable_pop3}) {
+} elsif ($action eq 'pop3fetch' && $config{enable_pop3}) {
    www_pop3_fetch();
    listmessages();
-} elsif ($action eq "emptyfolder") {
+} elsif ($action eq 'emptyfolder') {
    www_emptyfolder($folder);
-   if ($quotalimit > 0 && $quotausage > $quotalimit) {
-      $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
-   }
+
+   $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2] if $quotalimit > 0 && $quotausage > $quotalimit;
+
    listmessages();
-} elsif ($action eq "logout") {
+} elsif ($action eq 'logout') {
    clean_trash_spamvirus();
 
-   if (($config{forced_moveoldmsgfrominbox} || $prefs{moveoldmsgfrominbox}) && (!$quotalimit || ($quotausage < $quotalimit))) {
-      moveoldmsg2saved();
-   }
+   moveoldmsg2saved() if ($config{forced_moveoldmsgfrominbox} || $prefs{moveoldmsgfrominbox}) && (!$quotalimit || ($quotausage < $quotalimit));
 
    logout();
 } else {
-   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
+   openwebmailerror(gettext('Action has illegal characters.'));
 }
 
-writelog("debug - request main end, action=$action, folder=$folder - " .__FILE__.":". __LINE__) if ($config{debug_request});
+writelog("debug - request main end, action=$action, folder=$folder") if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -301,11 +286,14 @@ sub listmessages {
 
    # make note of how many inbox messages we have before re-reading the inbox
    my $spooldb = (get_folderpath_folderdb($user, 'INBOX'))[1];
-   if (ow::dbm::exist($spooldb)) {
-      ow::dbm::open(\%FDB, $spooldb, LOCK_SH) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db $spooldb");
+   if (ow::dbm::existdb($spooldb)) {
+      ow::dbm::opendb(\%FDB, $spooldb, LOCK_SH) or
+         openwebmailerror(gettext('Cannot open db:') . " $spooldb ($!)");
+
       $orig_inbox_newmessages = $FDB{NEWMESSAGES}; # new messages in INBOX
-      ow::dbm::close(\%FDB, $spooldb);
+
+      ow::dbm::closedb(\%FDB, $spooldb) or
+         openwebmailerror(gettext('Cannot close db:') . " $spooldb ($!)");
    }
 
    # filter messages in the background
@@ -327,27 +315,23 @@ sub listmessages {
             cutfoldermails(($quotausage - ($quotalimit * 0.9)) * 1024, $user, @validfolders);
          } elsif ($config{delfile_ifquotahit}) {
             $quotahit_deltype = 'quotahit_delfile';
-            my $webdiskrootdir = $homedir.absolute_vpath("/", $config{webdisk_rootpath});
+            my $webdiskrootdir = $homedir . absolute_vpath('/', $config{webdisk_rootpath});
             cutdirfiles(($quotausage - ($quotalimit * 0.9)) * 1024, $webdiskrootdir);
          }
-         $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2]; # get up to date usage
+         $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2]; # get up to date usage
       }
    }
 
-   my $enable_quota       = $config{quota_module} eq 'none'?0:1;
+   my $enable_quota       = $config{quota_module} eq 'none' ? 0 : 1;
    my $quotashowusage     = 0;
    my $quotaoverthreshold = 0;
    my $quotabytesusage    = 0;
    my $quotapercentusage  = 0;
    if ($enable_quota) {
       $quotaoverthreshold = (($quotalimit > 0) && (($quotausage / $quotalimit) > ($config{quota_threshold} / 100)));
-      $quotashowusage     = ($quotaoverthreshold || $config{quota_threshold} == 0)?1:0;
-      if ($quotashowusage) {
-         $quotabytesusage = lenstr($quotausage * 1024, 1);
-      }
-      if ($quotaoverthreshold) {
-         $quotapercentusage = int($quotausage * 1000 / $quotalimit) / 10;
-      }
+      $quotashowusage     = ($quotaoverthreshold || $config{quota_threshold} == 0) ? 1 : 0;
+      $quotabytesusage    = lenstr($quotausage * 1024, 1) if $quotashowusage;
+      $quotapercentusage  = int($quotausage * 1000 / $quotalimit) / 10 if $quotaoverthreshold;
    }
 
    my $folderselectloop = [];
@@ -357,9 +341,9 @@ sub listmessages {
 
       # find message count for this folder
       my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $foldername);
-      if (ow::dbm::exist($folderdb)) {
-         ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db " . f2u($folderdb));
+      if (ow::dbm::existdb($folderdb)) {
+         ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
+            openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($folderdb) . " ($!)");
 
          $FDB{ALLMESSAGES}      = 0 unless defined $FDB{ALLMESSAGES} && $FDB{ALLMESSAGES};
          $FDB{ZAPMESSAGES}      = 0 unless defined $FDB{ZAPMESSAGES} && $FDB{ZAPMESSAGES};
@@ -377,13 +361,16 @@ sub listmessages {
             $folder_allmessages = $allmessagesthisfolder;
          }
 
-         ow::dbm::close(\%FDB, $folderdb);
+         ow::dbm::closedb(\%FDB, $folderdb) or
+            openwebmailerror(gettext('Cannot close db:') . ' ' . f2u($folderdb) . " ($!)");
       }
 
       push(@{$folderselectloop}, {
+                                    "option_$foldername"  => 1,
+                                    is_defaultfolder      => is_defaultfolder($foldername) ? 1 : 0,
                                     option                => $foldername,
-                                    label                 => exists $lang_folders{$foldername}?$lang_folders{$foldername}:f2u($foldername),
-                                    selected              => $foldername eq $folder?1:0,
+                                    label                 => f2u($foldername),
+                                    selected              => $foldername eq $folder ? 1 : 0,
                                     newmessagesthisfolder => $newmessagesthisfolder,
                                     allmessagesthisfolder => $allmessagesthisfolder,
                                  }
@@ -395,7 +382,7 @@ sub listmessages {
       push(@destinationfolders,'DELETE');
    } else {
       @destinationfolders = @validfolders;
-      push(@destinationfolders, 'LEARNSPAM', 'LEARNHAM') if ($config{enable_learnspam});
+      push(@destinationfolders, 'LEARNSPAM', 'LEARNHAM') if $config{enable_learnspam};
       push(@destinationfolders, 'MARKASREAD', 'MARKASUNREAD', 'FORWARD', 'DELETE');
    }
 
@@ -433,46 +420,51 @@ sub listmessages {
       }
    }
 
-   my $userbrowsercharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{available_locales})))[6];
+   my $userbrowsercharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{available_locales})))[4];
 
    # get all the messageids, already sorted
    my ($totalsize, $newmessages, $r_messageids, $r_messagedepths) = getinfomessageids($user, $folder, $sort, $msgdatetype, $searchtype, $keyword);
 
    my $totalmessage = scalar @{$r_messageids};
-   $totalmessage = 0 if ($totalmessage < 0);
+   $totalmessage = 0 if $totalmessage < 0;
+
+   my $totalmessagesummary = sprintf(ngettext('%d message', '%d messages', $totalmessage), $totalmessage);
+   my $newmessagessummary = sprintf(ngettext('%d unread', '%d unread', $newmessages), $newmessages);
 
    my $msgsperpage = $prefs{msgsperpage} || 10;
-   $msgsperpage = 1000 if ($longpage);
+   $msgsperpage = 1000 if $longpage;
 
    my $totalpage = int($totalmessage/$msgsperpage+0.999999);
-   $totalpage = 1 if ($totalpage == 0);
+   $totalpage = 1 if $totalpage == 0;
 
-   $page = 1 if ($page < 1);
-   $page = $totalpage if ($page > $totalpage);
+   $page = 1 if $page < 1;
+   $page = $totalpage if $page > $totalpage;
 
    my $firstmessage = ($page-1) * $msgsperpage + 1;
 
    my $lastmessage = $firstmessage + $msgsperpage - 1;
-   $lastmessage = $totalmessage if ($lastmessage > $totalmessage);
+   $lastmessage = $totalmessage if $lastmessage > $totalmessage;
+
+   my $categorizedfolders_prefix = gettext('Sent');
 
    # process the messages that we have already retrieved above with getinfomessageids
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
 
-   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db " . f2u($folderdb));
+   ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
+      openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($folderdb) . " ($!)");
 
    my $messagesloop = [];
    foreach my $messagenumber ($firstmessage  .. $lastmessage) {
       my $messageid    = $r_messageids->[$messagenumber - 1];
       my $messagedepth = $r_messagedepths->[$messagenumber - 1] || 0;
 
-      next if (!defined $FDB{$messageid});
+      next unless defined $FDB{$messageid};
 
       my @attr    = split(/\n/, $FDB{$messageid});
       my $charset = $attr[$_CHARSET] || '';
 
       # assume msg is from sender using same language as the recipient's browser
-      $charset = $userbrowsercharset if ($charset eq '' && $prefs{charset} eq 'utf-8');
+      $charset = $userbrowsercharset if $charset eq '' && $prefs{charset} eq 'utf-8';
 
       # convert from message charset to current user charset
       my ($from, $to, $subject) = iconv('utf-8', $prefs{charset}, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
@@ -518,9 +510,8 @@ sub listmessages {
         && (
              $sort =~ m#^(?:recipient|recipient_rev)$#
              || $folder =~ m#^(?:sent-mail|saved-drafts)$#
-             || $folder =~ m#^\Q$lang_folders{'sent-mail'}\E[\Q$prefs{categorizedfolders_fs}\E\s_-]#i
-           ) ? (split(/\s+/, $to_names, 2), $to_addrs) :
-        (split(/\s+/, $from_name, 2), $from_addr);
+             || $folder =~ m#^\Q$categorizedfolders_prefix\E[\Q$prefs{categorizedfolders_fs}\E]#i
+           ) ? (split(/\s+/, $to_names, 2), $to_addrs) : (split(/\s+/, $from_name, 2), $from_addr);
 
       # subject
       $subject = substr($subject, 0, 64) . "..." if length $subject > 67;
@@ -535,17 +526,17 @@ sub listmessages {
                                 messageid            => $messageid,
                                 messagecharset       => lc($charset),
                                 messagestatus        => $status,
-                                status_read          => $status =~ m/R/i?1:0,
-                                status_answered      => $status =~ m/A/i?1:0,
-                                status_attachments   => $status =~ m/T/i?1:0,
-                                status_important     => $status =~ m/I/i?1:0,
+                                status_read          => $status =~ m/R/i ? 1 : 0,
+                                status_answered      => $status =~ m/A/i ? 1 : 0,
+                                status_attachments   => $status =~ m/T/i ? 1 : 0,
+                                status_important     => $status =~ m/I/i ? 1 : 0,
                                 messagedatesent      => ow::datetime::dateserial2str(
                                                           $attr[$_DATE], $prefs{timeoffset}, $prefs{daylightsaving},
                                                           $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone}),
                                 messagedatereceived  => ow::datetime::dateserial2str(
                                                           $attr[$_RECVDATE], $prefs{timeoffset}, $prefs{daylightsaving},
                                                           $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone}),
-                                showdatereceived     => $msgdatetype eq 'recvdate'?1:0,
+                                showdatereceived     => $msgdatetype eq 'recvdate' ? 1 : 0,
                                 timeintransitsign    => $timeintransitsign,
                                 timeintransithour    => int($timeintransit / 60 / 60),
                                 timeintransitmin     => int($timeintransit / 60) % 60,
@@ -562,7 +553,7 @@ sub listmessages {
                                                            ? $from_xowmuid
                                                            : $sort =~ m#^(?:recipient|recipient_rev)$#
                                                              || $folder =~ m#^(?:sent-mail|saved-drafts)$#
-                                                             || $folder =~ m#^\Q$lang_folders{'sent-mail'}\E[\Q$prefs{categorizedfolders_fs}\E\s_-]#i
+                                                             || $folder =~ m#^\Q$categorizedfolders_prefix\E[\Q$prefs{categorizedfolders_fs}\E]#i
                                                              ? $to_xowmuid
                                                              : $from_xowmuid
                                                         : '',
@@ -571,7 +562,7 @@ sub listmessages {
                                                            && (
                                                                 $sort =~ m#^(?:recipient|recipient_rev)$#
                                                                 || $folder =~ m#^(?:sent-mail|saved-drafts)$#
-                                                                || $folder =~ m#^\Q$lang_folders{'sent-mail'}\E[\Q$prefs{categorizedfolders_fs}\E\s_-]#i
+                                                                || $folder =~ m#^\Q$categorizedfolders_prefix\E[\Q$prefs{categorizedfolders_fs}\E]#i
                                                               ) ? 1 : 0,
                                 add_givenname        => $add_givenname,
                                 add_familyname       => $add_familyname,
@@ -580,12 +571,14 @@ sub listmessages {
                                 subjectindent        => '&nbsp;' x $messagedepth,
                                 subject_keyword      => $subject_keyword,
                                 messagesize          => lenstr($attr[$_SIZE], 0),
-                                accesskey            => (scalar @{$messagesloop}) + 1 < 10?(scalar @{$messagesloop}) + 1:'',
+                                accesskey            => (scalar @{$messagesloop}) + 1 < 10 ? (scalar @{$messagesloop}) + 1 : '',
                              }
           );
    }
 
-   ow::dbm::close(\%FDB, $folderdb);
+   ow::dbm::closedb(\%FDB, $folderdb) or
+      openwebmailerror(gettext('Cannot close db:') . ' ' . f2u($folderdb) . " ($!)");
+
    undef(@{$r_messageids});
    undef($r_messageids);
 
@@ -594,8 +587,9 @@ sub listmessages {
    if ($prefs{newmailwindowtime} > 0) {
       if ($now_inbox_newmessages > $orig_inbox_newmessages) {
          push(@{$incomingmessagesloop}, {
-                                           incomingfolder => $lang_folders{INBOX},
-                                           incomingcount  => $now_inbox_newmessages - $orig_inbox_newmessages,
+                                           is_defaultfolder     => 1,
+                                           incomingfolder_INBOX => gettext('Inbox'),
+                                           incomingcount        => $now_inbox_newmessages - $orig_inbox_newmessages,
                                         }
              );
       }
@@ -606,18 +600,20 @@ sub listmessages {
          foreach my $defaultfolder (get_defaultfolders(), 'DELETE') {
             if (exists $filtered{$defaultfolder} && $filtered{$defaultfolder} > 0) {
                push(@{$incomingmessagesloop}, {
-                                                 incomingfolder => $lang_folders{$defaultfolder},
-                                                 incomingcount  => $filtered{$defaultfolder},
+                                                 is_defaultfolder                => 1,
+                                                 "incomingfolder_$defaultfolder" => 1,
+                                                 incomingcount                   => $filtered{$defaultfolder},
                                               }
                    );
             }
          }
 
          foreach my $filteredfolder (sort keys %filtered) {
-            next if (is_defaultfolder($filteredfolder));
+            next if is_defaultfolder($filteredfolder);
             push(@{$incomingmessagesloop}, {
-                                              incomingfolder => f2u($filteredfolder),
-                                              incomingcount  => $filtered{$filteredfolder},
+                                              is_defaultfolder => 0,
+                                              incomingfolder   => f2u($filteredfolder),
+                                              incomingcount    => $filtered{$filteredfolder},
                                            }
                 );
          }
@@ -629,7 +625,7 @@ sub listmessages {
    # so that it can show on every page, not just main_listview
    my $unread_messages_info = '';
    if ($now_inbox_newmessages > 0) {
-      $unread_messages_info = "$lang_folders{INBOX}: $now_inbox_newmessages $lang_text{messages} $lang_text{unread}";
+      $unread_messages_info = sprintf(ngettext('Inbox: %d unread message', 'Inbox: %d unread messages', $now_inbox_newmessages), $now_inbox_newmessages);
    }
 
    # vars used again here just to surpress warnings
@@ -665,32 +661,33 @@ sub listmessages {
                       keyword                 => $keyword,
                       url_cgi                 => $config{ow_cgiurl},
                       url_html                => $config{ow_htmlurl},
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
+                      use_texticon            => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
                       iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},
 
                       # main_listview.tmpl
-                      msgsperpage             => $msgsperpage,
+                      messagesperpagesummary  => sprintf(ngettext('%d message per page','%d messages per page', $msgsperpage), $msgsperpage),
                       folderselectloop        => $folderselectloop,
-                      textbrowser             => $ENV{HTTP_USER_AGENT} =~ m/(?:lynx|w3m)/i?1:0,
+                      textbrowser             => $ENV{HTTP_USER_AGENT} =~ m/(?:lynx|w3m)/i ? 1 : 0,
                       enable_quota            => $enable_quota,
                       quotashowusage          => $quotashowusage,
                       quotaoverthreshold      => $quotaoverthreshold,
                       quotabytesusage         => $quotabytesusage,
                       quotapercentusage       => $quotapercentusage,
                       quotalimit              => $quotalimit,
-                      quotaoverlimit          => ($quotalimit > 0 && $quotausage > $quotalimit)?1:0,
+                      quotaoverlimit          => ($quotalimit > 0 && $quotausage > $quotalimit) ? 1 : 0,
                       spoollimit              => $config{spool_limit},
-                      spooloverlimit          => ($config{spool_limit} > 0 && $inboxsize_k > $config{spool_limit})?1:0,
+                      spooloverlimit          => ($config{spool_limit} > 0 && $inboxsize_k > $config{spool_limit}) ? 1 : 0,
                       overlimit               => (($quotalimit > 0 && $quotausage > $quotalimit)
-                                                 || ($config{spool_limit} > 0 && $inboxsize_k > $config{spool_limit}))?1:0,
-                      newmessages             => $newmessages,
+                                                 || ($config{spool_limit} > 0 && $inboxsize_k > $config{spool_limit})) ? 1 : 0,
                       totalmessages           => $totalmessage,
-                      totalsize               => lenstr($totalsize,1),
+                      messagessummary         => $newmessages
+                                                 ? "$newmessagessummary / $totalmessagesummary / " . lenstr($totalsize, 1)
+                                                 : "$totalmessagesummary / " . lenstr($totalsize, 1),
                       enable_userfilter       => $config{enable_userfilter},
                       enable_saprefs          => $config{enable_saprefs},
                       enable_preference       => $config{enable_preference},
-                      is_folder_inbox         => $folder eq 'INBOX'?1:0,
+                      is_folder_inbox         => $folder eq 'INBOX' ? 1 : 0,
                       enable_webmail          => $config{enable_webmail},
                       enable_pop3             => $config{enable_pop3},
                       enable_advsearch        => $config{enable_advsearch},
@@ -698,34 +695,37 @@ sub listmessages {
                       enable_calendar         => $config{enable_calendar},
                       enable_webdisk          => $config{enable_webdisk},
                       enable_sshterm          => $config{enable_sshterm},
-                      use_ssh2                => -r "$config{ow_htmldir}/applet/mindterm2/mindterm.jar"?1:0,
-                      use_ssh1                => -r "$config{ow_htmldir}/applet/mindterm/mindtermfull.jar"?1:0,
+                      use_ssh2                => -r "$config{ow_htmldir}/applet/mindterm2/mindterm.jar" ? 1 : 0,
+                      use_ssh1                => -r "$config{ow_htmldir}/applet/mindterm/mindtermfull.jar" ? 1 : 0,
                       calendar_defaultview    => $prefs{calendar_defaultview},
-                      enable_learnham         => $config{enable_learnspam} && $folder eq 'spam-mail'?1:0,
-                      enable_learnspam        => $config{enable_learnspam} && $folder !~ m#^(?:saved-drafts|sent-mail|spam-mail|virus-mail)$#?1:0,
-                      show_emptyfolder        => $folder =~ m#^(?:mail-trash|spam-mail|virus-mail)$#?1:0,
-                      foldername              => exists $lang_folders{$folder}?$lang_folders{$folder}:f2u($folder),
-                      folder_allmessages      => $folder_allmessages,
-                      trashfolder             => $quotalimit > 0 && $quotausage > $quotalimit?'DELETE':'mail-trash',
+                      enable_learnham         => $config{enable_learnspam} && $folder eq 'spam-mail' ? 1 : 0,
+                      enable_learnspam        => $config{enable_learnspam} && $folder !~ m#^(?:saved-drafts|sent-mail|spam-mail|virus-mail)$# ? 1 : 0,
+                      show_emptyfolder        => $folder =~ m#^(?:mail-trash|spam-mail|virus-mail)$# ? 1 : 0,
+                      emptyfolderconfirm      => $folder eq 'mail-trash'
+                                                 ? sprintf(ngettext('Empty Trash folder (%d message)?','Empty Trash folder (%d messages)?', $folder_allmessages), $folder_allmessages) :
+                                                 $folder eq 'spam-mail'
+                                                 ? sprintf(ngettext('Empty Spam folder (%d message)?','Empty Spam folder (%d messages)?', $folder_allmessages), $folder_allmessages) :
+                                                 $folder eq 'virus-mail'
+                                                 ? sprintf(ngettext('Empty Virus folder (%d message)?','Empty Virus folder (%d messages)?', $folder_allmessages), $folder_allmessages) : '',
+                      trashfolder             => $quotalimit > 0 && $quotausage > $quotalimit ? 'DELETE' : 'mail-trash',
                       totalpage               => $totalpage,
-                      nextpage                => $page < $totalpage?($page + 1):0,
+                      nextpage                => $page < $totalpage ? ($page + 1) : 0,
                       prevpage                => ($page - 1) || 0,
-                      is_right_to_left        => $ow::lang::RTL{$prefs{locale}}?1:0,
+                      is_right_to_left        => $ow::lang::RTL{$prefs{locale}} ? 1 : 0,
                       eventreminderloop       => get_upcomingevents($prefs{calendar_reminderdays}),
-                      controlbartop           => $prefs{ctrlposition_folderview} eq 'top'?1:0,
-                      controlbarbottom        => $prefs{ctrlposition_folderview} ne 'top'?1:0,
+                      controlbartop           => $prefs{ctrlposition_folderview} eq 'top' ? 1 : 0,
+                      controlbarbottom        => $prefs{ctrlposition_folderview} ne 'top' ? 1 : 0,
                       searchselectloop        => [
                                                     map { {
-                                                             option   => $_,
-                                                             label    => $lang_text{$_},
-                                                             selected => $_ eq $searchtype ? 1 : 0
+                                                             "option_$_" => $_,
+                                                             selected    => $_ eq $searchtype ? 1 : 0
                                                         } } qw(from to subject date attfilename header textcontent all)
                                                  ],
                       pageselectloop          => [
                                                     map { {
                                                              option   => $_,
                                                              label    => $_,
-                                                             selected => $_ eq $page?1:0
+                                                             selected => $_ eq $page ? 1 : 0
                                                         } } grep {
                                                                     $_ == 1
                                                                     || $_ == $totalpage
@@ -737,40 +737,45 @@ sub listmessages {
                                                  ],
                       destinationselectloop   => [
                                                     map { {
-                                                             option   => $_,
-                                                             label    => exists $lang_folders{$_}?$lang_folders{$_}:f2u($_),
-                                                             selected => $_ eq $destinationdefault?1:0
+                                                             "option_$_"      => 1,
+                                                             is_defaultfolder => is_defaultfolder($_) ? 1 : 0,
+                                                             option           => $_,
+                                                             label            => f2u($_),
+                                                             selected         => $_ eq $destinationdefault ? 1 : 0
                                                         } } @destinationfolders
                                                  ],
                       confirmmsgmovecopy      => $prefs{confirmmsgmovecopy},
                       middlepluginoutput      => htmlplugin($config{webmail_middle_pluginfile}, $config{webmail_middle_pluginfile_charset}, $prefs{charset}),
                       headingloop             => [
                                                     map { {
-                                                             date    => $_ eq 'date'?1:0,
-                                                             from    => $_ eq 'from'?1:0,
-                                                             subject => $_ eq 'subject'?1:0,
-                                                             size    => $_ eq 'size'?1:0,
+                                                             date    => $_ eq 'date' ? 1 : 0,
+                                                             from    => $_ eq 'from' ? 1 : 0,
+                                                             subject => $_ eq 'subject' ? 1 : 0,
+                                                             size    => $_ eq 'size' ? 1 : 0,
                                                              active  => ($_ eq $sort || "${_}_rev" eq $sort
-                                                                         || ($_ eq 'from' && $sort =~ m#^(?:recipient|sender|recipient_rev|sender_rev)$#))?1:0,
+                                                                         || (
+                                                                              $_ eq 'from'
+                                                                              && $sort =~ m#^(?:recipient|sender|recipient_rev|sender_rev)$#)
+                                                                            ) ? 1 : 0,
                                                         } } split(/\s*[,\s]+\s*/, $prefs{fieldorder}) # date from subject size
                                                  ],
-                      headingreversesort      => $sort =~ m#_rev$#?1:0,
-                      headingdatebysent       => $msgdatetype eq 'sentdate'?1:0,
+                      headingreversesort      => $sort =~ m#_rev$# ? 1 : 0,
+                      headingdatebysent       => $msgdatetype eq 'sentdate' ? 1 : 0,
                       headingfrombysender     => $sort =~ m#^(?:sender|sender_rev)$#        ? 1 :
                                                  $sort =~ m#^(?:recipient|recipient_rev)$#  ? 0 :
                                                  $folder =~ m#^(?:sent-mail|saved-drafts)$# ? 0 :
-                                                 $folder =~ m#^\Q$lang_folders{'sent-mail'}\E[\Q$prefs{categorizedfolders_fs}\E\s_-]#i ? 0:1,
-                      uselightbar             => $prefs{uselightbar}?1:0,
-                      singlemessage           => $totalmessage == 1?1:0,
+                                                 $folder =~ m#^\Q$categorizedfolders_prefix\E[\Q$prefs{categorizedfolders_fs}\E]#i ? 0 : 1,
+                      uselightbar             => $prefs{uselightbar} ? 1 : 0,
+                      singlemessage           => $totalmessage == 1 ? 1 : 0,
                       messagesloop            => $messagesloop,
-                      useminisearchicon       => $prefs{useminisearchicon}?1:0,
+                      useminisearchicon       => $prefs{useminisearchicon} ? 1 : 0,
                       headers                 => $prefs{headers},
-                      topjumpcontrol          => ($lastmessage - $firstmessage > 10)?1:0,
+                      topjumpcontrol          => ($lastmessage - $firstmessage > 10) ? 1 : 0,
                       newmailsound            => $now_inbox_newmessages > $orig_inbox_newmessages &&
-                                                 -f "$config{ow_htmldir}/sounds/$prefs{newmailsound}"?$prefs{newmailsound}:0,
-                      popup_quotahitdelmail   => $quotahit_deltype eq 'quotahit_delmail'?1:0,
-                      popup_quotahitdelfile   => $quotahit_deltype eq 'quotahit_delfile'?1:0,
-                      popup_messagesent       => (defined param('sentsubject') && $prefs{mailsentwindowtime} > 0)?1:0,
+                                                 -f "$config{ow_htmldir}/sounds/$prefs{newmailsound}" ? $prefs{newmailsound} : 0,
+                      popup_quotahitdelmail   => $quotahit_deltype eq 'quotahit_delmail' ? 1 : 0,
+                      popup_quotahitdelfile   => $quotahit_deltype eq 'quotahit_delfile' ? 1 : 0,
+                      popup_messagesent       => (defined param('sentsubject') && $prefs{mailsentwindowtime} > 0) ? 1 : 0,
                       sentsubject             => param('sentsubject') || 'N/A',
                       mailsentwindowtime      => $prefs{mailsentwindowtime},
                       incomingmessagesloop    => $incomingmessagesloop,
@@ -802,7 +807,7 @@ sub get_upcomingevents {
    # returns up to 5 upcoming events from multiple calendar sources
    my $reminderdays = shift;
 
-   return [] unless ($config{enable_calendar} && $reminderdays > 0);
+   return [] unless $config{enable_calendar} && $reminderdays > 0;
 
    my $localtime = ow::datetime::time_gm2local(time(), $prefs{timeoffset}, $prefs{daylightsaving}, $prefs{timezone});
    my ($year, $month, $day, $hour, $min) = (ow::datetime::seconds2array($localtime))[5,4,3,2,1];
@@ -810,11 +815,12 @@ sub get_upcomingevents {
    $month += 1;
    $year  += 1900;
 
-   my (%items, %indexes);
+   my %items   = ();
+   my %indexes = ();
 
    my $calbookfile = dotpath('calendar.book');
    if (readcalbook($calbookfile, \%items, \%indexes, 0) < 0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $calbookfile");
+      openwebmailerror(gettext('Cannot read calendar file:') . " $calbookfile ($!)");
    }
 
    # merge other calendar's events into the hashes. The 1E6 and 1E7 are offset numbers to
@@ -831,7 +837,7 @@ sub get_upcomingevents {
 
    my $upcomingevents = [];
 
-   my %seen = (); # remember index numbers so an item won't be shown more than once, in case it is a regexp
+   my %seen = (); # remember index numbers so an item will not be shown more than once, in case it is a regexp
    foreach my $daysfromnow (0..($reminderdays-1)) {
       my $wdaynum = 0;
       ($wdaynum, $year, $month, $day) = (ow::datetime::seconds2array($localtime+$daysfromnow*86400))[6,5,4,3];
@@ -842,17 +848,25 @@ sub get_upcomingevents {
       my $date2 = sprintf("%04d,%02d,%02d,%s", $year,$month,$day,$dow);
 
       # gather all of the events for this daysfromnow
-      my @indexlist=();
-      push(@indexlist, @{$indexes{$date}}) if (exists $indexes{$date} && defined $indexes{$date});
-      push(@indexlist, @{$indexes{'*'}})   if (exists $indexes{'*'} && defined $indexes{'*'});
+      my @indexlist = ();
+      push(@indexlist, @{$indexes{$date}}) if exists $indexes{$date} && defined $indexes{$date};
+      push(@indexlist, @{$indexes{'*'}})if exists $indexes{'*'} && defined $indexes{'*'};
       @indexlist = sort { ($items{$a}{starthourmin} || 1E9) <=> ($items{$b}{starthourmin} || 1E9) } @indexlist;
 
       foreach my $index (@indexlist) {
-         next if (exists $seen{$index} && $seen{$index} > 0);
-         next if (!$items{$index}{eventreminder});
+         next if exists $seen{$index} && $seen{$index} > 0;
+         next if !$items{$index}{eventreminder};
 
-         if ($date =~ m/$items{$index}{idate}/ || $date2 =~ /$items{$index}{idate}/ || ow::datetime::easter_match($year, $month, $day, $items{$index}{idate})) {
-            if ($items{$index}{starthourmin} >= $hourminnow || $items{$index}{starthourmin} == 0 || $daysfromnow > 0) {
+         if (
+              $date =~ m/$items{$index}{idate}/
+              || $date2 =~ /$items{$index}{idate}/
+              || ow::datetime::easter_match($year, $month, $day, $items{$index}{idate})
+            ) {
+            if (
+                 $items{$index}{starthourmin} >= $hourminnow
+                 || $items{$index}{starthourmin} == 0
+                 || $daysfromnow > 0
+               ) {
                $seen{$index}++;
 
                my $itemstartendtime = '#';
@@ -875,24 +889,24 @@ sub get_upcomingevents {
                }
 
                my $itemstring = (iconv($items{$index}{charset}, $prefs{charset}, $items{$index}{string}))[0];
-               $itemstring = substr($itemstring, 0, 20) . ".." if (length($itemstring) >= 21);
-               $itemstring .= '*' if ($index >= 1E6);
+               $itemstring = substr($itemstring, 0, 20) . ".." if length($itemstring) >= 21;
+               $itemstring .= '*' if $index >= 1E6;
 
-               my $itemtitletext = $prefs{dateformat} || "mm/dd/yyyy";
+               my $itemdatetext = $prefs{dateformat} || "mm/dd/yyyy";
                my ($m, $d) = (sprintf("%02d",$month), sprintf("%02d",$day));
-               $itemtitletext =~ s#yyyy#$year#;
-               $itemtitletext =~ s#mm#$m#;
-               $itemtitletext =~ s#dd#$d#;
+               $itemdatetext =~ s#yyyy#$year#;
+               $itemdatetext =~ s#mm#$m#;
+               $itemdatetext =~ s#dd#$d#;
 
                push(@{$upcomingevents}, {
-                                           itemdaysfromnow  => $daysfromnow,
-                                           itemstartendtime => $itemstartendtime,
-                                           itemstring       => $itemstring,
-                                           itemtitletext    => $itemtitletext,
-                                           itemweekday      => $lang_wday{$wdaynum},
-                                           itemyear         => $year,
-                                           itemmonth        => $month,
-                                           itemday          => $day,
+                                           itemdaysfromnow        => $daysfromnow,
+                                           itemstartendtime       => $itemstartendtime,
+                                           itemstring             => $itemstring,
+                                           itemdatetext           => $itemdatetext,
+                                           "itemweekday_$wdaynum" => $wdaynum,
+                                           itemyear               => $year,
+                                           itemmonth              => $month,
+                                           itemday                => $day,
                                         }
                    );
 
@@ -917,7 +931,7 @@ sub markasread {
 
       if ($attr[$_STATUS] !~ m/R/i) {
          ow::filelock::lock($folderfile, LOCK_EX) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
+            openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($folderfile) . " ($!)");
          update_message_status($messageid, $attr[$_STATUS] . 'R', $folderdb, $folderfile);
          ow::filelock::lock($folderfile, LOCK_UN);
       }
@@ -940,7 +954,7 @@ sub markasunread {
          $newstatus =~ s/[RV]//ig;
 
          ow::filelock::lock($folderfile, LOCK_EX) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
+            openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($folderfile) . " ($!)");
          update_message_status($messageid, $newstatus, $folderdb, $folderfile);
          ow::filelock::lock($folderfile, LOCK_UN);
       }
@@ -949,21 +963,19 @@ sub markasunread {
 
 sub movemessage {
    my ($r_messageids, $destination) = @_;
-   if ($destination eq $folder) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{shouldnt_move_here}");
-   }
+
+   openwebmailerror(gettext('Move aborted: source and destination folder are the same.')) if $destination eq $folder;
 
    my $op = 'move';
    if ($destination eq 'DELETE') {
-      return if (defined param('copybutton'));       # copy to DELETE is meaningless, so return
+      return if defined param('copybutton'); # copy to DELETE is meaningless, so return
       $op = 'delete';
    } else {
-      $op = 'copy' if (defined param('copybutton')); # copy button pressed
+      $op = 'copy' if defined param('copybutton'); # copy button pressed
    }
 
-   if ($quotalimit > 0 && $quotausage > $quotalimit && $op ne "delete") {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{quotahit_alert}");
-   }
+   openwebmailerror(gettext('Quota limit exceeded. Please delete some messages or webdisk files to free disk space.'))
+     if $quotalimit > 0 && $quotausage > $quotalimit && $op ne 'delete';
 
    my ($learntype, $learnfolder) = ('none', $folder);
    if ($destination eq 'LEARNSPAM') {
@@ -985,60 +997,65 @@ sub movemessage {
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
    my ($dstfile, $dstdb)       = get_folderpath_folderdb($user, $destination);
 
-   if (!-f $folderfile) {
-      openwebmailerror(__FILE__, __LINE__, f2u($folderfile) . " $lang_err{doesnt_exist}");
-   }
+   openwebmailerror(gettext('File does not exist:') . ' ' . f2u($folderfile)) unless -f $folderfile;
 
-   my ($counted, $errmsg) = (0, '');
+   my $counted = 0;
+
    if ($folder ne $destination) {
       ow::filelock::lock($folderfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
+         openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($folderfile) . " ($!)");
 
       if ($destination eq 'DELETE') {
-         ($counted, $errmsg) = operate_message_with_ids($op, $r_messageids, $folderfile, $folderdb);
+         $counted = operate_message_with_ids($op, $r_messageids, $folderfile, $folderdb);
       } else {
-         if (!-f "$dstfile" ) {
+         if (!-f $dstfile) {
             if (!sysopen(F, $dstfile, O_WRONLY|O_APPEND|O_CREAT)) {
-               my $err = $!;
                ow::filelock::lock($folderfile, LOCK_UN);
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} $lang_err{destination_folder} " . f2u($dstfile) . "! ($err)");
+               openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($dstfile) . " ($!)");
             }
             close(F);
          }
+
          if (!ow::filelock::lock($dstfile, LOCK_EX)) {
-            ow::filelock::lock($folderfile, LOCK_UN);
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($dstfile) . "!");
+            ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
+            openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($dstfile) . " ($!)");
          }
-         ($counted, $errmsg) = operate_message_with_ids($op, $r_messageids, $folderfile, $folderdb, $dstfile, $dstdb);
+
+         $counted = operate_message_with_ids($op, $r_messageids, $folderfile, $folderdb, $dstfile, $dstdb);
       }
-      folder_zapmessages($folderfile, $folderdb) if ($counted > 0);
+
+      folder_zapmessages($folderfile, $folderdb) if $counted > 0;
 
       ow::filelock::lock($dstfile, LOCK_UN);
       ow::filelock::lock($folderfile, LOCK_UN);
    }
 
-   # fork a child to learn the msg in the background
+   # fork a child to learn the message in the background
    # so the resultant msglist can be returned as soon as possible
    if ($learntype ne 'none') {
       # below handler is not necessary, as we call zombie_cleaner at end of each request
       #local $SIG{CHLD}=\&ow::tool::zombie_cleaner;
 
-      local $|=1; 			# flush all output
+      local $| = 1; # flush all output
 
-      if ( fork() == 0 ) {		# child
-         close(STDIN); close(STDOUT); close(STDERR);
-         writelog("debug - $learntype process forked - " . __FILE__ . ":" . __LINE__) if ($config{debug_fork});
+      if (fork() == 0) { # child
+         close(STDIN);
+         close(STDOUT);
+         close(STDERR);
+         writelog("debug - $learntype process forked") if $config{debug_fork};
 
          ow::suid::drop_ruid_rgid(); # set ruid=euid to avoid fork in spamcheck.pl
+
          my ($totallearned, $totalexamed) = (0,0);
          my ($learnfile, $learndb) = get_folderpath_folderdb($user, $learnfolder);
-         # TODO: replace Filehandle with IO::Handle. IO::Handle uses less memory.
-         # right now this is coming from the maildb.pl file 'use Filehandle;'
-         my $learnhandle = FileHandle->new();
+
+         my $learnhandle = do { no warnings 'once'; local *FH };
          foreach my $messageid (@{$r_messageids}) {
-            my ($msgsize, $errmsg, $block, $learned, $examed);
-            ($msgsize, $errmsg) = lockget_message_block($messageid, $learnfile, $learndb, \$block);
-            next if ($msgsize <= 0);
+            my $block   = '';
+            my $learned = 0;
+            my $examed  = 0;
+            my $msgsize = lockget_message_block($messageid, $learnfile, $learndb, \$block);
+            next if $msgsize <= 0;
 
             if ($learntype eq 'learnspam') {
                ($learned, $examed) = ow::spamcheck::learnspam($config{learnspam_pipe}, \$block);
@@ -1059,16 +1076,17 @@ sub movemessage {
          writelog($m);
          writehistory($m);
 
-         writelog("debug - $learntype process terminated - " . __FILE__ . ":" . __LINE__) if ($config{debug_fork});
+         writelog("debug - $learntype process terminated") if $config{debug_fork};
          openwebmail_exit(0);
       }
    }
 
-   if ($counted > 0){
-      my $msg;
-      if ( $op eq 'move') {
+   if ($counted > 0) {
+      my $msg = '';
+
+      if ($op eq 'move') {
          $msg = "move message - move $counted msgs from $folder to $destination - ids=" . join(", ", @{$r_messageids});
-      } elsif ($op eq 'copy' ) {
+      } elsif ($op eq 'copy') {
          $msg = "copy message - copy $counted msgs from $folder to $destination - ids=" . join(", ", @{$r_messageids});
       } else {
          $msg = "delete message - delete $counted msgs from $folder - ids=" . join(", ", @{$r_messageids});
@@ -1077,11 +1095,11 @@ sub movemessage {
            $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2];
         }
       }
+
       writelog($msg);
       writehistory($msg);
-   } elsif ($counted < 0) {
-      openwebmailerror(__FILE__, __LINE__, $errmsg);
    }
+
    return;
 }
 
@@ -1090,14 +1108,16 @@ sub www_emptyfolder {
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
 
    ow::filelock::lock($folderfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
+      openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($folderfile) . " ($!)");
+
    my $ret = empty_folder($folderfile, $folderdb);
-   ow::filelock::lock($folderfile, LOCK_UN);
+
+   ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
 
    if ($ret == -1) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} " . f2u($folderfile) . "!");
+      openwebmailerror(gettext('Cannot write file:') . ' ' . f2u($folderfile) . " ($!)");
    } elsif ($ret == -2) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_updatedb} db " . f2u($folderdb));
+      openwebmailerror(gettext('Cannot update db:') . ' ' . f2u($folderdb) . " ($!)");
    }
 
    writelog("emptyfolder - $folder");
@@ -1110,25 +1130,22 @@ sub www_pop3_fetch {
    my $pop3user = param('pop3user') || '';
    my $pop3book = dotpath('pop3.book');
 
-   return if ($pop3host eq '' || $pop3user eq '' || !-f $pop3book);
+   return if $pop3host eq '' || $pop3user eq '' || !-f $pop3book;
 
-   foreach ( @{$config{pop3_disallowed_servers}} ) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{disallowed_pop3} $pop3host") if ($pop3host eq $_);
+   foreach (@{$config{pop3_disallowed_servers}}) {
+      openwebmailerror(gettext('Disallowed POP3 server:') . " $pop3host") if $_ eq $pop3host;
    }
 
-   my %accounts;
-   if (readpop3book($pop3book, \%accounts) < 0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $pop3book!");
-   }
+   my %accounts = ();
+   openwebmailerror(gettext('Cannot read pop3 book:') . " $pop3book")
+     if readpop3book($pop3book, \%accounts) < 0;
 
    # ignore the enable flag since this is triggered by user clicking
    my ($pop3ssl, $pop3passwd, $pop3del) = (split(/\@\@\@/, $accounts{"$pop3host:$pop3port\@\@\@$pop3user"}))[2,4,5];
 
    my ($ret, $errmsg) = pop3_fetch($pop3host,$pop3port,$pop3ssl, $pop3user,$pop3passwd,$pop3del);
 
-   if ($ret < 0) {
-      openwebmailerror(__FILE__, __LINE__, "$errmsg at $pop3user\@$pop3host:$pop3port");
-   }
+   openwebmailerror("$errmsg :: $pop3user\@$pop3host:$pop3port") if $ret < 0;
 }
 
 sub pop3_fetch {
@@ -1140,38 +1157,43 @@ sub pop3_fetch {
       writelog("pop3 error - $errmsg at $pop3user\@$pop3host:$pop3port");
       writehistory("pop3 error - $errmsg at $pop3user\@$pop3host:$pop3port");
    }
-   return($ret, $errmsg);
+
+   return ($ret, $errmsg);
 }
 
 sub authpop3_fetch {
-   return 0 if (!$config{authpop3_getmail});
+   return 0 unless $config{authpop3_getmail};
 
    my $authpop3book = dotpath('authpop3.book');
-   my %accounts;
-   if (-f "$authpop3book") {
+   my %accounts = ();
+   if (-f $authpop3book) {
       if (readpop3book($authpop3book, \%accounts) > 0) {
          my $login = $user;
          $login .= "\@$domain" if $config{auth_withdomain};
 
          my ($pop3ssl, $pop3passwd, $pop3del) = (split(/\@\@\@/, $accounts{"$config{authpop3_server}:$config{authpop3_port}\@\@\@$login"}))[2,4,5];
 
-         # don't case enable flag since noreason to stop fetch from auth server
+         # do not case enable flag since noreason to stop fetch from auth server
          return pop3_fetch($config{authpop3_server},$config{authpop3_port},$pop3ssl, $login,$pop3passwd,$pop3del);
       } else {
-         writelog("pop3 error - couldn't open $authpop3book");
-         writehistory("pop3 error - couldn't open $authpop3book");
+         writelog("pop3 error - could not open $authpop3book");
+         writehistory("pop3 error - could not open $authpop3book");
       }
    }
    return 0;
 }
 
 sub www_pop3_fetches {
-   return if (! -f dotpath('pop3.book'));
+   return unless -f dotpath('pop3.book');
+
    if (update_pop3check()) {
-      authpop3_fetch() if ($config{auth_module} eq 'auth_pop3.pl' ||
-                           $config{auth_module} eq 'auth_ldap_vpopmail.pl');
+      authpop3_fetch() if (
+                            $config{auth_module} eq 'auth_pop3.pl'
+                            || $config{auth_module} eq 'auth_ldap_vpopmail.pl'
+                          );
    }
-   pop3_fetches(10);	# wait background fetching for no more 10 second
+
+   pop3_fetches(10); # wait background fetching for no more 10 second
 }
 
 sub pop3_fetches {
@@ -1179,54 +1201,59 @@ sub pop3_fetches {
 
    my $pop3book = dotpath('pop3.book');
 
-   my %accounts;
-   return 0 if ( ! -f "$pop3book" );
-   if (readpop3book("$pop3book", \%accounts) < 0) {
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $pop3book!");
-   }
+   my %accounts = ();
+
+   return 0 unless -f $pop3book;
+
+   openwebmailerror(gettext('Cannot read pop3 book:') . " $pop3book")
+     if readpop3book($pop3book, \%accounts) < 0;
 
    # fork a child to do fetch pop3 mails and return immediately
-   if (%accounts > 0) {
+   if (scalar keys %accounts > 0) {
       local $| = 1;                                                 # flush all output
       local $pop3_fetches_complete = 0;	                            # localize for reentry safe
       local $SIG{CHLD} = sub { wait; $pop3_fetches_complete = 1; }; # signaled when pop3 fetch completes
 
-      if ( fork() == 0 ) { # child
+      if (fork() == 0) { # child
          close(STDIN);
          close(STDOUT);
          close(STDERR);
 
-         writelog("debug - pop3_fetches process forked - " . __FILE__ . ":" . __LINE__) if ($config{debug_fork});
+         writelog("debug - pop3_fetches process forked") if $config{debug_fork};
 
          ow::suid::drop_ruid_rgid(); # set ruid=euid can avoid fork in spamcheck.pl
          foreach (values %accounts) {
             my ($pop3host,$pop3port,$pop3ssl, $pop3user,$pop3passwd, $pop3del, $enable) = split(/\@\@\@/,$_);
 
-            next if (!$enable);
+            next unless $enable;
 
             my $disallowed = 0;
-            foreach ( @{$config{pop3_disallowed_servers}} ) {
+
+            foreach (@{$config{pop3_disallowed_servers}}) {
                if ($pop3host eq $_) {
                   $disallowed = 1;
                   last;
                }
             }
-            next if ($disallowed);
+
+            next if $disallowed;
+
             my ($ret, $errmsg) = fetchmail($pop3host, $pop3port, $pop3ssl, $pop3user, $pop3passwd, $pop3del);
+
             if ($ret < 0) {
                writelog("pop3 error - $errmsg at $pop3user\@$pop3host:$pop3port");
                writehistory("pop3 error - $errmsg at $pop3user\@$pop3host:$pop3port");
             }
          }
 
-         writelog("debug - fetch pop3s process terminated - " .__FILE__.":". __LINE__) if ($config{debug_fork});
+         writelog("debug - fetch pop3s process terminated") if $config{debug_fork};
          openwebmail_exit(0);
       }
 
       # wait for fetch to complete for $timeout seconds
-      for (my $i=0; $i<$timeout; $i++) {
+      for (my $i = 0; $i < $timeout; $i++) {
          sleep 1;
-         last if ($pop3_fetches_complete);
+         last if $pop3_fetches_complete;
       }
    }
 
@@ -1242,11 +1269,13 @@ sub update_pop3check {
 
    if (!$ftime) { # create if not exist
       sysopen(F, $pop3checkfile, O_WRONLY|O_TRUNC|O_CREAT) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} $pop3checkfile! ($!)");
+         openwebmailerror(gettext('Cannot open file:') . " $pop3checkfile ($!)");
+
       print F "pop3check timestamp file";
-      close(F);
+
+      close(F) or writelog("cannot close file $pop3checkfile ($!)");
    }
-   if ( $now - $ftime > $config{fetchpop3interval} * 60 ) {
+   if ($now - $ftime > $config{fetchpop3interval} * 60) {
       utime($now - 1, $now - 1, ow::tool::untaint($pop3checkfile)); # -1 is trick for nfs
       return 1;
    } else {
@@ -1259,14 +1288,15 @@ sub moveoldmsg2saved {
    my ($dstfile, $dstdb) = get_folderpath_folderdb($user, 'saved-messages');
 
    ow::filelock::lock($srcfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($srcfile) . "!");
+      openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($srcfile) . " ($!)");
+
    ow::filelock::lock($dstfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($dstfile) . "!");
+      openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($dstfile) . " ($!)");
 
    my $counted = move_oldmsg_from_folder($srcfile, $srcdb, $dstfile, $dstdb);
 
-   ow::filelock::lock($dstfile, LOCK_UN);
-   ow::filelock::lock($srcfile, LOCK_UN);
+   ow::filelock::lock($dstfile, LOCK_UN) or writelog("cannot unlock file $dstfile");
+   ow::filelock::lock($srcfile, LOCK_UN) or writelog("cannot unlock file $srcfile");
 
    if ($counted > 0){
       my $msg = "move message - move $counted old msgs from INBOX to saved-messages";
@@ -1282,7 +1312,7 @@ sub clean_trash_spamvirus {
 
    if (!-e $trashcheckfile) { # create if not exist
       sysopen(TRASHCHECK, $trashcheckfile, O_WRONLY|O_TRUNC|O_CREAT) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} " . f2u($trashcheckfile) . "! ($!)");
+         openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($trashcheckfile) . " ($!)");
       print TRASHCHECK "trashcheck timestamp file";
       close(TRASHCHECK);
    }
@@ -1295,30 +1325,33 @@ sub clean_trash_spamvirus {
                         'virus-mail' => $prefs{spamvirusreserveddays},
                       );
 
-   my (@f, $msg);
+   my @f   = ();
+   my $msg = '';
+
    push(@f, 'virus-mail') if $config{has_virusfolder_by_default};
    push(@f, 'spam-mail') if $config{has_spamfolder_by_default};
    push(@f, 'mail-trash');
+
    foreach my $folder (@f) {
-      next if ($reserveddays{$folder} < 0 || $reserveddays{$folder} >= 999999);
+      next if $reserveddays{$folder} < 0 || $reserveddays{$folder} >= 999999;
 
       my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
 
       ow::filelock::lock($folderfile, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
+         openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($folderfile) . " ($!)");
 
       if (exists $reserveddays{$folder} && $reserveddays{$folder} == 0) {
          # empty folder
          my $ret = empty_folder($folderfile, $folderdb);
          if ($ret == 0) {
-            $msg .= ', ' if (defined $msg && $msg ne '');
-            $msg .= "all msg deleted from $folder";
+            $msg .= ', ' if defined $msg && $msg ne '';
+            $msg .= "all messages deleted from $folder";
          }
       } elsif ($now - $ftime > 43200) { # do clean only if last clean has passed for more than 0.5 day (43200 sec)
          my $deleted = delete_message_by_age($reserveddays{$folder}, $folderdb, $folderfile);
          if ($deleted > 0) {
-            $msg .= ', ' if (defined $msg && $msg ne '');
-            $msg .= "$deleted msg deleted from $folder";
+            $msg .= ', ' if defined $msg && $msg ne '';
+            $msg .= "$deleted messages deleted from $folder";
          }
       }
       ow::filelock::lock($folderfile, LOCK_UN);

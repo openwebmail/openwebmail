@@ -113,7 +113,7 @@ umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :standard);
+use CGI 3.31 qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use File::Path;
 
@@ -153,18 +153,20 @@ if ( $config{'auth_module'} ne 'auth_vdomain.pl' ) {
 
 # $user has been determined by openwebmain_init()
 if (!$config{'enable_vdomain'} || !is_vdomain_adm($user)) {
-   openwebmailerror(__FILE__, __LINE__, "$lang_text{'vdomain_usermgr'} $lang_err{'access_denied'}");
+   openwebmailerror("$lang_text{'vdomain_usermgr'} $lang_err{'access_denied'}");
 }
 
 # $domain has been determined by openwebmain_init()
 foreach ("$config{'vdomain_vmpop3_pwdpath'}/$domain/$config{'vdomain_vmpop3_pwdname'}",
          @{$config{'vdomain_postfix_virtual'}},
          @{$config{'vdomain_postfix_aliases'}}) {
-   openwebmailerror(__FILE__, __LINE__, "$_ $lang_err{'doesnt_exist'}") if (! -f $_);
+   openwebmailerror("$_ $lang_err{'doesnt_exist'}") if (! -f $_);
 }
 
 my $action = param('action');
-writelog("debug - request vdomain begin, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+
+writelog("debug - request vdomain begin, action=$action") if $config{debug_request};
+
 if ($action eq 'display_vuserlist') {
    display_vuserlist();
 } elsif ($action eq 'edit_vuser' ||
@@ -176,9 +178,10 @@ if ($action eq 'display_vuserlist') {
 } elsif ($action eq 'delete_vuser') {
    delete_vuser();
 } else {
-   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{'has_illegal_chars'}");
+   openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
-writelog("debug - request vdomain end, action=$action - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+
+writelog("debug - request vdomain end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 ########## END MAIN ##############################################
@@ -568,13 +571,13 @@ sub change_vuser {
    my $alert;
 
    if ($new) {
-      openwebmailerror(__FILE__, __LINE__, $lang_err{'vdomain_toomanyuser'}) if ($config{'vdomain_maxuser'}>0 and @vuser_list>$config{'vdomain_maxuser'});
+      openwebmailerror($lang_err{'vdomain_toomanyuser'}) if ($config{'vdomain_maxuser'}>0 and @vuser_list>$config{'vdomain_maxuser'});
       if ( $pwd =~ /\*\*/ ) {
          $pwd='';
          $pwd2=$pwd;
       }
    } else {
-      openwebmailerror(__FILE__, __LINE__, "$vuser\@$domain $lang_err{'doesnt_exist'}") if (! vuser_exists($vuser,@vuser_list) );
+      openwebmailerror("$vuser\@$domain $lang_err{'doesnt_exist'}") if (! vuser_exists($vuser,@vuser_list) );
    }
 
    delete $from_list{lc(param('aliasdel'))} if ( param('aliasdel') );
@@ -667,7 +670,7 @@ sub change_vuser {
          if (mkdir ($vhomedir, 0700) && chown($vuid, $vgid, $vhomedir)) {
             writelog("vdomain $user: $vuser\@$domain  create homedir - $vhomedir, uid=$vuid, gid=$vgid");
          } else {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_create'} $vhomedir ($!)");
+            openwebmailerror("$lang_err{'couldnt_create'} $vhomedir ($!)");
          }
       }
 
@@ -681,7 +684,7 @@ sub change_vuser {
       my $releasedatefile=_dotpath('release.date', $domain, $vuser, $vhomedir);
       writelog("vdomain $user: $vuser\@$domain  create release.date - $releasedatefile, uid=$vuid, gid=$vgid");
       sysopen(RD, $releasedatefile, O_WRONLY|O_TRUNC|O_CREAT) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $releasedatefile ($!)");
+         openwebmailerror("$lang_err{'couldnt_write'} $releasedatefile ($!)");
       print RD "$config{'releasedate'}\n";
       close(RD);
       chmod(0700, $releasedatefile);
@@ -690,7 +693,7 @@ sub change_vuser {
       my $dotforward="$vhomedir/.forward";
       writelog("vdomain $user: $vuser\@$domain  create .forward - $dotforward, uid=$vuid, gid=$vgid");
       sysopen(DF, $dotforward, O_WRONLY|O_TRUNC|O_CREAT) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $dotforward ($!)");
+         openwebmailerror("$lang_err{'couldnt_write'} $dotforward ($!)");
       print DF vdomain_userspool($vuser, $vhomedir)."\n";
       close(DF);
       chmod(0700, $dotforward);
@@ -1080,7 +1083,7 @@ sub vuser_update {
    }
 
    sysopen($fh, $file, O_WRONLY|O_TRUNC|O_CREAT) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $file ($!)");
+      openwebmailerror("$lang_err{'couldnt_write'} $file ($!)");
 
    print $fh @lines;
 
@@ -1112,9 +1115,9 @@ sub from_update {
    else { writelog("vdomain $user: $vuser\@$domain  create from.book - $frombook, uid=$<, gid=$>"); }
 
    ow::filelock::lock($frombook, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $frombook");
+      openwebmailerror("$lang_err{'couldnt_writelock'} $frombook");
    sysopen(FB, $frombook, O_WRONLY|O_TRUNC|O_CREAT) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $frombook ($!)");
+      openwebmailerror("$lang_err{'couldnt_write'} $frombook ($!)");
 
    print FB "$vuser\@$domain\@\@\@$realnm\n" if ($realnm);
    foreach (sort keys %from_list) {
@@ -1155,7 +1158,7 @@ sub valias_update {
    }
 
    sysopen($fh, $file, O_WRONLY|O_TRUNC|O_CREAT) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $file ($!)");
+      openwebmailerror("$lang_err{'couldnt_write'} $file ($!)");
 
    print $fh @lines;
 
@@ -1224,7 +1227,7 @@ sub vpasswd_update {
    writelog("vdomain $user: $vuser\@$domain  disable user login") if ($disable);
 
    sysopen($fh, $file, O_WRONLY|O_TRUNC|O_CREAT) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_write'} $file ($!)");
+      openwebmailerror("$lang_err{'couldnt_write'} $file ($!)");
 
    print $fh @lines;
 
@@ -1242,7 +1245,7 @@ sub get_uid_home_release {
    my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
 
    my ($ret,$err,$uid,$homedir) = (ow::auth::get_userinfo(\%config, "$user\@$domain"))[0,1,3,5];
-   openwebmailerror(__FILE__, __LINE__, "$lang_err{'auth_syserr'} ret $ret, $err") if ($ret!=0);
+   openwebmailerror("$lang_err{'auth_syserr'} ret $ret, $err") if ($ret!=0);
 
    if ( !$config{'use_syshomedir'} ) {
       $homedir = "$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/".$user:$user);
@@ -1303,13 +1306,13 @@ sub root_open {
 
    if ($action ne '') {
       ow::filelock::lock($file, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_writelock'} $file");
+         openwebmailerror("$lang_err{'couldnt_writelock'} $file");
    } else {
       ow::filelock::lock($file, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_readlock'} $file");
+         openwebmailerror("$lang_err{'couldnt_readlock'} $file");
    }
    sysopen($fh, "$action$file", O_RDONLY) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{'couldnt_read'} $file ($!)");
+      openwebmailerror("$lang_err{'couldnt_read'} $file ($!)");
 
    return ($fh, $file, $origruid, $origeuid, $origegid);
 }

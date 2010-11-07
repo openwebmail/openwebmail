@@ -34,35 +34,34 @@
 # Developers should familiarize themselves with the vcard hash
 # data structure format described above before coding in this module
 
-
 use strict;
 use warnings;
 
 use vars qw($SCRIPT_DIR);
 
-if (-f "/etc/openwebmail_path.conf") {
-   my $pathconf = "/etc/openwebmail_path.conf";
-   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+if (-f '/etc/openwebmail_path.conf') {
+   my $pathconf = '/etc/openwebmail_path.conf';
+   open(F, $pathconf) or die "Cannot open $pathconf: $!";
    my $pathinfo = <F>;
-   close(F) or die("Cannot close $pathconf: $!");
+   close(F) or die "Cannot close $pathconf: $!";
    ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
 } else {
    ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
 
-die("SCRIPT_DIR cannot be set") if $SCRIPT_DIR eq '';
+die 'SCRIPT_DIR cannot be set' if $SCRIPT_DIR eq '';
 push (@INC, $SCRIPT_DIR);
 
 # secure the environment
 delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
-$ENV{PATH}='/bin:/usr/bin';
+$ENV{PATH} = '/bin:/usr/bin';
 
 # make sure the openwebmail group can write
 umask(0002);
 
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :cgi charset);
+use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 
 # load OWM libraries
@@ -92,10 +91,8 @@ use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw(%prefs);
 
 # extern vars
-use vars qw($htmltemplatefilters);                                                                                # defined in ow-shared.pl
+use vars qw($htmltemplatefilters $po);                                                                            # defined in ow-shared.pl
 use vars qw($_CHARSET);                                                                                           # defined in maildb.pl
-use vars qw(%lang_folders %lang_sizes %lang_text %lang_err %lang_wday %lang_order %lang_wday_abbrev %lang_month); # defined in lang/xy
-use vars qw(%lang_abookselectionlabels %lang_abookclasslabels %lang_timezonelabels %lang_wdbutton);               # defined in lang/xy
 use vars qw(%charset_convlist);                                                                                   # defined in iconv.pl
 
 # local globals
@@ -117,7 +114,7 @@ my $supportedformats = {
 openwebmail_requestbegin();
 userenv_init();
 
-openwebmailerror(__FILE__, __LINE__, "$lang_text{addressbook} $lang_err{access_denied}") if !$config{enable_addressbook};
+openwebmailerror(gettext('Access denied: the addressbook module is not enabled.')) if !$config{enable_addressbook};
 
 # convert old proprietary addressbooks to the new vcard format
 convert_addressbook('user', $prefs{charset});
@@ -154,7 +151,7 @@ $abookfolder = 'ALL' if $abookfolder ne 'ALL' && !-e abookfolder2file($abookfold
 refresh_ldapcache();
 
 my $action = param('action') || '';
-writelog("debug - request abook begin, action=$action - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
+writelog("debug - request abook begin, action=$action - " . __FILE__ . ':' . __LINE__) if $config{debug_request};
 
 $action eq "addrlistview"          ? addrlistview()          :
 $action eq "addrcardview"          ? addrcardview()          :
@@ -170,12 +167,11 @@ $action eq "addrimportattachment"  ? addrimportattachment()  :
 $action eq "addrbookedit"          ? addrbookedit()          :
 $action eq "addrbookdownload"      ? addrbookdownload()      :
 $action eq "addrautosuggest"       ? addrautosuggest()       :
-openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
+openwebmailerror(gettext('Action has illegal characters.'));
 
 writelog("debug - request abook end, action=$action - " . __FILE__ . ':' . __LINE__) if $config{debug_request};
 
 openwebmail_requestend();
-
 
 
 # BEGIN SUBROUTINES
@@ -202,7 +198,7 @@ sub refresh_ldapcache {
 
    if (fork() == 0) {
       # child
-      writelog("debug - refresh_ldapcache_abookfile process forked - " . __FILE__ . ":" . __LINE__) if $config{debug_fork};
+      writelog("debug - refresh_ldapcache_abookfile process forked - " . __FILE__ . ':' . __LINE__) if $config{debug_fork};
 
       close(STDIN);
       close(STDOUT);
@@ -273,8 +269,8 @@ sub refresh_ldapcache {
          # generate deterministic xowmuid for entries on LDAP
          # since ldapcache may be refreshed between user accesses
          my $k = $name . $email;
-         $k = ow::tool::calc_checksum(\$k);
-         $k =~ s/(.)/sprintf("%02x",ord($1))/eg;
+         $k = ow::tool::calc_checksum(\$k); # md5 result
+         $k =~ s/(.)/sprintf('%02x',ord($1))/eg;
          $k = uc($k.$k);
          my $xowmuid = substr($k, 0,8) . '-' . substr($k,8,6) . '-' . substr($k,14,12) . '-' . substr($k,26,4);
 
@@ -283,7 +279,7 @@ sub refresh_ldapcache {
          my $rev = ($uid_year+1900) . ($uid_mon+1) . $uid_mday . 'T' . $uid_hour . $uid_min . $uid_sec . 'Z';
 
          # Name MUST be defined
-         $name = $lang_text{name} if $name eq '' || $name =~ m/^\s+$/;
+         $name = gettext('Name') if $name eq '' || $name =~ m/^\s+$/;
 
          # Start output
          my ($first, $mid, $last, $nick) = _parse_username($name);
@@ -307,9 +303,7 @@ sub refresh_ldapcache {
          }
 
          # how we handle distribution lists
-         if (@emails > 1) {
-            push(@entries, qq|X-OWM-GROUP:$name\r\n|);
-         }
+         push(@entries, qq|X-OWM-GROUP:$name\r\n|) if scalar @emails > 1;
 
          push(@entries, qq|NOTE:$note\r\n|) if $note ne '';
 
@@ -386,7 +380,7 @@ sub addrlistview {
    my @viewabookfolders = grep { $abookfolder eq $_ } @readableabookfolders;
 
    # if viewabookfolders is empty its because user has the magic 'ALL' book selected
-   # or they selected a book they don't have read perms on, in which case default to
+   # or they selected a book they do not have read perms on, in which case default to
    # the magic 'ALL'
    @viewabookfolders = @readableabookfolders if scalar @viewabookfolders < 1;
 
@@ -433,7 +427,7 @@ sub addrlistview {
       $searchterms->{'X-OWM-CHARSET'}[0]{VALUE} = $prefs{charset};
    }
 
-   # don't return full vcard data structures
+   # do not return full vcard data structures
    # only return the fields we need, to keep memory down
    my $only_return = {                       # Always return these ones because:
                        'CATEGORIES'    => 1, # Categories is always a searchable parameter
@@ -480,56 +474,56 @@ sub addrlistview {
                                   ||
 
                                   ( # sort by the chosen sort field
-                                   exists $contacts->{($sort_reverse?$b:$a)}{$fieldmap{$abooksort_short}}
-                                   ? lc $contacts->{($sort_reverse?$b:$a)}{$fieldmap{$abooksort_short}}[0]{VALUE}
+                                   exists $contacts->{($sort_reverse ? $b : $a)}{$fieldmap{$abooksort_short}}
+                                   ? lc $contacts->{($sort_reverse ? $b : $a)}{$fieldmap{$abooksort_short}}[0]{VALUE}
                                    : ''
                                   )
                                   cmp
                                   (
-                                   exists $contacts->{($sort_reverse?$a:$b)}{$fieldmap{$abooksort_short}}
-                                   ? lc $contacts->{($sort_reverse?$a:$b)}{$fieldmap{$abooksort_short}}[0]{VALUE}
+                                   exists $contacts->{($sort_reverse ? $a : $b)}{$fieldmap{$abooksort_short}}
+                                   ? lc $contacts->{($sort_reverse ? $a : $b)}{$fieldmap{$abooksort_short}}[0]{VALUE}
                                    : ''
                                   )
 
                                   ||
 
                                   ( # then sort by last name
-                                   exists $contacts->{($sort_reverse?$b:$a)}{N} && exists $contacts->{($sort_reverse?$b:$a)}{N}[0]{VALUE}{$fieldmap{last}}
-                                   ? lc $contacts->{($sort_reverse?$b:$a)}{N}[0]{VALUE}{$fieldmap{last}}
+                                   exists $contacts->{($sort_reverse ? $b : $a)}{N} && exists $contacts->{($sort_reverse ? $b : $a)}{N}[0]{VALUE}{$fieldmap{last}}
+                                   ? lc $contacts->{($sort_reverse ? $b : $a)}{N}[0]{VALUE}{$fieldmap{last}}
                                    : ''
                                   )
                                   cmp
                                   (
-                                   exists $contacts->{($sort_reverse?$a:$b)}{N} && exists $contacts->{($sort_reverse?$a:$b)}{N}[0]{VALUE}{$fieldmap{last}}
-                                   ? lc $contacts->{($sort_reverse?$a:$b)}{N}[0]{VALUE}{$fieldmap{last}}
+                                   exists $contacts->{($sort_reverse ? $a : $b)}{N} && exists $contacts->{($sort_reverse ? $a : $b)}{N}[0]{VALUE}{$fieldmap{last}}
+                                   ? lc $contacts->{($sort_reverse ? $a : $b)}{N}[0]{VALUE}{$fieldmap{last}}
                                    : ''
                                   )
 
                                   ||
 
                                   ( # then sort by first name
-                                   exists $contacts->{($sort_reverse?$b:$a)}{N} && exists $contacts->{($sort_reverse?$b:$a)}{N}[0]{VALUE}{$fieldmap{first}}
-                                   ? lc $contacts->{($sort_reverse?$b:$a)}{N}[0]{VALUE}{$fieldmap{first}}
+                                   exists $contacts->{($sort_reverse ? $b : $a)}{N} && exists $contacts->{($sort_reverse ? $b : $a)}{N}[0]{VALUE}{$fieldmap{first}}
+                                   ? lc $contacts->{($sort_reverse ? $b : $a)}{N}[0]{VALUE}{$fieldmap{first}}
                                    : ''
                                   )
                                   cmp
                                   (
-                                   exists $contacts->{($sort_reverse?$a:$b)}{N} && exists $contacts->{($sort_reverse?$a:$b)}{N}[0]{VALUE}{$fieldmap{first}}
-                                   ? lc $contacts->{($sort_reverse?$a:$b)}{N}[0]{VALUE}{$fieldmap{first}}
+                                   exists $contacts->{($sort_reverse ? $a : $b)}{N} && exists $contacts->{($sort_reverse ? $a : $b)}{N}[0]{VALUE}{$fieldmap{first}}
+                                   ? lc $contacts->{($sort_reverse ? $a : $b)}{N}[0]{VALUE}{$fieldmap{first}}
                                    : ''
                                   )
 
                                   ||
 
                                   ( # then sort by full name
-                                   exists $contacts->{($sort_reverse?$b:$a)}{$fieldmap{fullname}}
-                                   ? lc $contacts->{($sort_reverse?$b:$a)}{$fieldmap{fullname}}[0]{VALUE}
+                                   exists $contacts->{($sort_reverse ? $b : $a)}{$fieldmap{fullname}}
+                                   ? lc $contacts->{($sort_reverse ? $b : $a)}{$fieldmap{fullname}}[0]{VALUE}
                                    : ''
                                   )
                                   cmp
                                   (
-                                   exists $contacts->{($sort_reverse?$a:$b)}{$fieldmap{fullname}}
-                                   ? lc $contacts->{($sort_reverse?$a:$b)}{$fieldmap{fullname}}[0]{VALUE}
+                                   exists $contacts->{($sort_reverse ? $a : $b)}{$fieldmap{fullname}}
+                                   ? lc $contacts->{($sort_reverse ? $a : $b)}{$fieldmap{fullname}}[0]{VALUE}
                                    : ''
                                   )
                                 } keys %{$contacts}
@@ -541,60 +535,60 @@ sub addrlistview {
                                   ||
 
                                   ( # sort by the chosen sort field
-                                    exists $contacts->{$a}{N} && exists $contacts->{($sort_reverse?$b:$a)}{N}[0]{VALUE}{$fieldmap{$abooksort_short}}
-                                    ? $abooksort_short eq 'last' && exists $contacts->{($sort_reverse?$b:$a)}{'SORT-STRING'}
-                                      ? lc $contacts->{($sort_reverse?$b:$a)}{'SORT-STRING'}[0]{VALUE}
-                                      : lc $contacts->{($sort_reverse?$b:$a)}{N}[0]{VALUE}{$fieldmap{$abooksort_short}}
+                                    exists $contacts->{$a}{N} && exists $contacts->{($sort_reverse ? $b : $a)}{N}[0]{VALUE}{$fieldmap{$abooksort_short}}
+                                    ? $abooksort_short eq 'last' && exists $contacts->{($sort_reverse ? $b : $a)}{'SORT-STRING'}
+                                      ? lc $contacts->{($sort_reverse ? $b : $a)}{'SORT-STRING'}[0]{VALUE}
+                                      : lc $contacts->{($sort_reverse ? $b : $a)}{N}[0]{VALUE}{$fieldmap{$abooksort_short}}
                                     : ''
                                   )
                                   cmp
                                   (
-                                    exists $contacts->{$a}{N} && exists $contacts->{($sort_reverse?$a:$b)}{N}[0]{VALUE}{$fieldmap{$abooksort_short}}
-                                    ? $abooksort_short eq 'last' && exists $contacts->{($sort_reverse?$a:$b)}{'SORT-STRING'}
-                                      ? lc $contacts->{($sort_reverse?$a:$b)}{'SORT-STRING'}[0]{VALUE}
-                                      : lc $contacts->{($sort_reverse?$a:$b)}{N}[0]{VALUE}{$fieldmap{$abooksort_short}}
+                                    exists $contacts->{$a}{N} && exists $contacts->{($sort_reverse ? $a : $b)}{N}[0]{VALUE}{$fieldmap{$abooksort_short}}
+                                    ? $abooksort_short eq 'last' && exists $contacts->{($sort_reverse ? $a : $b)}{'SORT-STRING'}
+                                      ? lc $contacts->{($sort_reverse ? $a : $b)}{'SORT-STRING'}[0]{VALUE}
+                                      : lc $contacts->{($sort_reverse ? $a : $b)}{N}[0]{VALUE}{$fieldmap{$abooksort_short}}
                                     : ''
                                   )
 
                                   ||
 
                                   ( # then sort by last name
-                                   exists $contacts->{($sort_reverse?$b:$a)}{N} && exists $contacts->{($sort_reverse?$b:$a)}{N}[0]{VALUE}{$fieldmap{last}}
-                                   ? lc $contacts->{($sort_reverse?$b:$a)}{N}[0]{VALUE}{$fieldmap{last}}
+                                   exists $contacts->{($sort_reverse ? $b : $a)}{N} && exists $contacts->{($sort_reverse ? $b : $a)}{N}[0]{VALUE}{$fieldmap{last}}
+                                   ? lc $contacts->{($sort_reverse ? $b : $a)}{N}[0]{VALUE}{$fieldmap{last}}
                                    : ''
                                   )
                                   cmp
                                   (
-                                   exists $contacts->{($sort_reverse?$a:$b)}{N} && exists $contacts->{($sort_reverse?$a:$b)}{N}[0]{VALUE}{$fieldmap{last}}
-                                   ? lc $contacts->{($sort_reverse?$a:$b)}{N}[0]{VALUE}{$fieldmap{last}}
+                                   exists $contacts->{($sort_reverse ? $a : $b)}{N} && exists $contacts->{($sort_reverse ? $a : $b)}{N}[0]{VALUE}{$fieldmap{last}}
+                                   ? lc $contacts->{($sort_reverse ? $a : $b)}{N}[0]{VALUE}{$fieldmap{last}}
                                    : ''
                                   )
 
                                   ||
 
                                   ( # then sort by first name
-                                   exists $contacts->{($sort_reverse?$b:$a)}{N} && exists $contacts->{($sort_reverse?$b:$a)}{N}[0]{VALUE}{$fieldmap{first}}
-                                   ? lc $contacts->{($sort_reverse?$b:$a)}{N}[0]{VALUE}{$fieldmap{first}}
+                                   exists $contacts->{($sort_reverse ? $b : $a)}{N} && exists $contacts->{($sort_reverse ? $b : $a)}{N}[0]{VALUE}{$fieldmap{first}}
+                                   ? lc $contacts->{($sort_reverse ? $b : $a)}{N}[0]{VALUE}{$fieldmap{first}}
                                    : ''
                                   )
                                   cmp
                                   (
-                                   exists $contacts->{($sort_reverse?$a:$b)}{N} && exists $contacts->{($sort_reverse?$a:$b)}{N}[0]{VALUE}{$fieldmap{first}}
-                                   ? lc $contacts->{($sort_reverse?$a:$b)}{N}[0]{VALUE}{$fieldmap{first}}
+                                   exists $contacts->{($sort_reverse ? $a : $b)}{N} && exists $contacts->{($sort_reverse ? $a : $b)}{N}[0]{VALUE}{$fieldmap{first}}
+                                   ? lc $contacts->{($sort_reverse ? $a : $b)}{N}[0]{VALUE}{$fieldmap{first}}
                                    : ''
                                   )
 
                                   ||
 
                                   ( # then sort by full name
-                                   exists $contacts->{($sort_reverse?$b:$a)}{$fieldmap{fullname}}
-                                   ? lc $contacts->{($sort_reverse?$b:$a)}{$fieldmap{fullname}}[0]{VALUE}
+                                   exists $contacts->{($sort_reverse ? $b : $a)}{$fieldmap{fullname}}
+                                   ? lc $contacts->{($sort_reverse ? $b : $a)}{$fieldmap{fullname}}[0]{VALUE}
                                    : ''
                                   )
                                   cmp
                                   (
-                                   exists $contacts->{($sort_reverse?$a:$b)}{$fieldmap{fullname}}
-                                   ? lc $contacts->{($sort_reverse?$a:$b)}{$fieldmap{fullname}}[0]{VALUE}
+                                   exists $contacts->{($sort_reverse ? $a : $b)}{$fieldmap{fullname}}
+                                   ? lc $contacts->{($sort_reverse ? $a : $b)}{$fieldmap{fullname}}[0]{VALUE}
                                    : ''
                                   )
                                 } keys %{$contacts};
@@ -701,7 +695,7 @@ sub addrlistview {
                $contacts->{$xowmuid}{rows}[$row]{show_collapse} = $maxrowspan > 1 ? 1 : 0;
                $contacts->{$xowmuid}{rows}[$row]{collapse}      = $is_collapsed;
                $contacts->{$xowmuid}{rows}[$row]{url_html}      = $config{ow_htmlurl};
-               $contacts->{$xowmuid}{rows}[$row]{use_texticon}  = ($prefs{iconset} =~ m/^Text\./?1:0);
+               $contacts->{$xowmuid}{rows}[$row]{use_texticon}  = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
                $contacts->{$xowmuid}{rows}[$row]{iconset}       = $prefs{iconset};
             }
 
@@ -808,7 +802,7 @@ sub addrlistview {
                $FIELD->{keyword}         = $keyword;
                $FIELD->{url_cgi}         = $config{ow_cgiurl};
                $FIELD->{url_html}        = $config{ow_htmlurl};
-               $FIELD->{use_texticon}    = ($prefs{iconset} =~ m/^Text\./?1:0);
+               $FIELD->{use_texticon}    = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
                $FIELD->{use_fixedfont}   = $prefs{usefixedfont};
                $FIELD->{iconset}         = $prefs{iconset};
                $FIELD->{charset}         = $prefs{charset};
@@ -881,152 +875,156 @@ sub addrlistview {
 
    $template->param(
                       # header.tmpl
-                      header_template         => get_header($config{header_template_file}),
+                      header_template            => get_header($config{header_template_file}),
 
                       # standard params
-                      sessionid               => $thissession,
-                      folder                  => $folder,
-                      sort                    => $sort,
-                      msgdatetype             => $msgdatetype,
-                      page                    => $page,
-                      longpage                => $longpage,
-                      searchtype              => $searchtype,
-                      keyword                 => $keyword,
-                      url_cgi                 => $config{ow_cgiurl},
-                      url_html                => $config{ow_htmlurl},
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      use_fixedfont           => $prefs{usefixedfont},
-                      use_lightbar            => $prefs{uselightbar},
-                      iconset                 => $prefs{iconset},
-                      charset                 => $prefs{charset},
+                      sessionid                  => $thissession,
+                      folder                     => $folder,
+                      sort                       => $sort,
+                      msgdatetype                => $msgdatetype,
+                      page                       => $page,
+                      longpage                   => $longpage,
+                      searchtype                 => $searchtype,
+                      keyword                    => $keyword,
+                      url_cgi                    => $config{ow_cgiurl},
+                      url_html                   => $config{ow_htmlurl},
+                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_fixedfont              => $prefs{usefixedfont},
+                      use_lightbar               => $prefs{uselightbar},
+                      iconset                    => $prefs{iconset},
+                      charset                    => $prefs{charset},
 
                       # addressbook params
-                      abookfolder             => $abookfolder,
-                      abookpage               => $abookpage,
-                      abooklongpage           => $abooklongpage,
-                      abooksort               => $abooksort,
-                      abooksearchtype         => $abooksearchtype,
-                      abookkeyword            => $abookkeyword,
-                      abookcollapse           => $abookcollapse,
+                      abookfolder                => $abookfolder,
+                      abookpage                  => $abookpage,
+                      abooklongpage              => $abooklongpage,
+                      abooksort                  => $abooksort,
+                      abooksearchtype            => $abooksearchtype,
+                      abookkeyword               => $abookkeyword,
+                      abookcollapse              => $abookcollapse,
 
                       # abook_listview[group|export|compose].tmpl
-                      enable_webmail          => $config{enable_webmail},
-                      messageid               => $messageid,
-                      enable_calendar         => $config{enable_calendar},
-                      calendar_defaultview    => $prefs{calendar_defaultview},
-                      enable_addressbook      => $config{enable_addressbook},
-                      enable_webdisk          => $config{enable_webdisk},
-                      enable_sshterm          => $config{enable_sshterm},
-                      use_ssh2                => -r "$config{ow_htmldir}/applet/mindterm2/mindterm.jar" ? 1 : 0,
-                      use_ssh1                => -r "$config{ow_htmldir}/applet/mindterm/mindtermfull.jar" ? 1 : 0,
-                      enable_preference       => $config{enable_preference},
-                      quotaoverlimit          => ($quotalimit > 0 && $quotausage > $quotalimit) ? 1 : 0,
-                      availablefreespace      => $config{abook_maxsizeallbooks} - userabookfolders_totalsize(),
-                      abookfolderselectloop   => [
-                                                   map { {
-                                                           option      => $_,
-                                                           label       => exists $lang_abookselectionlabels{$_} ? $lang_abookselectionlabels{$_} : f2u($_),
-                                                           selected    => $abookfolder eq $_ ? 1 : 0,
-                                                           is_global   => is_abookfolder_global($_),
-                                                           is_writable => is_abookfolder_writable($_),
-                                                       } } ('ALL', @readableabookfolders)
-                                                 ],
-                      abookfolder_label       => exists $lang_abookselectionlabels{$abookfolder} ? $lang_abookselectionlabels{$abookfolder} : f2u($abookfolder),
-                      writableabookfolders    => scalar @writableabookfolders,
-                      confirmmsgmovecopy      => $prefs{confirmmsgmovecopy},
-                      is_right_to_left        => exists $ow::lang::RTL{$prefs{locale}} && $ow::lang::RTL{$prefs{locale}} ? 1 : 0,
-                      totalpages              => $totalpages,
-                      nextpage                => $abookpage < $totalpages ? ($abookpage + 1) : 0,
-                      prevpage                => ($abookpage - 1) || 0,
-                      enable_move             => (scalar @destinationfolders > 0 && $is_abookfolder_writable) ? 1 : 0,
-                      enable_copy             => scalar @destinationfolders > 0 ? 1 : 0,
-                      enable_delete           => $is_abookfolder_writable ? 1 : 0,
-                      destinationselectloop   => [
-                                                    map { {
-                                                             option    => $_,
-                                                             label     => exists $lang_abookselectionlabels{$_} ? $lang_abookselectionlabels{$_} :
-                                                                          exists $lang_folders{$_} ? $lang_folders{$_} :
-                                                                          f2u($_),
-                                                             selected  => $_ eq $destinationfolders[0] ? 1 : 0,
-                                                             is_global => is_abookfolder_global($_),
-                                                        } } @destinationfolders
-                                                 ],
-                      searchtypeselectloop    => [
-                                                    map { {
-                                                             option    => $_,
-                                                             label     => $lang_text{"abook_listview_$_"},
-                                                             selected  => defined $abooksearchtype ? $_ eq $abooksearchtype : $_ eq $fieldorder[0],
-                                                        } } (@fieldorder, 'categories')
-                                                 ],
-                      pageselectloop          => [
-                                                    map { {
-                                                             option   => $_,
-                                                             label    => $_,
-                                                             selected => $_ eq $abookpage ? 1 : 0,
-                                                        } } grep {
-                                                                    $_ == 1
-                                                                    || $_ == $totalpages
-                                                                    || abs($_ - $abookpage) < 10
-                                                                    || abs($_ - $abookpage) < 100 && $_ % 10 == 0
-                                                                    || abs($_ - $abookpage) < 1000 && $_ % 100 == 0
-                                                                    || $_ % 1000 == 0
-                                                                 } (1..$totalpages)
-                                                 ],
-                      tosloop                 => [ map { { to      => $_ } } grep { !exists $unique_to{$_}{checked} } @tos ],
-                      ccsloop                 => [ map { { cc      => $_ } } grep { !exists $unique_cc{$_}{checked} } @ccs ],
-                      bccsloop                => [ map { { bcc     => $_ } } grep { !exists $unique_bcc{$_}{checked} } @bccs ],
-                      xowmuidsloop            => [ map { { xowmuid => $_ } } @xowmuids ],
-                      abook_addrperpage       => $addrperpage,
-                      enable_quickadd         => is_abookfolder_writable($abookfolder) && $action ne 'addrimportattachment',
-                      showbuttons_before      => $prefs{abook_buttonposition} ne 'after' ? 1 : 0, # before or both
-                      fieldorderloop          => [
-                                                    map { {
-                                                             $_              => 1,
-                                                             is_sort_key     => $abooksort_short eq $_ ? 1 : 0,
-                                                             is_sort_reverse => $sort_reverse,
-                                                             use_texticon    => ($prefs{iconset} =~ m/^Text\./?1:0),
-                                                             iconset         => $prefs{iconset},
-                                                             url_html        => $config{ow_htmlurl},
-                                                        } } @fieldorder
-                                                 ],
-                      contactsloop            => [
-                                                    map {
-                                                           $contacts->{$sorted_xowmuids[$_]}
-                                                        } (($firstaddr-1)..($lastaddr-1))
-                                                 ],
-                      showbuttons_after       => $prefs{abook_buttonposition} ne 'before' ? 1 : 0, # after or both
-                      showchecked             => param('showchecked') ? 1 : 0,
-                      showcheckedloop         => $showchecked,
-                      fontsize                => $prefs{fontsize},
-                      languagedirection       => $ow::lang::RTL{$prefs{locale}} ? 'rtl' : 'ltr',
-                      clear_all               => param('clearall') ? 1 : 0,
-                      compose                 => param('compose') ? 1 : 0,
-                      mode                    => $mode,
-                      selectdone              => param('selectdone') ? 1 : 0,
-                      group_selects           => join("\n",(scalar @tos > 0 ? @tos : ())),
-                      composeto_selects       => join(', ',(scalar @tos > 0 ? @tos : ())),
-                      composecc_selects       => join(', ',(scalar @ccs > 0 ? @ccs : ())),
-                      composebcc_selects      => join(', ',(scalar @bccs > 0 ? @bccs : ())),
-                      exportformat            => $exportformat,
-                      exportformatsloop       => [
-                                                    map { {
-                                                             "option_$_" => 1,
-                                                             selected    => $exportformat eq $_ ? 1 : 0,
-                                                        } } sort keys %{$supportedformats}
-                                                 ],
-                      exportcharset           => $exportcharset,
-                      exportcharsetdisabled   => $exportformat =~ m/vcard/i ? 1 : 0,
-                      exportcharsetloop       => [
-                                                    map { {
-                                                             option   => $_,
-                                                             label    => $_,
-                                                             selected => $exportcharset eq $_ ? 1 : 0,
-                                                        } } sort keys %exportcharsets
-                                                 ],
-                      exportxowmuidsloop      => [ map { { xowmuid => $_ } } keys %unique_xowmuid ],
+                      enable_webmail             => $config{enable_webmail},
+                      messageid                  => $messageid,
+                      enable_calendar            => $config{enable_calendar},
+                      calendar_defaultview       => $prefs{calendar_defaultview},
+                      enable_addressbook         => $config{enable_addressbook},
+                      enable_webdisk             => $config{enable_webdisk},
+                      enable_sshterm             => $config{enable_sshterm},
+                      use_ssh2                   => -r "$config{ow_htmldir}/applet/mindterm2/mindterm.jar" ? 1 : 0,
+                      use_ssh1                   => -r "$config{ow_htmldir}/applet/mindterm/mindtermfull.jar" ? 1 : 0,
+                      enable_preference          => $config{enable_preference},
+                      quotaoverlimit             => ($quotalimit > 0 && $quotausage > $quotalimit) ? 1 : 0,
+                      availablefreespace         => $config{abook_maxsizeallbooks} - userabookfolders_totalsize(),
+                      abookfolderselectloop      => [
+                                                      map { {
+                                                              is_defaultabookfolder => is_defaultabookfolder($_),
+                                                              "option_$_"           => 1,
+                                                              option                => $_,
+                                                              label                 => f2u($_),
+                                                              selected              => $abookfolder eq $_ ? 1 : 0,
+                                                              is_global             => is_abookfolder_global($_),
+                                                              is_writable           => is_abookfolder_writable($_),
+                                                          } } ('ALL', @readableabookfolders)
+                                                    ],
+                      is_abookfolderdefault      => is_defaultabookfolder($abookfolder),
+                      "abookfolder_$abookfolder" => 1,
+                      abookfolder_label          => f2u($abookfolder),
+                      writableabookfolders       => scalar @writableabookfolders,
+                      confirmmsgmovecopy         => $prefs{confirmmsgmovecopy},
+                      is_right_to_left           => exists $ow::lang::RTL{$prefs{locale}} && $ow::lang::RTL{$prefs{locale}} ? 1 : 0,
+                      totalpages                 => $totalpages,
+                      nextpage                   => $abookpage < $totalpages ? ($abookpage + 1) : 0,
+                      prevpage                   => ($abookpage - 1) || 0,
+                      enable_move                => (scalar @destinationfolders > 0 && $is_abookfolder_writable) ? 1 : 0,
+                      enable_copy                => scalar @destinationfolders > 0 ? 1 : 0,
+                      enable_delete              => $is_abookfolder_writable ? 1 : 0,
+                      destinationselectloop      => [
+                                                       map { {
+                                                                is_defaultabookfolder => is_defaultabookfolder($_),
+                                                                "option_$_"           => 1,
+                                                                option                => $_,
+                                                                label                 => f2u($_),
+                                                                selected              => $_ eq $destinationfolders[0] ? 1 : 0,
+                                                                is_global             => is_abookfolder_global($_),
+                                                           } } @destinationfolders
+                                                    ],
+                      searchtypeselectloop       => [
+                                                       map { {
+                                                                "option_$_" => $_,
+                                                                selected    => defined $abooksearchtype ? $_ eq $abooksearchtype : $_ eq $fieldorder[0],
+                                                           } } (@fieldorder, 'categories')
+                                                    ],
+                      pageselectloop             => [
+                                                       map { {
+                                                                option   => $_,
+                                                                label    => $_,
+                                                                selected => $_ eq $abookpage ? 1 : 0,
+                                                           } } grep {
+                                                                       $_ == 1
+                                                                       || $_ == $totalpages
+                                                                       || abs($_ - $abookpage) < 10
+                                                                       || abs($_ - $abookpage) < 100 && $_ % 10 == 0
+                                                                       || abs($_ - $abookpage) < 1000 && $_ % 100 == 0
+                                                                       || $_ % 1000 == 0
+                                                                    } (1..$totalpages)
+                                                    ],
+                      tosloop                    => [ map { { to      => $_ } } grep { !exists $unique_to{$_}{checked} } @tos ],
+                      ccsloop                    => [ map { { cc      => $_ } } grep { !exists $unique_cc{$_}{checked} } @ccs ],
+                      bccsloop                   => [ map { { bcc     => $_ } } grep { !exists $unique_bcc{$_}{checked} } @bccs ],
+                      xowmuidsloop               => [ map { { xowmuid => $_ } } @xowmuids ],
+                      abook_addrperpage          => $addrperpage,
+                      abook_addrperpagestring    => sprintf(ngettext('%d address per page','%d addresses per page',$addrperpage), $addrperpage),
+                      enable_quickadd            => is_abookfolder_writable($abookfolder) && $action ne 'addrimportattachment',
+                      showbuttons_before         => $prefs{abook_buttonposition} ne 'after' ? 1 : 0, # before or both
+                      fieldorderloop             => [
+                                                       map { {
+                                                                $_              => 1,
+                                                                is_sort_key     => $abooksort_short eq $_ ? 1 : 0,
+                                                                is_sort_reverse => $sort_reverse,
+                                                                use_texticon    => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                                iconset         => $prefs{iconset},
+                                                                url_html        => $config{ow_htmlurl},
+                                                           } } @fieldorder
+                                                    ],
+                      contactsloop               => [
+                                                       map {
+                                                              $contacts->{$sorted_xowmuids[$_]}
+                                                           } (($firstaddr-1)..($lastaddr-1))
+                                                    ],
+                      showbuttons_after          => $prefs{abook_buttonposition} ne 'before' ? 1 : 0, # after or both
+                      showchecked                => param('showchecked') ? 1 : 0,
+                      showcheckedloop            => $showchecked,
+                      fontsize                   => $prefs{fontsize},
+                      languagedirection          => $ow::lang::RTL{$prefs{locale}} ? 'rtl' : 'ltr',
+                      clear_all                  => param('clearall') ? 1 : 0,
+                      compose                    => param('compose') ? 1 : 0,
+                      mode                       => $mode,
+                      selectdone                 => param('selectdone') ? 1 : 0,
+                      group_selects              => join("\n",(scalar @tos > 0 ? @tos : ())),
+                      composeto_selects          => join(', ',(scalar @tos > 0 ? @tos : ())),
+                      composecc_selects          => join(', ',(scalar @ccs > 0 ? @ccs : ())),
+                      composebcc_selects         => join(', ',(scalar @bccs > 0 ? @bccs : ())),
+                      exportformat               => $exportformat,
+                      exportformatsloop          => [
+                                                       map { {
+                                                                "option_$_" => 1,
+                                                                selected    => $exportformat eq $_ ? 1 : 0,
+                                                           } } sort keys %{$supportedformats}
+                                                    ],
+                      exportcharset              => $exportcharset,
+                      exportcharsetdisabled      => $exportformat =~ m/vcard/i ? 1 : 0,
+                      exportcharsetloop          => [
+                                                       map { {
+                                                                option   => $_,
+                                                                label    => $_,
+                                                                selected => $exportcharset eq $_ ? 1 : 0,
+                                                           } } sort keys %exportcharsets
+                                                    ],
+                      exportxowmuidsloop         => [ map { { xowmuid => $_ } } keys %unique_xowmuid ],
 
                       # footer.tmpl
-                      footer_template         => get_footer($config{footer_template_file}),
+                      footer_template            => get_footer($config{footer_template_file}),
                    );
 
    my $abookfolder_cookie = cookie(
@@ -1066,7 +1064,7 @@ sub addrselectpopup {
                       keyword         => $keyword,
                       url_cgi         => $config{ow_cgiurl},
                       url_html        => $config{ow_htmlurl},
-                      use_texticon    => ($prefs{iconset} =~ m/^Text\./?1:0),
+                      use_texticon    => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
                       use_fixedfont   => $prefs{usefixedfont},
                       use_lightbar    => $prefs{uselightbar},
                       iconset         => $prefs{iconset},
@@ -1109,9 +1107,7 @@ sub addrmovecopydelete {
                          get_readable_abookfolders();
    } else {
       $allabookfolders{$abookfolder} = abookfolder2file($abookfolder);
-      if (!-f $allabookfolders{$abookfolder}) {
-         openwebmailerror(__FILE__, __LINE__, "The addressbook " . f2u($abookfolder) . " does not exist");
-      }
+      openwebmailerror(gettext('The addressbook does not exist:') . ' ' . f2u($abookfolder)) if !-f $allabookfolders{$abookfolder};
    }
 
    # calculate the available free space
@@ -1123,13 +1119,8 @@ sub addrmovecopydelete {
    if ($targetfolder ne 'DELETE') {
       $targetfile = abookfolder2file($targetfolder);
 
-      if (!-f $targetfile) {
-         openwebmailerror(__FILE__, __LINE__, "The addressbook " . f2u($targetfolder) . " does not exist");
-      }
-
-      if (!-w $targetfile) {
-         openwebmailerror(__FILE__, __LINE__, "destination folder " . f2u($targetfolder) . " is readonly");
-      }
+      openwebmailerror(gettext('The addressbook does not exist:') . ' ' . f2u($targetfolder)) if !-f $targetfile;
+      openwebmailerror(gettext('The destination folder is read-only:') . ' ' . f2u($targetfolder)) if !-w $targetfile;
 
       $targetbook = readadrbook($targetfile, undef, undef);
    }
@@ -1148,9 +1139,9 @@ sub addrmovecopydelete {
 
                if (!is_abookfolder_writable($abookfolder)) {
                   if (is_abookfolder_global($abookfolder)) {
-                     openwebmailerror(__FILE__, __LINE__, $lang_err{abook_global_denied});
+                     openwebmailerror(gettext('You do not have permission to edit the global addressbook.'));
                   } else {
-                     openwebmailerror(__FILE__, __LINE__, "folder $abookfolder is readonly - move aborted");
+                     openwebmailerror(gettext('The addressbook folder is read-only:') . " $abookfolder");
                   }
                }
 
@@ -1164,9 +1155,9 @@ sub addrmovecopydelete {
             } elsif ($operation eq 'delete') {
                if (!is_abookfolder_writable($abookfolder)) {
                   if (is_abookfolder_global($abookfolder)) {
-                     openwebmailerror(__FILE__, __LINE__, $lang_err{abook_global_denied});
+                     openwebmailerror(gettext('You do not have permission to edit the global addressbook.'));
                   } else {
-                     openwebmailerror(__FILE__, __LINE__, "folder $abookfolder is readonly - delete aborted");
+                     openwebmailerror(gettext('The addressbook folder is read-only:') . " $abookfolder");
                   }
                }
 
@@ -1198,13 +1189,17 @@ sub addrmovecopydelete {
          my $writeoutput = outputvfile('vcard',$sourcebook);
 
          ow::filelock::lock($sourcefile, LOCK_EX|LOCK_NB) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($sourcefile));
+            openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($sourcefile) . " ($!)");
+
          sysopen(TARGET, $sourcefile, O_WRONLY|O_TRUNC|O_CREAT) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} " . f2u($sourcefile) . " ($!)\n");
+            openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($sourcefile) . " ($!)");
+
          print TARGET $writeoutput;
+
          close(TARGET) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} " . f2u($sourcefile) . " ($!)\n");
-         ow::filelock::lock($sourcefile, LOCK_UN);
+            openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($sourcefile) . " ($!)");
+
+         ow::filelock::lock($sourcefile, LOCK_UN) or writelog("cannot lock file $sourcefile");
       }
    }
 
@@ -1217,17 +1212,21 @@ sub addrmovecopydelete {
       # during a copy this may croak - but no information will be lost
       my $writesizekb = length($writeoutput) / 1024;
       if (($writesizekb > $availfreespace) || !is_quota_available($writesizekb)) {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{abook_toobig} $lang_err{back}\n");
+         openwebmailerror(gettext('The addressbook size exceeds the available free space.'));
       }
 
       ow::filelock::lock($targetfile, LOCK_EX|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($targetfile));
+         openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($targetfile));
+
       sysopen(TARGET, $targetfile, O_WRONLY|O_TRUNC|O_CREAT) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} " . f2u($targetfile) . " ($!)\n");
+         openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($targetfile) . " ($!)");
+
       print TARGET $writeoutput;
+
       close(TARGET) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} " . f2u($targetfile) . " ($!)\n");
-      ow::filelock::lock($targetfile, LOCK_UN);
+         openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($targetfile) . " ($!)");
+
+      ow::filelock::lock($targetfile, LOCK_UN) or writelog("cannot unlock file $targetfile");
    }
 
    return 1;
@@ -1267,124 +1266,127 @@ sub addrbookedit {
 
    $template->param(
                       # header.tmpl
-                      header_template         => get_header($config{header_template_file}),
+                      header_template            => get_header($config{header_template_file}),
 
                       # standard params
-                      sessionid               => $thissession,
-                      folder                  => $folder,
-                      sort                    => $sort,
-                      msgdatetype             => $msgdatetype,
-                      page                    => $page,
-                      longpage                => $longpage,
-                      searchtype              => $searchtype,
-                      keyword                 => $keyword,
-                      url_cgi                 => $config{ow_cgiurl},
-                      url_html                => $config{ow_htmlurl},
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      use_fixedfont           => $prefs{usefixedfont},
-                      use_lightbar            => $prefs{uselightbar},
-                      iconset                 => $prefs{iconset},
-                      charset                 => $prefs{charset},
+                      sessionid                  => $thissession,
+                      folder                     => $folder,
+                      sort                       => $sort,
+                      msgdatetype                => $msgdatetype,
+                      page                       => $page,
+                      longpage                   => $longpage,
+                      searchtype                 => $searchtype,
+                      keyword                    => $keyword,
+                      url_cgi                    => $config{ow_cgiurl},
+                      url_html                   => $config{ow_htmlurl},
+                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_fixedfont              => $prefs{usefixedfont},
+                      use_lightbar               => $prefs{uselightbar},
+                      iconset                    => $prefs{iconset},
+                      charset                    => $prefs{charset},
 
                       # addressbook params
-                      abookfolder             => $abookfolder,
-                      abookpage               => $abookpage,
-                      abooklongpage           => $abooklongpage,
-                      abooksort               => $abooksort,
-                      abooksearchtype         => $abooksearchtype,
-                      abookkeyword            => $abookkeyword,
-                      abookcollapse           => $abookcollapse,
+                      abookfolder                => $abookfolder,
+                      abookpage                  => $abookpage,
+                      abooklongpage              => $abooklongpage,
+                      abooksort                  => $abooksort,
+                      abooksearchtype            => $abooksearchtype,
+                      abookkeyword               => $abookkeyword,
+                      abookcollapse              => $abookcollapse,
 
                       # abook_editbooks.tmpl
-                      enable_webmail          => $config{enable_webmail},
-                      messageid               => $messageid,
-                      enable_calendar         => $config{enable_calendar},
-                      calendar_defaultview    => $prefs{calendar_defaultview},
-                      enable_addressbook      => $config{enable_addressbook},
-                      enable_webdisk          => $config{enable_webdisk},
-                      enable_sshterm          => $config{enable_sshterm},
-                      use_ssh2                => -r "$config{ow_htmldir}/applet/mindterm2/mindterm.jar" ? 1 : 0,
-                      use_ssh1                => -r "$config{ow_htmldir}/applet/mindterm/mindtermfull.jar" ? 1 : 0,
-                      enable_preference       => $config{enable_preference},
-                      quotaoverlimit          => ($quotalimit > 0 && $quotausage > $quotalimit) ? 1 : 0,
-                      availablefreespace      => $config{abook_maxsizeallbooks} - userabookfolders_totalsize(),
-                      abookfolder_label       => exists $lang_abookselectionlabels{$abookfolder} ? $lang_abookselectionlabels{$abookfolder} : f2u($abookfolder),
-                      foldername_maxlength    => $config{foldername_maxlen},
-                      addressbooksloop        => [
-                                                    map { {
-                                                             # standard params
-                                                             sessionid           => $thissession,
-                                                             folder              => $folder,
-                                                             sort                => $sort,
-                                                             msgdatetype         => $msgdatetype,
-                                                             page                => $page,
-                                                             longpage            => $longpage,
-                                                             searchtype          => $searchtype,
-                                                             keyword             => $keyword,
-                                                             url_cgi             => $config{ow_cgiurl},
-                                                             url_html            => $config{ow_htmlurl},
-                                                             use_texticon        => ($prefs{iconset} =~ m/^Text\./?1:0),
-                                                             use_fixedfont       => $prefs{usefixedfont},
-                                                             iconset             => $prefs{iconset},
+                      enable_webmail             => $config{enable_webmail},
+                      messageid                  => $messageid,
+                      enable_calendar            => $config{enable_calendar},
+                      calendar_defaultview       => $prefs{calendar_defaultview},
+                      enable_addressbook         => $config{enable_addressbook},
+                      enable_webdisk             => $config{enable_webdisk},
+                      enable_sshterm             => $config{enable_sshterm},
+                      use_ssh2                   => -r "$config{ow_htmldir}/applet/mindterm2/mindterm.jar" ? 1 : 0,
+                      use_ssh1                   => -r "$config{ow_htmldir}/applet/mindterm/mindtermfull.jar" ? 1 : 0,
+                      enable_preference          => $config{enable_preference},
+                      quotaoverlimit             => ($quotalimit > 0 && $quotausage > $quotalimit) ? 1 : 0,
+                      availablefreespace         => $config{abook_maxsizeallbooks} - userabookfolders_totalsize(),
+                      is_abookfolderdefault      => is_defaultabookfolder($abookfolder),
+                      "abookfolder_$abookfolder" => 1,
+                      abookfolder_label          => f2u($abookfolder),
+                      foldername_maxlength       => $config{foldername_maxlen},
+                      foldername_maxlengthstring => sprintf(ngettext('%d character', '%d characters', $config{foldername_maxlen}), $config{foldername_maxlen}),
+                      addressbooksloop           => [
+                                                       map { {
+                                                                # standard params
+                                                                sessionid             => $thissession,
+                                                                folder                => $folder,
+                                                                sort                  => $sort,
+                                                                msgdatetype           => $msgdatetype,
+                                                                page                  => $page,
+                                                                longpage              => $longpage,
+                                                                searchtype            => $searchtype,
+                                                                keyword               => $keyword,
+                                                                url_cgi               => $config{ow_cgiurl},
+                                                                url_html              => $config{ow_htmlurl},
+                                                                use_texticon          => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                                use_fixedfont         => $prefs{usefixedfont},
+                                                                iconset               => $prefs{iconset},
 
-                                                             # addressbook params
-                                                             abookpage           => $abookpage,
-                                                             abooklongpage       => $abooklongpage,
-                                                             abooksort           => $abooksort,
-                                                             abooksearchtype     => $abooksearchtype,
-                                                             abookkeyword        => $abookkeyword,
-                                                             abookcollapse       => $abookcollapse,
+                                                                # addressbook params
+                                                                abookpage             => $abookpage,
+                                                                abooklongpage         => $abooklongpage,
+                                                                abooksort             => $abooksort,
+                                                                abooksearchtype       => $abooksearchtype,
+                                                                abookkeyword          => $abookkeyword,
+                                                                abookcollapse         => $abookcollapse,
+                                                                abookfolder           => $readable_abookfolders[$_],
+                                                                is_abookfolderdefault => is_defaultabookfolder($readable_abookfolders[$_]),
+                                                                "abookfolder_$readable_abookfolders[$_]" => 1,
+                                                                abookfolder_label     => f2u($readable_abookfolders[$_]),
+                                                                abookfolder_size      => lenstr($stats->{$readable_abookfolders[$_]}{size}, 0),
+                                                                abookfolder_entries   => $stats->{$readable_abookfolders[$_]}{entries},
+                                                                is_writable           => is_abookfolder_writable($readable_abookfolders[$_]),
+                                                                count                 => $_,
+                                                                odd                   => $_ % 2 == 0 ? 0 : 1,
+                                                           } }
+                                                       (0..$#readable_abookfolders)
+                                                    ],
+                      globaladdressbooksloop     => [
+                                                       map { {
+                                                                # standard params
+                                                                sessionid             => $thissession,
+                                                                folder                => $folder,
+                                                                sort                  => $sort,
+                                                                msgdatetype           => $msgdatetype,
+                                                                page                  => $page,
+                                                                longpage              => $longpage,
+                                                                searchtype            => $searchtype,
+                                                                keyword               => $keyword,
+                                                                url_cgi               => $config{ow_cgiurl},
+                                                                url_html              => $config{ow_htmlurl},
+                                                                use_texticon          => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                                use_fixedfont         => $prefs{usefixedfont},
+                                                                iconset               => $prefs{iconset},
 
-                                                             abookfolder         => $readable_abookfolders[$_],
-                                                             abookfolder_label   => f2u($readable_abookfolders[$_]),
-                                                             abookfolder_size    => lenstr($stats->{$readable_abookfolders[$_]}{size}, 0),
-                                                             abookfolder_entries => $stats->{$readable_abookfolders[$_]}{entries},
-                                                             is_writable         => is_abookfolder_writable($readable_abookfolders[$_]),
-                                                             count               => $_,
-                                                             odd                 => $_ % 2 == 0 ? 0 : 1,
-                                                        } }
-                                                    (0..$#readable_abookfolders)
-                                                 ],
-                      globaladdressbooksloop  => [
-                                                    map { {
-                                                             # standard params
-                                                             sessionid           => $thissession,
-                                                             folder              => $folder,
-                                                             sort                => $sort,
-                                                             msgdatetype         => $msgdatetype,
-                                                             page                => $page,
-                                                             longpage            => $longpage,
-                                                             searchtype          => $searchtype,
-                                                             keyword             => $keyword,
-                                                             url_cgi             => $config{ow_cgiurl},
-                                                             url_html            => $config{ow_htmlurl},
-                                                             use_texticon        => ($prefs{iconset} =~ m/^Text\./?1:0),
-                                                             use_fixedfont       => $prefs{usefixedfont},
-                                                             iconset             => $prefs{iconset},
-
-                                                             # addressbook params
-                                                             abookpage           => $abookpage,
-                                                             abooklongpage       => $abooklongpage,
-                                                             abooksort           => $abooksort,
-                                                             abooksearchtype     => $abooksearchtype,
-                                                             abookkeyword        => $abookkeyword,
-                                                             abookcollapse       => $abookcollapse,
-
-                                                             abookfolder         => $global_abookfolders[$_],
-                                                             abookfolder_label   => exists $lang_abookselectionlabels{$global_abookfolders[$_]}
-                                                                                    ? $lang_abookselectionlabels{$global_abookfolders[$_]}
-                                                                                    : f2u($global_abookfolders[$_]),
-                                                             abookfolder_size    => lenstr($stats->{$global_abookfolders[$_]}{size}, 0),
-                                                             abookfolder_entries => $stats->{$global_abookfolders[$_]}{entries},
-                                                             odd                 => $_ % 2 == 0 ? 0 : 1,
-                                                        } }
-                                                    (0..$#global_abookfolders)
-                                                 ],
-                      totalentries            => $stats->{totalentries},
-                      totalsizes              => lenstr($stats->{totalsizes}),
+                                                                # addressbook params
+                                                                abookpage             => $abookpage,
+                                                                abooklongpage         => $abooklongpage,
+                                                                abooksort             => $abooksort,
+                                                                abooksearchtype       => $abooksearchtype,
+                                                                abookkeyword          => $abookkeyword,
+                                                                abookcollapse         => $abookcollapse,
+                                                                abookfolder           => $global_abookfolders[$_],
+                                                                is_abookfolderdefault => is_defaultabookfolder($global_abookfolders[$_]),
+                                                                "abookfolder_$global_abookfolders[$_]" => 1,
+                                                                abookfolder_label     => f2u($global_abookfolders[$_]),
+                                                                abookfolder_size      => lenstr($stats->{$global_abookfolders[$_]}{size}, 0),
+                                                                abookfolder_entries   => $stats->{$global_abookfolders[$_]}{entries},
+                                                                odd                   => $_ % 2 == 0 ? 0 : 1,
+                                                           } }
+                                                       (0..$#global_abookfolders)
+                                                    ],
+                      totalentries               => $stats->{totalentries},
+                      totalsizes                 => lenstr($stats->{totalsizes}),
 
                       # footer.tmpl
-                      footer_template         => get_footer($config{footer_template_file}),
+                      footer_template            => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
@@ -1394,30 +1396,29 @@ sub addrbookadd {
    # add a new addressbook
    my $abookfoldernew = param('abookfoldernew') || '';
    $abookfoldernew =~ s#^[\s\\//]+##;
-   $abookfoldernew =~ s#\s+$##;
+   $abookfoldernew =~ s/\s+$//;
    $abookfoldernew = u2f(ow::tool::untaint(safefoldername($abookfoldernew)));
 
-   openwebmailerror(__FILE__, __LINE__, f2u($abookfoldernew) . " $lang_err{has_illegal_chars}")
+   openwebmailerror(gettext('Illegal characters in folder name:') . ' ' . f2u($abookfoldernew))
      unless is_safefoldername($abookfoldernew);
 
    return if $abookfoldernew eq '';
 
    my $abookfilenew = abookfolder2file($abookfoldernew);
 
-   if (-e $abookfilenew || $abookfoldernew =~ m/^(?:ALL|DELETE)$/) {
-      openwebmailerror(__FILE__, __LINE__, "The addressbook " . f2u($abookfoldernew) . " already exists. Please go back and choose a different name.");
-   } else {
-      if (length($abookfoldernew) > $config{foldername_maxlen}) {
-         openwebmailerror(__FILE__, __LINE__, "The addressbook name " . f2u($abookfoldernew) . " is too long. The limit is $config{foldername_maxlen}.");
-      } else {
-         sysopen(NEWBOOK, $abookfilenew, O_WRONLY|O_TRUNC|O_CREAT) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{cant_create_folder}! ($!)");
-         close(NEWBOOK);
+   openwebmailerror(gettext('The addressbook folder name already exists:') . ' ' .  f2u($abookfoldernew))
+      if -e $abookfilenew || is_defaultabookfolder($abookfoldernew);
 
-         writelog("add addressbook - $abookfoldernew");
-         writehistory("add addressbook - $abookfoldernew");
-      }
-   }
+   openwebmailerror(sprintf(ngettext('The addressbook folder name exceeds the %d character limit:', 'The addressbook folder name exceeds the %d character limit:', $config{foldername_maxlen}), $config{foldername_maxlen}) . ' ' .  f2u($abookfoldernew))
+      if length($abookfoldernew) > $config{foldername_maxlen};
+
+   sysopen(NEWBOOK, $abookfilenew, O_WRONLY|O_TRUNC|O_CREAT) or
+      openwebmailerror(gettext('Cannot open file:') . " $abookfilenew ($!)");
+
+   close(NEWBOOK) or writelog("cannot close file $abookfilenew");
+
+   writelog("add addressbook - $abookfoldernew");
+   writehistory("add addressbook - $abookfoldernew");
 
    return; # back to addrbookedit
 }
@@ -1427,20 +1428,18 @@ sub addrbookdelete {
    my $targetbook = param('targetbook') || '';
 
    $abookfolder  = ow::tool::untaint(safefoldername($targetbook));
-   my $abookfile = abookfolder2file($abookfolder);
-
    return if $abookfolder eq '';
 
-   # do the delete
-   if (-e $abookfile) {
-      unlink($abookfile) or
-        openwebmailerror(__FILE__, __LINE__, "Unable to delete addressbook " . f2u($abookfolder) . "! ($!)");
+   my $abookfile = abookfolder2file($abookfolder);
 
-      writelog("delete addressbook - $abookfolder");
-      writehistory("delete addressbook - $abookfolder");
-   } else {
-      openwebmailerror(__FILE__, __LINE__, "The addressbook " . f2u($abookfolder) . " does not exist! ($!)");
-   }
+   openwebmailerror(gettext('The addressbook does not exist:') . ' ' . f2u($abookfolder) . " ($!)")
+      unless -e $abookfile;
+
+   unlink($abookfile) or
+      openwebmailerror(gettext('Cannot delete file:') . ' ' . f2u($abookfolder) . " ($!)");
+
+   writelog("delete addressbook - $abookfolder");
+   writehistory("delete addressbook - $abookfolder");
 
    return; # back to addrbookedit
 }
@@ -1451,10 +1450,10 @@ sub addrbookrename {
    my $abookfoldernew = param('abookfoldernew') || '';
 
    $abookfoldernew =~ s#^[\s\\//]+##;
-   $abookfoldernew =~ s#\s+$##;
+   $abookfoldernew =~ s/\s+$//;
    $abookfoldernew = u2f(ow::tool::untaint(safefoldername($abookfoldernew)));
 
-   openwebmailerror(__FILE__, __LINE__, f2u($abookfoldernew) . " $lang_err{has_illegal_chars}")
+   openwebmailerror(gettext('Illegal characters in folder name:') . ' ' . f2u($abookfoldernew))
      unless is_safefoldername($abookfoldernew);
 
    return if $abookfoldernew eq '';
@@ -1464,19 +1463,17 @@ sub addrbookrename {
    $abookfolder  = ow::tool::untaint(safefoldername($targetbook));
    my $abookfile = abookfolder2file($abookfolder);
 
-   if (-e $abookfilenew || $abookfoldernew =~ m/^(?:ALL|DELETE|)$/) {
-      openwebmailerror(__FILE__, __LINE__, "The addressbook " . f2u($abookfoldernew) . " already exists. Please choose a different name");
-   } else {
-      if (length($abookfoldernew) > $config{'foldername_maxlen'}) {
-         openwebmailerror(__FILE__, __LINE__, "The addressbook name " . f2u($abookfoldernew) . " is too long. The limit is $config{foldername_maxlen}");
-      } else {
-         rename($abookfile, $abookfilenew) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{abook_cant_rename}! ($!)");
+   openwebmailerror(gettext('The addressbook folder name already exists:') . ' ' . f2u($abookfoldernew))
+      if -e $abookfilenew || is_defaultabookfolder($abookfoldernew);
 
-         writelog("rename addressbook - $abookfolder to $abookfoldernew");
-         writehistory("rename addressbook - $abookfolder to $abookfoldernew");
-      }
-   }
+   openwebmailerror(sprintf(ngettext('The addressbook folder name exceeds the %d character limit:', 'The addressbook folder name exceeds the %d character limit:', $config{foldername_maxlen}), $config{foldername_maxlen}) . ' ' .  f2u($abookfoldernew))
+      if length($abookfoldernew) > $config{foldername_maxlen};
+
+   rename($abookfile, $abookfilenew) or
+      openwebmailerror(gettext('Cannot rename file:') . " $abookfile ($!)");
+
+   writelog("rename addressbook - $abookfolder to $abookfoldernew");
+   writehistory("rename addressbook - $abookfolder to $abookfoldernew");
 
    return; # back to addrbookedit
 }
@@ -1487,9 +1484,12 @@ sub addrbookdownload {
    my $abookfile = abookfolder2file($abookfolder);
 
    ow::filelock::lock($abookfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($abookfile));
+      openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($abookfile));
 
-   my ($cmd, $contenttype, $filename) = ('','','');
+   my $cmd         = '';
+   my $contenttype = '';
+   my $filename    = '';
+
    if (($cmd = ow::tool::findbin('zip')) ne '') {
       $contenttype = 'application/x-zip-compressed';
       $filename    = "$abookfolder.vcf.zip";
@@ -1517,16 +1517,17 @@ sub addrbookdownload {
    $filename =~ s/\s+/_/g;
 
    # disposition:attachment default to save
-   my $downloadheader = qq|Connection: close\n| .
-                        qq|Content-Type: $contenttype; name="$filename"\n| .
+   print qq|Connection: close\n| .
+         qq|Content-Type: $contenttype; name="$filename"\n| .
 
-                        # ie5.5 is broken with content-disposition: attachment
-                        (
-                          $ENV{HTTP_USER_AGENT} =~ m/MSIE 5.5/
-                          ? qq|Content-Disposition: filename="$filename"\n|
-                          : qq|Content-Disposition: attachment; filename="$filename"\n|
-                        );
-   print $downloadheader, "\n";
+         # ie5.5 is broken with content-disposition: attachment
+         (
+           $ENV{HTTP_USER_AGENT} =~ m/MSIE 5.5/
+           ? qq|Content-Disposition: filename="$filename"\n|
+           : qq|Content-Disposition: attachment; filename="$filename"\n|
+         ) .
+
+         "\n";
 
    my $buff = '';
    print $buff while read(T, $buff, 32768);
@@ -1546,7 +1547,7 @@ sub addrcardview {
    my $rootxowmuid    = param('rootxowmuid') || '';
    my $xowmuid        = param('xowmuid') || $rootxowmuid;
 
-   openwebmailerror(__FILE__, __LINE__, "A valid xowmuid must be provided\n") unless $xowmuid;
+   openwebmailerror(gettext('A valid xowmuid must be provided.')) unless defined $xowmuid && $xowmuid;
 
    my @readableabookfolders = get_readable_abookfolders();
 
@@ -1586,7 +1587,7 @@ sub addrcardview {
       }
    }
 
-   loadlang($prefs{locale});
+   $po = loadlang($prefs{locale});
    charset($prefs{charset}) if $CGI::VERSION >= 2.58; # setup charset of CGI module
 
    #################################################
@@ -1682,6 +1683,7 @@ sub addrcardview {
          $FIELD->{searchtype}      = $searchtype;
          $FIELD->{keyword}         = $keyword;
 
+         # HT_ signifies a sub to format a field for HTML::Template looping
          # call a defined subroutine for this field (like HT_BDAY), or else just run it generic (HT_GENERIC)
          no strict 'refs';
          my $sub = "HT_$propertyname";
@@ -1692,6 +1694,9 @@ sub addrcardview {
 
          if (!exists $propertynames{$propertyname}) {
             $FIELD->{propertyname} = $propertyname;
+            if (exists $FIELD->{TYPES}) {
+               $FIELD->{TYPES}[$_]{propertyname} = $propertyname for (0..$#{$FIELD->{TYPES}});
+            }
             push(@{$contact->{$xowmuid}{UNSUPPORTED}}, $FIELD);
          }
       }
@@ -1775,7 +1780,7 @@ sub addrautosuggest {
    if ($searchstring) {
       my @readableabookfolders = get_readable_abookfolders();
 
-      # don't return full vcard data structures
+      # do not return full vcard data structures
       # only return the fields we need, to keep memory down
       my $only_return = {                       # Always return these ones because:
                           'SORT-STRING'   => 1, # We need to be able to do sort overrides
@@ -1878,7 +1883,7 @@ sub addreditform {
    deleteattachments() if param('action') eq 'addreditform';
 
    my @writableabookfolders = get_writable_abookfolders();
-   openwebmailerror(__FILE__, __LINE__, $lang_err{abook_all_readonly}) unless scalar @writableabookfolders;
+   openwebmailerror(gettext('All addressbooks are read-only.')) unless scalar @writableabookfolders;
 
    $abookfolder  = ow::tool::untaint(safefoldername($abookfolder));
    my $abookfile = abookfolder2file($abookfolder);
@@ -1890,7 +1895,7 @@ sub addreditform {
    if ($rootxowmuid) {
       my $searchterms = { 'X-OWM-UID' => [ { 'VALUE' => $rootxowmuid } ] }; # only pull this card
       $completevcard  = readadrbook($abookfile, (keys %{$searchterms} ? $searchterms : undef), undef);
-      openwebmailerror(__FILE__, __LINE__, "The X-OWM-UID does not match any contacts in the $abookfile addressbook\n") unless scalar keys %{$completevcard};
+      openwebmailerror("The X-OWM-UID does not match any contacts in the $abookfile addressbook\n") unless scalar keys %{$completevcard};
    }
 
    # defined targetagent describes the agent we want to display:
@@ -1972,7 +1977,7 @@ sub addreditform {
       }
    }
 
-   loadlang($prefs{locale});
+   $po = loadlang($prefs{locale});
    charset($prefs{charset}) if $CGI::VERSION >= 2.58; # setup charset of CGI module
 
    # charset conversion menu (convto)
@@ -2088,6 +2093,9 @@ sub addreditform {
 
          if (!exists $propertynames{$propertyname}) {
             $FIELD->{propertyname} = $propertyname;
+            if (exists $FIELD->{TYPES}) {
+               $FIELD->{TYPES}[$_]{propertyname} = $propertyname for (0..$#{$FIELD->{TYPES}});
+            }
             push(@{$contact->{$xowmuid}{UNSUPPORTED}}, $FIELD);
          }
       }
@@ -2134,87 +2142,90 @@ sub addreditform {
 
    $template->param(
                       # header.tmpl
-                      header_template         => get_header($config{header_template_file}),
+                      header_template            => get_header($config{header_template_file}),
 
                       # standard params
-                      sessionid               => $thissession,
-                      folder                  => $folder,
-                      sort                    => $sort,
-                      msgdatetype             => $msgdatetype,
-                      page                    => $page,
-                      longpage                => $longpage,
-                      searchtype              => $searchtype,
-                      keyword                 => $keyword,
-                      url_cgi                 => $config{ow_cgiurl},
-                      url_html                => $config{ow_htmlurl},
-                      use_texticon            => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
-                      use_fixedfont           => $prefs{usefixedfont},
-                      use_lightbar            => $prefs{uselightbar},
-                      iconset                 => $prefs{iconset},
-                      charset                 => $prefs{charset},
+                      sessionid                  => $thissession,
+                      folder                     => $folder,
+                      sort                       => $sort,
+                      msgdatetype                => $msgdatetype,
+                      page                       => $page,
+                      longpage                   => $longpage,
+                      searchtype                 => $searchtype,
+                      keyword                    => $keyword,
+                      url_cgi                    => $config{ow_cgiurl},
+                      url_html                   => $config{ow_htmlurl},
+                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_fixedfont              => $prefs{usefixedfont},
+                      use_lightbar               => $prefs{uselightbar},
+                      iconset                    => $prefs{iconset},
+                      charset                    => $prefs{charset},
 
                       # addressbook params
-                      abookfolder             => $abookfolder,
-                      abookpage               => $abookpage,
-                      abooklongpage           => $abooklongpage,
-                      abooksort               => $abooksort,
-                      abooksearchtype         => $abooksearchtype,
-                      abookkeyword            => $abookkeyword,
-                      abookcollapse           => $abookcollapse,
+                      abookfolder                => $abookfolder,
+                      abookpage                  => $abookpage,
+                      abooklongpage              => $abooklongpage,
+                      abooksort                  => $abooksort,
+                      abooksearchtype            => $abooksearchtype,
+                      abookkeyword               => $abookkeyword,
+                      abookcollapse              => $abookcollapse,
 
                       # abook_edit(contact|group)form.tmpl
-                      enable_webmail          => $config{enable_webmail},
-                      messageid               => $messageid,
-                      enable_calendar         => $config{enable_calendar},
-                      weekstart               => $prefs{calendar_weekstart},
-                      calendar_defaultview    => $prefs{calendar_defaultview},
-                      enable_addressbook      => $config{enable_addressbook},
-                      enable_webdisk          => $config{enable_webdisk},
-                      enable_sshterm          => $config{enable_sshterm},
-                      use_ssh2                => -r "$config{ow_htmldir}/applet/mindterm2/mindterm.jar" ? 1 : 0,
-                      use_ssh1                => -r "$config{ow_htmldir}/applet/mindterm/mindtermfull.jar" ? 1 : 0,
-                      enable_preference       => $config{enable_preference},
-                      quotaoverlimit          => ($quotalimit > 0 && $quotausage > $quotalimit) ? 1 : 0,
-                      availablefreespace      => $config{abook_maxsizeallbooks} - userabookfolders_totalsize(),
-
-                      abookfolder_label       => exists $lang_abookselectionlabels{$abookfolder} ? $lang_abookselectionlabels{$abookfolder} : f2u($abookfolder),
-                      is_caller_readmessage   => $editformcaller eq 'readmessage' ? 1 : 0,
-                      is_caller_listmessages  => $editformcaller eq 'listmessages' ? 1 : 0,
-                      is_caller_ALL           => $editformcaller eq 'ALL' ? 1 : 0,
-                      is_caller_abookfolder   => $editformcaller !~ m/(?:readmessage|listmessages|ALL)/ ? 1 : 0,
-                      editformcaller          => $editformcaller,
-                      xowmuid                 => $xowmuid,
-                      rootxowmuid             => $rootxowmuid,
-                      has_targetagent         => scalar @targetagent ? 1 : 0,
-                      targetagentpath         => scalar @targetagent ? join(',',@targetagent) : '',
-                      writableabooksloop      => [
-                                                   map { {
-                                                           option      => $_,
-                                                           label       => exists $lang_abookselectionlabels{$_} ? $lang_abookselectionlabels{$_} : f2u($_),
-                                                           selected    => $abookfolder eq $_ ? 1 : 0,
-                                                           is_global   => is_abookfolder_global($_),
-                                                       } } @writableabookfolders
-                                                 ],
-                      convtoselectloop        => [
-                                                   map { {
-                                                           option   => $_,
-                                                           label    => exists $convtolabels{$_} ? $convtolabels{$_} : $_,
-                                                           selected => $composecharset eq $_ ? 1 : 0,
-                                                       } } @convtolist
-                                                 ],
-                      composecharset          => $composecharset,
-                      contactpath             => $contactpath,
-                      contactloop             => [ $contact->{$xowmuid} ],
-                      makelabel               => -e "$config{ow_htmldir}/javascript/make_label_$prefs{locale}.js" ? "make_label_$prefs{locale}" : 'make_label',
-                      jumptolastchanged       => $formchange =~ m/^(EMAIL|TEL|ADR|ORG|URL|X-OWM-CUSTOM|PHOTO|SOUND|LOGO|KEY|AGENT)/ ? $1 :
-                                                 $upload ? param('UPLOAD.TYPE') : 0,
-                      selectpopupwidth        => $prefs{abook_width}  eq 'max' ? 0 : $prefs{abook_width},
-                      selectpopupheight       => $prefs{abook_height} eq 'max' ? 0 : $prefs{abook_height},
-                      abook_defaultkeyword    => $prefs{abook_defaultfilter} ? $prefs{abook_defaultkeyword} : '',
-                      abook_defaultsearchtype => $prefs{abook_defaultfilter} ? $prefs{abook_defaultsearchtype} : '',
+                      enable_webmail             => $config{enable_webmail},
+                      messageid                  => $messageid,
+                      enable_calendar            => $config{enable_calendar},
+                      weekstart                  => $prefs{calendar_weekstart},
+                      calendar_defaultview       => $prefs{calendar_defaultview},
+                      enable_addressbook         => $config{enable_addressbook},
+                      enable_webdisk             => $config{enable_webdisk},
+                      enable_sshterm             => $config{enable_sshterm},
+                      use_ssh2                   => -r "$config{ow_htmldir}/applet/mindterm2/mindterm.jar" ? 1 : 0,
+                      use_ssh1                   => -r "$config{ow_htmldir}/applet/mindterm/mindtermfull.jar" ? 1 : 0,
+                      enable_preference          => $config{enable_preference},
+                      quotaoverlimit             => ($quotalimit > 0 && $quotausage > $quotalimit) ? 1 : 0,
+                      availablefreespace         => $config{abook_maxsizeallbooks} - userabookfolders_totalsize(),
+                      is_abookfolderdefault      => is_defaultabookfolder($abookfolder),
+                      "abookfolder_$abookfolder" => 1,
+                      abookfolder_label          => f2u($abookfolder),
+                      is_caller_readmessage      => $editformcaller eq 'readmessage' ? 1 : 0,
+                      is_caller_listmessages     => $editformcaller eq 'listmessages' ? 1 : 0,
+                      is_caller_ALL              => $editformcaller eq 'ALL' ? 1 : 0,
+                      is_caller_abookfolder      => $editformcaller !~ m/(?:readmessage|listmessages|ALL)/ ? 1 : 0,
+                      editformcaller             => $editformcaller,
+                      xowmuid                    => $xowmuid,
+                      rootxowmuid                => $rootxowmuid,
+                      has_targetagent            => scalar @targetagent ? 1 : 0,
+                      targetagentpath            => scalar @targetagent ? join(',',@targetagent) : '',
+                      writableabooksloop         => [
+                                                      map { {
+                                                              is_defaultabookfolder => is_defaultabookfolder($_),
+                                                              "option_$_"           => 1,
+                                                              option                => $_,
+                                                              label                 => f2u($_),
+                                                              selected              => $abookfolder eq $_ ? 1 : 0,
+                                                              is_global             => is_abookfolder_global($_),
+                                                          } } @writableabookfolders
+                                                    ],
+                      convtoselectloop           => [
+                                                      map { {
+                                                              option   => $_,
+                                                              label    => exists $convtolabels{$_} ? $convtolabels{$_} : $_,
+                                                              selected => $composecharset eq $_ ? 1 : 0,
+                                                          } } @convtolist
+                                                    ],
+                      composecharset             => $composecharset,
+                      contactpath                => $contactpath,
+                      contactloop                => [ $contact->{$xowmuid} ],
+                      makelabel                  => -f "$config{ow_htmldir}/javascript/make_label_$prefs{locale}.js" ? "make_label_$prefs{locale}" : 'make_label',
+                      jumptolastchanged          => $formchange =~ m/^(EMAIL|TEL|ADR|ORG|URL|X-OWM-CUSTOM|PHOTO|SOUND|LOGO|KEY|AGENT)/ ? $1 :
+                                                    $upload ? param('UPLOAD.TYPE') : 0,
+                      selectpopupwidth           => $prefs{abook_width}  eq 'max' ? 0 : $prefs{abook_width},
+                      selectpopupheight          => $prefs{abook_height} eq 'max' ? 0 : $prefs{abook_height},
+                      abook_defaultkeyword       => $prefs{abook_defaultfilter} ? $prefs{abook_defaultkeyword} : '',
+                      abook_defaultsearchtype    => $prefs{abook_defaultfilter} ? $prefs{abook_defaultsearchtype} : '',
 
                       # footer.tmpl
-                      footer_template         => get_footer($config{footer_template_file}),
+                      footer_template            => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
@@ -2285,7 +2296,7 @@ sub addreditform_to_vcard {
 
    # we need to force the FN value into N to make the card valid if its a group.
    if (param('editgroupform')) {
-      param(-name => 'N.0.VALUE.GIVENNAME', -value => ucfirst($lang_text{group}));
+      param(-name => 'N.0.VALUE.GIVENNAME', -value => ucfirst(gettext('group')));
       param(-name => 'N.0.VALUE.FAMILYNAME', -value => param('FN.0.VALUE'));
 
       # break group EMAIL.0.VALUE into individual emails
@@ -2358,7 +2369,7 @@ sub addreditform_to_vcard {
             $formdata->{$propertyname}[$index]{TYPES}{(iconv($convfrom, $convto, $type))[0]} = 'TYPE';
          }
       } else {
-         openwebmailerror(__FILE__, __LINE__, "datatype $datatype is not supported");
+         openwebmailerror(gettext('Unsupported vcard datatype:') . " $datatype");
       }
    }
 
@@ -2408,7 +2419,7 @@ sub addredit {
       # cancel the editing of an AGENT and move back up to the parent #
       #################################################################
       my ($traversedirection, @targetagent) = split(/,/, param('targetagent'));
-      openwebmailerror(__FILE__, __LINE__, "traverse direction is invalid") unless $traversedirection == -1;
+      openwebmailerror(gettext('Invalid traverse direction:') . " $traversedirection") unless $traversedirection == -1;
       pop(@targetagent);
       param(-name => "targetagent", -value => scalar @targetagent ? '0,' . join(',',@targetagent) : 0);
       addreditform();
@@ -2423,7 +2434,7 @@ sub addredit {
       # remove $thissession from uri if it is a OWM link (user linked from webdisk)
       $uri =~ s/\Q$thissession\E/\%THISSESSION\%/;
 
-      openwebmailerror(__FILE__, __LINE__, "$uploadtype $lang_err{func_notsupported}!")
+      openwebmailerror(gettext('Unsupported upload type:') . " $uploadtype")
         if ($uploadtype !~ m/(?:PHOTO|SOUND|LOGO|KEY|AGENT)/); # someone is playing around
 
       # list of extensions we will accept as uploads
@@ -2535,7 +2546,7 @@ sub addredit {
                # CGI::uploadInfo($attachment) returns a hash ref of the browser info about the attachment
                $attcontenttype = CGI::uploadInfo($attachment)->{'Content-Type'} || 'application/octet-stream';
             } else {
-               # browser didn't tell us. Can we figure it out?
+               # browser did not tell us. Can we figure it out?
                my $ext = uc(ow::tool::contenttype2ext(ow::tool::ext2contenttype($attname)));
                if (exists $approvedext{$uploadtype}{$ext}) {
                   $attcontenttype = ow::tool::ext2contenttype($attname);
@@ -2549,13 +2560,14 @@ sub addredit {
             my $webdiskrootdir = ow::tool::untaint($homedir . absolute_vpath("/", $config{webdisk_rootpath}));
             my $vpath = absolute_vpath('/', $webdisksel);
             my $vpathstr = f2u($vpath);
-            my $err = verify_vpath($webdiskrootdir, $vpath);
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{access_denied} ($vpathstr: $err)") if $err;
-            openwebmailerror(__FILE__, __LINE__, "$lang_text{file} $vpathstr $lang_err{doesnt_exist}") if !-f "$webdiskrootdir/$vpath";
 
-            $attachment = do { local *FH };
+            verify_vpath($webdiskrootdir, $vpath);
+
+            openwebmailerror(gettext('File does not exist:') . " $vpathstr") if !-f "$webdiskrootdir/$vpath";
+
+            $attachment = do { no warnings 'once'; local *FH };
             sysopen($attachment, "$webdiskrootdir/$vpath", O_RDONLY) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $lang_text{webdisk} $vpathstr! ($!)");
+               openwebmailerror(gettext('Cannot open file:') . " $vpathstr ($!)");
             $attname = $vpath;
             $attname =~ s#/$##;   # strip trailing slash
             $attname =~ s#^.*/##;
@@ -2565,29 +2577,34 @@ sub addredit {
          if ($attachment) {
             if ($config{abook_attlimit} > 0 && (($attfiles_totalsize + (-s $attachment)) > ($config{abook_attlimit} * 1024))) {
                close($attachment);
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{att_overlimit} $config{abook_attlimit} $lang_sizes{kb}!");
+               openwebmailerror(sprintf(ngettext('The attachment exceeds the %d KB limit.','The attachment exceeds the %d KB limit.', $config{abook_attlimit}), $config{abook_attlimit}));
             }
 
             my $attserial = time() . join('', map { int(rand(10)) }(1..9));
 
-            sysopen(ATTFILE, "$config{ow_sessionsdir}/$thissession-vcard$attserial", O_WRONLY|O_TRUNC|O_CREAT);
-            binmode ATTFILE; # to ensure images don't corrupt
+            sysopen(ATTFILE, "$config{ow_sessionsdir}/$thissession-vcard$attserial", O_WRONLY|O_TRUNC|O_CREAT) or
+               openwebmailerror(gettext('Cannot open file:') . " $config{ow_sessionsdir}/$thissession-vcard$attserial ($!)");
 
-            my $buff = '';
+            binmode ATTFILE; # to ensure images do not corrupt
+
+            my $buff    = '';
             my $attsize = 0;
+
             while (read($attachment, $buff, 400*57)) {
                $attsize += length($buff);
                print ATTFILE $buff;
             }
 
-            close ATTFILE;
+            close(ATTFILE) or
+               openwebmailerror(gettext('Cannot close file:') . " $config{ow_sessionsdir}/$thissession-vcard$attserial ($!)");
+
             close($attachment); # close tmpfile created by CGI.pm
 
             # Check that agents only contain a single contact and are valid files
             if ($uploadtype eq 'AGENT') {
                my $test = readadrbook("$config{ow_sessionsdir}/$thissession-vcard$attserial", undef, undef);
                if (keys %{$test} > 1) {
-                  openwebmailerror(__FILE__, __LINE__, $lang_err{abook_agent_one_contact});
+                  openwebmailerror(gettext('An agent upload may only contain one contact.'));
                }
             }
 
@@ -2621,7 +2638,7 @@ sub addredit {
             } else {
                # remove the unauthorized upload temp file
                unlink("$config{ow_sessionsdir}/$thissession-vcard$attserial");
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{abook_ext_notsupported} $uploadtype ($attcontenttype $uploadextension)!");
+               openwebmailerror(gettext('The upload is not an approved file or type:') . " $uploadtype ($attcontenttype $uploadextension)");
             }
          }
       } elsif ($uri) {
@@ -2666,15 +2683,15 @@ sub addredit {
 
       $abookfolder  = ow::tool::untaint(safefoldername($abookfolder));
       my $abookfile = abookfolder2file($abookfolder);
-      if (is_abookfolder_global($abookfolder) && !is_abookfolder_writable($abookfolder)) {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{'abook_global_denied'}");
-      }
+
+      openwebmailerror(gettext('You do not have permission to edit the global addressbook.'))
+         if is_abookfolder_global($abookfolder) && !is_abookfolder_writable($abookfolder);
 
       # load up the vcard with the rootxowmuid from the abookfile
       if ($rootxowmuid) {
          my $searchterms = { 'X-OWM-UID' => [ { 'VALUE' => $rootxowmuid } ] }; # only pull this card
          $completevcard  = readadrbook($abookfile, (keys %{$searchterms} ? $searchterms : undef), undef);
-         openwebmailerror(__FILE__, __LINE__, "The X-OWM-UID does not match any contacts in the $abookfile addressbook\n") unless scalar keys %{$completevcard};
+         openwebmailerror(gettext('The xowmuid does not match any contacts in the addressbook:') . " $rootxowmuid\:$abookfile") unless scalar keys %{$completevcard};
       } else {
          $completevcard->{$rootxowmuid} = {};
       }
@@ -2729,10 +2746,12 @@ sub addredit {
                         $contact->{$xowmuid}{$propertyname}[$index]{VALUE} = readadrbook("$targetfile",undef,undef); # attach vcard file
                      } else {
                         sysopen(FILE, $targetfile, O_RDWR|O_CREAT) or
-                          openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_create} $targetfile ($!)\n");
+                          openwebmailerror(gettext('Cannot open file:') . " $targetfile ($!)");
+
                         $contact->{$xowmuid}{$propertyname}[$index]{VALUE} = do { local $/; <FILE> }; # attach binary file
+
                         close FILE or
-                          openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $targetfile ($!)\n");
+                          openwebmailerror(gettext('Cannot close file:') . " $targetfile ($!)");
                      }
                      unlink($targetfile);
                   }
@@ -2772,9 +2791,9 @@ sub addredit {
       ################################################################################
 
       # outputvfile will check values and add X-OWM-UID if needed.
-      # readvfilesfromstring will make it a hash, double check values,
+      # readvfile will make it a hash, double check values,
       # and add any missing propertynames.
-      $completevcard = readvfilesfromstring(outputvfile('vcard',$completevcard));
+      $completevcard = readvfile(outputvfile('vcard',$completevcard));
 
       # reset $xowmuid in case outputvfile assigned one because it was blank before.
       # $xowmuid would be blank if we were coming from a new card.
@@ -2799,14 +2818,19 @@ sub addredit {
 
       # and write it out!
       my $writeoutput = outputvfile('vcard',$completebook);
+
       ow::filelock::lock($abookfile, LOCK_EX|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($abookfile));
+         openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($abookfile));
+
       sysopen(TARGET, $abookfile, O_WRONLY|O_TRUNC|O_CREAT) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} " . f2u($abookfile) . " ($!)\n");
+         openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($abookfile) . " ($!)");
+
       print TARGET $writeoutput;
+
       close(TARGET) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} " . f2u($abookfile) . " ($!)\n");
-      ow::filelock::lock($abookfile, LOCK_UN);
+         openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($abookfile) . " ($!)");
+
+      ow::filelock::lock($abookfile, LOCK_UN) or writelog("cannot unlock file $abookfile");
 
       writelog("edit contact - $rootxowmuid from $abookfolder");
       writehistory("edit contact - $rootxowmuid from $abookfolder");
@@ -2850,7 +2874,7 @@ sub addredit {
 }
 
 sub addrviewatt {
-   my $file = param('file') || openwebmailerror(__FILE__, __LINE__, "No named file to view");
+   my $file = param('file') || openwebmailerror(gettext('No named file to view'));
    my $type = param('type') || ''; # undef makes application/octet-stream
 
    $type = lc $type;
@@ -2861,9 +2885,13 @@ sub addrviewatt {
 
    my $target = ow::tool::untaint("$config{ow_sessionsdir}/$thissession-vcard$file");
 
-   sysopen(FILE, $target, O_RDONLY) || openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $target! ($!)");
+   sysopen(FILE, $target, O_RDONLY) or
+     openwebmailerror(gettext('Cannot open file:') . " $target ($!)");
+
    my $attbody = do {local $/; <FILE> }; # slurp
-   close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $target! ($!)");
+
+   close FILE or
+     openwebmailerror(gettext('Cannot close file:') . " $target ($!)");
 
    my $length = length $attbody;
    if ($length > 512 && is_http_compression_enabled()) {
@@ -2886,10 +2914,12 @@ sub addrviewatt {
 }
 
 sub update_revision_time {
-   my ($r_rev) = @_;
+   my $r_rev = shift;
+
    my ($rev_sec,$rev_min,$rev_hour,$rev_mday,$rev_mon,$rev_year,$rev_wday,$rev_yday,$rev_isdst) = gmtime(time);
    $rev_mon++;
    $rev_year += 1900;
+
    $r_rev->{VALUE}{SECOND} = $rev_sec;
    $r_rev->{VALUE}{MINUTE} = $rev_min;
    $r_rev->{VALUE}{HOUR}   = $rev_hour;
@@ -2904,9 +2934,12 @@ sub deleteattachments {
    my @sessfiles = ();
 
    opendir(SESSIONSDIR, $config{ow_sessionsdir}) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_sessionsdir}! ($!)");
+      openwebmailerror(gettext('Cannot open directory:') . " $config{ow_sessionsdir} ($!)");
+
    @sessfiles = readdir(SESSIONSDIR);
-   closedir(SESSIONSDIR);
+
+   closedir(SESSIONSDIR) or
+      openwebmailerror(gettext('Cannot close directory:') . " $config{ow_sessionsdir} ($!)");
 
    foreach my $attfile (@sessfiles) {
       push(@delfiles, ow::tool::untaint("$config{ow_sessionsdir}/$attfile"))
@@ -2921,9 +2954,12 @@ sub getattfilesinfo {
    my $totalsize = 0;
 
    opendir(SESSIONSDIR, $config{ow_sessionsdir}) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_sessionsdir}! ($!)");
+      openwebmailerror(gettext('Cannot open directory:') . " $config{ow_sessionsdir} ($!)");
+
    my @sessfiles = readdir(SESSIONSDIR);
-   closedir(SESSIONSDIR);
+
+   closedir(SESSIONSDIR) or
+      openwebmailerror(gettext('Cannot close directory:') . " $config{ow_sessionsdir} ($!)");
 
    foreach my $sessionfile (@sessfiles) {
       if ($sessionfile =~ /^(\Q$thissession\E\-vcard\d+)$/) {
@@ -2936,29 +2972,6 @@ sub getattfilesinfo {
    }
 
    return ($totalsize, \@attfiles);
-}
-
-sub generate_xowmuid {
-   # xowmuid is required as the key for vcard data structure hashes
-   # it must be unique for each vcard data structure
-   # this routine generates a unique xowmuid every time it is called
-   # an xowmuid looks like: 20040909-073403-35PDGCRZE5OQ-HVLF
-   my ($uid_sec,$uid_min,$uid_hour,$uid_mday,$uid_mon,$uid_year) = gmtime(time);
-   my @chars = ( 'A' .. 'Z', 0 .. 9 );
-   my $longrandomstring  = join('', map { $chars[rand @chars] } 1..12);
-   my $shortrandomstring = join('', map { $chars[rand @chars] } 1..4);
-   my $uid = ($uid_year + 1900) .
-             sprintf("%02d", ($uid_mon + 1)) .
-             sprintf("%02d", $uid_mday) .
-             '-' .
-             sprintf("%02d", $uid_hour) .
-             sprintf("%02d", $uid_min) .
-             sprintf("%02d", $uid_sec) .
-             '-' .
-             $longrandomstring .
-             '-' .
-             $shortrandomstring;
-   return $uid;
 }
 
 sub get_writable_abookfolders {
@@ -3012,7 +3025,7 @@ sub deepcopy {
     } elsif (ref $this eq 'HASH') {
        scalar { map { $_ => deepcopy($this->{$_}) } keys %$this };
     } else {
-       croak("what type is $_?");
+       croak("unsupported datatype for deepcopy: $_");
     }
 }
 
@@ -3039,70 +3052,67 @@ sub addrimportform {
 
    $template->param(
                       # header.tmpl
-                      header_template => get_header($config{header_template_file}),
+                      header_template            => get_header($config{header_template_file}),
 
                       # standard params
-                      sessionid       => $thissession,
-                      folder          => $folder,
-                      sort            => $sort,
-                      msgdatetype     => $msgdatetype,
-                      page            => $page,
-                      longpage        => $longpage,
-                      searchtype      => $searchtype,
-                      keyword         => $keyword,
-                      url_cgi         => $config{ow_cgiurl},
-                      url_html        => $config{ow_htmlurl},
-                      use_texticon    => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      use_fixedfont   => $prefs{usefixedfont},
-                      use_lightbar    => $prefs{uselightbar},
-                      iconset         => $prefs{iconset},
-                      charset         => $prefs{charset},
+                      sessionid                  => $thissession,
+                      folder                     => $folder,
+                      sort                       => $sort,
+                      msgdatetype                => $msgdatetype,
+                      page                       => $page,
+                      longpage                   => $longpage,
+                      searchtype                 => $searchtype,
+                      keyword                    => $keyword,
+                      url_cgi                    => $config{ow_cgiurl},
+                      url_html                   => $config{ow_htmlurl},
+                      use_texticon               => ($prefs{iconset} =~ m/^Text\./ ? 1 : 0),
+                      use_fixedfont              => $prefs{usefixedfont},
+                      use_lightbar               => $prefs{uselightbar},
+                      iconset                    => $prefs{iconset},
+                      charset                    => $prefs{charset},
 
                       # addressbook params
-                      abookfolder     => $abookfolder,
-                      abookpage       => $abookpage,
-                      abooklongpage   => $abooklongpage,
-                      abooksort       => $abooksort,
-                      abooksearchtype => $abooksearchtype,
-                      abookkeyword    => $abookkeyword,
-                      abookcollapse   => $abookcollapse,
+                      abookfolder                => $abookfolder,
+                      abookpage                  => $abookpage,
+                      abooklongpage              => $abooklongpage,
+                      abooksort                  => $abooksort,
+                      abooksearchtype            => $abooksearchtype,
+                      abookkeyword               => $abookkeyword,
+                      abookcollapse              => $abookcollapse,
 
                       #abook_importform.tmpl
-                      abookfolder_label  => exists $lang_abookselectionlabels{$abookfolder} ? $lang_abookselectionlabels{$abookfolder} : f2u($abookfolder),
-                      availablefreespace => $config{abook_maxsizeallbooks} - userabookfolders_totalsize(),
-                      abookimportlimit   => $config{abook_importlimit},
-                      programname        => $config{name},
-                      importformatsloop       => [
-                                                    map { {
-                                                             "option_$_" => 1,
-                                                             selected    => $_ eq $importformat ? 1 : 0,
-                                                        } } sort keys %{$supportedformats}
-                                                 ],
-                      importcharsetdisabled   => $importformat =~ m/vcard/i ? 1 : 0,
-                      importcharsetloop       => [
-                                                    map { {
-                                                             option   => $_,
-                                                             label    => $_,
-                                                             selected => $_ eq $importcharset ? 1 : 0,
-                                                        } } sort keys %importcharsets
-                                                 ],
-                      importfieldsdisabled    => $importformat =~ m/vcard/i ? 1 : 0,
-                      importfieldsloop        => [
-                                                    map { {
-                                                             "option_$_" => $_,
-                                                             selected    => $_ eq 'none' ? 1 : 0,
-                                                        } } qw(none fullname prefix first middle last suffix email phone note)
-                                                 ],
-                      importdestinationloop   => [
-                                                    map { {
-                                                             option   => $_,
-                                                             label    => exists $lang_abookselectionlabels{$_} ? $lang_abookselectionlabels{$_} : f2u($_),
-                                                             selected => $_ eq $importdestination ? 1 : 0,
-                                                        } } get_writable_abookfolders(),
-                                                 ],
+                      is_abookfolderdefault      => is_defaultabookfolder($abookfolder),
+                      "abookfolder_$abookfolder" => 1,
+                      abookfolder_label          => f2u($abookfolder),
+                      availablefreespace         => $config{abook_maxsizeallbooks} - userabookfolders_totalsize(),
+                      abookimportlimit           => $config{abook_importlimit},
+                      programname                => $config{name},
+                      importformatsloop          => [
+                                                       map { {
+                                                                "option_$_" => 1,
+                                                                selected    => $_ eq $importformat ? 1 : 0,
+                                                           } } sort keys %{$supportedformats}
+                                                    ],
+                      importcharsetdisabled      => $importformat =~ m/vcard/i ? 1 : 0,
+                      importcharsetloop          => [
+                                                       map { {
+                                                                option   => $_,
+                                                                label    => $_,
+                                                                selected => $_ eq $importcharset ? 1 : 0,
+                                                           } } sort keys %importcharsets
+                                                    ],
+                      importdestinationloop      => [
+                                                       map { {
+                                                                is_defaultabookfolder => is_defaultabookfolder($_),
+                                                                "option_$_"           => 1,
+                                                                option                => $_,
+                                                                label                 => f2u($_),
+                                                                selected              => $_ eq $importdestination ? 1 : 0,
+                                                           } } get_writable_abookfolders(),
+                                                    ],
 
                       # footer.tmpl
-                      footer_template => get_footer($config{footer_template_file}),
+                      footer_template            => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
@@ -3111,10 +3121,10 @@ sub addrimportform {
 sub addrimportfieldselect {
    # this is step 2 of 3 of the import process
    # allow the user to define the list of the fields in a csv or tab import
-   # vcard imports bi-pass this and immediately go to step 3
-   my $importfile        = param('importfile')   || openwebmailerror(__FILE__, __LINE__, "$lang_err{abook_import_nofile}! ($!)");
-   my $importformat      = param('importformat') || openwebmailerror(__FILE__, __LINE__, "$lang_err{abook_import_noformat}! ($!)");
-   my $importdestination = param('importdestination') || openwebmailerror(__FILE__, __LINE__, "$lang_err{abook_import_nodest}! ($!)");
+   # vcard imports bypass this and immediately go to step 3
+   my $importfile        = param('importfile')   || openwebmailerror(gettext('A file must be selected for import.'));
+   my $importformat      = param('importformat') || openwebmailerror(gettext('An import format must be chosen.'));
+   my $importdestination = param('importdestination') || openwebmailerror(gettext('An import destination must be chosen.'));
    my $importcharset     = param('importcharset') || $prefs{charset} || 'none';
 
    my %importcharsets    = map { $ow::lang::charactersets{$_}[1] => 1 } keys %ow::lang::charactersets;
@@ -3132,23 +3142,23 @@ sub addrimportfieldselect {
    $importfile =~ s|^.*/||; # unix path
    $importfile =~ s|^.*:||; # mac path and dos drive
 
-   openwebmailerror(__FILE__, __LINE__, qq|The "$importformat" addressbook format is not supported at this time. Please choose another format for import! ($!)|)
+   openwebmailerror(gettext('The chosen import format is unsupported. Please go back and chose a different one:') . " $importformat")
      unless exists $supportedformats->{$importformat};
 
    my ($importfileext) = $importfile =~ m/\.(...)$/;
-   openwebmailerror(__FILE__, __LINE__, qq|The file extension for $importformat files must be $supportedformats->{$importformat}{extension}!|)
+   openwebmailerror(gettext('The file extension is incorrect for the chosen import format. The recommended extension for the format is:') . " ($importformat\: $supportedformats->{$importformat}{extension})")
      unless lc $importfileext eq $supportedformats->{$importformat}{extension} || $importfile =~ m/^\d+$/;
 
    # get the CGI.pm filehandle in a strict safe way
    my $importfilehandle = CGI::upload('importfile');
 
    my $importfilesize = (-s $importfilehandle);
-   openwebmailerror(__FILE__, __LINE__, qq|Uploaded file size is $importfilesize bytes ($!)|) if $importfilesize == 0;
+   openwebmailerror(gettext('The import file is 0 bytes.')) if $importfilesize == 0;
 
    my $importfilesizekb = sprintf("%0.2f", $importfilesize / 1024);
-   openwebmailerror(__FILE__, __LINE__, $lang_err{quotahit_alert}) unless is_quota_available($importfilesizekb);
+   openwebmailerror(gettext('The import file size exceeds the available quota space.')) unless is_quota_available($importfilesizekb);
 
-   openwebmailerror(__FILE__, __LINE__,"$importfilesizekb $lang_sizes{kb} $lang_err{upload_overlimit} $config{abook_importlimit} $lang_sizes{kb}\n")
+   openwebmailerror(gettext('The import file size exceeds the import file size limit:') . ' ' . lenstr($importfilesizekb, 1) . ' > ' . lenstr($config{abook_importlimit}, 1))
      if $config{abook_importlimit} > 0 && $importfilesizekb > $config{abook_importlimit};
 
    if ($config{abook_maxsizeallbooks} > 0) {
@@ -3157,16 +3167,16 @@ sub addrimportfieldselect {
 
       # calculate the available free space
       my $availfreespace = $config{abook_maxsizeallbooks} - userabookfolders_totalsize();
-      if ($importfilesizekb > $availfreespace) {
-          openwebmailerror(__FILE__, __LINE__,"$importfilesizekb $lang_sizes{kb} > $availfreespace $lang_sizes{kb}. $lang_err{abook_toobig} $lang_err{back}\n");
-      }
+      openwebmailerror(gettext('The import file size exceeds the available free space:') . ' ' . lenstr($importfilesizekb, 1) . ' > ' . lenstr($availfreespace, 1))
+        if $importfilesizekb > $availfreespace;
    }
 
    # save the uploaded file to the sessions directory
    my $attserial = time() . join('', map { int(rand(10)) }(1..9));
 
-   sysopen(ATTFILE, "$config{ow_sessionsdir}/$thissession-vcard$attserial", O_WRONLY|O_TRUNC|O_CREAT);
-   binmode ATTFILE; # to ensure images don't corrupt
+   sysopen(ATTFILE, "$config{ow_sessionsdir}/$thissession-vcard$attserial", O_WRONLY|O_TRUNC|O_CREAT) or
+     openwebmailerror(gettext('Cannot open file:') . " $config{ow_sessionsdir}/$thissession-vcard$attserial ($!)");
+   binmode ATTFILE; # to ensure images do not corrupt
 
    my $buff = '';
    my $attsize = 0;
@@ -3175,7 +3185,8 @@ sub addrimportfieldselect {
       print ATTFILE $buff;
    }
 
-   close ATTFILE;
+   close ATTFILE or
+     openwebmailerror(gettext('Cannot close file:') . " $config{ow_sessionsdir}/$thissession-vcard$attserial ($!)");
    seek $importfilehandle,0,0; # reset the filehandle position to zero
 
    # remember the serial number to recall it later
@@ -3192,11 +3203,8 @@ sub addrimportfieldselect {
    my $fieldseparator = $importformat =~ m/^csv$/ ? ',' : "\t";
    my $records = parse_fsv($importfilecontents, $fieldseparator);
 
-   # the number of fields should be consistent for every record
-   for(my $i = 0; $i < scalar @{$records}; $i++) {
-      openwebmailerror(__FILE__, __LINE__, "Invalid $importformat file")
-        if scalar @{$records->[$i]} != scalar @{$records->[0]};
-   }
+   # check that each record has the same number of fields
+   my %recordsizes = map { scalar @{$_}, 1 } @{$records};
 
    # build the template
    my $template = HTML::Template->new(
@@ -3210,53 +3218,56 @@ sub addrimportfieldselect {
 
    $template->param(
                       # header.tmpl
-                      header_template => get_header($config{header_template_file}),
+                      header_template            => get_header($config{header_template_file}),
 
                       # standard params
-                      sessionid       => $thissession,
-                      folder          => $folder,
-                      sort            => $sort,
-                      msgdatetype     => $msgdatetype,
-                      page            => $page,
-                      longpage        => $longpage,
-                      searchtype      => $searchtype,
-                      keyword         => $keyword,
-                      url_cgi         => $config{ow_cgiurl},
-                      url_html        => $config{ow_htmlurl},
-                      use_texticon    => ($prefs{iconset} =~ m/^Text\./?1:0),
-                      use_fixedfont   => $prefs{usefixedfont},
-                      use_lightbar    => $prefs{uselightbar},
-                      iconset         => $prefs{iconset},
-                      charset         => $prefs{charset},
+                      sessionid                  => $thissession,
+                      folder                     => $folder,
+                      sort                       => $sort,
+                      msgdatetype                => $msgdatetype,
+                      page                       => $page,
+                      longpage                   => $longpage,
+                      searchtype                 => $searchtype,
+                      keyword                    => $keyword,
+                      url_cgi                    => $config{ow_cgiurl},
+                      url_html                   => $config{ow_htmlurl},
+                      use_texticon               => ($prefs{iconset} =~ m/^Text\./ ? 1 : 0),
+                      use_fixedfont              => $prefs{usefixedfont},
+                      use_lightbar               => $prefs{uselightbar},
+                      iconset                    => $prefs{iconset},
+                      charset                    => $prefs{charset},
 
                       # addressbook params
-                      abookfolder     => $abookfolder,
-                      abookpage       => $abookpage,
-                      abooklongpage   => $abooklongpage,
-                      abooksort       => $abooksort,
-                      abooksearchtype => $abooksearchtype,
-                      abookkeyword    => $abookkeyword,
-                      abookcollapse   => $abookcollapse,
+                      abookfolder                => $abookfolder,
+                      abookpage                  => $abookpage,
+                      abooklongpage              => $abooklongpage,
+                      abooksort                  => $abooksort,
+                      abooksearchtype            => $abooksearchtype,
+                      abookkeyword               => $abookkeyword,
+                      abookcollapse              => $abookcollapse,
 
                       # abook_importfieldselect.tmpl
-                      abookfolder_label  => exists $lang_abookselectionlabels{$abookfolder} ? $lang_abookselectionlabels{$abookfolder} : f2u($abookfolder),
-                      availablefreespace => $config{abook_maxsizeallbooks} - userabookfolders_totalsize(),
-                      importfile         => $importfile,
-                      importserial       => $attserial,
-                      importformat       => $importformat,
-                      importcharset      => $importcharset,
-                      importdestination  => $importdestination,
-                      importfieldsloop   => [
-                                               map { {
-                                                        odd => $_ % 2 == 0 ? 0 : 1,
-                                                        datasampleone => $records->[0][$_],
-                                                        datasampletwo => $records->[1][$_],
-                                                        datasamplethree => $records->[2][$_],
-                                                   } } (0..$#{$records->[0]})
-                                            ],
+                      is_abookfolderdefault      => is_defaultabookfolder($abookfolder),
+                      "abookfolder_$abookfolder" => 1,
+                      abookfolder_label          => f2u($abookfolder),
+                      availablefreespace         => $config{abook_maxsizeallbooks} - userabookfolders_totalsize(),
+                      is_inconsistentdata        => scalar keys %recordsizes > 1 ? 1 : 0,
+                      importfile                 => $importfile,
+                      importserial               => $attserial,
+                      importformat               => $importformat,
+                      importcharset              => $importcharset,
+                      importdestination          => $importdestination,
+                      importfieldsloop           => [
+                                                       map { {
+                                                                odd             => $_ % 2 == 0 ? 0 : 1,
+                                                                datasampleone   => $records->[0][$_],
+                                                                datasampletwo   => $records->[1][$_],
+                                                                datasamplethree => $records->[2][$_],
+                                                           } } (0..$#{$records->[0]})
+                                                    ],
 
                       # footer.tmpl
-                      footer_template => get_footer($config{footer_template_file}),
+                      footer_template            => get_footer($config{footer_template_file}),
                    );
 
    httpprint([], [$template->output]);
@@ -3267,33 +3278,36 @@ sub addrimport {
    # the uploaded file has been placed in the sessions directory (addrimportform)
    # the user has defined all of the fields, if required (addrimportfieldselect)
    # we are now ready to convert the import data to vcard and save it
-   my $importfile        = param('importfile')   || openwebmailerror(__FILE__, __LINE__, "$lang_err{abook_import_nofile}! ($!)");
-   my $importserial      = param('importserial') || openwebmailerror(__FILE__, __LINE__, "Import file has no auto assigned serial number! ($!)");
-   my $importformat      = param('importformat') || openwebmailerror(__FILE__, __LINE__, "$lang_err{abook_import_noformat}! ($!)");
-   my $importdestination = param('importdestination') || openwebmailerror(__FILE__, __LINE__, "$lang_err{abook_import_nodest}! ($!)");
+   my $importfile        = param('importfile')   || openwebmailerror(gettext('A file must be selected for import.'));
+   my $importformat      = param('importformat') || openwebmailerror(gettext('An import format must be chosen.'));
+   my $importdestination = param('importdestination') || openwebmailerror(gettext('An import destination must be chosen.'));
+   my $importserial      = param('importserial') || openwebmailerror(gettext('Import file has no auto assigned serial number.'));
    my $importcharset     = param('importcharset') || $prefs{charset} || 'none';
    my $importfirstrow    = param('importfirstrow') || 0;
    my @importfields      = param('importfield');
+
 
    @importfields = () unless defined $importfields[0];
 
    my %importcharsets    = map { $ow::lang::charactersets{$_}[1] => 1 } keys %ow::lang::charactersets;
 
-   openwebmailerror(__FILE__, __LINE__, "Illegal character set for import!") if !exists $importcharsets{$importcharset};
+   openwebmailerror(gettext('Illegal character set for import')) unless exists $importcharsets{$importcharset};
 
-   openwebmailerror(__FILE__, __LINE__, "Illegal serial for import!") if $importserial !~ m/^\d+$/;
+   openwebmailerror(gettext('Illegal serial for import')) if $importserial !~ m/^\d+$/;
 
    # read the import data from the sessions directory
    my $importsessionfile = ow::tool::untaint("$config{ow_sessionsdir}/$thissession-vcard$importserial");
 
-   sysopen(FILE, $importsessionfile, O_RDONLY) || openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $importsessionfile! ($!)");
+   sysopen(FILE, $importsessionfile, O_RDONLY) or
+     openwebmailerror(gettext('Cannot open file:') . " $importsessionfile ($!)");
    my $importfilecontents = do {local $/; <FILE> }; # slurp
-   close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $importsessionfile! ($!)");
+   close FILE or
+     openwebmailerror(gettext('Cannot close file:') . " $importsessionfile ($!)");
 
    # translate the import data into a vcard data structure
    my $newaddrinfo = $importformat =~ m/^(?:vcard2.1|vcard3.0)/ ? importvcard($importfilecontents) :
                      $importformat =~ m/^(?:csv|tab)/ ? importfsv($importfilecontents, $importformat, $importcharset, $importfirstrow, @importfields) :
-                     openwebmailerror(__FILE__, __LINE__, "Invalid import format $importformat");
+                     openwebmailerror(gettext('Invalid import format:') . " $importformat");
 
    # write out the result
    if ($importdestination eq 'newaddressbook') {
@@ -3314,20 +3328,20 @@ sub addrimport {
 
       my $newbookfile = ow::tool::untaint(abookfolder2file($fname));
 
-      openwebmailerror(__FILE__, __LINE__, "Addressbook " . f2u($fname) . " already exists!")
+      openwebmailerror(gettext('Addressbook already exists:') . ' ' . f2u($fname))
         if -e $newbookfile || $fname =~ m/^(?:ALL|DELETE)$/;
 
       my $writeoutput = outputvfile('vcard', $newaddrinfo);
 
-      if (sysopen(IMPORT, $newbookfile, O_WRONLY|O_TRUNC|O_CREAT)) {
-         print IMPORT $writeoutput;
-         close(IMPORT);
-         writelog("import addressbook - upload new book $fname");
-         writehistory("import addressbook - upload new book $fname");
-         $abookfolder = $fname;
-      } else {
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} " . f2u($fname) . " ($!)\n");
-      }
+      sysopen(IMPORT, $newbookfile, O_WRONLY|O_TRUNC|O_CREAT) or
+         openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($fname) . " ($!)");
+      print IMPORT $writeoutput;
+      close(IMPORT) or
+         openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($fname) . " ($!)");
+
+      writelog("import addressbook - upload new book $fname");
+      writehistory("import addressbook - upload new book $fname");
+      $abookfolder = $fname;
    } else {
       # append the import to a selected book
       my $targetfile = ow::tool::untaint(abookfolder2file($importdestination));
@@ -3343,15 +3357,15 @@ sub addrimport {
 
       # overwrite the targetfile with the new data
       ow::filelock::lock($targetfile, LOCK_EX|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($targetfile));
+         openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($targetfile) . " ($!)");
 
       sysopen(TARGET, $targetfile, O_WRONLY|O_TRUNC|O_CREAT) or
-        openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} " . f2u($targetfile) . " ($!)\n");
+        openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($targetfile) . " ($!)");
 
       print TARGET $writeoutput;
 
       close(TARGET) or
-        openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} " . f2u($targetfile) . " ($!)\n");
+        openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($targetfile) . " ($!)");
 
       ow::filelock::lock($targetfile, LOCK_UN);
 
@@ -3373,14 +3387,14 @@ sub importvcard {
    # the routine we need for parsing vcard data. So this import is
    # the easiest one to do.
    my $importdata = shift;
-   return readvfilesfromstring($importdata);
+   return readvfile($importdata);
 }
 
 sub importfsv {
    # accepts a csv or tab string and returns a vCard hash data structure
    my ($importdata, $importformat, $importcharset, $importfirstrow, @importfields) = @_;
 
-   openwebmailerror(__FILE__, __LINE__, "No import fields have been defined!")
+   openwebmailerror(gettext('No import fields have been defined.'))
      if (scalar grep { !m/^none$/ } @importfields) == 0;
 
    my %validfields = (
@@ -3404,10 +3418,13 @@ sub importfsv {
 
       my ($propertyname, $datatype, @attributes) = split(/\./, $fieldname);
 
-      openwebmailerror(__FILE__, __LINE__, "The propertyname $propertyname is invalid.")
+      $propertyname = '' unless defined $propertyname;
+      $datatype     = '' unless defined $datatype;
+
+      openwebmailerror(gettext('Invalid property name for import:') . " $propertyname")
         unless exists $validfields{$propertyname};
 
-      openwebmailerror(__FILE__, __LINE__, "The datatype $datatype is invalid.")
+      openwebmailerror(gettext('Invalid datatype for import:') . " $datatype")
         if $datatype !~ m/(?:VALUE|GROUP|TYPE)/;
 
       $fieldcount{$fieldname}++;
@@ -3500,82 +3517,80 @@ sub addrexport {
    # The export form is the 'export' mode of the listview subroutine.
    my $exportformat = param('exportformat') || 'vcard3.0';
 
-   if (!exists $supportedformats->{$exportformat}) {
-      $lang_err{abook_export_unsupfmt} =~ s/\@\@\@FORMAT\@\@\@/$exportformat/;
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{abook_import_unsupfmt}! ($!)");
-   } else {
-      my @xowmuids = param('xowmuid');
+   openwebmailerror(gettext('The chosen export format is not supported:') . " $exportformat")
+     unless exists $supportedformats->{$exportformat};
 
-      return addrlistview() unless scalar @xowmuids;
+   my @xowmuids = param('xowmuid');
 
-      # separate into individual addresses and eliminate duplicates
-      my %unique_xowmuid = ();
-      @xowmuids = sort grep { !$unique_xowmuid{$_}++ } @xowmuids;
+   return addrlistview() unless scalar @xowmuids;
 
-      my $exportbody        = '';
-      my $exportcontenttype = '';
-      my $exportfilename    = '';
+   # separate into individual addresses and eliminate duplicates
+   my %unique_xowmuid = ();
+   @xowmuids = sort grep { !$unique_xowmuid{$_}++ } @xowmuids;
 
-      # load up the list of available books
-      my @allabookfolders = get_readable_abookfolders();
+   my $exportbody        = '';
+   my $exportcontenttype = '';
+   my $exportfilename    = '';
 
-      # load the addresses - only the required information
-      my $addresses   = {};
-      my $searchterms = { 'X-OWM-UID' => [ { VALUE => join("|", @xowmuids) } ] };
+   # load up the list of available books
+   my @allabookfolders = get_readable_abookfolders();
 
-      foreach my $folder (@allabookfolders) {
-         my $abookfile = abookfolder2file($folder);
-         my $thisbook  = readadrbook($abookfile, $searchterms, undef);
+   # load the addresses - only the required information
+   my $addresses   = {};
+   my $searchterms = { 'X-OWM-UID' => [ { VALUE => join("|", @xowmuids) } ] };
 
-         # remember what book this address came from
-         foreach my $xowmuid (keys %{$thisbook}) {
-            $addresses->{$xowmuid} = $thisbook->{$xowmuid};
-            # The exports should have Product ID of the version of OWM they were exported from
-            $addresses->{$xowmuid}{PRODID}[0]{VALUE} = "$config{name} $config{version} $config{releasedate}";
-         }
+   foreach my $folder (@allabookfolders) {
+      my $abookfile = abookfolder2file($folder);
+      my $thisbook  = readadrbook($abookfile, $searchterms, undef);
+
+      # remember what book this address came from
+      foreach my $xowmuid (keys %{$thisbook}) {
+         $addresses->{$xowmuid} = $thisbook->{$xowmuid};
+         # The exports should have Product ID of the version of OWM they were exported from
+         $addresses->{$xowmuid}{PRODID}[0]{VALUE} = "$config{name} $config{version} $config{releasedate}";
       }
-
-      # figure the version request
-      my ($version) = $exportformat =~ m/^vcard([\d.]+)/;
-      $version = '' unless defined $version;
-
-      # now send the vCard hash structure to the exporter to get the converted data for export
-      ($exportbody, $exportcontenttype, $exportfilename) = $exportformat =~ m/^vcard[\d.]+$/ ? exportvcard($addresses, $version) :
-                                                           $exportformat =~ m/^csv$/         ? exportfsv($addresses, 'csv')      :
-                                                           $exportformat =~ m/^tab$/         ? exportfsv($addresses, 'tab')      :
-                                                           openwebmailerror(__FILE__, __LINE__, "The export format $exportformat is invalid.");
-
-      # send the export data to the browser
-      my $exportlength = length($exportbody);
-      my $exportheader .= qq|Connection: close\n| .
-                          qq|Content-Type: $exportcontenttype; name="$exportfilename"\n| .
-
-                          # ie5.5 is broken with content-disposition: attachment
-                          (
-                            $ENV{HTTP_USER_AGENT} =~ m/MSIE 5.5/
-                            ? qq|Content-Disposition: filename="$exportfilename"\n|
-                            : qq|Content-Disposition: attachment; filename="$exportfilename"\n|
-                          );
-
-      # should we gzip it?
-      if ($exportlength > 512 && is_http_compression_enabled()) {
-         $exportbody   = Compress::Zlib::memGzip($exportbody);
-         $exportlength = length($exportbody);
-         $exportheader .= qq|Content-Encoding: gzip\n|.
-                          qq|Vary: Accept-Encoding\n|;
-      }
-
-      $exportheader .= qq|Content-Length: $exportlength\n|;
-
-      print $exportheader, "\n", $exportbody;
    }
+
+   # figure the version request
+   my ($version) = $exportformat =~ m/^vcard([\d.]+)/;
+   $version = '' unless defined $version;
+
+   # now send the vCard hash structure to the exporter to get the converted data for export
+   ($exportbody, $exportcontenttype, $exportfilename) = $exportformat =~ m/^vcard[\d.]+$/ ? exportvcard($addresses, $version) :
+                                                        $exportformat =~ m/^csv$/         ? exportfsv($addresses, 'csv')      :
+                                                        $exportformat =~ m/^tab$/         ? exportfsv($addresses, 'tab')      :
+                                                        openwebmailerror(gettext('Invalid export format:') . " $exportformat");
+
+   # send the export data to the browser
+   my $exportlength = length($exportbody);
+   my $exportheader .= qq|Connection: close\n| .
+                       qq|Content-Type: $exportcontenttype; name="$exportfilename"\n| .
+
+                       # ie5.5 is broken with content-disposition: attachment
+                       (
+                         $ENV{HTTP_USER_AGENT} =~ m/MSIE 5.5/
+                         ? qq|Content-Disposition: filename="$exportfilename"\n|
+                         : qq|Content-Disposition: attachment; filename="$exportfilename"\n|
+                       );
+
+   # should we gzip it?
+   if ($exportlength > 512 && is_http_compression_enabled()) {
+      $exportbody   = Compress::Zlib::memGzip($exportbody);
+      $exportlength = length($exportbody);
+      $exportheader .= qq|Content-Encoding: gzip\n|.
+                       qq|Vary: Accept-Encoding\n|;
+   }
+
+   $exportheader .= qq|Content-Length: $exportlength\n|;
+
+   print $exportheader, "\n", $exportbody;
 }
 
 sub exportvcard {
    # accepts a vCard hash data structure and returns a vCard format string.
    # shares/adrbook.pl autoloads /shares/vfile.pl which contains outputvfile
    my ($r_addresses, $version) = @_;
-   my ($exportcontenttype, $exportfilename) = ('application/x-vcard', "$lang_text{export}.vcf");
+   my ($exportcontenttype, $exportfilename) = ('application/x-vcard', (gettext('Export') . '.vcf'));
    my $exclude_propertynames = { 'X-OWM-UID' => 1 };
    return (outputvfile('vcard', $r_addresses, $version, $exclude_propertynames), $exportcontenttype, $exportfilename);
 }
@@ -3585,7 +3600,7 @@ sub exportfsv {
    # the export order is sorted alphanumerically and cannot be chosen by the user at this time
    my ($r_addresses, $exportformat) = @_;
 
-   my $exportfilename = "$lang_text{export}.$exportformat";
+   my $exportfilename = gettext('Export') . '.' . $exportformat;
 
    my %fieldnames = ();
    my @records    = ();
@@ -3680,7 +3695,7 @@ sub make_flathash {
 
 sub addrimportattachment {
    # import an attachment node from a given message (presumably a vcard, but import will check that)
-   my $nodeid    = param('attachment_nodeid') || openwebmailerror(__FILE__, __LINE__, "No attachment node id provided");
+   my $nodeid    = param('attachment_nodeid') || openwebmailerror(gettext('No attachment node id provided'));
    my $attname   = param('attname');
    my $attmode   = param('attmode') || 'simple';
    my $headers   = param('headers') || $prefs{headers} || 'simple';
@@ -3703,11 +3718,10 @@ sub addrimportattachment {
 
    my $contentfilesizekb = sprintf("%0.2f", $contentfilesize / 1024);
 
-   openwebmailerror(__FILE__, __LINE__, $lang_err{quotahit_alert}) unless is_quota_available($contentfilesizekb);
+   openwebmailerror(gettext('The import file size exceeds the available quota space.')) unless is_quota_available($contentfilesizekb);
 
-   if ($config{abook_importlimit} > 0 && $contentfilesizekb > $config{abook_importlimit}) {
-      openwebmailerror(__FILE__, __LINE__,"$contentfilesizekb $lang_sizes{kb} $lang_err{upload_overlimit} $config{abook_importlimit} $lang_sizes{kb}\n");
-   }
+   openwebmailerror(gettext('The import file size exceeds the import file size limit:') . ' ' . lenstr($contentfilesizekb, 1) . ' > ' . lenstr($config{abook_importlimit}, 1))
+      if $config{abook_importlimit} > 0 && $contentfilesizekb > $config{abook_importlimit};
 
    if ($config{abook_maxsizeallbooks} > 0) {
       # load up the list of all books
@@ -3715,21 +3729,18 @@ sub addrimportattachment {
 
       # calculate the available free space
       my $availfreespace = $config{abook_maxsizeallbooks} - userabookfolders_totalsize();
-      if ($contentfilesizekb > $availfreespace) {
-          openwebmailerror(__FILE__, __LINE__,"$contentfilesizekb $lang_sizes{kb} > $availfreespace $lang_sizes{kb}. $lang_err{abook_toobig} $lang_err{back}\n");
-      }
+      openwebmailerror(gettext('The import file size exceeds the available free space:') . ' ' . lenstr($contentfilesizekb, 1) . ' > ' . lenstr($availfreespace, 1))
+         if $contentfilesizekb > $availfreespace;
    }
 
-   if ($contentfilesize == 0) {
-      openwebmailerror(__FILE__, __LINE__,"$lang_wdbutton{upload} $lang_text{failed} ($!)\n");
-   }
+   openwebmailerror(gettext('The import file is 0 bytes.')) if $contentfilesize == 0;
 
    my $attvcards = importvcard($content);
 
    undef $content; # free memory
 
    # load the existing book
-   my $importdest = $attname || $lang_text{attachment};
+   my $importdest = $attname || gettext('attachment');
    my $targetfile = ow::tool::untaint(abookfolder2file($importdest));
    my $targetbook = {};
 
@@ -3738,9 +3749,9 @@ sub addrimportattachment {
    } else {
       # create the book file
       sysopen(TARGET, $targetfile, O_WRONLY|O_TRUNC|O_CREAT) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} " . f2u($targetfile) . " ($!)\n");
+         openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($targetfile) . " ($!)");
       close(TARGET) or
-        openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} " . f2u($targetfile) . " ($!)\n");
+        openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($targetfile) . " ($!)");
    }
 
    # merge the new data
@@ -3753,12 +3764,12 @@ sub addrimportattachment {
 
    # overwrite the targetfile with the new data
    ow::filelock::lock($targetfile, LOCK_EX|LOCK_NB) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($targetfile));
+      openwebmailerror(gettext('Cannot lock file:') . ' '  . f2u($targetfile) . " ($!)");
    sysopen(TARGET, $targetfile, O_WRONLY|O_TRUNC|O_CREAT) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} " . f2u($targetfile) . " ($!)\n");
+      openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($targetfile) . " ($!)");
    print TARGET $writeoutput;
    close(TARGET) or
-     openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} " . f2u($targetfile) . " ($!)\n");
+     openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($targetfile) . " ($!)");
    ow::filelock::lock($targetfile, LOCK_UN);
 
    writelog("import addressbook from attachment - " . scalar keys(%{$attvcards}) . " contacts to $importdest");
@@ -3774,11 +3785,11 @@ sub getmessageattachment {
    my ($folder, $messageid, $nodeid) = @_;
 
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
-   my $folderhandle = do { local *FH };
+   my $folderhandle = do { no warnings 'once'; local *FH };
 
-   my ($msgsize, $errmsg, $block) = (0, '', '');
-   ($msgsize, $errmsg) = lockget_message_block($messageid, $folderfile, $folderdb, \$block);
-   openwebmailerror(__FILE__, __LINE__, "Message $messageid can no longer be found") if $msgsize <= 0;
+   my $block   = '';
+   my $msgsize = lockget_message_block($messageid, $folderfile, $folderdb, \$block);
+   openwebmailerror(gettext('Message ID can no longer be found:') . " $messageid") if $msgsize <= 0;
 
    my @attr = get_message_attributes($messageid, $folderdb);
 
@@ -3971,10 +3982,46 @@ sub HT_ORG {
 sub HT_TZ {
    my ($FIELD, $CHARSET) = HT_GENERIC(@_);
 
+   my %timezonelabels = (
+                           '-1200' => gettext('International Date Line West'),
+                           '-1100' => gettext('Nome, Anadyr'),
+                           '-1000' => gettext('Alaska-Hawaii Standard'),
+                           '-0900' => gettext('Yukon Standard'),
+                           '-0800' => gettext('Pacific Standard'),
+                           '-0700' => gettext('Mountain Standard'),
+                           '-0600' => gettext('Central Standard'),
+                           '-0500' => gettext('Eastern Standard'),
+                           '-0400' => gettext('Atlantic Standard'),
+                           '-0330' => gettext('Newfoundland Standard'),
+                           '-0300' => gettext('Atlantic Daylight'),
+                           '-0230' => gettext('Newfoundland Daylight'),
+                           '-0200' => gettext('Azores, South Sandwich Islands'),
+                           '-0100' => gettext('West Africa'),
+                           '+0000' => gettext('Greenwich Mean'),
+                           '+0100' => gettext('Central European'),
+                           '+0200' => gettext('Eastern European'),
+                           '+0300' => gettext('Baghdad, Moscow, Nairobi'),
+                           '+0330' => gettext('Tehran'),
+                           '+0400' => gettext('Abu Dhabi, Volgograd, Kabul'),
+                           '+0500' => gettext('Karachi'),
+                           '+0530' => gettext('India'),
+                           '+0600' => gettext('Dhaka'),
+                           '+0630' => gettext('Rangoon'),
+                           '+0700' => gettext('Bangkok, Jakarta'),
+                           '+0800' => gettext('China Coast'),
+                           '+0900' => gettext('Japan Standard'),
+                           '+0930' => gettext('Australia Central Standard'),
+                           '+1000' => gettext('Australia Eastern Standard'),
+                           '+1030' => gettext('Lord Howe Island'),
+                           '+1100' => gettext('Australia Eastern Summer'),
+                           '+1200' => gettext('International Date Line East'),
+                           '+1300' => gettext('New Zealand Daylight'),
+                        );
+
    $FIELD->{tzselectloop} = [
                               map { {
                                       option   => $_,
-                                      label    => "$_ -  $lang_timezonelabels{$_}",
+                                      label    => "$_ -  $timezonelabels{$_}",
                                       selected => $FIELD->{VALUE}
                                                   ? $FIELD->{VALUE} eq $_  ? 1 : 0
                                                   : $prefs{timeoffset} eq $_ ? 1 : 0
@@ -4084,14 +4131,15 @@ sub HT_BINARYDATA {
             my $fileserial = time() . join('', map { int rand(10) } (1..9));
 
             sysopen(FILE, "$config{ow_sessionsdir}/$thissession-vcard$fileserial", O_WRONLY|O_TRUNC|O_CREAT) or
-              openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_create} $config{ow_sessionsdir}/$thissession-vcard$fileserial ($!)\n");
+              openwebmailerror(gettext('Cannot open file:') . " $config{ow_sessionsdir}/$thissession-vcard$fileserial ($!)");
+
             binmode FILE; # prevent corruption
 
             # write the already decoded binary data to the temp file
             # it has already been decoded from BASE64 by the vcard routines
             print FILE $FIELD->{VCARD} ? outputvfile('vcard', $FIELD->{VALUE}) : $FIELD->{VALUE};
             close FILE or
-              openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $config{ow_sessionsdir}/$thissession-vcard$fileserial ($!)\n");
+              openwebmailerror(gettext('Cannot close file:') . " $config{ow_sessionsdir}/$thissession-vcard$fileserial ($!)");
 
             # replace the VALUE with the location of this temp file
             $FIELD->{VALUE} = $fileserial;

@@ -32,29 +32,29 @@ use warnings;
 
 use vars qw($SCRIPT_DIR);
 
-if (-f "/etc/openwebmail_path.conf") {
-   my $pathconf = "/etc/openwebmail_path.conf";
-   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+if (-f '/etc/openwebmail_path.conf') {
+   my $pathconf = '/etc/openwebmail_path.conf';
+   open(F, $pathconf) or die "Cannot open $pathconf: $!";
    my $pathinfo = <F>;
-   close(F) or die("Cannot close $pathconf: $!");
+   close(F) or die "Cannot close $pathconf: $!";
    ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
 } else {
    ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
 
-die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
+die 'SCRIPT_DIR cannot be set' if $SCRIPT_DIR eq '';
 push (@INC, $SCRIPT_DIR);
 
 # secure the environment
 delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
-$ENV{PATH}='/bin:/usr/bin';
+$ENV{PATH} = '/bin:/usr/bin';
 
 # make sure the openwebmail group can write
 umask(0002);
 
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :cgi charset);
+use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 
 # load OWM libraries
@@ -80,21 +80,19 @@ ow::tool::has_module('Compress/Zlib.pm');
 use vars qw(%config $thissession %prefs);
 
 # extern vars
-use vars qw($htmltemplatefilters);                     # defined in ow-shared.pl
-use vars qw(%lang_folders %lang_text %lang_err);       # defined in lang/xy
-use vars qw(%lang_month %lang_lunar_month %lang_lunar_day %lang_lunar
-            %lang_wday_abbrev %lang_wday %lang_order); # defined in lang/xy
+use vars qw($htmltemplatefilters $po); # defined in ow-shared.pl
 
 # local globals
 use vars qw($folder $sort $msgdatetype $page $longpage $keyword $searchtype $messageid);
 use vars qw($events $index);
+
 
 # BEGIN MAIN PROGRAM
 
 openwebmail_requestbegin();
 userenv_init();
 
-openwebmailerror(__FILE__, __LINE__, "$lang_text{calendar} $lang_err{access_denied}") if !$config{enable_calendar};
+openwebmailerror(gettext('Access denied: the calendar module is not enabled.')) unless $config{enable_calendar};
 
 ($events, $index) = open_calendars();
 
@@ -109,7 +107,7 @@ $searchtype    = param('searchtype') || 'subject';
 $keyword       = param('keyword') || '';
 $messageid     = param('message_id') ||'';
 
-writelog("debug - request cal begin, action=$action - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
+writelog("debug - request cal begin, action=$action") if $config{debug_request};
 
 $action eq 'calyear'   ? viewyear()  :
 $action eq 'calmonth'  ? viewmonth() :
@@ -119,9 +117,9 @@ $action eq 'callist'   ? viewlist()  :
 $action eq 'caledit'   ? edit()      :
 $action eq 'caladdmod' ? addmod()    :
 $action eq 'caldel'    ? del()       :
-openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
+openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request cal end, action=$action - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
+writelog("debug - request cal end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -136,16 +134,20 @@ sub open_calendars {
    my (%events, %index) = (),();
 
    # open the user calendar
-   openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $calbookfile")
+   openwebmailerror(gettext('Cannot read calendar file:') . " $calbookfile ($!)")
      if readcalbook($calbookfile, \%events, \%index, 0) < 0;
 
    # open the global and holiday calendars
    if ($prefs{calendar_reminderforglobal}) {
-      readcalbook($config{global_calendarbook}, \%events, \%index, 1E6);
+      openwebmailerror(gettext('Cannot read calendar file:') . " $config{global_calendarbook} ($!)")
+         if readcalbook($config{global_calendarbook}, \%events, \%index, 1E6) < 0;
+
       if ($prefs{calendar_holidaydef} eq 'auto') {
-         readcalbook("$config{ow_holidaysdir}/$prefs{locale}", \%events, \%index, 1E7);
+         openwebmailerror(gettext('Cannot read calendar file:') . " $config{ow_holidaysdir}/$prefs{locale} ($!)")
+            if readcalbook("$config{ow_holidaysdir}/$prefs{locale}", \%events, \%index, 1E7) < 0;
       } elsif ($prefs{calendar_holidaydef} ne 'none') {
-         readcalbook("$config{ow_holidaysdir}/$prefs{calendar_holidaydef}", \%events, \%index, 1E7);
+         openwebmailerror(gettext('Cannot read calendar file:') . " $config{ow_holidaysdir}/$prefs{calendar_holidaydef} ($!)")
+            if readcalbook("$config{ow_holidaysdir}/$prefs{calendar_holidaydef}", \%events, \%index, 1E7) < 0;
       }
    }
 
@@ -170,37 +172,37 @@ sub viewyear {
 
             if ($day_this_month) {
                push(@{$monthloop->[$row]{columns}}, {
-                                     # standard params
-                                     use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
-                                     url_html      => $config{ow_htmlurl},
-                                     url_cgi       => $config{ow_cgiurl},
-                                     iconset       => $prefs{iconset},
-                                     sessionid     => $thissession,
-                                     message_id    => $messageid,
-                                     folder        => $folder,
-                                     sort          => $sort,
-                                     msgdatetype   => $msgdatetype,
-                                     page          => $page,
-                                     longpage      => $longpage,
-                                     searchtype    => $searchtype,
-                                     keyword       => $keyword,
+                                                       # standard params
+                                                       use_texticon => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                       url_html     => $config{ow_htmlurl},
+                                                       url_cgi      => $config{ow_cgiurl},
+                                                       iconset      => $prefs{iconset},
+                                                       sessionid    => $thissession,
+                                                       message_id   => $messageid,
+                                                       folder       => $folder,
+                                                       sort         => $sort,
+                                                       msgdatetype  => $msgdatetype,
+                                                       page         => $page,
+                                                       longpage     => $longpage,
+                                                       searchtype   => $searchtype,
+                                                       keyword      => $keyword,
 
-                                     year          => $dates->{year},
-                                     month         => $month_this_year,
-                                     day           => $day_this_month,
-                                     is_today      => (
-                                                        $dates->{year} == $dates->{current_year}
-                                                        && $month_this_year == $dates->{current_month}
-                                                        && $day_this_month == $dates->{current_day}
-                                                      ) ? 1 : 0,
-                                     eventstr      => $day_this_month
-                                                      ? join (' / ',
-                                                          map  {
-                                                                 (iconv($events->{$_}{charset}, $prefs{charset}, $events->{$_}{string}))[0]
-                                                               } indexes($dates->{year},$month_this_year,$day_this_month)
-                                                             )
-                                                      : '',
-                                  }
+                                                       year         => $dates->{year},
+                                                       month        => $month_this_year,
+                                                       day          => $day_this_month,
+                                                       is_today     => (
+                                                                         $dates->{year} == $dates->{current_year}
+                                                                         && $month_this_year == $dates->{current_month}
+                                                                         && $day_this_month == $dates->{current_day}
+                                                                       ) ? 1 : 0,
+                                                       eventstr     => $day_this_month
+                                                                       ? join (' / ',
+                                                                           map  {
+                                                                                  (iconv($events->{$_}{charset}, $prefs{charset}, $events->{$_}{string}))[0]
+                                                                                } indexes($dates->{year},$month_this_year,$day_this_month)
+                                                                              )
+                                                                       : '',
+                                                    }
                    );
             } else {
                push(@{$monthloop->[$row]{columns}}, { is_empty => 1 });
@@ -211,19 +213,19 @@ sub viewyear {
       # label each row of the month with the week number
       unshift(@{$monthloop->[$_]{columns}}, {
                                                # standard params
-                                               use_texticon     => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
-                                               url_html         => $config{ow_htmlurl},
-                                               url_cgi          => $config{ow_cgiurl},
-                                               iconset          => $prefs{iconset},
-                                               sessionid        => $thissession,
-                                               message_id       => $messageid,
-                                               folder           => $folder,
-                                               sort             => $sort,
-                                               msgdatetype      => $msgdatetype,
-                                               page             => $page,
-                                               longpage         => $longpage,
-                                               searchtype       => $searchtype,
-                                               keyword          => $keyword,
+                                               use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                               url_html      => $config{ow_htmlurl},
+                                               url_cgi       => $config{ow_cgiurl},
+                                               iconset       => $prefs{iconset},
+                                               sessionid     => $thissession,
+                                               message_id    => $messageid,
+                                               folder        => $folder,
+                                               sort          => $sort,
+                                               msgdatetype   => $msgdatetype,
+                                               page          => $page,
+                                               longpage      => $longpage,
+                                               searchtype    => $searchtype,
+                                               keyword       => $keyword,
 
                                                is_rowlabel   => 1,
                                                year          => $dates->{year},
@@ -242,11 +244,11 @@ sub viewyear {
       # label each column of the month with the abbreviated day
       unshift(@{$monthloop}, {
                                columns => [
-                                            { is_collabel => 1, collabel => $lang_wday_abbrev{week} },
+                                            { is_collabel => 1, collabel => gettext('WK') },
                                             map {
                                                   {
                                                     is_collabel => 1,
-                                                    collabel    => $lang_wday_abbrev{(($prefs{calendar_weekstart} + $_) % 7)},
+                                                    collabel    => $dates->{lang}{wday_abbrev}[(($prefs{calendar_weekstart} + $_) % 7)],
                                                   }
                                                 } (0..6)
                                           ]
@@ -276,7 +278,7 @@ sub viewyear {
                                                colspan       => 8,
                                                year          => $dates->{year},
                                                month         => $month_this_year,
-                                               monthname     => $lang_month{$month_this_year},
+                                               monthname     => $dates->{lang}{month}[$month_this_year],
                                             }
                                           ]
                              }
@@ -302,7 +304,7 @@ sub viewyear {
                                                      uselightbar      => $prefs{uselightbar},
                                                      year             => $dates->{year},
                                                      month            => $month_this_year,
-                                                     monthname        => $lang_month{$month_this_year},
+                                                     monthname        => $dates->{lang}{month}[$month_this_year],
                                                      is_current_month => (
                                                                            $dates->{year} == $dates->{current_year}
                                                                            && $month_this_year == $dates->{current_month}
@@ -464,13 +466,13 @@ sub viewmonth {
                              columns => [
                                           {
                                             is_collabel => 1,
-                                            labeltext   => $lang_wday_abbrev{week},
+                                            labeltext   => gettext('WK'),
                                           },
                                           map {
                                                 my $weekday_number = ($prefs{calendar_weekstart} + $_) % 7;
                                                 {
                                                   is_collabel => 1,
-                                                  labeltext   => $lang_wday{$weekday_number},
+                                                  labeltext   => $dates->{lang}{wday}[$weekday_number],
                                                   is_saturday => $weekday_number == 6 ? 1 : 0,
                                                   is_sunday   => $weekday_number == 0 ? 1 : 0
                                                 }
@@ -521,7 +523,7 @@ sub viewmonth {
                       monthselectloop     => [
                                                map { {
                                                        option      => $_,
-                                                       label       => $lang_month{$_},
+                                                       label       => $dates->{lang}{month}[$_],
                                                        selected    => $_ eq $dates->{month} ? 1 : 0
                                                    } } @{[1..12]}
                                              ],
@@ -566,27 +568,6 @@ sub viewday {
    my @hourlist = ('none', ($prefs{hourformat} == 12 ? (1..12) : (0..23)));
 
    my $weekorder = int(($dates->{day} + 6) / 7);
-
-   my %dayfreqlabels = (
-                         thisdayonly        => $lang_text{thisday_only},
-                         thewdayofthismonth => $lang_text{the_wday_of_thismonth},
-                         everywdaythismonth => $lang_text{every_wday_thismonth},
-                       );
-
-   $dayfreqlabels{thewdayofthismonth} =~ s/\@\@\@ORDER\@\@\@/$lang_order{$weekorder}/;
-   $dayfreqlabels{thewdayofthismonth} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$weekday_number}/;
-   $dayfreqlabels{everywdaythismonth} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$weekday_number}/;
-
-   my @dayfreq = $weekorder <= 4 ? qw(thisdayonly thewdayofthismonth everywdaythismonth) : qw(thisdayonly everywdaythismonth);
-
-   my %monthfreqlabels = (
-                           thismonthonly          => $lang_text{thismonth_only},
-                           everyoddmonththisyear  => $lang_text{every_oddmonth_thisyear},
-                           everyevenmonththisyear => $lang_text{every_evenmonth_thisyear},
-                           everymonththisyear     => $lang_text{every_month_thisyear}
-                         );
-
-   my @monthfreq = ('thismonthonly', ($dates->{month} % 2 ? 'everyoddmonththisyear' : 'everyevenmonththisyear'), 'everymonththisyear');
 
    my $eventcolorselectloop = [];
    foreach my $eventcolor (qw(1a 1b 1c 1d 1e 1f 2a 2b 2c 2d 2e 2f none)) {
@@ -655,7 +636,7 @@ sub viewday {
                       monthselectloop         => [
                                                    map { {
                                                             option      => $_,
-                                                            label       => $lang_month{$_},
+                                                            label       => $dates->{lang}{month}[$_],
                                                             selected    => $_ eq $dates->{month} ? 1 : 0
                                                        } } (1..12)
                                                  ],
@@ -670,7 +651,7 @@ sub viewday {
                       starthourselectloop     => [
                                                    map { {
                                                            option       => $_,
-                                                           label        => $_ eq 'none' ? $lang_text{$_} : sprintf("%02d", $_),
+                                                           label        => $_ eq 'none' ? gettext('none') : sprintf("%02d", $_),
                                                            selected     => $_ eq $hourlist[0] ? 1 : 0
                                                        } } @hourlist
                                                  ],
@@ -684,7 +665,7 @@ sub viewday {
                       endhourselectloop       => [
                                                    map { {
                                                            option       => $_,
-                                                           label        => $_ eq 'none' ? $lang_text{$_} : sprintf("%02d", $_),
+                                                           label        => $_ eq 'none' ? gettext('none') : sprintf("%02d", $_),
                                                            selected     => $_ eq $hourlist[0] ? 1 : 0
                                                        } } @hourlist
                                                  ],
@@ -697,17 +678,25 @@ sub viewday {
                                                  ],
                       dayfreqselectloop       => [
                                                    map { {
-                                                           option       => $_,
-                                                           label        => $dayfreqlabels{$_},
-                                                           selected     => $_ eq $dayfreq[0] ? 1 : 0
-                                                       } } @dayfreq
+                                                           "option_$_"  => $_,
+                                                           ordinal_num  => $weekorder == 1 ? gettext('1st') :
+                                                                           $weekorder == 2 ? gettext('2nd') :
+                                                                           $weekorder == 3 ? gettext('3rd') :
+                                                                           $weekorder == 4 ? gettext('4th') :
+                                                                           gettext('last'),
+                                                           weekday      => $dates->{lang}{wday}[$weekday_number],
+                                                       } } $weekorder <= 4
+                                                           ? qw(thisdayonly thewdayofthismonth everywdaythismonth)
+                                                           : qw(thisdayonly everywdaythismonth)
                                                  ],
                       monthfreqselectloop     => [
                                                    map { {
-                                                           option       => $_,
-                                                           label        => $monthfreqlabels{$_},
-                                                           selected     => $_ eq $monthfreq[0] ? 1 : 0
-                                                       } } @monthfreq
+                                                           "option_$_"  => $_,
+                                                       } } (
+                                                              'thismonthonly',
+                                                              ($dates->{month} % 2 ? 'everyoddmonththisyear' : 'everyevenmonththisyear'),
+                                                              'everymonththisyear'
+                                                           )
                                                  ],
                       eventcolorselectloop    => $eventcolorselectloop,
 
@@ -794,7 +783,7 @@ sub viewweek {
 
    $week_matrix = matrix_trim_empty_hour_rows($week_matrix);
    $week_matrix = matrix_labelrows($week_matrix);
-   $week_matrix = matrix_labelcols($week_matrix);
+   $week_matrix = matrix_labelcols($week_matrix, $dates);
 
    # build the template
    my $template = HTML::Template->new(
@@ -846,7 +835,7 @@ sub viewweek {
                       monthselectloop    => [
                                               map { {
                                                       option      => $_,
-                                                      label       => $lang_month{$_},
+                                                      label       => $dates->{lang}{month}[$_],
                                                       selected    => $_ eq $dates->{month} ? 1 : 0
                                                   } } (1..12)
                                             ],
@@ -905,9 +894,9 @@ sub viewlist {
 
                                  year            => $dates->{year},
                                  month           => $month_this_year,
-                                 monthname       => $lang_month{$month_this_year},
+                                 monthname       => $dates->{lang}{month}[$month_this_year],
                                  day             => $day_this_month,
-                                 dayname         => $lang_wday{ow::datetime::weekday_number($dates->{year},$month_this_year,$day_this_month)},
+                                 dayname         => $dates->{lang}{wday}[ow::datetime::weekday_number($dates->{year},$month_this_year,$day_this_month)],
                                  daypadded       => sprintf("%02d",$day_this_month),
                                  uselightbar     => $prefs{uselightbar},
                                  lunar           => $lunar_string,
@@ -1129,38 +1118,70 @@ sub dates {
    $nextweekstart_month++;
    $nextweekstop_month++;
 
+   my $lang = {
+                 month       => [
+                                   '',
+                                   gettext('January'),
+                                   gettext('February'),
+                                   gettext('March'),
+                                   gettext('April'),
+                                   gettext('May'),
+                                   gettext('June'),
+                                   gettext('July'),
+                                   gettext('August'),
+                                   gettext('September'),
+                                   gettext('October'),
+                                   gettext('November'),
+                                   gettext('December')
+                                ],
+                 wday        => [
+                                   gettext('Sunday'),
+                                   gettext('Monday'),
+                                   gettext('Tuesday'),
+                                   gettext('Wednesday'),
+                                   gettext('Thursday'),
+                                   gettext('Friday'),
+                                   gettext('Saturday')
+                                ],
+                 wday_abbrev => [
+                                   map { s/'//g; $_ }
+                                   split(/,/, gettext("'S','M','T','W','T','F','S'"))
+                                ],
+              };
+
    # return the collection
    return {
+             lang                       => $lang,
              min_year                   => $min_year,
              max_year                   => $max_year,
              year                       => $year,
              month                      => $month,
-             monthname                  => $lang_month{$month},
+             monthname                  => $lang->{month}[$month],
              day                        => $day,
-             dayname                    => $lang_wday{ow::datetime::weekday_number($year,$month,$day)},
+             dayname                    => $lang->{wday}[ow::datetime::weekday_number($year,$month,$day)],
              prev_year                  => $prev_year,
              next_year                  => $next_year,
              prevmonth_year             => $prevmonth_year,
              prevmonth_month            => $prevmonth_month,
-             prevmonth_monthname        => $lang_month{$prevmonth_month},
+             prevmonth_monthname        => $lang->{month}[$prevmonth_month],
              nextmonth_year             => $nextmonth_year,
              nextmonth_month            => $nextmonth_month,
-             nextmonth_monthname        => $lang_month{$nextmonth_month},
+             nextmonth_monthname        => $lang->{month}[$nextmonth_month],
              prevday_year               => $prevday_year,
              prevday_month              => $prevday_month,
-             prevday_monthname          => $lang_month{$prevday_month},
+             prevday_monthname          => $lang->{month}[$prevday_month],
              prevday_day                => $prevday_day,
-             prevday_dayname            => $lang_wday{ow::datetime::weekday_number($prevday_year,$prevday_month,$prevday_day)},
+             prevday_dayname            => $lang->{wday}[ow::datetime::weekday_number($prevday_year,$prevday_month,$prevday_day)],
              nextday_year               => $nextday_year,
              nextday_month              => $nextday_month,
-             nextday_monthname          => $lang_month{$nextday_month},
+             nextday_monthname          => $lang->{month}[$nextday_month],
              nextday_day                => $nextday_day,
-             nextday_dayname            => $lang_wday{ow::datetime::weekday_number($nextday_year,$nextday_month,$nextday_day)},
+             nextday_dayname            => $lang->{wday}[ow::datetime::weekday_number($nextday_year,$nextday_month,$nextday_day)],
              current_year               => $current_year,
              current_month              => $current_month,
-             current_monthname          => $lang_month{$current_month},
+             current_monthname          => $lang->{month}[$current_month],
              current_day                => $current_day,
-             current_dayname            => $lang_wday{ow::datetime::weekday_number($current_year,$current_month,$current_day)},
+             current_dayname            => $lang->{wday}[ow::datetime::weekday_number($current_year,$current_month,$current_day)],
              current_weekofyear         => ow::datetime::week_of_year($current_year,$current_month,$current_day,$prefs{calendar_weekstart}),
              is_current_year            => $year == $current_year ? 1 : 0,
              is_current_month           => $month == $current_month ? 1 : 0,
@@ -1169,47 +1190,47 @@ sub dates {
              weekofyear                 => ow::datetime::week_of_year($year,$month,$day,$prefs{calendar_weekstart}),
              weekstart_year             => $weekstart_year,
              weekstart_month            => $weekstart_month,
-             weekstart_monthname        => $lang_month{$weekstart_month},
+             weekstart_monthname        => $lang->{month}[$weekstart_month],
              weekstart_day              => $weekstart_day,
-             weekstart_dayname          => $lang_wday{ow::datetime::weekday_number($weekstart_year,$weekstart_month,$weekstart_day)},
+             weekstart_dayname          => $lang->{wday}[ow::datetime::weekday_number($weekstart_year,$weekstart_month,$weekstart_day)],
              weekstop_year              => $weekstop_year,
              weekstop_month             => $weekstop_month,
-             weekstop_monthname         => $lang_month{$weekstop_month},
+             weekstop_monthname         => $lang->{month}[$weekstop_month],
              weekstop_day               => $weekstop_day,
-             weekstop_dayname           => $lang_wday{ow::datetime::weekday_number($weekstop_year,$weekstop_month,$weekstop_day)},
+             weekstop_dayname           => $lang->{wday}[ow::datetime::weekday_number($weekstop_year,$weekstop_month,$weekstop_day)],
              prevweekofyear             => ow::datetime::week_of_year($prevweekstart_year,$prevweekstart_month,$prevweekstart_day,$prefs{calendar_weekstart}),
              prevweekstart_year         => $prevweekstart_year,
              prevweekstart_month        => $prevweekstart_month,
-             prevweekstart_monthname    => $lang_month{$prevweekstart_month},
+             prevweekstart_monthname    => $lang->{month}[$prevweekstart_month],
              prevweekstart_day          => $prevweekstart_day,
-             prevweekstart_dayname      => $lang_wday{ow::datetime::weekday_number($prevweekstart_year,$prevweekstart_month,$prevweekstart_day)},
+             prevweekstart_dayname      => $lang->{wday}[ow::datetime::weekday_number($prevweekstart_year,$prevweekstart_month,$prevweekstart_day)],
              prevweekstop_year          => $prevweekstop_year,
              prevweekstop_month         => $prevweekstop_month,
-             prevweekstop_monthname     => $lang_month{$prevweekstop_month},
+             prevweekstop_monthname     => $lang->{month}[$prevweekstop_month],
              prevweekstop_day           => $prevweekstop_day,
-             prevweekstop_dayname       => $lang_wday{ow::datetime::weekday_number($prevweekstop_year,$prevweekstop_month,$prevweekstop_day)},
+             prevweekstop_dayname       => $lang->{wday}[ow::datetime::weekday_number($prevweekstop_year,$prevweekstop_month,$prevweekstop_day)],
              nextweekofyear             => ow::datetime::week_of_year($nextweekstart_year,$nextweekstart_month,$nextweekstart_day,$prefs{calendar_weekstart}),
              nextweekstart_year         => $nextweekstart_year,
              nextweekstart_month        => $nextweekstart_month,
-             nextweekstart_monthname    => $lang_month{$nextweekstart_month},
+             nextweekstart_monthname    => $lang->{month}[$nextweekstart_month],
              nextweekstart_day          => $nextweekstart_day,
-             nextweekstart_dayname      => $lang_wday{ow::datetime::weekday_number($nextweekstart_year,$nextweekstart_month,$nextweekstart_day)},
+             nextweekstart_dayname      => $lang->{wday}[ow::datetime::weekday_number($nextweekstart_year,$nextweekstart_month,$nextweekstart_day)],
              nextweekstop_year          => $nextweekstop_year,
              nextweekstop_month         => $nextweekstop_month,
-             nextweekstop_monthname     => $lang_month{$nextweekstop_month},
+             nextweekstop_monthname     => $lang->{month}[$nextweekstop_month],
              nextweekstop_day           => $nextweekstop_day,
-             nextweekstop_dayname       => $lang_wday{ow::datetime::weekday_number($nextweekstop_year,$nextweekstop_month,$nextweekstop_day)},
+             nextweekstop_dayname       => $lang->{wday}[ow::datetime::weekday_number($nextweekstop_year,$nextweekstop_month,$nextweekstop_day)],
              currentweekofyear          => ow::datetime::week_of_year($current_year,$current_month,$current_day,$prefs{calendar_weekstart}),
              currentweekstart_year      => $currentweekstart_year,
              currentweekstart_month     => $currentweekstart_month,
-             currentweekstart_monthname => $lang_month{$currentweekstart_month},
+             currentweekstart_monthname => $lang->{month}[$currentweekstart_month],
              currentweekstart_day       => $currentweekstart_day,
-             currentweekstart_dayname   => $lang_wday{ow::datetime::weekday_number($currentweekstart_year,$currentweekstart_month,$currentweekstart_day)},
+             currentweekstart_dayname   => $lang->{wday}[ow::datetime::weekday_number($currentweekstart_year,$currentweekstart_month,$currentweekstart_day)],
              currentweekstop_year       => $currentweekstop_year,
              currentweekstop_month      => $currentweekstop_month,
-             currentweekstop_monthname  => $lang_month{$currentweekstop_month},
+             currentweekstop_monthname  => $lang->{month}[$currentweekstop_month],
              currentweekstop_day        => $currentweekstop_day,
-             currentweekstop_dayname    => $lang_wday{ow::datetime::weekday_number($currentweekstop_year,$currentweekstop_month,$currentweekstop_day)},
+             currentweekstop_dayname    => $lang->{wday}[ow::datetime::weekday_number($currentweekstop_year,$currentweekstop_month,$currentweekstop_day)],
              is_current_week            => ($year == $current_year
                                             && ow::datetime::week_of_year($year,$month,$day,$prefs{calendar_weekstart})
                                             == ow::datetime::week_of_year($current_year,$current_month,$current_day,$prefs{calendar_weekstart})) ? 1 : 0,
@@ -1413,7 +1434,7 @@ sub matrix_labelrows {
                         rowdark => 1,
                         colspan => 1,
                         rowspan => $matrix->[0]{allday_count},
-                        timelabel => $lang_text{allday},
+                        timelabel => gettext('All Day'),
                         is_timelabel_allday => 1,
                       }
                     : { skip => 1 }
@@ -1471,6 +1492,7 @@ sub matrix_labelcols {
    # label the columns of a given matrix using the year, month,
    # and day information already provided by the matrix
    my $matrix = shift;
+   my $dates  = shift;
 
    # add a new row for our column labels
    unshift(@{$matrix}, { columns => [] });
@@ -1506,14 +1528,14 @@ sub matrix_labelcols {
                                             cal_caller           => param('action') || $prefs{calendar_defaultview},
                                             colspan              => $matrix->[1]{columns}[$col]{colspan},
                                             rowspan              => 1,
-                                            timelabel            => $lang_wday{$weekday_number},
+                                            timelabel            => $dates->{lang}{wday}[$weekday_number],
                                             is_timelabel_weekday => 1,
                                             is_saturday          => $weekday_number == 6 ? 1 : 0,
                                             is_sunday            => $weekday_number == 0 ? 1 : 0,
                                             is_today             => $matrix->[1]{columns}[$col]{is_today},
                                             weekday_year         => $matrix->[1]{columns}[$col]{year},
                                             weekday_month        => $matrix->[1]{columns}[$col]{month},
-                                            weekday_monthname    => $lang_month{$matrix->[1]{columns}[$col]{month}},
+                                            weekday_monthname    => $dates->{lang}{month}[$matrix->[1]{columns}[$col]{month}],
                                             weekday_day          => $matrix->[1]{columns}[$col]{day},
                                             weekday_lunar        => $matrix->[1]{columns}[$col]{lunar},
                                             weekday_lunar_new    => $matrix->[1]{columns}[$col]{lunar_new},
@@ -1609,7 +1631,7 @@ sub edit {
                                               "2[2-8]"              => 4,
                                             );
 
-          $dayfreq = $weekorder_day_wild_reversed{$dayfreq} ? 'thewdayofthismonth' :
+          $dayfreq = exists $weekorder_day_wild_reversed{$dayfreq} ? 'thewdayofthismonth' :
                      $dayfreq eq '.*' ? 'everywdaythismonth' : $dayfreq;
 
           $monthfreq = $monthfreq eq '(01|03|05|07|09|11)' ? 'everyoddmonththisyear'  :
@@ -1632,7 +1654,7 @@ sub edit {
              $dates = dates(int $startyear, int $startmonth, int $startday);
           }
       } else {
-         openwebmailerror(__FILE__, __LINE__, "Eventid $eventid idate $lang_err{doesnt_exist}");
+         openwebmailerror(gettext('Illegal event idate format:') . " $eventid");
          writelog("edit calitem error - idate wrong format, eventid=$eventid");
          writehistory("edit calitem error - idate wrong format, eventid=$eventid");
       }
@@ -1648,26 +1670,6 @@ sub edit {
 
    my $weekday_number = ow::datetime::weekday_number($dates->{year},$dates->{month},$dates->{day});
    my $weekorder = int(($dates->{day} + 6) / 7);
-
-   my %dayfreqlabels = (
-                         thisdayonly        => $lang_text{thisday_only},
-                         thewdayofthismonth => $lang_text{the_wday_of_thismonth},
-                         everywdaythismonth => $lang_text{every_wday_thismonth},
-                       );
-   $dayfreqlabels{thewdayofthismonth} =~ s/\@\@\@ORDER\@\@\@/$lang_order{$weekorder}/;
-   $dayfreqlabels{thewdayofthismonth} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$weekday_number}/;
-   $dayfreqlabels{everywdaythismonth} =~ s/\@\@\@WDAY\@\@\@/$lang_wday{$weekday_number}/;
-
-   my @dayfreq_options = $weekorder <= 4 ? qw(thisdayonly thewdayofthismonth everywdaythismonth) : qw(thisdayonly everywdaythismonth);
-
-   my %monthfreqlabels = (
-                            thismonthonly          => $lang_text{thismonth_only},
-                            everyoddmonththisyear  => $lang_text{every_oddmonth_thisyear},
-                            everyevenmonththisyear => $lang_text{every_evenmonth_thisyear},
-                            everymonththisyear     => $lang_text{every_month_thisyear},
-                         );
-
-   my @monthfreq_options = ('thismonthonly', ($dates->{month} % 2 ? 'everyoddmonththisyear' : 'everyevenmonththisyear'), 'everymonththisyear');
 
    my $eventcolorselectloop = [];
    foreach my $option (qw(1a 1b 1c 1d 1e 1f 2a 2b 2c 2d 2e 2f none)) {
@@ -1737,7 +1739,7 @@ sub edit {
                       monthselectloop      => [
                                                 map { {
                                                         option   => $_,
-                                                        label    => $lang_month{$_},
+                                                        label    => $dates->{lang}{month}[$_],
                                                         selected => $_ eq $dates->{month} ? 1 : 0
                                                     } } (1..12)
                                               ],
@@ -1751,7 +1753,7 @@ sub edit {
                       starthourselectloop  => [
                                                 map { {
                                                         option   => $_,
-                                                        label    => $_ eq 'none' ? $lang_text{$_} : sprintf("%02d", $_),
+                                                        label    => $_ eq 'none' ? gettext('none') : sprintf("%02d", $_),
                                                         selected => $_ eq $starthour ? 1 : 0
                                                     } } @hourlist
                                               ],
@@ -1765,7 +1767,7 @@ sub edit {
                       endhourselectloop    => [
                                                 map { {
                                                         option   => $_,
-                                                        label    => $_ eq 'none' ? $lang_text{$_} : sprintf("%02d", $_),
+                                                        label    => $_ eq 'none' ? gettext('none') : sprintf("%02d", $_),
                                                         selected => $_ eq $endhour ? 1 : 0
                                                     } } @hourlist
                                               ],
@@ -1777,18 +1779,28 @@ sub edit {
                                                     } } (0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
                                               ],
                       dayfreqselectloop    => [
-                                                map { {
-                                                        option   => $_,
-                                                        label    => $dayfreqlabels{$_},
-                                                        selected => $_ eq $dayfreq ? 1 : 0
-                                                    } } @dayfreq_options
+                                                 map { {
+                                                         "option_$_" => $_,
+                                                         ordinal_num => $weekorder == 1 ? gettext('1st') :
+                                                                        $weekorder == 2 ? gettext('2nd') :
+                                                                        $weekorder == 3 ? gettext('3rd') :
+                                                                        $weekorder == 4 ? gettext('4th') :
+                                                                        gettext('last'),
+                                                         weekday     => $dates->{lang}{wday}[$weekday_number],
+                                                         selected    => $_ eq $dayfreq ? 1 : 0
+                                                     } } $weekorder <= 4
+                                                         ? qw(thisdayonly thewdayofthismonth everywdaythismonth)
+                                                         : qw(thisdayonly everywdaythismonth)
                                               ],
                       monthfreqselectloop  => [
-                                                map { {
-                                                        option   => $_,
-                                                        label    => $monthfreqlabels{$_},
-                                                        selected => $_ eq $monthfreq ? 1 : 0
-                                                    } } @monthfreq_options
+                                                 map { {
+                                                         "option_$_" => $_,
+                                                         selected    => $_ eq $monthfreq ? 1 : 0
+                                                     } } (
+                                                            'thismonthonly',
+                                                            ($dates->{month} % 2 ? 'everyoddmonththisyear' : 'everyevenmonththisyear'),
+                                                            'everymonththisyear'
+                                                         )
                                               ],
                       eventcolorselectloop => $eventcolorselectloop,
 
@@ -1823,7 +1835,8 @@ sub addmod {
 
    if ($string !~ m/^\s+?$/) {
       # check for input that would corrupt our @@@ separated flatfile database format
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{at_char_not_allowed}") if $string =~ m/\@\@\@/ || $link =~ m/\@\@\@/;
+      openwebmailerror(gettext('The @@@ character sequence is not allowed in event strings or links.'))
+         if $string =~ m/\@\@\@/ || $link =~ m/\@\@\@/;
 
       $string =~ s#\@$#\@ #; # do not allow trailing @ signs
       $string =~ s#^\@# \@#; # do not allow leading @ signs
@@ -1851,7 +1864,7 @@ sub addmod {
       my $starthourmin = $starthour =~ m/^\d+$/ ? sprintf("%02d%02d",$starthour,$startmin) : 0; # 0 != 0000; 0 == None
       my $endhourmin   = $endhour =~ m/^\d+$/   ? sprintf("%02d%02d",$endhour,$endmin)     : 0; # 0 != 0000; 0 == None
 
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{start_after_end}")
+      openwebmailerror(gettext('The event start time occurs after the event end time.'))
         if $endhourmin =~ m/^\d{4}$/ && $starthourmin =~ m/^\d{4}$/ && $starthourmin > $endhourmin;
 
       my $time = ow::datetime::array2seconds(1,1,1, $dates->{day},$dates->{month} - 1,$dates->{year} - 1900);
@@ -1863,7 +1876,7 @@ sub addmod {
       my $idate = '';
       if ($dayfreq eq 'thisdayonly' && $monthfreq eq 'thismonthonly' && !$everyyear) {
          if ($thisandnextdays && $nextdays) {
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{badnum_in_days}: $nextdays") if $nextdays !~ /\d+/;
+            openwebmailerror(gettext('The nextdays value must be numeric.')) if $nextdays !~ /\d+/;
             my @nextdates = map {
                                   my ($y,$m,$d) = (ow::datetime::seconds2array($time + 86400 * $_))[5,4,3];
                                   sprintf("%04d%02d%02d",$y+1900,$m+1,$d)
@@ -1923,8 +1936,10 @@ sub addmod {
       my $calbookfile = dotpath('calendar.book');
 
       # read the events from the user calbook
-      my ($user_events, $user_index) = ({},{});
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $calbookfile")
+      my $user_events = {};
+      my $user_index  = {};
+
+      openwebmailerror(gettext('Cannot read calendar file:') . " $calbookfile ($!)")
         if readcalbook($calbookfile, $user_events, $user_index, 0) < 0;
 
       # add/update the event
@@ -1941,7 +1956,7 @@ sub addmod {
       $events->{$eventid} = $user_events->{$eventid};            # update our in-memory global events hash
 
       # and save out the book
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} $calbookfile")
+      openwebmailerror(gettext('Cannot write calendar file:') . " $calbookfile ($!)")
         if writecalbook($calbookfile, $user_events) < 0;
 
       my $msg = "add calitem - eventid=$eventid, start=$starthourmin, end=$endhourmin, str=$string";
@@ -1976,7 +1991,7 @@ sub addmod {
    $cal_caller eq 'calweek'  ? viewweek()  :
    $cal_caller eq 'calday'   ? viewday()   :
    $cal_caller eq 'callist'  ? viewlist()  :
-   openwebmailerror(__FILE__, __LINE__, "Caller $lang_err{has_illegal_chars}");
+   openwebmailerror(gettext('Caller has illegal characters.'));
 }
 
 sub del {
@@ -1991,14 +2006,14 @@ sub del {
 
       # read the events from this calbook only
       my ($user_events, $user_index) = ({},{});
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $calbookfile")
+      openwebmailerror(gettext('Cannot read calendar file:') . " $calbookfile ($!)")
         if readcalbook($calbookfile, $user_events, $user_index, 0) < 0;
 
       # make the change
       delete $user_events->{$eventid};
 
       # and save it out
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} $calbookfile")
+      openwebmailerror(gettext('Cannot write calendar file:') . " $calbookfile ($!)")
         if writecalbook($calbookfile, $user_events) < 0;
 
       writelog($msg);
@@ -2014,7 +2029,7 @@ sub del {
    $cal_caller eq 'calweek'  ? viewweek()  :
    $cal_caller eq 'calday'   ? viewday()   :
    $cal_caller eq 'callist'  ? viewlist()  :
-   openwebmailerror(__FILE__, __LINE__, "Caller $lang_err{has_illegal_chars}");
+   openwebmailerror(gettext('Caller has illegal characters.'));
 }
 
 sub duration_minutes {
@@ -2032,25 +2047,51 @@ sub duration_minutes {
 sub hourmin2str {
    # converts military time (eg:1700) to a time string (eg:05:00 pm)
    my ($hourmin, $hourformat) = @_;
+
    if ($hourmin =~ /(\d+)(\d{2})$/) {
-      my ($hour, $min) = ($1, $2);
-      $hour =~ s/^0(.+)/$1/;
+      my ($hour, $min) = (int($1), $2);
       if ($hourformat == 12) {
-         my $ampm;
+         my $ampm = '';
          ($hour, $ampm) = ow::datetime::hour24to12($hour);
-         $hourmin = $lang_text{calfmt_hourminampm};
-         $hourmin =~ s/\@\@\@HOURMIN\@\@\@/$hour:$min/;
-         $hourmin =~ s/\@\@\@AMPM\@\@\@/$lang_text{$ampm}/;
+
+         my $hourstring = gettext('<tmpl_var hour escape="none">:<tmpl_var min escape="none"><tmpl_var ampm escape="none">');
+
+         my $template = HTML::Template->new(scalarref => \$hourstring);
+         $template->param(
+                            hour => $hour,
+                            min  => $min,
+                            ampm => $ampm eq 'am' ? gettext('am') : gettext('pm'),
+                         );
+
+         $hourmin = $template->output;
       } else {
-         $hourmin = sprintf("%02d", $hour) . ":" . sprintf("%02d", $min);
+         $hourmin = sprintf("%02d", $hour) . ':' . sprintf("%02d", $min);
       }
    }
+
    return $hourmin;
 }
 
 sub lunar_string {
    # create a lunar calendar string for a given solar year, month, and day
    my ($year, $month, $day) = @_;
+
+   my $lang = {
+                 lunar_month => [
+                                   gettext('Primens'),
+                                   gettext('Apricomens'),
+                                   gettext('Peacimens'),
+                                   gettext('Plumens'),
+                                   gettext('Guavamens'),
+                                   gettext('Lotumens'),
+                                   gettext('Orchimens'),
+                                   gettext('Osmanthumens'),
+                                   gettext('Chrysanthemens'),
+                                   gettext('Benimens'),
+                                   gettext('Hiemens'),
+                                   gettext('Lamens'),
+                                ],
+              };
 
    my $lunar_string = '';
    my $lunar_isnew  = 0;
@@ -2060,8 +2101,8 @@ sub lunar_string {
 
       $lunar_string = defined $lunarmonth && defined $lunarday
                       ? $lunarmonth =~ m/^\+(\d+)/
-                        ? $lang_lunar{intercalary} . $lang_lunar_month{$1} . $lang_lunar_day{$lunarday}
-                        : $lang_lunar_month{$lunarmonth} . $lang_lunar_day{$lunarday}
+                        ? gettext('intercalary') . $lang->{lunar_month}[int($1)] . int($lunarday)
+                        : $lang->{lunar_month}[$lunarmonth] . int($lunarday)
                       : '';
 
       $lunar_isnew = $lunarday =~ m/^(?:01|15)$/ ? 1 : 0;

@@ -18,7 +18,7 @@ foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/
 # 2. enter password
 # 3. copy the encrypted field in /tmp/test to this
 #
-my $cgipwd="MW7y7p8tQsXpU"; # pwd=speedycgi, CHNANGE IT AS SOON AS POSSIBLE
+my $cgipwd="MW7y7p8tQsXpU"; # pwd=speedycgi, CHANGE IT AS SOON AS POSSIBLE
 
 # where the web server is
 my $httphost="127.0.0.1";

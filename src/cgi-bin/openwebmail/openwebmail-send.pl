@@ -34,29 +34,29 @@ use warnings;
 
 use vars qw($SCRIPT_DIR);
 
-if (-f "/etc/openwebmail_path.conf") {
-   my $pathconf = "/etc/openwebmail_path.conf";
-   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+if (-f '/etc/openwebmail_path.conf') {
+   my $pathconf = '/etc/openwebmail_path.conf';
+   open(F, $pathconf) or die "Cannot open $pathconf: $!";
    my $pathinfo = <F>;
-   close(F) or die("Cannot close $pathconf: $!");
+   close(F) or die "Cannot close $pathconf: $!";
    ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
 } else {
    ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
 
-die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
+die 'SCRIPT_DIR cannot be set' if $SCRIPT_DIR eq '';
 push (@INC, $SCRIPT_DIR);
 
 # secure the environment
 delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
-$ENV{PATH}='/bin:/usr/bin';
+$ENV{PATH} = '/bin:/usr/bin';
 
 # make sure the openwebmail group can write
 umask(0002);
 
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :cgi charset);
+use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use Net::SMTP;
 
@@ -93,9 +93,7 @@ use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw($quotausage $quotalimit);
 
 # extern vars
-use vars qw($htmltemplatefilters);                                                 # defined in ow-shared.pl
-use vars qw(%lang_folders %lang_sizes %lang_wdbutton %lang_text %lang_err
-            %lang_prioritylabels %lang_msgformatlabels);                           # defined in lang/xy
+use vars qw($htmltemplatefilters $po);                                             # defined in ow-shared.pl
 use vars qw(%charset_convlist);                                                    # defined in iconv.pl
 use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
             $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_STATUS $_CHARSET $_REFERENCES); # defined in maildb.pl
@@ -104,13 +102,12 @@ use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
 use vars qw($folder $sort $msgdatetype $page $longpage $keyword $searchtype);
 
 
-
 # BEGIN MAIN PROGRAM
 
 openwebmail_requestbegin();
 userenv_init();
 
-openwebmailerror(__FILE__, __LINE__, "$lang_text{webmail} $lang_err{access_denied}") unless $config{enable_webmail};
+openwebmailerror(gettext('Access denied: the webmail module is not enabled.')) unless $config{enable_webmail};
 
 $folder      = param('folder') || 'INBOX';
 $sort        = param('sort') || $prefs{sort} || 'date_rev';
@@ -122,7 +119,7 @@ $keyword     = param('keyword') || '';
 
 my $action   = param('action') || '';
 
-writelog("debug - request send begin, action=$action - " .__FILE__.":". __LINE__) if $config{debug_request};
+writelog("debug - request send begin, action=$action") if $config{debug_request};
 
 $action eq 'compose'      ? compose()      :
 $action eq 'replyreceipt' ? replyreceipt() :
@@ -131,9 +128,9 @@ $action eq 'sendmessage'  ?
                             && !(defined param('sendbutton') && (param('to') || param('cc') || param('bcc')))
                             ? compose() : sendmessage()
                           :
-openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
+openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request send end, action=$action - " .__FILE__.":". __LINE__) if $config{debug_request};
+writelog("debug - request send end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -160,7 +157,7 @@ sub compose {
    my $references       = param('references') || '';
    my $priority         = param('priority') || 'normal';                     # normal, urgent, or non-urgent
    my $confirmreading   = param('confirmreading') || 0;
-   my $backupsent       = defined param('backupsent') && param('backupsent')
+   my $backupsent       = (defined param('backupsent') && param('backupsent'))
                           ? param('backupsent') : $prefs{backupsentmsg};
 
    my $stationeryname   = param('stationeryname') || '';
@@ -248,7 +245,7 @@ sub compose {
    my ($attfiles_totalsize, $r_attfiles) = get_attachments($attachments_uid);
 
    # ***************************************************
-   # HOW IT SHOULD WORK:
+   # HOW IT SHOULD WORK (someday in the future):
    # build the composing message headers
    # to list
    # cc list
@@ -390,8 +387,9 @@ sub compose {
          $from = $fromemail;
       }
 
-      $subject = $message->{subject} || '';
-      $subject = 'Re: ' . $subject unless $subject =~ m#^re:#i;
+      my $replyprefix = gettext('Re:');
+      $subject = $message->{subject} || gettext('(no subject)');
+      $subject = "$replyprefix $subject" unless $subject =~ m#^\Q$replyprefix\E#i;
 
       if (exists $message->{'reply-to'} && defined $message->{'reply-to'} && $message->{'reply-to'} =~ m#[^\s]#) {
          $to = $message->{'reply-to'} || '';
@@ -434,7 +432,15 @@ sub compose {
       }
 
       if ($prefs{replywithorigmsg} eq 'at_beginning') {
-         my $replyheading = "On $message->{date}, " . (ow::tool::email2nameaddr($message->{from}))[0] . " wrote";
+         my $replyheader = gettext('On <tmpl_var messagedate escape="none">, <tmpl_var fromnameaddr escape="none"> wrote');
+
+         my $template = HTML::Template->new(scalarref => \$replyheader);
+         $template->param(
+                            messagedate  => $message->{date},
+                            fromnameaddr => (ow::tool::email2nameaddr($message->{from}))[0] || gettext('Unknown'),
+                         );
+
+         my $replyheading = $template->output;
          ($replyheading) = iconv('utf-8', $composecharset, $replyheading);
 
          ($body) = iconv($convfrom, $composecharset, $body);
@@ -445,24 +451,25 @@ sub compose {
             $body = '<b>' . ow::htmltext::text2html($replyheading) . "</b><br>$body";
          }
       } elsif ($prefs{replywithorigmsg} eq 'at_end') {
-         my $replyheading = "From: $message->{from}\n" .
-                            "To: $message->{to}\n" .
-                            (exists $message->{cc} && $message->{cc} ne '' ? "Cc: $message->{cc}\n" : '') .
-                            "Sent: $message->{date}\n" .
-                            "Subject: $message->{subject}\n";
+         my $replyheading = gettext('From:') . $message->{from} . "\n" .
+                            gettext('To:') . $message->{to} . "\n" .
+                            ((exists $message->{cc} && $message->{cc} ne '') ? gettext('Cc:') . $message->{cc} . "\n" : '') .
+                            gettext('Sent:') . $message->{date} . "\n" .
+                            gettext('Subject:') . $message->{subject} . "\n";
          ($replyheading) = iconv('utf-8', $composecharset, $replyheading);
 
          ($body) = iconv($convfrom, $composecharset, $body);
 
          if ($msgformat eq 'text') {
-            $body = "---------- Original Message -----------\n" .
-                    "$replyheading\n$body\n" .
-                    "------- End of Original Message -------\n";
+            $body = gettext('---------- Original Message -----------') . "\n" .
+                    $replyheading . "\n" .
+                    $body . "\n" .
+                    gettext('------- End of Original Message -------') . "\n";
          } else {
-            $body = "<b>---------- Original Message -----------</b><br>\n" .
+            $body = "<b>" . gettext('---------- Original Message -----------') . "</b><br>\n" .
                     ow::htmltext::text2html($replyheading) .
                     "<br>$body<br>" .
-                    "<b>------- End of Original Message -------</b><br>\n";
+                    "<b>" . gettext('------- End of Original Message -------') . "</b><br>\n";
          }
       }
 
@@ -576,8 +583,9 @@ sub compose {
          $from = $fromemail;
       }
 
-      $subject = $message->{subject} || '';
-      $subject = 'Re: ' . $subject unless $subject =~ m#^re:#i;
+      my $replyprefix = gettext('Re:');
+      $subject = $message->{subject} || gettext('(no subject)');
+      $subject = "$replyprefix $subject" unless $subject =~ m#^\Q$replyprefix\E#i;
 
       if (exists $message->{'reply-to'} && defined $message->{'reply-to'} && $message->{'reply-to'} =~ m#[^\s]#) {
          $to = $message->{'reply-to'} || '';
@@ -639,7 +647,15 @@ sub compose {
       }
 
       if ($prefs{replywithorigmsg} eq 'at_beginning') {
-         my $replyheading = "On $message->{date}, " . (ow::tool::email2nameaddr($message->{from}))[0] . " wrote";
+         my $replyheader = gettext('On <tmpl_var messagedate escape="none">, <tmpl_var fromnameaddr escape="none"> wrote');
+
+         my $template = HTML::Template->new(scalarref => \$replyheader);
+         $template->param(
+                            messagedate  => $message->{date},
+                            fromnameaddr => (ow::tool::email2nameaddr($message->{from}))[0] || gettext('Unknown'),
+                         );
+
+         my $replyheading = $template->output;
          ($replyheading) = iconv('utf-8', $composecharset, $replyheading);
 
          ($body) = iconv($convfrom, $composecharset, $body);
@@ -650,24 +666,25 @@ sub compose {
             $body = '<b>' . ow::htmltext::text2html($replyheading) . "</b><br>$body";
          }
       } elsif ($prefs{replywithorigmsg} eq 'at_end') {
-         my $replyheading = "From: $message->{from}\n" .
-                            "To: $message->{to}\n" .
-                            (exists $message->{cc} && $message->{cc} ne '' ? "Cc: $message->{cc}\n" : '') .
-                            "Sent: $message->{date}\n" .
-                            "Subject: $message->{subject}\n";
+         my $replyheading = gettext('From:') . $message->{from} . "\n" .
+                            gettext('To:') . $message->{to} . "\n" .
+                            ((exists $message->{cc} && $message->{cc} ne '') ? gettext('Cc:') . $message->{cc} . "\n" : '') .
+                            gettext('Sent:') . $message->{date} . "\n" .
+                            gettext('Subject:') . $message->{subject} . "\n";
          ($replyheading) = iconv('utf-8', $composecharset, $replyheading);
 
          ($body) = iconv($convfrom, $composecharset, $body);
 
          if ($msgformat eq 'text') {
-            $body = "---------- Original Message -----------\n" .
-                    "$replyheading\n$body\n" .
-                    "------- End of Original Message -------\n";
+            $body = gettext('---------- Original Message -----------') . "\n" .
+                    $replyheading . "\n" .
+                    $body . "\n" .
+                    gettext('------- End of Original Message -------') . "\n";
          } else {
-            $body = "<b>---------- Original Message -----------</b><br>\n" .
+            $body = "<b>" . gettext('---------- Original Message -----------') . "</b><br>\n" .
                     ow::htmltext::text2html($replyheading) .
                     "<br>$body<br>" .
-                    "<b>------- End of Original Message -------</b><br>\n";
+                    "<b>" . gettext('------- End of Original Message -------') . "</b><br>\n";
          }
       }
 
@@ -777,14 +794,15 @@ sub compose {
          $from = $fromemail;
       }
 
-      $subject = $message->{subject} || '';
-      $subject = 'Fw: ' . $subject unless $subject =~ m#^fw:#i;
+      my $forwardprefix = gettext('Fw:');
+      $subject = $message->{subject} || gettext('(no subject)');
+      $subject = "$forwardprefix $subject" unless $subject =~ m#^\Q$forwardprefix\E#i;
 
-      my $forwardheading = qq|From: $message->{from}\n| .
-                           qq|To: $message->{to}\n| .
-                           ($message->{cc} ne '' ? qq|Cc: $message->{cc}\n| : '') .
-                           qq|Sent: $message->{date}\n| .
-                           qq|Subject: $message->{subject}\n|;
+      my $forwardheading = gettext('From:') . $message->{from} . "\n" .
+                           gettext('To:') . $message->{to} . "\n" .
+                           ($message->{cc} ne '' ? gettext('Cc:') . $message->{cc} . "\n" : '') .
+                           gettext('Sent:') . $message->{date} . "\n" .
+                           gettext('Subject:') . $message->{subject} . "\n";
 
       $forwardheading = (iconv('utf-8', $composecharset, $forwardheading))[0];
       $subject        = (iconv('utf-8', $composecharset, $subject))[0];
@@ -797,17 +815,17 @@ sub compose {
          $body =~ s/\s+$//;
 
          $body = qq|\n| .
-                 qq|---------- Forwarded Message -----------\n| .
+                 gettext('---------- Forwarded Message -----------') . "\n" .
                  qq|$forwardheading\n| .
                  qq|$body\n| .
-                 qq|------- End of Forwarded Message -------\n|;
+                 gettext('------- End of Forwarded Message -------') . "\n";
       } else {
          $body =~ s/<br>(\s*<br>)+/<br><br>/gis;
-         $body = qq|<br>\n| .
-                 qq|<b>---------- Forwarded Message -----------</b><br>\n| .
+         $body = "<br>\n" .
+                 '<b>' . gettext('---------- Forwarded Message -----------') . "</b><br>\n" .
                  ow::htmltext::text2html($forwardheading) .
                  qq|<br>$body<br>| .
-                 qq|<b>------- End of Forwarded Message -------</b><br>\n|;
+                 '<b>' . gettext('------- End of Forwarded Message -------') . "</b><br>\n";
       }
 
       my $endofline = $msgformat eq 'text' ? "\n" : "<br>";
@@ -923,20 +941,20 @@ sub compose {
       # *******************************************************************
       # user is forwarding the message as an encapsulated rfc822 attachment
       # *******************************************************************
-      $msgformat='text' if $msgformat eq 'auto';
+      $msgformat = 'text' if $msgformat eq 'auto';
 
       my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
 
       ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} " . f2u($folderfile) . "!");
+         openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($folderfile) . " ($!)");
 
       if (update_folderindex($folderfile, $folderdb) < 0) {
-         ow::filelock::lock($folderfile, LOCK_UN);
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_updatedb} " . f2u($folderdb));
+         ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
+         openwebmailerror(gettext('Cannot update db:') . ' ' . f2u($folderdb));
       }
 
       my @attr = get_message_attributes($messageid, $folderdb);
-      openwebmailerror(__FILE__, __LINE__, f2u($folderdb) . " $messageid $lang_err{doesnt_exist}") if $#attr < 0;
+      openwebmailerror(f2u($folderdb) . gettext('Message ID does not exist:') . " $messageid") if $#attr < 0;
 
       # auto set the from to match the userfrom the message was sent to
       my $fromemail = (grep { $attr[$_TO] =~ m/$_/i } keys %{$userfroms})[0] || $prefs{email};
@@ -952,7 +970,7 @@ sub compose {
       my $attachment_tempfile = ow::tool::untaint("$config{ow_sessionsdir}/$thissession-$attachments_uid-att$attachment_serial");
 
       sysopen(ATTFILE, $attachment_tempfile, O_WRONLY|O_TRUNC|O_CREAT) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} $attachment_tempfile! ($!)");
+         openwebmailerror(gettext('Cannot open file:') . " $attachment_tempfile ($!)");
 
       print ATTFILE qq|Content-Type: message/rfc822;\n|,
                     qq|Content-Transfer-Encoding: 8bit\n|,
@@ -960,7 +978,8 @@ sub compose {
                     qq|Content-Description: | . ow::mime::encode_mimewords($attr[$_SUBJECT], ('Charset'=>$composecharset)) . qq|\n\n|;
 
       # copy message to be forwarded from the FOLDER to the ATTFILE
-      sysopen(FOLDER, $folderfile, O_RDONLY);
+      sysopen(FOLDER, $folderfile, O_RDONLY) or
+         openwebmailerror(gettext('Cannot open file:') . " $folderfile ($!)");
       seek(FOLDER, $attr[$_OFFSET], 0);
 
       my $attachment_dataremaining = $attr[$_SIZE];
@@ -977,23 +996,26 @@ sub compose {
          print ATTFILE $_;
          $attachment_dataremaining -= length($_);
       }
-      close(FOLDER);
+      close(FOLDER) or
+         openwebmailerror(gettext('Cannot close file:') . " $folderfile ($!)");
 
-      close(ATTFILE);
+      close(ATTFILE) or
+         openwebmailerror(gettext('Cannot close file:') . " $attachment_tempfile ($!)");
 
       ow::filelock::lock($folderfile, LOCK_UN);
 
       ($attfiles_totalsize, $r_attfiles) = get_attachments($attachments_uid);
 
-      $subject = $attr[$_SUBJECT];
-      $subject = "Fw: $subject" unless $subject =~ m/^fw:/i;
+      my $forwardprefix = gettext('Fw:');
+      $subject = $attr[$_SUBJECT] || gettext('(no subject)');
+      $subject = "$forwardprefix $subject" unless $subject =~ m#^\Q$forwardprefix\E#i;
       $subject = (iconv('utf-8', $composecharset, $subject))[0];
 
       $cc      = (iconv($prefs{charset}, $composecharset, $prefs{autocc}))[0] if defined $prefs{autocc};
       $replyto = (iconv($prefs{charset}, $composecharset, $prefs{replyto}))[0] if defined $prefs{replyto};
 
       my $endofline = $msgformat eq 'text' ? "\n" : "<br>";
-      $body = "$endofline# Message forwarded as attachment$endofline$endofline";
+      $body = $endofline . gettext('# Message forwarded as attachment') . "$endofline$endofline";
       $body .= str2str((iconv($prefs{charset}, $composecharset, $prefs{signature}))[0], $msgformat) . $endofline if $prefs{signature} =~ m/[^\s]/;
 
       # remove tail blank line and space
@@ -1051,7 +1073,7 @@ sub compose {
          $from = $fromemail;
       }
 
-      $subject = $message->{subject} || '';
+      $subject = $message->{subject} || gettext('(no subject)');
       $to      = $message->{to} if defined $message->{to};
       $cc      = $message->{cc} if defined $message->{cc};
       $bcc     = $message->{bcc} if defined $message->{bcc};
@@ -1127,7 +1149,7 @@ sub compose {
       }
    }
 
-   loadlang($prefs{locale});
+   $po = loadlang($prefs{locale});
    charset($prefs{charset}) if $CGI::VERSION >= 2.58; # setup charset of CGI module
 
    # charset conversion menu (convto)
@@ -1190,7 +1212,7 @@ sub compose {
                       keyword                 => $keyword,
                       url_cgi                 => $config{ow_cgiurl},
                       url_html                => $config{ow_htmlurl},
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./?1:0),
+                      use_texticon            => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
                       use_fixedfont           => $prefs{usefixedfont},
                       iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},
@@ -1252,9 +1274,8 @@ sub compose {
                                                  ],
                       priorityselectloop      => [
                                                    map { {
-                                                           option   => $_,
-                                                           label    => $lang_prioritylabels{$_},
-                                                           selected => $priority eq $_ ? 1 : 0,
+                                                           "option_$_" => 1,
+                                                           selected    => $priority eq $_ ? 1 : 0,
                                                        } } qw(urgent normal non-urgent)
                                                  ],
                       convtoselectloop        => [
@@ -1273,10 +1294,7 @@ sub compose {
                                                            attachment_name  => $_->{name},
                                                            attachment_file  => $_->{file},
                                                            is_referenced    => $_->{referencecount} || 0,
-                                                           attachment_size  => $_->{size} > 1024
-                                                                               ? int($_->{size} / 1024) . $lang_sizes{kb}
-                                                                               : $_->{size} . $lang_sizes{byte},
-                                                           open_newwindow   => $_->{name} =~ m/\.(?:txt|html?|jpg|jpeg|gif|png|bmp)$/i ? 1 : 0,
+                                                           attachment_size  => lenstr($_->{size}, 1),
                                                            show_wordpreview => $_->{name} =~ m/\.(?:doc|dot)$/i ? 1 : 0,
                                                            save_to_webdisk  => $config{enable_webdisk} && !$config{webdisk_readonly} ? 1 : 0,
                                                            sessionid        => $thissession,
@@ -1306,9 +1324,8 @@ sub compose {
                       enable_htmlcompose      => $enable_htmlcompose,
                       newmsgformatselectloop  => [
                                                    map { {
-                                                           option   => $_,
-                                                           label    => $lang_msgformatlabels{$_},
-                                                           selected => $_ eq $msgformat ? 1 : 0,
+                                                           "option_$_" => 1,
+                                                           selected    => $_ eq $msgformat ? 1 : 0,
                                                        } } $enable_htmlcompose ? qw(text html both) : qw(text)
                                                  ],
                       sendbuttons_before      => $prefs{sendbuttonposition} =~ m#^(?:before|both)$# ? 1 : 0,
@@ -1336,7 +1353,7 @@ sub generate_messageid {
    # create a valid and unique messageid, presumably for a new message
    # example: 20091122050846.M22324@example.com
    my $suffix = shift;
-   my $fakeid = ow::datetime::gmtime2dateserial() . '.M' . int(rand()*100000);
+   my $fakeid = ow::datetime::gmtime2dateserial() . '.M' . int(rand() * 100000);
    return ($suffix =~ m/@(.*)$/ ? "<$fakeid\@$1>" : "<$fakeid\@$suffix>");
 }
 
@@ -1396,8 +1413,8 @@ sub decode_message_body {
                   $bodyformat = 'html';
                   shift @{$message->{attachment}}; # remove 1 attachment from the message's attachment list for html
                } else {
-                  $message->{attachment}[1]{filename} =~ s#^Unknown#Original#;
-                  $message->{attachment}[1]{header}   =~ s#^Content-Type: \s*text/(?:html|enriched);#Content-Type: text/$1;\n   name="OriginalMsg.htm";#i;
+                  $message->{attachment}[1]{filename} =~ s#^Unknown#gettext('Original')#e;
+                  $message->{attachment}[1]{header}   =~ s#^Content-Type: \s*text/(?:html|enriched);#qq|Content-Type: text/$1;\n   name="| . gettext('OriginalMsg') . '.htm';#ei;
                }
             }
          }
@@ -1484,17 +1501,19 @@ sub add_attachment {
       # since the webdisk selection may not be in the same character set as the composing message.
       # Please see filldestname in openwebmail-webdisk.pl and templates/dirfilesel.template
       $webdiskselection = ow::tool::unescapeURL($webdiskselection);
-      my $webdiskrootdir = ow::tool::untaint($homedir.absolute_vpath("/", $config{webdisk_rootpath}));
+      my $webdiskrootdir = ow::tool::untaint($homedir . absolute_vpath('/', $config{webdisk_rootpath}));
       my $vpath = absolute_vpath('/', $webdiskselection);
       my $vpathstr = (iconv($prefs{fscharset}, $composecharset, $vpath))[0];
-      my $err = verify_vpath($webdiskrootdir, $vpath);
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{access_denied} ($vpathstr: $err)") if $err;
-      openwebmailerror(__FILE__, __LINE__, "$lang_text{file} $vpathstr $lang_err{doesnt_exist}") unless -f "$webdiskrootdir/$vpath";
+
+      verify_vpath($webdiskrootdir, $vpath);
+
+      openwebmailerror(gettext('File does not exist:') . " $vpathstr") unless -f "$webdiskrootdir/$vpath";
 
       # open a filehandle to the attachment file for later use during base64 encoding
-      $attachment = do { local *FH };
+      $attachment = do { no warnings 'once'; local *FH };
+
       sysopen($attachment, "$webdiskrootdir/$vpath", O_RDONLY) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $lang_text{webdisk} $vpathstr! ($!)");
+         openwebmailerror(gettext('Cannot open file:') . " $vpathstr ($!)");
 
       $attachment_filename = $vpath;
       $attachment_filename =~ s#/$##;
@@ -1534,7 +1553,7 @@ sub add_attachment {
    # read the attachment filehandle and base64 encode the attachment to disk
    # in our session directory for retrieval during message sending operations
    if ($config{attlimit} && (($attfiles_totalsize + (-s $attachment)) > ($config{attlimit} * 1024))) {
-      close($attachment);
+      close($attachment) or writelog("cannot close file $attachment");
       param(-name => 'attlimitreached', -value => 1);
    } else {
       # store the attachment base64 encoded on disk until we're ready to send this message
@@ -1542,7 +1561,8 @@ sub add_attachment {
 
       my $attachment_base64tempfile = ow::tool::untaint("$config{ow_sessionsdir}/$thissession-$attachments_uid-att$attachment_serial");
 
-      sysopen(ATTFILE, $attachment_base64tempfile, O_WRONLY|O_TRUNC|O_CREAT);
+      sysopen(ATTFILE, $attachment_base64tempfile, O_WRONLY|O_TRUNC|O_CREAT) or
+         openwebmailerror(gettext('Cannot open file:') . " $attachment_base64tempfile ($!)");
 
       print ATTFILE qq|Content-Type: $attachment_contenttype;\n| .
                     qq|\tname="| .
@@ -1564,8 +1584,11 @@ sub add_attachment {
          $attachment_size += length($readbuffer);
          print ATTFILE $readbuffer;
       }
-      close ATTFILE;
-      close($attachment);
+
+      close(ATTFILE) or
+         openwebmailerror(gettext('Cannot close file:') . " $attachment_base64tempfile ($!)");
+
+      close($attachment) or writelog("cannot close file $attachment");
    }
 
    return ($attachment_filename, $attachment_contenttype);
@@ -1575,13 +1598,15 @@ sub delete_attachments {
    # delete all of the attachments containing the provided unique id
    my $attachments_uid = shift || return 0;
 
-   my @sessionfiles = ();
-   my @deletequeue  = ();
-
    opendir(SESSIONSDIR, $config{ow_sessionsdir}) or
-     openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_sessionsdir}! ($!)");
-   @sessionfiles = readdir(SESSIONSDIR);
-   closedir(SESSIONSDIR);
+     openwebmailerror(gettext('Cannot open directory:') . " $config{ow_sessionsdir} ($!)");
+
+   my @sessionfiles = readdir(SESSIONSDIR);
+
+   closedir(SESSIONSDIR) or
+     openwebmailerror(gettext('Cannot close directory:') . " $config{ow_sessionsdir} ($!)");
+
+   my @deletequeue  = ();
 
    foreach my $file (@sessionfiles) {
       if ($file =~ m/^(\Q$thissession-$attachments_uid-\Eatt\d+)$/) {
@@ -1617,9 +1642,12 @@ sub store_attachments {
             }
 
             sysopen(ATTFILE, $attachment_tempfile, O_WRONLY|O_TRUNC|O_CREAT) or
-              openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} $attachment_tempfile! ($!)");
+              openwebmailerror(gettext('Cannot open file:') . " $attachment_tempfile ($!)");
+
             print ATTFILE $message->{attachment}[$i]{header}, "\n", ${$message->{attachment}[$i]{r_content}};
-            close ATTFILE;
+
+            close ATTFILE or
+              openwebmailerror(gettext('Cannot close file:') . " $attachment_tempfile ($!)");
          }
       }
    }
@@ -1631,14 +1659,16 @@ sub get_attachments {
    # directory that way
    my $attachments_uid = shift || return 0;
 
-   my @sessionfiles    = ();
    my @attachmentfiles = ();
    my $totalsize       = 0;
 
    opendir(SESSIONSDIR, $config{ow_sessionsdir}) or
-     openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_sessionsdir}! ($!)");
-   @sessionfiles = readdir(SESSIONSDIR);
-   closedir(SESSIONSDIR);
+     openwebmailerror(gettext('Cannot open directory:') . " $config{ow_sessionsdir} ($!)");
+
+   my @sessionfiles = readdir(SESSIONSDIR);
+
+   closedir(SESSIONSDIR) or
+     openwebmailerror(gettext('Cannot close directory:') . " $config{ow_sessionsdir} ($!)");
 
    foreach my $file (sort @sessionfiles) {
       if ($file =~ m/^(\Q$thissession-$attachments_uid-\Eatt\d+)$/) {
@@ -1653,9 +1683,11 @@ sub get_attachments {
             $att{file} = $1;
 
             local $/ = "\n\n"; # read whole file until blank line
-            sysopen(ATTFILE, "$config{ow_sessionsdir}/$file", O_RDONLY);
+            sysopen(ATTFILE, "$config{ow_sessionsdir}/$file", O_RDONLY) or
+              openwebmailerror(gettext('Cannot open file:') . " $config{ow_sessionsdir}/$file ($!)");
             $attheader = <ATTFILE>;
-            close(ATTFILE);
+            close(ATTFILE) or
+              openwebmailerror(gettext('Cannot close file:') . " $config{ow_sessionsdir}/$file ($!)");
 
             $att{'content-type'} = 'application/octet-stream'; # assume attachment is binary at first
             ow::mailparse::parse_header(\$attheader, \%att);   # parse the attheader to get the actual headers
@@ -1797,7 +1829,7 @@ sub sendmessage {
    my $bcc              = param('bcc') || '';
 
    my $from             = param('from') || '';
-   my $subject          = param('subject') || 'N/A';
+   my $subject          = param('subject') || gettext('(no subject)');
    my $body             = param('body') || '';
    my $replyto          = param('replyto') || '';
    my $inreplyto        = param('inreplyto') || '';
@@ -1905,13 +1937,13 @@ sub sendmessage {
    my $messagestart  = 0;
    my $messagesize   = 0;
    my $messageheader = '';
-   my $folderhandle  = do { local *FH };
+   my $folderhandle  = do { no warnings 'once'; local *FH };
 
    if ($do_send) {
       my @recipients = ();
 
       foreach my $recv ($to, $cc, $bcc) {
-         next if ($recv eq "");
+         next if ($recv eq '');
          foreach (ow::tool::str2list($recv)) {
             my $addr = (ow::tool::email2nameaddr($_))[1];
             next if ($addr eq '' || $addr =~ m/\s/);
@@ -1922,7 +1954,7 @@ sub sendmessage {
       foreach my $email (@recipients) {
          # validate receiver email
          matchlist_fromtail('allowed_receiverdomain', $email) or
-            openwebmailerror(__FILE__, __LINE__, $lang_err{disallowed_receiverdomain} . " ( $email )");
+            openwebmailerror(gettext('You are not allowed to send messages to this email address:') . " $email");
       }
 
       my $timeout = 120;
@@ -1957,14 +1989,17 @@ sub sendmessage {
       }
 
       unless ($smtp) {
-         # we didn't connect to any smtp servers successfully
+         # we did not connect to any smtp servers successfully
          $senderr++;
-         $senderrstr = qq|$lang_err{couldnt_open} any SMTP servers | .
-                       join(", ", @{$config{smtpserver}}) .
-                       qq| at port $config{smtpport}|;
-         my $m = qq|send message error - couldn't open any SMTP servers | .
-                 join(", ", @{$config{smtpserver}}) .
+
+         $senderrstr = gettext('Cannot open any of the following SMTP servers:') .
+                       ' ' . join(', ', @{$config{smtpserver}}) .
+                       gettext('at SMTP port:') . " $config{smtpport}";
+
+         my $m = qq|send message error - cannot open any SMTP servers | .
+                 join(', ', @{$config{smtpserver}}) .
                  qq| at port $config{smtpport}|;
+
          writelog($m);
          writehistory($m);
       }
@@ -1974,7 +2009,7 @@ sub sendmessage {
          my $auth = $smtp->supports("AUTH");
          unless ($smtp->auth($config{smtpauth_username}, $config{smtpauth_password})) {
             $senderr++;
-            $senderrstr = "$lang_err{network_server_error}!<br>($smtpserver - " . $smtp->message . ")";
+            $senderrstr = gettext('Network server error:') . "<br>($smtpserver - " . $smtp->message . ")";
             my $m = "send message error - SMTP server $smtpserver error - " . $smtp->message;
             writelog($m);
             writehistory($m);
@@ -2002,7 +2037,7 @@ sub sendmessage {
          if (sysopen($folderhandle, $savefile, O_WRONLY|O_TRUNC|O_CREAT)) {
             close($folderhandle);
          } else {
-            $saveerrstr = "$lang_err{couldnt_write} $savefile!";
+            $saveerrstr = gettext('Cannot open file:') . " $savefile";
             $saveerr++;
             $do_save = 0;
          }
@@ -2011,27 +2046,32 @@ sub sendmessage {
       if (!$saveerr && ow::filelock::lock($savefile, LOCK_EX)) {
          if (update_folderindex($savefile, $savedb) < 0) {
             ow::filelock::lock($savefile, LOCK_UN);
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_updatedb} " . f2u($savedb));
+            openwebmailerror(gettext('Cannot update db:') . ' ' . f2u($savedb));
          }
+
+         my %FDB = ();
+
+         ow::dbm::opendb(\%FDB, $savedb, LOCK_SH) or
+            openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($savedb));
 
          my $oldmsgfound = 0;
          my $oldsubject  = '';
-         my %FDB;
-         ow::dbm::open(\%FDB, $savedb, LOCK_SH) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} " . f2u($savedb));
+
          if (defined $FDB{$mymessageid}) {
             $oldmsgfound = 1;
             $oldsubject  = (string2msgattr($FDB{$mymessageid}))[$_SUBJECT];
          }
-         ow::dbm::close(\%FDB, $savedb);
+
+         ow::dbm::closedb(\%FDB, $savedb) or
+            openwebmailerror(gettext('Cannot close db:') . ' ' . f2u($savedb));
 
          if ($oldmsgfound) {
             if ($savefolder eq 'saved-drafts' && $subject eq $oldsubject) {
                # remove old draft if the subject is the same
-               if ((operate_message_with_ids("delete", [$mymessageid], $savefile, $savedb))[0] > 0) {
+               if (operate_message_with_ids('delete', [$mymessageid], $savefile, $savedb) > 0) {
                   folder_zapmessages($savefile, $savedb);
                } else {
-                  $saveerrstr = "$lang_err{couldnt_delete} message $mymessageid from $savefile!";
+                  $saveerrstr = gettext('Cannot delete message ID from file:') . " $mymessageid\:$savefile";
                   $saveerr++;
                   $do_save = 0;
                }
@@ -2051,7 +2091,7 @@ sub sendmessage {
 
                # build list of existing attachments to rename to this new uid
                opendir(SESSIONSDIR, $config{ow_sessionsdir}) or
-                 openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $config{ow_sessionsdir}! ($!)");
+                 openwebmailerror(gettext('Cannot open directory:') . " $config{ow_sessionsdir} ($!)");
 
                my @renamequeue = map  {
                                         my $newfilename = $_;
@@ -2061,7 +2101,8 @@ sub sendmessage {
                                  grep { m/^(\Q$thissession-$old_attachments_uid-\Eatt\d+)$/ }
                                  readdir(SESSIONSDIR);
 
-               closedir(SESSIONSDIR);
+               closedir(SESSIONSDIR) or
+                 openwebmailerror(gettext('Cannot close directory:') . " $config{ow_sessionsdir} ($!)");
 
                # rename the attachment session files on disk to the new uid
                rename($_->[0], $_->[1]) for @renamequeue;
@@ -2080,12 +2121,12 @@ sub sendmessage {
             $messagestart = (stat($folderhandle))[7];
             seek($folderhandle, $messagestart, 0); # seek end manually to cover tell() bug in perl 5.8
          } else {
-            $saveerrstr = "$lang_err{couldnt_write} $savefile!";
+            $saveerrstr = gettext('Cannot open file:') . " $savefile";
             $saveerr++;
             $do_save = 0;
          }
       } else {
-         $saveerrstr = "$lang_err{couldnt_writelock} $savefile!";
+         $saveerrstr = gettext('Cannot lock file:') . " $savefile";
          $saveerr++;
          $do_save = 0;
       }
@@ -2093,19 +2134,17 @@ sub sendmessage {
 
    # nothing to do, return error msg immediately
    if ($do_send == 0 && $do_save == 0) {
-      if ($saveerr) {
-         openwebmailerror(__FILE__, __LINE__, $saveerrstr);
-      } else {
-         print redirect(
-                         -location => qq|$config{ow_cgiurl}/openwebmail-main.pl?| .
-                                      qq|action=listmessages| .
-                                      qq|&sessionid=$thissession| .
-                                      qq|&sort=$sort| .
-                                      qq|&msgdatetype=$msgdatetype| .
-                                      qq|&page=$page| .
-                                      qq|&folder=| . ow::tool::escapeURL($folder)
-                       );
-      }
+      openwebmailerror($saveerrstr) if $saveerr;
+
+      print redirect(
+                      -location => qq|$config{ow_cgiurl}/openwebmail-main.pl?| .
+                                   qq|action=listmessages| .
+                                   qq|&sessionid=$thissession| .
+                                   qq|&sort=$sort| .
+                                   qq|&msgdatetype=$msgdatetype| .
+                                   qq|&page=$page| .
+                                   qq|&folder=| . ow::tool::escapeURL($folder)
+                    );
    }
 
    # Add a 'From ' as delimeter for locally saved message
@@ -2502,7 +2541,7 @@ sub sendmessage {
          close(SAVEERR);
 
          if ($senderrstr eq '') {
-            $senderrstr = $lang_err{sendmail_error};
+            $senderrstr = gettext('Sorry, there was an unknown problem sending your message.');
 
             if ($do_save && $savefolder eq 'saved-drafts') {
                my $draft_url = qq|$config{ow_cgiurl}/openwebmail-send.pl?action=compose&composetype=editdraft&folder=| .
@@ -2510,7 +2549,7 @@ sub sendmessage {
                                qq|&sessionid=$thissession&message_id=| .
                                ow::tool::escapeURL($mymessageid);
 
-               $senderrstr .= qq|<br>\n<a href="$draft_url">$lang_err{sendmail_chkdraft}</a>\n|;
+               $senderrstr .= qq|<br>\n<a href="$draft_url">| . gettext('Please check the message saved in the draft folder, and try again.') . qq|</a>\n|;
             }
 
             # get the output from the SMTP server/client conversation
@@ -2541,7 +2580,7 @@ sub sendmessage {
          close($folderhandle);
          $messagesize = (stat($savefile))[7] - $messagestart;
 
-         my @attr;
+         my @attr = ();
          $attr[$_OFFSET] = $messagestart;
 
          $attr[$_TO] = $to;
@@ -2551,7 +2590,7 @@ sub sendmessage {
          # some dbm(ex:ndbm on solaris) can only has value shorter than
          # 1024 byte, so we cut $_to to 256 byte to make dbm happy
          if (length($attr[$_TO]) > 256) {
-            $attr[$_TO] = substr($attr[$_TO], 0, 252) . "...";
+            $attr[$_TO] = substr($attr[$_TO], 0, 252) . '...';
          }
 
          if ($realname) {
@@ -2567,11 +2606,11 @@ sub sendmessage {
 
          ($attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]) = iconv($composecharset, 'utf-8', $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
 
-         $attr[$_STATUS] = "R";
-         $attr[$_STATUS] .= "I" if $priority eq 'urgent';
+         $attr[$_STATUS] = 'R';
+         $attr[$_STATUS] .= 'I' if $priority eq 'urgent';
 
          # flags used by openwebmail internally
-         $attr[$_STATUS] .= "T" if scalar @{$r_attfiles} > 0;
+         $attr[$_STATUS] .= 'T' if scalar @{$r_attfiles} > 0;
 
          $attr[$_REFERENCES]   = $references;
          $attr[$_CHARSET]      = $composecharset;
@@ -2579,28 +2618,35 @@ sub sendmessage {
          $attr[$_HEADERSIZE]   = length($messageheader);
          $attr[$_HEADERCHKSUM] = ow::tool::calc_checksum(\$messageheader);
 
-         my %FDB;
-         ow::dbm::open(\%FDB, $savedb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($savedb));
+         my %FDB = ();
+
+         ow::dbm::opendb(\%FDB, $savedb, LOCK_EX) or
+            openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($savedb));
+
          $FDB{ALLMESSAGES}++;
          $FDB{$mymessageid} = msgattr2string(@attr);
          $FDB{METAINFO}     = ow::tool::metainfo($savefile);
          $FDB{LSTMTIME}     = time();
-         ow::dbm::close(\%FDB, $savedb);
+
+         ow::dbm::closedb(\%FDB, $savedb) or writelog("cannot close db $savedb");
       } else {
          # there was an error
          truncate($folderhandle, ow::tool::untaint($messagestart));
+
          close($folderhandle);
 
-         my %FDB;
-         ow::dbm::open(\%FDB, $savedb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($savedb));
+         my %FDB = ();
+
+         ow::dbm::opendb(\%FDB, $savedb, LOCK_EX) or
+            openwebmailerror(gettext('Cannot close db:') . ' ' . f2u($savedb));
+
          $FDB{METAINFO} = ow::tool::metainfo($savefile);
          $FDB{LSTMTIME} = time();
-         ow::dbm::close(\%FDB, $savedb);
+
+         ow::dbm::closedb(\%FDB, $savedb) or writelog("cannot close db $savedb");
       }
 
-      ow::filelock::lock($savefile, LOCK_UN);
+      ow::filelock::lock($savefile, LOCK_UN) or writelog("cannot unlock file $savefile");
    }
 
    # status update (mark referenced message as answered) and folderdb update.
@@ -2625,40 +2671,45 @@ sub sendmessage {
       # identify where the original message is
       foreach my $foldername (@checkfolders) {
          my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $foldername);
+
          my (%FDB, $oldstatus, $found);
 
-         ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderdb));
+         ow::dbm::opendb(\%FDB, $folderdb, LOCK_EX) or
+            openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($folderdb));
+
          if (defined $FDB{$inreplyto}) {
             $oldstatus = (string2msgattr($FDB{$inreplyto}))[$_STATUS];
             $found = 1;
          }
 
-         ow::dbm::close(\%FDB, $folderdb);
+         ow::dbm::closedb(\%FDB, $folderdb) or writelog("cannot close db $folderdb");
 
          if ($found) {
             if ($oldstatus !~ m/a/i) {
                # oldstatus is "not answered", try to mark answered if get filelock
                if (ow::filelock::lock($folderfile, LOCK_EX)) {
                   update_message_status($inreplyto, $oldstatus . 'A', $folderdb, $folderfile);
-                  ow::filelock::lock($folderfile, LOCK_UN);
+                  ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
+               } else {
+                  writelog("cannot lock file $folderfile");
                }
             }
+
             last;
          }
       }
    }
 
    if ($senderr) {
-      openwebmailerror(__FILE__, __LINE__, $senderrstr, "passthrough");
+      openwebmailerror($senderrstr, 'passthrough');
    } elsif ($saveerr) {
-      openwebmailerror(__FILE__, __LINE__, $saveerrstr);
+      openwebmailerror($saveerrstr);
    } else {
       if ($sendbutton) {
          # clean up attachments
          delete_attachments($attachments_uid);
 
-         my $sentsubject = (iconv($composecharset, $prefs{charset}, $subject || 'N/A'))[0];
+         my $sentsubject = (iconv($composecharset, $prefs{charset}, $subject || gettext('(no subject)')))[0];
 
          print redirect(
                          -location => qq|$config{ow_cgiurl}/openwebmail-main.pl?| .
@@ -2695,7 +2746,7 @@ sub dump_bodytext {
            qq|Content-Type: text/plain; charset=$composecharset\n| .
            qq|Content-Transfer-Encoding: 8bit\n\n|;
 
-   if ($msgformat eq "text") {
+   if ($msgformat eq 'text') {
       $s .= qq|${$r_body}\n|;
    } else {
       $s .= ow::htmltext::html2text(${$r_body}) . qq|\n|;
@@ -2719,7 +2770,7 @@ sub dump_bodyhtml {
            qq|Content-Type: text/html; charset=$composecharset\n| .
            qq|Content-Transfer-Encoding: quoted-printable\n\n|;
 
-   if ($msgformat eq "text") {
+   if ($msgformat eq 'text') {
       $s .= ow::mime::encode_qp(ow::htmltext::text2html(${$r_body})) . qq|\n|;
    } else {
       $s .= ow::mime::encode_qp(${$r_body}) . qq|\n|;
@@ -2748,7 +2799,8 @@ sub dump_atts {
       my $attfile    = "$config{ow_sessionsdir}/$r_att->{file}";
       my $referenced = $r_att->{referencecount};
 
-      sysopen(ATTFILE, $attfile, O_RDONLY);
+      sysopen(ATTFILE, $attfile, O_RDONLY) or
+         openwebmailerror(gettext('Cannot open file:') . " $attfile ($!)");
 
       # print attheader line by line
       while (defined($s = <ATTFILE>)) {
@@ -2769,8 +2821,10 @@ sub dump_atts {
          print $folderhandle $s or ${$r_saveerr}++ if ($do_save && !${$r_saveerr});
       }
 
-      close(ATTFILE);
+      close(ATTFILE) or
+         openwebmailerror(gettext('Cannot close file:') . " $attfile ($!)");
    }
+
    return;
 }
 
@@ -2799,7 +2853,8 @@ sub folding {
 
    return $string if length($string) < 330;
 
-   my ($folding, $line) = ('','');
+   my $folding = '';
+   my $line    = '';
 
    foreach my $token (ow::tool::str2list($string)) {
       if (length($line) + length($token) < 330) {
@@ -2821,9 +2876,11 @@ sub readsmtperr {
    # extract the SMTP conversation errors from the smtp error file, scrub, and return
    my $smtperrorfile = shift;
 
-   my ($content, $linecount) = ('', 0);
+   my $content   = '';
+   my $linecount = 0;
 
-   sysopen(F, $smtperrorfile, O_RDONLY);
+   sysopen(F, $smtperrorfile, O_RDONLY) or
+      openwebmailerror(gettext('Cannot open file:') . " $smtperrorfile ($!)");
 
    while (<F>) {
       s/\s*$//;
@@ -2836,32 +2893,34 @@ sub readsmtperr {
                seek(F, $snip, 1);
                $_ = <F>;
                $snip += length($_);
-               $content .= "\n $snip bytes snipped ...\n\n";
+               $content .= "\n" . sprintf(ngettext('%d byte snipped ...', '%d bytes snipped ...', $snip), $snip) . "\n\n";
             }
          }
       }
    }
 
-   close(F);
+   close(F) or
+      openwebmailerror(gettext('Cannot close file:') . " $smtperrorfile ($!)");
 
-   return($content);
+   return $content;
 }
 
 sub replyreceipt {
    # this subroutine is called from the read_readmessage.tmpl
    # it sends read receipts for messages that request it
    # and outputs the result into the popup window created by read_readmessage.tmpl
-   my $messageid = param('message_id') || openwebmailerror(__FILE__, __LINE__, "No message id provided for replyreceipt");
+   my $messageid = param('message_id') || openwebmailerror(gettext('No message ID provided for replyreceipt'));
 
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
 
-   my @attr = ();
-   my %FDB;
+   my %FDB = ();
 
-   ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} " . f2u($folderdb));
-   @attr = string2msgattr($FDB{$messageid});
-   ow::dbm::close(\%FDB, $folderdb);
+   ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
+      openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($folderdb));
+
+   my @attr = string2msgattr($FDB{$messageid});
+
+   ow::dbm::closedb(\%FDB, $folderdb) or writelog("cannot close db $folderdb");
 
    my $success = 0;
 
@@ -2870,16 +2929,18 @@ sub replyreceipt {
 
       # get message header
       sysopen(FOLDER, $folderfile, O_RDONLY) or
-          openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} " . f2u($folderfile) . "! ($!)");
+         openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($folderfile) . " ($!)");
 
       seek (FOLDER, $attr[$_OFFSET], 0) or
-          openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_seek} " . f2u($folderfile) . "! ($!)");
+         openwebmailerror(gettext('Cannot seek in file:') . ' ' . f2u($folderfile) . " ($!)");
 
       while (<FOLDER>) {
          last if $_ eq "\n" && $header =~ m/\n$/;
          $header .= $_;
       }
-      close(FOLDER);
+
+      close(FOLDER) or
+         openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($folderfile) . " ($!)");
 
       # get notification-to
       if ($header =~ m/^Disposition-Notification-To:\s?(.*?)$/im) {
@@ -2904,10 +2965,10 @@ sub replyreceipt {
          # generate a messageid for the message we're composing
          my $mymessageid = generate_messageid($from);
 
-         my $smtp = '';
+         my $smtp    = '';
          my $timeout = 120;
-         $timeout = 30 if scalar @{$config{smtpserver}} > 1; # cycle through available smtp servers faster
-         $timeout += 60 if scalar @recipients > 1; # more than 1 recipient
+         $timeout    = 30 if scalar @{$config{smtpserver}} > 1; # cycle through available smtp servers faster
+         $timeout   += 60 if scalar @recipients > 1; # more than 1 recipient
 
          # try to connect to one of the smtp servers available
          my $smtpserver = '';
@@ -2936,28 +2997,28 @@ sub replyreceipt {
          }
 
          unless ($smtp) {
-            # we didn't connect to any smtp servers successfully
-            openwebmailerror(__FILE__, __LINE__,
-                             qq|$lang_err{couldnt_open} SMTP servers |.
-                             join(", ", @{$config{smtpserver}}).
-                             qq| at port $config{smtpport}!|);
+            # we did not connect to any smtp servers successfully
+            openwebmailerror(gettext('Cannot open any of the following SMTP servers:') . ' ' . join(', ', @{$config{smtpserver}}) . gettext('at SMTP port:') . " $config{smtpport}");
          }
 
          # SMTP SASL authentication (PLAIN only)
          if ($config{smtpauth}) {
-            my $auth = $smtp->supports("AUTH");
+            my $auth = $smtp->supports('AUTH');
             $smtp->auth($config{smtpauth_username}, $config{smtpauth_password}) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{network_server_error}!<br>($smtpserver - " . ow::htmltext::str2html($smtp->message) . ")", "passthrough");
+               openwebmailerror(gettext('Network server error:') . " ($smtpserver - " . ow::htmltext::str2html($smtp->message) . ')', 'passthrough');
          }
 
          $smtp->mail($from);
          my @ok = $smtp->recipient(@recipients, { SkipBad => 1 });
          if ($#ok < 0) {
             $smtp->close();
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{sendmail_error}!");
+            openwebmailerror(gettext('The recipients list could not be validated. Please check the recipients and try again.'));
          }
 
          $smtp->data();
+
+         # TODO: The reply receipt should be in the character set and language of the original message if we can support it.
+         # TODO: Only then switch to english. The mess below is a crazy mixture of UTF8 and the users preferred charset.
 
          my $s = '';
 
@@ -2975,12 +3036,12 @@ sub replyreceipt {
          my $is_samecharset = 0;
 
          # replies in local language currently disabled, utf-8 is whole world
-         # $is_samecharset=1 if ( $attr[$_CONTENT_TYPE]=~/charset="?\Q$prefs{'charset'}\E"?/i);
+         # $is_samecharset=1 if ( $attr[$_CONTENT_TYPE]=~/charset="?\Q$prefs{charset}\E"?/i);
 
          if ($is_samecharset) {
-            $s .= "Subject: " . ow::mime::encode_mimewords("$lang_text{read} - $attr[$_SUBJECT]",('Charset' => $prefs{charset})) . "\n";
+            $s .= "Subject: " . ow::mime::encode_mimewords(gettext('Read receipt:') . " $attr[$_SUBJECT]", ('Charset' => $prefs{charset})) . "\n";
          } else {
-            $s .= "Subject: " . ow::mime::encode_mimewords("Read - $attr[$_SUBJECT]", ('Charset' => 'utf-8')) . "\n";
+            $s .= "Subject: " . ow::mime::encode_mimewords("Read receipt: $attr[$_SUBJECT]", ('Charset' => 'utf-8')) . "\n";
          }
 
          $s .= "Date: $date\n" .
@@ -2990,38 +3051,39 @@ sub replyreceipt {
 
          if ($is_samecharset) {
             $s .= "Content-Type: text/plain; charset=$prefs{charset}\n\n" .
-                  "$lang_text{yourmsg}\n\n" .
-                  "  $lang_text{to}: $attr[$_TO]\n" .
-                  "  $lang_text{subject}: $attr[$_SUBJECT]\n" .
-                  "  $lang_text{delivered}: " .
+                  gettext('Your message:') . "\n\n" .
+                  '   ' . gettext('To:') . " $attr[$_TO]\n" .
+                  '   ' . gettext('Subject:') . " $attr[$_SUBJECT]\n" .
+                  '   ' . gettext('Delivered:') . ' ' .
                   ow::datetime::dateserial2str($attr[$_DATE], $prefs{timeoffset}, $prefs{daylightsaving},
                                                $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone}) .
                   "\n\n" .
-                  "$lang_text{wasreadon1} " .
+                  gettext('was read on:') . ' ' .
                   ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial(), $prefs{timeoffset}, $prefs{daylightsaving},
                                                $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone}) .
-                  " $lang_text{wasreadon2}\n\n";
+                  ".\n\n";
          } else {
             $s .= "Content-Type: text/plain; charset=utf-8\n\n" .
-                  "Your message\n\n" .
+                  "Your message:\n\n" .
                   "  To: $attr[$_TO]\n" .
                   "  Subject: $attr[$_SUBJECT]\n" .
                   "  Delivered: " .
                   ow::datetime::dateserial2str($attr[$_DATE], $prefs{timeoffset}, $prefs{daylightsaving},
                                                $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone}) .
                   "\n\n" .
-                  "was read on " .
+                  "was read on: " .
                   ow::datetime::dateserial2str(ow::datetime::gmtime2dateserial(), $prefs{timeoffset}, $prefs{daylightsaving},
                                                $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone}) .
                   ".\n\n";
          }
 
-         $s .= str2str($config{mailfooter}, "text") . "\n" if $config{mailfooter} =~ m/[^\s]/;
+         $s .= str2str($config{mailfooter}, 'text') . "\n" if $config{mailfooter} =~ m/[^\s]/;
 
          if (!$smtp->datasend($s) || !$smtp->dataend()) {
             $smtp->close();
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{sendmail_error}!");
+            openwebmailerror(gettext('Sorry, there was an unknown problem sending your message.'));
          }
+
          $smtp->quit();
       }
 
@@ -3052,7 +3114,7 @@ sub replyreceipt {
                       keyword         => $keyword,
                       url_cgi         => $config{ow_cgiurl},
                       url_html        => $config{ow_htmlurl},
-                      use_texticon    => ($prefs{iconset} =~ m/^Text\./?1:0),
+                      use_texticon    => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
                       use_fixedfont   => $prefs{usefixedfont},
                       iconset         => $prefs{iconset},
                       charset         => $prefs{charset},

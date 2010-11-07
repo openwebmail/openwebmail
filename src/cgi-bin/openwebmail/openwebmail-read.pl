@@ -32,29 +32,29 @@ use warnings;
 
 use vars qw($SCRIPT_DIR);
 
-if (-f "/etc/openwebmail_path.conf") {
-   my $pathconf = "/etc/openwebmail_path.conf";
-   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+if (-f '/etc/openwebmail_path.conf') {
+   my $pathconf = '/etc/openwebmail_path.conf';
+   open(F, $pathconf) or die "Cannot open $pathconf: $!";
    my $pathinfo = <F>;
-   close(F) or die("Cannot close $pathconf: $!");
+   close(F) or die "Cannot close $pathconf: $!";
    ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
 } else {
    ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
 
-die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
+die 'SCRIPT_DIR cannot be set' if $SCRIPT_DIR eq '';
 push (@INC, $SCRIPT_DIR);
 
 # secure the environment
 delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
-$ENV{PATH}='/bin:/usr/bin';
+$ENV{PATH} = '/bin:/usr/bin';
 
 # make sure the openwebmail group can write
 umask(0002);
 
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :cgi charset);
+use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 
 # load OWM libraries
@@ -96,40 +96,19 @@ use vars qw(%prefs);
 use vars qw($quotausage $quotalimit);
 
 # extern vars
-use vars qw($htmltemplatefilters);                                              # defined in ow-shared.pl
-use vars qw(%lang_folders %lang_sizes %lang_wdbutton %lang_text %lang_err);	# defined in lang/xy
-use vars qw(%charset_convlist);							# defined in iconv.pl
-use vars qw($_SIZE $_HEADERSIZE $_HEADERCHKSUM $_STATUS);			# defined in maildb.pl
+use vars qw($htmltemplatefilters $po);                    # defined in ow-shared.pl
+use vars qw(%charset_convlist);                           # defined in iconv.pl
+use vars qw($_SIZE $_HEADERSIZE $_HEADERCHKSUM $_STATUS); # defined in maildb.pl
 
 # local globals
 use vars qw($folder $sort $msgdatetype $page $longpage $keyword $searchtype);
-use vars qw(%smilies);
-
-%smilies = (
-              ":)"  => "FaceHappy",    ":>"  => "FaceHappy",    ";)"  => "FaceWinking",
-              ";>"  => "FaceWinking",  ";("  => "FaceSad",      ";<"  => "FaceSad",
-              ":("  => "FaceSad",      ":<"  => "FaceSad",      ">:)" => "FaceDevilish",
-              ">;)" => "FaceDevilish", "8)"  => "FaceGrinning", "8>"  => "FaceGrinning",
-              ":D"  => "FaceGrinning", ";D"  => "FaceGrinning", "8D"  => "FaceGrinning",
-              ":d"  => "FaceTasty",    ";d"  => "FaceTasty",    "8d"  => "FaceTasty",
-              ":P"  => "FaceNyah",     ";P"  => "FaceNyah",     "8P"  => "FaceNyah",
-              ":p"  => "FaceNyah",     ";p"  => "FaceNyah",     "8p"  => "FaceNyah",
-              ":O"  => "FaceStartled", ";O"  => "FaceStartled", "8O"  => "FaceStartled",
-              ":o"  => "FaceStartled", ";o"  => "FaceStartled", "8o"  => "FaceStartled",
-              ":/"  => "FaceIronic",   ";/"  => "FaceIronic",   "8/"  => "FaceIronic",
-              ":\\" => "FaceIronic",   ";\\" => "FaceIronic",   "8\\" => "FaceIronic",
-              ":|"  => "FaceStraight", ";|"  => "FaceWry",      "8|"  => "FaceKOed",
-              ":X"  => "FaceYukky",    ";X"  => "FaceYukky",
-           );
-
-
 
 # BEGIN MAIN PROGRAM
 
 openwebmail_requestbegin();
 userenv_init();
 
-openwebmailerror(__FILE__, __LINE__, "$lang_text{webmail} $lang_err{access_denied}") if !$config{enable_webmail};
+openwebmailerror(gettext('Access denied: the webmail module is not enabled.')) if !$config{enable_webmail};
 
 my $action   = param('action') || '';
 
@@ -141,15 +120,15 @@ $longpage    = param('longpage') || 0;
 $searchtype  = param('searchtype') || 'subject';
 $keyword     = param('keyword') || '';
 
-writelog("debug - request read begin, action=$action, folder=$folder - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
+writelog("debug - request read begin, action=$action, folder=$folder") if $config{debug_request};
 
 $action eq 'readmessage'     ? readmessage()      :
 $action eq 'rebuildmessage'  ? rebuildmessage()   :
 $action eq 'deleteattnodes'  ? delete_attnodes()  :
 $action eq 'downloadnontext' ? download_nontext() :
-openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
+openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request read end, action=$action, folder=$folder - " . __FILE__ . ":" . __LINE__) if $config{debug_request};
+writelog("debug - request read end, action=$action, folder=$folder") if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -175,16 +154,22 @@ sub readmessage {
    my %FDB;
 
    my $spooldb = (get_folderpath_folderdb($user, 'INBOX'))[1];
-   if (ow::dbm::exist($spooldb)) {
-      ow::dbm::open(\%FDB, $spooldb, LOCK_SH) or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db $spooldb");
+   if (ow::dbm::existdb($spooldb)) {
+      ow::dbm::opendb(\%FDB, $spooldb, LOCK_SH) or
+         openwebmailerror(gettext('Cannot open db:') . " $spooldb");
+
       $orig_inbox_newmessages = $FDB{NEWMESSAGES};
-      ow::dbm::close(\%FDB, $spooldb);
+
+      ow::dbm::closedb(\%FDB, $spooldb) or
+         openwebmailerror(gettext('Cannot close db:') . " $spooldb");
    }
 
    # filter messages in the background and hope junk is removed before displaying to user
    filtermessage($user, 'INBOX', \%prefs) if $folder eq 'INBOX';
 
-   my (@validfolders, $inboxusage, $folderusage);
+   my @validfolders = ();
+   my $inboxusage   = 0;
+   my $folderusage  = 0;
    getfolders(\@validfolders, \$inboxusage, \$folderusage);
 
    # check quotas
@@ -200,24 +185,21 @@ sub readmessage {
             my $webdiskrootdir = $homedir.absolute_vpath("/", $config{webdisk_rootpath});
             cutdirfiles(($quotausage - ($quotalimit * 0.9)) * 1024, $webdiskrootdir);
          }
-         $quotausage=(ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2]; # get up to date usage
+
+         $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2]; # get up to date usage
       }
    }
 
-   my $enable_quota       = $config{quota_module} eq 'none'?0:1;
+   my $enable_quota       = $config{quota_module} eq 'none' ? 0 : 1;
    my $quotashowusage     = 0;
    my $quotaoverthreshold = 0;
    my $quotabytesusage    = 0;
    my $quotapercentusage  = 0;
    if ($enable_quota) {
-      $quotaoverthreshold = (($quotalimit > 0) && (($quotausage / $quotalimit) > ($config{quota_threshold} / 100)));
-      $quotashowusage     = ($quotaoverthreshold || $config{quota_threshold} == 0)?1:0;
-      if ($quotashowusage) {
-         $quotabytesusage = lenstr($quotausage * 1024, 1);
-      }
-      if ($quotaoverthreshold) {
-         $quotapercentusage = int($quotausage * 1000 / $quotalimit) / 10;
-      }
+      $quotaoverthreshold = ($quotalimit > 0 && ($quotausage / $quotalimit > $config{quota_threshold} / 100));
+      $quotashowusage     = ($quotaoverthreshold || $config{quota_threshold} == 0) ? 1 : 0;
+      $quotabytesusage    = lenstr($quotausage * 1024, 1) if $quotashowusage;
+      $quotapercentusage  = int($quotausage * 1000 / $quotalimit) / 10 if $quotaoverthreshold;
    }
 
    # Determine this message number, previous, and next message IDs
@@ -280,7 +262,7 @@ sub readmessage {
          } else {
             # assume the message is from a sender using same language as the users browser
             my $browserlocale = ow::lang::guess_browser_locale($config{available_locales});
-            my $browsercharset = (ow::lang::localeinfo($browserlocale))[6];
+            my $browsercharset = (ow::lang::localeinfo($browserlocale))[4];
             $convfrom = $browsercharset if is_convertible($browsercharset, $displaycharset);
          }
       }
@@ -318,8 +300,8 @@ sub readmessage {
       }
    }
 
-   loadlang($prefs{locale});
-   charset($prefs{charset}) if ($CGI::VERSION>=2.58); # setup charset of CGI module
+   $po = loadlang($prefs{locale});
+   charset($prefs{charset}) if $CGI::VERSION >= 2.58; # setup charset of CGI module
 
    my $folderselectloop = [];
    foreach my $foldername (@validfolders) {
@@ -328,9 +310,9 @@ sub readmessage {
 
       # find message count for this folder
       my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $foldername);
-      if (ow::dbm::exist($folderdb)) {
-         ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-               openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db " . f2u($folderdb));
+      if (ow::dbm::existdb($folderdb)) {
+         ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
+               openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($folderdb) . " ($!)");
 
          $FDB{ALLMESSAGES}      = 0 unless defined $FDB{ALLMESSAGES} && $FDB{ALLMESSAGES};
          $FDB{ZAPMESSAGES}      = 0 unless defined $FDB{ZAPMESSAGES} && $FDB{ZAPMESSAGES};
@@ -341,7 +323,7 @@ sub readmessage {
          $newmessagesthisfolder  = $FDB{NEWMESSAGES} || 0;
 
          # current message is turned from new to old after this read
-         $newmessagesthisfolder-- if ($foldername eq $folder && $messagesloop->[0]{status} !~ m/R/i && $newmessagesthisfolder > 0);
+         $newmessagesthisfolder-- if $foldername eq $folder && $messagesloop->[0]{status} !~ m/R/i && $newmessagesthisfolder > 0;
 
          if ($foldername eq 'INBOX') {
             $now_inbox_allmessages = $allmessagesthisfolder;
@@ -351,13 +333,16 @@ sub readmessage {
             $folder_allmessages = $allmessagesthisfolder;
          }
 
-         ow::dbm::close(\%FDB, $folderdb);
+         ow::dbm::closedb(\%FDB, $folderdb) or
+            openwebmailerror(gettext('Cannot close db:') . ' ' . f2u($folderdb) . " ($!)");
       }
 
       push(@{$folderselectloop}, {
+                                    "option_$foldername"  => 1,
+                                    is_defaultfolder      => is_defaultfolder($foldername) ? 1 : 0,
                                     option                => $foldername,
-                                    label                 => exists $lang_folders{$foldername}?$lang_folders{$foldername}:f2u($foldername),
-                                    selected              => $foldername eq $folder?1:0,
+                                    label                 => f2u($foldername),
+                                    selected              => $foldername eq $folder ? 1 : 0,
                                     newmessagesthisfolder => $newmessagesthisfolder,
                                     allmessagesthisfolder => $allmessagesthisfolder,
                                  }
@@ -369,8 +354,9 @@ sub readmessage {
    if ($prefs{newmailwindowtime} > 0) {
       if ($now_inbox_newmessages > $orig_inbox_newmessages) {
          push(@{$incomingmessagesloop}, {
-                                           incomingfolder => $lang_folders{INBOX},
-                                           incomingcount  => $now_inbox_newmessages - $orig_inbox_newmessages,
+                                           is_defaultfolder     => 1,
+                                           incomingfolder_INBOX => gettext('Inbox'),
+                                           incomingcount        => $now_inbox_newmessages - $orig_inbox_newmessages,
                                         }
              );
       }
@@ -381,18 +367,20 @@ sub readmessage {
          foreach my $defaultfolder (get_defaultfolders(), 'DELETE') {
             if (exists $filtered{$defaultfolder} && $filtered{$defaultfolder} > 0) {
                push(@{$incomingmessagesloop}, {
-                                                 incomingfolder => $lang_folders{$defaultfolder},
-                                                 incomingcount  => $filtered{$defaultfolder},
+                                                 is_defaultfolder                => 1,
+                                                 "incomingfolder_$defaultfolder" => 1,
+                                                 incomingcount                   => $filtered{$defaultfolder},
                                               }
                    );
             }
          }
 
          foreach my $filteredfolder (sort keys %filtered) {
-            next if (is_defaultfolder($filteredfolder));
+            next if is_defaultfolder($filteredfolder);
             push(@{$incomingmessagesloop}, {
-                                              incomingfolder => f2u($filteredfolder),
-                                              incomingcount  => $filtered{$filteredfolder},
+                                              is_defaultfolder => 0,
+                                              incomingfolder   => f2u($filteredfolder),
+                                              incomingcount    => $filtered{$filteredfolder},
                                            }
                 );
          }
@@ -407,8 +395,8 @@ sub readmessage {
    # do not convert it to the display charset
    push(@{$charsetselectloop}, {
                                  option   => "none.$messagecharset",
-                                 label    => ($messagecharset || $lang_text{none}) . " *",
-                                 selected => $convfrom eq "none.$messagecharset"?1:0,
+                                 label    => ($messagecharset || gettext('none')) . " *",
+                                 selected => $convfrom eq "none.$messagecharset" ? 1 : 0,
                                }
        );
 
@@ -418,7 +406,7 @@ sub readmessage {
       push(@{$charsetselectloop}, {
                                     option   => "none.$displaycharset",
                                     label    => $displaycharset,
-                                    selected => $convfrom eq "none.$displaycharset"?1:0,
+                                    selected => $convfrom eq "none.$displaycharset" ? 1 : 0,
                                   }
           );
    }
@@ -431,7 +419,7 @@ sub readmessage {
          push(@{$charsetselectloop}, {
                                         option   => $othercharset,
                                         label    => "$othercharset > $displaycharset",
-                                        selected => $convfrom eq $othercharset?1:0,
+                                        selected => $convfrom eq $othercharset ? 1 : 0,
                                      }
              );
          delete $allsets{$othercharset};
@@ -446,7 +434,7 @@ sub readmessage {
       push(@{$charsetselectloop}, {
                                     option   => "none.$othercharset",
                                     label    => $othercharset,
-                                    selected => $convfrom eq "none.$othercharset"?1:0,
+                                    selected => $convfrom eq "none.$othercharset" ? 1 : 0,
                                   }
           )
    }
@@ -456,9 +444,12 @@ sub readmessage {
    my $stationeryselectloop = [];
    my $statbookfile = dotpath('stationery.book');
    if (-f $statbookfile) {
-      my %stationery;
+      my %stationery = ();
+
       my ($ret, $errmsg) = read_stationerybook($statbookfile, \%stationery);
-      openwebmailerror($errmsg) if ($ret < 0);
+
+      openwebmailerror($errmsg) if $ret < 0;
+
       foreach my $stationeryname (sort keys %stationery) {
          push(@{$stationeryselectloop}, {
                                           option   => $stationeryname,
@@ -474,7 +465,7 @@ sub readmessage {
       push(@destinationfolders,'DELETE');
    } else {
       @destinationfolders = @validfolders;
-      push(@destinationfolders, 'LEARNSPAM', 'LEARNHAM') if ($config{enable_learnspam});
+      push(@destinationfolders, 'LEARNSPAM', 'LEARNHAM') if $config{enable_learnspam};
       push(@destinationfolders, 'FORWARD', 'DELETE');
    }
 
@@ -506,7 +497,7 @@ sub readmessage {
    my $is_writeable_abook = 0;
    if ($config{enable_addressbook}) {
       foreach my $dir (dotpath('webaddr'),  $config{ow_addressbooksdir}) {
-         opendir(D, $dir) or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} $dir ($!)");
+         opendir(D, $dir) or openwebmailerror(gettext('Cannot open directory:') . " $dir ($!)");
          $is_writeable_abook += scalar grep { !m/^\./ && !m/^categories\.cache$/ && -w "$dir/$_" } readdir(D);
          closedir(D);
       }
@@ -514,13 +505,13 @@ sub readmessage {
 
    # fork a child to do the status update and folderdb update
    # thus the result of readmessage can be returned as soon as possible
-   if ($messagesloop->[0]{status} !~ m/R/i) { # msg file doesn't has R flag
+   if ($messagesloop->[0]{status} !~ m/R/i) {
       local $| = 1;        # flush all output
-      if ( fork() == 0 ) { # child
+      if (fork() == 0) { # child
          close(STDIN);
          close(STDOUT);
          close(STDERR);
-         writelog("debug - update msg status process forked - " .__FILE__.":". __LINE__) if ($config{debug_fork});
+         writelog('debug - update msg status process forked') if $config{debug_fork};
 
          my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
          ow::filelock::lock($folderfile, LOCK_EX) or openwebmail_exit(1);
@@ -528,32 +519,56 @@ sub readmessage {
          # since status in folderdb may have flags not found in msg header
          # we must read the status from folderdb and then update it back
          my @attr = get_message_attributes($messageid, $folderdb);
-         update_message_status($messageid, $attr[$_STATUS]."R", $folderdb, $folderfile) if ($#attr > 0);
+         update_message_status($messageid, $attr[$_STATUS] . 'R', $folderdb, $folderfile) if $#attr > 0;
 
          ow::filelock::lock($folderfile, LOCK_UN);
 
-         writelog("debug - update msg status process terminated - " .__FILE__.":". __LINE__) if ($config{debug_fork});
+         writelog('debug - update msg status process terminated') if $config{debug_fork};
          openwebmail_exit(0);
       }
    } elsif (param('db_chkstatus')) { # check and set msg status R flag
       my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
 
-      my (%FDB, @attr);
-      ow::dbm::open(\%FDB, $folderdb, LOCK_EX) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} db " . f2u($folderdb));
-      @attr = string2msgattr($FDB{$messageid});
+      my %FDB = ();
+
+      ow::dbm::opendb(\%FDB, $folderdb, LOCK_EX) or
+         openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($folderdb) . " ($!)");
+
+      my @attr = string2msgattr($FDB{$messageid});
+
       if ($attr[$_STATUS] !~ m/R/i) {
-         $attr[$_STATUS] .= "R";
+         $attr[$_STATUS] .= 'R';
          $FDB{$messageid} = msgattr2string(@attr);
       }
-      ow::dbm::close(\%FDB, $folderdb);
+
+      ow::dbm::closedb(\%FDB, $folderdb) or
+         openwebmailerror(gettext('Cannot close db:') . ' ' . f2u($folderdb) . " ($!)");
    }
 
+   # ================================
+   # process each message for display
+   # ================================
    my $showhtmltexttoggle  = 0;
    my $nontext_attachments = 0;
    my $blockimagestoggle   = 0;
 
-   # process each message for display
+   my %smilies = (
+                    ":)"  => "FaceHappy",    ":>"  => "FaceHappy",    ";)"  => "FaceWinking",
+                    ";>"  => "FaceWinking",  ";("  => "FaceSad",      ";<"  => "FaceSad",
+                    ":("  => "FaceSad",      ":<"  => "FaceSad",      ">:)" => "FaceDevilish",
+                    ">;)" => "FaceDevilish", "8)"  => "FaceGrinning", "8>"  => "FaceGrinning",
+                    ":D"  => "FaceGrinning", ";D"  => "FaceGrinning", "8D"  => "FaceGrinning",
+                    ":d"  => "FaceTasty",    ";d"  => "FaceTasty",    "8d"  => "FaceTasty",
+                    ":P"  => "FaceNyah",     ";P"  => "FaceNyah",     "8P"  => "FaceNyah",
+                    ":p"  => "FaceNyah",     ";p"  => "FaceNyah",     "8p"  => "FaceNyah",
+                    ":O"  => "FaceStartled", ";O"  => "FaceStartled", "8O"  => "FaceStartled",
+                    ":o"  => "FaceStartled", ";o"  => "FaceStartled", "8o"  => "FaceStartled",
+                    ":/"  => "FaceIronic",   ";/"  => "FaceIronic",   "8/"  => "FaceIronic",
+                    ":\\" => "FaceIronic",   ";\\" => "FaceIronic",   "8\\" => "FaceIronic",
+                    ":|"  => "FaceStraight", ";|"  => "FaceWry",      "8|"  => "FaceKOed",
+                    ":X"  => "FaceYukky",    ";X"  => "FaceYukky",
+                 );
+
    for (my $i = 0; $i < scalar @{$messagesloop}; $i++) {
       # update the messageid to this specific message!
       # in the future we need to do this for conversation view
@@ -571,7 +586,7 @@ sub readmessage {
       $messagesloop->[$i]{keyword}               = $keyword,
       $messagesloop->[$i]{url_cgi}               = $config{ow_cgiurl},
       $messagesloop->[$i]{url_html}              = $config{ow_htmlurl},
-      $messagesloop->[$i]{use_texticon}          = ($prefs{iconset} =~ m/^Text\./?1:0),
+      $messagesloop->[$i]{use_texticon}          = $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
       $messagesloop->[$i]{use_fixedfont}         = $prefs{usefixedfont},
       $messagesloop->[$i]{iconset}               = $prefs{iconset},
 
@@ -588,7 +603,7 @@ sub readmessage {
       $messagesloop->[$i]{headers}               = $headers,
       $messagesloop->[$i]{attmode}               = $attmode,
       $messagesloop->[$i]{is_xmaileropenwebmail} = defined $messagesloop->[$i]{'x-mailer'}
-                                                   && $messagesloop->[$i]{'x-mailer'} =~ m/^open ?webmail/i?1:0;
+                                                   && $messagesloop->[$i]{'x-mailer'} =~ m/^open ?webmail/i ? 1 : 0;
       # end global_vars hack
 
       # ================================================================
@@ -596,12 +611,8 @@ sub readmessage {
       # ================================================================
       # convert the message charset for processing and presentation
       # header information is always assumed to be encoded utf-7 or utf-8, so convert it from utf-8
-      $messagesloop->[$i]{to}         = (iconv('utf-8', $displaycharset, $messagesloop->[$i]{to}))[0];
-      $messagesloop->[$i]{from}       = (iconv('utf-8', $displaycharset, $messagesloop->[$i]{from}))[0];
-      $messagesloop->[$i]{cc}         = (iconv('utf-8', $displaycharset, $messagesloop->[$i]{cc}))[0];
-      $messagesloop->[$i]{bcc}        = (iconv('utf-8', $displaycharset, $messagesloop->[$i]{bcc}))[0];
-      $messagesloop->[$i]{subject}    = (iconv('utf-8', $displaycharset, $messagesloop->[$i]{subject}))[0];
-      $messagesloop->[$i]{'reply-to'} = (iconv('utf-8', $displaycharset, $messagesloop->[$i]{'reply-to'}))[0];
+      $messagesloop->[$i]{$_} = (iconv('utf-8', $displaycharset, $messagesloop->[$i]{$_}))[0]
+         for qw(to from cc bcc subject reply-to);
 
       if ($headers eq 'all') {
          $messagesloop->[$i]{header} = decode_mimewords_iconv($messagesloop->[$i]{header}, $displaycharset);
@@ -624,7 +635,7 @@ sub readmessage {
             }
          }
 
-         if ($printfriendly ne "yes") {
+         unless ($printfriendly eq 'yes') {
             $messagesloop->[$i]{status_important}++ if $messagesloop->[$i]{priority} eq 'urgent' || $messagesloop->[$i]{status} =~ m#I#i;
             $messagesloop->[$i]{status_answered}++ if $messagesloop->[$i]{status} =~ m#A#i;
          }
@@ -693,7 +704,7 @@ sub readmessage {
             $messagesloop->[$i]{body} = ow::htmltext::text2html($messagesloop->[$i]{body});
          }
          # change color for quoted lines
-         my $class = $prefs{usefixedfont}?'messagebody monospacetext':'messagebody';
+         my $class = $prefs{usefixedfont} ? 'messagebody monospacetext' : 'messagebody';
          $messagesloop->[$i]{body} =~ s#^(&gt;.*<br>)$#<span class="quotedtext">$1</span>#img;
          $messagesloop->[$i]{body} =~ s#<a href=#<a class="$class" href=#ig;
       }
@@ -703,7 +714,7 @@ sub readmessage {
       # ====================================================================
       # perform presentation formatting on the message attachments as needed
       # ====================================================================
-      $messagesloop->[$i]{show_attmode} = (scalar @{$messagesloop->[$i]{attachment}} > 0 || $messagesloop->[$i]{'content-type'} =~ m#^multipart#i)?1:0;
+      $messagesloop->[$i]{show_attmode} = (scalar @{$messagesloop->[$i]{attachment}} > 0 || $messagesloop->[$i]{'content-type'} =~ m#^multipart#i) ? 1 : 0;
 
       for (my $n = 0; $n < scalar @{$messagesloop->[$i]{attachment}}; $n++) {
          next unless defined %{$messagesloop->[$i]{attachment}[$n]};
@@ -746,15 +757,15 @@ sub readmessage {
          $messagesloop->[$i]{attachment}[$n]{keyword}               = $keyword;
          $messagesloop->[$i]{attachment}[$n]{url_cgi}               = $config{ow_cgiurl};
          $messagesloop->[$i]{attachment}[$n]{url_html}              = $config{ow_htmlurl};
-         $messagesloop->[$i]{attachment}[$n]{use_texticon}          = ($prefs{iconset} =~ m/^Text\./?1:0);
+         $messagesloop->[$i]{attachment}[$n]{use_texticon}          = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
          $messagesloop->[$i]{attachment}[$n]{use_fixedfont}         = $prefs{usefixedfont};
          $messagesloop->[$i]{attachment}[$n]{iconset}               = $prefs{iconset};
          # non-standard
          $messagesloop->[$i]{attachment}[$n]{enable_addressbook}    = $config{enable_addressbook};
          $messagesloop->[$i]{attachment}[$n]{is_writeable_abook}    = $is_writeable_abook;
          $messagesloop->[$i]{attachment}[$n]{enable_webdisk}        = $config{enable_webdisk};
-         $messagesloop->[$i]{attachment}[$n]{is_writeable_webdisk}  = $config{webdisk_readonly}?0:1;
-         $messagesloop->[$i]{attachment}[$n]{simpleheaders}         = $headers eq 'simple'?1:0;
+         $messagesloop->[$i]{attachment}[$n]{is_writeable_webdisk}  = $config{webdisk_readonly} ? 0 : 1;
+         $messagesloop->[$i]{attachment}[$n]{simpleheaders}         = $headers eq 'simple' ? 1 : 0;
          $messagesloop->[$i]{attachment}[$n]{messageid}             = $messageid;
          $messagesloop->[$i]{attachment}[$n]{convfrom}              = $convfrom;
          $messagesloop->[$i]{attachment}[$n]{headers}               = $headers;
@@ -763,7 +774,7 @@ sub readmessage {
 
          $messagesloop->[$i]{attachment}[$n]{attnumber} = $n;
 
-         $nontext_attachments++ if (defined $messagesloop->[$i]{attachment}[$n]{'content-type'} && $messagesloop->[$i]{attachment}[$n]{'content-type'} !~ m/^text/i);
+         $nontext_attachments++ if defined $messagesloop->[$i]{attachment}[$n]{'content-type'} && $messagesloop->[$i]{attachment}[$n]{'content-type'} !~ m/^text/i;
 
          my $attcharset = $convfrom;
          # if convfrom eq msgcharset, we will try to get the attcharset from the attheader - it may differ from the msgheader
@@ -836,7 +847,7 @@ sub readmessage {
                      ow::htmlrender::html4blockimages(${$messagesloop->[$i]{attachment}[$n]{r_content}}, $safelink, \$blockimagestoggle) if $blockimages;
 
                   # this subroutine detects cid: and loc: links in the html. It then finds the attachment that matches the
-                  # cid: or loc: and increments its referencecount so that we don't display that attachment separately. The
+                  # cid: or loc: and increments its referencecount so that we do not display that attachment separately. The
                   # link in the html is updated to point to the attachment so it displays inline (via openwebmail-viewatt.pl)
                   ${$messagesloop->[$i]{attachment}[$n]{r_content}} =
                      ow::htmlrender::html4attachments(${$messagesloop->[$i]{attachment}[$n]{r_content}}, $messagesloop->[$i]{attachment}, "$config{ow_cgiurl}/openwebmail-viewatt.pl", "action=viewattachment&amp;sessionid=" . ow::tool::escapeURL($thissession) . "&amp;message_id=" . ow::tool::escapeURL($messageid) . "&amp;folder=" . ow::tool::escapeURL($folder));
@@ -943,7 +954,7 @@ sub readmessage {
 
             $body = '' unless defined $body;
 
-            my %msg;
+            my %msg = ();
             $msg{'content-type'} = 'N/A'; # assume msg is simple text
 
             ow::mailparse::parse_header(\$header, \%msg);
@@ -978,12 +989,12 @@ sub readmessage {
 
             # TODO: get this html out of here
             # header lang_text replacement should be done after iconv
-            $header =~ s#Date: #<span class="messageheaderproperty">$lang_text{date}:</span> #i;
-            $header =~ s#From: #<span class="messageheaderproperty">$lang_text{from}:</span> #i;
-            $header =~ s#Reply-To: #<span class="messageheaderproperty">$lang_text{replyto}:</span> #i;
-            $header =~ s#To: #<span class="messageheaderproperty">$lang_text{to}:</span> #i;
-            $header =~ s#Cc: #<span class="messageheaderproperty">$lang_text{cc}:</span> #i;
-            $header =~ s#Subject: #<span class="messageheaderproperty">$lang_text{subject}:</span> #i;
+            $header =~ s#Date: #'<span class="messageheaderproperty">' . gettext('Date:') . '</span> '#ie;
+            $header =~ s#From: #'<span class="messageheaderproperty">' . gettext('From:') . '</span> '#ie;
+            $header =~ s#Reply-To: #'<span class="messageheaderproperty">' . gettext('Reply-To:') . '</span> '#ie;
+            $header =~ s#To: #'<span class="messageheaderproperty">' . gettext('To:') . '</span> '#ie;
+            $header =~ s#Cc: #'<span class="messageheaderproperty">' . gettext('Cc:') . '</span> '#ie;
+            $header =~ s#Subject: #'<span class="messageheaderproperty">' . gettext('Subject:') . '</span> '#ie;
 
             # note the message header are keep untouched here in order to make it easy for further parsing
             # also note the dereference here of the scalar ref of r_content in order to display in the templates
@@ -1040,6 +1051,7 @@ sub readmessage {
             }
 
             my $orig_description = $messagesloop->[$i]{attachment}[$n]{'content-description'};
+
             if ($archivefilename ne '') {
                $messagesloop->[$i]{attachment}[$n]{'content-type'} = ow::tool::ext2contenttype($archivefilename);
                $messagesloop->[$i]{attachment}[$n]{'content-description'} = 'ms-tnef encapsulated data';
@@ -1047,12 +1059,10 @@ sub readmessage {
                   $messagesloop->[$i]{attachment}[$n]{'content-description'} .= ': ' . join(', ', @filelist);
                }
             } else {
-               $messagesloop->[$i]{attachment}[$n]{'content-description'} = 'unrecognized ms-tnef encapsulated data';
+               $messagesloop->[$i]{attachment}[$n]{'content-description'} = gettext('unrecognized ms-tnef encapsulated data');
             }
 
-            if ($orig_description ne '') {
-               $messagesloop->[$i]{attachment}[$n]{'content-description'} .= ", $orig_description";
-            }
+            $messagesloop->[$i]{attachment}[$n]{'content-description'} .= ", $orig_description" if $orig_description ne '';
          }
 
          $messagesloop->[$i]{attachment}[$n]{blockimages}       = $blockimages;
@@ -1065,15 +1075,15 @@ sub readmessage {
          if ($messagesloop->[$i]{status} !~ m#R#i && $messagesloop->[$i]{'disposition-notification-to'} ne '') {
             if ($prefs{sendreceipt} ne 'no') {
                $messagesloop->[$i]{sendreadreceipt} = 1;
-               $messagesloop->[$i]{sendreadreceipt_ask} = $prefs{sendreceipt} eq 'ask'?1:0;
+               $messagesloop->[$i]{sendreadreceipt_ask} = $prefs{sendreceipt} eq 'ask' ? 1 : 0;
             }
          }
       }
 
       # if current message is new, count as old after this read
       if ($messagesloop->[$i]{status} !~ m/R/i) {
-         $orig_inbox_newmessages-- if ($folder eq 'INBOX' && $orig_inbox_newmessages > 0);
-         $newmessages-- if ($newmessages > 0);
+         $orig_inbox_newmessages-- if $folder eq 'INBOX' && $orig_inbox_newmessages > 0;
+         $newmessages-- if $newmessages > 0;
       }
 
       $messagesloop->[$i]{blockimages}       = $blockimages;
@@ -1086,7 +1096,7 @@ sub readmessage {
    # so that it can show on every page, not just main_listview
    my $unread_messages_info = '';
    if ($now_inbox_newmessages > 0) {
-      $unread_messages_info = "$lang_folders{INBOX}: $now_inbox_newmessages $lang_text{messages} $lang_text{unread}";
+      $unread_messages_info = sprintf(ngettext('Inbox: %d unread message', 'Inbox: %d unread messages', $now_inbox_newmessages), $now_inbox_newmessages);
    }
 
    # vars used again here just to surpress warnings
@@ -1123,7 +1133,7 @@ sub readmessage {
                       keyword                 => $keyword,
                       url_cgi                 => $config{ow_cgiurl},
                       url_html                => $config{ow_htmlurl},
-                      use_texticon            => ($prefs{iconset} =~ m/^Text\./ ? 1 : 0),
+                      use_texticon            => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
                       use_fixedfont           => $prefs{usefixedfont},
                       iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},
@@ -1165,7 +1175,6 @@ sub readmessage {
                       use_ssh2                => -r "$config{ow_htmldir}/applet/mindterm2/mindterm.jar" ? 1 : 0,
                       use_ssh1                => -r "$config{ow_htmldir}/applet/mindterm/mindtermfull.jar" ? 1 : 0,
                       enable_preference       => $config{enable_preference},
-
                       enable_saprefs          => $config{enable_saprefs},
                       enable_webmail          => $config{enable_webmail},
                       enable_learnham         => $config{enable_learnspam} && $folder eq 'spam-mail' ? 1 : 0,
@@ -1184,11 +1193,11 @@ sub readmessage {
                       stationeryselectloop    => $stationeryselectloop,
                       destinationselectloop   => [
                                                     map { {
-                                                             option   => $_,
-                                                             label    => exists $lang_folders{$_} ?
-                                                                         (iconv($prefs{charset}, $displaycharset, $lang_folders{$_}))[0] :
-                                                                         (iconv($prefs{fscharset}, $displaycharset, $_))[0],
-                                                             selected => $_ eq $destinationdefault ? 1 : 0
+                                                             is_defaultfolder => is_defaultfolder($_) ? 1 : 0,
+                                                             "option_$_"      => 1,
+                                                             option           => $_,
+                                                             label            => (iconv($prefs{fscharset}, $displaycharset, $_))[0],
+                                                             selected         => $_ eq $destinationdefault ? 1 : 0
                                                         } } @destinationfolders
                                                  ],
                       messagesloop            => $messagesloop,
@@ -1220,7 +1229,7 @@ sub rebuildmessage {
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
 
    ow::filelock::lock($folderfile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($folderfile) . "!");
+      openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($folderfile) . " ($!)");
 
    my ($errorcode, $rebuildmsgid, @partialmsgids) = rebuild_message_with_partialid($folderfile, $folderdb, $partialid);
 
@@ -1231,10 +1240,14 @@ sub rebuildmessage {
       my ($trashfile, $trashdb) = get_folderpath_folderdb($user, "mail-trash");
       if ($folderfile ne $trashfile) {
          ow::filelock::lock($trashfile, LOCK_EX) or
-            openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} $trashfile");
-         my $moved = (operate_message_with_ids("move", \@partialmsgids, $folderfile, $folderdb, $trashfile, $trashdb))[0];
+            openwebmailerror(gettext('Cannot lock file:') . " $trashfile ($!)");
+
+         my $moved = operate_message_with_ids('move', \@partialmsgids, $folderfile, $folderdb, $trashfile, $trashdb);
+
          folder_zapmessages($folderfile, $folderdb) if $moved > 0;
-         ow::filelock::lock($trashfile, LOCK_UN);
+
+         ow::filelock::lock($trashfile, LOCK_UN) or
+            openwebmailerror(gettext('Cannot unlock file:') . " $trashfile ($!)");
       }
 
       readmessage($rebuildmsgid);
@@ -1273,10 +1286,10 @@ sub rebuildmessage {
                          attmode                 => $attmode,
                          receivers               => $receivers,
                          convfrom                => $convfrom,
-                         error_no_endpart        => $errorcode == -1?1:0,
-                         error_part_missing      => $errorcode == -2?1:0,
-                         error_rebuild_format    => $errorcode == -3?1:0,
-                         error_rebuild_size      => $errorcode == -4?1:0,
+                         error_no_endpart        => $errorcode == -1 ? 1 : 0,
+                         error_part_missing      => $errorcode == -2 ? 1 : 0,
+                         error_rebuild_format    => $errorcode == -3 ? 1 : 0,
+                         error_rebuild_size      => $errorcode == -4 ? 1 : 0,
 
                          # footer.tmpl
                          footer_template         => get_footer($config{footer_template_file}),
@@ -1327,10 +1340,13 @@ sub download_nontext {
             my $tempfile = ow::tool::untaint("/tmp/$messagesloop->[$i]{attachment}[$n]{filename}");
 
             sysopen(FILE, $tempfile, O_WRONLY|O_TRUNC|O_CREAT) or
-              openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_create} $tempfile ($!)\n");
-            binmode FILE; # to ensure images don't corrupt
+              openwebmailerror(gettext('Cannot open file:') . " $tempfile ($!)");
+
+            binmode FILE; # to ensure images do not corrupt
+
             print FILE $content;
-            close FILE || openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_close} $tempfile ($!)\n");
+
+            close(FILE) or openwebmailerror(gettext('Cannot close file:') . " $tempfile ($!)");
 
             push(@filelist, $messagesloop->[$i]{attachment}[$n]{filename});
          }
@@ -1374,7 +1390,7 @@ sub download_nontext {
    }
    print qq|\n|;
 
-   chdir("/tmp") or openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_chdirto} /tmp\n");
+   chdir('/tmp') or openwebmailerror(gettext('Cannot change to directory:') . " /tmp ($!)");
 
    # set environment variables for cmd
    $ENV{USER} = $ENV{LOGNAME} = $user;
@@ -1382,7 +1398,7 @@ sub download_nontext {
 
    $< = $>; # drop ruid by setting ruid = euid
 
-   exec(@cmd, @filelist) or print qq|Error in executing |.join(' ', @cmd, @filelist);
+   exec(@cmd, @filelist) or openwebmailerror(gettext('Cannot execute command:') . ' ' . join(' ', @cmd, @filelist));
 }
 
 sub delete_attnodes {
@@ -1391,21 +1407,22 @@ sub delete_attnodes {
 
    # nodeid may be like '0-1-0' for a specific node,
    # or like 'NONTEXT' for all nontext nodes
-   my $nodeid    = param('nodeid') || '';
+   my $nodeid = param('nodeid') || '';
 
    return readmessage() unless $nodeid;
 
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
    my @attr = get_message_attributes($messageid, $folderdb);
 
-   my ($block, $msgsize, $err, $errmsg, %message);
-   ($msgsize, $errmsg) = lockget_message_block($messageid, $folderfile, $folderdb, \$block);
-   return ($msgsize, $errmsg) if ($msgsize <= 0);
+   my $block   = '';
+   my $msgsize = lockget_message_block($messageid, $folderfile, $folderdb, \$block);
+   openwebmailerror(gettext('Message block read error:') . " $msgsize") if $msgsize <= 0;
 
+   my %message = ();
    ($message{header}, $message{body}, $message{attachment}) = ow::mailparse::parse_rfc822block(\$block, "0", "all");
-   return 0 if (!defined @{$message{attachment}});
+   openwebmailerror(gettext('Attachment not found.')) if !defined @{$message{attachment}};
 
-   my @datas;
+   my @datas = ();
    my $boundary = "----=OPENWEBMAIL_ATT_" . rand();
    my $contenttype_line = 0;
    foreach my $line (split(/\n/, $message{header})) {
@@ -1414,7 +1431,7 @@ sub delete_attnodes {
          $datas[0] .= qq|Content-Type: multipart/mixed;\n|.
                       qq|\tboundary="$boundary"\n|;
       } else {
-         next if ($line =~ m/^\s/ && $contenttype_line);
+         next if $line =~ m/^\s/ && $contenttype_line;
          $contenttype_line = 0;
          $datas[0] .= "$line\n";
       }
@@ -1456,9 +1473,26 @@ sub delete_attnodes {
    $attr[$_SIZE]   = length($block);
    $attr[$_STATUS] =~ s/T// if (!$has_namedatt);
 
-   ow::filelock::lock($folderfile, LOCK_EX) or return(-2, "$folderfile write lock error");
-   ($err, $errmsg) = append_message_to_folder($messageid, \@attr, \$block, $folderfile, $folderdb);
-   if ($err == 0) {
+   ow::filelock::lock($folderfile, LOCK_EX)
+     or openwebmailerror(gettext('Cannot lock file:') . " $folderfile ($!)");
+
+   # append_message_to_folder returns:
+   #  -1: lock/open error
+   #  -2: message id not in database
+   #  -3: invalid message size in database
+   #  -4: message size mismatch read error
+   #  -5: message start and end does not match index
+   #  -6: cannot open dstfile
+   #  -7: cannot lock dstfile
+   #  -8: cannot update index db
+   #  -9: cannot open db
+   # -10: cannot open dstfile
+   # -11: cannot close db
+   # -12: io error printing to dstfile
+   # -13: cannot unlock dstfile
+   my $append_err = append_message_to_folder($messageid, \@attr, \$block, $folderfile, $folderdb);
+
+   if ($append_err == 0) {
       my $zapped = folder_zapmessages($folderfile, $folderdb);
       if ($zapped < 0) {
          my $m = "mailfilter - $folderfile zap error $zapped";
@@ -1466,9 +1500,11 @@ sub delete_attnodes {
          writehistory($m);
       }
    }
-   ow::filelock::lock($folderfile, LOCK_UN);
 
-   writelog("delete attachment nodes - error $err\:$errmsg") if $err < 0;
+   ow::filelock::lock($folderfile, LOCK_UN)
+     or openwebmailerror(gettext('Cannot unlock file:') . " $folderfile ($!)");
+
+   writelog("delete attachment nodes - error $append_err") if $append_err < 0;
 
    return readmessage();
 }

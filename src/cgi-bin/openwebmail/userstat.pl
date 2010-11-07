@@ -15,7 +15,7 @@
 # </td></tr></table>
 #
 use strict;
-use CGI qw(-private_tempfiles :standard);
+use CGI 3.31 qw(-private_tempfiles :standard);
 
 # where to find the openwebmail scripts
 my $ow_cgidir="/usr/local/www/cgi-bin/openwebmail";

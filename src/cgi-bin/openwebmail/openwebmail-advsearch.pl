@@ -32,29 +32,29 @@ use warnings;
 
 use vars qw($SCRIPT_DIR);
 
-if (-f "/etc/openwebmail_path.conf") {
-   my $pathconf = "/etc/openwebmail_path.conf";
-   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+if (-f '/etc/openwebmail_path.conf') {
+   my $pathconf = '/etc/openwebmail_path.conf';
+   open(F, $pathconf) or die "Cannot open $pathconf: $!";
    my $pathinfo = <F>;
-   close(F) or die("Cannot close $pathconf: $!");
+   close(F) or die "Cannot close $pathconf: $!";
    ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
 } else {
    ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
 
-die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
+die 'SCRIPT_DIR cannot be set' if $SCRIPT_DIR eq '';
 push (@INC, $SCRIPT_DIR);
 
 # secure the environment
 delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
-$ENV{PATH}='/bin:/usr/bin';
+$ENV{PATH} = '/bin:/usr/bin';
 
 # make sure the openwebmail group can write
 umask(0002);
 
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :cgi charset);
+use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use HTML::Template 2.9;
 use MIME::Base64;
@@ -75,6 +75,7 @@ require "shares/ow-shared.pl";
 require "shares/iconv.pl";
 require "shares/maildb.pl";
 require "shares/getmsgids.pl";
+require "shares/adrbook.pl";
 
 # optional module
 ow::tool::has_module('Compress/Zlib.pm');
@@ -83,26 +84,13 @@ ow::tool::has_module('Compress/Zlib.pm');
 use vars qw(%config $thissession $user %prefs);
 
 # extern vars
-use vars qw($htmltemplatefilters);                           # defined in ow-shared.pl
+use vars qw($htmltemplatefilters $po);                       # defined in ow-shared.pl
 use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM
             $_RECVDATE $_DATE $_FROM $_TO $_SUBJECT
             $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES); # defined in maildb.pl
-use vars qw(%lang_folders %lang_text %lang_err);             # defined in lang/xy
 
 # local globals
-use vars qw($folder);
-use vars qw(%placeorder);
-
-%placeorder = (
-   from        => 1,
-   to          => 2,
-   subject     => 3,
-   date        => 4,
-   header      => 5,
-   all         => 6,
-   attfilename => 7,
-   textcontent => 8,
-);
+use vars qw($folder $messageid $sort $msgdatetype $page $longpage $searchtype $keyword);
 
 
 # BEGIN MAIN PROGRAM
@@ -110,18 +98,26 @@ use vars qw(%placeorder);
 openwebmail_requestbegin();
 userenv_init();
 
-if (!$config{enable_webmail} || !$config{enable_advsearch}) {
-   openwebmailerror(__FILE__, __LINE__, "$lang_text{advsearch} $lang_err{access_denied}");
-}
+openwebmailerror(gettext('Access denied: the advanced search module is not enabled.'))
+   if !$config{enable_webmail} || !$config{enable_advsearch};
 
-$folder     = param('folder') || 'INBOX';
+# webmail globals
+$folder          = param('folder') || 'INBOX';
+$page            = param('page') || 1;
+$longpage        = param('longpage') || 0;
+$sort            = param('sort') || $prefs{sort} || 'date_rev';
+$searchtype      = param('searchtype') || '';
+$keyword         = param('keyword') || '';
+$msgdatetype     = param('msgdatetype') || $prefs{msgdatetype};
+$messageid       = param('message_id') || '';
+
 my $action  = param('action') || '';
 
-writelog("debug - request advsearch begin, action=$action - " .__FILE__.":". __LINE__) if $config{debug_request};
+writelog("debug - request advsearch begin, action=$action") if $config{debug_request};
 
-$action eq 'advsearch' ? advsearch() : openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
+$action eq 'advsearch' ? advsearch() : openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request advsearch end, action=$action - " .__FILE__.":". __LINE__) if ($config{debug_request});
+writelog("debug - request advsearch end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -129,181 +125,102 @@ openwebmail_requestend();
 # BEGIN SUBROUTINES
 
 sub advsearch {
+   # build the folders list
+   my @folders = param('folders');
+   @folders = map { safefoldername(ow::tool::unescapeURL($_)) } @folders;
+
+   my (@validfolders, $inboxusage, $folderusage) = ((),0,0);
+   getfolders(\@validfolders, \$inboxusage, \$folderusage);
+
+   # build the date selections - depends on the users dateformat preference
    my $localtime = ow::datetime::time_gm2local(time(), $prefs{timeoffset}, $prefs{daylightsaving}, $prefs{timezone});
    my ($current_year, $current_month, $current_day) = (ow::datetime::seconds2array($localtime))[5, 4, 3];
    $current_year += 1900;
    $current_month++;
 
-   # build the folders list
-   my @folders = param('folders');
-   for (my $i = 0; $i <= $#folders; $i++) {
-      $folders[$i] = safefoldername(ow::tool::unescapeURL($folders[$i]));
-   }
-   my $foldersloop = [];
-   my (@validfolders, $inboxusage, $folderusage);
-   getfolders(\@validfolders, \$inboxusage, \$folderusage);
-   for(my $i = 0; $i <= $#validfolders; $i++) {
-      my $currfolderstr = (defined($lang_folders{$validfolders[$i]})) ?
-                          $lang_folders{$validfolders[$i]}            :
-                          f2u($validfolders[$i]);
-      push(@{$foldersloop}, {
-                              currfolder    => $validfolders[$i],
-                              currfolderstr => $currfolderstr,
-                              checked       => scalar(grep(/\Q$validfolders[$i]\E/, @folders)),
-                              tr            => (($i + 1) % 4 == 0)
-                            }
-          );
-   }
+   my $min_year = $current_year - 30;
+   my $max_year = $current_year + 30;
 
-   # build the date selections - depends on user's dateformat
-   my $datefmtstr    = $prefs{dateformat};
-   my $datesep       = ($datefmtstr =~ /([^ymd])/)[0] || '-';
-   my @dateformat    = split(/\Q$datesep\E/, $datefmtstr);
-   my $dateselloop   = [];
-   for (my $i = 1; $i <= 2; $i++) {
-      for (my $j = 0; $j <= 2; $j++) {
-         if ($dateformat[$j] eq 'yyyy') {
-            my $selected = $i == 1 ? 1990 : $current_year;
-            $selected    = param("year$i") || $selected;
-            push(@{$dateselloop}, {
-                                    datesep      => $j == 2 ? '' : $datesep,
-                                    firstdatesel => $i == 1,
-                                    dateselname  => "year$i",
-                                    selloop      => [
-                                                      map {{
-                                                             option   => $_,
-                                                             selected => $_ eq $selected ? 1 : 0,
-                                                          }} (1990..$current_year)
-                                                    ],
-                                  }
-                 );
-         } elsif ($dateformat[$j] eq 'mm') {
-             my $selected = $i == 1 ? 1 : $current_month;
-             $selected    = param("month$i") || $selected;
-             push(@{$dateselloop}, {
-                                     datesep      => $j == 2 ? '' : $datesep,
-                                     firstdatesel => $i == 1,
-                                     dateselname  => "month$i",
-                                     selloop      => [
-                                                       map {{
-                                                              option   => $_,
-                                                              selected => $_ eq $selected ? 1 : 0,
-                                                           }} (1..12)
-                                                     ],
-                                   }
-                 );
-         } elsif ($dateformat[$j] eq 'dd') {
-             my $selected = $i == 1 ? 1 : $current_day;
-             $selected    = param("day$i") || $selected;
-             push(@{$dateselloop}, {
-                                     datesep      => $j == 2 ? '' : $datesep,
-                                     firstdatesel => $i == 1,
-                                     dateselname  => "day$i",
-                                     selloop      => [
-                                                       map {{
-                                                              option   => $_,
-                                                              selected => $_ eq $selected ? 1 : 0,
-                                                           }} (1..31)
-                                                     ],
-                                    }
-                 );
-         }
-      }
-   }
-
-   # build the filters selection
-   my @search = ();
-   for (my $i = 0; $i <= 2; $i++) {
-      my $text = param('searchtext' . $i);
-      $text =~ s/^\s+//;
-      $text =~ s/\s+$//;
-
-      push(@search, {
-                      where => param('where'.$i) || '',
-                      type  => param('type'.$i)  || '',
-                      text  => $text || ''
-                    }
-          );
-   }
-
-   my $resline = param('resline') || $prefs{msgsperpage} || 10;
-
-   my $filtersloop = [];
-   for (my $i = 0; $i <= 2; $i++) {
-      my $where   = ${$search[$i]}{where} || 'subject';
-      my $type    = ${$search[$i]}{type}  || 'contains';
-      push(@{$filtersloop}, {
-                               firstfiltersloop  => $i == 0 ? 1 : 0,
-                               lastfiltersloop   => $i == 2 ? 1 : 0,
-                               n                 => $i,
-                               resline           => $resline,
-                               text              => $search[$i]{text},
-                               where             => [
-                                                      map {{
-                                                             option   => $_,
-                                                             $_       => 1,
-                                                             selected => $_ eq $where ? 1 : 0,
-                                                          }} qw(from to subject date attfilename header textcontent all)
-                                                    ],
-                               type              => [
-                                                      map {{
-                                                             option   => $_,
-                                                             $_       => 1,
-                                                             selected => $_ eq $type ? 1 : 0,
-                                                          }} qw(contains notcontains is isnot startswith endswith regexp)
-                                                    ],
-                            }
-          );
-   }
+   my $daterange  = param('daterange')  || 'all';
+   my $startyear  = param('startyear')  || $min_year;
+   my $startmonth = param('startmonth') || $current_month;
+   my $startday   = param('startday')   || $current_day;
+   my $endyear    = param('endyear')    || $current_year;
+   my $endmonth   = param('endmonth')   || $current_month;
+   my $endday     = param('endday')     || $current_day;
 
    # build the result list
-   my ($startserial, $endserial, $seconds) = ('','','');
+   my $resultlines = param('resultlines') || $prefs{msgsperpage} || 10,
 
-   if (defined param('year1')) {
-      $seconds = ow::datetime::array2seconds(0, 0, 0, param('day1'), param('month1') - 1, param('year1') - 1900);
-   } else {
-      $seconds = ow::datetime::array2seconds(0, 0, 0, 1, 0, 90); # 1990/1/1
-   }
-   $startserial = ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm(
-                    $seconds, $prefs{timeoffset}, $prefs{daylighsaving}, $prefs{timezone}));
+   my $startseconds = ow::datetime::array2seconds(0, 0, 0, $startday, $startmonth - 1, $startyear - 1900);
+   my $startserial  = ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm(
+                        $startseconds, $prefs{timeoffset}, $prefs{daylighsaving}, $prefs{timezone}));
 
-   if (defined param('year2')) {
-      $seconds = ow::datetime::array2seconds(59, 59, 23, param('day2'), param('month2') - 1, param('year2') - 1900);
-   } else {
-      $seconds = ow::datetime::array2seconds(59, 59, 23, $current_day, $current_month - 1, $current_year - 1900);
-   }
-   $endserial = ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm(
-                  $seconds, $prefs{timeoffset}, $prefs{daylighsaving}, $prefs{timezone}));
+   my $endseconds = ow::datetime::array2seconds(0, 0, 0, $endday, $endmonth - 1, $endyear - 1900);
+   $endseconds   += 86400; # add 24 hours (86400 seconds) so that the end day is included in the search
+   my $endserial  = ow::datetime::gmtime2dateserial(ow::datetime::time_local2gm(
+                        $endseconds, $prefs{timeoffset}, $prefs{daylighsaving}, $prefs{timezone}));
+
+   openwebmailerror(gettext('The search start date is after the search end date.'))
+      if $startserial gt $endserial;
 
    my $resultsloop = [];
    my $totalsize   = 0;
    my $totalfound  = 0;
-   if ($startserial =~ m/^\d{14}$/ && $endserial =~ m/^\d{14}$/ && $startserial lt $endserial) {
-      my $r_result = search_folders($startserial, $endserial, \@search, \@folders, dotpath('search.cache'));
 
-      $totalfound = scalar @{$r_result};
+   if ($startserial =~ m/^\d{14}$/ && $endserial =~ m/^\d{14}$/ && param('search')) {
+      my $search = [
+                      map {
+                             my $searchtext = param("searchtext_$_") || '';
+                             $searchtext =~ s/^\s+//;
+                             $searchtext =~ s/\s+$//;
 
-      my $r_abookemailhash = {};
-      $r_abookemailhash = get_abookemailhash() if $totalfound > 0;
+                             {
+                                where => param("where_$_") || 'subject',
+                                type  => param("type_$_") || 'contains',
+                                text  => $searchtext,
+                             }
+                          } (0..2) # number of filter rows
+                   ];
 
+      my $results = search_folders($startserial, $endserial, $search, \@folders);
+
+      $totalfound = scalar @{$results};
+
+      # load the contacts map of email addresses to xowmuids
+      # so we can provide quick links to contact information
+      my $contacts = {};
+
+      if ($config{enable_addressbook} && $totalfound > 0) {
+         foreach my $abookfoldername (get_readable_abookfolders()) {
+            my $abookfile = abookfolder2file($abookfoldername);
+
+            # filter based on searchterms and prune based on only_return
+            my $thisbook = readadrbook($abookfile, undef, { 'X-OWM-UID' => 1, 'X-OWM-GROUP' => 1, EMAIL => 1 });
+
+            foreach my $xowmuid (keys %{$thisbook}) {
+               next if exists $thisbook->{$xowmuid}{'X-OWM-GROUP'};
+               next unless exists $thisbook->{$xowmuid}{EMAIL};
+               $contacts->{lc($_->{VALUE})} = $xowmuid for @{$thisbook->{$xowmuid}{EMAIL}};
+            }
+         }
+      }
+
+      # prepare the results for display
       for (my $i = 0; $i < $totalfound; $i++) {
-         last if $i > $resline;
-         my $r_msg   = $r_result->[$i];
-         my $r_attr  = $r_msg->{attr};
-         $totalsize += $r_attr->[$_SIZE];
+         last if $i > $resultlines;
+         $totalsize += $results->[$i]{attr}[$_SIZE];
 
          # convert from message charset to current user charset
-         my $msgcharset = $r_attr->[$_CHARSET];
-         if ($msgcharset eq '' && $prefs{charset} eq 'utf-8') {
-            # assume msg is from sender using same language as the recipient's browser
-            $msgcharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{available_locales})))[6];
+         my $messagecharset = $results->[$i]{attr}[$_CHARSET];
+         if ($messagecharset eq '' && $prefs{charset} eq 'utf-8') {
+            # assume message is from sender using same language as the recipients browser
+            $messagecharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{available_locales})))[4];
          }
 
-         my $folder  = $r_msg->{folder};
-         my $datestr = ow::datetime::dateserial2str($r_attr->[$_DATE], $prefs{timeoffset}, $prefs{daylightsaving},
-                                                    $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone});
+         my $folder  = $results->[$i]{folder};
 
-         my ($from, $to, $subject) = iconv('utf-8', $prefs{charset}, $r_attr->[$_FROM], $r_attr->[$_TO], $r_attr->[$_SUBJECT]);
+         my ($from, $to, $subject) = iconv('utf-8', $prefs{charset}, $results->[$i]{attr}[$_FROM], $results->[$i]{attr}[$_TO], $results->[$i]{attr}[$_SUBJECT]);
          my ($from_name, $from_address) = ow::tool::email2nameaddr($from);
 
          my @namelist = ();
@@ -316,105 +233,210 @@ sub advsearch {
             push(@addrlist, $a) if $a !~ m/"/;
          }
 
-         my ($to_name, $to_address) = (join(",", @namelist), join(",", @addrlist));
+         my ($to_name, $to_address) = (join(',', @namelist), join(',', @addrlist));
          $to_name    = substr($to_name, 0, 29)    . '...' if length($to_name) > 32;
          $to_address = substr($to_address, 0, 61) . '...' if length($to_address) > 64;
+
+         my $subject_keyword = $subject;
+         $subject_keyword =~ s/^(?:\s*.{1,3}[.\s]*:\s*)+//; # strip leading Re: Fw: R: Res: Ref:
+         $subject_keyword =~ s/\[.*?\]:?//g;                # strip leading [listname] type text
 
          $subject    = substr($subject, 0, 64)    . "..." if length($subject) > 67;
          $subject    =~ s/^\s+$//; # empty spaces-only subjects
 
          push (@{$resultsloop}, {
                                    # standard params
-                                   use_texticon         => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
-                                   url_html             => $config{ow_htmlurl},
-                                   url_cgi              => $config{ow_cgiurl},
-                                   iconset              => $prefs{iconset},
                                    sessionid            => $thissession,
+                                   folder               => $folder,
+                                   message_id           => $messageid,
+                                   sort                 => $sort,
+                                   page                 => $page,
+                                   longpage             => $longpage,
+                                   url_cgi              => $config{ow_cgiurl},
+                                   url_html             => $config{ow_htmlurl},
+                                   use_texticon         => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                   iconset              => $prefs{iconset},
 
                                    # results
-                                   odd                  => $i % 2 > 0 ? 1 : 0,
-                                   folder               => $folder,
-                                   folderstr            => $lang_folders{$folder} || f2u($folder),
-                                   datestr              => $datestr,
-                                   contactinaddressbook => $config{enable_addressbook} && defined $r_abookemailhash->{$from_address},
+                                   odd                  => $i % 2 == 0 ? 1 : 0,
+                                   is_defaultfolder     => is_defaultfolder($folder) ? 1 : 0,
+                                   "foldername_$folder" => $folder,
+                                   foldername           => f2u($folder),
+                                   date                 => ow::datetime::dateserial2str($results->[$i]{attr}[$_DATE], $prefs{timeoffset}, $prefs{daylightsaving},
+                                                                                        $prefs{dateformat}, $prefs{hourformat}, $prefs{timezone}),
+                                   useminisearchicon    => $prefs{useminisearchicon} ? 1 : 0,
                                    from                 => $from,
-                                   from_address         => $from_address,
                                    from_name            => $from_name,
+                                   from_address         => $from_address,
+                                   from_xowmuid         => exists $contacts->{lc($from_address)} ? $contacts->{lc($from_address)} : 0,
                                    to                   => $to,
                                    to_address           => $to_address,
                                    to_name              => $to_name,
                                    headers              => $prefs{headers} || 'simple',
-                                   message_id           => $r_msg->{msgid},
-                                   msgcharset           => $msgcharset,
+                                   message_id           => $results->[$i]{msgid},
+                                   messagecharset       => $messagecharset,
                                    subject              => $subject,
-                                   sizestr              => lenstr($r_attr->[$_SIZE], 0),
+                                   subject_keyword      => $subject_keyword,
+                                   size                 => lenstr($results->[$i]{attr}[$_SIZE], 0),
                                 }
               );
       }
-   }
-
-   $totalsize = lenstr($totalsize, 1) if $totalsize > 0;
-
-   # build showall parameters
-   my $showallloop = [];
-   if ($totalfound > $resline) {
-      for (my $i = 0; $i <= 2; $i++) {
-         push (@{$showallloop}, { name  => "where$i",      value => $search[$i]{where} });
-         push (@{$showallloop}, { name  => "type$i",       value => $search[$i]{type}  });
-         push (@{$showallloop}, { name  => "searchtext$i", value => $search[$i]{text}  });
-      }
-
-      push (@{$showallloop}, { name => $_, value => param($_) })
-        for qw(year1 month1 day1 year2 month2 day2 daterange);
-
-      push (@{$showallloop}, { name => 'folders', value => $_ })
-        for @folders;
-
-      push (@{$showallloop}, { name => 'resline', value => $totalfound });
    }
 
    # build the template
    my $template = HTML::Template->new(
                                         filename          => get_template("advsearch.tmpl"),
                                         filter            => $htmltemplatefilters,
-                                        die_on_bad_params => 1,
+                                        die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
                                         cache             => 1,
                                      );
 
-   my $daterange = param('daterange') || 'all';
-   my $allbox    = param('allbox');
    $template->param(
                       # header.tmpl
-                      header_template => get_header($config{header_template_file}),
+                      header_template            => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon    => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
-                      url_html        => $config{ow_htmlurl},
-                      url_cgi         => $config{ow_cgiurl},
-                      iconset         => $prefs{iconset},
-                      sessionid       => $thissession,
-                      folder          => $folder,
-                      folderstr       => $lang_folders{$folder} || f2u($folder),
+                      sessionid                  => $thissession,
+                      folder                     => $folder,
+                      message_id                 => $messageid,
+                      sort                       => $sort,
+                      page                       => $page,
+                      longpage                   => $longpage,
+                      url_cgi                    => $config{ow_cgiurl},
+                      url_html                   => $config{ow_htmlurl},
+                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      iconset                    => $prefs{iconset},
 
                       # advsearch.tmpl
-                      allbox          => $allbox,
-                      selectedfolders => scalar @folders,
-                      totalfound      => $totalfound,
-                      totalsizestr    => $totalsize,
-                      daterange       => [
-                                           map {{
-                                                  option   => $_,
-                                                  $_       => 1,
-                                                  selected => $_ eq $daterange ? 1 : 0
-                                               }} qw(all today oneweek twoweeks onemonth threemonths sixmonths oneyear)
-                                         ],
-                      dateselloop     => $dateselloop,
-                      foldersloop     => $foldersloop,
-                      filtersloop     => $filtersloop,
-                      resultsloop     => $resultsloop,
-                      showallloop     => $showallloop,
+                      is_callerfolderdefault     => is_defaultfolder($folder) ? 1 : 0,
+                      "callerfoldername_$folder" => 1,
+                      callerfoldername           => f2u($folder),
+                      allbox                     => param('allbox') || 0,
+                      foldersloop                => [
+                                                       map {
+                                                              my $i = $_;
+                                                              {
+                                                                 nextrow                        => ($i + 1) % 4 == 0 ? 1 : 0,
+                                                                 is_defaultfolder               => is_defaultfolder($validfolders[$i]) ? 1 : 0,
+                                                                 "foldername_$validfolders[$i]" => $validfolders[$i],
+                                                                 foldername                     => f2u($validfolders[$i]),
+                                                                 checked                        => scalar grep { m/^\Q$validfolders[$i]\E$/ } @folders,
+                                                              }
+                                                           } (0..$#validfolders)
+                                                    ],
+                      weekstart                  => $prefs{calendar_weekstart},
+                      min_year                   => $min_year,
+                      max_year                   => $max_year,
+                      startdateselectloop        => [
+                                                       map {
+                                                              $_ eq 'yyyy'
+                                                              ? {
+                                                                   startyearselectloop => [
+                                                                                             map { {
+                                                                                                      option      => $_,
+                                                                                                      label       => sprintf('%02d', $_),
+                                                                                                      selected    => $_ eq $startyear ? 1 : 0
+                                                                                                 } } ($min_year..$max_year)
+                                                                                          ]
+                                                                }
+                                                              : $_ eq 'mm'
+                                                              ? {
+                                                                   startmonthselectloop => [
+                                                                                              map { {
+                                                                                                       option      => $_,
+                                                                                                       label       => sprintf('%02d', $_),
+                                                                                                       selected    => $_ eq $startmonth ? 1 : 0
+                                                                                                  } } (1..12)
+                                                                                           ]
+                                                                }
+                                                              : {
+                                                                   startdayselectloop   => [
+                                                                                              map { {
+                                                                                                       option      => $_,
+                                                                                                       label       => $_,
+                                                                                                       selected    => $_ eq $startday ? 1 : 0
+                                                                                                  } } (1..ow::datetime::days_in_month($startyear,$startmonth))
+                                                                                           ]
+                                                                }
+                                                           } split(/[^ymd]/, $prefs{dateformat})
+                                                    ],
+                      enddateselectloop          => [
+                                                       map {
+                                                              $_ eq 'yyyy'
+                                                              ? {
+                                                                   endyearselectloop => [
+                                                                                           map { {
+                                                                                                    option      => $_,
+                                                                                                    label       => $_,
+                                                                                                    selected    => $_ eq $endyear ? 1 : 0
+                                                                                               } } ($min_year..$max_year)
+                                                                                        ]
+                                                                }
+                                                              : $_ eq 'mm'
+                                                              ? {
+                                                                   endmonthselectloop => [
+                                                                                            map { {
+                                                                                                     option      => $_,
+                                                                                                     label       => sprintf('%02d', $_),
+                                                                                                     selected    => $_ eq $endmonth ? 1 : 0
+                                                                                                } } (1..12)
+                                                                                         ]
+                                                                }
+                                                              : {
+                                                                   enddayselectloop   => [
+                                                                                            map { {
+                                                                                                     option      => $_,
+                                                                                                     label       => sprintf('%02d', $_),
+                                                                                                     selected    => $_ eq $endday ? 1 : 0
+                                                                                                } } (1..ow::datetime::days_in_month($endyear,$endmonth))
+                                                                                         ]
+                                                                }
+                                                           } split(/[^ymd]/, $prefs{dateformat})
+                                                    ],
+                      daterange                  => [
+                                                       map { {
+                                                                "option_$_" => $_,
+                                                                selected    => $_ eq $daterange ? 1 : 0
+                                                           } } qw(all today oneweek twoweeks onemonth threemonths sixmonths oneyear)
+                                                    ],
+                      filtersloop                => [
+                                                       map {
+                                                              my $selected_where = param("where_$_") || 'subject';
+
+                                                              my $selected_type  = param("type_$_") || 'contains';
+
+                                                              my $searchtext = param("searchtext_$_") || '';
+                                                              $searchtext =~ s/^\s+//;
+                                                              $searchtext =~ s/\s+$//;
+
+                                                              {
+                                                                 row         => $_,
+                                                                 lastrow     => $_ == 2 ? 1 : 0,
+                                                                 whereloop   => [
+                                                                                   map { {
+                                                                                            "option_$_" => $_,
+                                                                                            selected    => $_ eq $selected_where ? 1 : 0,
+                                                                                       } } qw(from to subject date attfilename header textcontent all)
+                                                                                ],
+                                                                 typeloop    => [
+                                                                                   map { {
+                                                                                            "option_$_" => $_,
+                                                                                            selected    => $_ eq $selected_type ? 1 : 0,
+                                                                                       } } qw(contains notcontains is isnot startswith endswith regexp)
+                                                                                ],
+                                                                 searchtext  => $searchtext,
+                                                              }
+                                                           } (0..2) # number of filter rows
+                                                    ],
+                      resultlines                => $resultlines,
+                      numberselectedfolders      => scalar @folders,
+                      showall                    => $totalfound > $resultlines ? 1 : 0,
+                      totalfound                 => $totalfound,
+                      totalfoundstring           => sprintf(ngettext('%d match found', '%d matches found', $totalfound), $totalfound),
+                      totalsize                  => lenstr($totalsize, 1),
+                      resultsloop                => $resultsloop,
 
                       # footer.tmpl
                       footer_template => get_footer($config{footer_template_file}),
@@ -425,115 +447,131 @@ sub advsearch {
 }
 
 sub search_folders {
-   my ($startserial, $endserial, $r_search, $r_folders, $cachefile) = @_;
+   my ($startserial, $endserial, $r_search, $r_folders) = @_;
 
-   my $cache_metainfo = '';
-   my $r_result       = ();
+   my $results = [];
 
+   # build the metainfo string of our current search parameters
    my $metainfo = $startserial . '@@@' . $endserial . '@@@';
    foreach my $search (@{$r_search}) {
-      if ($search->{text} ne '') {
-         $metainfo .= join('@@@', $search->{where}, $search->{type}, $search->{text});
-      }
+      $metainfo .= join('@@@', $search->{where}, $search->{type}, $search->{text}) if $search->{text} ne '';
    }
    $metainfo .= '@@@' . join('@@@', @{$r_folders});
 
-   $cachefile = ow::tool::untaint($cachefile);
-   ow::filelock::lock($cachefile, LOCK_EX) or
-      openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_writelock} " . f2u($cachefile));
+   # get the cached metainfo of previous search parameters
+   my $cachefile = dotpath('search.cache');
 
-   if (-e $cachefile) {
+   if (-f $cachefile) {
+      ow::filelock::lock($cachefile, LOCK_EX) or
+         openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($cachefile) . " ($!)");
+
       sysopen(CACHE, $cachefile, O_RDONLY) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} " . f2u($cachefile) . "! ($!)");
-      $cache_metainfo = <CACHE>;
-      close(CACHE);
+         openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($cachefile) . " ($!)");
+
+      my $cache_metainfo = <CACHE>;
 
       chomp($cache_metainfo);
-   }
 
-   if ($cache_metainfo ne $metainfo) {
-      sysopen(CACHE, $cachefile, O_WRONLY|O_TRUNC|O_CREAT) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_write} " . f2u($cachefile) . "! ($!)");
-
-      print CACHE $metainfo, "\n";
-
-      $r_result = search_folders2($startserial, $endserial, $r_search, $r_folders);
-
-      print CACHE scalar @{$r_result}, "\n";
-
-      foreach (@{$r_result}) {
-         my $r_msg = $_;
-         print CACHE join('@@@', $r_msg->{folder}, $r_msg->{msgid}, @{$r_msg->{attr}}), "\n";
+      if ($cache_metainfo eq $metainfo) {
+         # get the cached results
+         my $totalfound = <CACHE>;     # read the next line, which contains the totalfound count
+         while (my $line = <CACHE>) {  # read each line of results
+            chomp($line);
+            my ($folder, $msgid, @attr) = split(/\@\@\@/, $line);
+            push(@{$results}, {
+                                 folder => $folder,
+                                 msgid  => $msgid,
+                                 attr   => \@attr,
+                              }
+                );
+         }
       }
 
-      close(CACHE);
-   } else {
-      my @result = ();
-      sysopen(CACHE, $cachefile, O_RDONLY) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} " . f2u($cachefile) . "! ($!)");
-      $_ = <CACHE>;             # read the first line, which is a bogus startserial to endserial line
-      my $totalfound = <CACHE>; # read the next line, which contains the totalfound count
-      while (<CACHE>) {
-         chomp;
-         my ($folder, $messageid, @attr) = split(/\@\@\@/);
-         push(@result, {
-                          folder => $folder,
-                          msgid  => $messageid,
-                          attr   => \@attr
-                        }
-             );
-      }
-      close(CACHE);
+      close(CACHE) or
+         openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($cachefile) . " ($!)");
 
-      $r_result = \@result;
+      ow::filelock::lock($cachefile, LOCK_UN) or
+         openwebmailerror(gettext('Cannot unlock file:') . ' ' . f2u($cachefile) . " ($!)");
    }
 
-   ow::filelock::lock($cachefile, LOCK_UN);
+   return $results if scalar @{$results};
 
-   return($r_result);
+   # no matching cache found - perform new search
+   $results = search_folders2($startserial, $endserial, $r_search, $r_folders);
+
+   # write the metainfo, totalfound, and attributes to the cache
+   ow::filelock::lock($cachefile, LOCK_EX) or
+      openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($cachefile) . " ($!)");
+
+   sysopen(CACHE, $cachefile, O_WRONLY|O_TRUNC|O_CREAT) or
+      openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($cachefile) . " ($!)");
+
+   print CACHE $metainfo, "\n";                                                             # metainfo
+   print CACHE scalar @{$results}, "\n";                                                    # totalfound
+   print CACHE join('@@@', $_->{folder}, $_->{msgid}, @{$_->{attr}}), "\n" for @{$results}; # attributes
+
+   close(CACHE) or
+      openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($cachefile) . " ($!)");
+
+   ow::filelock::lock($cachefile, LOCK_UN) or
+      openwebmailerror(gettext('Cannot unlock file:') . ' ' . f2u($cachefile) . " ($!)");
+
+   return($results);
 }
 
 sub search_folders2 {
    my ($startserial, $endserial, $r_search, $r_folders) = @_;
 
-   my @validsearch = ();
-   my @result      = ();
+   # order searches by speed
+   my %speed = (
+                  from        => 1, # fastest search
+                  to          => 2,
+                  subject     => 3,
+                  date        => 4,
+                  header      => 5,
+                  all         => 6,
+                  attfilename => 7,
+                  textcontent => 8, # slowest search
+               );
 
-   # put faster search in front
-   foreach my $search (sort { $placeorder{$a->{where}} <=>  $placeorder{$b->{where}} } @{$r_search}) {
-      push(@validsearch, $search) if $search->{text} ne '';
-   }
+   my @validsearch = grep { $_->{text} ne '' }
+                     sort { $speed{$a->{where}} <=> $speed{$b->{where}} }
+                     @{$r_search};
 
-   # search for the messageid in selected folder, return @result
+   my @results = ();
+
+   return \@results unless scalar @validsearch;
+
    foreach my $foldertosearch (@{$r_folders}) {
       my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $foldertosearch);
 
       next if (!ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB));
 
       if (!update_folderindex($folderfile, $folderdb) < 0) {
-         writelog("db error - Couldn't update index db $folderdb");
-         writehistory("db error - Couldn't update index db $folderdb");
+         writelog("db error - cannot update index db $folderdb");
+         writehistory("db error - cannot update index db $folderdb");
          ow::filelock::lock($folderfile, LOCK_UN);
          next;
       }
+
       my $r_messageids = get_messageids_sorted_by_sentdate($folderdb, 1);
 
       my (%FDB, %status);
 
-      ow::dbm::open(\%FDB, $folderdb, LOCK_SH) or
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_readlock} db " . f2u($folderdb));
+      ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
+         openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($folderdb) . " ($!)");
 
       sysopen(FOLDER, $folderfile, O_RDONLY) or # used in TEXTCONTENT search
-         openwebmailerror(__FILE__, __LINE__, "$lang_err{couldnt_read} " . f2u($folderfile) . "! ($!)");
+         openwebmailerror(gettext('Cannot open file:') . ' ' . f2u($folderfile) . " ($!)");
 
-      foreach my $messageid (@{$r_messageids}) {
+      foreach my $msgid (@{$r_messageids}) {
          # begin the search
          my ($block, $header, $body, $r_attachments) = ('','','',());
-         my @attr = string2msgattr($FDB{$messageid});
-         my $msgcharset = $attr[$_CHARSET];
-         if ($msgcharset eq '' && $prefs{charset} eq 'utf-8') {
-            # assume msg is from sender using same language as the recipient's browser
-            $msgcharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{available_locales})))[6];
+         my @attr = string2msgattr($FDB{$msgid});
+         my $messagecharset = $attr[$_CHARSET];
+         if ($messagecharset eq '' && $prefs{charset} eq 'utf-8') {
+            # assume message is from sender using same language as the recipients browser
+            $messagecharset = (ow::lang::localeinfo(ow::lang::guess_browser_locale($config{available_locales})))[4];
          }
 
          # skip this msg if is not within date range
@@ -544,7 +582,7 @@ sub search_folders2 {
             last if $total_matched == scalar @validsearch;
 
             my $is_matched = 0;
-            my ($where, $type, $keyword) = ($search->{where}, $search->{type}, $search->{text});
+            my ($where, $type, $searchkeyword) = ($search->{where}, $search->{type}, $search->{text});
 
             my @placetosearch = $where eq 'all' ? qw(subject from to date header attfilename textcontent) : ($where);
 
@@ -560,7 +598,7 @@ sub search_folders2 {
 
                   my $data = (iconv('utf-8', $prefs{charset}, $attr[$index{$where}]))[0];
 
-                  $is_matched = is_matched($type, $keyword, $data);
+                  $is_matched = is_matched($type, $searchkeyword, $data);
                   last if $is_matched;
                } elsif ($where eq 'header') {
                   # check header
@@ -574,7 +612,7 @@ sub search_folders2 {
                   $header = decode_mimewords_iconv($header, $prefs{charset});
                   $header =~ s/\n / /g; # handle folding roughly
 
-                  $is_matched = is_matched($type, $keyword, $header);
+                  $is_matched = is_matched($type, $searchkeyword, $header);
                   last if $is_matched;
                } elsif ($where eq 'textcontent' || $where eq 'attfilename') {
                   # read and parse message
@@ -590,9 +628,9 @@ sub search_folders2 {
                         my ($encoding) = $header =~ m/content-transfer-encoding:\s+([^\s]+)/i;
                         $body = ow::mime::decode_content($body, $encoding);
 
-                        $body = (iconv($msgcharset, $prefs{charset}, $body))[0];
+                        $body = (iconv($messagecharset, $prefs{charset}, $body))[0];
 
-                        $is_matched = is_matched($type, $keyword, $body);
+                        $is_matched = is_matched($type, $searchkeyword, $body);
                         last if $is_matched;
                      }
 
@@ -600,13 +638,13 @@ sub search_folders2 {
                      foreach my $r_attachment (@{$r_attachments}) {
                         if ($r_attachment->{'content-type'} =~ m/^text/i || $r_attachment->{'content-type'} eq 'N/A') {
                            # read all for text/plain. text/html
-                           my $charset = $r_attachment->{charset} || $msgcharset;
+                           my $charset = $r_attachment->{charset} || $messagecharset;
 
                            my $content = ow::mime::decode_content(${$r_attachment->{r_content}}, $r_attachment->{'content-transfer-encoding'});
 
                            $content = (iconv($charset, $prefs{charset}, $content))[0];
 
-                           $is_matched = is_matched($type, $keyword, $content);
+                           $is_matched = is_matched($type, $searchkeyword, $content);
                            last if $is_matched;
                         }
                      }
@@ -617,10 +655,10 @@ sub search_folders2 {
                   # check attfilename
                   if ($where eq 'attfilename') {
                      foreach my $r_attachment (@{$r_attachments}) {
-                        my $charset  = $r_attachment->{filenamecharset} || $r_attachment->{charset} || $msgcharset;
+                        my $charset  = $r_attachment->{filenamecharset} || $r_attachment->{charset} || $messagecharset;
                         my $filename = (iconv($charset, $prefs{charset}, $r_attachment->{filename}))[0];
 
-                        $is_matched = is_matched($type, $keyword, $filename);
+                        $is_matched = is_matched($type, $searchkeyword, $filename);
                         last if $is_matched;
                      }
 
@@ -628,46 +666,53 @@ sub search_folders2 {
                   }
                }
 
-               last if $is_matched; # should no need here but just in case ...
+               last if $is_matched; # should be no need here but just in case ...
             }
 
-            last unless $is_matched; # this seach failed, stop continuing
+            last unless $is_matched;
+
             $total_matched++;
          }
 
          # generate messageid table line result if found
          if ($total_matched == scalar @validsearch) {
-            push(@result, {
-                            folder => $foldertosearch,
-                            msgid  => $messageid,
-                            attr   => \@attr,
-                          }
+            push(@results, {
+                              folder => $foldertosearch,
+                              msgid  => $msgid,
+                              attr   => \@attr,
+                           }
                 );
          }
       }
 
-      ow::dbm::close(\%FDB, $folderdb);
-      close(FOLDER);
-      ow::filelock::lock($folderfile, LOCK_UN);
-   } # end foldertosearch loop
+      ow::dbm::closedb(\%FDB, $folderdb) or
+         openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($folderdb) . " ($!)");
 
-   @result = sort { $b->{attr}[$_DATE] cmp $a->{attr}[$_DATE] } @result;
+      close(FOLDER) or
+         openwebmailerror(gettext('Cannot close file:') . ' ' . f2u($folderfile) . " ($!)");
 
-   return(\@result)
+      ow::filelock::lock($folderfile, LOCK_UN) or
+         openwebmailerror(gettext('Cannot unlock file:') . ' ' . f2u($folderfile) . " ($!)");
+   }
+
+   @results = sort { $b->{attr}[$_DATE] cmp $a->{attr}[$_DATE] } @results;
+
+   return(\@results)
 }
 
 sub is_matched {
    # test a string to see if it matches a provided keyword
    # base the test on defined types
-   my ($type, $keyword, $string) = @_;
+   my ($type, $searchkeyword, $string) = @_;
 
-   return ($type eq 'contains'       && $string =~ m/\Q$keyword\E/im)
-          || ($type eq 'notcontains' && $string !~ m/\Q$keyword\E/im)
-          || ($type eq 'is'          && $string =~ m/^\Q$keyword\E$/im)
-          || ($type eq 'isnot'       && $string !~ m/^\Q$keyword\E$/im)
-          || ($type eq 'startswith'  && $string =~ m/^\Q$keyword\E/im)
-          || ($type eq 'endswith'    && $string =~ m/\Q$keyword\E$/im)
-          || ($type eq 'regexp'      && $string =~ m/$keyword/im && ow::tool::is_regex($keyword))
-          ? 1 : 0;
+   return (
+             $type eq 'contains'        && $string =~ m/\Q$searchkeyword\E/im)
+             || ($type eq 'notcontains' && $string !~ m/\Q$searchkeyword\E/im)
+             || ($type eq 'is'          && $string =~ m/^\Q$searchkeyword\E$/im)
+             || ($type eq 'isnot'       && $string !~ m/^\Q$searchkeyword\E$/im)
+             || ($type eq 'startswith'  && $string =~ m/^\Q$searchkeyword\E/im)
+             || ($type eq 'endswith'    && $string =~ m/\Q$searchkeyword\E$/im)
+             || ($type eq 'regexp'      && $string =~ m/$searchkeyword/im && ow::tool::is_regex($searchkeyword)
+          ) ? 1 : 0;
 }
 

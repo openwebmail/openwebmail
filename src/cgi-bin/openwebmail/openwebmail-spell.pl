@@ -70,7 +70,7 @@ umask(0002); # make sure the openwebmail group can write
 
 use strict;
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :standard);
+use CGI 3.31 qw(-private_tempfiles :standard);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use IPC::Open3;
 
@@ -102,7 +102,7 @@ openwebmail_requestbegin();
 userenv_init();
 
 if (!$config{'enable_webmail'} || !$config{'enable_spellcheck'}) {
-   openwebmailerror(__FILE__, __LINE__, "$lang_text{'spellcheck'} $lang_err{'access_denied'}");
+   openwebmailerror("$lang_text{'spellcheck'} $lang_err{'access_denied'}");
 }
 
 # whether we are checking a html
@@ -117,10 +117,11 @@ $dicletters=$dictionary_letters{$dictionary} if (defined $dictionary_letters{$di
 
 my $spellbin=(split(/\s+/, $config{'spellcheck'}))[0];
 if (! -x $spellbin) {
-   openwebmailerror(__FILE__, __LINE__, "Spellcheck is not available. ( $spellbin not found )");
+   openwebmailerror("Spellcheck is not available. ( $spellbin not found )");
 }
 
-writelog("debug - request spell begin - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+writelog("debug - request spell begin") if $config{debug_request};
+
 if (defined param('string')) {
    my ($wordcount, $wordframe, @words)=text2words($htmlmode, param('string')||'', $dicletters);
    my ($wordshtml, $error)=spellcheck_words2html($htmlmode, $wordcount, \$wordframe, \@words, $dictionary);
@@ -143,7 +144,7 @@ if (defined param('string')) {
 } else {
    httpprint([], [htmlheader(), "What the heck? Invalid input for Spellcheck!", htmlfooter(1)]);
 }
-writelog("debug - request spell end - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+writelog("debug - request spell end") if $config{debug_request};
 
 openwebmail_requestend();
 ########## END MAIN ##############################################
@@ -268,7 +269,7 @@ sub editpdict {
       if ($dictword2delete) {
          my $pdicwordstr="";
          sysopen(PERSDICT, $pdicfile, O_RDONLY) or
-            openwebmailerror(__FILE__, __LINE__, "Could not open personal dictionary $pdicfile! ($!)");
+            openwebmailerror("Could not open personal dictionary $pdicfile! ($!)");
          while (<PERSDICT>) {
             chomp($_);
             next if ($_ eq $dictword2delete);
@@ -277,7 +278,7 @@ sub editpdict {
          close(PERSDICT);
 
          sysopen(NEWPERSDICT, "$pdicfile.new", O_WRONLY|O_TRUNC|O_CREAT) or
-            openwebmailerror(__FILE__, __LINE__, "Could not open personal dictionary $pdicfile! ($!)");
+            openwebmailerror("Could not open personal dictionary $pdicfile! ($!)");
          print NEWPERSDICT $pdicwordstr;
          close(NEWPERSDICT);
 
@@ -289,7 +290,7 @@ sub editpdict {
       my $bgcolor = $style{"tablerow_light"};
 
       sysopen(PERSDICT, $pdicfile, O_RDONLY) or
-         openwebmailerror(__FILE__, __LINE__, "Could not open personal dictionary $pdicfile! ($!)");
+         openwebmailerror("Could not open personal dictionary $pdicfile! ($!)");
       while (<PERSDICT>) {
          my $dictword = $_;
          chomp($dictword);
@@ -449,7 +450,7 @@ sub spellcheck_words2html {
    my ($stdout, $stderr)=pipeopen(split(/\s+/, $spellcheck));
    if ($stdout!~/^\@\(#\)/ && $stderr=~/[^\s]/) {
       pipeclose();
-      openwebmailerror(__FILE__, __LINE__, "Spellcheck error: $stderr");
+      openwebmailerror("Spellcheck error: $stderr");
    }
 
    my $html=${$r_wordframe};
@@ -482,7 +483,7 @@ sub spellcheck_words2html {
       # so we comment out the result check here
       # if ($stderr=~/[^\s]/) {
       #    pipeclose();
-      #    openwebmailerror(__FILE__, __LINE__, "Spellcheck error: $stderr");
+      #    openwebmailerror("Spellcheck error: $stderr");
       # }
    }
 
@@ -590,7 +591,7 @@ sub spellcheck {
    ($stdout, $stderr)=piperead();
    if ($stderr=~/[^\s]/) {
       pipeclose();
-      openwebmailerror(__FILE__, __LINE__, "Spellcheck error: $stderr");
+      openwebmailerror("Spellcheck error: $stderr");
    }
 
    foreach (split(/\n/, $stdout)) {

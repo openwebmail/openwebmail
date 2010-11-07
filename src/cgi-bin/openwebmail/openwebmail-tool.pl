@@ -125,7 +125,10 @@ local $|=1;
 
 if ($ARGV[0] eq "--") {		# called by inetd
    push(@list, $ARGV[1]);
-   $opt{'mail'}=1; $opt{'event'}=1; $opt{'null'}=0; $euid_to_use=$>;
+   $opt{'mail'}=1;
+   $opt{'event'}=1;
+   $opt{'null'}=0;
+   $euid_to_use=$>;
 } else {
    for (my $i=0; $i<=$#ARGV; $i++) {
       if ($ARGV[$i] eq "--init") {
@@ -134,9 +137,10 @@ if ($ARGV[0] eq "--") {		# called by inetd
          $opt{'test'}=1;
       } elsif ($ARGV[$i] eq "--langconv" || $ARGV[$i] eq "-v") {
          $opt{'langconv'}=1;
-         $i++; $opt{'srclocale'}=$ARGV[$i];
-         $i++; $opt{'dstlocale'}=$ARGV[$i];
-
+         $i++;
+         $opt{'srclocale'}=$ARGV[$i];
+         $i++;
+         $opt{'dstlocale'}=$ARGV[$i];
       } elsif ($ARGV[$i] eq "--yes" || $ARGV[$i] eq "-y") {
          $opt{'yes'}=1;
       } elsif ($ARGV[$i] eq "--no") {
@@ -145,7 +149,6 @@ if ($ARGV[0] eq "--") {		# called by inetd
          $opt{'debug'}=1;
       } elsif ($ARGV[$i] eq "--quiet" || $ARGV[$i] eq "-q") {
          $opt{'quiet'}=1;
-
       } elsif ($ARGV[$i] eq "--domain" || $ARGV[$i] eq "-d") {
          $i++ if $ARGV[$i+1]!~/^\-/;
          $default_logindomain=safedomainname($ARGV[$i]);
@@ -158,41 +161,57 @@ if ($ARGV[0] eq "--") {		# called by inetd
             while (<F>) { chomp $_; push(@list, $_); }
             close(F);
          }
-
       } elsif ($ARGV[$i] eq "--thumbnail" || $ARGV[$i] eq "-t") {
          $opt{'thumbnail'}=1;
-
       } elsif ($ARGV[$i] eq "--index" || $ARGV[$i] eq "-i") {
-         $opt{'iv'}='ALL'; $opt{'null'}=0;
+         $opt{'iv'}='ALL';
+         $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "-id") {
-         $i++; $opt{'id'}=$ARGV[$i]; $opt{'null'}=0;
+         $i++;
+         $opt{'id'}=$ARGV[$i];
+         $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "-iv") {
-         $i++; $opt{'iv'}=$ARGV[$i]; $opt{'null'}=0;
+         $i++;
+         $opt{'iv'}=$ARGV[$i];
+         $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "-if") {
-         $i++; $opt{'if'}=$ARGV[$i]; $opt{'null'}=0;
+         $i++;
+         $opt{'if'}=$ARGV[$i];
+         $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "-ir") {
-         $i++; $opt{'ir'}=$ARGV[$i]; $opt{'null'}=0;
+         $i++;
+         $opt{'ir'}=$ARGV[$i];
+         $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "-iz") {
-         $i++; $opt{'iz'}=$ARGV[$i]; $opt{'null'}=0;
-
+         $i++;
+         $opt{'iz'}=$ARGV[$i];
+         $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--mail" || $ARGV[$i] eq "-m") {
-         $opt{'mail'}=1; $opt{'null'}=0; $euid_to_use=$>;
+         $opt{'mail'}=1;
+         $opt{'null'}=0;
+         $euid_to_use=$>;
       } elsif ($ARGV[$i] eq "--event" || $ARGV[$i] eq "-e") {
-         $opt{'event'}=1; $opt{'null'}=0; $euid_to_use=$>;
+         $opt{'event'}=1;
+         $opt{'null'}=0;
+         $euid_to_use=$>;
       } elsif ($ARGV[$i] eq "--notify" || $ARGV[$i] eq "-n") {
-         $opt{'notify'}=1; $opt{'null'}=0;
-
+         $opt{'notify'}=1;
+         $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--pop3" || $ARGV[$i] eq "-p") {
-         $opt{'pop3'}=1; $opt{'null'}=0;
+         $opt{'pop3'}=1;
+         $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--size" || $ARGV[$i] eq "-s") {
-         $opt{'size'}=1; $opt{'null'}=0;
+         $opt{'size'}=1;
+         $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--unlock" || $ARGV[$i] eq "-u") {
-         $opt{'unlock'}=1; $opt{'null'}=0;
+         $opt{'unlock'}=1;
+         $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--zaptrash" || $ARGV[$i] eq "-z") {
-         $opt{'zap'}=1; $opt{'null'}=0;
+         $opt{'zap'}=1;
+         $opt{'null'}=0;
       } elsif ($ARGV[$i] eq "--convert_addressbooks" || $ARGV[$i] eq "-c") {
-         $opt{'convert_addressbooks'}=1; $opt{'null'}=0;
-
+         $opt{'convert_addressbooks'}=1;
+         $opt{'null'}=0;
       } else {
          push(@list, $ARGV[$i]);
       }
@@ -228,7 +247,8 @@ if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
 %prefs = readprefs();
 loadlang("$prefs{'locale'}"); # for converted filename $lang_text{abook_converted}
 
-writelog("debug - request tool begin, argv=".join(' ',@ARGV)." - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+writelog("debug - request tool begin, argv=" . join(' ', @ARGV)) if $config{debug_request};
+
 my $retval=0;
 if ($opt{'init'}) {
    $retval=init();
@@ -241,7 +261,7 @@ if ($opt{'init'}) {
 } else {
    if ($opt{'convert_addressbooks'} && $>==0) {	# only allow root to convert globalbook
       print "converting GLOBAL addressbook..." unless $opt{quiet};
-      $retval=convert_addressbook('global', (ow::lang::localeinfo($prefs{'locale'}))[6]);
+      $retval=convert_addressbook('global', (ow::lang::localeinfo($prefs{locale}))[4]);
       if ($retval<0) {
          print "error:$@. EXITING\n";
          openwebmail_exit($retval);
@@ -262,7 +282,7 @@ if ($opt{'init'}) {
       $retval=showhelp();
    }
 }
-writelog("debug - request tool end, argv=".join(' ',@ARGV)." - " .__FILE__.":". __LINE__) if ($config{'debug_request'});
+writelog("debug - request tool end, argv=" . join(' ', @ARGV)) if $config{debug_request};
 
 openwebmail_exit($retval);
 
@@ -334,22 +354,23 @@ sub init {
       if ( $config{$table.'_map'} ) {
          my $tabledb="$config{'ow_mapsdir'}/$table";
          my $err=0;
-         if (ow::dbm::exist($tabledb)) {
+         if (ow::dbm::existdb($tabledb)) {
             my %T;
-            if (!ow::dbm::open(\%T, $tabledb, LOCK_SH) ||
-                !ow::dbm::close(\%T, $tabledb) ) {
-               ow::dbm::unlink($tabledb);
+            if (!ow::dbm::opendb(\%T, $tabledb, LOCK_SH) ||
+                !ow::dbm::closedb(\%T, $tabledb) ) {
+               ow::dbm::unlinkdb($tabledb);
                print "delete old db $tabledb\n";
             }
          }
-         if ( !ow::dbm::exist($tabledb)) {
+         if ( !ow::dbm::existdb($tabledb)) {
             die "$config{$table.'_map'} not found" if (!-f $config{$table.'_map'});
             print "creating db $config{'ow_mapsdir'}/$table ...";
             $err=-2 if ($table eq 'b2g' and mkdb_b2g()<0);
             $err=-3 if ($table eq 'g2b' and mkdb_g2b()<0);
             $err=-4 if ($table eq 'lunar' and mkdb_lunar()<0);
             if ($err < 0) {
-               print "error!\n"; return $err;
+               print "error!\n";
+               return $err;
             }
             print "done.\n";
          }
@@ -379,9 +400,11 @@ sub init {
    my $subject="site report - $hostname";
    my $os;
    if ( -f "/usr/bin/uname") {
-      $os=`/usr/bin/uname -srm`; chomp($os);
+      $os=`/usr/bin/uname -srm`;
+      chomp($os);
    } else {
-      $os=`/bin/uname -srm`; chomp($os);
+      $os=`/bin/uname -srm`;
+      chomp($os);
    }
    my $content=qq|OS: $os\n|.
                qq|Perl: $]\n|.
@@ -441,8 +464,11 @@ sub do_test {
 sub print_dbm_module {
    print "Your perl uses the following packages for dbm:\n\n";
    my @pm;
-   foreach (keys %INC) { push (@pm, $_) if (/DB.*File/); }
-   foreach (sort @pm) { print "$_\t\t$INC{$_}\n"; }
+   foreach (keys %INC) {
+      push (@pm, $_) if (/DB.*File/);
+   }
+
+   print "$_\t\t$INC{$_}\n" for sort @pm;
    print "\n\n";
 }
 
@@ -450,7 +476,11 @@ sub check_db_file_pm {
    my $dbfile_pm=$INC{'DB_File.pm'};
    if ($dbfile_pm) {
       my $t;
-      sysopen(F, $dbfile_pm, O_RDONLY); while(<F>) {$t.=$_;} close(F);
+      sysopen(F, $dbfile_pm, O_RDONLY);
+      while(<F>) {
+         $t .= $_
+      }
+      close(F);
       $t=~s/\s//gms;
       if ($t!~/\$arg\[3\]=0666unlessdefined\$arg\[3\];/sm
        && $t!~/\$arg\[3\]=0666if\@arg>=4&&!defined\$arg\[3\];/sm) {
@@ -534,8 +564,8 @@ sub langconv {
    unless (-f "$config{ow_langdir}/$srclocale") {
       die "src locale $srclocale does not exist in $config{ow_langdir}";
    }
-   my $srccharset = (ow::lang::localeinfo($srclocale))[6];
-   my $dstcharset = (ow::lang::localeinfo($dstlocale))[6];
+   my $srccharset = (ow::lang::localeinfo($srclocale))[4];
+   my $dstcharset = (ow::lang::localeinfo($dstlocale))[4];
 
    if (!is_convertible($srccharset, $dstcharset)) {
       die "src locale charset $srclocale -> dst locale charset $dstlocale is not convertible";
@@ -602,8 +632,8 @@ sub langconv_file {
    }
 
    # change charset name in html file
-   my $srccharset = (ow::lang::localeinfo($srclocale))[6];
-   my $dstcharset = (ow::lang::localeinfo($dstlocale))[6];
+   my $srccharset = (ow::lang::localeinfo($srclocale))[4];
+   my $dstcharset = (ow::lang::localeinfo($dstlocale))[4];
 
    foreach (@lines) {
       s!content="text/html; charset=$srccharset"!content="text/html; charset=$dstcharset"!ig;
@@ -641,12 +671,14 @@ sub makethumbnail {
       next if ( $image!~/\.(jpe?g|gif|png|bmp|tif)$/i || !-f $image);
 
       my $thumbnail=ow::tool::untaint(path2thumbnail($image));
-      my @p=split(/\//, $thumbnail); pop(@p);
+      my @p=split(/\//, $thumbnail);
+      pop(@p);
       my $thumbnaildir=join('/', @p);
       if (!-d "$thumbnaildir") {
          if (!mkdir (ow::tool::untaint("$thumbnaildir"), 0755)) {
             print "$!\n" unless $opt{quiet};
-            $err++; next;
+            $err++;
+            next;
          }
       }
 
@@ -667,7 +699,8 @@ sub makethumbnail {
             print ", signal $sig" if ($sig);
             print "\n";
             print "($stderr)\n" if ($stderr);
-            $err++; next;
+            $err++;
+            next;
          } else {
             print "\n";
          }
@@ -690,7 +723,8 @@ sub makethumbnail {
 
 sub path2thumbnail {
    my @p=split(/\//, $_[0]);
-   my $tfile=pop(@p); $tfile=~s/\.[^\.]*$/\.jpg/i;
+   my $tfile=pop(@p);
+   $tfile=~s/\.[^\.]*$/\.jpg/i;
    push(@p, '.thumbnail');
    return(join('/',@p)."/$tfile");
 }
@@ -707,7 +741,8 @@ sub allusers {
         !$config{'use_homedirspools'} &&
        ($config{'mailspooldir'} eq "/var/mail" ||
         $config{'mailspooldir'} eq "/var/spool/mail")) {
-      print "This operation is only available to root\n"; openwebmail_exit(0);
+      print "This operation is only available to root\n";
+      openwebmail_exit(0);
    }
 
    # if there's localusers defined for vdomain,
@@ -867,7 +902,8 @@ sub usertool {
            !$config{'use_homedirspools'} &&
           ($config{'mailspooldir'} eq "/var/mail" ||
            $config{'mailspooldir'} eq "/var/spool/mail")) {
-         print "This operation is only available to root\n"; openwebmail_exit(0);
+         print "This operation is only available to root\n";
+         openwebmail_exit(0);
       }
 
       # load user config
@@ -914,7 +950,7 @@ sub usertool {
          if ($config{'auth_withdomain'}) {
             my $domainhome=ow::tool::untaint("$config{'ow_usersdir'}/$domain");
             if (!-d $domainhome) {
-               mkdir($domainhome, 0750) or die("Couldn't create domain homedir $domainhome");
+               mkdir($domainhome, 0750) or die("cannot create domain homedir $domainhome");
                my $mailgid=getgrnam('mail');
                chown($uuid, $mailgid, $domainhome);
             }
@@ -929,7 +965,7 @@ sub usertool {
                writelog("create owuserdir - $owuserdir, uid=$uuid, gid=$fgid");
                print "D create owuserdir $owuserdir, uid=$uuid, gid=$fgid\n" if ($opt{'debug'});
             } else {
-               print "D couldn't create $owuserdir ($!)\n" if ($opt{'debug'});
+               print "D cannot create $owuserdir ($!)\n" if ($opt{'debug'});
                next;
             }
          }
@@ -940,7 +976,8 @@ sub usertool {
          my $mailgid=getgrnam('mail');	# for better compatibility with other mail progs
          ow::suid::set_euid_egids($uuid, $ugid, $mailgid);
          if ( $)!~/\b$mailgid\b/) {	# group mail doesn't exist?
-            print "Set effective gid to mail($mailgid) failed!"; openwebmail_exit(0);
+            print "Set effective gid to mail($mailgid) failed!";
+            openwebmail_exit(0);
          }
       }
       print "D ruid=$<, euid=$>, rgid=$(, eguid=$)\n" if ($opt{'debug'});
@@ -964,7 +1001,7 @@ sub usertool {
                print "D create folderdir $folderdir, euid=$>, egid=$<\n" if ($opt{'debug'});
                upgrade_20021218($user_releasedate);
             } else {
-               print "D couldn't create $folderdir ($!)\n" if ($opt{'debug'});
+               print "D cannot create $folderdir ($!)\n" if ($opt{'debug'});
                next;
             }
          } else {
@@ -1046,7 +1083,7 @@ sub usertool {
       if ($opt{'convert_addressbooks'}) {
          loadlang("$prefs{'locale'}"); # for converted filename $lang_text{abook_converted}
          print "converting user $user addressbook..." unless $opt{quiet};
-         my $ret=convert_addressbook('user', (ow::lang::localeinfo($prefs{'locale'}))[6]);
+         my $ret=convert_addressbook('user', (ow::lang::localeinfo($prefs{locale}))[4]);
          print "done.\n" unless $opt{quiet};
       }
 
@@ -1081,23 +1118,28 @@ sub folderindex {
       }
 
       # in case any error in dump, return immediately and do not proceed next
-      if ($op eq "dump") {
-         my %folderinfo; foreach (keys %is_internal_dbkey) { $folderinfo{$_}=0 }
-         my (@messageids, @attr, $buff, $buff2, $headerlen);
-         my $error=0;
+      if ($op eq 'dump') {
+         my %folderinfo;
+         
+         $folderinfo{$_} = 0 for keys %is_internal_dbkey;
 
-         if (!ow::dbm::exist($folderdb)) {
+         my (@messageids, @attr, $buff, $buff2, $headerlen);
+
+         my $error = 0;
+
+         if (!ow::dbm::existdb($folderdb)) {
             print "db $folderdb doesn't exist\n" unless $opt{quiet};
             return -1;
          }
-         @messageids=get_messageids_sorted_by_offset($folderdb);
+
+         @messageids = get_messageids_sorted_by_offset($folderdb);
 
          if (!ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB)) {
-            print "Couldn't get read lock on $folderfile\n" unless $opt{quiet};
+            print "cannot get read lock on $folderfile\n" unless $opt{quiet};
             return -1;
          }
-         if (!ow::dbm::open(\%FDB, $folderdb, LOCK_SH)) {
-            print "Couldn't get read lock on db $folderdb\n" unless $opt{quiet};
+         if (!ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH)) {
+            print "cannot get read lock on db $folderdb\n" unless $opt{quiet};
             ow::filelock::lock($folderfile, LOCK_UN);
             return -1;
          }
@@ -1144,50 +1186,54 @@ sub folderindex {
             foreach my $key (qw(DBVERSION METAINFO ALLMESSAGES NEWMESSAGES INTERNALMESSAGES INTERNALSIZE ZAPMESSAGES ZAPSIZE)) {
                my $sign="+++";
                if ($FDB{$key} ne $folderinfo{$key}) {
-                  $sign="---"; $error++;
+                  $sign="---";
+                  $error++;
                }
                printf("$sign %-16s db:%-30s, folder:%-30s\n", $key, $FDB{$key}, $folderinfo{$key});
             }
          }
-         ow::dbm::close(\%FDB, $folderdb);
+         ow::dbm::closedb(\%FDB, $folderdb);
          close(FOLDER);
          ow::filelock::lock($folderfile, LOCK_UN);
 
          print "$error errors in db $folderdb\n" unless $opt{quiet};
-
       } elsif ($op eq "zap") {
          if (!ow::filelock::lock($folderfile, LOCK_EX)) {
-            print "Couldn't get write lock on $folderfile\n" unless $opt{quiet};
+            print "cannot get write lock on $folderfile\n" unless $opt{quiet};
             next;
          }
-         my $ret=folder_zapmessages($folderfile, $folderdb);
-         $ret=folder_zapmessages($folderfile, $folderdb) if ($ret==-9||$ret==-10);
+
+         my $ret = folder_zapmessages($folderfile, $folderdb);
+
+         # zap again if index inconsistence (-5) or shiftblock io error (-6)
+         $ret = folder_zapmessages($folderfile, $folderdb) if $ret == -5 || $ret == -6;
+
          if ($ret>=0) {
             print "$ret messages have been zapped from $folder\n" unless $opt{quiet};
          } elsif ($ret<0) {
             print "zap folder return error $ret\n" unless $opt{quiet};
          }
-         ow::filelock::lock($folderfile, LOCK_UN);
 
+         ow::filelock::lock($folderfile, LOCK_UN);
       } else {
          if (!ow::filelock::lock($folderfile, LOCK_EX)) {
-            print "Couldn't get write lock on $folderfile\n" unless $opt{quiet};
+            print "cannot get write lock on $folderfile\n" unless $opt{quiet};
             next;
          }
          my $ret;
          if ($op eq "verify") {
             $ret=update_folderindex($folderfile, $folderdb);
          } elsif ($op eq "rebuild") {
-            ow::dbm::unlink($folderdb);
+            ow::dbm::unlinkdb($folderdb);
             $ret=update_folderindex($folderfile, $folderdb);
          } elsif ($op eq "fastrebuild") {
-            if (!ow::dbm::open(\%FDB, $folderdb, LOCK_EX, 0600)) {
-               print "Couldn't get write lock on db $folderdb\n" unless $opt{quiet};
+            if (!ow::dbm::opendb(\%FDB, $folderdb, LOCK_EX, 0600)) {
+               print "cannot get write lock on db $folderdb\n" unless $opt{quiet};
                ow::filelock::lock($folderfile, LOCK_UN);
                next;
             }
             @FDB{'METAINFO', 'LSTMTIME'}=('ERR', -1);
-            ow::dbm::close(\%FDB, $folderdb);
+            ow::dbm::closedb(\%FDB, $folderdb);
             $ret=update_folderindex($folderfile, $folderdb);
          }
          ow::filelock::lock($folderfile, LOCK_UN);
@@ -1307,13 +1353,13 @@ sub checknewmail {
 
    if (!$opt{'quiet'}) {
       my %FDB;
-      if (!ow::dbm::open(\%FDB, $folderdb, LOCK_SH)) {
-         print "couldn't get read lock on db $folderdb\n";
+      if (!ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH)) {
+         print "cannot get read lock on db $folderdb\n";
          return -1;
       }
       my $newmessages=$FDB{'NEWMESSAGES'};
       my $oldmessages=$FDB{'ALLMESSAGES'}-$FDB{'ZAPMESSAGES'}-$FDB{'INTERNALMESSAGES'}-$newmessages;
-      ow::dbm::close(\%FDB, $folderdb);
+      ow::dbm::closedb(\%FDB, $folderdb);
 
       if ($newmessages == 1 ) {
          print "has 1 new mail\n";
@@ -1336,7 +1382,8 @@ sub checknewevent {
 
    my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($wdaynum, $year, $month, $day, $hour, $min)=(ow::datetime::seconds2array($localtime))[6,5,4,3,2,1];
-   $year+=1900; $month++;
+   $year+=1900;
+   $month++;
    my $hourmin=sprintf("%02d%02d", $hour, $min);
 
    my $dow=$ow::datetime::wday_en[$wdaynum];
@@ -1391,7 +1438,8 @@ sub checknotify {
 
    my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($wdaynum, $year, $month, $day, $hour, $min)=(ow::datetime::seconds2array($localtime))[6,5,4,3,2,1];
-   $year+=1900; $month++;
+   $year+=1900;
+   $month++;
 
    my $dow=$ow::datetime::wday_en[$wdaynum];
    my $date=sprintf("%04d%02d%02d", $year, $month, $day);
@@ -1455,7 +1503,7 @@ sub checknotify {
             } else {
                $itemstr=hourmin($items{$index}{'starthourmin'})."-".hourmin($items{$index}{'endhourmin'})."\n";
             }
-            $itemstr.=(iconv($items{$index}{'charset'}, (ow::lang::localeinfo($prefs{'locale'}))[6], $items{$index}{'string'}))[0]."\n";
+            $itemstr.=(iconv($items{$index}{'charset'}, (ow::lang::localeinfo($prefs{locale}))[4], $items{$index}{'string'}))[0]."\n";
             $itemstr.=$items{$index}{'link'}."\n" if ($items{$index}{'link'});
 
             if (defined $message{$items{$index}{'email'}}) {
@@ -1479,7 +1527,9 @@ sub checknotify {
 
    my ($m, $d)=(sprintf("%02d",$month), sprintf("%02d",$day));
    my $title=$prefs{'dateformat'}||"mm/dd/yyyy";
-   $title=~s/yyyy/$year/; $title=~s/mm/$m/; $title=~s/dd/$d/;
+   $title=~s/yyyy/$year/;
+   $title=~s/mm/$m/;
+   $title=~s/dd/$d/;
    $title.=" (".hourmin($checkstart)."-".hourmin($checkend).")\n\n";
    my $from=$prefs{'email'};
    my $userfroms=get_userfroms();
@@ -1506,12 +1556,12 @@ sub hourmin {
 sub send_mail {
    my ($from, $realname, $to, $date, $subject, $body) = @_;
 
-   $from     =~ s/['"]/ /g;  # Get rid of shell escape attempts
-
    $realname = '' unless defined $realname && $realname;
-   $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
-   ($realname =~ /^(.+)$/) && ($realname = '"'.$1.'"');
 
+   $from     =~ s/['"]/ /g;  # Get rid of shell escape attempts
+   $realname =~ s/['"]/ /g;  # Get rid of shell escape attempts
+
+   ($realname =~ /^(.+)$/) && ($realname = '"'.$1.'"');
    foreach ($from, $to, $date) { $_=ow::tool::untaint($_) }
 
    # fake a messageid for this message
@@ -1543,7 +1593,7 @@ sub send_mail {
    unless ($smtp) {
       # we didn't connect to any smtp servers successfully
       die(
-           qq|Couldn't open SMTP servers |.
+           qq|cannot open SMTP servers |.
            join(", ", @{$config{'smtpserver'}}).
            qq| at port $config{'smtpport'}!|
          );
@@ -1570,7 +1620,7 @@ sub send_mail {
       return -1;
    }
 
-   my $prefcharset = (ow::lang::localeinfo($prefs{'locale'}))[6];
+   my $prefcharset = (ow::lang::localeinfo($prefs{'locale'}))[4];
 
    $smtp->data();
    $smtp->datasend("From: ".ow::mime::encode_mimewords("$realname <$from>", ('Charset'=>"$prefcharset"))."\n",
@@ -1601,7 +1651,8 @@ sub pop3_fetches {
    my ($spoolfile, $header)=get_folderpath_folderdb($user, 'INBOX');
    # create system spool file /var/mail/xxxx
    if ( ! -f "$spoolfile" ) {
-      sysopen(F, $spoolfile, O_WRONLY|O_APPEND|O_CREAT, 0600); close(F);
+      sysopen(F, $spoolfile, O_WRONLY|O_APPEND|O_CREAT, 0600);
+      close(F);
    }
 
    my %accounts=();
@@ -1617,7 +1668,8 @@ sub pop3_fetches {
       my $disallowed=0;
       foreach ( @{$config{'pop3_disallowed_servers'}} ) {
          if ($pop3host eq $_) {
-            $disallowed=1; last;
+            $disallowed=1;
+            last;
          }
       }
       next if ($disallowed);
@@ -1642,7 +1694,8 @@ sub unlockfiles {
 
    my $folderdir=ow::tool::untaint("$homedir/$config{'homedirfolderdirname'}");
    my $dbdir=ow::tool::untaint(dotpath('/'));
-   my $spooldir=(get_folderpath_folderdb($user, 'INBOX'))[0]; $spooldir=~s!(.*)/.*!$1!;
+   my $spooldir=(get_folderpath_folderdb($user, 'INBOX'))[0];
+   $spooldir=~s!(.*)/.*!$1!;
 
    push(@cmd, $lsofbin, '+w', '-l', '-S2', '-Di');
    foreach ($spooldir, $folderdir, $dbdir, $config{'ow_etcdir'}) {
@@ -1652,7 +1705,8 @@ sub unlockfiles {
 
    # since lsof read/write tmp cache file with ruid no matter what euid is
    # so we set euid=root or euid won't have enough privilege to read/write lsof cache file
-   my $euid=$>; $>=0 if ($<==0);
+   my $euid=$>;
+   $>=0 if ($<==0);
    my ($stdout, $stderr, $exit, $sig)=ow::execute::execute(@cmd);
    $>=$euid if ($<==0);
 

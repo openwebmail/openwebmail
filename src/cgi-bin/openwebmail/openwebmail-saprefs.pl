@@ -54,7 +54,7 @@ umask(0002);
 
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
-use CGI qw(-private_tempfiles :cgi charset);
+use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 use HTML::Template 2.9;
 
@@ -97,7 +97,7 @@ $SIG{TERM} = \&openwebmail_exit;	# for user stop
 userenv_init();
 
 if (!$config{enable_webmail} || !$config{enable_saprefs}) {
-   openwebmailerror(__FILE__, __LINE__, "$lang_text{webmail} $lang_err{access_denied}");
+   openwebmailerror("$lang_text{webmail} $lang_err{access_denied}");
 }
 
 $folder       = param('folder')       || 'INBOX';
@@ -107,7 +107,7 @@ $messageid    = param('message_id')   || '';
 $prefs_caller = param('prefs_caller') || '';
 my $action    = param('action')       || '';
 
-writelog("debug - request saprefs begin, action=$action - " .__FILE__.":". __LINE__) if $config{debug_request};
+writelog("debug - request saprefs begin, action=$action") if $config{debug_request};
 
 $action eq 'edittest'         ? edittest()                     :
 $action eq 'addtest'          ? modtest("add")                 :
@@ -118,9 +118,9 @@ $action eq 'deletewhitelist'  ? modlist("delete", "whitelist") :
 $action eq 'editblacklist'    ? editlist("blacklist")          :
 $action eq 'addblacklist'     ? modlist("add", "blacklist")    :
 $action eq 'deleteblacklist'  ? modlist("delete", "blacklist") :
-   openwebmailerror(__FILE__, __LINE__, "Action $lang_err{has_illegal_chars}");
+   openwebmailerror("Action $lang_err{has_illegal_chars}");
 
-writelog("debug - request saprefs end, action=$action - " .__FILE__.":". __LINE__) if $config{debug_request};
+writelog("debug - request saprefs end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 
