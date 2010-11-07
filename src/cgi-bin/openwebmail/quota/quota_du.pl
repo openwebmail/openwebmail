@@ -35,20 +35,20 @@ sub get_usage_limit {
    my (%Q, $timestamp, $usage);
    my $now=time();
 
-   if (!ow::dbm::exist("$duinfo_db") && $duinfo_lifetime>0) {
+   if (!ow::dbm::existdb("$duinfo_db") && $duinfo_lifetime>0) {
       my $mailgid=getgrnam('mail');
-      ow::dbm::open(\%Q, $duinfo_db, LOCK_EX, 0664) or
+      ow::dbm::opendb(\%Q, $duinfo_db, LOCK_EX, 0664) or
          return(-2, "Quota db create error, $ow::dbm::errmsg");
-      ow::dbm::close(\%Q, $duinfo_db);
-      ow::dbm::chown($>, $mailgid, $duinfo_db) or
+      ow::dbm::closedb(\%Q, $duinfo_db);
+      ow::dbm::chowndb($>, $mailgid, $duinfo_db) or
          return(-2, "Quota db chown error, $ow::dbm::errmsg");
    }
 
    if (!$uptodate && $duinfo_lifetime>0) {
-      ow::dbm::open(\%Q, $duinfo_db, LOCK_EX, 0664) or
+      ow::dbm::opendb(\%Q, $duinfo_db, LOCK_EX, 0664) or
          return(-2, "Quota db open error, $ow::dbm::errmsg");
       ($timestamp, $usage)=split(/\@\@\@/, $Q{"$user\@\@\@$homedir"}) if (defined $Q{"$user\@\@\@$homedir"});
-      ow::dbm::close(\%Q, $duinfo_db);
+      ow::dbm::closedb(\%Q, $duinfo_db);
 
       if ($now-$timestamp>=0 && $now-$timestamp<=$duinfo_lifetime) {
          return(0, "", $usage, -1);
@@ -60,10 +60,10 @@ sub get_usage_limit {
    $usage=(split(/\s/, $stdout))[0];
    return(0, "", $usage, -1) if ($duinfo_lifetime==0);
 
-   ow::dbm::open(\%Q, $duinfo_db, LOCK_EX, 0664) or
+   ow::dbm::opendb(\%Q, $duinfo_db, LOCK_EX, 0664) or
       return(-2, "Quota db open error, $ow::dbm::errmsg");
    $Q{"$user\@\@\@$homedir"}="$now\@\@\@$usage";
-   ow::dbm::close(\%Q, $duinfo_db);
+   ow::dbm::closedb(\%Q, $duinfo_db);
 
    return(0, "", $usage, -1);
 }
