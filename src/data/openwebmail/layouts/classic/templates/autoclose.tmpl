@@ -1,0 +1,34 @@
+<tmpl_var header_template escape="none">
+
+<br><br><br><br><br><br><br>
+<table cellpadding="1" cellspacing="1" border="0" align="center" width="80%">
+<tr>
+  <td class="titlebar"><tmpl_var message_title escape="html"></td>
+</tr>
+<tr>
+  <td class="windowlight" align="center">
+    <br><tmpl_var message escape="html"><br><br>
+    <form action="#" method="post" name="closeform">
+      <input type="button" name="okbutton" value="gettext('ok')" onclick="autoclose();">
+    </form>
+    <br>
+  </td>
+</tr>
+</table>
+
+<script type="text/javascript">
+<!--
+setTimeout("autoclose()", <tmpl_var seconds escape="js"> * 1000);
+
+function autoclose() {
+   <tmpl_if refresh_dirform>
+   if (window.opener.document.dirform != null) {
+      window.opener.document.dirform.submit();
+   }
+   </tmpl_if>
+   window.close();
+}
+//-->
+</script>
+
+<tmpl_var footer_template escape="none">

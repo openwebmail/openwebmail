@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+
+<head>
+  <title>gettext('<tmpl_var programname escape="html"> Error')</title>
+  <link rel="stylesheet" type="text/css" href="<tmpl_var url_styles escape="none">/<tmpl_var stylesheet escape="html">">
+</head>
+
+<body onhelp="window.open('<tmpl_var url_help escape="none">', '_help'); return false;" style="font-size: 10pt;">
+
+<br><br><br><br><br><br><br>
+
+<table cellpadding="1" cellspacing="0" border="0" align="center" width="40%">
+<tr>
+  <td class="titlebar">gettext('<tmpl_var programname escape="html"> Error')</td>
+  <td class="titlebar" align="right"><span class="smalltext">(<tmpl_var file escape="html">:<tmpl_var linenumber escape="html"> rev <tmpl_var programrevision escape="html">)</span></td>
+</tr>
+<tr>
+  <td class="windowlight" align="center" colspan="2"><br><tmpl_if message_unknown>gettext('An unknown error has occured.')<tmpl_else><tmpl_if passthrough><tmpl_var message escape="none"><tmpl_else><tmpl_var message escape="html"></tmpl_if></tmpl_if><br><br>
+    <tmpl_if stacktrace>
+    Stacktrace:<br>
+    <form><textarea rows="20" cols="78"><tmpl_var stacktrace escape="html"></textarea></form>
+    </tmpl_if>
+  </td>
+</tr>
+</table>
+
+<center>
+  <br>gettext('<a href="http://openwebmail.acatysmoof.com" target="_blank"><tmpl_var programname escape="html"></a> version <tmpl_var programversion escape="html">')&nbsp;&nbsp;<a accesskey="H" href="<tmpl_var url_help escape="none">" target="_help">gettext('Help?')</a>
+</center>
+
+</html>
+</body>
+

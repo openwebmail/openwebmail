@@ -1,0 +1,126 @@
+<tmpl_var header_template escape="none">
+
+<center>
+<a href="<tmpl_var logo_link escape="html">"><img border="0" src="<tmpl_var url_logo escape="html">"></a><br><br>
+</center>
+
+<form action="<tmpl_var url_cgi escape="none">/openwebmail.pl" method="post" name="loginform" id="loginform">
+<input type="hidden" name="browserjavascript" value="none">
+<tmpl_loop redirectloop>
+<!-- support possible redirect after login -->
+<input type="hidden" name="<tmpl_var name>" value="<tmpl_var value escape="html">">
+<!-- end redirect support -->
+</tmpl_loop>
+
+<tmpl_unless enable_domainselect>
+<input type="hidden" name="logindomain" value="<tmpl_var logindomain escape="html">">
+</tmpl_unless>
+
+<table cellpadding="0" cellspacing="0" border="0" width="260" align="center">
+<tr>
+  <td class="login_titlebar" style="background-image: url(<tmpl_var url_html escape="none">/images/bg-titleblue.gif);">&nbsp;gettext('Login')</td>
+</tr>
+<tr>
+  <td align="center" class="login_border">
+    <table cellpadding="0" cellspacing="1" border="0" width="100%">
+    <tr>
+      <td class="background">
+        <table cellpadding="0" cellspacing="2" border="0" align="center">
+        <tr>
+          <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr>
+          <td align="right" nowrap>gettext('UserID:')</td>
+          <td align="left"><input type="text" name="loginname" size="<tmpl_var loginfieldwidth escape="html">" onblur="document.loginform.password.focus();"></td>
+        </tr>
+        <tr>
+          <td align="right" nowrap>gettext('Password:')</td>
+          <td align="left"><input type="password" name="password" size="<tmpl_var loginfieldwidth escape="html">" onblur="document.loginform.loginbutton.focus();"></td>
+        </tr>
+
+        <tmpl_if enable_domainselect>
+        <!-- support domain selection -->
+        <tr>
+          <td align="right" nowrap>gettext('Domain:')</td>
+          <td>
+            <select name="logindomain">
+              <tmpl_loop domainselectloop>
+              <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+              </tmpl_loop>
+            </select>
+          </td>
+        </tr>
+        <!-- end support domainselect -->
+        </tmpl_if>
+
+        <tr>
+          <td colspan="2">
+            <table cellpadding="2" cellspacing="1" border="0" align="center">
+            <tr>
+              <td align="center"><input type="submit" name="loginbutton" value="gettext('Login')"></td>
+              <td>
+                <table cellpadding="2" cellspacing="0" border="0" align="center">
+                <tr>
+                  <td><input type="checkbox" name="httpcompress" value="1" <tmpl_if enable_httpcompression><tmpl_if use_httpcompression>checked="checked"</tmpl_if> onclick="httpcompresshelp();"<tmpl_else>disabled="1"</tmpl_if>></td>
+                  <td class="login_small" align="left">gettext('HTTP<br>Compression')</td>
+
+                  <tmpl_if enable_autologin>
+                  <!-- support autologin if it is allowed for this ip -->
+                  <td><input type="checkbox" name="autologin" value="1" <tmpl_if use_autologin>checked="checked"</tmpl_if> onclick="autologinhelp();"></td>
+                  <td class="login_small" align="left">gettext('Auto<br>Login')</td>
+                  <!-- end support autologin -->
+                  </tmpl_if>
+                </tr>
+                </table>
+              </td>
+            </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2">&nbsp;</td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+</table>
+</form>
+
+<script type="text/javascript">
+<!--
+// detect level of javascript support from users browser
+// to determine if html composing will be allowed
+document.loginform.browserjavascript.value = (document.getElementById) ? 'dom' :
+                                                        (document.all) ? 'ie'  :
+                                                     (document.layers) ? 'nn4' :
+                                                                         'none';
+
+if (document.loginform.loginname.value == '') {
+   document.loginform.loginname.focus()
+} else {
+   document.loginform.password.focus()
+}
+
+function httpcompresshelp() {
+   if (document.loginform.httpcompress.checked) {
+      var msg = 'gettext('HTTP compression can reduce the use of network bandwidth between your computer and the webmail server, but there are some compatibility issues:\n\n1. some proxy servers only support HTTP compression via HTTP 1.1. You may need to manually enable HTTP 1.1 support in the proxy settings of your browser\n\n2. some proxy servers do not support HTTP compression at all. You may have to list the webmail server as directly connected in the proxy configuration of your browser.\n\n3. some browsers have problems when using HTTP compression with SSL.\n\n4. some browsers claim to support HTTP compression but actually do not.\n\nIf you encounter problems please login again with this option unchecked.\n')';
+      alert(msg);
+   }
+   return true;
+}
+
+function autologinhelp() {
+   if (document.loginform.autologin.checked) {
+      var msg = 'gettext('When this feature is enabled you may login to <tmpl_var programname escape="js"> without re-entering your username and password, but only if you did not logout of your previous session and that session has not timed out.\n\nDO NOT ENABLE THIS FEATURE ON A PUBLIC COMPUTER or others will gain access to your account.\n')';
+      alert(msg);
+   }
+   return true;
+}
+
+//-->
+</script>
+
+<tmpl_var footer_template escape="none">

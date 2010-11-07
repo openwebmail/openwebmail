@@ -1,0 +1,29 @@
+<tmpl_var header_template escape="none">
+
+<br><br><br><br><br><br><br>
+<table cellpadding="1" cellspacing="1" border="0" width="60%" align="center">
+<tr>
+  <td class="titlebar">gettext('Welcome to <tmpl_var programname escape="html">!')</td>
+</tr>
+<tr>
+  <td>
+    <table cellpadding="15" cellspacing="0" border="0" align="center">
+    <tr>
+      <td class="windowlight">gettext('It appears that this is your first time using <tmpl_var programname escape="html">, so we need to gather some information about you to better configure <tmpl_var programname escape="html"> to suit your needs. Please click continue to proceed to the <tmpl_var programname escape="html"> configuration screen.')<br><br>
+        <center>
+        <form action="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl" method="post" name="userfirsttimeform">
+          <input type="hidden" name="action" value="editprefs">
+          <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+          <input type="hidden" name="userfirsttime" value="1">
+          <input type="submit" name="Continue" value="gettext('Continue')">
+        </form>
+        </center>
+        <br>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+</table>
+
+<tmpl_var footer_template escape="none">

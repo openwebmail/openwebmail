@@ -1,0 +1,43 @@
+<tmpl_var header_template escape="none">
+
+<table cellpadding="0" cellspacing="0" border="0" align="center" width="100%">
+<tr>
+  <td class="titlebar">gettext('List Archive')</td>
+</tr>
+<tr>
+  <td class="windowdark">&nbsp;</td>
+</tr>
+<tr>
+  <td align="center" class="windowdark">
+    <table cellspacing="0" cellpadding="0" border="0" width="95%">
+    <tr>
+      <td>
+        <table cellspacing="0" cellpadding="8" border="0" width="100%">
+        <tr>
+          <td class="windowdarkbold" width="1%"><nobr>gettext('Archive name:')</nobr></td>
+          <td class="windowdark"><input type="text" name="selectitems" value="<tmpl_var vpath escape="html">" size="50" disabled="1"></td>
+        </tr>
+        <tr>
+          <td class="windowdarkbold" colspan="2">gettext('Archive contents:')</td>
+        </tr>
+        <tr>
+          <td class="background" colspan="2"><pre><tmpl_var filecontent escape="html"></pre></td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td class="windowdark">&nbsp;</td>
+</tr>
+<tr>
+  <td align="center" class="windowdark"><input type="button"  name="closebutton" value="gettext('close')" onclick="window.close();"></td>
+</tr>
+<tr>
+  <td class="windowdark">&nbsp;</td>
+</tr>
+</table>
+
+<tmpl_var footer_template escape="none">

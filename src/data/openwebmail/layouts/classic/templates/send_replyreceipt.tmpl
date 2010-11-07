@@ -1,0 +1,16 @@
+<tmpl_var header_template escape="none">
+
+<tmpl_if success>
+<script type="text/javascript">
+<!--
+// close the window that is processing the confirm-reading-receipt
+window.close();
+//-->
+</script>
+<tmpl_else>
+<center>
+<p>gettext('Error: reply receipt message ID seems to be gone:') <tmpl_var messageid escape="html"></p>
+</center>
+</tmpl_if>
+
+<tmpl_var footer_template escape="none">
