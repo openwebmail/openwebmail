@@ -1,9 +1,0 @@
-<BR><BR><BR><BR><BR><BR><BR>
-<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
-<tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Neúspì¹ná rekonstrukce zprávy</B></font>
-</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@, rekonstrukce zprávy se nepodaøila.<BR>
-@@@CONTINUEBUTTON@@@
-</td></tr></table>

@@ -1,9 +1,0 @@
-<BR><BR><BR><BR><BR><BR><BR>
-<table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>사용자 로그인 실패</B></FONT></TD></TR>
-<tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@! 이전 메뉴에서
-<a href="@@@STARTURL@@@">다시 로그인 해 보세요!</a>.<BR><BR>
-</td></tr></table>

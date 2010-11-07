@@ -1,9 +1,0 @@
-<BR><BR><BR><BR><BR><BR><BR>
-<table border="0" align="center" width="25%" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>登入失敗</B></FONT></TD></TR>
-<tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@，請回到登錄畫面
-<a href="@@@STARTURL@@@">再試一次</a>.<BR><BR>
-</td></tr></table>

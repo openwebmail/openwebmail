@@ -1,9 +1,0 @@
-<BR><BR><BR><BR><BR><BR><BR>
-<table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Afmelden</B></FONT></TD></TR>
-<tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>U bent succesvol afgemeld.
-<BR><BR>@@@BUTTONS@@@
-</td></tr></table>

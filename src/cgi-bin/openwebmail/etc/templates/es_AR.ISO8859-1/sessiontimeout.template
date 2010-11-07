@@ -1,9 +1,0 @@
-<BR><BR><BR><BR><BR><BR><BR>
-<table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>SESI&Oacute;N EXPIRADA</B></FONT></TD></TR>
-<tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>¡Lo siento, su sesi&oacute;n ha expirado! Por favor, regrese y
-<a href="@@@STARTURL@@@">vuelva a ingresar</a>.<BR><BR>
-</td></tr></table>

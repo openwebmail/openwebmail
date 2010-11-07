@@ -1,9 +1,0 @@
-<BR><BR><BR><BR><BR><BR><BR>
-<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
-<tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>CONTRASE&Ntilde;A CAMBIADA</B></font>
-</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>La contrase&ntilde;a ha sido cambiada con &eacute;xito.<BR>
-@@@CONTINUEBUTTON@@@
-</td></tr></table>

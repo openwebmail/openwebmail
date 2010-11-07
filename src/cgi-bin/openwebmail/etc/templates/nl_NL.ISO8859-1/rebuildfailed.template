@@ -1,9 +1,0 @@
-<BR><BR><BR><BR><BR><BR><BR>
-<table border="0" align="center" width="40%" cellpadding="1" cellspacing="1">
-<tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>Bericht herstellen mislukt !</B></font>
-</td></tr><tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>@@@ERRORMSG@@@, herstellen mislukt.<BR>
-@@@CONTINUEBUTTON@@@
-</td></tr></table>

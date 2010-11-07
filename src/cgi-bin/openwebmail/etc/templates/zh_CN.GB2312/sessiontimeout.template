@@ -1,9 +1,0 @@
-<BR><BR><BR><BR><BR><BR><BR>
-<table border="0" align="center" width="250" cellpadding="0" cellspacing="0">
-<tr><td bgcolor=@@@TITLEBAR@@@>
-<font color=@@@TITLEBAR_TEXT@@@ face=@@@FONTFACE@@@ size="3">
-<B>超时</B></FONT></TD></TR>
-<tr><td align="center" bgcolor=@@@WINDOW_LIGHT@@@>
-<BR>抱歉！因为您长时间没有操作，所以请回到登录页面
-<a href="@@@STARTURL@@@">并且重新登录</a>。<BR><BR>
-</td></tr></table>
