@@ -44,17 +44,14 @@ die("The output file already exists\n") if -f $opt->{output};
 
 my ($sec,$min,$hour,$mday,$month,$year,$wday,$yday,$isdst) = gmtime(time);
 $year += 1900;
-$month = sprintf('%02d', $month + 1);
-$mday  = sprintf('%02d', $mday);
-$hour  = sprintf('%02d', $hour);
-$min   = sprintf('%02d', $min);
+my $datestring = sprintf('%04d-%02d-%-02d %02d:%02d+0000', $year, $month + 1, $mday, $hour, $min);
 
 my $pot = {};
 
 $pot->{''} = new Locale::PO(
                               -msgid  => '',
                               -msgstr => "Project-Id-Version: OpenWebMail\\n" .
-                                         "PO-Revision-Date: $year-$month-$mday ${hour}:${min}+0000\\n" .
+                                         "PO-Revision-Date: $datestring\\n" .
                                          "Last-Translator: OpenWebMail Team <openwebmail\@acatysmoof.com>\\n" .
                                          "Language-Team: LANGUAGE <LL\@li.org>\\n" .
                                          "MIME-Version: 1.0\\n" .
@@ -74,12 +71,16 @@ foreach my $file (@{$opt->{files}}) {
    open(FILE, "<$file") || die "Cannot open file $file :: $!";
 
    while(my $line = <FILE>) {
-      if ($line =~ m/ngettext\('([^']+)', *'([^']+)', *[^)]+\)/ig) {
+      # $line =~ s/\\'/'/; # unquote ' characters
+      # push(@{$msgids->{singulars}{$1}}, ($file . ':' . $.)) while $line =~ m#(?<!n)gettext\(["'](.+?)["']\)#ig;
+      while ($line =~ m/ngettext\('([^']+)', *'([^']+)', *[^)]+\)/ig) {
          # plurals
          $msgids->{plurals}{"$1$2"}{singular} = $1;
          $msgids->{plurals}{"$1$2"}{plural}   = $2;
          push(@{$msgids->{plurals}{"$1$2"}{references}}, ($file . ':' . $.));
-      } elsif ($line =~ m#gettext\(["'](.+?)["']\)#ig) {
+      }
+
+      while ($line =~ m#(?<!n)gettext\(["'](.+?)["']\)#ig) {
          # singular
          push(@{$msgids->{singulars}{$1}}, ($file . ':' . $.));
       }
@@ -135,7 +136,7 @@ Extracts message id strings from text files and outputs a POT file
 
 =head1 DESCRIPTION
 
-A POT file is a PO Template - a file that contains plain text message id strings that are to be later translated into other languages. This flexible format allows the text strings in a program to be localized into many different languages.
+A POT file is a PO Template - a file that contains plain text message id strings that are to be later translated into other languages.
 
 This program extracts strings from text files such as html template files (tmpl) and perl source code (pl) and generates a GNU gettext compatible POT file, much in the same way as the GNU xgettext utility extracts message id strings from files written in other programming languages. The GNU xgettext utility does not process HTML files or javascript, so this simple script was created as an alternative.
 

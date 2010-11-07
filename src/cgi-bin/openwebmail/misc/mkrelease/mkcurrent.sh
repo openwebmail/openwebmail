@@ -75,6 +75,19 @@ sed -e "s/^\(revision[[:space:]]*.*\) [0-9]* \(.*\)/\1 $REVISIONNUMBERHEAD \2/" 
 set RELEASEDATE = `date "+%Y%m%d"`
 sed -e "s/^\(releasedate[[:space:]]*\)[0-9]*/\1$RELEASEDATE/" -i '' cgi-bin/openwebmail/etc/defaults/openwebmail.conf
 
+# generate owm.pot PO template and update en_US.ISO8859-1.po
+echo "Updating PO template and en_US.ISO8859-1.po..."
+rm cgi-bin/openwebmail/etc/lang/owm.pot
+./cgi-bin/openwebmail/etc/lang/owm-xgettext.pl -f cgi-bin/openwebmail/*.pl cgi-bin/openwebmail/{shares,modules}/* data/openwebmail/layouts/classic/templates/* -o cgi-bin/openwebmail/etc/lang/owm.pot
+msgen -o cgi-bin/openwebmail/etc/lang/en_US.ISO8859-1.po cgi-bin/openwebmail/etc/lang/owm.pot
+
+# update all the PO files with the new strings
+foreach file (cgi-bin/openwebmail/etc/lang/*.po)
+   echo "Updating ${file}..."
+   msgmerge --update --sort-output --no-wrap --quiet $file cgi-bin/openwebmail/etc/lang/owm.pot
+end
+rm cgi-bin/openwebmail/etc/lang/*~
+
 # fix permissions
 echo "Permissioning files..."
 chmod 755 cgi-bin data
@@ -84,7 +97,7 @@ chmod 755 cgi-bin/openwebmail data/openwebmail
 chown -R 0:0 cgi-bin/openwebmail data/openwebmail
 
 cd cgi-bin/openwebmail
-foreach DIR (etc/sites.conf etc/users.conf etc/defaults etc/templates etc/styles etc/holidays etc/maps misc)
+foreach DIR (etc/sites.conf etc/users.conf etc/defaults etc/holidays etc/maps misc)
    chown -R 0:0 $DIR
    chmod -R 644 $DIR
    find $DIR -type d -exec chmod 755 {} \;
