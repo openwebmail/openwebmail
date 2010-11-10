@@ -48,15 +48,31 @@
       </td>
     </tr>
 
+    <tr>
+      <td class="arcMonthInFuture">&nbsp;</td>
+      <td class="arcYear">Jan</td>
+      <td class="arcYear">Feb</td>
+      <td class="arcYear">Mar</td>
+      <td class="arcYear">Apr</td>
+      <td class="arcYear">May</td>
+      <td class="arcYear">Jun</td>
+      <td class="arcYear">Jul</td>
+      <td class="arcYear">Aug</td>
+      <td class="arcYear">Sep</td>
+      <td class="arcYear">Oct</td>
+      <td class="arcYear">Nov</td>
+      <td class="arcYear">Dec</td>
+    </tr>
+
     <TMPL_LOOP YEARS>
     <tr>
       <td class="arcYear"><TMPL_VAR YEAR></td>
       <TMPL_LOOP MONTHS>
       <TMPL_IF MONTH>
       <TMPL_IF POSTS>
-      <td class="arcMonthPosts"><a href="<TMPL_VAR DIR>"><TMPL_VAR MONTH></a><br>(<TMPL_VAR POSTS>)</td>
+      <td class="arcMonthPosts" align="right"><a href="<TMPL_VAR DIR>"><TMPL_VAR POSTS></a></td>
       <TMPL_ELSE>
-      <td class="arcMonthNoPosts"><TMPL_VAR MONTH><br>(<TMPL_VAR POSTS>)</td>
+      <td class="arcMonthNoPosts" align="right">-</td>
       </TMPL_IF>
       <TMPL_ELSE>
       <td class="arcMonthInFuture">&nbsp;</td>
