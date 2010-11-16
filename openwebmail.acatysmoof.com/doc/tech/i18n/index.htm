@@ -5,7 +5,15 @@
    <title>The OpenWebMail Project :: Tech Specs :: Internationalization and Localization</title>
    <link rel="shortcut icon" href="/images/favicon.ico">
    <style type="text/css">
+   .heading { background-color: #3161bd; color: #ffffff; text-align: center; font-weight: bold; }
    li { margin-bottom: 5px; }
+   table#languagestats { border-collapse: collapse; }
+   table#languagestats td { border: 1px solid #555555; }
+   #progressbar { position: relative; border: 1px solid black; width: 98%; background-color: #ff7777; }
+   #progressbar .text { position: relative; text-align: center; color: #000000; }
+   #progressbar .alltranslated { position: absolute; top: 0; left: 0; height: 100%; background-color: #63d569; }
+   #progressbar .translated { position: absolute; top: 0; left: 0; height: 100%; background-color: #5f9cf9; }
+   #progressbar .fuzzy { position: absolute; top: 0; left: 0; height: 100%; background-color: #eeedae; }
    </style>
 </head>
 
@@ -24,7 +32,7 @@
     <p>OpenWebMail supports Internationalization (I18N) and Localization (L10N) through the implementation of GNU gettext PO language catalogs. PO catalog files are text files that contain language strings. Translators can easily translate those strings using simple free software. They can then send the translated files back to us, giving OpenWebMail full support for their language!</p>
     </blockquote>
 
-    <h3>Quick Start</h3>
+    <h3>Quick Start For Translators</h3>
     <blockquote>
     <ul>
       <li>Download and install the <a href="http://www.poedit.net/download.php" target="_new">free poedit translation software</a></li>
@@ -32,10 +40,85 @@
     </ul>
     </blockquote>
 
+    <h3>Current Translations</h3>
+    <blockquote>
+    <!-- STATS -->
+
+   <table cellpadding="4" cellspacing="0" border="0" width="100%" id="languagestats">
+   <tr>
+     <td class="heading">Filename</td>
+     <td class="heading">Language</td>
+     <td class="heading">Country</td>
+     <td class="heading">Progress</td>
+   </tr>
+      <tr>
+         <td><a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/checkout/trunk/src/cgi-bin/openwebmail/etc/lang/en_US.UTF-8.po" target="_new">en_US.UTF-8</a></td>
+         <td>English</td>
+         <td>United States</td>
+         <td align="center">
+           <div id="progressbar">
+             <div class="fuzzy" style="width: 100%;"></div>
+             <div class="alltranslated" style="width: 100%;"></div>
+             <div class="text">100% (1888 translated), 0% (0 fuzzy), 0% (0 untranslated)</div>
+           </div>
+         </td>
+      </tr>
+      <tr>
+         <td><a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/checkout/trunk/src/cgi-bin/openwebmail/etc/lang/fi_FI.UTF-8.po" target="_new">fi_FI.UTF-8</a></td>
+         <td>Finnish</td>
+         <td>Finland</td>
+         <td align="center">
+           <div id="progressbar">
+             <div class="fuzzy" style="width: 84%;"></div>
+             <div class="translated" style="width: 55%;"></div>
+             <div class="text">55% (1033 translated), 29% (543 fuzzy), 17% (312 untranslated)</div>
+           </div>
+         </td>
+      </tr>
+      <tr>
+         <td><a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/checkout/trunk/src/cgi-bin/openwebmail/etc/lang/fr_FR.UTF-8.po" target="_new">fr_FR.UTF-8</a></td>
+         <td>French</td>
+         <td>France</td>
+         <td align="center">
+           <div id="progressbar">
+             <div class="fuzzy" style="width: 95%;"></div>
+             <div class="translated" style="width: 84%;"></div>
+             <div class="text">84% (1581 translated), 11% (200 fuzzy), 6% (107 untranslated)</div>
+           </div>
+         </td>
+      </tr>
+      <tr>
+         <td><a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/checkout/trunk/src/cgi-bin/openwebmail/etc/lang/pt_BR.UTF-8.po" target="_new">pt_BR.UTF-8</a></td>
+         <td>Portuguese</td>
+         <td>Brazil</td>
+         <td align="center">
+           <div id="progressbar">
+             <div class="fuzzy" style="width: 94%;"></div>
+             <div class="translated" style="width: 85%;"></div>
+             <div class="text">85% (1614 translated), 9% (167 fuzzy), 6% (107 untranslated)</div>
+           </div>
+         </td>
+      </tr>
+      <tr>
+         <td><a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/checkout/trunk/src/cgi-bin/openwebmail/etc/lang/si_LK.UTF-8.po" target="_new">si_LK.UTF-8</a></td>
+         <td>Sinhala</td>
+         <td>Sri Lanka</td>
+         <td align="center">
+           <div id="progressbar">
+             <div class="fuzzy" style="width: 91%;"></div>
+             <div class="translated" style="width: 81%;"></div>
+             <div class="text">81% (1536 translated), 10% (192 fuzzy), 8% (160 untranslated)</div>
+           </div>
+         </td>
+      </tr>
+      </table>
+<!-- END STATS -->
+    </blockquote>
+
     <h3 id="new_translation">Start a New Translation</h3>
     <blockquote>
     <ul>
-      <li>Download the <a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/checkout/trunk/src/cgi-bin/openwebmail/etc/lang/owm.pot">current PO template catalog file</a> for OpenWebMail</li>
+      <li>Download the <a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/checkout/trunk/src/cgi-bin/openwebmail/etc/lang/owm.pot">current POT template catalog file</a> for OpenWebMail</li>
       <li>Create a new catalog from the POT file in PoEdit (File-&gt;New catalog from POT file...)</li>
       <li>Adjust the settings for your language:<br><br><img src="./poedit_settings.png"><br><br><p>Plural Forms is a formula that describes how many different plurals there are in a language. English, for example, has only 2 plural forms (e.g. item, items). Arabic has 6 plural forms! In order to get all the translations for all the forms in your language you need to correctly set the plural forms formula before you begin translating. You can find the plural forms formula for your language at <a href="http://translate.sourceforge.net/wiki/l10n/pluralforms" target="_new">the Translate Toolkit website</a>. You can read more about plural forms at <a href="http://www.gnu.org/software/hello/manual/gettext/Plural-forms.html" target="_new">the GNU website</a></li>
       <li>Save the PO file (happens automatically after settings)<br><i>Please use the naming convention of <b>locale.charset.po</b>, for example: en_US.UTF-8.po<br>Your locale is a combination of your <a href="http://www.loc.gov/standards/iso639-2/php/code_list.php" target="_new">ISO 639-1 language code</a> and your <a href="http://www.iso.org/iso/country_codes/iso_3166_code_lists/english_country_names_and_code_elements.htm" target="_new">ISO 3166-1 country code</a></i></li>
