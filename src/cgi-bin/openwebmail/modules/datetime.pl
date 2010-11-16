@@ -256,7 +256,7 @@ sub gmtime2dateserial {
 
 sub dateserial2gmtime {
    # convert a serialize date like 20090727074535 back to a gmtime object
-   my $serial = shift;
+   my $serial = shift || '';
    my ($year, $mon, $mday, $hour, $min, $sec) = $serial =~ m/(\d{4})(\d\d)(\d\d)(\d\d)?(\d\d)?(\d\d)?/;
    return array2seconds(
                           (defined $sec  ? $sec         : -1),

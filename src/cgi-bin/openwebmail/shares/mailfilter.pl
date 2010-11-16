@@ -1137,14 +1137,12 @@ sub read_filterfolderdb {
 
    my $filterfolderdb = dotpath('filter.folderdb');
 
-   my %DB            = ();
-   my %filtered      = ();
-   my $totalfiltered = 0;
+   my %DB = ();
 
    ow::dbm::opendb(\%DB, $filterfolderdb, LOCK_EX) or writelog("cannot open db $filterfolderdb");
-   %filtered = %DB;
-   $totalfiltered = $filtered{_TOTALFILTERED};
-   delete $filtered{_TOTALFILTERED};
+   my %filtered = %DB;
+   my $totalfiltered = $filtered{_TOTALFILTERED} || 0;
+   delete $filtered{_TOTALFILTERED} if defined $filtered{_TOTALFILTERED};
 
    if ($clear_after_read) {
       %DB = ();

@@ -683,8 +683,10 @@ sub userenv_init {
 
    umask(0077);
 
-   if ($> == 0) {                     # switch to uuid:mailgid if script is setuid root.
-      my $mailgid = getgrnam('mail'); # for better compatibility with other mail progs
+   if ($> == 0) {
+      # switch to uuid:mailgid if script is setuid root
+      # for better compatibility with other mail progs
+      my $mailgid = getgrnam('mail');
       ow::suid::set_euid_egids($uuid, $ugid, $mailgid);
       openwebmailerror(gettext('Setting effective group id to "mail" failed:') . " mail($mailgid)")
         unless $) =~ m/\b$mailgid\b/; # group mail does not exist?
@@ -738,93 +740,96 @@ sub login_name2domainuser {
       ($loginuser, $logindomain) = ($1, $2);
    } else {
       $loginuser   = $loginname;
-      $logindomain = $default_logindomain || $ENV{'HTTP_HOST'} || ow::tool::hostname();
+      $logindomain = $default_logindomain || $ENV{HTTP_HOST} || ow::tool::hostname();
       $logindomain =~ s#:\d+$##; # remove port number
    }
 
    $loginuser   = lc($loginuser) if ($config{'case_insensitive_login'});
 
    $logindomain = lc(safedomainname($logindomain));
-   $logindomain = $config{'domainname_equiv'}{'map'}{$logindomain}
-      if (exists $config{'domainname_equiv'}{'map'}{$logindomain} && defined $config{'domainname_equiv'}{'map'}{$logindomain});
+   $logindomain = $config{domainname_equiv}{map}{$logindomain}
+      if (exists $config{domainname_equiv}{map}{$logindomain} && defined $config{domainname_equiv}{map}{$logindomain});
 
-   return($logindomain, $loginuser);
+   return ($logindomain, $loginuser);
 }
 
 sub read_owconf {
    # read openwebmail.conf into a hash with %symbol% resolved
    # the hash is 'called by reference' since we want to do 'untaint' on it
-   my ($r_config, $r_config_raw, $configfile)=@_;
-   my ($key, $value)=('', '');
+   my ($r_config, $r_config_raw, $configfile) = @_;
 
    # load up the config file if we have one
-   load_owconf($r_config_raw, $configfile) if ($configfile);
+   load_owconf($r_config_raw, $configfile) if defined $configfile && -f $configfile;
 
-   # make sure there are default values for array/hash references!!
-   if (!defined ${$r_config_raw}{'domainname_equiv'}){
-      ${$r_config_raw}{'domainname_equiv'}= { 'map'=>{}, 'list'=>{} };
-   }
-   foreach $key (keys %{$is_config_option{'list'}}) {
-      if (!defined ${$r_config_raw}{$key} && $key!~/^DEFAULT_/) {
-         ${$r_config_raw}{$key}=[];
-      }
-      # NOTE: We do not set defualt value for DEFAULT_ options, or the default_ options will be overriden.
-      #       DEFAULT_ options should be set only if they appear in config file
+   # make sure there are default values for array/hash references
+   if (!defined $r_config_raw->{domainname_equiv}){
+      $r_config_raw->{domainname_equiv} = { map => {}, list => {} };
    }
 
-   # copy config_raw to config
-   %{$r_config}=%{$r_config_raw};
+   foreach my $key (keys %{$is_config_option{list}}) {
+      # We do not set the default value for DEFAULT_ options, or else the default_ options would be overriden.
+      # DEFAULT_ options should be set only if they appear in config file
+      $r_config_raw->{$key} = [] if !defined $r_config_raw->{$key} && $key !~ m/^DEFAULT_/;
+   }
+
+   # copy config_raw to config so we do not modify config_raw
+   %{$r_config} = %{$r_config_raw};
 
    # resolve %var% in hash config
    # note, no substitutions to domainname_equiv or yes/no items
    # should the exclusion include other types??
-   foreach $key (keys %{$r_config}) {
-      next if ($key eq 'domainname_equiv' or $is_config_option{'yesno'}{$key});
-      if ( $is_config_option{'list'}{$key} ) {
-         foreach ( @{${$r_config}{$key}} ) {
+   foreach my $key (keys %{$r_config}) {
+      next if $key eq 'domainname_equiv' || (exists $is_config_option{yesno}{$key} && $is_config_option{yesno}{$key});
+      if ($is_config_option{list}{$key}) {
+         foreach (@{$r_config->{$key}}) {
             $_ = fmt_subvars($key, $_, $r_config, $configfile);
          }
       } else {
-         ${$r_config}{$key} = fmt_subvars($key, ${$r_config}{$key}, $r_config, $configfile);
+         $r_config->{$key} = fmt_subvars($key, $r_config->{$key}, $r_config, $configfile);
       }
    }
 
    # cleanup auto values with server or client side runtime enviroment
    # since result may differ for different clients, this could not be done in load_owconf()
-   foreach $key ( keys %{$is_config_option{auto}} ) {
-      if ($is_config_option{list}{$key}) {
-         next if (${${$r_config}{$key}}[0] ne 'auto');
+   foreach my $key (keys %{$is_config_option{auto}}) {
+      if (exists $is_config_option{list}{$key} && $is_config_option{list}{$key}) {
+         next if $r_config->{$key}[0] ne 'auto';
+
          if ($key eq 'domainnames') {
+            my $value = '';
+
             if (exists $ENV{HTTP_HOST} && defined $ENV{HTTP_HOST} && $ENV{HTTP_HOST} =~ m/[A-Za-z]\./) {
                $value = $ENV{HTTP_HOST};
                $value =~ s/:\d+$//; # remove port number
             } else {
                $value = ow::tool::hostname();
             }
-            ${$r_config}{$key}=[$value];
+
+            $r_config->{$key} = [$value];
          }
       } else {
-         next if (${$r_config}{$key} ne 'auto');
+         next if $r_config->{$key} ne 'auto';
          if ($key eq 'default_timeoffset') {
-            ${$r_config}{$key} = ow::datetime::gettimeoffset();
+            $r_config->{$key} = ow::datetime::gettimeoffset();
          } elsif ($key eq 'default_locale') {
-            ${$r_config}{$key} = ow::lang::guess_browser_locale(available_locales());
+            $r_config->{$key} = ow::lang::guess_browser_locale(available_locales());
          }
       }
    }
+
    # set options that refer to other options
-   ${$r_config}{'default_bgurl'}="${$r_config}{'ow_htmlurl'}/images/backgrounds/Transparent.gif" if ( ${$r_config}{'default_bgurl'} eq '' );
-   ${$r_config}{'default_abook_defaultsearchtype'}="name" if ( ${$r_config}{'default_abook_defaultsearchtype'} eq '' );
-   ${$r_config}{'domainselectmenu_list'}=${$r_config}{'domainnames'} if ( ${${$r_config}{'domainselectmenu_list'}}[0] eq 'auto' );
+   $r_config->{default_bgurl} = "$r_config->{ow_htmlurl}/images/backgrounds/Transparent.gif" if $r_config->{default_bgurl} eq '';
+   $r_config->{default_abook_defaultsearchtype} = 'name' if $r_config->{default_abook_defaultsearchtype} eq '';
+   $r_config->{domainselectmenu_list} = $r_config->{domainnames} if $r_config->{domainselectmenu_list}[0] eq 'auto';
 
    # untaint pathname variable defined in openwebmail.conf
-   foreach $key ( keys %{$is_config_option{'untaint'}} ) {
-      if ( $is_config_option{'list'}{$key} ) {
-         foreach ( @{${$r_config}{$key}} ) {
-            $_=ow::tool::untaint($_);
+   foreach my $key ( keys %{$is_config_option{untaint}} ) {
+      if (exists $is_config_option{list}{$key} && $is_config_option{list}{$key}) {
+         foreach (@{$r_config->{$key}}) {
+            $_ = ow::tool::untaint($_);
          }
       } else {
-         ${$r_config}{$key} =ow::tool::untaint(${$r_config}{$key});
+         $r_config->{$key} =ow::tool::untaint($r_config->{$key});
       }
    }
 
@@ -897,23 +902,28 @@ sub _load_owconf {
          my %equiv    = ();
          my %equivlist= ();
          foreach (split(/\n/, $conf{$key})) {
-            s/^[:,\s]+//; s/[:,\s]+$//;
-            my ($dst, @srclist)=split(/[:,\s]+/);
-            $equivlist{$dst}=\@srclist;
+            s/^[:,\s]+//;
+            s/[:,\s]+$//;
+            my ($dst, @srclist) = split(/[:,\s]+/);
+            $equivlist{$dst} = \@srclist;
             foreach my $src (@srclist) {
-               $equiv{$src}=$dst if ($src && $dst);
+               $equiv{$src} = $dst if $src && $dst;
             }
          }
-         $conf{$key}= { map => \%equiv,		# src -> dst
-                        list=> \%equivlist };	# dst <= srclist
+
+         $conf{$key}= {
+                         map  => \%equiv,     # src -> dst
+                         list => \%equivlist, # dst <= srclist
+                      };
       } elsif ($key eq 'revision') {
          # convert the SVN revision to only a number
          $conf{$key} =~ s#[^\d]+##g;
-      } elsif ($is_config_option{'list'}{$lckey}){
-         my $value=$conf{$key};
-         $value=~s/\s//g;
-         my @list=split(/,+/, $value);
-         $conf{$key}=\@list;
+      } elsif ($is_config_option{list}{$lckey}){
+         my $value = $conf{$key};
+         $value =~ s/\s//g;
+
+         my @list = split(/,+/, $value);
+         $conf{$key} = \@list;
       }
    }
 
@@ -1589,8 +1599,8 @@ sub get_header {
            openwebmailerror(gettext('Cannot close directory:') . ' ' . f2u($helpdir) . " ($!)");
       }
 
-      # ...or default to en_US.ISO8859-1
-      $helpurl = $firstmatch || "$helpurl/en_US.ISO8859-1";
+      # ...or default to en_US.UTF-8
+      $helpurl = $firstmatch || "$helpurl/en_US.UTF-8";
    }
 
    # Get a list of valid style files
@@ -1668,8 +1678,8 @@ sub get_footer {
            openwebmailerror(gettext('Cannot close directory:') . ' ' . f2u($helpdir) . " ($!)");
       }
 
-      # ...or default to en_US.ISO8859-1
-      $helpurl = $firstmatch || "$helpurl/en_US.ISO8859-1";
+      # ...or default to en_US.UTF-8
+      $helpurl = $firstmatch || "$helpurl/en_US.UTF-8";
    }
 
    # build the template
@@ -1758,7 +1768,7 @@ sub openwebmailerror {
                                          : 0,
                       url_help        => -d "$config{ow_htmlurl}/help/$prefs{locale}"
                                          ? "$config{ow_htmlurl}/help/$prefs{locale}"
-                                         : "$config{ow_htmlurl}/help/en_US.ISO8859-1",
+                                         : "$config{ow_htmlurl}/help/en_US.UTF-8",
                    );
 
    httpprint([], [$template->output]);
@@ -2073,7 +2083,7 @@ sub verify_vpath {
 
       if (!$config{webdisk_allow_symlinkout}) {
          openwebmailerror(gettext('The requested file or directory is outside of the webdisk system and cannot be accessed.'))
-            if (fullpath2vpath($realpath, (resolv_symlink($rootpath))[1]) eq '');
+            if fullpath2vpath($realpath, (resolv_symlink($rootpath))[1]) eq '';
       }
    }
 
@@ -2216,16 +2226,16 @@ sub _dotpath {
       $dotdir = "$owuserdir/$config{homedirdotdirname}";
    }
 
-   return(ow::tool::untaint($dotdir))                 if $name eq '/';
-   return(ow::tool::untaint("$dotdir/$name"))         if exists $_is_dotpath{root}{$name};
-   return(ow::tool::untaint("$dotdir/webmail/$name")) if exists $_is_dotpath{webmail}{$name} || $name =~ m/^filter\.book/;
-   return(ow::tool::untaint("$dotdir/webaddr/$name")) if exists $_is_dotpath{webaddr}{$name};
-   return(ow::tool::untaint("$dotdir/webcal/$name"))  if exists $_is_dotpath{webcal}{$name};
-   return(ow::tool::untaint("$dotdir/webdisk/$name")) if exists $_is_dotpath{webdisk}{$name};
-   return(ow::tool::untaint("$dotdir/pop3/$name"))    if exists $_is_dotpath{pop3}{$name} || $name =~ m/^uidl\./;
+   return (ow::tool::untaint($dotdir))                 if $name eq '/';
+   return (ow::tool::untaint("$dotdir/$name"))         if exists $_is_dotpath{root}{$name};
+   return (ow::tool::untaint("$dotdir/webmail/$name")) if exists $_is_dotpath{webmail}{$name} || $name =~ m/^filter\.book/;
+   return (ow::tool::untaint("$dotdir/webaddr/$name")) if exists $_is_dotpath{webaddr}{$name};
+   return (ow::tool::untaint("$dotdir/webcal/$name"))  if exists $_is_dotpath{webcal}{$name};
+   return (ow::tool::untaint("$dotdir/webdisk/$name")) if exists $_is_dotpath{webdisk}{$name};
+   return (ow::tool::untaint("$dotdir/pop3/$name"))    if exists $_is_dotpath{pop3}{$name} || $name =~ m/^uidl\./;
 
    $name =~ s#^/+##;
-   return(ow::tool::untaint("$dotdir/$name"));
+   return (ow::tool::untaint("$dotdir/$name"));
 }
 
 sub find_and_move_dotdir {
@@ -2563,10 +2573,11 @@ sub u2f {
 
 sub loadlang {
    my $localename = shift;
+
    if (-f "$config{ow_langdir}/$localename.po") {
       return OWM::PO->new(file => "$config{ow_langdir}/$localename.po");
    } else {
-      return OWM::PO->new(file => "$config{ow_langdir}/en_US.ISO8859-1.po");
+      return OWM::PO->new(file => "$config{ow_langdir}/en_US.UTF-8.po");
    }
 }
 

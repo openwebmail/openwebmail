@@ -1609,7 +1609,7 @@ sub addrcardview {
 
                           'X-OWM-UID'     => 1, 'X-OWM-BOOK'    => 1,
                           'X-OWM-GROUP'   => 1, 'X-OWM-CHARSET' => 1,
-                          'X-OWM-CUSTOM'  => 1,
+                          'X-OWM-CUSTOM'  => 1, 'X-OWM-BDAY'    => 1,
                        );
 
    # bundle information from one property into another property so they can be displayed together
@@ -2022,7 +2022,7 @@ sub addreditform {
 
                           'X-OWM-UID'     => 1, 'X-OWM-BOOK'    => 1,
                           'X-OWM-GROUP'   => 1, 'X-OWM-CHARSET' => 1,
-                          'X-OWM-CUSTOM'  => 1,
+                          'X-OWM-CUSTOM'  => 1, 'X-OWM-BDAY'    => 1,
                        );
 
    # bundle information from one property into another property so they can be displayed together

@@ -1141,9 +1141,9 @@ sub editprefs {
                                                               map { {
                                                                        option   => $_,
                                                                        label    => $usezonetabfile ? $_ : "$_ - $timezonelabels{$_}",
-                                                                       selected => $usezonetabfile ?
-                                                                                   ($_ eq "$prefs{timeoffset} $prefs{timezone}" ? 1 : 0) :
-                                                                                   ($_ eq $prefs{timeoffset} ? 1 : 0)
+                                                                       selected => $usezonetabfile
+                                                                                   ? ($_ eq "$prefs{timeoffset} $prefs{timezone}" ? 1 : 0)
+                                                                                   : ($_ eq $prefs{timeoffset} ? 1 : 0)
                                                                   } } @zones
                                                            ],
                       disabledstselect                  => defined $config_raw{DEFAULT_daylightsaving} ? 1 : 0,
@@ -1600,11 +1600,11 @@ sub editprefs {
                       disablecalendar_holidaydefselect  => defined $config_raw{DEFAULT_calendar_holidaydef} ? 1 : 0,
                       calendar_holidaydefselectloop     => [
                                                               map {
-                                                                     # extract parts from holiday file like en_US.ISO8859-1
+                                                                     # extract parts from holiday file like en_US.UTF-8
                                                                      my ($language,$country,$charset) = m/^(..)_(..)\.(.*)/;
 
                                                                      if (defined $charset && $charset) {
-                                                                        $charset =~ s#[-_]+##g; # ISO8859-1 -> ISO88591
+                                                                        $charset =~ s#[-_]+##g; # UTF-8 -> UTF8
                                                                         $charset = uc($charset);
                                                                      }
 
@@ -1889,8 +1889,8 @@ sub saveprefs {
    }
 
    # compile the locale
-   my $localecharset = uc($newprefs{charset}); # iso-8859-1 -> ISO-8859-1
-   $localecharset =~ s/[-_]//g;                # ISO-8859-1 -> ISO88591
+   my $localecharset = uc($newprefs{charset}); # utf-8 -> UTF-8
+   $localecharset =~ s/[-_]//g;                # UTF-8 -> UTF8
    $newprefs{locale} = "$newprefs{language}." . $ow::lang::charactersets{$localecharset}[0];
 
    unlink(dotpath('filter.check'))

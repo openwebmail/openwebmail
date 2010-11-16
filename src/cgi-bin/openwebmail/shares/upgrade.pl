@@ -334,7 +334,7 @@ sub upgrade_all {
             $content .= "$pop3host\@\@\@$pop3port\@\@\@$pop3user\@\@\@$pop3passwd\@\@\@$pop3del\@\@\@$enable\n";
          }
 
-         close(F) or writelog("cannot close file $folderdir/.pop3.book");
+         close(F) or writelog("cannot close file $folderdir/.pop3.book ($!)");
 
          if ($content ne '') {
             writehistory("release upgrade - $folderdir/.pop3.book by 20030528");
@@ -460,8 +460,8 @@ sub upgrade_all {
          $prefs{abook_listviewfieldorder} = $config{default_abook_listviewfieldorder};
 
          # $rcfile is written back in update_openwebmailrc()
-         writehistory("release upgrade - openwebmailrc by 20041101");
-         writelog("release upgrade - openwebmailrc by 20041101");
+         writehistory('release upgrade - openwebmailrc by 20041101');
+         writelog('release upgrade - openwebmailrc by 20041101');
       }
    }
 
@@ -564,8 +564,8 @@ sub upgrade_all {
 
             close(RC) or writelog("cannot close file $rcfile");
 
-            writehistory("release upgrade - openwebmailrc by 20050410");
-            writelog("release upgrade - openwebmailrc by 20050410");
+            writehistory('release upgrade - openwebmailrc by 20050410');
+            writelog('release upgrade - openwebmailrc by 20050410');
          }
       }
    }
@@ -582,10 +582,10 @@ sub upgrade_all {
 
          my $prefslanguage = substr(lc($prefs{language}), 0, 2);     # en.utf8 -> en
 
-         # find locale by matching language and character set, or just by language, or default to en_US.ISO8859-1
+         # find locale by matching language and character set, or just by language, or default to en_US.UTF-8
          my $locale = (grep { m/^$prefslanguage/ && m/\Q$prefscharset\E$/ } sort keys %{$config{available_locales}})[0]
                       || (grep { m/^$prefslanguage/ } sort keys %{$config{available_locales}})[0]
-                      || 'en_US.ISO8859-1';
+                      || 'en_US.UTF-8';
 
          # add locale support
          $prefs{language} = join("_", (ow::lang::localeinfo($locale))[0,1]);
@@ -600,10 +600,10 @@ sub upgrade_all {
                           'de'              => 'de_DE.ISO8859-1',
                           'de_CH'           => 'de_CH.ISO8859-1',
                           'el'              => 'el_GR.ISO8859-7',
-                          'en'              => 'en_US.ISO8859-1',
+                          'en'              => 'en_US.UTF-8',
                           'en_GB'           => 'en_GB.ISO8859-1',
                           'en_HK'           => 'en_HK.ISO8859-1',
-                          'en_US'           => 'en_US.ISO8859-1',
+                          'en_US'           => 'en_US.UTF-8',
                           'es'              => 'es_ES.ISO8859-1',
                           'es_AR'           => 'es_AR.ISO8859-1',
                           'fi'              => 'fi_FI.ISO8859-1',
@@ -614,7 +614,7 @@ sub upgrade_all {
                           'nl'              => 'nl_NL.ISO8859-1',
                           'pl'              => 'pl_PL.ISO8859-2',
                           'pt'              => 'pt_PT.ISO8859-1',
-                          'pt_BR'           => 'pt_BR.ISO8859-1',
+                          'pt_BR'           => 'pt_BR.UTF-8',
                           'sk'              => 'sk_SK.ISO8859-2',
                           'sl'              => 'sl_SI.CP1250',
                           'uk'              => 'uk_UA.KOI8-U',
@@ -633,8 +633,8 @@ sub upgrade_all {
 
          close(RC) or writelog("cannot close file $rcfile");
 
-         writehistory("release upgrade - openwebmailrc by 20060721");
-         writelog("release upgrade - openwebmailrc by 20060721");
+         writehistory('release upgrade - openwebmailrc by 20060721');
+         writelog('release upgrade - openwebmailrc by 20060721');
       }
    }
 
@@ -655,8 +655,8 @@ sub upgrade_all {
 
          close(RC) or writelog("cannot close file $rcfile");
 
-         writehistory("release upgrade - openwebmailrc by 20090607");
-         writelog("release upgrade - openwebmailrc by 20090607");
+         writehistory('release upgrade - openwebmailrc by 20090607');
+         writelog('release upgrade - openwebmailrc by 20090607');
       }
    }
 
@@ -692,11 +692,12 @@ sub read_releasedatefile {
       openwebmailerror(gettext('Cannot open file:') . " $releasedatefile ($!)");
 
    my $d = <D>;
+
    chomp($d);
 
    close(D) or writelog("cannot close file $releasedatefile ($!)");
 
-   return($d);
+   return $d;
 }
 
 sub update_releasedatefile {

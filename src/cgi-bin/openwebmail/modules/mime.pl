@@ -97,21 +97,22 @@ sub decode_mimewords {
 sub encode_mimeword {
     my $word = shift;
     my $encoding = uc(shift || 'Q');
-    my $charset  = uc(shift || 'ISO-8859-1');
+    my $charset  = uc(shift || 'UTF-8');
     my $encfunc  = (($encoding eq 'Q') ? \&_encode_Q : \&_encode_B);
     "=?$charset?$encoding?" . &$encfunc($word) . "?=";
 }
 
 sub encode_mimewords {
     my ($rawstr, %params) = @_;
-    my $charset  = $params{Charset} || 'ISO-8859-1';
+
+    my $charset = $params{Charset} || 'UTF-8';
 
     #my $encoding = lc($params{Encoding} || 'q');
     # q is used if there is english words in the string
     my $encoding = lc($params{Encoding}) || (($rawstr=~/[A-Za-z]{4}/)? 'q':'b');
 
     # determine chars used in a word based on the charset
-    my $wordchars=(lc($charset) eq 'big5')?$BIG5CHARS:$WORDCHARS;
+    my $wordchars = (lc($charset) eq 'big5') ? $BIG5CHARS : $WORDCHARS;
 
     ### Encode any "words" with unsafe characters.
     ### We limit such words to 18 characters, to guarantee that

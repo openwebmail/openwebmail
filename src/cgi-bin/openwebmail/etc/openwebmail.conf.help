@@ -1701,14 +1701,8 @@ Default: none - per site conf will be used for all users if it exists
 
 mailfooter
 -----------------------------------------------------------------------
-This block of text will be appended at the tail of each outgoing mail,
-which can be used as some kind of advertisement.
-
-
-page_footer
------------------------------------------------------------------------
-This is the block that will be appended at the bottom of each page of
-openwebmail
+A block of text to be appended at the tail of each outgoing mail,
+such as a legal statement or advertisement.
 
 
 footer_template_file
@@ -1719,8 +1713,6 @@ This is the template file that will be used for the footer.
 header_template_file
 -----------------------------------------------------------------------
 This is the template file that will be used for the header.
-
-
 
 
 ##############################################################################

@@ -141,7 +141,7 @@ sub readmessage {
    my $attmode        = param('attmode') || 'simple';                    # all, simple
    my $receivers      = param('receivers') || 'simple';                  # all, simple
    my $printfriendly  = param('printfriendly') || '';                    # yes, null
-   my $convfrom       = param('convfrom') || '';                         # string (none, en_US.ISO8859-1, etc)
+   my $convfrom       = param('convfrom') || '';                         # string (none, en_US.UTF-8, etc)
    my $showhtmlastext = defined param('showhtmlastext') ? param('showhtmlastext') : $prefs{showhtmlastext}; # boolean flag
    my $blockimages    = defined param('blockimages') ? param('blockimages') : $prefs{blockimages};          # boolean flag
 

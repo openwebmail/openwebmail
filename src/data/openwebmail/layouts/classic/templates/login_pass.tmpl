@@ -10,53 +10,38 @@ body { background: #ffffff; }
 
 <script type="text/javascript">
 <!--
-   setTimeout("window.location.href='<tmpl_var url_refresh escape="none">'", 500);
+   setTimeout("window.location.href='<tmpl_var url_refresh escape="none">'", 50000);
 //-->
 </script>
 
-<center>
+<table cellpadding="0" cellspacing="0" border="0" width="45%" align="center">
+<tr>
+  <td align="center" class="lighttext">
+    <p><a href="<tmpl_var url_refresh escape="none">" title="gettext('click to continue')" class="loading">&nbsp;gettext('Loading ...')</a></p>
 
-<br><br><a href="<tmpl_var url_refresh escape="none">" title="gettext('click to continue')" class="loading">&nbsp;gettext('Loading ...')</a><br><br>
+    <br>
 
-<a href="http://openwebmail.acatysmoof.com" title="<tmpl_var programname escape="html"> homepage" target="_blank" class="copyright">
-<tmpl_if enable_about>
-  <tmpl_if about_info_software>
-    <tmpl_var programname escape="html"> <tmpl_var programversion escape="html">.<tmpl_var programrevision escape="html"> <tmpl_var programreleasedate escape="html">
-  </tmpl_if>
-</tmpl_if>
-<br>
-Copyright (c) 2001-2010, The OpenWebMail Project, All rights reserved<br>
-<br>
-gettext('Active Developers')<br>
-Alex Teslik, Scott Mazur, Joao S Veiga, Marian &#270;urkovi&#269;<br>
-<br>
-gettext('Special Thanks to Retired Developers')<br>
-Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>
-Dattola Filippo, Bernd Bass, Thomas Chung<br>
-<br>
-Portions based on Neomail, Copyright (c) 2000 Ernie Miller<br>
-<br>
-</a>
+    <a href="http://openwebmail.acatysmoof.com" title="<tmpl_var programname escape="html"> homepage" target="_blank" class="copyright">
+    <tmpl_if enable_about>
+    <tmpl_if about_info_software>
+    <p><tmpl_var programname escape="html"> <tmpl_var programversion escape="html">.<tmpl_var programrevision escape="html"> <tmpl_var programreleasedate escape="html"></p>
+    </tmpl_if>
+    </tmpl_if>
+    <p>Copyright (c) 2001-2010, The OpenWebMail Project, All rights reserved</p>
+    <p>gettext('Active Developers')<br>Alex Teslik, Scott Mazur, Joao S Veiga, Marian &#270;urkovi&#269;</p>
+    <p>gettext('Special Thanks to Retired Developers')<br>Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>Dattola Filippo, Bernd Bass, Thomas Chung</p>
+    <p>Portions based on Neomail, Copyright (c) 2000 Ernie Miller</p>
+    </a>
 
-<a href="<tmpl_var url_html escape="none">/doc/LICENSE.txt" title="gettext('click to see the BSD License')" target="_blank" class="copyright">
-THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project &apos;&apos;AS IS&apos;&apos; AND ANY<br>
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED<br>
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE<br>
-DISCLAIMED. IN NO EVENT SHALL The OpenWebMail Project BE LIABLE FOR ANY<br>
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES<br>
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;<br>
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND<br>
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT<br>
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS<br>
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.<br>
-<br>
-</a>
+    <p><a href="<tmpl_var url_html escape="none">/doc/LICENSE.txt" title="gettext('click to see the BSD License')" target="_blank" class="copyright">
+THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL The OpenWebMail Project BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</a></p>
 
-<tmpl_if session_count_display>
-<a href="javascript:void(0);" title="gettext('browser javascript support level')" class="copyright">gettext('Browser javascript support level:') <tmpl_var browserjavascript escape="html"></a><br>
-<a href="javascript:void(0);" title="gettext('number of active sessions in the past 1, 5, 15 minutes')" class="copyright">gettext('Sessions')&nbsp;:&nbsp;<tmpl_var activelastminute escape="html">,&nbsp;<tmpl_var activelastfiveminute escape="html">,&nbsp;<tmpl_var activelastfifteenminute escape="html"></a>
-</tmpl_if>
-
-</center>
+    <tmpl_if session_count_display>
+    <p title="gettext('browser javascript support level')">gettext('Browser javascript support level:') <tmpl_var browserjavascript escape="html"></p>
+    <p title="gettext('number of active sessions in the past 1, 5, 15 minutes')">gettext('Sessions')&nbsp;:&nbsp;<tmpl_var activelastminute escape="html">,&nbsp;<tmpl_var activelastfiveminute escape="html">,&nbsp;<tmpl_var activelastfifteenminute escape="html"></p>
+    </tmpl_if>
+  </td>
+</tr>
+</table>
 
 <tmpl_var footer_template escape="none">

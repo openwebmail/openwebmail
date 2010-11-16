@@ -53,12 +53,12 @@ $pot->{''} = new Locale::PO(
                               -msgstr => "Project-Id-Version: OpenWebMail\\n" .
                                          "PO-Revision-Date: $datestring\\n" .
                                          "Last-Translator: OpenWebMail Team <openwebmail\@acatysmoof.com>\\n" .
-                                         "Language-Team: LANGUAGE <LL\@li.org>\\n" .
+                                         "Language-Team: OpenWebMail Team <openwebmail\@acatysmoof.com>\\n" .
                                          "MIME-Version: 1.0\\n" .
-                                         "Content-Type: text/plain; charset=iso-8859-1\\n" .
+                                         "Content-Type: text/plain; charset=utf-8\\n" .
                                          "Content-Transfer-Encoding: 8bit\\n" .
                                          "Plural-Forms: nplurals=2; plural=n != 1;\\n" .
-                                         "X-Poedit-SourceCharset: iso-8859-1\\n"
+                                         "X-Poedit-SourceCharset: utf-8\\n"
                            );
 
 my $msgids = {};

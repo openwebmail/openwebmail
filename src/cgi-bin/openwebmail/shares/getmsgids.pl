@@ -160,7 +160,7 @@ sub getinfomessageids {
 
       foreach my $messageid (keys %{$r_haskeyword}) {
          my @attr = string2msgattr($FDB{$messageid});
-         $newmessages++ if $attr[$_STATUS] !~ m/R/i;
+         $newmessages++ if defined $attr[$_STATUS] && $attr[$_STATUS] !~ m/R/i;
          $totalsize += $attr[$_SIZE];
       }
 
@@ -317,7 +317,7 @@ sub search_info_messages_for_keyword {
 
          # try to find messages in same thread with references if seaching subject
          if ($searchtype eq 'subject') {
-            my @references = split(/\s+/, $attr[$_REFERENCES]);
+            my @references = defined $attr[$_REFERENCES] ? split(/\s+/, $attr[$_REFERENCES]) : ();
 
             foreach my $refid (@references) {
                # if a message is already in %found, then we put all messages it references in %found

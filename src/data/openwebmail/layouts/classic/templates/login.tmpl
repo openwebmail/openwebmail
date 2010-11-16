@@ -31,11 +31,11 @@
         </tr>
         <tr>
           <td align="right" nowrap>gettext('UserID:')</td>
-          <td align="left"><input type="text" name="loginname" size="<tmpl_var loginfieldwidth escape="html">" onblur="document.loginform.password.focus();"></td>
+          <td align="left"><input type="text" name="loginname" size="<tmpl_var loginfieldwidth escape="html">"></td>
         </tr>
         <tr>
           <td align="right" nowrap>gettext('Password:')</td>
-          <td align="left"><input type="password" name="password" size="<tmpl_var loginfieldwidth escape="html">" onblur="document.loginform.loginbutton.focus();"></td>
+          <td align="left"><input type="password" name="password" size="<tmpl_var loginfieldwidth escape="html">"></td>
         </tr>
 
         <tmpl_if enable_domainselect>
@@ -61,13 +61,13 @@
               <td>
                 <table cellpadding="2" cellspacing="0" border="0" align="center">
                 <tr>
-                  <td><input type="checkbox" name="httpcompress" value="1" <tmpl_if enable_httpcompression><tmpl_if use_httpcompression>checked="checked"</tmpl_if> onclick="httpcompresshelp();"<tmpl_else>disabled="1"</tmpl_if>></td>
-                  <td class="login_small" align="left">gettext('HTTP<br>Compression')</td>
+                  <td><input type="checkbox" id="httpcompress" name="httpcompress" value="1" <tmpl_if enable_httpcompression><tmpl_if use_httpcompression>checked="checked"</tmpl_if> onclick="httpcompresshelp();"<tmpl_else>disabled="1"</tmpl_if>></td>
+                  <td class="login_small" align="left"><label for="httpcompress">gettext('HTTP<br>Compression')</label></td>
 
                   <tmpl_if enable_autologin>
                   <!-- support autologin if it is allowed for this ip -->
-                  <td><input type="checkbox" name="autologin" value="1" <tmpl_if use_autologin>checked="checked"</tmpl_if> onclick="autologinhelp();"></td>
-                  <td class="login_small" align="left">gettext('Auto<br>Login')</td>
+                  <td><input type="checkbox" id="autologin" name="autologin" value="1" <tmpl_if use_autologin>checked="checked"</tmpl_if> onclick="autologinhelp();"></td>
+                  <td class="login_small" align="left"><label for="autologin">gettext('Auto<br>Login')</label></td>
                   <!-- end support autologin -->
                   </tmpl_if>
                 </tr>

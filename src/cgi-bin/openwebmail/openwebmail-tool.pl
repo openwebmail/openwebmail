@@ -90,7 +90,7 @@ use vars qw(%prefs);
 use vars qw(%lang_text);
 
 # extern vars
-use vars qw($_DBVERSION);		# defined in maildb.pl
+use vars qw($_DBVERSION);	        # defined in maildb.pl
 use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE
             $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES);
 use vars qw(%is_config_option);		# from ow-shared.pl
@@ -123,7 +123,8 @@ openwebmail_requestbegin();
 # no buffer on stdout
 local $|=1;
 
-if ($ARGV[0] eq "--") {		# called by inetd
+if (defined $ARGV[0] && $ARGV[0] eq '--') {
+   # called by inetd
    push(@list, $ARGV[1]);
    $opt{'mail'}=1;
    $opt{'event'}=1;

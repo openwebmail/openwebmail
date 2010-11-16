@@ -57,7 +57,9 @@ sub readcalbook {
       openwebmailerror(gettext('Cannot open file:') . " $calbook ($!)");
 
    while (<CALBOOK>) {
-      next if (/^#/);
+      # skip blanks and comments
+      next if m/^#/ || m/^\s*$/;
+
       chomp;
 
       my @a     = split(/\@{3}/, $_);

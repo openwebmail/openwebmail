@@ -95,15 +95,17 @@ sub is_charset_supported {
 sub guess_browser_locale {
    my $available_locales = shift;
 
-   $ENV{HTTP_ACCEPT_LANGUAGE} = "en_US"
+   # default to English US
+   $ENV{HTTP_ACCEPT_LANGUAGE} = 'en_US'
      unless defined $ENV{HTTP_ACCEPT_LANGUAGE} && $ENV{HTTP_ACCEPT_LANGUAGE} =~ m#^[A-Za-z0-9-._*,;=\s]+$#gs;
 
-   $ENV{HTTP_ACCEPT_CHARSET} = "ISO8859-1"
+   # default to UTF-8
+   $ENV{HTTP_ACCEPT_CHARSET} = 'UTF-8'
      unless defined $ENV{HTTP_ACCEPT_CHARSET} && $ENV{HTTP_ACCEPT_CHARSET} =~ m#^[A-Za-z0-9-._*,;=\s]+$#gs;
 
-   # Internet Explorer doesn't send HTTP_ACCEPT_CHARSET
-   $ENV{HTTP_ACCEPT_CHARSET} = "UTF-8"
-     if defined $ENV{HTTP_USER_AGENT} && $ENV{HTTP_USER_AGENT} =~ /MSIE/;
+   # Internet Explorer does not send HTTP_ACCEPT_CHARSET
+   $ENV{HTTP_ACCEPT_CHARSET} = 'UTF-8'
+     if defined $ENV{HTTP_USER_AGENT} && $ENV{HTTP_USER_AGENT} =~ m/MSIE/;
 
    foreach my $lang (parse_http_accept($ENV{HTTP_ACCEPT_LANGUAGE})) {
       next if $lang eq '*';
@@ -123,8 +125,8 @@ sub guess_browser_locale {
          }
          foreach my $charset (parse_http_accept($ENV{HTTP_ACCEPT_CHARSET})) {
             next if $charset eq '*';
-            $charset = $charactersets{$charset}[0] if exists $charactersets{$charset}; # ISO88591 -> ISO8859-1
-            my $locale = "$available_language\.$charset";                              # en_US.ISO8859-1
+            $charset = $charactersets{$charset}[0] if exists $charactersets{$charset}; # UTF8 -> UTF-8
+            my $locale = "$available_language\.$charset";                              # en_US.UTF-8
             return $locale if (exists $available_locales->{$locale});
          }
       }
@@ -137,11 +139,8 @@ sub guess_browser_locale {
       }
    }
 
-   # we do not have any locale for the desired language - return en_US
-   if ($ENV{HTTP_ACCEPT_CHARSET} =~ /UTF-8/i) {
-      return "en_US.UTF-8"
-   }
-   return "en_US.ISO8859-1";
+   # we do not have any locale for the desired language - return en_US.UTF-8
+   return 'en_US.UTF-8'
 }
 
 sub parse_http_accept {
@@ -157,16 +156,16 @@ sub parse_http_accept {
 
 sub localeinfo {
    # this sub is intended to parse already validated locale names
-   my $locale = shift; # en_US.ISO8859-1
+   my $locale = shift; # en_US.UTF-8
    my ($language, $country, $charset) = $locale =~ m/^(..)_(..)\.(.*)$/;
    my $charsetkey = uc($charset);
-   $charsetkey =~ s#[_-]##g; # ISO88591
+   $charsetkey =~ s#[_-]##g; # UTF8
    return (
             $language,                      # en
             $country,                       # US
-            $charsetkey,                    # ISO88591
-            $charset,                       # ISO8859-1  (OWM Locale)
-            $charactersets{$charsetkey}[1], # iso-8859-1 (HTTP)
+            $charsetkey,                    # UTF8
+            $charset,                       # UTF-8 (OWM Locale)
+            $charactersets{$charsetkey}[1], # utf-8 (HTTP)
           );
 }
 

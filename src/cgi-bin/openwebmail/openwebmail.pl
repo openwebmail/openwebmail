@@ -429,7 +429,7 @@ sub login {
       }
    }
 
-   # create the user's syshome directory if necessary.
+   # create the users syshome directory if necessary.
    # this must be done before changing to the user's uid.
    if (!-d $homedir && $config{create_syshomedir}) {
       mkdir($homedir, 0700) || openwebmailerror(gettext('Cannot create directory:') . " $homedir ($!)");

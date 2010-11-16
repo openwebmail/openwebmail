@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta name="Author" content="Brent Epp &amp; William Brillinger, Precision Design Co. http://www.pdcweb.net"><title>Message Filtering Options</title>
+
+
+<link href="../../templates_and_data/style.css" rel="stylesheet">
+<script src="../../templates_and_data/makewin.js"></script>
+
+<script src="../../templates_and_data/def.js"></script>
+
+<meta name="Microsoft Border" content="tb"></head><body stylesrc="../../templates_and_data/borders-template.html" background="../../images/globe.gif">
+<!--msnavigation-->
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody><tr><td>
+<div align="center"><center>
+
+<table border="0" cellpadding="0" cellspacing="0" width="550">
+<tbody><tr><td>
+<a href="../../index.html">
+<img src="../../images/logo_small.gif" border="0" height="78" width="150"></a>
+</td></tr>
+<tr><td bgcolor="#000000" height="1">
+<img src="../../images/space.gif" height="1" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img src="../../images/space.gif" height="1" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img src="../../images/space.gif" height="1" width="10"></td></tr>
+</tbody></table>
+
+</center></div>
+</td></tr>
+
+<!--msnavigation-->
+</tbody></table>
+
+<!--msnavigation-->
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody><tr>
+<!--msnavigation-->
+<td valign="top">
+<div align="center"><center>
+
+<table border="0" cellpadding="0" cellspacing="0" width="550">
+<tbody>
+<tr><td>
+<a href="../../index.html">Open Webmail Help Tutorials</a>
+&gt;&gt; Message Filtering Options
+<br>
+<br></td></tr>
+</tbody>
+</table>
+
+</center></div>
+
+<div align="center"><center>
+
+<table border="0" cellpadding="0" cellspacing="0" width="550">
+<tbody>
+<tr><td>The <span style="font-weight: bold;">Message Filtering Options</span> determine how and where blocked messages will be filtered to.
+<p>Message Filtering Options reference chart:</p>
+
+<table align="center" border="0" cellpadding="1" cellspacing="1" width="540">
+<tbody>
+<tr bgcolor="#6699bb">
+<th style="width: 150px;">Term/Setting</th>
+
+<th style="width: 377px;">What it Sets/Changes</th>
+</tr>
+<tr bgcolor="#efefef"><td style="width: 150px;">Limit for Repeated Messages</td><td style="width: 377px;">Sets
+the filter limit for redundant messages. If repeated count is more than
+this value, messages will be moved to the Trash folder.<br>
+</td></tr>
+                <tr>
+                  <td style="vertical-align: top; background-color: rgb(205, 205, 205); width: 150px;">Filter messages with bad email address formatting</td>
+                  <td style="vertical-align: top; background-color: rgb(205, 205, 205); width: 377px;">If
+this option is set to 'yes', these bad format messages will be moved to
+the Trash folder. An email will be treated as bad format in the
+following cases:<br>
+                  <ul>
+                    <li>from email started with digits.</li>
+                    <li>from email containing both digits and dot (.).</li>
+                    <li>from email containing characters other than alphabet, digits dot(.), dash(-), underline(_).</li>
+                    <li>to email containing undisclosed-recipients and any email address.</li>
+                  </ul>
+Messages with bad email address are normally from spammers.<br>
+                  </td>
+                </tr>
+<tr bgcolor="#cdcdcd"><td style="background-color: rgb(239, 239, 239); width: 150px;">Filter messages with faked SMTP</td><td style="background-color: rgb(239, 239, 239); width: 377px;">Filters messages with a fake
+                  <a href="javascript:definition_window('../../def/smtp.html')">SMTP</a>
+address. A message is called 'fakedsmtp' if:<br>
+                  <ul>
+                    <li>the message from sender to receiver passes through one or more SMTP relays and the first SMTP relay has a invalid hostname.</li>
+                    <li>The message is delivered from sender to receiver directly and the sender has invalid hostname.</li>
+                  </ul>
+Messages in above cases are normally from spammers. When this option is
+set to 'yes', these fakedsmtp messages will be moved to Trash.<br>
+</td></tr>
+<tr bgcolor="#efefef"><td style="background-color: rgb(205, 205, 205); width: 150px;">Filter messages with faked From field</td><td style="background-color: rgb(205, 205, 205); width: 377px;">Filters
+messages with a false value in the From field. A message is called
+'fakedfrom' if the email in the From: field is different than
+the email address in the SMTP envelope. Messages of this type are
+usually sent from a virus. When this option is set to 'yes', these
+message will be moved to the Trash folder.<br>
+</td></tr>
+<tr bgcolor="#cdcdcd"><td style="background-color: rgb(239, 239, 239); width: 150px;">Filter messages with faked exe content type<br>
+</td><td style="background-color: rgb(239, 239, 239); width: 377px;">Filters messages with fake executable applications. If an executable attachment has content-type other than<br>
+'application/octet-stream', ex: audio/wav, audio/midi,<br>
+it may be download and executed automatically on some browser.<br>
+Messages with such attachments are normally virus mail. When this option is set to 'yes', these messages will be moved to Trash.<br>
+</td></tr>
+</tbody>
+</table>
+
+</td></tr>
+</tbody>
+</table>
+
+</center></div>
+
+<div align="center"><center>
+
+<table border="0" cellpadding="0" cellspacing="0" width="550">
+<tbody>
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr><td>
+<a href="spam.html"><b>&lt;&lt; Spam Check</b></a>
+</td><td align="right">
+<a href="address_book.html"><b>Address Book Options &gt;&gt;</b></a>
+</td></tr>
+</tbody>
+</table>
+
+</center></div>
+&nbsp;
+<!--msnavigation-->
+</td></tr>
+
+<!--msnavigation-->
+</tbody></table>
+
+<!--msnavigation-->
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody><tr><td>
+<div align="center"><center>
+
+<table border="0" cellpadding="0" cellspacing="0" width="550">
+<tbody><tr><td bgcolor="#000000" height="1">
+<img src="../../images/space.gif" height="1" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img src="../../images/space.gif" height="1" width="10"></td></tr>
+<tr><td bgcolor="#eeeeee" height="1">
+<img src="../../images/space.gif" height="1" width="10"></td></tr>
+<tr><td height="1"><font size="1">
+<a href="../notes/using_owm_help.html">About Open Webmail Help</a>
+</font></td></tr>
+</tbody></table>
+
+</center></div>
+</td></tr>
+
+<!--msnavigation-->
+</tbody></table>
+
+</body></html>
