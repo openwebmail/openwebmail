@@ -99,7 +99,7 @@ sub loadmodule {
 
    foreach my $sym (@symlist) {
       # alias symbol of sub routine into current package
-      *{$newpkg . '::' . $sym} =* {$modulepkg . '::' . $sym};
+      *{$newpkg . '::' . $sym} = *{$modulepkg . '::' . $sym};
    }
 
    return;
