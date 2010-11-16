@@ -1273,32 +1273,38 @@ sub update_virtuserdb {
    %DBR = ();
 
    # parse the virtusertable
-   sysopen(VIRT, $config{virtusertable}, O_RDONLY);
-   while (<VIRT>) {
-      s/^\s+//;                         # remove leading whitespace
-      s/\s+$//;                         # remove trailing whitespace
-      s/#.*$//;                         # remove comment lines
-      s/(.*?)\@(.*?)%1/$1\@$2$1/;       # resolve %1 in virtusertable
-                                        # user@domain.com     %1@example.com
+   sysopen(VIRT, $config{virtusertable}, O_RDONLY) or
+      openwebmailerror(gettext('Cannot open file:' . " $config{virtusertable} ($!)"));
 
-      my ($vu, $u) = split(/[\s\t]+/);
-      next if $vu eq '' || $u eq '';
-      next if $vu =~ m/^@/;             # ignore entries for whole domain mapping
+   while (my $line = <VIRT>) {
+      $line =~ s/^\s+//;                   # remove leading whitespace
+      $line =~ s/\s+$//;                   # remove trailing whitespace
+      $line =~ s/#.*$//;                   # remove comment lines
+      $line =~ s/(.*?)\@(.*?)%1/$1\@$2$1/; # resolve %1 in virtusertable: user@domain.com %1@example.com
 
-      $DB{$vu}=$u;
-      if (defined $DBR{$u}) {
-         $DBR{$u} .= ",$vu";
-      } else {
-         $DBR{$u} .= "$vu";
-      }
+      next unless defined $line && $line ne '';
+
+      my ($vu, $u) = split(/[\s\t]+/, $line);
+      next if !defined $vu || $vu eq '' || !defined $u || $u eq '';
+      next if $vu =~ m/^@/; # ignore entries for whole domain mapping
+
+      $DB{$vu} = $u;
+      $DBR{$u} = defined $DBR{$u} ? ",$vu" : "$vu";
    }
-   close(VIRT);
 
-   $DB{'METAINFO'}=$metainfo;
+   close(VIRT) or
+      openwebmailerror(gettext('Cannot close file:' . " $config{virtusertable} ($!)"));
 
-   ow::dbm::closedb(\%DBR, "$virtdb.rev");
-   ow::dbm::closedb(\%DB, $virtdb);
+   $DB{METAINFO} = $metainfo;
+
+   ow::dbm::closedb(\%DBR, "$virtdb.rev") or
+      openwebmailerror(gettext('Cannot close db:' . " $virtdb.rev"));
+
+   ow::dbm::closedb(\%DB, $virtdb) or
+      openwebmailerror(gettext('Cannot close db:' . " $virtdb"));
+
    ow::dbm::chmoddb(0644, $virtdb, "$virtdb.rev");
+
    return;
 }
 
@@ -1542,10 +1548,11 @@ sub get_header {
       $extra_info = '';
    }
 
-   my ($quotausagebytes, $quotausagepercentoflimit) = ();
-   if ($user && $config{quota_module} ne "none") {
-      $quotausagepercentoflimit = int($quotausage*1000/$quotalimit)/10 if $quotalimit;
-      $quotausagebytes          = lenstr($quotausage*1024,1);
+   my $quotausagebytes          = 0;
+   my $quotausagepercentoflimit = 0;
+   if (defined $user && $user && $config{quota_module} ne 'none' && defined $quotausage && $quotausage =~ m/^\d+$/) {
+      $quotausagebytes          = lenstr($quotausage * 1024, 1);
+      $quotausagepercentoflimit = int($quotausage * 1000 / $quotalimit) / 10 if $quotalimit;
    }
 
    my $timenow = time();
@@ -1563,37 +1570,38 @@ sub get_header {
       $timeoffset = ow::datetime::seconds2timeoffset(ow::datetime::timeoffset2seconds($prefs{timeoffset})+3600);
    }
 
-   my $mode = "(";
-   $mode   .= "+" if $persistence_count > 0;
-   $mode   .= "z" if is_http_compression_enabled();
-   $mode   .= ")";
-   $mode    = '' if $mode eq "()";
+   my $mode = '(';
+   $mode   .= '+' if $persistence_count > 0;
+   $mode   .= 'z' if is_http_compression_enabled();
+   $mode   .= ')';
+   $mode    = '' if $mode eq '()';
 
-   my $titleinfo = join(" - ", grep { defined && $_ } (
+   my $titleinfo = join(' - ', grep { defined && $_ } (
                                                          $extra_info,
-                                                         ($user?$prefs{email}:''),
-                                                         ($user && $config{quota_module} ne "none"?$quotausagebytes .
-                                                          ($quotausagepercentoflimit ne ''?'(' . $quotausagepercentoflimit . '%)':''):''),
+                                                         ((defined $user && $user) ? $prefs{email} : ''),
+                                                         ((defined $user && $user && $config{quota_module} ne 'none')
+                                                         ? $quotausagebytes . ($quotausagepercentoflimit ? "($quotausagepercentoflimit\%)" : '') : ''),
                                                          "$timedatestring $timeoffset",
                                                          $prefs{locale},
-                                                         $config{name} . ($mode?' ' . $mode:''),
+                                                         $config{name} . ($mode ? ' ' . $mode : ''),
                                                       ));
 
    my $helpdir = "$config{ow_htmldir}/help";
    my $helpurl = "$config{ow_htmlurl}/help";
-   if ( -d "$helpdir/$prefs{locale}" ) {
+
+   if (-d "$helpdir/$prefs{locale}") {
       # choose help in the correct locale if available
       $helpurl = "$helpurl/$prefs{locale}";
    } else {
       # choose help in the correct language if available
       my $language = substr($prefs{locale}, 0, 2);
 
-      my $firstmatch = undef;
+      my $firstmatch = '';
       if (-d $helpdir) {
-         opendir(HELPDIR, "$helpdir") or
+         opendir(HELPDIR, $helpdir) or
            openwebmailerror(gettext('Cannot open directory:') . ' ' . f2u($helpdir) . " ($!)");
 
-         $firstmatch = (map { "$helpurl/$_" } grep { !m/^\.+/ && m/^$language/ } readdir(HELPDIR))[0] || undef;
+         $firstmatch = (map { "$helpurl/$_" } grep { !m/^\.+/ && m/^$language/ } readdir(HELPDIR))[0] || '';
 
          closedir(HELPDIR) or
            openwebmailerror(gettext('Cannot close directory:') . ' ' . f2u($helpdir) . " ($!)");
@@ -1606,9 +1614,12 @@ sub get_header {
    # Get a list of valid style files
    my $stylesurl = "$config{ow_layoutsurl}/$prefs{layout}/styles";
    my $stylesdir = "$config{ow_layoutsdir}/$prefs{layout}/styles";
+
    opendir(STYLESDIR, $stylesdir) or
       openwebmailerror(gettext('Cannot open directory:') . " $stylesdir ($!)");
+
    my @styles = sort grep { -f "$stylesdir/$_" && s/^([^.]+)\.css$/$1/i } readdir(STYLESDIR);
+
    closedir(STYLESDIR) or
       openwebmailerror(gettext('Cannot close directory:') . " $stylesdir ($!)");
 
@@ -1645,7 +1656,7 @@ sub get_header {
                       headerpluginoutput => htmlplugin($config{header_pluginfile}, $config{header_pluginfile_charset}, $prefs{charset}),
                    );
 
-   return ($template->output);
+   return $template->output;
 }
 
 sub get_footer {

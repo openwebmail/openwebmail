@@ -32,10 +32,12 @@ package ow::tool;
 
 use strict;
 use warnings;
+
 use Fcntl qw(:DEFAULT :flock);
 use Digest::MD5 qw(md5);
 use POSIX qw(:sys_wait_h); # for WNOHANG in waitpid()
 use Carp;
+
 $Carp::MaxArgNums = 0; # return all args in Carp output
 
 use vars qw(%_bincache);
@@ -69,6 +71,38 @@ sub find_configfile {
       }
    }
    return ('');
+}
+
+sub loadmodule {
+   # use 'require' to load the package ow::$file
+   # then alias ow::$file::symbol to $newpkg::symbol
+   # through Glob and 'tricky' symbolic reference feature
+   my ($newpkg, $moduledir, $modulefile, @symlist) = @_;
+
+   # remove / and .. for path safety
+   $modulefile =~ s!/!!g;
+   $modulefile =~ s!\.\.!!g;
+
+   # this would be done only once because of %INC
+   my $modulepath = ow::tool::untaint("$moduledir/$modulefile");
+   require $modulepath;
+
+   # . - is not allowed for package name
+   my $modulepkg = 'ow::' . $modulefile;
+   $modulepkg =~ s/\.pl//;
+   $modulepkg =~ s/[\.\-]/_/g;
+
+   # release strict refs until block end
+   no strict 'refs';
+   # use symbol table of package $modulepkg if no symbol passed in
+   @symlist = keys %{$modulepkg . '::'} if scalar @symlist < 1;
+
+   foreach my $sym (@symlist) {
+      # alias symbol of sub routine into current package
+      *{$newpkg . '::' . $sym} =* {$modulepkg . '::' . $sym};
+   }
+
+   return;
 }
 
 sub load_configfile {
