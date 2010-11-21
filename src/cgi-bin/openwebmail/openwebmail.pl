@@ -390,7 +390,7 @@ sub login {
       return loginfailed($errorcode);
    }
 
-   # try to load lang and style based on user's preference for error msg
+   # try to load lang and style based on users preference for error msg
    if ($> == 0 || $> == $uuid) {
       %prefs = readprefs();
       $po = loadlang($prefs{locale});
@@ -414,7 +414,7 @@ sub login {
    upgrade_20030323();
 
    # create owuserdir for stuff not put in syshomedir
-   # this must be done before changing to the user's uid.
+   # this must be done before changing to the users uid
    if (!$config{use_syshomedir} || !$config{use_syshomedir_for_dotdir}) {
       if (!-d $owuserdir) {
          mkdir($owuserdir, 0700) || openwebmailerror(gettext('Cannot create directory:') . " $owuserdir ($!)");
@@ -429,8 +429,8 @@ sub login {
       }
    }
 
-   # create the users syshome directory if necessary.
-   # this must be done before changing to the user's uid.
+   # create the users syshome directory if necessary
+   # this must be done before changing to the users uid
    if (!-d $homedir && $config{create_syshomedir}) {
       mkdir($homedir, 0700) || openwebmailerror(gettext('Cannot create directory:') . " $homedir ($!)");
 

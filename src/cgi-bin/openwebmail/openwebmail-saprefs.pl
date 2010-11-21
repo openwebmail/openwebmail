@@ -203,7 +203,7 @@ sub edittest {
                       header_template  => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon     => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon     => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       url_html         => $config{ow_htmlurl},
                       url_cgi          => $config{ow_cgiurl},
                       iconset          => $prefs{iconset},
@@ -340,7 +340,7 @@ sub editlist {
                       header_template  => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon     => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon     => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       url_html         => $config{ow_htmlurl},
                       url_cgi          => $config{ow_cgiurl},
                       iconset          => $prefs{iconset},

@@ -159,59 +159,78 @@ sub unlinkdb {
 }
 
 sub guessoptions {
-   my (%DB, @filelist, @delfiles);
-   my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock);
+   my %DB              = ();
+   my @filelist        = ();
+   my @delfiles        = ();
+   my $dbm_ext         = '';
+   my $dbmopen_ext     = '';
+   my $dbmopen_haslock = 0;
 
-   my $testdir=ow::tool::mktmpdir('dbmtest.tmp');
-   return($dbm_ext, $dbmopen_ext, $dbmopen_haslock) if ($testdir eq '');
+   my $testdir = ow::tool::mktmpdir('dbmtest.tmp');
 
+   return ($dbm_ext, $dbmopen_ext, $dbmopen_haslock) if $testdir eq '';
+
+   # open a db file in the test directory named 'test'
+   # if it opens successfully it will append the dbm_ext to the filename
+   # as it is supported on the system (usually 'test.db', but maybe 'test.dir', or 'test.pag')
    dbmopen(%DB, "$testdir/test", 0600);
    dbmclose(%DB);
-   @delfiles=();
+
+   @delfiles = ();
+
    opendir(TESTDIR, $testdir);
+
    while (defined(my $filename = readdir(TESTDIR))) {
-      if ($filename!~/^\./ ) {
+      if ($filename !~ m/^\./) {
          push(@filelist, $filename);
          push(@delfiles, ow::tool::untaint("$testdir/$filename"));
       }
    }
+
    closedir(TESTDIR);
+
    unlink(@delfiles) if scalar @delfiles > 0;
 
    @filelist = reverse sort(@filelist);
-   if ($filelist[0]=~/(\..*)$/) {
-      ($dbm_ext, $dbmopen_ext)=($1, '');
+
+   if ($filelist[0] =~ m/(\.[^.]+)$/) {
+      ($dbm_ext, $dbmopen_ext) = ($1, '');
    } else {
-      ($dbm_ext, $dbmopen_ext)=('.db', '.db');
+      ($dbm_ext, $dbmopen_ext) = ('.db', '.db');
    }
 
-   my $result;
+   my $result = '';
+
    ow::filelock::lock("$testdir/test$dbm_ext", LOCK_EX);
+
    eval {
       local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
       alarm 5;	# timeout 5 sec
-      $result = dbmopen(%DB, "$testdir/test$dbmopen_ext", 0600);
-      dbmclose(%DB) if ($result);
+      dbmopen(%DB, "$testdir/test$dbmopen_ext", 0600);
+      dbmclose(%DB);
       alarm 0;
    };
-   if ($@ or !$result) {	# eval error, it means timeout
-      $dbmopen_haslock=1;
-   } else {
-      $dbmopen_haslock=0;
-   }
+
+   # eval error, it means timeout
+   $dbmopen_haslock = $@ ? 1 : 0;
+
    ow::filelock::lock("$testdir/test$dbm_ext", LOCK_UN);
 
-   @delfiles=();
+   @delfiles = ();
+
    opendir(TESTDIR, $testdir);
+
    while (defined(my $filename = readdir(TESTDIR))) {
-      push(@delfiles, ow::tool::untaint("$testdir/$filename")) if ($filename!~/^\./ );
+      push(@delfiles, ow::tool::untaint("$testdir/$filename")) if $filename !~ m/^\./;
    }
+
    closedir(TESTDIR);
+
    unlink(@delfiles) if scalar @delfiles > 0;
 
    rmdir($testdir);
 
-   return($dbm_ext, $dbmopen_ext, $dbmopen_haslock);
+   return ($dbm_ext, $dbmopen_ext, $dbmopen_haslock);
 }
 
 sub get_defaultdbtype {

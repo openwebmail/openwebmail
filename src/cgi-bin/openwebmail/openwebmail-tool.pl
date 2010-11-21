@@ -1,31 +1,53 @@
 #!/usr/bin/perl -T
+
+#                              The BSD License
 #
+#  Copyright (c) 2009-2010, The OpenWebMail Project
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in the
+#        documentation and/or other materials provided with the distribution.
+#      * Neither the name of The OpenWebMail Project nor the
+#        names of its contributors may be used to endorse or promote products
+#        derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project ``AS IS'' AND ANY
+#  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL The OpenWebMail Project BE LIABLE FOR ANY
+#  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 # openwebmail-tool.pl - command tool for mail/event/notify/index...
-#
-# 03/27/2003 tung.AT.turtle.ee.ncku.edu.tw
-#            Ebola.AT.turtle.ee.ncku.edu.tw
-#
 
 use strict;
 use warnings;
 
 use vars qw($SCRIPT_DIR);
 
-if (-f "/etc/openwebmail_path.conf") {
-   my $pathconf = "/etc/openwebmail_path.conf";
-   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+if (-f '/etc/openwebmail_path.conf') {
+   my $pathconf = '/etc/openwebmail_path.conf';
+   open(F, $pathconf) or die "Cannot open $pathconf: $!";
    my $pathinfo = <F>;
-   close(F) or die("Cannot close $pathconf: $!");
+   close(F) or die "Cannot close $pathconf: $!";
    ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
 } else {
    ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
 
-if ($SCRIPT_DIR eq '') {
-   print qq|
+die qq|
 
-   OpenWebMail is unable to locate itself on this system,
-   please put the path of the openwebmail CGI directory as
+   OpenWebMail is unable to locate itself on this system.
+   Please put the path of the openwebmail CGI directory as
    the first line of file /etc/openwebmail_path.conf.
 
    For example, if the script is:
@@ -36,21 +58,23 @@ if ($SCRIPT_DIR eq '') {
 
    /usr/local/www/cgi-bin/openwebmail/
 
-   |;
-   exit 0;
-}
-push (@INC, $SCRIPT_DIR);
+| if $SCRIPT_DIR eq '';
 
-use Fcntl qw(:DEFAULT :flock);
-use Net::SMTP;
+push (@INC, $SCRIPT_DIR);
+push (@INC, "$SCRIPT_DIR/lib");
 
 # secure the environment
 delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
-$ENV{PATH}='/bin:/usr/bin';
+$ENV{PATH} = '/bin:/usr/bin';
 
 # make sure the openwebmail group can write
 umask(0002);
 
+# load non-OWM libraries
+use Fcntl qw(:DEFAULT :flock);
+use Net::SMTP;
+
+# load OWM libraries
 require "modules/dbm.pl";
 require "modules/suid.pl";
 require "modules/filelock.pl";
@@ -86,8 +110,7 @@ ow::tool::has_module('IO/Socket/SSL.pm');
 use vars qw(%config %config_raw);
 use vars qw($default_logindomain $loginname $logindomain $loginuser);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
-use vars qw(%prefs);
-use vars qw(%lang_text);
+use vars qw(%prefs $po);
 
 # extern vars
 use vars qw($_DBVERSION);	        # defined in maildb.pl
@@ -99,29 +122,26 @@ use vars qw(%is_internal_dbkey);	# from maildb.pl
 # local globals
 use vars qw($POP3_TIMEOUT %opt $startup_ruid);
 
-# used to remember ruid of user who executes this script
-$startup_ruid=$< if (!defined $startup_ruid);
-#
-# speedycgi guarentees a persistennt copy is used again
+# speedycgi guarentees a persistent copy is used again
 # only if the script is executed by same user(ruid),
 # since routine openwebmail_requestbegin() clears ruid of persistence copy,
-# we store the ruid in $startup_ruid.
+# we store the ruid in $startup_ruid:
+$startup_ruid = $< unless defined $startup_ruid;
 
-########## main ##################################################
-$POP3_TIMEOUT=20;
+$POP3_TIMEOUT = 20;
 
-%opt=('null'=>1);
-$default_logindomain="";
+%opt = ('null' => 1);
+$default_logindomain = '';
 
 # by default, the $startup_ruid (ruid of the user running this script) is used as runtime euid
 # but euid $> is used if operation is either from inetd, -m (query mail status ) or -e(query event status)
-my $euid_to_use=$startup_ruid;
-my @list=();
+my $euid_to_use = $startup_ruid;
+my @list = ();
 
 openwebmail_requestbegin();
 
 # no buffer on stdout
-local $|=1;
+local $| = 1;
 
 if (defined $ARGV[0] && $ARGV[0] eq '--') {
    # called by inetd
@@ -219,7 +239,7 @@ $>=$euid_to_use;
 # because there may be paths that get changed in the custom config
 load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
 
-if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
+if (-f "$SCRIPT_DIR/etc/openwebmail.conf") {
    # load the custom config over the default config and merge everything
    read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
    print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
@@ -234,13 +254,14 @@ if (defined $config{'domainname_equiv'}{'map'}{$logindomain}) {
    print "D domain equivalence found: $logindomain -> $config{'domainname_equiv'}{'map'}{$logindomain}\n" if ($opt{'debug'});
    $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain};
 }
+
 if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
    read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
    print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
 }
 
 %prefs = readprefs();
-loadlang("$prefs{'locale'}"); # for converted filename $lang_text{abook_converted}
+$po = loadlang($prefs{locale}); # for converted filename $lang_text{abook_converted}
 
 writelog("debug - request tool begin, argv=" . join(' ', @ARGV)) if $config{debug_request};
 
@@ -421,33 +442,26 @@ sub do_test {
    my $err=0;
    print "\n" if (!$in_init);
 
-   if ($MIME::Base64::VERSION lt "3.00") {
+   if ($MIME::Base64::VERSION lt '3.00') {
       $err--;
       print "Base64.pm\t\t$INC{'MIME/Base64.pm'}\n\n";
       print "Your MIME::Base64 module is too old ($MIME::Base64::VERSION),\n".
             "please update to 3.00 or later.\n\n\n";
    }
 
-   my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock)=ow::dbm::guessoptions();
+   my ($dbm_ext, $dbmopen_ext, $dbmopen_haslock) = ow::dbm::guessoptions();
 
-   print_dbm_module() if (!$in_init);
-
-   $err-- if (check_db_file_pm()<0);
-   $err-- if (check_dbm_option($in_init, $dbm_ext, $dbmopen_ext, $dbmopen_haslock)<0);
-   $err-- if (check_savedsuid_support()<0);
-
-   return $err;
-}
-
-sub print_dbm_module {
-   print "Your perl uses the following packages for dbm:\n\n";
-   my @pm;
-   foreach (keys %INC) {
-      push (@pm, $_) if (/DB.*File/);
+   if (!$in_init) {
+      print "Your perl uses the following packages for dbm:\n\n";
+      print "$_\t\t$INC{$_}\n" for sort grep { m/DB.*File/ } keys %INC;
+      print "\n\n";
    }
 
-   print "$_\t\t$INC{$_}\n" for sort @pm;
-   print "\n\n";
+   $err-- if check_db_file_pm() < 0;
+   $err-- if check_dbm_option($in_init, $dbm_ext, $dbmopen_ext, $dbmopen_haslock) < 0;
+   $err-- if check_savedsuid_support() < 0;
+
+   return $err;
 }
 
 sub check_db_file_pm {
@@ -473,30 +487,24 @@ sub check_db_file_pm {
 }
 
 sub check_dbm_option {
-   my ($in_init, $dbm_ext, $dbmopen_ext, $dbmopen_haslock)=@_;
+   my ($in_init, $dbm_ext, $dbmopen_ext, $dbmopen_haslock) = @_;
 
-   my $err=0;
-   if ($dbm_ext          ne $ow::dbm::dbm_ext ||
-       $dbmopen_ext      ne $ow::dbm::dbmopen_ext ||
-       ($dbmopen_haslock ne $ow::dbm::dbmopen_haslock && $dbmopen_haslock) ) {
-      $err++;
-   }
+   my $err = 0;
 
-   my %str;
-   @str{'dbm_ext', 'dbmopen_ext', 'dbmopen_haslock'}=
-      ($dbm_ext, $dbmopen_ext, $dbmopen_haslock);
-   @str{'conf_dbm_ext', 'conf_dbmopen_ext', 'conf_dbmopen_haslock'}=
-      ($ow::dbm::dbm_ext, $ow::dbm::dbmopen_ext, $ow::dbm::dbmopen_haslock);
-   foreach ('dbm_ext', 'dbmopen_ext', 'conf_dbm_ext', 'conf_dbmopen_ext') {
-      $str{$_}='none' if ($str{$_} eq '');
-   }
-   foreach ('dbmopen_haslock', 'conf_dbmopen_haslock') {
-      if ($str{$_}) {
-         $str{$_}='yes';
-      } else {
-         $str{$_}='no';
-      }
-   }
+   $err++ if (
+                $dbm_ext ne $ow::dbm::dbm_ext
+                || $dbmopen_ext ne $ow::dbm::dbmopen_ext
+                || ($dbmopen_haslock ne $ow::dbm::dbmopen_haslock && $dbmopen_haslock)
+             );
+
+   my %str = (
+                dbm_ext              => $dbm_ext || 'none',
+                dbmopen_ext          => $dbmopen_ext || 'none',
+                dbmopen_haslock      => $dbmopen_haslock ? 'yes' : 'no',
+                conf_dbm_ext         => $ow::dbm::dbm_ext || 'none',
+                conf_dbmopen_ext     => $ow::dbm::dbmopen_ext || 'none',
+                conf_dbmopen_haslock => $ow::dbm::dbmopen_haslock ? 'yes' : 'no',
+             );
 
    if ($in_init && $err) {
       print qq|Please change '$SCRIPT_DIR/etc/dbm.conf' from\n\n|.
@@ -508,6 +516,7 @@ sub check_dbm_option {
             qq|dbmopen_ext     \t$str{dbmopen_ext}\n|.
             qq|dbmopen_haslock \t$str{dbmopen_haslock}\n\n\n|;
    }
+
    if (!$in_init) {
       print qq|'$SCRIPT_DIR/etc/dbm.conf' should be set as follows:\n\n|.
             qq|dbm_ext         \t$str{dbm_ext}\n|.
@@ -515,8 +524,7 @@ sub check_dbm_option {
             qq|dbmopen_haslock \t$str{dbmopen_haslock}\n\n\n|;
    }
 
-   return -1 if ($err);
-   return 0;
+   return $err ? -1 : 0;
 }
 
 sub check_savedsuid_support {
@@ -959,9 +967,9 @@ sub usertool {
          print "unlockfiles() return $ret\n" if (!$opt{'quiet'} && $ret!=0);
       }
       if ($opt{'convert_addressbooks'}) {
-         loadlang("$prefs{'locale'}"); # for converted filename $lang_text{abook_converted}
+         $po = loadlang($prefs{locale}); # for converted filename $lang_text{abook_converted}
          print "converting user $user addressbook..." unless $opt{quiet};
-         my $ret=convert_addressbook('user', (ow::lang::localeinfo($prefs{locale}))[4]);
+         my $ret = convert_addressbook('user', (ow::lang::localeinfo($prefs{locale}))[4]);
          print "done.\n" unless $opt{quiet};
       }
 

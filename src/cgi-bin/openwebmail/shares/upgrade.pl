@@ -660,24 +660,30 @@ sub upgrade_all {
       }
    }
 
-#   if ($user_releasedate lt '20101116') {
-#      # users preferences need to be updated to accomodate the new layouts and styles
-#      my $rcfile = dotpath('openwebmailrc');
-#      if (-f $rcfile) {
-#         %prefs = readprefs();
-#
-#         $prefs{style} = lc($prefs{style});
-#
-#         if (sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT)) {
-#            foreach my $key (@openwebmailrcitem) {
-#               print RC "$key=$prefs{$key}\n";
-#            }
-#            close(RC);
-#            writehistory("release upgrade - openwebmailrc by 20100605");
-#            writelog("release upgrade - openwebmailrc by 20100605");
-#         }
-#      }
-#   }
+   if ($user_releasedate lt '20101120') {
+      # users preferences need to be updated to accomodate the new layouts, styles, and iconsets
+      # and for the new available languages and charsets
+      my $rcfile = dotpath('openwebmailrc');
+
+      if (-f $rcfile) {
+         %prefs = readprefs();
+
+         $prefs{style} = lc $prefs{style};
+         $prefs{iconset} = 'Text' if defined $prefs{iconset} && $prefs{iconset} =~ m/^Text/;
+         $prefs{layout} = 'classic' unless defined $prefs{layout};
+
+         sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
+            openwebmailerror(gettext('Cannot open file:' . " $rcfile ($!)"));
+
+         print RC "$_=$prefs{$_}\n" for @openwebmailrcitem;
+
+         close(RC) or
+            openwebmailerror(gettext('Cannot close file:' . " $rcfile ($!)"));
+
+         writehistory('release upgrade - openwebmailrc by 20101120');
+         writelog('release upgrade - openwebmailrc by 20101120');
+      }
+   }
 
    return;
 }
@@ -685,8 +691,11 @@ sub upgrade_all {
 sub read_releasedatefile {
    # try every possible release date file
    my $releasedatefile = dotpath('release.date');
-   $releasedatefile    = "$homedir/$config{homedirfolderdirname}/.release.date" if !-f $releasedatefile;
-   $releasedatefile    = "$homedir/.release.date" if !-f $releasedatefile;
+   $releasedatefile    = "$homedir/$config{homedirfolderdirname}/.release.date" unless -f $releasedatefile;
+   $releasedatefile    = "$homedir/.release.date" unless -f $releasedatefile;
+
+   # no release file to read
+   return '' unless -f $releasedatefile;
 
    sysopen(D, $releasedatefile, O_RDONLY) or
       openwebmailerror(gettext('Cannot open file:') . " $releasedatefile ($!)");
@@ -695,7 +704,8 @@ sub read_releasedatefile {
 
    chomp($d);
 
-   close(D) or writelog("cannot close file $releasedatefile ($!)");
+   close(D) or
+      openwebmailerror(gettext('Cannot close file:') . " $releasedatefile ($!)");
 
    return $d;
 }
@@ -708,7 +718,8 @@ sub update_releasedatefile {
 
    print D $config{releasedate};
 
-   close(D);
+   close(D) or
+      openwebmailerror(gettext('Cannot close file:') . " $releasedatefile ($!)");
 }
 
 sub update_openwebmailrc {

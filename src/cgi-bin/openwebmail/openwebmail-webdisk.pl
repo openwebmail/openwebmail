@@ -484,7 +484,7 @@ sub showdir {
          my $is_txt      = $ftype{$filename} eq 'd'
                            ? 0
                            : (-T "$webdiskrootdir/$currentdir/$filename" || $filename =~ m/\.(txt|html?)$/i);
-         my $ficon       = $prefs{iconset} =~ m/^Text\./ ? '' : findicon($filename, $ftype{$filename}, $is_txt, $os);
+         my $ficon       = $prefs{iconset} =~ m/^Text$/ ? '' : findicon($filename, $ftype{$filename}, $is_txt, $os);
          my $dname       = '';
          my $fname       = '';
          my $dnamestr    = '';
@@ -570,7 +570,7 @@ sub showdir {
                                  longpage      => $longpage,
                                  url_cgi       => $config{ow_cgiurl},
                                  url_html      => $config{ow_htmlurl},
-                                 use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                 use_texticon  => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                  iconset       => $prefs{iconset},
 
                                  # filesloop
@@ -647,7 +647,7 @@ sub showdir {
                       longpage                   => $longpage,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
-                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
 
                       # webdisk_showdir.tmpl
@@ -792,7 +792,7 @@ sub mkpathloop {
                    longpage     => $longpage,
                    url_cgi      => $config{ow_cgiurl},
                    url_html     => $config{ow_htmlurl},
-                   use_texticon => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                   use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                    iconset      => $prefs{iconset},
 
                    # pathloop
@@ -851,7 +851,7 @@ sub mkheadersloop {
                    longpage      => $longpage,
                    url_cgi       => $config{ow_cgiurl},
                    url_html      => $config{ow_htmlurl},
-                   use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                   use_texticon  => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                    iconset       => $prefs{iconset},
 
                    # headersloop
@@ -2291,7 +2291,7 @@ sub dirfilesel {
          my $is_txt   = $ftype{$filename} eq 'd'
                         ? 0
                         : (-T "$webdiskrootdir/$currentdir/$filename" || $filename =~ m/\.(txt|html?)$/i);
-         my $ficon    = $prefs{iconset} =~ m/^Text\./
+         my $ficon    = $prefs{iconset} =~ m/^Text$/
                         ? ''
                         : findicon($filename, $ftype{$filename}, $is_txt, $os);
          my $datestr  = defined $fdate{$filename}
@@ -2315,7 +2315,7 @@ sub dirfilesel {
                                 longpage          => $longpage,
                                 url_cgi           => $config{ow_cgiurl},
                                 url_html          => $config{ow_htmlurl},
-                                use_texticon      => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                use_texticon      => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                 iconset           => $prefs{iconset},
 
                                 # filesloop
@@ -2375,7 +2375,7 @@ sub dirfilesel {
                       longpage          => $longpage,
                       url_cgi           => $config{ow_cgiurl},
                       url_html          => $config{ow_htmlurl},
-                      use_texticon      => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon      => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset           => $prefs{iconset},
 
                       # webdisk_dirfilesel.tmpl

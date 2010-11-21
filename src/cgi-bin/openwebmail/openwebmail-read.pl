@@ -586,7 +586,7 @@ sub readmessage {
       $messagesloop->[$i]{keyword}               = $keyword,
       $messagesloop->[$i]{url_cgi}               = $config{ow_cgiurl},
       $messagesloop->[$i]{url_html}              = $config{ow_htmlurl},
-      $messagesloop->[$i]{use_texticon}          = $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+      $messagesloop->[$i]{use_texticon}          = $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
       $messagesloop->[$i]{use_fixedfont}         = $prefs{usefixedfont},
       $messagesloop->[$i]{iconset}               = $prefs{iconset},
 
@@ -757,7 +757,7 @@ sub readmessage {
          $messagesloop->[$i]{attachment}[$n]{keyword}               = $keyword;
          $messagesloop->[$i]{attachment}[$n]{url_cgi}               = $config{ow_cgiurl};
          $messagesloop->[$i]{attachment}[$n]{url_html}              = $config{ow_htmlurl};
-         $messagesloop->[$i]{attachment}[$n]{use_texticon}          = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
+         $messagesloop->[$i]{attachment}[$n]{use_texticon}          = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
          $messagesloop->[$i]{attachment}[$n]{use_fixedfont}         = $prefs{usefixedfont};
          $messagesloop->[$i]{attachment}[$n]{iconset}               = $prefs{iconset};
          # non-standard
@@ -1133,7 +1133,7 @@ sub readmessage {
                       keyword                 => $keyword,
                       url_cgi                 => $config{ow_cgiurl},
                       url_html                => $config{ow_htmlurl},
-                      use_texticon            => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon            => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont           => $prefs{usefixedfont},
                       iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},

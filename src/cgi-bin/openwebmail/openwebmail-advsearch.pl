@@ -254,7 +254,7 @@ sub advsearch {
                                    longpage             => $longpage,
                                    url_cgi              => $config{ow_cgiurl},
                                    url_html             => $config{ow_htmlurl},
-                                   use_texticon         => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                   use_texticon         => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                    iconset              => $prefs{iconset},
 
                                    # results
@@ -306,7 +306,7 @@ sub advsearch {
                       longpage                   => $longpage,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
-                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
 
                       # advsearch.tmpl

@@ -119,30 +119,30 @@ $prefs_caller  = param('prefs_caller') || ( $config{enable_webmail}  ? 'main'   
 
 writelog("debug - request prefs begin, action=$action") if $config{debug_request};
 
-$action eq "userfirsttime"                                   ? userfirsttime()     :
-$action eq "timeoutwarning"                                  ? timeoutwarning()    :
-$action eq "about"           && $config{enable_about}        ? about()             :
-$action eq "editprefs"       && $config{enable_preference}   ? editprefs()         :
-$action eq "saveprefs"       && $config{enable_preference}   ? saveprefs()         :
-$action eq "editpassword"    && $config{enable_changepwd}    ? editpassword()      :
-$action eq "changepassword"  && $config{enable_changepwd}    ? changepassword()    :
-$action eq "viewhistory"     && $config{enable_history}      ? viewhistory()       :
+$action eq 'userfirsttime'                                   ? userfirsttime()     :
+$action eq 'timeoutwarning'                                  ? timeoutwarning()    :
+$action eq 'about'           && $config{enable_about}        ? about()             :
+$action eq 'editprefs'       && $config{enable_preference}   ? editprefs()         :
+$action eq 'saveprefs'       && $config{enable_preference}   ? saveprefs()         :
+$action eq 'editpassword'    && $config{enable_changepwd}    ? editpassword()      :
+$action eq 'changepassword'  && $config{enable_changepwd}    ? changepassword()    :
+$action eq 'viewhistory'     && $config{enable_history}      ? viewhistory()       :
 
 $config{enable_webmail} ?
-   $action eq "editfroms"    && $config{enable_editfrombook} ? editfroms()         :
-   $action eq "addfrom"      && $config{enable_editfrombook} ? modfrom('add')      :
-   $action eq "deletefrom"   && $config{enable_editfrombook} ? modfrom('delete')   :
-   $action eq "editpop3"     && $config{enable_pop3}         ? editpop3()          :
-   $action eq "addpop3"      && $config{enable_pop3}         ? modpop3('add')      :
-   $action eq "deletepop3"   && $config{enable_pop3}         ? modpop3('delete')   :
-   $action eq "editfilter"   && $config{enable_userfilter}   ? editfilter()        :
-   $action eq "addfilter"    && $config{enable_userfilter}   ? modfilter('add')    :
-   $action eq "deletefilter" && $config{enable_userfilter}   ? modfilter('delete') :
+   $action eq 'editfroms'    && $config{enable_editfrombook} ? editfroms()         :
+   $action eq 'addfrom'      && $config{enable_editfrombook} ? modfrom('add')      :
+   $action eq 'deletefrom'   && $config{enable_editfrombook} ? modfrom('delete')   :
+   $action eq 'editpop3'     && $config{enable_pop3}         ? editpop3()          :
+   $action eq 'addpop3'      && $config{enable_pop3}         ? modpop3('add')      :
+   $action eq 'deletepop3'   && $config{enable_pop3}         ? modpop3('delete')   :
+   $action eq 'editfilter'   && $config{enable_userfilter}   ? editfilter()        :
+   $action eq 'addfilter'    && $config{enable_userfilter}   ? modfilter('add')    :
+   $action eq 'deletefilter' && $config{enable_userfilter}   ? modfilter('delete') :
    param('deletestatbutton') && $config{enable_stationery}   ? delstat()           :
    param('editstatbutton')   && $config{enable_stationery}   ? editstat()          :
-   $action eq "editstat"     && $config{enable_stationery}   ? editstat()          :
-   $action eq "clearstat"    && $config{enable_stationery}   ? clearstat()         :
-   $action eq "addstat"      && $config{enable_stationery}   ? addstat()           :
+   $action eq 'editstat'     && $config{enable_stationery}   ? editstat()          :
+   $action eq 'clearstat'    && $config{enable_stationery}   ? clearstat()         :
+   $action eq 'addstat'      && $config{enable_stationery}   ? addstat()           :
    openwebmailerror(gettext('Action has illegal characters.'))
 : openwebmailerror(gettext('Action has illegal characters.'));
 
@@ -189,7 +189,7 @@ sub about {
                       prefs_caller            => $prefs_caller,
                       url_cgi                 => $config{ow_cgiurl},
                       url_html                => $config{ow_htmlurl},
-                      use_texticon            => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon            => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                 => $prefs{iconset},
 
                       # prefs_about.tmpl
@@ -447,7 +447,7 @@ sub editprefs {
    opendir(ICONSETSDIR, "$config{ow_htmldir}/images/iconsets") or
       openwebmailerror(gettext('Cannot open directory:') . " $config{ow_htmldir}/images/iconsets ($!)");
 
-   my @iconsets = sort grep { -d "$config{ow_htmldir}/images/iconsets/$_" && m/^([^\.].*)$/ } readdir(ICONSETSDIR);
+   my @iconsets = grep { -d "$config{ow_htmldir}/images/iconsets/$_" && m/^[^.]/ } readdir(ICONSETSDIR);
 
    closedir(ICONSETSDIR) or
       openwebmailerror(gettext('Cannot close directory:') . " $config{ow_htmldir}/images/iconsets ($!)");
@@ -1087,7 +1087,7 @@ sub editprefs {
                       prefs_caller                      => $prefs_caller,
                       url_cgi                           => $config{ow_cgiurl},
                       url_html                          => $config{ow_htmlurl},
-                      use_texticon                      => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon                      => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                           => $prefs{iconset},
 
                       # prefs.tmpl
@@ -1191,9 +1191,9 @@ sub editprefs {
                       iconsetselectloop                 => [
                                                               map { {
                                                                        option   => $_,
-                                                                       label    => $_,
+                                                                       label    => $_ =~ m/^Text$/ ? gettext('Text Only') : $_,
                                                                        selected => defined $prefs{iconset} && $_ eq $prefs{iconset} ? 1 : 0
-                                                                  } } @iconsets
+                                                                  } } sort { $a cmp $b } ('Text', @iconsets)
                                                            ],
                       disablebackgroundselect           => defined $config_raw{DEFAULT_bgurl} ? 1 : 0,
                       backgroundselectloop              => [
@@ -2451,7 +2451,7 @@ sub viewhistory {
                       prefs_caller    => $prefs_caller,
                       url_cgi         => $config{ow_cgiurl},
                       url_html        => $config{ow_htmlurl},
-                      use_texticon    => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon    => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset         => $prefs{iconset},
 
                       # prefs_viewhistory.tmpl
@@ -2494,7 +2494,7 @@ sub editfroms {
                       prefs_caller               => $prefs_caller,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
-                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
 
                       # prefs_editfroms.tmpl
@@ -2585,7 +2585,7 @@ sub editpop3 {
                       prefs_caller            => $prefs_caller,
                       url_cgi                 => $config{ow_cgiurl},
                       url_html                => $config{ow_htmlurl},
-                      use_texticon            => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon            => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                 => $prefs{iconset},
 
                       # prefs_editpop3.tmpl
@@ -2737,7 +2737,7 @@ sub editstat {
                       prefs_caller               => $prefs_caller,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
-                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont              => $prefs{usefixedfont},
                       iconset                    => $prefs{iconset},
 
@@ -2985,7 +2985,7 @@ sub editfilter {
                       prefs_caller               => $prefs_caller,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
-                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
 
                       # prefs_editfilter.tmpl

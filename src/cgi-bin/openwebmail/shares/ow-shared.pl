@@ -698,13 +698,6 @@ sub userenv_init {
 
    verifysession();
 
-   if ($prefs{iconset} =~ m/^Text\./) {
-      ($prefs{iconset} =~ m/^([\w\d\.\-_]+)$/) && ($prefs{iconset} = $1);
-      my $icontext = ow::tool::untaint("$config{ow_htmldir}/images/iconsets/$prefs{iconset}/icontext");
-      delete $INC{$icontext};
-      require $icontext;
-   }
-
    if ($config{quota_module} ne 'none') {
       ow::quota::load($config{quota_module});
 
@@ -1117,7 +1110,7 @@ sub readprefs {
    # entries related to on-disk directory or file
    $prefshash{layout}  = $config{default_layout}  unless -d "$config{ow_layoutsdir}/$prefshash{layout}";
    $prefshash{style}   = $config{default_style}   unless -f "$config{ow_layoutsdir}/$prefshash{layout}/styles/$prefshash{style}.css";
-   $prefshash{iconset} = $config{default_iconset} unless -d "$config{ow_htmldir}/images/iconsets/$prefshash{iconset}";
+   $prefshash{iconset} = $config{default_iconset} if $prefshash{iconset} ne 'Text' && !-d "$config{ow_htmldir}/images/iconsets/$prefshash{iconset}";
    $prefshash{locale}  = $config{default_locale}  unless -f "$config{ow_langdir}/$prefshash{locale}.po";
 
    $prefshash{refreshinterval} = $config{min_refreshinterval} if $prefshash{refreshinterval} < $config{min_refreshinterval};
@@ -1495,13 +1488,12 @@ sub sort_emails_by_domainnames {
 }
 
 sub is_http_compression_enabled {
-   if (cookie("ow-httpcompress")
-       && $ENV{HTTP_ACCEPT_ENCODING} =~ /\bgzip\b/
-       && ow::tool::has_module('Compress/Zlib.pm')) {
-      return 1;
-   } else {
-      return 0;
-   }
+   return 1 if cookie('ow-httpcompress')
+               && exists $ENV{HTTP_ACCEPT_ENCODING}
+               && defined $ENV{HTTP_ACCEPT_ENCODING}
+               && $ENV{HTTP_ACCEPT_ENCODING} =~ m/\bgzip\b/
+               && ow::tool::has_module('Compress/Zlib.pm');
+   return 0;
 }
 
 sub httpprint {

@@ -522,13 +522,14 @@ sub untaint {
 }
 
 sub is_tainted {
-   # this subroutine comes from perlsec
+   # this subroutine comes from the perlsec documentation
    return ! eval { eval('#' . substr(join('', @_), 0, 0)); 1 };
 }
 
 sub is_regex {
    my $teststring = shift;
-   return eval { defined $teststring && m/$teststring/; 1; };
+   return 0 unless defined $teststring && $teststring !~ m/^\s*$/;
+   return eval { my $is_valid = qr/$teststring/; 1; };
 }
 
 sub zombie_cleaner {

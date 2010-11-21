@@ -173,7 +173,7 @@ sub viewyear {
             if ($day_this_month) {
                push(@{$monthloop->[$row]{columns}}, {
                                                        # standard params
-                                                       use_texticon => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                       use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                        url_html     => $config{ow_htmlurl},
                                                        url_cgi      => $config{ow_cgiurl},
                                                        iconset      => $prefs{iconset},
@@ -213,7 +213,7 @@ sub viewyear {
       # label each row of the month with the week number
       unshift(@{$monthloop->[$_]{columns}}, {
                                                # standard params
-                                               use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                               use_texticon  => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                url_html      => $config{ow_htmlurl},
                                                url_cgi       => $config{ow_cgiurl},
                                                iconset       => $prefs{iconset},
@@ -260,7 +260,7 @@ sub viewyear {
                                columns => [
                                             {
                                                # standard params
-                                               use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                               use_texticon  => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                url_html      => $config{ow_htmlurl},
                                                url_cgi       => $config{ow_cgiurl},
                                                iconset       => $prefs{iconset},
@@ -287,7 +287,7 @@ sub viewyear {
       # add this month to the year loop
       push(@{$yearloop->[$yearlooprow]{columns}}, {
                                                      # standard params
-                                                     use_texticon     => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                     use_texticon     => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                      url_html         => $config{ow_htmlurl},
                                                      url_cgi          => $config{ow_cgiurl},
                                                      iconset          => $prefs{iconset},
@@ -332,7 +332,7 @@ sub viewyear {
                       header_template     => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon        => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon        => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       url_html            => $config{ow_htmlurl},
                       url_cgi             => $config{ow_cgiurl},
                       iconset             => $prefs{iconset},
@@ -398,7 +398,7 @@ sub viewmonth {
             # add this day to the month loop
             push(@{$monthloop->[$row]{columns}}, {
                                                     # standard params
-                                                    use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                    use_texticon  => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                     url_html      => $config{ow_htmlurl},
                                                     url_cgi       => $config{ow_cgiurl},
                                                     iconset       => $prefs{iconset},
@@ -438,7 +438,7 @@ sub viewmonth {
    # label each row of the month with its week number
    unshift(@{$monthloop->[$_]{columns}}, {
                                              # standard params
-                                             use_texticon  => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                             use_texticon  => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                              url_html      => $config{ow_htmlurl},
                                              url_cgi       => $config{ow_cgiurl},
                                              iconset       => $prefs{iconset},
@@ -496,7 +496,7 @@ sub viewmonth {
                       header_template     => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon        => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon        => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       url_html            => $config{ow_htmlurl},
                       url_cgi             => $config{ow_cgiurl},
                       iconset             => $prefs{iconset},
@@ -596,7 +596,7 @@ sub viewday {
                       header_template         => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon            => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon            => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       url_html                => $config{ow_htmlurl},
                       url_cgi                 => $config{ow_cgiurl},
                       iconset                 => $prefs{iconset},
@@ -799,7 +799,7 @@ sub viewweek {
                       header_template    => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon       => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon       => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       url_html           => $config{ow_htmlurl},
                       url_cgi            => $config{ow_cgiurl},
                       iconset            => $prefs{iconset},
@@ -878,7 +878,7 @@ sub viewlist {
 
             push(@{$daysloop}, {
                                  # standard params
-                                 use_texticon    => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                 use_texticon    => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                  url_html        => $config{ow_htmlurl},
                                  url_cgi         => $config{ow_cgiurl},
                                  iconset         => $prefs{iconset},
@@ -925,7 +925,7 @@ sub viewlist {
                       header_template    => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon       => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon       => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       url_html           => $config{ow_htmlurl},
                       url_cgi            => $config{ow_cgiurl},
                       iconset            => $prefs{iconset},
@@ -976,7 +976,7 @@ sub events {
 
       push(@thisday_events, {
                                # standard params
-                               use_texticon => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                               use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                url_html     => $config{ow_htmlurl},
                                url_cgi      => $config{ow_cgiurl},
                                iconset      => $prefs{iconset},
@@ -1511,7 +1511,7 @@ sub matrix_labelcols {
                                                              );
             $matrix->[0]{columns}[$col] = {
                                             # standard params
-                                            use_texticon         => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                            use_texticon         => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                             url_html             => $config{ow_htmlurl},
                                             url_cgi              => $config{ow_cgiurl},
                                             iconset              => $prefs{iconset},
@@ -1697,7 +1697,7 @@ sub edit {
                       header_template      => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon         => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon         => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       url_html             => $config{ow_htmlurl},
                       url_cgi              => $config{ow_cgiurl},
                       iconset              => $prefs{iconset},

@@ -695,7 +695,7 @@ sub addrlistview {
                $contacts->{$xowmuid}{rows}[$row]{show_collapse} = $maxrowspan > 1 ? 1 : 0;
                $contacts->{$xowmuid}{rows}[$row]{collapse}      = $is_collapsed;
                $contacts->{$xowmuid}{rows}[$row]{url_html}      = $config{ow_htmlurl};
-               $contacts->{$xowmuid}{rows}[$row]{use_texticon}  = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
+               $contacts->{$xowmuid}{rows}[$row]{use_texticon}  = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
                $contacts->{$xowmuid}{rows}[$row]{iconset}       = $prefs{iconset};
             }
 
@@ -802,7 +802,7 @@ sub addrlistview {
                $FIELD->{keyword}         = $keyword;
                $FIELD->{url_cgi}         = $config{ow_cgiurl};
                $FIELD->{url_html}        = $config{ow_htmlurl};
-               $FIELD->{use_texticon}    = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
+               $FIELD->{use_texticon}    = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
                $FIELD->{use_fixedfont}   = $prefs{usefixedfont};
                $FIELD->{iconset}         = $prefs{iconset};
                $FIELD->{charset}         = $prefs{charset};
@@ -888,7 +888,7 @@ sub addrlistview {
                       keyword                    => $keyword,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
-                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont              => $prefs{usefixedfont},
                       use_lightbar               => $prefs{uselightbar},
                       iconset                    => $prefs{iconset},
@@ -982,7 +982,7 @@ sub addrlistview {
                                                                 $_              => 1,
                                                                 is_sort_key     => $abooksort_short eq $_ ? 1 : 0,
                                                                 is_sort_reverse => $sort_reverse,
-                                                                use_texticon    => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                                use_texticon    => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                                 iconset         => $prefs{iconset},
                                                                 url_html        => $config{ow_htmlurl},
                                                            } } @fieldorder
@@ -1064,7 +1064,7 @@ sub addrselectpopup {
                       keyword         => $keyword,
                       url_cgi         => $config{ow_cgiurl},
                       url_html        => $config{ow_htmlurl},
-                      use_texticon    => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon    => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont   => $prefs{usefixedfont},
                       use_lightbar    => $prefs{uselightbar},
                       iconset         => $prefs{iconset},
@@ -1279,7 +1279,7 @@ sub addrbookedit {
                       keyword                    => $keyword,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
-                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont              => $prefs{usefixedfont},
                       use_lightbar               => $prefs{uselightbar},
                       iconset                    => $prefs{iconset},
@@ -1325,7 +1325,7 @@ sub addrbookedit {
                                                                 keyword               => $keyword,
                                                                 url_cgi               => $config{ow_cgiurl},
                                                                 url_html              => $config{ow_htmlurl},
-                                                                use_texticon          => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                                use_texticon          => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                                 use_fixedfont         => $prefs{usefixedfont},
                                                                 iconset               => $prefs{iconset},
 
@@ -1361,7 +1361,7 @@ sub addrbookedit {
                                                                 keyword               => $keyword,
                                                                 url_cgi               => $config{ow_cgiurl},
                                                                 url_html              => $config{ow_htmlurl},
-                                                                use_texticon          => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                                use_texticon          => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                                 use_fixedfont         => $prefs{usefixedfont},
                                                                 iconset               => $prefs{iconset},
 
@@ -1661,7 +1661,7 @@ sub addrcardview {
          $FIELD->{sessionid}       = $thissession;
          $FIELD->{url_cgi}         = $config{ow_cgiurl};
          $FIELD->{url_html}        = $config{ow_htmlurl};
-         $FIELD->{use_texticon}    = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
+         $FIELD->{use_texticon}    = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
          $FIELD->{iconset}         = $prefs{iconset};
 
          $FIELD->{count}           = $i;
@@ -1705,7 +1705,7 @@ sub addrcardview {
    $contact->{$xowmuid}{sessionid}    = $thissession;
    $contact->{$xowmuid}{url_cgi}      = $config{ow_cgiurl};
    $contact->{$xowmuid}{url_html}     = $config{ow_htmlurl};
-   $contact->{$xowmuid}{use_texticon} = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
+   $contact->{$xowmuid}{use_texticon} = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
    $contact->{$xowmuid}{iconset}      = $prefs{iconset};
 
    #############################################
@@ -1737,7 +1737,7 @@ sub addrcardview {
                       keyword                 => $keyword,
                       url_cgi                 => $config{ow_cgiurl},
                       url_html                => $config{ow_htmlurl},
-                      use_texticon            => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon            => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont           => $prefs{usefixedfont},
                       use_lightbar            => $prefs{uselightbar},
                       iconset                 => $prefs{iconset},
@@ -1957,7 +1957,7 @@ sub addreditform {
                               sessionid    => $thissession,
                               url_cgi      => $config{ow_cgiurl},
                               url_html     => $config{ow_htmlurl},
-                              use_texticon => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                              use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                               iconset      => $prefs{iconset},
                          } } @{$contactpath}
                   ];
@@ -2052,7 +2052,7 @@ sub addreditform {
                                                     sessionid    => $thissession,
                                                     url_cgi      => $config{ow_cgiurl},
                                                     url_html     => $config{ow_htmlurl},
-                                                    use_texticon => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                                    use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                     iconset      => $prefs{iconset},
                                                   };
       }
@@ -2070,7 +2070,7 @@ sub addreditform {
          $FIELD->{sessionid}    = $thissession;
          $FIELD->{url_cgi}      = $config{ow_cgiurl};
          $FIELD->{url_html}     = $config{ow_htmlurl};
-         $FIELD->{use_texticon} = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
+         $FIELD->{use_texticon} = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
          $FIELD->{iconset}      = $prefs{iconset};
 
          $FIELD->{count}        = $i;
@@ -2114,7 +2114,7 @@ sub addreditform {
    $contact->{$xowmuid}{sessionid}               = $thissession;
    $contact->{$xowmuid}{url_cgi}                 = $config{ow_cgiurl};
    $contact->{$xowmuid}{url_html}                = $config{ow_htmlurl};
-   $contact->{$xowmuid}{use_texticon}            = $prefs{iconset} =~ m/^Text\./ ? 1 : 0;
+   $contact->{$xowmuid}{use_texticon}            = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
    $contact->{$xowmuid}{iconset}                 = $prefs{iconset};
    $contact->{$xowmuid}{is_abookfolder_writable} = is_abookfolder_writable($abookfolder);
    $contact->{$xowmuid}{has_targetagent}         = scalar @targetagent ? 1 : 0;
@@ -2155,7 +2155,7 @@ sub addreditform {
                       keyword                    => $keyword,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
-                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont              => $prefs{usefixedfont},
                       use_lightbar               => $prefs{uselightbar},
                       iconset                    => $prefs{iconset},
@@ -3065,7 +3065,7 @@ sub addrimportform {
                       keyword                    => $keyword,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
-                      use_texticon               => ($prefs{iconset} =~ m/^Text\./ ? 1 : 0),
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont              => $prefs{usefixedfont},
                       use_lightbar               => $prefs{uselightbar},
                       iconset                    => $prefs{iconset},
@@ -3231,7 +3231,7 @@ sub addrimportfieldselect {
                       keyword                    => $keyword,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
-                      use_texticon               => ($prefs{iconset} =~ m/^Text\./ ? 1 : 0),
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont              => $prefs{usefixedfont},
                       use_lightbar               => $prefs{uselightbar},
                       iconset                    => $prefs{iconset},
@@ -3946,7 +3946,7 @@ sub HT_X_OWM_CUSTOM {
                                          value        => (iconv($CHARSET, $prefs{charset}, $_))[0],
                                          valuescount  => $valuescount,
                                          url_html     => $config{ow_htmlurl},
-                                         use_texticon => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                         use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                          iconset      => $prefs{iconset},
                                          deleteable   => scalar @{$FIELD->{CUSTOMVALUES}} > 1 ? 1 : 0,
                                       }
@@ -3969,7 +3969,7 @@ sub HT_ORG {
                                               unit         => (iconv($CHARSET, $prefs{charset}, $_))[0],
                                               unitcount    => $unitcount,
                                               url_html     => $config{ow_htmlurl},
-                                              use_texticon => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                                              use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                               iconset      => $prefs{iconset},
                                               deleteable   => scalar @{$FIELD->{ORGANIZATIONALUNITS}} > 1 ? 1 : 0,
                                             }

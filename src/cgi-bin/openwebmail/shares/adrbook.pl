@@ -138,6 +138,7 @@ sub convert_addressbook {
    }
 
    my $status = _convert_addressbook($oldadrbookfile, $newadrbookfile, $adrbookfilebackup, $charset, $filemode);
+
    return $status;
 }
 

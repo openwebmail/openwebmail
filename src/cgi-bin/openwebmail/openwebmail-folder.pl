@@ -209,7 +209,7 @@ sub editfolders {
                                keyword                     => $keyword,
                                url_cgi                     => $config{ow_cgiurl},
                                url_html                    => $config{ow_htmlurl},
-                               use_texticon                => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                               use_texticon                => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                iconset                     => $prefs{iconset},
                                charset                     => $prefs{charset},
 
@@ -255,7 +255,7 @@ sub editfolders {
                       keyword                    => $keyword,
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
-                      use_texticon               => $prefs{iconset} =~ m/^Text\./ ? 1 : 0,
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
                       charset                    => $prefs{charset},
 
