@@ -61,7 +61,6 @@ die qq|
 | if $SCRIPT_DIR eq '';
 
 push (@INC, $SCRIPT_DIR);
-push (@INC, "$SCRIPT_DIR/lib");
 
 # secure the environment
 delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
@@ -71,6 +70,7 @@ $ENV{PATH} = '/bin:/usr/bin';
 umask(0002);
 
 # load non-OWM libraries
+use lib 'lib';
 use Fcntl qw(:DEFAULT :flock);
 use Net::SMTP;
 

@@ -55,10 +55,10 @@ $ENV{PATH} = '/bin:/usr/bin';
 umask(0002);
 
 # load non-OWM libraries
+use lib 'lib';
 use Fcntl qw(:DEFAULT :flock);
 use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
-use HTML::Template 2.9;
 
 # load the OWM libraries
 require "modules/dbm.pl";

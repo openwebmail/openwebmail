@@ -478,6 +478,7 @@ sub get_messageids_sorted {
 
       foreach ($cache_lstmtime, $cache_folderdb, $cache_sort, $cache_ignore_internal) {
          $_ = <CACHE>;
+         $_ = '' unless defined;
          chomp if defined;
       }
 

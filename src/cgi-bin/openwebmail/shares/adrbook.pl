@@ -114,6 +114,8 @@ sub convert_addressbook {
       $filemode          = 0644; # readable by others
    }
 
+   return 0 if -z $oldadrbookfile || -f $newadrbookfile || -f $adrbookfilebackup;
+
    ow::filelock::lock($oldadrbookfile, LOCK_SH|LOCK_NB) or
       openwebmailerror(gettext('Cannot lock file:') . " $oldadrbookfile ($!)");
 

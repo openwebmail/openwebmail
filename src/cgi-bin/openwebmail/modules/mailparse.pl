@@ -76,9 +76,13 @@ sub parse_header {
 
 # Handle "message/rfc822,multipart,uuencode inside message/rfc822" encapsulation
 sub parse_rfc822block {
-   my ($r_block, $nodeid, $searchid)=@_;
-   my @attachments=();
-   my ($headerlen, $header, $body, %msg);
+   my ($r_block, $nodeid, $searchid) = @_;
+
+   my @attachments = ();
+   my $headerlen   = 0;
+   my $header      = '';
+   my $body        = '';
+   my %msg         = ();
 
    $nodeid=0 unless defined $nodeid;
    $headerlen=index(${$r_block}, "\n\n")+1;	# header end at 1st \n
@@ -141,10 +145,10 @@ sub parse_rfc822block {
          }
          if ($nextboundarystart > $attblockstart) {
             # normal attblock handling
-            if ( $searchid eq "" || $searchid eq "all") {
+            if (defined $searchid && ($searchid eq '' || $searchid eq 'all')) {
                my $r_attachments2=parse_attblock($r_block, $attblockstart, $nextboundarystart-$attblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
-            } elsif ($searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/) {
+            } elsif (defined $searchid && ($searchid eq "$nodeid-$i" || $searchid =~ m/^$nodeid-$i-/)) {
                my $r_attachments2=parse_attblock($r_block, $attblockstart, $nextboundarystart-$attblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
                if (defined ${${$r_attachments2}[0]}{'content-type'} &&
@@ -154,7 +158,8 @@ sub parse_rfc822block {
                   last;	# attblock after this is not the one to look for...
                }
             } elsif ($search_html_related_att) {
-               if ($searchid=~/^$nodeid-/) { # an att is html related if it has same parent as html
+               if (defined $searchid && $searchid =~ m/^$nodeid-/) {
+                  # an att is html related if it has same parent as html
                   my $r_attachments2=parse_attblock($r_block, $attblockstart, $nextboundarystart-$attblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                   push(@attachments, @{$r_attachments2});
                } else {
@@ -165,8 +170,15 @@ sub parse_rfc822block {
             $attblockstart=$boundarystart+$boundarylen;
          } else {
             # abnormal attblock, last one?
-            if ( $searchid eq "" || $searchid eq "all" ||
-                 $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
+            if (
+                  defined $searchid
+                  && (
+                        $searchid eq ''
+                        || $searchid eq 'all'
+                        || $searchid eq "$nodeid-$i"
+                        || $searchid =~ m/^$nodeid-$i-/
+                     )
+               ) {
                my $left=length(${$r_block})-$attblockstart;
                if ($left>0) {
                   my $r_attachments2=parse_attblock($r_block, $attblockstart, $left ,$subtype, $boundary, "$nodeid-$i", $searchid);
@@ -181,7 +193,7 @@ sub parse_rfc822block {
       return($header, $body, \@attachments);
 
    } elsif ($msg{'content-type'} =~ /^message\/partial/i ) {
-      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
+      if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
          my $partialbody=substr(${$r_block}, $headerlen+1);
          my ($partialid, $partialnumber, $partialtotal);
          $partialid=$1 if ($msg{'content-type'} =~ /;\s*id="(.+?)";?/i);
@@ -209,32 +221,37 @@ sub parse_rfc822block {
       return($header, $body, \@attachments);
 
    } elsif ($msg{'content-type'} =~ /^message/i ) {
-      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
+      if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
          $body=substr(${$r_block}, $headerlen+1);
          my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$body, "$nodeid-0", $searchid);
-         if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
+
+         if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid eq $nodeid)) {
             $header2 = ow::mime::decode_mimewords($header2);
             my $temphtml="$header2\n$body2";
             push(@attachments, make_attachment("","", "",\$temphtml, length($temphtml),
    		$msg{'content-transfer-encoding'},$msg{'content-type'}, "inline; filename=Unknown.msg","","",$msg{'content-description'}, $nodeid) );
          }
+
          push (@attachments, @{$r_attachments2});
       }
-      $body=''; # zero the body since it becomes to header2, body2 and r_attachment2
-      return($header, $body, \@attachments);
 
+      $body=''; # zero the body since it becomes to header2, body2 and r_attachment2
+
+      return($header, $body, \@attachments);
    } elsif ( $msg{'content-type'} =~ /^text/i || $msg{'content-type'} eq 'N/A' ) {
       $body=substr(${$r_block}, $headerlen+1);
-      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid-0/ ) {
-         if ( $msg{'content-type'} =~ /^text\/plain/i || $msg{'content-type'} eq 'N/A' ) {
+
+      if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid =~ m/^$nodeid-0/)) {
+         if ($msg{'content-type'} =~ /^text\/plain/i || $msg{'content-type'} eq 'N/A' ) {
             # mime words inside a text/plain mail, not MIME compliant
             if ($body=~/=\?[^?]*\?[bq]\?[^?]+\?=/si ) {
                $body= ow::mime::decode_mimewords($body);
             }
+
             # uuencode blocks inside a text/plain mail, not MIME compliant
             if ( $body =~ /^begin [0-7][0-7][0-7][0-7]? [^\n\r]+\n.+?\nend\n/ims ) {
-               my $r_attachments2;
-               ($body, $r_attachments2)=parse_uuencode_body($body, "$nodeid-0", $searchid);
+               my $r_attachments2 = [];
+               ($body, $r_attachments2) = parse_uuencode_body($body, "$nodeid-0", $searchid);
                push(@attachments, @{$r_attachments2});
             }
          }
@@ -242,7 +259,7 @@ sub parse_rfc822block {
       return($header, $body, \@attachments);
 
    } else {
-      if ( $searchid eq "all" || $searchid=~/^$nodeid/ ) {
+      if (defined $searchid && ($searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
          $body=substr(${$r_block}, $headerlen+1);
          if ($body=~/\S/ ) { # save att if contains chars other than \s
             push(@attachments, make_attachment("","", "",\$body,length($body),
@@ -295,8 +312,14 @@ sub parse_attblock {
 	 # boundary not found in this multipart block
          # we handle this attblock as text/plain
          $att{'content-type'}=~s!^multipart/\w+!text/plain!i;
-         if ( ($searchid eq "all") || ($searchid eq $nodeid) ||
-              ($searchid eq "" && $att{'content-type'}=~/^text/i) ) {
+         if (
+               defined $searchid
+               && (
+                     $searchid eq 'all'
+                     || $searchid eq $nodeid
+                     || ($searchid eq '' && $att{'content-type'} =~ m/^text/i)
+                  )
+            ) {
             my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
             if ($attcontent=~/\S/ ) { # save att if contains chars other than \s
                push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
@@ -327,10 +350,10 @@ sub parse_attblock {
 
          if ($nextboundarystart > $subattblockstart) {
             # normal attblock
-            if ( $searchid eq "" || $searchid eq "all" ) {
+            if (defined $searchid && ($searchid eq '' || $searchid eq 'all')) {
                my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $nextboundarystart-$subattblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
-            } elsif ( $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
+            } elsif (defined $searchid && ($searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/)) {
                my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $nextboundarystart-$subattblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                push(@attachments, @{$r_attachments2});
                if (defined ${${$r_attachments2}[0]}{'content-type'} &&
@@ -340,7 +363,8 @@ sub parse_attblock {
                   last;	# attblock after this is not the one to look for...
                }
             } elsif ($search_html_related_att) {
-               if ($searchid=~/^$nodeid-/) { # an att is html related if it has same parent as html
+               if (defined $searchid && $searchid =~ m/^$nodeid-/) {
+                  # an att is html related if it has same parent as html
                   my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $nextboundarystart-$subattblockstart, $subtype, $boundary, "$nodeid-$i", $searchid);
                   push(@attachments, @{$r_attachments2});
                } else {
@@ -351,8 +375,15 @@ sub parse_attblock {
             $subattblockstart=$boundarystart+$boundarylen;
          } else {
             # abnormal attblock, last one?
-            if ( $searchid eq "" || $searchid eq "all" ||
-                 $searchid eq "$nodeid-$i" || $searchid=~/^$nodeid-$i-/ ) {
+            if (
+                  defined $searchid
+                  && (
+                        $searchid eq ''
+                        || $searchid eq 'all'
+                        || $searchid eq "$nodeid-$i"
+                        || $searchid =~ m/^$nodeid-$i-/
+                     )
+               ) {
                my $left=$attblocklen-$subattblockstart;
                if ($left>0) {
                   my $r_attachments2=parse_attblock($r_buff, $subattblockstart, $left ,$subtype, $boundary, "$nodeid-$i", $searchid);
@@ -366,7 +397,7 @@ sub parse_attblock {
       }
 
    } elsif ($att{'content-type'} =~ /^message\/external\-body/i ) {
-      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
+      if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
          my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
          my @extbodyattr=split(/;\s*/, $att{'content-type'}); shift (@extbodyattr);
          $attcontent="This is an external body reference.\n\n".
@@ -378,11 +409,11 @@ sub parse_attblock {
       }
 
    } elsif ($att{'content-type'} =~ /^message/i ) {
-      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
+      if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
          my $attcontent = substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
          $attcontent = ow::mime::decode_content($attcontent, $att{'content-transfer-encoding'});
          my ($header2, $body2, $r_attachments2)=parse_rfc822block(\$attcontent, "$nodeid-0", $searchid);
-         if ( $searchid eq "" || $searchid eq "all" || $searchid eq $nodeid ) {
+         if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid eq $nodeid)) {
             $header2 = ow::mime::decode_mimewords($header2);
             my $temphtml="$header2\n$body2";
             push(@attachments, make_attachment($subtype,"", $attheader,\$temphtml, length($temphtml),
@@ -394,7 +425,7 @@ sub parse_attblock {
 
    } elsif ($att{'content-type'} =~ /^text/i || $att{'content-type'} eq "N/A" ) {
       $att{'content-type'}="text/plain" if ($att{'content-type'} eq "N/A");
-      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
+      if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
          my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
          if ($attcontent=~/\S/ ) { # save att if contains chars other than \s
             push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
@@ -405,7 +436,7 @@ sub parse_attblock {
 
    } elsif ($att{'content-type'}=~/^application\/ms\-tnef/i && ow::tool::findbin('tnef') ne '') {
       # content is required since caller need to parse tnef to get info of attachments in the tnef
-      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
+      if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
          my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
          push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
                                @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'},
@@ -416,7 +447,7 @@ sub parse_attblock {
       # Apple-Mail is known to encapsulate html in application/octet-stream instead of text/html (duh)
       # all in all, it would be nice to handle application/octet-streams that are html inline
       # bad things like script are stripped out later before display in the browser
-      if ( $searchid eq "" || $searchid eq "all" || $searchid=~/^$nodeid/ ) {
+      if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
          my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
          my $testpiece = substr($attcontent, 0, ($attcontentlength>500?500:$attcontentlength));
          my $numberoftags = () = $testpiece =~ m/<(?:html|head|meta|style|script|title|body|p|br|font|table|tr|td|tbody|div)/igs;
@@ -431,7 +462,7 @@ sub parse_attblock {
       }
 
    } else {
-      if ( $searchid eq "all" || $searchid=~/^$nodeid/ ) {
+      if (defined $searchid && ($searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
          my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
          if ($attcontent=~/\S/ ) { # save att if contains chars other than \s
             push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
@@ -451,16 +482,16 @@ sub parse_attblock {
    return(\@attachments);
 }
 
-# convert uuencode block into base64 encoded atachment
 sub parse_uuencode_body {
-   my ($body, $nodeid, $searchid)=@_;
+   # convert uuencode block into base64 encoded atachment
+   my ($body, $nodeid, $searchid) = @_;
    my @attachments=();
    my $i;
 
    # Handle uuencode blocks inside a text/plain mail
    $i=0;
    while ( $body=~/^begin ([0-7][0-7][0-7][0-7]?) ([^\n\r]+)\n(.+?)\nend\n/igms ) {
-      if ( $searchid eq "" || $searchid eq "all" || $searchid eq "$nodeid-$i" ) {
+      if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid eq "$nodeid-$i")) {
          my ($uumode, $uufilename, $uubody) = ($1, $2, $3);
          my $uutype;
 

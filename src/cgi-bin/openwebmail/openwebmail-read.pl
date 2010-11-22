@@ -53,6 +53,7 @@ $ENV{PATH} = '/bin:/usr/bin';
 umask(0002);
 
 # load non-OWM libraries
+use lib 'lib';
 use Fcntl qw(:DEFAULT :flock);
 use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
@@ -717,7 +718,8 @@ sub readmessage {
       $messagesloop->[$i]{show_attmode} = (scalar @{$messagesloop->[$i]{attachment}} > 0 || $messagesloop->[$i]{'content-type'} =~ m#^multipart#i) ? 1 : 0;
 
       for (my $n = 0; $n < scalar @{$messagesloop->[$i]{attachment}}; $n++) {
-         next unless defined %{$messagesloop->[$i]{attachment}[$n]};
+         next unless ref $messagesloop->[$i]{attachment}[$n] eq 'HASH'
+                     && scalar keys %{$messagesloop->[$i]{attachment}[$n]};
 
          # skip this attachment if it is being referenced by a cid: or loc: link
          next if $messagesloop->[$i]{attachment}[$n]{referencecount} > 0;
@@ -725,7 +727,8 @@ sub readmessage {
          if ($attmode eq 'simple') {
             # handle case to skip to next text/html attachment
             if ($n + 1 < scalar @{$messagesloop->[$i]{attachment}}
-                && defined %{$messagesloop->[$i]{attachment}[$n+1]}
+                && ref $messagesloop->[$i]{attachment}[$n+1] eq 'HASH'
+                && scalar keys %{$messagesloop->[$i]{attachment}[$n+1]}
                 && ($messagesloop->[$i]{attachment}[$n]{boundary} eq $messagesloop->[$i]{attachment}[$n+1]{boundary}) ) {
 
                # skip to next text/(html|enriched) attachment in the same alternative group
@@ -1317,7 +1320,8 @@ sub download_nontext {
       $messageid = $messagesloop->[$i]{'message-id'};
 
       for (my $n = 0; $n < scalar @{$messagesloop->[$i]{attachment}}; $n++) {
-         next unless defined %{$messagesloop->[$i]{attachment}[$n]};
+         next unless ref $messagesloop->[$i]{attachment}[$n] eq 'HASH'
+                     && scalar keys %{$messagesloop->[$i]{attachment}[$n]};
 
          # skip this attachment if it is being referenced by a cid: or loc: link
          next if $messagesloop->[$i]{attachment}[$n]{referencecount} > 0;
@@ -1419,8 +1423,8 @@ sub delete_attnodes {
    openwebmailerror(gettext('Message block read error:') . " $msgsize") if $msgsize <= 0;
 
    my %message = ();
-   ($message{header}, $message{body}, $message{attachment}) = ow::mailparse::parse_rfc822block(\$block, "0", "all");
-   openwebmailerror(gettext('Attachment not found.')) if !defined @{$message{attachment}};
+   ($message{header}, $message{body}, $message{attachment}) = ow::mailparse::parse_rfc822block(\$block, 0, 'all');
+   openwebmailerror(gettext('Attachment not found.')) if scalar @{$message{attachment}} == 0;
 
    my @datas = ();
    my $boundary = "----=OPENWEBMAIL_ATT_" . rand();

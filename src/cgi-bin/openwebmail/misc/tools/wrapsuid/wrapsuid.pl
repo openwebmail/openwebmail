@@ -14,6 +14,11 @@ if ($#ARGV >= 0) {
     	}
 	}
 
+my $compiler = -x '/usr/bin/cc'        ? '/usr/bin/cc'        :
+               -x '/usr/bin/gcc'       ? '/usr/bin/gcc'       :
+               -x '/usr/local/bin/gcc' ? '/usr/local/bin/gcc' :
+               die "Cannot find C compiler";
+
 $fslist = join(' ',@list);
 die "Can't find local filesystems" unless $fslist;
 open(FIND,  "find $fslist $xdev -type f \\( -perm -04000 -o -perm -02000 \\) -print|");
@@ -40,15 +45,7 @@ while (<FIND>) {
 	}
 	';
     close C;
-    if ( -x '/usr/bin/cc') {
-       system '/usr/bin/cc', ".tmp$$.c", '-o', $file;
-    } elsif (-x '/usr/bin/gcc' ) {
-       system '/usr/bin/gcc', ".tmp$$.c", '-o', $file;
-    } elsif (-x '/usr/local/bin/gcc' ) {
-       system '/usr/local/bin/gcc', ".tmp$$.c", '-o', $file;
-    } else {
-       die "Can't find C compiler";
-    }
+    system $compiler, ".tmp$$.c", '-o', $file;
     die "Can't compile new $_" if $?;
     chmod $mode, $file;
     chown $uid, $gid, $file;

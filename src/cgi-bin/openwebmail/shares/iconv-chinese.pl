@@ -89,8 +89,8 @@ sub mkdb_g2b {
    $_ = <T>; # skip first line
    $_ = <T>; # skip second line
 
-   while (my $line = <T>) {
-      $line =~ m/^(..)\s(..)/;
+   while (defined(my $line = <T>)) {
+      next unless $line =~ m/^(..)\s(..)/;
       $G2B{$1} = $2;
    }
 

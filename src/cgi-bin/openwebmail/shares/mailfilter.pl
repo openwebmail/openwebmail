@@ -67,6 +67,7 @@ sub filtermessage {
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
 
    return 0 unless -f $folderfile;
+   return 0 if -z $folderfile;
 
    my $forced_recheck = 0;
    my $filtercheckfile = dotpath('filter.check');
@@ -88,11 +89,13 @@ sub filtermessage {
       openwebmailerror(gettext('Cannot open file:') . " $filtercheckfile");
    }
 
-   $_ = <FILTERCHECK>;
+   my $filtercheckline = <FILTERCHECK>;
 
    close(FILTERCHECK) or writelog("cannot close file $filtercheckfile ($!)");
 
-   if ($_ eq $metainfo) {
+   $filtercheckline = '' unless defined $filtercheckline && $filtercheckline ne '';
+
+   if ($filtercheckline eq $metainfo) {
       ow::filelock::lock($filtercheckfile, LOCK_UN) or writelog("cannot unlock file $filtercheckfile");
       return 0;
    }
@@ -116,7 +119,9 @@ sub filtermessage {
    }
 
    my @allmessageids = ();
-   my ($total, $r_msgid2attrs) = get_msgid2attrs($folderdb, 1, $_OFFSET, $_STATUS); # 1 means ignore_internal
+
+   # 1 means ignore_internal
+   my ($total, $r_msgid2attrs) = get_msgid2attrs($folderdb, 1, $_OFFSET, $_STATUS);
 
    foreach my $id (keys %{$r_msgid2attrs}) {
       next if defined $r_msgid2attrs->{$id}[1] && $r_msgid2attrs->{$id}[1] =~ m/V/ && !$forced_recheck; # skip verified msg if no forced check
@@ -198,7 +203,7 @@ sub filtermessage {
       ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
    }
 
-   return(1);
+   return 1;
 }
 
 sub filter_allmessageids {
@@ -352,6 +357,21 @@ sub filter_allmessageids {
          $i--;
          next;
       }
+
+      # set unset attributes to defaults
+      $attr[$_OFFSET]       ||= 0;
+      $attr[$_SIZE]         ||= 0;
+      $attr[$_HEADERSIZE]   ||= 0;
+      $attr[$_HEADERCHKSUM] ||= '';
+      $attr[$_RECVDATE]     ||= '';
+      $attr[$_DATE]         ||= '';
+      $attr[$_FROM]         ||= '';
+      $attr[$_TO]           ||= '';
+      $attr[$_SUBJECT]      ||= '';
+      $attr[$_CONTENT_TYPE] ||= '';
+      $attr[$_CHARSET]      ||= '';
+      $attr[$_STATUS]       ||= '';
+      $attr[$_REFERENCES]   ||= '';
 
       if (is_internal_subject($attr[$_SUBJECT]) || $attr[$_STATUS] =~ m/Z/i) {
          # skip internal or zapped
@@ -519,7 +539,7 @@ sub filter_allmessageids {
                   }
 
                   ($header, $body, $r_attachments) = ow::mailparse::parse_rfc822block(\$currmessage)
-                     unless defined @{$r_attachments};
+                     unless scalar @{$r_attachments} > 0;
 
                   # check body text
                   if (!$is_body_decoded) {
@@ -572,7 +592,8 @@ sub filter_allmessageids {
                      }
                   }
 
-                  ($header, $body, $r_attachments) = ow::mailparse::parse_rfc822block(\$currmessage) unless defined @{$r_attachments};
+                  ($header, $body, $r_attachments) = ow::mailparse::parse_rfc822block(\$currmessage)
+                     unless scalar @{$r_attachments} > 0;
 
                   # check attachments
                   foreach my $r_attachment (@{$r_attachments}) {
@@ -831,7 +852,8 @@ sub filter_allmessageids {
                   }
                }
 
-               ($header, $body, $r_attachments) = ow::mailparse::parse_rfc822block(\$currmessage) unless defined @{$r_attachments};
+               ($header, $body, $r_attachments) = ow::mailparse::parse_rfc822block(\$currmessage)
+                  unless scalar @{$r_attachments} > 0;
 
                # check executable attachment and contenttype
                my $att_matched = 0;

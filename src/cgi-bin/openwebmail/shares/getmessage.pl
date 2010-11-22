@@ -137,7 +137,7 @@ sub getmessage {
 
    if ($message{'content-type'} =~ m/charset="?([^\s"';]*)"?\s?/i) {
       $message{charset} = $1;
-   } elsif (defined @{$message{attachment}}) {
+   } elsif (scalar @{$message{attachment}} > 0) {
       my @att = @{$message{attachment}};
 
       foreach my $i (0 .. $#att) {

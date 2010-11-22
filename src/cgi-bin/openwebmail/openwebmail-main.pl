@@ -53,6 +53,7 @@ $ENV{PATH} = '/bin:/usr/bin';
 umask(0002);
 
 # load non-OWM libraries
+use lib 'lib';
 use Fcntl qw(:DEFAULT :flock);
 use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
@@ -1267,16 +1268,22 @@ sub update_pop3check {
 
    my $ftime = (stat($pop3checkfile))[9];
 
-   if (!$ftime) { # create if not exist
+   if (!defined $ftime || $ftime eq '') {
+      # create pop3.check if it does not exist
       sysopen(F, $pop3checkfile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(gettext('Cannot open file:') . " $pop3checkfile ($!)");
 
       print F "pop3check timestamp file";
 
       close(F) or writelog("cannot close file $pop3checkfile ($!)");
+
+      $ftime = (stat($pop3checkfile))[9];
    }
+
    if ($now - $ftime > $config{fetchpop3interval} * 60) {
-      utime($now - 1, $now - 1, ow::tool::untaint($pop3checkfile)); # -1 is trick for nfs
+      # -1 is trick for nfs
+      utime($now - 1, $now - 1, ow::tool::untaint($pop3checkfile));
+
       return 1;
    } else {
       return 0;

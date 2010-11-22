@@ -45,6 +45,7 @@ if (-f '/etc/openwebmail_path.conf') {
 die 'SCRIPT_DIR cannot be set' if $SCRIPT_DIR eq '';
 push (@INC, $SCRIPT_DIR);
 
+use lib 'lib';
 use Fcntl qw(:DEFAULT :flock);
 use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);

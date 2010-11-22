@@ -21,8 +21,9 @@ use vars qw($dbm_errno $dbm_errmsg $dbm_warning);
 use vars qw($_defaultdbtype);
 
 my %conf = ();
-if (($_ = ow::tool::find_configfile('etc/dbm.conf', 'etc/defaults/dbm.conf')) ne '') {
-   my ($ret, $err) = ow::tool::load_configfile($_, \%conf);
+my $dbmconf = ow::tool::find_configfile('etc/dbm.conf', 'etc/defaults/dbm.conf') || '';
+if ($dbmconf ne '') {
+   my ($ret, $err) = ow::tool::load_configfile($dbmconf, \%conf);
    die $err if $ret < 0;
 }
 

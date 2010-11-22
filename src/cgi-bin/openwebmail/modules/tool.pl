@@ -61,16 +61,19 @@ sub findsbin {
 }
 
 sub find_configfile {
-   my @configfiles=@_;
-   my $cgi_bin = $INC[$#INC];		# get cgi-bin/openwebmail path from @INC
-   foreach (@configfiles) {
-      if (m!^/!) {			# absolute path
-         return($_) if (-f $_);
-      } else {
-         return("$cgi_bin/$_") if (-f "$cgi_bin/$_");
-      }
+   my @configfiles = @_;
+
+   # get cgi-bin/openwebmail path from @INC
+   my $cgi_bin = defined $main::SCRIPT_DIR ? $main::SCRIPT_DIR : $INC[$#INC];
+
+   foreach my $file (@configfiles) {
+      # absolute path
+      return $file if $file =~ m!^/! && -f $file;
+
+      return "$cgi_bin/$file" if -f "$cgi_bin/$file";
    }
-   return ('');
+
+   return '';
 }
 
 sub loadmodule {

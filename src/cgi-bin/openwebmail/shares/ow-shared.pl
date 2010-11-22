@@ -565,17 +565,16 @@ sub openwebmail_requestend {
 
 sub openwebmail_clearall {
    # clear opentable in filelock.pl
-   ow::filelock::closeall() if defined %ow::filelock::opentable;
+   ow::filelock::closeall() if scalar keys %ow::filelock::opentable;
 
    # chdir back to openwebmail cgidir
    chdir($config{ow_cgidir}) if exists $config{ow_cgidir} && -d $config{ow_cgidir};
 
    # clear global variables for persistent perl
-   undef %SIG                 if defined %SIG;
-   undef %config              if defined %config;
-   undef %config_raw          if defined %config_raw;
+   undef %SIG                 if scalar keys %SIG;
+   undef %config              if scalar keys %config;
+   undef %config_raw          if scalar keys %config_raw;
    undef $thissession         if defined $thissession;
-   undef %icontext            if defined %icontext;
 
    undef $default_logindomain if defined $default_logindomain;
    undef $loginname           if defined $loginname;
@@ -588,7 +587,7 @@ sub openwebmail_clearall {
    undef $uuid                if defined $uuid;
    undef $ugid                if defined $ugid;
    undef $homedir             if defined $homedir;
-   undef %prefs               if defined %prefs;
+   undef %prefs               if scalar keys %prefs;
    undef $po                  if defined $po;
 
    undef $quotausage          if defined $quotausage;
@@ -1140,7 +1139,7 @@ sub get_template {
             -f $templatefile
             ? $templatefile
             : $templatename eq 'error.tmpl'
-              ? die 'error.tmpl does not exist. No error messages can be displayed.'
+              ? die "$config{ow_layoutsdir}/$layout/templates/$templatename does not exist. No error messages can be displayed."
               : openwebmailerror(gettext('The requested template file does not exist:') . " $templatefile ($!)")
           );
 }
@@ -1354,9 +1353,9 @@ sub get_domain_user_userinfo {
    if ($user eq '') {
       my @domainlist = ($logindomain);
 
-      if (exists $config{domain_equiv}{list}{$logindomain} && defined @{$config{domain_equiv}{list}{$logindomain}}) {
-         push(@domainlist, @{$config{domain_equiv}{list}{$logindomain}});
-      }
+      push(@domainlist, @{$config{domain_equiv}{list}{$logindomain}})
+         if exists $config{domain_equiv}{list}{$logindomain}
+            && scalar @{$config{domain_equiv}{list}{$logindomain}} > 0;
 
       foreach (@domainlist) {
          $user = get_user_by_virtualuser("$loginuser\@$_") || '';
@@ -2047,6 +2046,7 @@ sub path2array {
 
 sub absolute_vpath {
    my ($base, $vpath) = @_;
+   $vpath = '' unless defined $vpath;
    $vpath = "$base/$vpath" unless $vpath =~ m|^/|;
    return('/' . join('/', path2array($vpath)));
 }
@@ -2162,7 +2162,7 @@ sub is_localuser {
 sub is_vdomain_adm {
    my $vdomainuser = shift;
 
-   if (defined @{$config{vdomain_admlist}}) {
+   if (scalar @{$config{vdomain_admlist}} > 0) {
       foreach my $adm (@{$config{vdomain_admlist}}) {
          return 1 if $vdomainuser eq $adm;
       }

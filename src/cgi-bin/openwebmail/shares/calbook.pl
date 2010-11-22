@@ -49,9 +49,10 @@ sub readcalbook {
    # $indexshift:
    # This is used to shift the index number so records in multiple calendars won't collide
    my ($calbook, $r_items, $r_indexes, $indexshift) = @_;
+
    my $item_count = 0;
 
-   openwebmailerror(gettext('File does not exist:') . " $calbook") unless -f $calbook;
+   return $item_count unless -f $calbook;
 
    sysopen(CALBOOK, $calbook, O_RDONLY) or
       openwebmailerror(gettext('Cannot open file:') . " $calbook ($!)");
