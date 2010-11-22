@@ -1266,7 +1266,7 @@ sub update_virtuserdb {
 
    # parse the virtusertable
    sysopen(VIRT, $config{virtusertable}, O_RDONLY) or
-      openwebmailerror(gettext('Cannot open file:' . " $config{virtusertable} ($!)"));
+      openwebmailerror(gettext('Cannot open file:') . " $config{virtusertable} ($!)");
 
    while (my $line = <VIRT>) {
       $line =~ s/^\s+//;                   # remove leading whitespace
@@ -1285,15 +1285,15 @@ sub update_virtuserdb {
    }
 
    close(VIRT) or
-      openwebmailerror(gettext('Cannot close file:' . " $config{virtusertable} ($!)"));
+      openwebmailerror(gettext('Cannot close file:') . " $config{virtusertable} ($!)");
 
    $DB{METAINFO} = $metainfo;
 
    ow::dbm::closedb(\%DBR, "$virtdb.rev") or
-      openwebmailerror(gettext('Cannot close db:' . " $virtdb.rev"));
+      openwebmailerror(gettext('Cannot close db:') . " $virtdb.rev");
 
    ow::dbm::closedb(\%DB, $virtdb) or
-      openwebmailerror(gettext('Cannot close db:' . " $virtdb"));
+      openwebmailerror(gettext('Cannot close db:') . " $virtdb");
 
    ow::dbm::chmoddb(0644, $virtdb, "$virtdb.rev");
 
@@ -1766,7 +1766,7 @@ sub openwebmailerror {
                       egid            => $),
                       mailgid         => getgrnam('mail') || '',
                       stacktrace      => $config{error_with_debuginfo}
-                                         ? join('', map { s/^\s*//gm; $_ } ow::tool::stacktrace())
+                                         ? join('', map { s/^\s*//gm if defined; defined $_ ? $_ : '' } ow::tool::stacktrace())
                                          : 0,
                       url_help        => -d "$config{ow_htmlurl}/help/$prefs{locale}"
                                          ? "$config{ow_htmlurl}/help/$prefs{locale}"

@@ -673,12 +673,12 @@ sub upgrade_all {
          $prefs{layout} = 'classic' unless defined $prefs{layout};
 
          sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
-            openwebmailerror(gettext('Cannot open file:' . " $rcfile ($!)"));
+            openwebmailerror(gettext('Cannot open file:') . " $rcfile ($!)");
 
          print RC "$_=$prefs{$_}\n" for @openwebmailrcitem;
 
          close(RC) or
-            openwebmailerror(gettext('Cannot close file:' . " $rcfile ($!)"));
+            openwebmailerror(gettext('Cannot close file:') . " $rcfile ($!)");
 
          writehistory('release upgrade - openwebmailrc by 20101120');
          writelog('release upgrade - openwebmailrc by 20101120');
