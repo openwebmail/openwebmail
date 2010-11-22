@@ -1137,7 +1137,7 @@ sub filterruledb_increase {
 sub filterfolderdb_increase {
    my ($foldername, $number) = @_;
 
-   $number = 1 if $number == 0;
+   $number = 1 if !defined $number || $number <= 0;
 
    my $filterfolderdb = dotpath('filter.folderdb');
 

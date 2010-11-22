@@ -2443,7 +2443,19 @@ sub filelist_of_search {
 
    my $vpathstr       = f2u($vpath);
 
+   # file searches use wdkeyword_fs
    my $wdkeyword_fs   = (iconv($prefs{charset}, $prefs{fscharset}, $wdkeyword))[0];
+
+   # replace . with \. to make it more "shell-like"
+   $wdkeyword_fs =~ s/\./\\./g;
+
+   # replace * not preceeded by . with .* to make it more "shell-like"
+   $wdkeyword_fs =~ s/(?<!\.)\*/\.\*/g;
+
+   # replace ? not preceeded by ( with . to make it more "shell-like"
+   $wdkeyword_fs =~ s/(?<![(])\?/\./g;
+
+   # text searches use wdkeyword_utf8
    my $wdkeyword_utf8 = (iconv($prefs{charset}, 'utf-8', $wdkeyword))[0];
 
    my $metainfo       = join('@@@', $wdsearchtype, $wdkeyword_fs, $vpath);
@@ -2495,7 +2507,11 @@ sub filelist_of_search {
 
          if ($wdsearchtype eq 'filename') {
             # search wdkeyword in file name
-            push(@{$r_list}, $fname) if $fname =~ m/$wdkeyword_fs/i;
+            if (ow::tool::is_regex($wdkeyword_fs)) {
+               push(@{$r_list}, $fname) if $fname =~ m/$wdkeyword_fs/i;
+            } else {
+               push(@{$r_list}, $fname) if $fname =~ m/\Q$wdkeyword_fs\E/i;
+            }
          } else {
             # search wdkeyword in file content
             next unless -f "$webdiskrootdir/$vpath/$fname";
