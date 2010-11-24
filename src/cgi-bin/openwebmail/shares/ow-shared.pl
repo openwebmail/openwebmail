@@ -1152,7 +1152,9 @@ sub verifysession {
       unlink($sessionfile) if -f $sessionfile;
 
       my $start_url = $config{start_url};
-      $start_url    = "https://$ENV{HTTP_HOST}$start_url" if $start_url !~ s#^https?://#https://#i;
+
+      # force the start url back to SSL if needed
+      $start_url = "https://$ENV{HTTP_HOST}$start_url" if cookie('ow-ssl') && $start_url !~ m#^https?://#i;
 
       my $template = HTML::Template->new(
                                            filename          => get_template('sessiontimeout.tmpl'),
@@ -1176,6 +1178,7 @@ sub verifysession {
    my $client_sessionkey = cookie("ow-sessionkey-$domain-$user");
 
    my ($sessionkey, $ip, $userinfo) = sessioninfo($thissession);
+
    if ($config{session_checkcookie} && $client_sessionkey ne $sessionkey) {
       writelog("session error - request does not contain the proper sessionid cookie, access denied!");
       writehistory("session error - request does not contain the proper sessionid cookie, access denied!");
@@ -1190,6 +1193,7 @@ sub verifysession {
 
    # no_update is set to 1 if auto-refresh/timeoutwarning
    my $session_noupdate = param('session_noupdate') || 0;
+
    if (!$session_noupdate) {
       # update the session timestamp with now-1,
       # the -1 is for nfs, utime is actually the nfs rpc setattr()
@@ -1197,6 +1201,7 @@ sub verifysession {
       utime ($now - 1, $now - 1,  $sessionfile) or
          openwebmailerror(gettext('Cannot update timestamp on file:') . " $sessionfile ($!)");
    }
+
    return 1;
 }
 

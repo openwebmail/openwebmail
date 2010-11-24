@@ -11,7 +11,7 @@ require "modules/tool.pl";
 
 sub load {
    my $quotafile = shift;
-   my $ow_cgidir = $INC[$#INC]; # get cgi-bin/openwebmail path from @INC
+   my $ow_cgidir = defined $main::SCRIPT_DIR ? $main::SCRIPT_DIR : $INC[$#INC];
    ow::tool::loadmodule(
                           'ow::quota::internal',
                           "$ow_cgidir/quota",

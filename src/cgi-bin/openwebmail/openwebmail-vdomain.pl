@@ -107,6 +107,7 @@ if ($SCRIPT_DIR eq '' && open(F, '/etc/openwebmail_path.conf')) {
 }
 if ($SCRIPT_DIR eq '') { print "Content-type: text/html\n\nSCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
 push (@INC, $SCRIPT_DIR);
+push (@INC, "$SCRIPT_DIR/lib");
 
 foreach (qw(ENV BASH_ENV CDPATH IFS TERM)) {delete $ENV{$_}}; $ENV{PATH}='/bin:/usr/bin'; # secure ENV
 umask(0002); # make sure the openwebmail group can write

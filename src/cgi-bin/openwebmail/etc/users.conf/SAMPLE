@@ -1,6 +1,6 @@
 #
-# This is the example of per user capability file, each user can has his own
-# settings by creating config file with filename the same as his userid.
+# This is the example of per user capability file, each user can have their own
+# settings by creating a config file that is named exactly the same as his userid.
 #
 # Any option set in this file will overide the same one in openwebmail.conf.
 # Please refer to openwebmail.conf.help for detailed description of each option
@@ -106,9 +106,3 @@ min_refreshinterval		3
 <mailfooter>
 </mailfooter>
 
-<page_footer>
-<a href="%ow_htmlurl%/openwebmail.html" target="_blank">%name%</a>
-version %version%
-&nbsp;
-<a accesskey="H" href="%help_url%" target="_help">%help_text%?</a>
-</page_footer>
