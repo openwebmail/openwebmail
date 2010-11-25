@@ -660,7 +660,7 @@ sub upgrade_all {
       }
    }
 
-   if ($user_releasedate lt '20101120') {
+   if ($user_releasedate lt '20101125') {
       # users preferences need to be updated to accomodate the new layouts, styles, and iconsets
       # and for the new available languages and charsets
       my $rcfile = dotpath('openwebmailrc');
@@ -672,16 +672,40 @@ sub upgrade_all {
          $prefs{iconset} = 'Text' if defined $prefs{iconset} && $prefs{iconset} =~ m/^Text/;
          $prefs{layout} = 'classic' unless defined $prefs{layout};
 
+         # get iconset configuration
+         my %iconset_config = ();
+
+         if ($prefs{iconset} !~ m/^Text$/) {
+            my $iconset_config = "$config{ow_htmldir}/images/iconsets/$prefs{iconset}/iconset.conf";
+            openwebmailerror(gettext('File does not exist:') . " $iconset_config") unless -f $iconset_config;
+
+            sysopen(ICONSETCONF, $iconset_config, O_RDONLY) or
+               openwebmailerror(gettext('Cannot open file:') . " $iconset_config ($!)");
+
+            while (defined(my $line = <ICONSETCONF>)) {
+               next if $line =~ m/^\s*$/ || $line =~ m/^#/;
+               my ($iconset_variable_name, $image_to_use) = $line =~ m/^([^\s]+)\s+([^\s]+)$/;
+               openwebmailerror(gettext('Invalid file format.'))
+                  unless defined $iconset_variable_name
+                         && $iconset_variable_name =~ m/^iconset_/
+                         && defined $image_to_use;
+               $iconset_config{$iconset_variable_name} = $image_to_use;
+            }
+
+            close(ICONSETCONF) or openwebmailerror(gettext('Cannot close file:') . " $iconset_config ($!)");
+         }
+
          sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
             openwebmailerror(gettext('Cannot open file:') . " $rcfile ($!)");
 
          print RC "$_=$prefs{$_}\n" for @openwebmailrcitem;
+         print RC "$_=$iconset_config{$_}\n" for sort keys %iconset_config;
 
          close(RC) or
             openwebmailerror(gettext('Cannot close file:') . " $rcfile ($!)");
 
-         writehistory('release upgrade - openwebmailrc by 20101120');
-         writelog('release upgrade - openwebmailrc by 20101120');
+         writehistory('release upgrade - openwebmailrc by 20101125');
+         writelog('release upgrade - openwebmailrc by 20101125');
       }
    }
 

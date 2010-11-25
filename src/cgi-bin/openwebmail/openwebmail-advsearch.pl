@@ -257,6 +257,7 @@ sub advsearch {
                                    url_html             => $config{ow_htmlurl},
                                    use_texticon         => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                    iconset              => $prefs{iconset},
+                                   (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                                    # results
                                    odd                  => $i % 2 == 0 ? 1 : 0,
@@ -309,6 +310,7 @@ sub advsearch {
                       url_html                   => $config{ow_htmlurl},
                       use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # advsearch.tmpl
                       is_callerfolderdefault     => is_defaultfolder($folder) ? 1 : 0,

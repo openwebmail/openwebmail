@@ -213,6 +213,7 @@ sub edittest {
                       folder           => $folder,
                       sort             => $sort,
                       page             => $page,
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # sa_edittest.pl
                       prefs_caller     => $prefs_caller,
@@ -350,6 +351,7 @@ sub editlist {
                       folder           => $folder,
                       sort             => $sort,
                       page             => $page,
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # sa_edittest.pl
                       prefs_caller     => $prefs_caller,

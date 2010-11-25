@@ -485,7 +485,9 @@ sub showdir {
          my $is_txt      = $ftype{$filename} eq 'd'
                            ? 0
                            : (-T "$webdiskrootdir/$currentdir/$filename" || $filename =~ m/\.(txt|html?)$/i);
-         my $ficon       = $prefs{iconset} =~ m/^Text$/ ? '' : findicon($filename, $ftype{$filename}, $is_txt, $os);
+         my $ficon       = $prefs{iconset} =~ m/^Text$/
+                           ? ''
+                           : findicon($filename, $ftype{$filename}, $is_txt, $os);
          my $dname       = '';
          my $fname       = '';
          my $dnamestr    = '';
@@ -573,6 +575,7 @@ sub showdir {
                                  url_html      => $config{ow_htmlurl},
                                  use_texticon  => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                  iconset       => $prefs{iconset},
+                                 (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                                  # filesloop
                                  wdpage        => $wdpage,
@@ -650,6 +653,7 @@ sub showdir {
                       url_html                   => $config{ow_htmlurl},
                       use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # webdisk_showdir.tmpl
                       wdpage                     => $wdpage,
@@ -795,6 +799,7 @@ sub mkpathloop {
                    url_html     => $config{ow_htmlurl},
                    use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                    iconset      => $prefs{iconset},
+                   (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                    # pathloop
                    wdpage       => $wdpage,
@@ -854,6 +859,7 @@ sub mkheadersloop {
                    url_html      => $config{ow_htmlurl},
                    use_texticon  => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                    iconset       => $prefs{iconset},
+                   (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                    # headersloop
                    wdpage        => $wdpage,
@@ -2318,6 +2324,7 @@ sub dirfilesel {
                                 url_html          => $config{ow_htmlurl},
                                 use_texticon      => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                 iconset           => $prefs{iconset},
+                                (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                                 # filesloop
                                 wdpage            => $wdpage,
@@ -2378,6 +2385,7 @@ sub dirfilesel {
                       url_html          => $config{ow_htmlurl},
                       use_texticon      => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset           => $prefs{iconset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # webdisk_dirfilesel.tmpl
                       wdpage            => $wdpage,

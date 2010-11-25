@@ -698,6 +698,7 @@ sub addrlistview {
                $contacts->{$xowmuid}{rows}[$row]{url_html}      = $config{ow_htmlurl};
                $contacts->{$xowmuid}{rows}[$row]{use_texticon}  = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
                $contacts->{$xowmuid}{rows}[$row]{iconset}       = $prefs{iconset};
+               $contacts->{$xowmuid}{rows}[$row]{$_}            = $prefs{$_} for grep { m/^iconset_/ } keys %prefs;
             }
 
             last if $is_collapsed == 1 && $row > 0;
@@ -806,6 +807,7 @@ sub addrlistview {
                $FIELD->{use_texticon}    = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
                $FIELD->{use_fixedfont}   = $prefs{usefixedfont};
                $FIELD->{iconset}         = $prefs{iconset};
+               $FIELD->{$_}              = $prefs{$_} for grep { m/^iconset_/ } keys %prefs;
                $FIELD->{charset}         = $prefs{charset};
 
                # addressbook params
@@ -894,6 +896,7 @@ sub addrlistview {
                       use_lightbar               => $prefs{uselightbar},
                       iconset                    => $prefs{iconset},
                       charset                    => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # addressbook params
                       abookfolder                => $abookfolder,
@@ -986,6 +989,7 @@ sub addrlistview {
                                                                 use_texticon    => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                                 iconset         => $prefs{iconset},
                                                                 url_html        => $config{ow_htmlurl},
+                                                                (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
                                                            } } @fieldorder
                                                     ],
                       contactsloop               => [
@@ -1070,6 +1074,7 @@ sub addrselectpopup {
                       use_lightbar    => $prefs{uselightbar},
                       iconset         => $prefs{iconset},
                       charset         => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # addressbook params
                       abookfolder     => $abookfolder,
@@ -1285,6 +1290,7 @@ sub addrbookedit {
                       use_lightbar               => $prefs{uselightbar},
                       iconset                    => $prefs{iconset},
                       charset                    => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # addressbook params
                       abookfolder                => $abookfolder,
@@ -1329,6 +1335,7 @@ sub addrbookedit {
                                                                 use_texticon          => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                                 use_fixedfont         => $prefs{usefixedfont},
                                                                 iconset               => $prefs{iconset},
+                                                                (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                                                                 # addressbook params
                                                                 abookpage             => $abookpage,
@@ -1365,6 +1372,7 @@ sub addrbookedit {
                                                                 use_texticon          => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                                 use_fixedfont         => $prefs{usefixedfont},
                                                                 iconset               => $prefs{iconset},
+                                                                (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                                                                 # addressbook params
                                                                 abookpage             => $abookpage,
@@ -1664,6 +1672,7 @@ sub addrcardview {
          $FIELD->{url_html}        = $config{ow_htmlurl};
          $FIELD->{use_texticon}    = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
          $FIELD->{iconset}         = $prefs{iconset};
+         $FIELD->{$_}              = $prefs{$_} for grep { m/^iconset_/ } keys %prefs;
 
          $FIELD->{count}           = $i;
          $FIELD->{editformcaller}  = param('editformcaller') || '';
@@ -1708,6 +1717,7 @@ sub addrcardview {
    $contact->{$xowmuid}{url_html}     = $config{ow_htmlurl};
    $contact->{$xowmuid}{use_texticon} = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
    $contact->{$xowmuid}{iconset}      = $prefs{iconset};
+   $contact->{$xowmuid}{$_}           = $prefs{$_} for grep { m/^iconset_/ } keys %prefs;
 
    #############################################
    # $contact is not modified after this point #
@@ -1743,6 +1753,7 @@ sub addrcardview {
                       use_lightbar            => $prefs{uselightbar},
                       iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # addressbook params
                       abookfolder             => $abookfolder,
@@ -1960,6 +1971,7 @@ sub addreditform {
                               url_html     => $config{ow_htmlurl},
                               use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                               iconset      => $prefs{iconset},
+                              (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
                          } } @{$contactpath}
                   ];
 
@@ -2055,6 +2067,7 @@ sub addreditform {
                                                     url_html     => $config{ow_htmlurl},
                                                     use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                                     iconset      => $prefs{iconset},
+                                                    (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
                                                   };
       }
    }
@@ -2073,6 +2086,7 @@ sub addreditform {
          $FIELD->{url_html}     = $config{ow_htmlurl};
          $FIELD->{use_texticon} = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
          $FIELD->{iconset}      = $prefs{iconset};
+         $FIELD->{$_}           = $prefs{$_} for grep { m/^iconset_/ } keys %prefs;
 
          $FIELD->{count}        = $i;
          $FIELD->{deleteable}   = $propertyname =~ m/^(?:NICKNAME|EMAIL|TEL|ADR|ORG|URL|TZ|GEO|MAILER|NOTE|X-OWM-CUSTOM)$/
@@ -2117,6 +2131,7 @@ sub addreditform {
    $contact->{$xowmuid}{url_html}                = $config{ow_htmlurl};
    $contact->{$xowmuid}{use_texticon}            = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
    $contact->{$xowmuid}{iconset}                 = $prefs{iconset};
+   $contact->{$xowmuid}{$_}                      = $prefs{$_} for grep { m/^iconset_/ } keys %prefs;
    $contact->{$xowmuid}{is_abookfolder_writable} = is_abookfolder_writable($abookfolder);
    $contact->{$xowmuid}{has_targetagent}         = scalar @targetagent ? 1 : 0;
    $contact->{$xowmuid}{targetagentpath}         = scalar @targetagent ? join(',',@targetagent) : '';
@@ -2161,6 +2176,7 @@ sub addreditform {
                       use_lightbar               => $prefs{uselightbar},
                       iconset                    => $prefs{iconset},
                       charset                    => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # addressbook params
                       abookfolder                => $abookfolder,
@@ -3071,6 +3087,7 @@ sub addrimportform {
                       use_lightbar               => $prefs{uselightbar},
                       iconset                    => $prefs{iconset},
                       charset                    => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # addressbook params
                       abookfolder                => $abookfolder,
@@ -3237,6 +3254,7 @@ sub addrimportfieldselect {
                       use_lightbar               => $prefs{uselightbar},
                       iconset                    => $prefs{iconset},
                       charset                    => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # addressbook params
                       abookfolder                => $abookfolder,
@@ -3949,6 +3967,7 @@ sub HT_X_OWM_CUSTOM {
                                          url_html     => $config{ow_htmlurl},
                                          use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                          iconset      => $prefs{iconset},
+                                         (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
                                          deleteable   => scalar @{$FIELD->{CUSTOMVALUES}} > 1 ? 1 : 0,
                                       }
                                    } @{$FIELD->{CUSTOMVALUES}};
@@ -3972,6 +3991,7 @@ sub HT_ORG {
                                               url_html     => $config{ow_htmlurl},
                                               use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                               iconset      => $prefs{iconset},
+                                              (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
                                               deleteable   => scalar @{$FIELD->{ORGANIZATIONALUNITS}} > 1 ? 1 : 0,
                                             }
                                           } @{$FIELD->{ORGANIZATIONALUNITS}};

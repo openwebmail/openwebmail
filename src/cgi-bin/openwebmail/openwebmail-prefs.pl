@@ -191,6 +191,7 @@ sub about {
                       url_html                => $config{ow_htmlurl},
                       use_texticon            => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                 => $prefs{iconset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # prefs_about.tmpl
                       show_softwareinfo       => $config{about_info_software},
@@ -1089,6 +1090,7 @@ sub editprefs {
                       url_html                          => $config{ow_htmlurl},
                       use_texticon                      => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                           => $prefs{iconset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # prefs.tmpl
                       hiddenprefsloop                   => $hiddenprefsloop,
@@ -1825,11 +1827,14 @@ sub saveprefs {
    foreach my $key (@openwebmailrcitem) {
       if ($key eq 'abook_listviewfieldorder') {
          my @values = param($key);
+
          foreach my $index (0..$#values) {
             $values[$index] =~ s/\.\.+//g;
             $values[$index] =~ s/[=\n\/\`\|\<\>;]//g; # remove dangerous char
          }
+
          $newprefs{$key} = join(',', @values);
+
          next;
       }
 
@@ -1837,16 +1842,21 @@ sub saveprefs {
 
       if ($key eq 'bgurl') {
          my $background = param('background');
+
          if ($background eq 'USERDEFINE') {
             $newprefs{$key} = $value if $value ne '';
          } else {
             $newprefs{$key} = "$config{ow_htmlurl}/images/backgrounds/$background";
          }
+
          next;
       } elsif ($key eq 'dateformat' || $key eq 'replyto') {
+         # remove dangerous char
          $value =~ s/\.\.+//g;
-         $value =~ s/[=\n`]//g; # remove dangerous char
+         $value =~ s/[=\n`]//g;
+
          $newprefs{$key} = $value;
+
          next;
       } elsif ($config{zonetabfile} ne 'no' && $key eq 'timezone' && $value =~ m/(\S+) (\S+)/) {
          $newprefs{$key} = $2;
@@ -1936,12 +1946,36 @@ sub saveprefs {
 
    chown($uuid, (split(/\s+/,$ugid))[0], $signaturefile) if $signaturefile eq "$homedir/.signature";
 
+   # get iconset configuration
+   my %iconset_config = ();
+
+   if ($newprefs{iconset} !~ m/^Text$/) {
+      my $iconset_config = "$config{ow_htmldir}/images/iconsets/$newprefs{iconset}/iconset.conf";
+      openwebmailerror(gettext('File does not exist:') . " $iconset_config") unless -f $iconset_config;
+
+      sysopen(ICONSETCONF, $iconset_config, O_RDONLY) or
+         openwebmailerror(gettext('Cannot open file:') . " $iconset_config ($!)");
+
+      while (defined(my $line = <ICONSETCONF>)) {
+         next if $line =~ m/^\s*$/ || $line =~ m/^#/;
+         my ($iconset_variable_name, $image_to_use) = $line =~ m/^([^\s]+)\s+([^\s]+)$/;
+         openwebmailerror(gettext('Invalid file format.'))
+            unless defined $iconset_variable_name
+                   && $iconset_variable_name =~ m/^iconset_/
+                   && defined $image_to_use;
+         $iconset_config{$iconset_variable_name} = $image_to_use;
+      }
+
+      close(ICONSETCONF) or openwebmailerror(gettext('Cannot close file:') . " $iconset_config ($!)");
+   }
+
    # save .openwebmailrc
    my $rcfile = dotpath('openwebmailrc');
    sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
       openwebmailerror(gettext('Cannot open file:') . " $rcfile ($!)");
 
    print RC "$_=" . (exists $newprefs{$_} && defined $newprefs{$_} ? $newprefs{$_} : '') . "\n" for @openwebmailrcitem;
+   print RC "$_=$iconset_config{$_}\n" for sort keys %iconset_config;
 
    close(RC) or openwebmailerror(gettext('Cannot close file:') . " $rcfile ($!)");
 
@@ -2453,6 +2487,7 @@ sub viewhistory {
                       url_html        => $config{ow_htmlurl},
                       use_texticon    => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset         => $prefs{iconset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # prefs_viewhistory.tmpl
                       historyloop     => $historyloop,
@@ -2496,6 +2531,7 @@ sub editfroms {
                       url_html                   => $config{ow_htmlurl},
                       use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # prefs_editfroms.tmpl
                       disablerealname            => defined $config{DEFAULT_realname} ? 1 : 0,
@@ -2587,6 +2623,7 @@ sub editpop3 {
                       url_html                => $config{ow_htmlurl},
                       use_texticon            => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                 => $prefs{iconset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # prefs_editpop3.tmpl
                       availablefreespace      => int($config{maxbooksize} - ($pop3booksize/1024) + .5),
@@ -2740,6 +2777,7 @@ sub editstat {
                       use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont              => $prefs{usefixedfont},
                       iconset                    => $prefs{iconset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # prefs_editstationery.tmpl
                       caller_read                => $prefs_caller eq 'read' ? 1 : 0,
@@ -2987,6 +3025,7 @@ sub editfilter {
                       url_html                   => $config{ow_htmlurl},
                       use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # prefs_editfilter.tmpl
                       availablefreespace         => int($config{maxbooksize} - ($filterbooksize/1024) + .5),

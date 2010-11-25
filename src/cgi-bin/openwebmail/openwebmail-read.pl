@@ -577,34 +577,33 @@ sub readmessage {
 
       # to avoid using the HTML::Template global_vars option, we put only the vars we need into
       # each messageloop ourselves. This saves a lot of memory and significantly increases speed.
-      $messagesloop->[$i]{sessionid}             = $thissession,
-      $messagesloop->[$i]{folder}                = $folder,
-      $messagesloop->[$i]{sort}                  = $sort,
-      $messagesloop->[$i]{msgdatetype}           = $msgdatetype,
-      $messagesloop->[$i]{page}                  = $page,
-      $messagesloop->[$i]{longpage}              = $longpage,
-      $messagesloop->[$i]{searchtype}            = $searchtype,
-      $messagesloop->[$i]{keyword}               = $keyword,
-      $messagesloop->[$i]{url_cgi}               = $config{ow_cgiurl},
-      $messagesloop->[$i]{url_html}              = $config{ow_htmlurl},
-      $messagesloop->[$i]{use_texticon}          = $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
-      $messagesloop->[$i]{use_fixedfont}         = $prefs{usefixedfont},
-      $messagesloop->[$i]{iconset}               = $prefs{iconset},
+      $messagesloop->[$i]{sessionid}             = $thissession;
+      $messagesloop->[$i]{folder}                = $folder;
+      $messagesloop->[$i]{sort}                  = $sort;
+      $messagesloop->[$i]{msgdatetype}           = $msgdatetype;
+      $messagesloop->[$i]{page}                  = $page;
+      $messagesloop->[$i]{longpage}              = $longpage;
+      $messagesloop->[$i]{searchtype}            = $searchtype;
+      $messagesloop->[$i]{keyword}               = $keyword;
+      $messagesloop->[$i]{url_cgi}               = $config{ow_cgiurl};
+      $messagesloop->[$i]{url_html}              = $config{ow_htmlurl};
+      $messagesloop->[$i]{use_texticon}          = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
+      $messagesloop->[$i]{use_fixedfont}         = $prefs{usefixedfont};
+      $messagesloop->[$i]{iconset}               = $prefs{iconset};
+      $messagesloop->[$i]{$_}                    = $prefs{$_} for grep { m/^iconset_/ } keys %prefs;
 
       # non-standard
       $messagesloop->[$i]{enable_userfilter}     = $config{enable_userfilter};
       $messagesloop->[$i]{enable_addressbook}    = $config{enable_addressbook};
       $messagesloop->[$i]{is_writeable_abook}    = $is_writeable_abook;
       $messagesloop->[$i]{enable_webdisk}        = $config{enable_webdisk};
-      $messagesloop->[$i]{is_writeable_webdisk}  = $config{webdisk_readonly} ? 0 : 1,
-      $messagesloop->[$i]{simpleheaders}         = $headers eq 'simple' ? 1 : 0,
-      $messagesloop->[$i]{simpleattachments}     = $attmode eq 'simple' ? 1 : 0,
-      $messagesloop->[$i]{messageid}             = $messageid,
-      $messagesloop->[$i]{convfrom}              = $convfrom,
-      $messagesloop->[$i]{headers}               = $headers,
-      $messagesloop->[$i]{attmode}               = $attmode,
-      $messagesloop->[$i]{is_xmaileropenwebmail} = defined $messagesloop->[$i]{'x-mailer'}
-                                                   && $messagesloop->[$i]{'x-mailer'} =~ m/^open ?webmail/i ? 1 : 0;
+      $messagesloop->[$i]{is_writeable_webdisk}  = $config{webdisk_readonly} ? 0 : 1;
+      $messagesloop->[$i]{simpleheaders}         = $headers eq 'simple' ? 1 : 0;
+      $messagesloop->[$i]{simpleattachments}     = $attmode eq 'simple' ? 1 : 0;
+      $messagesloop->[$i]{messageid}             = $messageid;
+      $messagesloop->[$i]{convfrom}              = $convfrom;
+      $messagesloop->[$i]{headers}               = $headers;
+      $messagesloop->[$i]{attmode}               = $attmode;
       # end global_vars hack
 
       # ================================================================
@@ -763,6 +762,8 @@ sub readmessage {
          $messagesloop->[$i]{attachment}[$n]{use_texticon}          = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
          $messagesloop->[$i]{attachment}[$n]{use_fixedfont}         = $prefs{usefixedfont};
          $messagesloop->[$i]{attachment}[$n]{iconset}               = $prefs{iconset};
+         $messagesloop->[$i]{attachment}[$n]{$_}                    = $prefs{$_} for grep { m/^iconset_/ } keys %prefs;
+
          # non-standard
          $messagesloop->[$i]{attachment}[$n]{enable_addressbook}    = $config{enable_addressbook};
          $messagesloop->[$i]{attachment}[$n]{is_writeable_abook}    = $is_writeable_abook;
@@ -1140,6 +1141,7 @@ sub readmessage {
                       use_fixedfont           => $prefs{usefixedfont},
                       iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # read_readmessage.tmpl
                       folderselectloop        => $folderselectloop,

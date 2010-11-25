@@ -1217,6 +1217,7 @@ sub compose {
                       use_fixedfont           => $prefs{usefixedfont},
                       iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # addressbook params
                       abookfolder             => $abookfolder,
@@ -1415,7 +1416,7 @@ sub decode_message_body {
                   shift @{$message->{attachment}}; # remove 1 attachment from the message's attachment list for html
                } else {
                   $message->{attachment}[1]{filename} =~ s#^Unknown#gettext('Original')#e;
-                  $message->{attachment}[1]{header}   =~ s#^Content-Type: \s*text/(?:html|enriched);#qq|Content-Type: text/| . (defined $1 ? $1 : 'html') . qq|;\n   name="| . gettext('OriginalMsg') . '.htm';#ei;
+                  $message->{attachment}[1]{header}   =~ s#^Content-Type: \s*text/(html|enriched);#qq|Content-Type: text/$1;\n   name="| . gettext('OriginalMsg') . '.htm';#ei;
                }
             }
          }
@@ -3119,6 +3120,7 @@ sub replyreceipt {
                       use_fixedfont   => $prefs{usefixedfont},
                       iconset         => $prefs{iconset},
                       charset         => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # send_replyreceipt.tmpl
                       success         => $success,

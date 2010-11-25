@@ -665,6 +665,7 @@ sub listmessages {
                       use_texticon            => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # main_listview.tmpl
                       messagesperpagesummary  => sprintf(ngettext('%d message per page','%d messages per page', $msgsperpage), $msgsperpage),

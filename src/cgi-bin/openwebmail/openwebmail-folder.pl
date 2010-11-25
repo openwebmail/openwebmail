@@ -213,6 +213,7 @@ sub editfolders {
                                use_texticon                => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                iconset                     => $prefs{iconset},
                                charset                     => $prefs{charset},
+                               (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                                odd                         => (scalar @{$foldersloop} + 1) % 2 == 0 ? 0 : 1,
                                count                       => scalar @{$foldersloop} + 1,
@@ -259,6 +260,7 @@ sub editfolders {
                       use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
                       charset                    => $prefs{charset},
+                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # editfolders.tmpl
                       enable_quota               => $enable_quota,

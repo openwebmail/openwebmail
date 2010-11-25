@@ -1023,15 +1023,21 @@ sub readprefs {
          #     2. store prefs value back to openwebmailrc file
          sysopen(RC, $rcfile, O_RDONLY) or
             openwebmailerror(gettext('Cannot open file:') . " $rcfile ($!)");
+
          while (<RC>) {
             my ($key, $value) = split(/=/, $_);
+
             chomp($value);
+
             if ($key eq 'style') {
                $value =~ s/^\.//g;  # In case someone gets a bright idea...
             }
+
             $prefshash{$key} = $value;
          }
-         close(RC);
+
+         close(RC) or
+            openwebmailerror(gettext('Cannot close file:') . " $rcfile ($!)");
       }
 
       # read .signature
@@ -1095,13 +1101,10 @@ sub readprefs {
    $prefshash{iconset} =~ s#\.\.##g;
 
    # adjust bgurl in case the OWM has been reinstalled in different place
-   if (
-        $prefshash{bgurl} =~ m#^(/.+)/images/backgrounds/(.*)$#
+   $prefshash{bgurl} = "$config{ow_htmlurl}/images/backgrounds/$2"
+     if $prefshash{bgurl} =~ m#^(/.+)/images/backgrounds/(.*)$#
         && $1 ne $config{ow_htmlurl}
-        && -f "$config{ow_htmldir}/images/backgrounds/$2"
-      ) {
-      $prefshash{bgurl} = "$config{ow_htmlurl}/images/backgrounds/$2";
-   }
+        && -f "$config{ow_htmldir}/images/backgrounds/$2";
 
    # force layout for mobile devices
    # $prefshash{layout} = 'iphone' if $ENV{HTTP_USER_AGENT} =~ m/iphone/i;
@@ -1121,9 +1124,8 @@ sub readprefs {
    $prefshash{spamcheck_maxsize}  = $config{spamcheck_maxsize_allowed} if $prefshash{spamcheck_maxsize} > $config{spamcheck_maxsize_allowed};
 
    # rentries related to addressbook
-   if ($prefshash{abook_listviewfieldorder} !~ m#(fullname|prefix|first|middle|last|suffix|email)#) {
-     $prefshash{abook_listviewfieldorder} = $config{default_abook_listviewfieldorder};
-   }
+   $prefshash{abook_listviewfieldorder} = $config{default_abook_listviewfieldorder}
+     if $prefshash{abook_listviewfieldorder} !~ m#(fullname|prefix|first|middle|last|suffix|email)#;
 
    return %prefshash;
 }
