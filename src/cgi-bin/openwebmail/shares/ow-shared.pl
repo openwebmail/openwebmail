@@ -2026,7 +2026,7 @@ sub safexheaders {
    my $clientip = ow::tool::clientip();
    $xheaders =~ s/\@\@\@CLIENTIP\@\@\@/$clientip/g;
 
-   my $userid = $loginuser;
+   my $userid = $loginuser || '';
    $userid .= "\@$logindomain" if $config{auth_withdomain};
    $xheaders =~ s/\@\@\@USERID\@\@\@/$userid/g;
 
