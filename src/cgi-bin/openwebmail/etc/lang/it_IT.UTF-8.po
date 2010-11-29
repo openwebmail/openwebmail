@@ -146,7 +146,7 @@ msgstr ""
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:203,
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:165
 msgid "'S','M','T','W','T','F','S'"
-msgstr "'D',L','M','M','G','V','S'"
+msgstr "'D','L','M','M','G','V','S'"
 
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:337,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:221
