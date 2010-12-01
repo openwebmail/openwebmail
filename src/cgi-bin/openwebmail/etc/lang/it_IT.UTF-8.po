@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenWebMail\n"
-"PO-Revision-Date: 2010-11-29 16:56-0000\n"
+"PO-Revision-Date: 2010-11-30 17:15-0000\n"
 "Last-Translator: Ercolino de spiacico <bellocarico@hotmail.com>\n"
 "Language-Team: Stefano Moreale <bellocarico@hotmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -256,14 +256,14 @@ msgstr "--IMPARA SPAM--"
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:220,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:620
 msgid "--MARK AS READ--"
-msgstr "--IMPOSTA COME LETTO--"
+msgstr "--IMPOSTA COME GIA' LETTO--"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:179,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:447,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:221,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:621
 msgid "--MARK AS UNREAD--"
-msgstr "--IMPOSTA COME NON LETTO--"
+msgstr "--IMPOSTA COME ANCORA NON LETTO--"
 
 #: data/openwebmail/layouts/classic/templates/abook_importform.tmpl:40
 msgid "1. Browse for the file you are importing:"
@@ -284,9 +284,8 @@ msgstr "12 ore"
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:321,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:205,
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:167
-#, fuzzy
 msgid "1st"
-msgstr "1"
+msgstr "Primo"
 
 #: data/openwebmail/layouts/classic/templates/abook_importform.tmpl:46
 msgid "2. Choose the format of your import file (character set is optional):"
@@ -307,9 +306,8 @@ msgstr "24 ore"
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:321,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:205,
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:167
-#, fuzzy
 msgid "2nd"
-msgstr "2"
+msgstr "Secondo"
 
 #: data/openwebmail/layouts/classic/templates/abook_importform.tmpl:67
 msgid "3. Choose a destination addressbook for the imported data:"
@@ -322,9 +320,8 @@ msgstr "3. Seleziona la rubrica di destinazione per i dati importati:"
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:321,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:205,
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:167
-#, fuzzy
 msgid "3rd"
-msgstr "3"
+msgstr "Terzo"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1788,
 #: cgi-bin/openwebmail/openwebmail-cal.pl:686,
@@ -333,9 +330,8 @@ msgstr "3"
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:321,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:205,
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:167
-#, fuzzy
 msgid "4th"
-msgstr "4"
+msgstr "Quarto"
 
 #: data/openwebmail/layouts/classic/templates/error.tmpl:30,
 #: data/openwebmail/layouts/classic/templates/footer.tmpl:4
@@ -364,7 +360,6 @@ msgid "<tmpl_var availablefreespace escape=\"html\"> KB Available"
 msgstr "<tmpl_var availablefreespace escape=\"html\"> KB Disponibili"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2058
-#, fuzzy
 msgid "<tmpl_var hour escape=\"none\">:<tmpl_var min escape=\"none\"><tmpl_var ampm escape=\"none\">"
 msgstr "<tmpl_var hour escape=\"none\">:<tmpl_var min escape=\"none\"><tmpl_var ampm escape=\"none\">"
 
@@ -378,25 +373,24 @@ msgid "<tmpl_var timeintransitsign escape=\"html\"><tmpl_var timeintransithour e
 msgstr "<tmpl_var timeintransitsign escape=\"html\"><tmpl_var timeintransithour escape=\"html\">h <tmpl_var timeintransitmin escape=\"html\">m <tmpl_var timeintransitsec escape=\"html\">s differenza"
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:934
-#, fuzzy
 msgid "A %var% style configuration variable is too recursive:"
-msgstr "Una configurazione di variabili %var% é troppo reclusiva:"
+msgstr "Lo stile di configurazione variabili %var% é troppo reclusivo:"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:910
 msgid "A contact contains a property with illegal characters in the property group:"
-msgstr ""
+msgstr "il contatto ha un carattere illegale nella proprietá del gruppo:"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:886
 msgid "A contact contains a property with illegal characters in the property type:"
-msgstr ""
+msgstr "il contatto ha un carattere illegale nel tipo di proprietáo:"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:222
 msgid "A contact group name contains an invalid carriage return:"
-msgstr ""
+msgstr "Un nome di gruppo nei contatti contiene un ritorno a capo illegale:"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:275
 msgid "A contact property type contains an invalid carriage return:"
-msgstr ""
+msgstr "Una proprieta' del contatto contiene un ritorno a capo illegale:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3126,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3282
@@ -427,7 +421,7 @@ msgstr "SESSIONI ATTIVE"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:558
 msgid "Abkhazian"
-msgstr ""
+msgstr "Abkhazia"
 
 #: data/openwebmail/layouts/classic/templates/prefs_about.tmpl:5
 msgid "About"
@@ -436,7 +430,7 @@ msgstr "Informazioni"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4006,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1032
 msgid "Abu Dhabi, Volgograd, Kabul"
-msgstr ""
+msgstr "Abu Dhabi, Volgograd, Kabul"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1080
 msgid "Access Classification"
@@ -665,15 +659,15 @@ msgstr "Ricerca Avanzata"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:557
 msgid "Afar"
-msgstr ""
+msgstr "Afar"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:749
 msgid "Afghanistan"
-msgstr ""
+msgstr "Afghanistan"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:560
 msgid "Afrikaans"
-msgstr ""
+msgstr "Afrikaans"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:840
 msgid "After addressbook entries"
@@ -693,12 +687,12 @@ msgstr "Agenti"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:561
 msgid "Akan"
-msgstr ""
+msgstr "Akan"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3989,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1015
 msgid "Alaska-Hawaii Standard"
-msgstr ""
+msgstr "Alaska-Hawaii ora solare"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:752
 msgid "Albania"
@@ -787,11 +781,11 @@ msgstr "Tutti i nuovi messaggi nell'Inbox"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:758
 msgid "American Samoa"
-msgstr ""
+msgstr "Samoa Americane"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:562
 msgid "Amharic"
-msgstr ""
+msgstr "Amarico"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:2608
 msgid "An agent upload may only contain one contact."
@@ -813,15 +807,15 @@ msgstr "Si é verificato un errore sconosciuto"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:747
 msgid "Andorra"
-msgstr ""
+msgstr "Andorra"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:755
 msgid "Angola"
-msgstr ""
+msgstr "Angola"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:751
 msgid "Anguilla"
-msgstr ""
+msgstr "Anguilla"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:756
 msgid "Antarctica"
@@ -829,15 +823,15 @@ msgstr "Antartica"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:750
 msgid "Antigua and Barbuda"
-msgstr ""
+msgstr "Antigua e Barbuda"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:754
 msgid "Antilles"
-msgstr ""
+msgstr "Antille"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2083
 msgid "Apricomens"
-msgstr ""
+msgstr "Apricomens"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1128,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1446,
@@ -854,7 +848,7 @@ msgstr "Arabico"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:563
 msgid "Aragonese"
-msgstr ""
+msgstr "Aragonese"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_listarchive.tmpl:21
 msgid "Archive contents:"
@@ -927,11 +921,11 @@ msgstr "Armenia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:618
 msgid "Armenian"
-msgstr ""
+msgstr "Armeno"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:761
 msgid "Aruba"
-msgstr ""
+msgstr "Aruba"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:546
 msgid "Ask to confirm"
@@ -939,7 +933,7 @@ msgstr "Chiedi conferma"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:565
 msgid "Assamese"
-msgstr ""
+msgstr "Assamese"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:614
 msgid "At beginning"
@@ -966,12 +960,12 @@ msgstr "Sopra"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3997,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1023
 msgid "Atlantic Daylight"
-msgstr ""
+msgstr "Atlantic ora legale"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3995,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1021
 msgid "Atlantic Standard"
-msgstr ""
+msgstr "Atlantico ora solare"
 
 #: data/openwebmail/layouts/classic/templates/read_printmessage.tmpl:58,
 #: data/openwebmail/layouts/classic/templates/read_printmessage.tmpl:71,
@@ -1031,17 +1025,17 @@ msgstr "Australia"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4014,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1040
 msgid "Australia Central Standard"
-msgstr ""
+msgstr "Australia Centrale ora solare"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4015,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1041
 msgid "Australia Eastern Standard"
-msgstr ""
+msgstr "Australia dell'est ora solare"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4017,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1043
 msgid "Australia Eastern Summer"
-msgstr ""
+msgstr "Est Australia Estate"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:759
 msgid "Austria"
@@ -1079,34 +1073,34 @@ msgstr "CC Automatico:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:566
 msgid "Avaric"
-msgstr ""
+msgstr "Avaro"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:559
 msgid "Avestan"
-msgstr ""
+msgstr "Avestico"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:567
 msgid "Aymara"
-msgstr ""
+msgstr "Aymara"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:763
 msgid "Azerbaijan"
-msgstr ""
+msgstr "Azerbaigian"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:568
 msgid "Azerbaijani"
-msgstr ""
+msgstr "Azero"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3999,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1025
 msgid "Azores, South Sandwich Islands"
-msgstr ""
+msgstr "Azzorre, isole Sandwich del Sud"
 
 #: data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:140,
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:347,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:251
 msgid "BBS"
-msgstr ""
+msgstr "BBS"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword_fail.tmpl:44,
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword_pass.tmpl:22
@@ -1140,28 +1134,28 @@ msgstr "Backup nella cartella corrente (se non Inbox/Bozze):"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4004,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1030
 msgid "Baghdad, Moscow, Nairobi"
-msgstr ""
+msgstr "Baghdad, Mosca, Nairobi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:777
 msgid "Bahamas"
-msgstr ""
+msgstr "Bahamas"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:770
 msgid "Bahrain"
-msgstr ""
+msgstr "Bahrain"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:574
 msgid "Bambara"
-msgstr ""
+msgstr "Bambara"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4011,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1037
 msgid "Bangkok, Jakarta"
-msgstr ""
+msgstr "Bangkok, Giacarta"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:766
 msgid "Bangladesh"
-msgstr ""
+msgstr "Bangladesh"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:765
 msgid "Barbados"
@@ -1169,7 +1163,7 @@ msgstr "Barbados"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:569
 msgid "Bashkir"
-msgstr ""
+msgstr "Bashkir"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:597
 msgid "Basque"
@@ -1180,13 +1174,13 @@ msgstr "Basco"
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:182,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:552
 msgid "Bcc"
-msgstr ""
+msgstr "Bcc"
 
 #: data/openwebmail/layouts/classic/templates/read_printmessage.tmpl:13,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:303,
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:123
 msgid "Bcc:"
-msgstr ""
+msgstr "Bcc:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:839
 msgid "Before addressbook entries"
@@ -1198,31 +1192,31 @@ msgstr "Prima dell'area di composizione email"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:781
 msgid "Belarus"
-msgstr ""
+msgstr "Bielorussia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:570
 msgid "Belarusian"
-msgstr ""
+msgstr "Bielorusso"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:767
 msgid "Belgium"
-msgstr ""
+msgstr "Belgio"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:782
 msgid "Belize"
-msgstr ""
+msgstr "Belize"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:575
 msgid "Bengali"
-msgstr ""
+msgstr "Bengalese"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2091
 msgid "Benimens"
-msgstr ""
+msgstr "Benimens"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:772
 msgid "Benin"
-msgstr ""
+msgstr "Benin"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:773
 msgid "Bermuda"
@@ -1230,11 +1224,11 @@ msgstr "Bermuda"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:778
 msgid "Bhutan"
-msgstr ""
+msgstr "Bhutan"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:572
 msgid "Bihari"
-msgstr ""
+msgstr "Bihari"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:327
 msgid "Birthday"
@@ -1254,7 +1248,7 @@ msgstr "Data di nascita: Anno"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:573
 msgid "Bislama"
-msgstr ""
+msgstr "Bislama"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:512
 msgid "Block images inside messages:"
@@ -1266,11 +1260,11 @@ msgstr "Bolivia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:764
 msgid "Bosnia and Herzegovina"
-msgstr ""
+msgstr "Bosnia-Erzegovina"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:578
 msgid "Bosnian"
-msgstr ""
+msgstr "Bosniaco"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:841
 msgid "Both before and after addressbook entries"
@@ -1286,11 +1280,11 @@ msgstr "entrame latitudine e longitudine devono essere definite."
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:780
 msgid "Botswana"
-msgstr ""
+msgstr "Botswana"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:779
 msgid "Bouvet Island"
-msgstr ""
+msgstr "Bouvet Island"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:776
 msgid "Brazil"
@@ -1298,11 +1292,11 @@ msgstr "Brasile"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:577
 msgid "Breton"
-msgstr ""
+msgstr "Bretone"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:851
 msgid "British Indian Ocean Territory"
-msgstr ""
+msgstr "Territori Britannici dell'Oceano Indiano"
 
 #: data/openwebmail/layouts/classic/templates/login_pass.tmpl:40
 msgid "Browser javascript support level:"
@@ -1310,7 +1304,7 @@ msgstr "Livello di support javascript del browser:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:774
 msgid "Brunei Darussalam"
-msgstr ""
+msgstr "Brunei Darussalam"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:769
 msgid "Bulgaria"
@@ -1322,15 +1316,15 @@ msgstr "Bulgaro"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:768
 msgid "Burkina Faso"
-msgstr ""
+msgstr "Burkina Faso"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:666
 msgid "Burmese"
-msgstr ""
+msgstr "Birmano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:771
 msgid "Burundi"
-msgstr ""
+msgstr "Burundi"
 
 #: data/openwebmail/layouts/classic/templates/prefs_about.tmpl:127
 msgid "CLIENT"
@@ -1342,9 +1336,8 @@ msgstr "Opzioni Calendario"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1995,
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2033
-#, fuzzy
 msgid "Caller has illegal characters."
-msgstr "La chiamata ha caratteri non supportati."
+msgstr "La richiesta contiene caratteri non supportati."
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:862
 msgid "Cambodia"
@@ -1549,7 +1542,6 @@ msgstr "Impossibile eseguire comando:"
 
 #: cgi-bin/openwebmail/shares/vfile.pl:192,
 #: cgi-bin/openwebmail/shares/vfile.pl:241
-#, fuzzy
 msgid "Cannot load vfile parser module:"
 msgstr "Impossibile caricare il modulo di processazione vfile:"
 
@@ -1945,14 +1937,14 @@ msgstr "Separatore di categoria cartelle"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:869
 msgid "Cayman Islands"
-msgstr ""
+msgstr "Isole Cayman"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:264,
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:685,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:181,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:552
 msgid "Cc"
-msgstr ""
+msgstr "Cc"
 
 #: cgi-bin/openwebmail/openwebmail-read.pl:999,
 #: cgi-bin/openwebmail/openwebmail-send.pl:457,
@@ -1962,7 +1954,7 @@ msgstr ""
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:299,
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:117
 msgid "Cc:"
-msgstr ""
+msgstr "Cc:"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:347,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:251
@@ -1971,7 +1963,7 @@ msgstr "Cella"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:786
 msgid "Central African Republic"
-msgstr ""
+msgstr "Repubblica Centrafricana"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4002,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1028
@@ -1981,15 +1973,15 @@ msgstr "Europa centrale"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3993,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1019
 msgid "Central Standard"
-msgstr ""
+msgstr "Centrale ora solare"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:955
 msgid "Chad"
-msgstr ""
+msgstr "Ciad"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:581
 msgid "Chamorro"
-msgstr ""
+msgstr "Chamorro"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword.tmpl:49,
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword.tmpl:6
@@ -2020,11 +2012,11 @@ msgstr "Set di caratteri:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:580
 msgid "Chechen"
-msgstr ""
+msgstr "Ceceno"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:677
 msgid "Chichewa"
-msgstr ""
+msgstr "Ceceno"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:791
 msgid "Chile"
@@ -2037,7 +2029,7 @@ msgstr "Cina"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4012,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1038
 msgid "China Coast"
-msgstr ""
+msgstr "Costa Cinese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:739
 msgid "Chinese"
@@ -2050,15 +2042,15 @@ msgstr "Chmod"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:799
 msgid "Christmas Island"
-msgstr ""
+msgstr "Christmas Island"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2090
 msgid "Chrysanthemens"
-msgstr ""
+msgstr "Chrysanthemens"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:585
 msgid "Chuvash"
-msgstr ""
+msgstr "Chuvash"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:146,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:117,
@@ -2076,9 +2068,8 @@ msgid "Click here to rebuild this message."
 msgstr "Clicca qui per ricostruire il messaggio"
 
 #: data/openwebmail/layouts/classic/templates/prefs_viewhistory.tmpl:19
-#, fuzzy
 msgid "Client Address"
-msgstr "Indirizzo del cliente"
+msgstr "Indirizzo dell'utente"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:706,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:573,
@@ -2089,7 +2080,7 @@ msgstr "Chiudi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:784
 msgid "Cocos (Keeling) Islands"
-msgstr ""
+msgstr "Isole Cocos (Keeling)"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:794
 msgid "Colombia"
@@ -2107,7 +2098,7 @@ msgstr "Valore separato da virgola (.csv)"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:864
 msgid "Comoros"
-msgstr ""
+msgstr "Comore"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1348
 msgid "Company Logo (jpg,gif,png)"
@@ -2156,7 +2147,7 @@ msgstr "Congo"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:785
 msgid "Congo, The Democratic Republic Of The"
-msgstr ""
+msgstr "Congo, Repubblica Democratica"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:105
 msgid "Contact Creator Program"
@@ -2199,7 +2190,7 @@ msgstr "Convertito"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:790
 msgid "Cook Islands"
-msgstr ""
+msgstr "Isole Cook"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1148,
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:178,
@@ -2219,11 +2210,11 @@ msgstr "Copia gli elementi selezionati?"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:645
 msgid "Cornish"
-msgstr ""
+msgstr "Cornovese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:582
 msgid "Corsican"
-msgstr ""
+msgstr "Corsicano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:795
 msgid "Costa Rica"
@@ -2251,7 +2242,7 @@ msgstr "Programma di creazione"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:583
 msgid "Cree"
-msgstr ""
+msgstr "Cree"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:843
 msgid "Croatia"
@@ -2310,7 +2301,7 @@ msgstr "Repubblica Ceca"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:789
 msgid "Côte D'Ivoire"
-msgstr ""
+msgstr "Costa d'Avorio"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:587
 msgid "Danish"
@@ -2353,7 +2344,6 @@ msgid "Day view"
 msgstr "Vista giornaliera"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:102
-#, fuzzy
 msgid "Daylight Saving Time:"
 msgstr "Ora legale:"
 
@@ -2508,7 +2498,7 @@ msgstr "Destinazione:"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4009,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1035
 msgid "Dhaka"
-msgstr ""
+msgstr "Dhaka"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1243
 msgid "Dictionary for spellcheck:"
@@ -2569,7 +2559,7 @@ msgstr "Visualizza solo una linea per contatto:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:589
 msgid "Divehi"
-msgstr ""
+msgstr "Divehi"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:730
 msgid "Division Structure"
@@ -2577,7 +2567,7 @@ msgstr "Divisione Struttura"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:803
 msgid "Djibouti"
-msgstr ""
+msgstr "Gibuti"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:718
 msgid "Do not check any messages for spam"
@@ -2605,7 +2595,7 @@ msgstr "Dominio:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:805
 msgid "Dominica"
-msgstr ""
+msgstr "Dominica"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:806
 msgid "Dominican Republic"
@@ -2649,11 +2639,11 @@ msgstr "Bozza salvata"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:672
 msgid "Dutch"
-msgstr ""
+msgstr "Olandese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:590
 msgid "Dzongkha"
-msgstr ""
+msgstr "Dzongkha"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2590,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2592
@@ -2668,7 +2658,7 @@ msgstr "Europa dell'est"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3994,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1020
 msgid "Eastern Standard"
-msgstr ""
+msgstr "Orientale ora solare"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:808
 msgid "Ecuador"
@@ -2725,11 +2715,11 @@ msgstr "La modifica é disabilitata perché il webdisk é di sola lettura"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:810
 msgid "Egypt"
-msgstr ""
+msgstr "Egitto"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:951
 msgid "El Salvador"
-msgstr ""
+msgstr "El Salvador"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:139,
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:198,
@@ -2832,11 +2822,11 @@ msgstr "Voci"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:833
 msgid "Equatorial Guinea"
-msgstr ""
+msgstr "Guinea Equatoriale"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:812
 msgid "Eritrea"
-msgstr ""
+msgstr "Eritrea"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1079
 msgid "Error"
@@ -2856,19 +2846,19 @@ msgstr "Errore: l'identificativo del destinatario messaggio sembrerebbe non esse
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:594
 msgid "Esperanto"
-msgstr ""
+msgstr "Esperanto"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:809
 msgid "Estonia"
-msgstr ""
+msgstr "Estonia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:596
 msgid "Estonian"
-msgstr ""
+msgstr "Estone"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:814
 msgid "Ethiopia"
-msgstr ""
+msgstr "Etiopia"
 
 #: data/openwebmail/layouts/classic/templates/prefs_viewhistory.tmpl:21
 msgid "Event"
@@ -2929,7 +2919,7 @@ msgstr "Ogni anno"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:591
 msgid "Ewe"
-msgstr ""
+msgstr "Ewe"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:134,
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:209,
@@ -2982,15 +2972,15 @@ msgstr "Estrai file archivio <tmpl_var filename escape=\"js\">?"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:817
 msgid "Falkland Islands (Malvinas)"
-msgstr ""
+msgstr "Isole Falkland (Malvinas)"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:819
 msgid "Faroe Islands"
-msgstr ""
+msgstr "Isole Faroe"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:602
 msgid "Faroese"
-msgstr ""
+msgstr "Faroese"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:347,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:251
@@ -3012,11 +3002,11 @@ msgstr "Ordine campi:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:816
 msgid "Fiji"
-msgstr ""
+msgstr "Fiji"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:601
 msgid "Fijian"
-msgstr ""
+msgstr "Fijiese"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1277,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:946,
@@ -3134,22 +3124,18 @@ msgid "First Name"
 msgstr "Nome comune"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:887
-#, fuzzy
 msgid "First Name (A to Z)"
 msgstr "Nome primo (dalla A alla Z)"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:888
-#, fuzzy
 msgid "First Name (Z to A)"
 msgstr "Nome primo (dalla Z alla A)"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:897
-#, fuzzy
 msgid "First Phone Number (ascending numeric)"
 msgstr "Primo numero di telefono (ascendente numerico)"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:898
-#, fuzzy
 msgid "First Phone Number (descending numeric)"
 msgstr "Primo numero di telefono (discendente numerico)"
 
@@ -3170,9 +3156,8 @@ msgid "Folder Size"
 msgstr "Dimensione cartelle"
 
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:170
-#, fuzzy
 msgid "Folder Totals:"
-msgstr "Totali cartelle:"
+msgstr "Totale cartelle:"
 
 #: cgi-bin/openwebmail/openwebmail-folder.pl:520,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:592
@@ -3209,15 +3194,15 @@ msgstr "Francese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:825
 msgid "French Guiana"
-msgstr ""
+msgstr "Guiana Frnacese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:918
 msgid "French Polynesia"
-msgstr ""
+msgstr "Polinesia Francese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:956
 msgid "French Southern Territories"
-msgstr ""
+msgstr "Territori Francesi del Sud"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1144,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1444,
@@ -3253,7 +3238,7 @@ msgstr "Da:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:599
 msgid "Fulah"
-msgstr ""
+msgstr "Fulah"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:214,
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:133,
@@ -3296,15 +3281,15 @@ msgstr "GNU GPG Privacy Guard Chiave"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:821
 msgid "Gabon"
-msgstr ""
+msgstr "Gabon"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:606
 msgid "Gaelic"
-msgstr ""
+msgstr "Gaelico"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:607
 msgid "Galician"
-msgstr ""
+msgstr "Galiziano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:830
 msgid "Gambia"
@@ -3312,7 +3297,7 @@ msgstr "Gambia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:649
 msgid "Ganda"
-msgstr ""
+msgstr "Ganda"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:857
 msgid "Geographic Position"
@@ -3324,7 +3309,7 @@ msgstr "Georgia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:632
 msgid "Georgian"
-msgstr ""
+msgstr "Georgiano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:588
 msgid "German"
@@ -3336,7 +3321,7 @@ msgstr "Germania"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:827
 msgid "Ghana"
-msgstr ""
+msgstr "Ghana"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:828
 msgid "Gibraltar"
@@ -3387,11 +3372,11 @@ msgstr "Groenlandia"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4001,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1027
 msgid "Greenwich Mean"
-msgstr ""
+msgstr "Meridiano di Greenwich"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:823
 msgid "Grenada"
-msgstr ""
+msgstr "Grenada"
 
 #: data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:110
 msgid "Group Information"
@@ -3407,15 +3392,15 @@ msgstr "Pronuncia nome del gruppo (aif,wav)"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:832
 msgid "Guadeloupe"
-msgstr ""
+msgstr "Guadalupa"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:837
 msgid "Guam"
-msgstr ""
+msgstr "Guam"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:608
 msgid "Guarani"
-msgstr ""
+msgstr "Guarani"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:836
 msgid "Guatemala"
@@ -3423,27 +3408,27 @@ msgstr "Guatemala"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2086
 msgid "Guavamens"
-msgstr ""
+msgstr "Guavamens"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:826
 msgid "Guernsey"
-msgstr ""
+msgstr "Guernsey"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:831
 msgid "Guinea"
-msgstr ""
+msgstr "Guinea"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:838
 msgid "Guinea-Bissau"
-msgstr ""
+msgstr "Guinea-Bissau"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:609
 msgid "Gujarati"
-msgstr ""
+msgstr "Gujarati"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:839
 msgid "Guyana"
-msgstr ""
+msgstr "Guyana"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:384
 msgid "Gzip the selected item(s)?"
@@ -3533,11 +3518,11 @@ msgstr "Haiti"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:616
 msgid "Haitian"
-msgstr ""
+msgstr "Haitiano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:611
 msgid "Hausa"
-msgstr ""
+msgstr "Hausa"
 
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:165,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:130,
@@ -3551,11 +3536,11 @@ msgstr "Intestatione"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:841
 msgid "Heard Island and McDonald Islands"
-msgstr ""
+msgstr "Isole Heard e McDonald"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:612
 msgid "Hebrew"
-msgstr ""
+msgstr "Ebraico"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:826
 msgid "Height"
@@ -3568,24 +3553,23 @@ msgstr "Aiuto?"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:619
 msgid "Herero"
-msgstr ""
+msgstr "Herero"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1191
-#, fuzzy
 msgid "Hide folder internal data:"
-msgstr "Nascondi dati all'interno della cartella:"
+msgstr "Nascondi oggetti all'interno della cartella:"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2092
 msgid "Hiemens"
-msgstr ""
+msgstr "Hiemens"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:613
 msgid "Hindi"
-msgstr ""
+msgstr "Hindi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:614
 msgid "Hiri Motu"
-msgstr ""
+msgstr "Hiri Motu"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1003
 msgid "Holiday definition:"
@@ -3598,7 +3582,7 @@ msgstr "Inizio"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:842
 msgid "Honduras"
-msgstr ""
+msgstr "Honduras"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:840
 msgid "Hong Kong"
@@ -3610,7 +3594,7 @@ msgstr "Formato ora:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:617
 msgid "Hungarian"
-msgstr ""
+msgstr "Ungherese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:845
 msgid "Hungary"
@@ -3640,11 +3624,11 @@ msgstr "Set di icone:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:626
 msgid "Ido"
-msgstr ""
+msgstr "Ido"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:623
 msgid "Igbo"
-msgstr ""
+msgstr "Igbo"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3295
 msgid "Illegal character set for import"
@@ -3675,7 +3659,6 @@ msgid "Illegal operation:"
 msgstr "Operazione non supportata:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3297
-#, fuzzy
 msgid "Illegal serial for import"
 msgstr "Seriale d'importazione invalido"
 
@@ -3713,9 +3696,8 @@ msgid "Import address <tmpl_var fromaddress escape=\"js\">?"
 msgstr "Importa indirizzo <tmpl_var fromaddress escape=\"js\">?"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3285
-#, fuzzy
 msgid "Import file has no auto assigned serial number."
-msgstr "L'importazione di file non assegna un numero seriale automaticamente."
+msgstr "L'importazione di file non assegna automaticamente un numero seriale."
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:121
 msgid "Import the first column of sample data shown above?"
@@ -3784,7 +3766,7 @@ msgstr "Indonesia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:621
 msgid "Indonesian"
-msgstr ""
+msgstr "Indonesiano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:620
 #, fuzzy
@@ -3798,23 +3780,21 @@ msgstr "Interlingue"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4018,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1044
-#, fuzzy
 msgid "International Date Line East"
-msgstr ""
+msgstr "Data internazionale linea orientale"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3987,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1013
-#, fuzzy
 msgid "International Date Line West"
-msgstr ""
+msgstr "Data internazionale linea occidentale"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:629
 msgid "Inuktitut"
-msgstr ""
+msgstr "Inuktitut"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:625
 msgid "Inupiaq"
-msgstr ""
+msgstr "Inupiaq"
 
 #: data/openwebmail/layouts/classic/templates/login_fail.tmpl:6
 msgid "Invalid Login"
@@ -3864,7 +3844,7 @@ msgstr "Nome di proprietá invalido processando la linea dei contatti:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:2423
 msgid "Invalid traverse direction:"
-msgstr ""
+msgstr "Direzione trasversale invalida:"
 
 #: cgi-bin/openwebmail/shares/vfile.pl:117
 msgid "Invalid vfile does not contain an equal number of begin and end blocks."
@@ -3875,9 +3855,8 @@ msgid "Invalid vfile does not contain any begin blocks."
 msgstr "vfile invalido perché non contiene alcun campo di inizio."
 
 #: cgi-bin/openwebmail/shares/vfile.pl:227
-#, fuzzy
 msgid "Invalid vfile object begin and end property types mismatch."
-msgstr "vfile invalido per inconguenzadi proprietá tra inizio e fine."
+msgstr "vfile invalido a causa di inconguenza nella proprietá \"tipo\" tra inizio e fine."
 
 #: cgi-bin/openwebmail/shares/vfile.pl:224
 msgid "Invalid vfile object does not have a defined version number."
@@ -3943,7 +3922,7 @@ msgstr "Giappone"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4013,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1039
 msgid "Japan Standard"
-msgstr ""
+msgstr "Giapponese ora solare"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:630
 msgid "Japanese"
@@ -3951,11 +3930,11 @@ msgstr "Giapponese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:631
 msgid "Javanese"
-msgstr ""
+msgstr "Giavanese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:856
 msgid "Jersey"
-msgstr ""
+msgstr "Jersey"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:728,
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:93
@@ -3973,7 +3952,7 @@ msgstr "lavoro Titolo"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:858
 msgid "Jordan"
-msgstr ""
+msgstr "Jordan"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1131,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1446,
@@ -3999,32 +3978,32 @@ msgstr "KB"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:637
 msgid "Kalaallisut"
-msgstr ""
+msgstr "Kalaallisut"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:639
 msgid "Kannada"
-msgstr ""
+msgstr "Kannada"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:641
 msgid "Kanuri"
-msgstr ""
+msgstr "Kanuri"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4007,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1033
 msgid "Karachi"
-msgstr ""
+msgstr "Karachi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:642
 msgid "Kashmiri"
-msgstr ""
+msgstr "Kashmiri"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:636
 msgid "Kazakh"
-msgstr ""
+msgstr "Kazako"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:870
 msgid "Kazakhstan"
-msgstr ""
+msgstr "Kazakistan"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:139
 msgid "Keep local copy"
@@ -4032,31 +4011,31 @@ msgstr "Mantieni copia locale"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:860
 msgid "Kenya"
-msgstr ""
+msgstr "Kenya"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:638
 msgid "Khmer"
-msgstr ""
+msgstr "Khmer"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:634
 msgid "Kikuyu"
-msgstr ""
+msgstr "Kikuyu"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:693
 msgid "Kinyarwanda"
-msgstr ""
+msgstr "Kinyarwanda"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:646
 msgid "Kirghiz"
-msgstr ""
+msgstr "Kirghiz"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:863
 msgid "Kiribati"
-msgstr ""
+msgstr "Kiribati"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:644
 msgid "Komi"
-msgstr ""
+msgstr "Komi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:633
 msgid "Kongo"
@@ -4068,7 +4047,7 @@ msgstr "Corea"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:866
 msgid "Korea, Democratic People's Republic Of"
-msgstr ""
+msgstr "Corea, Repubblica Democratica Popolare"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:640
 msgid "Korean"
@@ -4076,23 +4055,23 @@ msgstr "Coreano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:635
 msgid "Kuanyama"
-msgstr ""
+msgstr "Kuanyama"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:643
 msgid "Kurdish"
-msgstr ""
+msgstr "Curdo"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:868
 msgid "Kuwait"
-msgstr ""
+msgstr "Kuwait"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:861
 msgid "Kyrgyzstan"
-msgstr ""
+msgstr "Kirghizistan"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2093
 msgid "Lamens"
-msgstr ""
+msgstr "Lamens"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:74
 msgid "Language:"
@@ -4100,11 +4079,11 @@ msgstr "Lingue:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:652
 msgid "Lao"
-msgstr ""
+msgstr "Lao"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:871
 msgid "Lao People's Democratic Republic"
-msgstr ""
+msgstr "Repubblica democratica popolare del Laos"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:196,
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:250,
@@ -4153,11 +4132,11 @@ msgstr "Latitudine"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:880
 msgid "Latvia"
-msgstr ""
+msgstr "Lettonia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:655
 msgid "Latvian"
-msgstr ""
+msgstr "Lettone"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:177
 msgid "Layout:"
@@ -4169,15 +4148,15 @@ msgstr "Libano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:877
 msgid "Lesotho"
-msgstr ""
+msgstr "Lesoto"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:876
 msgid "Liberia"
-msgstr ""
+msgstr "Liberia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:881
 msgid "Libyan Arab Jamahiriya"
-msgstr ""
+msgstr "Jamahiriya araba libica"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:874
 msgid "Liechtenstein"
@@ -4185,7 +4164,7 @@ msgstr "Liechtenstein"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:650
 msgid "Limburgan"
-msgstr ""
+msgstr "Limburgan"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:754
 msgid "Limit for repeated messages:"
@@ -4193,7 +4172,7 @@ msgstr "Limite per messaggi ripetuti:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:651
 msgid "Lingala"
-msgstr ""
+msgstr "Lingala"
 
 #: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:61,
 #: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:61
@@ -4314,23 +4293,23 @@ msgstr "Longitudine"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4016,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1042
 msgid "Lord Howe Island"
-msgstr ""
+msgstr "Isola Lord Howe"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2087
 msgid "Lotumens"
-msgstr ""
+msgstr "Lotumens"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:654
 msgid "Luba-Katanga"
-msgstr ""
+msgstr "Luba-Katanga"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:879
 msgid "Luxembourg"
-msgstr ""
+msgstr "Lussemburgo"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:648
 msgid "Luxembourgish"
-msgstr ""
+msgstr "Lussemburghese"
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:2196
 msgid "MB"
@@ -4338,7 +4317,7 @@ msgstr "MB"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:891
 msgid "Macao"
-msgstr ""
+msgstr "Macao"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:887
 msgid "Macedonia"
@@ -4346,14 +4325,13 @@ msgstr "Macedonia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:659
 msgid "Macedonian"
-msgstr ""
+msgstr "Macedone"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:885
 msgid "Madagascar"
 msgstr "Madagascar"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:99
-#, fuzzy
 msgid "Mailer Program"
 msgstr "Programma email"
 
@@ -4383,7 +4361,7 @@ msgstr "Crea immagini francobollo con gli emementi selezionati?"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:656
 msgid "Malagasy"
-msgstr ""
+msgstr "Malgascio"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:899
 msgid "Malawi"
@@ -4391,15 +4369,15 @@ msgstr "Malawi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:664
 msgid "Malay"
-msgstr ""
+msgstr "Malese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:660
 msgid "Malayalam"
-msgstr ""
+msgstr "Malayalam"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:901
 msgid "Malaysia"
-msgstr ""
+msgstr "Malaysia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:898
 msgid "Maldives"
@@ -4407,7 +4385,7 @@ msgstr "Maldive"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:888
 msgid "Mali"
-msgstr ""
+msgstr "Mali"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:896
 msgid "Malta"
@@ -4423,7 +4401,7 @@ msgstr "Gestisci rubriche"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:610
 msgid "Manx"
-msgstr ""
+msgstr "Manx"
 
 #: data/openwebmail/layouts/classic/templates/abook_importform.tmpl:37
 msgid "Many addressbook programs can export their addressbook data to files. <tmpl_var programname escape=\"html\"> can import some of these file formats, saving you hours of tediously typing them in by hand.<br><br>The steps below will guide you through importing contacts. The file size limit for importing contacts is currently set to <tmpl_var abookimportlimit escape=\"html\"> KB."
@@ -4431,11 +4409,11 @@ msgstr "Diversi programmi di gestione rubrica possono esportare dati su file. <t
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:658
 msgid "Maori"
-msgstr ""
+msgstr "Maori"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:663
 msgid "Marathi"
-msgstr ""
+msgstr "Marathi"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1127,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1446,
@@ -4453,23 +4431,23 @@ msgstr "Imposta tutti i messaggi in questa cartella come giá letti?"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:886
 msgid "Marshall Islands"
-msgstr ""
+msgstr "Isole Marshall"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:657
 msgid "Marshallese"
-msgstr ""
+msgstr "Marshallese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:893
 msgid "Martinique"
-msgstr ""
+msgstr "Martinica"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:894
 msgid "Mauritania"
-msgstr ""
+msgstr "Mauritania"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:897
 msgid "Mauritius"
-msgstr ""
+msgstr "Maurizius"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1511,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1521
@@ -4492,7 +4470,7 @@ msgstr "Maggio"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:986
 msgid "Mayotte"
-msgstr ""
+msgstr "Mayotte"
 
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:177
 msgid "Member"
@@ -4553,9 +4531,8 @@ msgid "Message format:"
 msgstr "Formato messaggio:"
 
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:322
-#, fuzzy
 msgid "Message node can no longer be found:"
-msgstr "Il nodo del messaggio non é piú disponibile"
+msgstr "Il nodo del messaggio non é piú disponibile:"
 
 #: data/openwebmail/layouts/classic/templates/read_rebuildfailed.tmpl:6
 msgid "Message rebuild failed"
@@ -4639,11 +4616,11 @@ msgstr "Modifica"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:662
 msgid "Moldavian"
-msgstr ""
+msgstr "Moldavo"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:884
 msgid "Moldova"
-msgstr ""
+msgstr "Moldavia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:883
 msgid "Monaco"
@@ -4666,7 +4643,7 @@ msgstr "Mongolia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:661
 msgid "Mongolian"
-msgstr ""
+msgstr "Mongolo"
 
 #: data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:17
 msgid "Month View"
@@ -4719,7 +4696,7 @@ msgstr "Vista mensile <tmpl_var weekstop_monthname escape=\"html\"> <tmpl_var we
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:895
 msgid "Montserrat"
-msgstr ""
+msgstr "Montserrat"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:882
 msgid "Morocco"
@@ -4728,7 +4705,7 @@ msgstr "Marocco"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3992,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1018
 msgid "Mountain Standard"
-msgstr ""
+msgstr "Mountain ora solare"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1149,
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:177,
@@ -4761,7 +4738,7 @@ msgstr "Mozambico"
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:347,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:251
 msgid "Msg"
-msgstr ""
+msgstr "Msg"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1795
 msgid "Multiple downloads are disabled. Please download single files only."
@@ -4769,7 +4746,7 @@ msgstr "Lo scaricamento di file multipli é disabilitato. Per cortesia scarica s
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:889
 msgid "Myanmar"
-msgstr ""
+msgstr "Myanmar"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:283,
 #: cgi-bin/openwebmail/shares/adrbook.pl:204
@@ -4841,23 +4818,23 @@ msgstr "Namibia"
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:667,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:912
 msgid "Nauru"
-msgstr ""
+msgstr "Nauru"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:676
 msgid "Navajo"
-msgstr ""
+msgstr "Navajo"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:669
 msgid "Ndebele, North"
-msgstr ""
+msgstr "Ndebele, North"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:675
 msgid "Ndebele, South"
-msgstr ""
+msgstr "Ndebele, South"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:671
 msgid "Ndonga"
-msgstr ""
+msgstr "Ndonga"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:911
 msgid "Nepal"
@@ -4865,7 +4842,7 @@ msgstr "Nepal"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:670
 msgid "Nepali"
-msgstr ""
+msgstr "Nepali"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:909
 msgid "Netherlands"
@@ -4873,9 +4850,8 @@ msgstr "Olanda"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:2013,
 #: cgi-bin/openwebmail/openwebmail-send.pl:3009
-#, fuzzy
 msgid "Network server error:"
-msgstr "Error del server di rete:"
+msgstr "Errore di rete, impossibile contattare il server SMTP:"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:93
 msgid "New Agent"
@@ -4883,7 +4859,7 @@ msgstr "Nuovo agente"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:904
 msgid "New Caledonia"
-msgstr ""
+msgstr "Nuova Caledonia"
 
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:109,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:51
@@ -4901,7 +4877,7 @@ msgstr "Nuova Zelanda"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4019,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1045
 msgid "New Zealand Daylight"
-msgstr ""
+msgstr "Nuova Zelanda ora legale"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1214
 msgid "New mail popup window notification:"
@@ -4922,12 +4898,12 @@ msgstr "La nuova password é uguale alla esistente."
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3998,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1024
 msgid "Newfoundland Daylight"
-msgstr ""
+msgstr "Terranova ora legale"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3996,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1022
 msgid "Newfoundland Standard"
-msgstr ""
+msgstr "Terranova ora solare"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:908
 msgid "Nicaragua"
@@ -4951,7 +4927,7 @@ msgstr "Nigeria"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:913
 msgid "Niue"
-msgstr ""
+msgstr "Niue"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:121,
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:274,
@@ -4978,9 +4954,8 @@ msgid "No file has been selected for the requested operation:"
 msgstr "Nessun file é stato selezionato per l'operazione richiesta:"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1071
-#, fuzzy
 msgid "No files or directories could be prepared for chmod."
-msgstr "Nessun file o cartella puó essere preparato per chmod."
+msgstr "Nessun file o cartella puó essere processato da chmod."
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1305
 msgid "No files or directories could be prepared for compressing."
@@ -5036,7 +5011,7 @@ msgstr "Nessuna finestra di notificazione"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3988,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1014
 msgid "Nome, Anadyr"
-msgstr ""
+msgstr "Nome, Anadyr"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:99
 msgid "Non-Urgent"
@@ -5056,7 +5031,7 @@ msgstr "Nessuno"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:906
 msgid "Norfolk Island"
-msgstr ""
+msgstr "Isola Norfolk"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:98
 msgid "Normal"
@@ -5064,11 +5039,11 @@ msgstr "Normale"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:892
 msgid "Northern Mariana Islands"
-msgstr ""
+msgstr "Isola Northern Mariana"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:697
 msgid "Northern Sami"
-msgstr ""
+msgstr "Sami del Nord"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:910
 msgid "Norway"
@@ -5076,15 +5051,15 @@ msgstr "Norvegia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:674
 msgid "Norwegian"
-msgstr ""
+msgstr "Norvegese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:668
 msgid "Norwegian Bokmål"
-msgstr ""
+msgstr "Bokmål Norvegese"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:673
 msgid "Norwegian Nynorsk"
-msgstr ""
+msgstr "Nynorsk Norvegese"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:924,
 #: data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:252,
@@ -5132,7 +5107,7 @@ msgstr "OK"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:678
 msgid "Occitan"
-msgstr ""
+msgstr "Occitano"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1134,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1446,
@@ -5149,7 +5124,7 @@ msgstr "Spento"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:679
 msgid "Ojibwa"
-msgstr ""
+msgstr "Ojibwa"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword.tmpl:30
 msgid "Old Password:"
@@ -5157,7 +5132,7 @@ msgstr "password esistente:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:915
 msgid "Oman"
-msgstr ""
+msgstr "Oman"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:107
 msgid "On"
@@ -5207,7 +5182,7 @@ msgstr "Operazione annullata: Il nome del sorgente e quello di destinazione sono
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2088
 msgid "Orchimens"
-msgstr ""
+msgstr "Orchimens"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:1417
 msgid "Original"
@@ -5219,19 +5194,19 @@ msgstr "MessaggioOriginale"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:681
 msgid "Oriya"
-msgstr ""
+msgstr "Oriya"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:680
 msgid "Oromo"
-msgstr ""
+msgstr "Oromo"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2089
 msgid "Osmanthumens"
-msgstr ""
+msgstr "Osmanthumens"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:682
 msgid "Ossetian"
-msgstr ""
+msgstr "Osseta"
 
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:286
 msgid "Overview"
@@ -5253,7 +5228,7 @@ msgstr "PROTOCOLLO"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3991,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1017
 msgid "Pacific Standard"
-msgstr ""
+msgstr "Pacifico ora solare"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:149,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:120,
@@ -5269,15 +5244,15 @@ msgstr "Pagina"
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:347,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:251
 msgid "Pager"
-msgstr ""
+msgstr "Pager"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:921
 msgid "Pakistan"
-msgstr ""
+msgstr "Pakistan"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:928
 msgid "Palau"
-msgstr ""
+msgstr "Palau"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:926
 msgid "Palestinian Territory, Occupied"
@@ -5285,7 +5260,7 @@ msgstr "territorio Palestino occupato"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:684
 msgid "Pali"
-msgstr ""
+msgstr "Pali"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:916
 msgid "Panama"
@@ -5293,11 +5268,11 @@ msgstr "Panama"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:683
 msgid "Panjabi"
-msgstr ""
+msgstr "Panjabi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:919
 msgid "Papua New Guinea"
-msgstr ""
+msgstr "Papua New Guinea"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:929
 msgid "Paraguay"
@@ -5396,7 +5371,7 @@ msgstr "Anno passato"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2084
 msgid "Peacimens"
-msgstr ""
+msgstr "Peacimens"
 
 #: data/openwebmail/layouts/classic/templates/prefs_about.tmpl:27
 msgid "Perl"
@@ -5408,7 +5383,7 @@ msgstr "Permessi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:598
 msgid "Persian"
-msgstr ""
+msgstr "Persiano"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:114,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:71
@@ -5446,7 +5421,7 @@ msgstr "La foto non puó essere visionata"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:924
 msgid "Pitcairn"
-msgstr ""
+msgstr "Pitcairn"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:60
 msgid "Please Assign Field Names"
@@ -5515,7 +5490,7 @@ msgstr "Riprova per favore."
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2085
 msgid "Plumens"
-msgstr ""
+msgstr "Plumens"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:922
 msgid "Poland"
@@ -5568,7 +5543,7 @@ msgstr "Anteprima"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2082
 msgid "Primens"
-msgstr ""
+msgstr "Primens"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:24
 msgid "Priority"
@@ -5646,8 +5621,9 @@ msgid "Puerto Rico"
 msgstr "Porto Rico"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:686
+#, fuzzy
 msgid "Pushto"
-msgstr ""
+msgstr "InviaA"
 
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:416,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:196,
@@ -5665,11 +5641,11 @@ msgstr "LIMITE QUOTA"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:930
 msgid "Qatar"
-msgstr ""
+msgstr "Qatar"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:688
 msgid "Quechua"
-msgstr ""
+msgstr "Quechua"
 
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:126
 msgid "Quick Range:"
@@ -5721,12 +5697,12 @@ msgstr "PORTA REMOTA"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:689
 msgid "Raeto-Romance"
-msgstr ""
+msgstr "Raeto-Romance"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4010,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1036
 msgid "Rangoon"
-msgstr ""
+msgstr "Rangoon"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:391,
 #: cgi-bin/openwebmail/openwebmail-send.pl:587
@@ -5849,12 +5825,12 @@ msgstr "Romania"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:691
 msgid "Romanian"
-msgstr ""
+msgstr "Rumeno"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1149,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:583
 msgid "Rows"
-msgstr ""
+msgstr "Colonne"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:25
 msgid "Rules"
@@ -5866,7 +5842,7 @@ msgstr "Processa con il filtro email in background:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:690
 msgid "Rundi"
-msgstr ""
+msgstr "Rundi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:692
 msgid "Russian"
@@ -5878,11 +5854,11 @@ msgstr "Russia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:934
 msgid "Rwanda"
-msgstr ""
+msgstr "Ruanda"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:931
 msgid "Réunion"
-msgstr ""
+msgstr "Riunione"
 
 #: data/openwebmail/layouts/classic/templates/prefs_about.tmpl:85
 msgid "SCRIPT FILENAME"
@@ -5928,31 +5904,31 @@ msgstr "SOFTWARE"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:941
 msgid "Saint Helena"
-msgstr ""
+msgstr "Saint Helena"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:865
 msgid "Saint Kitts and Nevis"
-msgstr ""
+msgstr "Saint Kitts e Nevis"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:873
 msgid "Saint Lucia"
-msgstr ""
+msgstr "Sainta Lucia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:923
 msgid "Saint Pierre and Miquelon"
-msgstr ""
+msgstr "Saint Pierre and Miquelon"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:977
 msgid "Saint Vincent and The Grenadines"
-msgstr ""
+msgstr "San Vincente e Grenadine"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:984
 msgid "Samoa"
-msgstr ""
+msgstr "Samoa"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:702
 msgid "Samoan"
-msgstr ""
+msgstr "Samoan"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:946
 msgid "San Marino"
@@ -5960,15 +5936,15 @@ msgstr "San Marino"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:698
 msgid "Sango"
-msgstr ""
+msgstr "Sango"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:694
 msgid "Sanskrit"
-msgstr ""
+msgstr "Sanskrit"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:950
 msgid "Sao Tome and Principe"
-msgstr ""
+msgstr "Sao Tome and Principe"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:695
 msgid "Sardinian"
@@ -5987,7 +5963,7 @@ msgstr "Sabato"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:935
 msgid "Saudi Arabia"
-msgstr ""
+msgstr "Arabia Saudita"
 
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:300,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:169,
@@ -6199,17 +6175,16 @@ msgstr "Sessioni"
 
 #: cgi-bin/openwebmail/openwebmail.pl:480,
 #: cgi-bin/openwebmail/shares/ow-shared.pl:690
-#, fuzzy
 msgid "Setting effective group id to \"mail\" failed:"
 msgstr "Impossibile impostare l'identificativo di gruppo della cartella \"mail\":"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:937
 msgid "Seychelles"
-msgstr ""
+msgstr "Seychelles"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:703
 msgid "Shona"
-msgstr ""
+msgstr "Shona"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:500
 msgid "Show HTML messages as plain text:"
@@ -6233,11 +6208,11 @@ msgstr "Visualizza calendario lunare:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:624
 msgid "Sichuan Yi"
-msgstr ""
+msgstr "Sichuan Yi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:945
 msgid "Sierra Leone"
-msgstr ""
+msgstr "Sierra Leone"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:161
 msgid "Signature (500 characters or less)"
@@ -6253,15 +6228,15 @@ msgstr "Intestazioni semplici"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:696
 msgid "Sindhi"
-msgstr ""
+msgstr "Sindhi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:940
 msgid "Singapore"
-msgstr ""
+msgstr "Singapore"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:699
 msgid "Sinhala"
-msgstr ""
+msgstr "Sinhala"
 
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:50,
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:93,
@@ -6295,11 +6270,11 @@ msgstr "Dimensione dell'area di composizione email:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:700
 msgid "Slovak"
-msgstr ""
+msgstr "Slovacco"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:944
 msgid "Slovakia"
-msgstr ""
+msgstr "Slovacchia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:942
 msgid "Slovenia"
@@ -6315,11 +6290,11 @@ msgstr "Destinazione rapida:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:936
 msgid "Solomon Islands"
-msgstr ""
+msgstr "Isole Solomon"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:704
 msgid "Somali"
-msgstr ""
+msgstr "Somalia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:948
 msgid "Somalia"
@@ -6349,11 +6324,11 @@ msgstr "La tua sessione é scaduta. Per favore ricollegati."
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:77
 msgid "Sort String"
-msgstr ""
+msgstr "Stringa d'ordinamento"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:708
 msgid "Sotho, Southern"
-msgstr ""
+msgstr "Sotho, Southern"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:987
 msgid "South Africa"
@@ -6361,7 +6336,7 @@ msgstr "Sud Africa"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:835
 msgid "South Georgia and The South Sandwich Islands"
-msgstr ""
+msgstr "Georgia del Sud e Isole Sandwich del Sud"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:813
 msgid "Spain"
@@ -6408,7 +6383,7 @@ msgstr "Uno speciale ringraziamento ai vecchi sviluppatori"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:875
 msgid "Sri Lanka"
-msgstr ""
+msgstr "Sri Lanka"
 
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:66
 msgid "Start Date:"
@@ -6496,7 +6471,7 @@ msgstr "Suffisso"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:709
 msgid "Sundanese"
-msgstr ""
+msgstr "Sundanese"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1139,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1444,
@@ -6511,23 +6486,23 @@ msgstr "Domenica"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:949
 msgid "Suriname"
-msgstr ""
+msgstr "Suriname"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:943
 msgid "Svalbard and Jan Mayen"
-msgstr ""
+msgstr "Svalbard and Jan Mayen"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:711
 msgid "Swahili"
-msgstr ""
+msgstr "Swahili"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:707
 msgid "Swati"
-msgstr ""
+msgstr "Swati"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:953
 msgid "Swaziland"
-msgstr ""
+msgstr "Swaziland"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:939
 msgid "Sweden"
@@ -6551,7 +6526,7 @@ msgstr "Crea link simbolico con gli oggetti selezionati?"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:952
 msgid "Syrian Arab Republic"
-msgstr ""
+msgstr "Repubblica araba siriana"
 
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:441,
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:444,
@@ -6572,31 +6547,31 @@ msgstr "Delimitazione con tabulato (.tab)"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:718
 msgid "Tagalog"
-msgstr ""
+msgstr "Tagalog"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:725
 msgid "Tahitian"
-msgstr ""
+msgstr "Tahitiano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:968
 msgid "Taiwan"
-msgstr ""
+msgstr "Taiwan"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:714
 msgid "Tajik"
-msgstr ""
+msgstr "Tagiko"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:959
 msgid "Tajikistan"
-msgstr ""
+msgstr "Tajikistan"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:712
 msgid "Tamil"
-msgstr ""
+msgstr "Tamil"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:969
 msgid "Tanzania"
-msgstr ""
+msgstr "Tanzania"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:388
 msgid "Tar the selected item(s)?"
@@ -6608,12 +6583,12 @@ msgstr "Destinazione:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:723
 msgid "Tatar"
-msgstr ""
+msgstr "Tatar"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4005,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1031
 msgid "Tehran"
-msgstr ""
+msgstr "Tehran"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:82
 msgid "Telephone Number"
@@ -6625,7 +6600,7 @@ msgstr "Numeri di telefono"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:713
 msgid "Telugu"
-msgstr ""
+msgstr "Telugu"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:567,
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:237,
@@ -6655,7 +6630,7 @@ msgstr "Comprimere in TGZ gli elementi selezionati?"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:715
 msgid "Thai"
-msgstr ""
+msgstr "Thai"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:958
 msgid "Thailand"
@@ -6779,14 +6754,12 @@ msgid "The chosen import format is unsupported. Please go back and chose a diffe
 msgstr "Il formato di importazione specificato non é supportato.Torna indietro e seleziona uno differente:"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:392
-#, fuzzy
 msgid "The contact property FN is required and does not exist."
-msgstr ""
+msgstr "La proprietá FN (Nome intero) del contatto é necessaria."
 
 #: cgi-bin/openwebmail/shares/vcard.pl:391
-#, fuzzy
 msgid "The contact property N is required and does not exist."
-msgstr ""
+msgstr "La proprietá FN (Nome) del contatto é necessaria."
 
 #: cgi-bin/openwebmail/shares/vcard.pl:1038
 msgid "The day, month, and year must all be defined to store a birthday for a contact."
@@ -6880,7 +6853,6 @@ msgid "The requested template file does not exist:"
 msgstr "Il modello di file righiesto non esiste:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1422
-#, fuzzy
 msgid "The same as composing character set"
 msgstr "Lo stesso set di caratteri della composizione"
 
@@ -7018,11 +6990,11 @@ msgstr "Giovedí"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:576
 msgid "Tibetan"
-msgstr ""
+msgstr "Tibetano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:716
 msgid "Tigrinya"
-msgstr ""
+msgstr "Tigrinya"
 
 #: data/openwebmail/layouts/classic/templates/prefs_viewhistory.tmpl:18
 msgid "Time"
@@ -7047,7 +7019,7 @@ msgstr "Fuso orario"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:961
 msgid "Timor-Leste"
-msgstr ""
+msgstr "Timor-Leste"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editstationery.tmpl:22
 msgid "Title"
@@ -7076,9 +7048,8 @@ msgid "To download an entire addressbook at one time, use the download links in 
 msgstr "Per scaricare un'intera rubrica alla volta, usa il collegamento disponibile in -gestisci rubrica- :"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:574
-#, fuzzy
 msgid "To, Cc, and Bcc are empty. Please specify the recipients before sending."
-msgstr "A, Copia e Copia-nascosta sono vuoti. Specificare il destinatario prina dell'invio."
+msgstr "A, Copia e Copia-nascosta sono vuoti. Specificare il destinatario prima dell'invio."
 
 #: cgi-bin/openwebmail/openwebmail-read.pl:998,
 #: cgi-bin/openwebmail/openwebmail-send.pl:3056,
@@ -7097,16 +7068,16 @@ msgstr "Oggi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:957
 msgid "Togo"
-msgstr ""
+msgstr "Togo"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:960
 msgid "Tokelau"
-msgstr ""
+msgstr "Tokelau"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:720,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:964
 msgid "Tonga"
-msgstr ""
+msgstr "Tonga"
 
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:115
 msgid "Total"
@@ -7151,7 +7122,7 @@ msgstr "validitá messaggi nel cestino:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:966
 msgid "Trinidad and Tobago"
-msgstr ""
+msgstr "Trinidad e Tobago"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword_fail.tmpl:30
 msgid "Try Again"
@@ -7159,11 +7130,11 @@ msgstr "Riprova"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:722
 msgid "Tsonga"
-msgstr ""
+msgstr "Tsonga"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:719
 msgid "Tswana"
-msgstr ""
+msgstr "Tswana"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1141,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1444,
@@ -7190,23 +7161,23 @@ msgstr "Turco"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:717
 msgid "Turkmen"
-msgstr ""
+msgstr "Turkmeno"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:962
 msgid "Turkmenistan"
-msgstr ""
+msgstr "Turkmenistan"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:954
 msgid "Turks and Caicos Islands"
-msgstr ""
+msgstr "Isole Turks e Caicos"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:967
 msgid "Tuvalu"
-msgstr ""
+msgstr "Tuvalu"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:724
 msgid "Twi"
-msgstr ""
+msgstr "Twi"
 
 #: data/openwebmail/layouts/classic/templates/read_printmessage.tmpl:74,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:402,
@@ -7228,7 +7199,7 @@ msgstr "Uganda"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:726
 msgid "Uighur"
-msgstr ""
+msgstr "Uighuri"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:970
 msgid "Ukraine"
@@ -7252,7 +7223,7 @@ msgstr "Stati uniti"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:972
 msgid "United States Minor Outlying Islands"
-msgstr ""
+msgstr "Stati Uniti d'America Isole Minori"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:441,
 #: cgi-bin/openwebmail/openwebmail-send.pl:656
@@ -7291,7 +7262,7 @@ msgstr "La dimensione del file fornito é di zero bytes."
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:728
 msgid "Urdu"
-msgstr ""
+msgstr "Urdu"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:97
 msgid "Urgent"
@@ -7299,7 +7270,7 @@ msgstr "Urgente"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:974
 msgid "Uruguay"
-msgstr ""
+msgstr "Uruguay"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1185
 msgid "Use Regex in search and filterrule:"
@@ -7315,7 +7286,7 @@ msgstr "Usa caratteri a largezza fissa per la lettura dei messaggi:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1177
 msgid "Use lightbar for selection:"
-msgstr ""
+msgstr "Usa l'evidenziatore nella selezione:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:494
 msgid "Use smiley images when reading messages:"
@@ -7352,15 +7323,15 @@ msgstr "Identificatico utente:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:729
 msgid "Uzbek"
-msgstr ""
+msgstr "Uzbek"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:975
 msgid "Uzbekistan"
-msgstr ""
+msgstr "Uzbekistan"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:982
 msgid "Vanuatu"
-msgstr ""
+msgstr "Vanuatu"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:976
 msgid "Vatican City State"
@@ -7368,7 +7339,7 @@ msgstr "Città del Vaticano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:730
 msgid "Venda"
-msgstr ""
+msgstr "Venda"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:978
 msgid "Venezuela"
@@ -7377,7 +7348,7 @@ msgstr "Venezuela"
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1022,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1032
 msgid "Versit Card (vCard)"
-msgstr ""
+msgstr "Versit Card (vCard)"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:347,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:251
@@ -7390,7 +7361,7 @@ msgstr "Vietnam"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:731
 msgid "Vietnamese"
-msgstr ""
+msgstr "Vietnamita"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:399
 msgid "View next after message move/copy:"
@@ -7398,11 +7369,11 @@ msgstr "Visualizza messaggio successivo dopo spostamento/copia:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:979
 msgid "Virgin Islands, British"
-msgstr ""
+msgstr "sole Vergini Britanniche"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:980
 msgid "Virgin Islands, U.S."
-msgstr ""
+msgstr "Isole Vergini, USA"
 
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:225,
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:41,
@@ -7433,12 +7404,12 @@ msgstr "Controllo virus"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:732
 msgid "Volapk"
-msgstr ""
+msgstr "Volapk"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:248,
 #: cgi-bin/openwebmail/openwebmail-cal.pl:470
 msgid "WK"
-msgstr ""
+msgstr "WK"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:434
 msgid "Wait time for background mail filtering:"
@@ -7446,11 +7417,11 @@ msgstr "Tempo di attesa per il filtro di messaggi"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:983
 msgid "Wallis and Futuna"
-msgstr ""
+msgstr "Wallis e Futuna"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:733
 msgid "Walloon"
-msgstr ""
+msgstr "Vallone"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:516,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:679
@@ -7468,9 +7439,8 @@ msgid "Warning: the uploaded data is not consistent. Each entry in the uploaded 
 msgstr "Attenzione: il dati forniti sono inconsistenti. non tutte le voci nel file fornito contengono lo stesso numero di campi. I dati importati non possono essere corretti o l'importazione potrebbe fallire. Assicurati che tutte le voci (righe) contengano lo stesso numero di campi (colonne) per essere importate correttamente."
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:43
-#, fuzzy
 msgid "We need help understanding how to organize the data you are importing.<br>Please define the fields for the import data. Fields may be used more than once, and undefined fields will be discarded."
-msgstr "Abbiamo bisogno di un input per capire come organizzare i dati che stai importando. <br>Per cortesia definisci i campi dei dati che stai importando.I campi possono essere usati piú di una volta e quelli lasciati vuoti verranno ignorati."
+msgstr "E' necessario un input per capire come organizzare i dati che da importare <br>Per cortesia definisci i campi dei dati che stai importando.I campi possono essere usati piú di una volta inoltre quelli lasciati vuoti verranno ignorati."
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1110
 msgid "WebDisk Options"
@@ -7556,15 +7526,15 @@ msgstr "Gallese"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4000,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1026
 msgid "West Africa"
-msgstr ""
+msgstr "Africa occidentale"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:604
 msgid "Western Frisian"
-msgstr ""
+msgstr "Frisone occidentale"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:811
 msgid "Western Sahara"
-msgstr ""
+msgstr "Sahara occidentale"
 
 #: data/openwebmail/layouts/classic/templates/login.tmpl:117
 msgid ""
@@ -7582,7 +7552,7 @@ msgstr "Larghezza"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:734
 msgid "Wolof"
-msgstr ""
+msgstr "Wolof"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1559,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1568,
@@ -7607,7 +7577,7 @@ msgstr "X.509 Chiave di certificato pubblica"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:735
 msgid "Xhosa"
-msgstr ""
+msgstr "Xhosa"
 
 #: data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:62,
 #: data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:62
@@ -7656,7 +7626,7 @@ msgstr "Vista annuale <tmpl_var year>"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:985
 msgid "Yemen"
-msgstr ""
+msgstr "Yemen"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:121,
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:273,
@@ -7668,11 +7638,11 @@ msgstr "Si"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:736
 msgid "Yiddish"
-msgstr ""
+msgstr "Yiddish"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:737
 msgid "Yoruba"
-msgstr ""
+msgstr "Yoruba"
 
 #: cgi-bin/openwebmail/openwebmail.pl:353
 msgid "You are not allowed to connect from this client domain:"
@@ -7708,7 +7678,7 @@ msgstr "Il tuo messaggio:"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3990,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1016
 msgid "Yukon Standard"
-msgstr ""
+msgstr "Yukon ora solare"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:988
 msgid "Zambia"
@@ -7716,11 +7686,11 @@ msgstr "Zambia"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:738
 msgid "Zhuang"
-msgstr ""
+msgstr "Zhuang"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:989
 msgid "Zimbabwe"
-msgstr ""
+msgstr "Zimbabwe"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:382
 msgid "Zip the selected item(s)?"
@@ -7728,7 +7698,7 @@ msgstr "Comprimi (.zip) gli elementi selezionati?"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:740
 msgid "Zulu"
-msgstr ""
+msgstr "Zulù"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:155
 msgid "[Delete]"
@@ -8084,7 +8054,7 @@ msgstr "ritorna al webdisk"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:450
 msgid "bbs"
-msgstr ""
+msgstr "bbs"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:285,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:285
@@ -8415,9 +8385,8 @@ msgstr "rimuovi questa divisione"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:712,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:712
-#, fuzzy
 msgid "delete this entire work grouping"
-msgstr ""
+msgstr "eliminare l'intero raggruppamento"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:228,
 #: data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:186,
@@ -8623,15 +8592,13 @@ msgstr[1] "ogni %d minuti"
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2590,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2592,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2598
-#, fuzzy
 msgid "exit status"
-msgstr ""
+msgstr "codice di ritorno"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1520,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1586
-#, fuzzy
 msgid "exit status:"
-msgstr ""
+msgstr "codice di ritorno:"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:234,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:156,
@@ -9092,9 +9059,8 @@ msgid "no next page"
 msgstr "nessuna pagina successiva"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1043
-#, fuzzy
 msgid "no one acts on behalf of this contact"
-msgstr ""
+msgstr "Nessuno puó essere delegato a questo contatto"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:251,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:493
@@ -9941,5 +9907,5 @@ msgstr "CAP/codice postale"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:762
 msgid "Åland Islands"
-msgstr ""
+msgstr "Isole Åland"
 
