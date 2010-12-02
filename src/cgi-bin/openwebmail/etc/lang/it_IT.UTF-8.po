@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenWebMail\n"
-"PO-Revision-Date: 2010-11-30 17:15-0000\n"
+"PO-Revision-Date: 2010-12-01 14:54-0000\n"
 "Last-Translator: Ercolino de spiacico <bellocarico@hotmail.com>\n"
 "Language-Team: Stefano Moreale <bellocarico@hotmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -15,7 +15,7 @@ msgstr ""
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:1019
 msgid "# Message forwarded as attachment"
-msgstr "# Messaggio rediretto in allegato"
+msgstr "# Messaggio inoltrato come allegato"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2346,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:613,
@@ -132,7 +132,7 @@ msgid ""
 "0755 for shared directories, 0644 for shared files\n"
 "0700 for private directories, 0600 for private files'"
 msgstr ""
-"'Per favore inserire il permesso desiderato per i seguenti oggetti:\n"
+"'Per favore inserire il permesso nei i seguenti oggetti:\n"
 "( ' + selectedstr() +' )\n"
 "\n"
 "Esempi di permesso:\n"
@@ -154,8 +154,8 @@ msgid ""
 "'Sorry, ' + selectedmonth + ' only has ' + daysinmonth + ' days in ' + formYear + '.\n"
 "Changing the day to ' + daysinmonth + '.'"
 msgstr ""
-"'Sorry, ' + selectedmonth + ' only has ' + daysinmonth + ' days in ' + formYear + '.\n"
-"Changing the day to ' + daysinmonth + '.'"
+"'Spiacente, ' + selectedmonth + ' ha solo ' + daysinmonth + ' giorni in ' + formYear + '.\n"
+"Modifico giorni a ' + daysinmonth + '.'"
 
 #: data/openwebmail/layouts/classic/templates/footer.tmpl:23
 msgid "'session time: ' + (remainingseconds - 5) + ' seconds left'"
@@ -195,14 +195,14 @@ msgstr "-- solo lettura --"
 #: cgi-bin/openwebmail/openwebmail-send.pl:822,
 #: cgi-bin/openwebmail/openwebmail-send.pl:829
 msgid "------- End of Forwarded Message -------"
-msgstr "------- fine del messaggio inoltrato -------"
+msgstr "------- Fine del Messaggio Inoltrato -------"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:468,
 #: cgi-bin/openwebmail/openwebmail-send.pl:473,
 #: cgi-bin/openwebmail/openwebmail-send.pl:683,
 #: cgi-bin/openwebmail/openwebmail-send.pl:688
 msgid "------- End of Original Message -------"
-msgstr "------- Fine del messaggio originale -------"
+msgstr "------- Fine del Messaggio Originale -------"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:819,
 #: cgi-bin/openwebmail/openwebmail-send.pl:826
@@ -242,14 +242,14 @@ msgstr "--INOLTRA--"
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:219,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:619
 msgid "--LEARN HAM--"
-msgstr "--IMPARA HAM--"
+msgstr "--TRATTA COME NON SPAM--"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:176,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:444,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:218,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:618
 msgid "--LEARN SPAM--"
-msgstr "--IMPARA SPAM--"
+msgstr "--TRATTA COME SPAM--"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:178,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:446,
@@ -271,7 +271,7 @@ msgstr "1. Seleziona il file da importare:"
 
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:289
 msgid "1. Select the contacts that you want to download from the list above."
-msgstr "1. Seleziona i contatti da scaricare dalla lista qui sopra."
+msgstr "1. Seleziona dalla lista qui sopra i contatti da desideri scaricare."
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:266
 msgid "12 hour"
@@ -284,6 +284,7 @@ msgstr "12 ore"
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:321,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:205,
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:167
+#, fuzzy
 msgid "1st"
 msgstr "Primo"
 
@@ -306,12 +307,13 @@ msgstr "24 ore"
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:321,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:205,
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:167
+#, fuzzy
 msgid "2nd"
 msgstr "Secondo"
 
 #: data/openwebmail/layouts/classic/templates/abook_importform.tmpl:67
 msgid "3. Choose a destination addressbook for the imported data:"
-msgstr "3. Seleziona la rubrica di destinazione per i dati importati:"
+msgstr "3. Seleziona la rubrica di destinazione per i contatti importati:"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1787,
 #: cgi-bin/openwebmail/openwebmail-cal.pl:685,
@@ -320,6 +322,7 @@ msgstr "3. Seleziona la rubrica di destinazione per i dati importati:"
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:321,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:205,
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:167
+#, fuzzy
 msgid "3rd"
 msgstr "Terzo"
 
@@ -330,6 +333,7 @@ msgstr "Terzo"
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:321,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:205,
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:167
+#, fuzzy
 msgid "4th"
 msgstr "Quarto"
 
@@ -369,10 +373,12 @@ msgid "<tmpl_var programname escape=\"html\"> Error"
 msgstr "<tmpl_var programname escape=\"html\"> Errore"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:299
+#, fuzzy
 msgid "<tmpl_var timeintransitsign escape=\"html\"><tmpl_var timeintransithour escape=\"html\">h <tmpl_var timeintransitmin escape=\"html\">m <tmpl_var timeintransitsec escape=\"html\">s difference"
 msgstr "<tmpl_var timeintransitsign escape=\"html\"><tmpl_var timeintransithour escape=\"html\">h <tmpl_var timeintransitmin escape=\"html\">m <tmpl_var timeintransitsec escape=\"html\">s differenza"
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:934
+#, fuzzy
 msgid "A %var% style configuration variable is too recursive:"
 msgstr "Lo stile di configurazione variabili %var% é troppo reclusivo:"
 
@@ -382,15 +388,15 @@ msgstr "il contatto ha un carattere illegale nella proprietá del gruppo:"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:886
 msgid "A contact contains a property with illegal characters in the property type:"
-msgstr "il contatto ha un carattere illegale nel tipo di proprietáo:"
+msgstr "il contatto ha un carattere illegale nel tipo di proprietá:"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:222
 msgid "A contact group name contains an invalid carriage return:"
-msgstr "Un nome di gruppo nei contatti contiene un ritorno a capo illegale:"
+msgstr "Un nome di gruppo nei contatti contiene un ritorno a capo non permesso"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:275
 msgid "A contact property type contains an invalid carriage return:"
-msgstr "Una proprieta' del contatto contiene un ritorno a capo illegale:"
+msgstr "Una proprieta' del contatto contiene un ritorno a capo non permesso:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3126,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3282
@@ -409,7 +415,7 @@ msgid ""
 "Please unblock popups and try again."
 msgstr ""
 "Un finestra di popup é stata bloccata.\n"
-"Prova a sbloccare i popup prima di riprovare."
+"Prova a permettere i popup prima di riprovare."
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:1551
 msgid "A valid xowmuid must be provided."
@@ -434,7 +440,7 @@ msgstr "Abu Dhabi, Volgograd, Kabul"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1080
 msgid "Access Classification"
-msgstr "Classificazione acesso"
+msgstr "Classificazione accesso"
 
 #: cgi-bin/openwebmail/openwebmail.pl:819
 msgid "Access denied: all modules are disabled."
@@ -454,11 +460,11 @@ msgstr "Accesso negato: il modulo calendario non é abilitato."
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1441
 msgid "Access denied: the operation is not allowed."
-msgstr "Accesso negato: l'operazione é permessa."
+msgstr "Accesso negato: l'operazione non é consentita."
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:609
 msgid "Access denied: the session id is not properly defined."
-msgstr "Accesso negato: l'identificativo della sessione non é stato correttamente definito."
+msgstr "Accesso negato: l'identificativo della sessione non é stato definito correttamente."
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:112
 msgid "Access denied: the webdisk module is not enabled."
@@ -498,7 +504,7 @@ msgstr "L'accesso ai collegamenti simbolici é stato disabilitato."
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:2104
 msgid "Access to the log file is not allowed."
-msgstr "L'accesso ai file di log é permesso."
+msgstr "L'accesso ai file di log non é consentito."
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:2098
 msgid "Access to the sessions directory is not allowed."
@@ -607,11 +613,11 @@ msgstr "Rubrica"
 
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:48
 msgid "Addressbook Name"
-msgstr "Rubrica nome"
+msgstr "Nome Rubrica"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:815
 msgid "Addressbook Options"
-msgstr "Rubrica Opzioni"
+msgstr "Opzioni Rubrica"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3332
 msgid "Addressbook already exists:"
@@ -623,7 +629,7 @@ msgstr "Posizione del pulsante di rubrica:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:847
 msgid "Addressbook default filter:"
-msgstr "Rubrica filtro predefinito:"
+msgstr "filtro predefinito della Rubrica :"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:41,
 #: data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:41
@@ -757,7 +763,7 @@ msgstr "Tutte le rubriche sono di sola lettura, per favore creane una nuova"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1674
 msgid "All changes to this agent will be lost, continue?"
-msgstr "Tutte le modifiche a questo agente saranno perse, continuare?"
+msgstr "Tutte le modifiche a questo agente an dranno perse, continuare?"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:729,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:596,
@@ -788,18 +794,19 @@ msgid "Amharic"
 msgstr "Amarico"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:2608
+#, fuzzy
 msgid "An agent upload may only contain one contact."
 msgstr "Un agente fornito puó contenere solo un contatto."
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3128,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3284
 msgid "An import destination must be chosen."
-msgstr "Una destinazione per l'importazione deve essere selezionata."
+msgstr "Specifica una destinazione per l'importazione."
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3127,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3283
 msgid "An import format must be chosen."
-msgstr "Un formato per l'importazione deve essere selezionato."
+msgstr "Specifica un formato d'importazione."
 
 #: data/openwebmail/layouts/classic/templates/error.tmpl:20
 msgid "An unknown error has occured."
@@ -950,17 +957,17 @@ msgstr "Alla fine"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:989
 msgid "At least one name attribute of a contact must be defined."
-msgstr "Almeno un nome deve essere specificato nel contatto."
+msgstr "Almeno un nome del contatto dev'essere specificato."
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:285,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:464
 msgid "At top"
-msgstr "Sopra"
+msgstr "All'inizio"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3997,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1023
 msgid "Atlantic Daylight"
-msgstr "Atlantic ora legale"
+msgstr "Atlantico ora legale"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3995,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1021
@@ -987,7 +994,7 @@ msgstr "Nome del file allegato"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:612
 msgid "Attachment Limit Reached"
-msgstr "Hai raggiunto la dimensione massima degli allegati"
+msgstr "Hai raggiunto la dimensione massima dell'allegato"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:30
 msgid "Attachment Space Available: <tmpl_var attspaceavailable_kb escape=\"html\"> Kb"
@@ -1007,7 +1014,7 @@ msgstr "Allegato:"
 
 #: data/openwebmail/layouts/classic/templates/prefs_timeoutwarning.tmpl:5
 msgid "Attention <tmpl_var useremail escape=\"html\">,<br><br>You have been idle for a long time. If no more action is taken this session will end in 60 seconds."
-msgstr "Attenzione <tmpl_var useremail escape=\"html\">,<br><br>Sei rimasto/a inattivo/a per molto tempo. Se nessuna azione viene intrapresa questa sessione terminerá in 60 secondi."
+msgstr "Attenzione <tmpl_var useremail escape=\"html\">,<br><br>Sei rimasto/a inattivo/a per molto tempo. Se nessun'altra azione verrá intrapresa, questa sessione terminerá in 60 secondi."
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1132,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1446,
@@ -1035,7 +1042,7 @@ msgstr "Australia dell'est ora solare"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4017,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1043
 msgid "Australia Eastern Summer"
-msgstr "Est Australia Estate"
+msgstr "Australia Orientale Estate"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:759
 msgid "Austria"
@@ -1043,25 +1050,25 @@ msgstr "Austria"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:154
 msgid "Auto Reply Text (500 characters or less)"
-msgstr "Testo di autorisposta (massimo 500 caratteri)"
+msgstr "Testo di risposta automatica (massimo 500 caratteri)"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:146
 msgid "Auto Reply:"
-msgstr "Auto risposta:"
+msgstr "Risposta Automatica:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1613,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:106,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:566
 msgid "Auto Selected"
-msgstr "Auto selezione"
+msgstr "Selezione Automatica"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:406
 msgid "Auto fetch POP3 at login:"
-msgstr "Controllo messaggi POP3 dopo il login:"
+msgstr "Scaricamento automatico messaggi da POP3 dopo il login:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1279
 msgid "Auto-refresh message listing:"
-msgstr "Aggiornamento automatico lista messaggi:"
+msgstr "Aggiornamento automatico della lista dei messaggi:"
 
 #: data/openwebmail/layouts/classic/templates/login.tmpl:70
 msgid "Auto<br>Login"
@@ -1105,19 +1112,19 @@ msgstr "BBS"
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword_fail.tmpl:44,
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword_pass.tmpl:22
 msgid "Back to User Preferences"
-msgstr "Ritorna alle preferenze utente"
+msgstr "Ritorna alle preferenze dell'utente"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:228
 msgid "Background image repeated:"
-msgstr "Immagine di background ripetuta:"
+msgstr "Immagine di sfondo ripetuta:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:207
 msgid "Background image:"
-msgstr "Immagine di background:"
+msgstr "Immagine di sfondo:"
 
 #: cgi-bin/openwebmail/shares/adrbook.pl:150
 msgid "Backup file must be specified."
-msgstr "Un file di backup deve essere specificato."
+msgstr "Un file di backup dev'essere specificato."
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:635
 msgid "Backup outgoing message to SENT folder:"
@@ -1129,7 +1136,7 @@ msgstr "Backup messaggi inviati"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:641
 msgid "Backup to current folder (if not Inbox/Draft):"
-msgstr "Backup nella cartella corrente (se non Inbox/Bozze):"
+msgstr "Backup nella cartella corrente (a meno che tu non sia in Inbox/Bozze):"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4004,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1030
@@ -1268,15 +1275,15 @@ msgstr "Bosniaco"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:841
 msgid "Both before and after addressbook entries"
-msgstr "Entrambi, prima e dopo le voci di rubrica"
+msgstr "Prima e dopo delle voci di rubrica"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:598
 msgid "Both before and after mail edit area"
-msgstr "Entrambi prima e dopo l'area di composizione email"
+msgstr "Prima e dopo del'area di composizione email"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:1117
 msgid "Both latitude and longitude must be defined."
-msgstr "entrame latitudine e longitudine devono essere definite."
+msgstr "entrambe latitudine e longitudine devono essere definite."
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:780
 msgid "Botswana"
@@ -1606,12 +1613,12 @@ msgstr "Impossibile bloccare o aprire il file:"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1705
 msgid "Cannot make directory:"
-msgstr "Impossibile create cartella:"
+msgstr "Impossibile creare cartella:"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:1996,
 #: cgi-bin/openwebmail/openwebmail-send.pl:3002
 msgid "Cannot open any of the following SMTP servers:"
-msgstr "Impossibile aprire alcuno dei seguenti server SMTP:"
+msgstr "Impossibile connettersi ai seguenti server SMTP:"
 
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:563,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:690,
@@ -1643,7 +1650,7 @@ msgstr "Impossibile aprire alcuno dei seguenti server SMTP:"
 #: cgi-bin/openwebmail/shares/maildb.pl:770,
 #: cgi-bin/openwebmail/shares/mailfilter.pl:903
 msgid "Cannot open db:"
-msgstr "Impossibile aprite database:"
+msgstr "Impossibile aprire database:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:2938,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:2958,
@@ -1671,7 +1678,7 @@ msgstr "Impossibile aprite database:"
 #: cgi-bin/openwebmail/shares/ow-shared.pl:2517,
 #: cgi-bin/openwebmail/shares/upgrade.pl:379
 msgid "Cannot open directory:"
-msgstr "Impossibile aprite cartella:"
+msgstr "Impossibile aprire cartella:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:1196,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:1223,
@@ -1795,7 +1802,7 @@ msgstr "Impossibile aprite cartella:"
 #: cgi-bin/openwebmail/shares/upgrade.pl:740,
 #: cgi-bin/openwebmail/shares/vfile.pl:83
 msgid "Cannot open file:"
-msgstr "Impossibile aprite file:"
+msgstr "Impossibile aprire file:"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:138,
 #: cgi-bin/openwebmail/openwebmail-cal.pl:143,
@@ -1805,7 +1812,7 @@ msgstr "Impossibile aprite file:"
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2010,
 #: cgi-bin/openwebmail/openwebmail-main.pl:824
 msgid "Cannot read calendar file:"
-msgstr "Impossibile leggere il file calendario:"
+msgstr "Impossibile leggere il file del calendario:"
 
 #: cgi-bin/openwebmail/shares/upgrade.pl:229
 msgid "Cannot read directory:"
@@ -1821,7 +1828,7 @@ msgstr "Impossibile leggere file:"
 #: cgi-bin/openwebmail/openwebmail-main.pl:1141,
 #: cgi-bin/openwebmail/openwebmail-main.pl:1209
 msgid "Cannot read pop3 book:"
-msgstr "Impossibile leggere libro POP3:"
+msgstr "Impossibile leggere rubrica POP3:"
 
 #: cgi-bin/openwebmail/openwebmail-folder.pl:610,
 #: cgi-bin/openwebmail/shares/maildb.pl:248
@@ -2115,7 +2122,7 @@ msgstr "Componi messaggio"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editstationery.tmpl:66
 msgid "Compose New Stationery"
-msgstr "Componi nuovo modello"
+msgstr "Crea un nuovo modello"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword.tmpl:38
 msgid "Confirm New Password:"
@@ -2123,7 +2130,7 @@ msgstr "Conferma la nuova password:"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:134
 msgid "Confirm Reading"
-msgstr "Conferma lettura"
+msgstr "Conferma la lettura"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1135
 msgid "Confirm before directory/file compress:"
@@ -2164,7 +2171,7 @@ msgstr "URL del contatto"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:103
 msgid "Contact Source URL Description"
-msgstr "descizione della URL del contatto"
+msgstr "descrizione della URL del contatto"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:416
 msgid "Contact name must be defined."
@@ -2182,7 +2189,7 @@ msgstr "Posizione della barra di controllo nella interfaccia di lettura:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:281
 msgid "Controlbar position in messages list:"
-msgstr "Posizione della barra di controllo nella lista di messaggi:"
+msgstr "Posizione della barra di controllo nella lista dei messaggi:"
 
 #: cgi-bin/openwebmail/shares/adrbook.pl:94
 msgid "Converted"
@@ -2222,7 +2229,7 @@ msgstr "Costa Rica"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:23
 msgid "Count"
-msgstr "COnteggio"
+msgstr "Conteggio"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1340
 msgid "Create GZ"
@@ -2277,7 +2284,7 @@ msgstr "Lista di indirizzi attualmente selezionati"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1252
 msgid "Custom Name"
-msgstr "Nome personalizzato:"
+msgstr "Nome personalizzato"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1237
 msgid "Custom Properties"
@@ -2524,7 +2531,7 @@ msgstr "Disabilita i tag embed/object/applet all'interno dei messaggi:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:535
 msgid "Disable embedded CGI links only"
-msgstr "Disabilita solo i collegamenti a CGI (links)"
+msgstr "Disabilita solo i collegamenti (link) a CGI"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:530
 msgid "Disable embedded links inside messages:"
@@ -2543,7 +2550,7 @@ msgstr "Disabilitato"
 #: cgi-bin/openwebmail/openwebmail-main.pl:1137,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2664
 msgid "Disallowed POP3 server:"
-msgstr "server POP3 non permesso:"
+msgstr "server POP3 non abilitato:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:174
 msgid "Display Preference"
@@ -2571,11 +2578,11 @@ msgstr "Gibuti"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:718
 msgid "Do not check any messages for spam"
-msgstr "Non controllare SPAM nei messaggio"
+msgstr "Non fare il controllo SPAM dei messaggii"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:673
 msgid "Do not check any messages for viruses"
-msgstr "Non controllare virus nei messaggi"
+msgstr "Non fare il controllo virus dei messaggii"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:761
 msgid "Do not check for repeated messages"
@@ -2804,10 +2811,12 @@ msgid "End hour:"
 msgstr "Ora finale:"
 
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:207
+#, fuzzy
 msgid "End time"
 msgstr "Ora finale:"
 
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:70
+#, fuzzy
 msgid "End time:"
 msgstr "Ora finale:"
 
@@ -2841,6 +2850,7 @@ msgid "Error opening message:"
 msgstr "Errore aprendo il messaggio:"
 
 #: data/openwebmail/layouts/classic/templates/send_replyreceipt.tmpl:12
+#, fuzzy
 msgid "Error: reply receipt message ID seems to be gone:"
 msgstr "Errore: l'identificativo del destinatario messaggio sembrerebbe non essere piú disponibile:"
 
@@ -2876,7 +2886,7 @@ msgstr "Collegamento evento:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1082
 msgid "Event reminder check days:"
-msgstr "Giorni di controllo notificazione eventi:"
+msgstr "Giorni di verifica per promemoria eventi:"
 
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:270,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:138
@@ -2944,9 +2954,8 @@ msgstr "Esporta contatti da:"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1175,
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:104
-#, fuzzy
 msgid "External Unique ID"
-msgstr "Identificativo unico esterno"
+msgstr "Identificativo esterno"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1360,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1363,
@@ -2968,7 +2977,7 @@ msgstr "Estrai Archivio"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:189
 msgid "Extract archive file <tmpl_var filename escape=\"js\">?"
-msgstr "Estrai file archivio <tmpl_var filename escape=\"js\">?"
+msgstr "Estrai archivio <tmpl_var filename escape=\"js\">?"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:817
 msgid "Falkland Islands (Malvinas)"
@@ -3074,7 +3083,7 @@ msgstr "Filtra messaggi con falso SMTP:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:798
 msgid "Filter messages with faked exe content-type:"
-msgstr "Filtra messaggi con falso exe content-type:"
+msgstr "Filtra messaggi con falso .exe content-type:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:766,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:775,
@@ -3102,17 +3111,14 @@ msgstr "Finlandese"
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:938,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:952,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:966
-#, fuzzy
 msgid "First"
-msgstr "Primo"
+msgstr "Nome"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:895
-#, fuzzy
 msgid "First Email Address (A to Z)"
 msgstr "Primo Indirizzo email (dalla A alla Z)"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:896
-#, fuzzy
 msgid "First Email Address (Z to A)"
 msgstr "Primo Indirizzo email (dalla Z alla A)"
 
@@ -3121,7 +3127,7 @@ msgstr "Primo Indirizzo email (dalla Z alla A)"
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:101,
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:101
 msgid "First Name"
-msgstr "Nome comune"
+msgstr "Nome"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:887
 msgid "First Name (A to Z)"
@@ -3256,19 +3262,19 @@ msgstr "Fulah"
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:950,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:964
 msgid "Full Name"
-msgstr "Nome competo"
+msgstr "Nome completo"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:883
 msgid "Full Name (A to Z)"
-msgstr "Nove completo (A to Z)"
+msgstr "Nome completo (dalla A alla Z)"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:884
 msgid "Full Name (Z to A)"
-msgstr "Nome intero (dalla Z alla A)"
+msgstr "Nome completo (dalla Z alla A)"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1347
 msgid "Full Name Pronunciation Sound (aif,wav)"
-msgstr "Nome intero - suono di pronuncia (aif,wav)"
+msgstr "Nome completo - suono di pronuncia (aif,wav)"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:1010,
 #: cgi-bin/openwebmail/openwebmail-send.pl:798
@@ -3384,11 +3390,11 @@ msgstr "Informazione gruppo"
 
 #: data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:172
 msgid "Group Name"
-msgstr "Nome gruppo"
+msgstr "Nome del gruppo"
 
 #: data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:324
 msgid "Group Name Pronunciation Sound (aif,wav)"
-msgstr "Pronuncia nome del gruppo (aif,wav)"
+msgstr "Pronuncia del nome del gruppo (aif,wav)"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:832
 msgid "Guadeloupe"
@@ -3432,7 +3438,7 @@ msgstr "Guyana"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:384
 msgid "Gzip the selected item(s)?"
-msgstr "Comprimi (gzip) gli oggetti selezionati?"
+msgstr "Comprimi  in gzip gli oggetti selezionati?"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:568,
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:238,
@@ -3444,7 +3450,7 @@ msgstr "HTML"
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:239,
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:324
 msgid "HTML and Text"
-msgstr "HTML e Text"
+msgstr "HTML e Testo"
 
 #: data/openwebmail/layouts/classic/templates/prefs_about.tmpl:167
 msgid "HTTP ACCEPT ENCODING"
@@ -3480,7 +3486,7 @@ msgstr "HTTP VIA"
 
 #: data/openwebmail/layouts/classic/templates/prefs_about.tmpl:149
 msgid "HTTP X FORWARDED FOR"
-msgstr "HTTP X INOLTRATO PER"
+msgstr "HTTP X INOLTRATO A"
 
 #: data/openwebmail/layouts/classic/templates/login.tmpl:109
 msgid ""
@@ -3510,7 +3516,7 @@ msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/login.tmpl:65
 msgid "HTTP<br>Compression"
-msgstr "HTTP<br>Compressione"
+msgstr "Compressione<br>HTML"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:844
 msgid "Haiti"
@@ -3557,7 +3563,7 @@ msgstr "Herero"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1191
 msgid "Hide folder internal data:"
-msgstr "Nascondi oggetti all'interno della cartella:"
+msgstr "Nascondi il contenuto della cartella:"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2092
 msgid "Hiemens"
@@ -3590,7 +3596,7 @@ msgstr "Hong Kong"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:262
 msgid "Hour format:"
-msgstr "Formato ora:"
+msgstr "Formato dell'ora:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:617
 msgid "Hungarian"
@@ -3643,7 +3649,7 @@ msgstr "Carattere non supportato nel nome della cartella:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1820
 msgid "Illegal characters in forward email address."
-msgstr "Carattere non supportato nell'indirizzo email d'inoltro."
+msgstr "Carattere non supportato nell'indirizzo email per l'inoltro."
 
 #: cgi-bin/openwebmail/openwebmail.pl:469,
 #: cgi-bin/openwebmail/shares/ow-shared.pl:620
@@ -3652,7 +3658,7 @@ msgstr "Carattere non supportato nell'identificativo della sessione:"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1658
 msgid "Illegal event idate format:"
-msgstr "Formato evento idate no supportato:"
+msgstr "Formato evento idate non supportato:"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1142
 msgid "Illegal operation:"
@@ -3705,7 +3711,7 @@ msgstr "Importa la prima colonna dei dati campione visualizzati qui sopra?"
 
 #: data/openwebmail/layouts/classic/templates/abook_importform.tmpl:72
 msgid "Import to new addressbook..."
-msgstr "Importa in una nuova rubrica..."
+msgstr "Importa ceando una nuova rubrica..."
 
 #: cgi-bin/openwebmail/openwebmail-main.pl:592,
 #: cgi-bin/openwebmail/openwebmail-read.pl:359,
@@ -3741,7 +3747,7 @@ msgstr[1] "Inbox: %d messaggi non letti"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:26
 msgid "Inc/Exc"
-msgstr "Includi/Escludi"
+msgstr "Inc/Esc"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:133,
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:208,
@@ -3752,7 +3758,7 @@ msgstr "Includi"
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:536,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:695
 msgid "Incoming Messages"
-msgstr "Messaggi in ingresso"
+msgstr "Messaggi in Ingresso"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:4008,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1034,
@@ -3769,12 +3775,10 @@ msgid "Indonesian"
 msgstr "Indonesiano"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:620
-#, fuzzy
 msgid "Interlingua"
 msgstr "Interlingua"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:622
-#, fuzzy
 msgid "Interlingue"
 msgstr "Interlingue"
 
@@ -3819,12 +3823,12 @@ msgstr "Formato di importazione invalido:"
 #: cgi-bin/openwebmail/shares/vcard.pl:1114,
 #: cgi-bin/openwebmail/shares/vcard.pl:581
 msgid "Invalid latitude format."
-msgstr "Formato di latitudine invalido."
+msgstr "Il formato della latitudine é invalido."
 
 #: cgi-bin/openwebmail/shares/vcard.pl:1107,
 #: cgi-bin/openwebmail/shares/vcard.pl:587
 msgid "Invalid longitude format."
-msgstr "Formato di longitudine invalido."
+msgstr "Il formato della longitudine é invalido."
 
 #: cgi-bin/openwebmail/shares/maildb.pl:1044
 msgid "Invalid message operation:"
@@ -3836,13 +3840,14 @@ msgstr "Percorso di configurazione file invalido:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3425
 msgid "Invalid property name for import:"
-msgstr "Nome di proprietá importazione invalido:"
+msgstr "Nome di proprietá in importazione non supportato:"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:326
 msgid "Invalid propertyname while parsing contact line:"
 msgstr "Nome di proprietá invalido processando la linea dei contatti:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:2423
+#, fuzzy
 msgid "Invalid traverse direction:"
 msgstr "Direzione trasversale invalida:"
 
@@ -3888,7 +3893,7 @@ msgstr "Israele"
 
 #: data/openwebmail/layouts/classic/templates/prefs_userfirsttime.tmpl:12
 msgid "It appears that this is your first time using <tmpl_var programname escape=\"html\">, so we need to gather some information about you to better configure <tmpl_var programname escape=\"html\"> to suit your needs. Please click continue to proceed to the <tmpl_var programname escape=\"html\"> configuration screen."
-msgstr "Sembrerebbe questa sia la prima volta che utilizzi <tmpl_var programname escape=\"html\">, per cui dobbiamo collezionare alcune informazioni per configurare meglio <tmpl_var programname escape=\"html\"> per i tuoi bisogni. Premi continua per procedere alla schermata di configurazione <tmpl_var programname escape=\"html\">"
+msgstr "Sembrerebbe questa sia la prima volta che utilizzi <tmpl_var programname escape=\"html\">, é necessario collezionare alcune informazioni per configurare <tmpl_var programname escape=\"html\"> al meglio per i tuoi bisogni. Premere continua per procedere alla schermata di configurazione di <tmpl_var programname escape=\"html\">"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:628
 msgid "Italian"
@@ -3939,16 +3944,16 @@ msgstr "Jersey"
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:728,
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:93
 msgid "Job Classification"
-msgstr "lavoro Classificazione"
+msgstr "Classificazione lavoro"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:94
 msgid "Job Division / Department"
-msgstr "lavoro Divisione/Dipartimento"
+msgstr "Divisione/Dipartimento lavoro"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:707,
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:92
 msgid "Job Title"
-msgstr "lavoro Titolo"
+msgstr "Titolo di lavoro"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:858
 msgid "Jordan"
@@ -4096,7 +4101,7 @@ msgstr "Repubblica democratica popolare del Laos"
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:954,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:968
 msgid "Last"
-msgstr "Ultimo:"
+msgstr "Cognome"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:118,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:140
@@ -4349,7 +4354,7 @@ msgstr "Crea francobollo"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:179
 msgid "Make a pdf file from <tmpl_var filename escape=\"js\">?"
-msgstr "Crea unfile  PDF con <tmpl_var filename escape=\"js\">?"
+msgstr "Crea un file  PDF con <tmpl_var filename escape=\"js\">?"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:179
 msgid "Make a postscript file from <tmpl_var filename escape=\"js\">?"
@@ -4405,7 +4410,7 @@ msgstr "Manx"
 
 #: data/openwebmail/layouts/classic/templates/abook_importform.tmpl:37
 msgid "Many addressbook programs can export their addressbook data to files. <tmpl_var programname escape=\"html\"> can import some of these file formats, saving you hours of tediously typing them in by hand.<br><br>The steps below will guide you through importing contacts. The file size limit for importing contacts is currently set to <tmpl_var abookimportlimit escape=\"html\"> KB."
-msgstr "Diversi programmi di gestione rubrica possono esportare dati su file. <tmpl_var programname escape=\"html\"> puó importare alsuni di questi formati di file, risparmiandoti anche ore di interazione manuale.<br><br>I passi qui sotto ti guideranno attraverso l'importazione contatti. Il limite massimo di importazione contatti é attualmente impostato a <tmpl_var abookimportlimit escape=\"html\"> KB."
+msgstr "Quasi tutti i programmi di gestione rubrica possono esportare dati su file. <tmpl_var programname escape=\"html\"> puó importare alcuni di questi formati di file, risparmiando cosí lunghe di interazione manuali.<br><br>I passi qui sotto guidano attraverso l'importazione dei contatti. Il limite massimo di contatti importabili é attualmente impostato a <tmpl_var abookimportlimit escape=\"html\"> KB."
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:658
 msgid "Maori"
@@ -4427,7 +4432,7 @@ msgstr "Marzo"
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:150,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:86
 msgid "Mark all messages in this folder as read?"
-msgstr "Imposta tutti i messaggi in questa cartella come giá letti?"
+msgstr "Classificare tutti i messaggi in questa cartella come giá letti?"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:886
 msgid "Marshall Islands"
@@ -4486,7 +4491,7 @@ msgstr "Membri"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:532
 msgid "Message <tmpl_var sentsubject escape=\"js\"> has been sent successfully"
-msgstr "messaggio <tmpl_var sentsubject escape=\"js\"> inviato con successo"
+msgstr "Messaggio <tmpl_var sentsubject escape=\"js\"> inviato con successo"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:559
 msgid "Message Composing/Sending Options"
@@ -4512,7 +4517,7 @@ msgstr "L'identificativo del messaggio non esiste:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:372
 msgid "Message Operation"
-msgstr "Operazioni messaggio"
+msgstr "Operazioni sul messaggio"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:457
 msgid "Message Reading Options"
@@ -4520,7 +4525,7 @@ msgstr "Opzioni di lettura messaggio"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:532
 msgid "Message Sent"
-msgstr "Invio messaggio"
+msgstr "Messaggio inviato"
 
 #: cgi-bin/openwebmail/openwebmail-read.pl:1423
 msgid "Message block read error:"
@@ -4548,11 +4553,11 @@ msgstr "Messaggi per pagina:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:712
 msgid "Messages to be checked for spam:"
-msgstr "Numero di messaggi da controllare se SPAM:"
+msgstr "Numero di messaggi da controllare con il filtro SPAM:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:667
 msgid "Messages to be checked for viruses:"
-msgstr "Numero di messaggi da controllare se infettati da virus:"
+msgstr "Numero di messaggi da controllare con l'antivirus:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:900
 msgid "Mexico"
@@ -4762,7 +4767,7 @@ msgstr "Attibuti Nome"
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:100,
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:100
 msgid "Name Prefix"
-msgstr "Preficco Nome"
+msgstr "Prefisso Nome"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:885
 msgid "Name Prefix (A to Z)"
@@ -4770,7 +4775,7 @@ msgstr "Prefisso Nome (dalla A alla Z)"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:886
 msgid "Name Prefix (Z to A)"
-msgstr "Prefisso nome (dalla Z alla A)"
+msgstr "Prefisso Nome (dalla Z alla A)"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:138,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:109,
@@ -4789,11 +4794,11 @@ msgstr "Suffisso Nome (dalla Z alla A)"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:72
 msgid "Name: First"
-msgstr "Nome: Nome Primo"
+msgstr "Nome: Nome"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:70
 msgid "Name: Full Name"
-msgstr "Nome: Intero"
+msgstr "Nome: Completo"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:74
 msgid "Name: Last"
@@ -4881,11 +4886,11 @@ msgstr "Nuova Zelanda ora legale"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1214
 msgid "New mail popup window notification:"
-msgstr "Nuovi messaggi popup di notificatione:"
+msgstr "Popup di notificatione nuovi messaggi:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1203
 msgid "New mail sound notification:"
-msgstr "Nuovi messaggi suono di notificazione:"
+msgstr "Suono di notificazione nuovi messaggi:"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword.tmpl:89
 msgid "New password confirm mismatch."
@@ -4963,7 +4968,7 @@ msgstr "Nessun file o cartella puó essere preparato per la compressione."
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1772
 msgid "No files or directories could be prepared for download."
-msgstr "Nessun file o cartella puó essere preparato per la scaricamento."
+msgstr "Nessun file o cartella puó essere preparato per il download."
 
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:152,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:206
@@ -5082,7 +5087,7 @@ msgstr "Nota"
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:264,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:131
 msgid "Notify Email:"
-msgstr "Notivifa per email:"
+msgstr "Notifica email:"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1135,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1446,
@@ -5178,7 +5183,7 @@ msgstr "Operazione"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1113
 msgid "Operation cancelled. The source and target names are the same:"
-msgstr "Operazione annullata: Il nome del sorgente e quello di destinazione sono lo stesso:"
+msgstr "Operazione annullata: Il nome del sorgente e quello della destinazione sono uguali:"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2088
 msgid "Orchimens"
@@ -5292,7 +5297,7 @@ msgstr "Password"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword_fail.tmpl:7
 msgid "Password Change Failed"
-msgstr "Cambio della password fallito"
+msgstr "Cambio della password non riuscito"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editpassword_pass.tmpl:6
 msgid "Password Changed"
@@ -5417,7 +5422,7 @@ msgstr "Telefono"
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:149,
 #: data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:145
 msgid "Photo could not be displayed"
-msgstr "La foto non puó essere visionata"
+msgstr "La foto non puó essere visualizzata"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:924
 msgid "Pitcairn"
@@ -5425,7 +5430,7 @@ msgstr "Pitcairn"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:60
 msgid "Please Assign Field Names"
-msgstr "Per cortesia assegna nomi ai campi"
+msgstr "Per cortesia assegna i nomi ai campi"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:2553
 msgid "Please check the message saved in the draft folder, and try again."
@@ -5433,11 +5438,11 @@ msgstr "Controlla i messagi salvati nella cartella bozze e riprova."
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:429
 msgid "Please choose a file to upload first."
-msgstr "Per favore selezionare prima un file da fornire."
+msgstr "Selezionare un file da inviare."
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:587
 msgid "Please enter the URL of a file to attach"
-msgstr "Per favore inserisci la URL del file da allegare"
+msgstr "Inserirei la URL del file da allegare"
 
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:137,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:156,
@@ -5447,15 +5452,15 @@ msgstr "Inserisci il nuovo nome per questa cartella"
 
 #: cgi-bin/openwebmail/openwebmail.pl:113
 msgid "Please execute 'openwebmail-tool.pl --init' on server first!"
-msgstr "Esegui prima 'openwebmail-tool.pl --init' sul server!"
+msgstr "Esegure prima 'openwebmail-tool.pl --init' sul server!"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1686
 msgid "Please fill in the first name or last name fields first."
-msgstr "Compila prima i campi nome primo e cognome."
+msgstr "Compila prima i campi di nome o cognome."
 
 #: data/openwebmail/layouts/classic/templates/login_fail.tmpl:9
 msgid "Please go back and <a href=\"<tmpl_var url_start escape=\"none\">\">try again</a>."
-msgstr "Torna a <a href=\"<tmpl_var url_start escape=\"none\">\"> e riporva</a>."
+msgstr "Torna a <a href=\"<tmpl_var url_start escape=\"none\">\"> e riprova</a>."
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:352,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:354,
@@ -5464,15 +5469,15 @@ msgstr "Torna a <a href=\"<tmpl_var url_start escape=\"none\">\"> e riporva</a>.
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:360,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:362
 msgid "Please provide a destination target name."
-msgstr "Per favore fornisci il nome di destinazione."
+msgstr "Specificare il nome di destinazione."
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:238
 msgid "Please provide a target name for the new file."
-msgstr "Per favore fornisci il nome del nuovo file."
+msgstr "Specificare il nome del nuovo file."
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:239
 msgid "Please provide a target name for the new folder."
-msgstr "Per favore fornisci il nome della nuova cartella."
+msgstr "Specificare il nome della nuova cartella."
 
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:245
 msgid "Please select a folder to search from above."
@@ -5480,13 +5485,13 @@ msgstr "Seleziona una cartella di ricerca qui sopra."
 
 #: cgi-bin/openwebmail/shares/getmsgids.pl:109
 msgid "Please try again later. The indexing process has not yet completed for folder:"
-msgstr "Per favore riprova piú tardi. Il processo di indicizzazione non é stato completato  per la cartella:"
+msgstr "Per favore riprova piú tardi. Il processo di indicizzazione non é ancora completato per la cartella:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2537,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2661,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:3042
 msgid "Please try again."
-msgstr "Riprova per favore."
+msgstr "Riprova."
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2085
 msgid "Plumens"
@@ -5621,9 +5626,8 @@ msgid "Puerto Rico"
 msgstr "Porto Rico"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:686
-#, fuzzy
 msgid "Pushto"
-msgstr "InviaA"
+msgstr "Afgano"
 
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:416,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:196,
@@ -5838,7 +5842,7 @@ msgstr "Regole"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:418
 msgid "Run mail filter in the background:"
-msgstr "Processa con il filtro email in background:"
+msgstr "Filtra email in background:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:690
 msgid "Rundi"
@@ -6115,7 +6119,7 @@ msgstr "Inviato"
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:226,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:354
 msgid "Sent Date"
-msgstr "Data di invio"
+msgstr "Data d'invio"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1228
 msgid "Sent message popup window notification:"
@@ -6146,7 +6150,7 @@ msgstr "Serbo"
 
 #: data/openwebmail/layouts/classic/templates/init_sslredirect.tmpl:17
 msgid "Service is available over SSL only.<br>You will be redirected to the <a href=\"<tmpl_var start_url escape=\"none\">\">SSL login</a> page in 5 seconds..."
-msgstr "Servizio disponibile solo tramite SSL.<br> Sarai rediretto/a alla pagina di <a href=\"<tmpl_var start_url escape=\"none\">\">login SSL</a> in 5 secondi..."
+msgstr "Servizio esclusivamente disponibile tramite SSL.<br> Redirezione alla pagina del <a href=\"<tmpl_var start_url escape=\"none\">\">login SSL</a> in 5 secondi..."
 
 #: cgi-bin/openwebmail/openwebmail.pl:186,
 #: cgi-bin/openwebmail/openwebmail.pl:292
@@ -6159,11 +6163,11 @@ msgstr "Il servizio non é disponibile per l'utente user@domain:"
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:1209
 msgid "Session ID does not exist:"
-msgstr "L'identificativo della session non esiste:"
+msgstr "L'identificativo della sessione non esiste:"
 
 #: data/openwebmail/layouts/classic/templates/sessiontimeout.tmpl:6
 msgid "Session Timeout"
-msgstr "Scadenza sessione"
+msgstr "Scadenza Sessione"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1289
 msgid "Session timeout:"
@@ -6254,11 +6258,11 @@ msgstr "Dimensione (Grandi prima)"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:323
 msgid "Size (Smallest first)"
-msgstr "Dimensione (Piccolo prima)"
+msgstr "Dimensione (Piccoli prima)"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:818
 msgid "Size for addressbook window:"
-msgstr "Dimensione finestra  della rubrica:"
+msgstr "Dimensione della finestra di rubrica:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1141
 msgid "Size for file edit window:"
@@ -6302,7 +6306,7 @@ msgstr "Somalia"
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:655
 msgid "Sorry, root login is disabled for security."
-msgstr "Il login per l'utente root é disabilitato per motivi di sicurezza."
+msgstr "Il login per l'utente root non é abilitato per motivi di sicurezza."
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:2545,
 #: cgi-bin/openwebmail/openwebmail-send.pl:3085
@@ -6324,7 +6328,7 @@ msgstr "La tua sessione é scaduta. Per favore ricollegati."
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:77
 msgid "Sort String"
-msgstr "Stringa d'ordinamento"
+msgstr "Stringa d'ordine"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:708
 msgid "Sotho, Southern"
@@ -6367,11 +6371,11 @@ msgstr "Spam"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:705
 msgid "Spam Check"
-msgstr "Controlla SPAM"
+msgstr "Controlla Spam"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1265
 msgid "Spam/Virus folder messages lifetime:"
-msgstr "Validitá messaggi nella cartella Spam/Virus"
+msgstr "Validitá messaggi nella cartella Spam/Virus:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:595
 msgid "Spanish"
@@ -6379,7 +6383,7 @@ msgstr "Spagnolo"
 
 #: data/openwebmail/layouts/classic/templates/login_pass.tmpl:32
 msgid "Special Thanks to Retired Developers"
-msgstr "Uno speciale ringraziamento ai vecchi sviluppatori"
+msgstr "Uno speciale ringraziamento agli sviluppatori ritarati dal progetto"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:875
 msgid "Sri Lanka"
@@ -6433,7 +6437,7 @@ msgstr "Soggetto (Nuovi prima)"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:325
 msgid "Subject (Oldest first)"
-msgstr "Soggetto (vecchi prima)"
+msgstr "Soggetto (Vecchi prima)"
 
 #: cgi-bin/openwebmail/openwebmail-read.pl:1000,
 #: cgi-bin/openwebmail/openwebmail-send.pl:3057,
@@ -6618,7 +6622,7 @@ msgstr "Testo"
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:88,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:85
 msgid "Text Content"
-msgstr "Contenuto testo"
+msgstr "Contenuto testuale"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1194
 msgid "Text Only"
@@ -6672,7 +6676,7 @@ msgstr "La cartella della rubrica é di sola lettura:"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:1410,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:1467
 msgid "The addressbook folder name already exists:"
-msgstr "Un cartella all'interno della rubrica é giá esistente con questo nome:"
+msgstr "Un cartella con questo nome é giá esistente all'interno della rubrica :"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:1413,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:1470
@@ -6705,14 +6709,14 @@ msgstr ""
 "\n"
 "' + shortfilename + '\n"
 "\n"
-"é stato usato in questo messaggio.\n"
-"L'allegato non apparirá nella email se decidi di cancellarlo.\n"
+"é stato associato a questo messaggio.\n"
+"Questo non apparirá nell'email se decidi di rimuoverlo.\n"
 "Cancellare allegato?"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:1029,
 #: cgi-bin/openwebmail/shares/vcard.pl:463
 msgid "The birth day exceeds the maximum number of days in the selected birth month."
-msgstr "Il giorno di nascita specificato non esiste nel mese di nascita."
+msgstr "Il giorno di nascita non esiste nel mese di nascita specificato."
 
 #: cgi-bin/openwebmail/shares/vcard.pl:1022,
 #: cgi-bin/openwebmail/shares/vcard.pl:456
@@ -6731,19 +6735,19 @@ msgstr "La data di nascita non é valida:"
 #: cgi-bin/openwebmail/shares/vcard.pl:1012,
 #: cgi-bin/openwebmail/shares/vcard.pl:450
 msgid "The birthday year must be a number between 1 and 9999."
-msgstr "L'anno di nasciat deve essere tra 1 e 9999."
+msgstr "L'anno di nascita deve essere un numero tra 1 e 9999."
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:3042
 msgid "The book of filters is larger than the maximum allowed size."
-msgstr "La tabella dei filtri ecced il limite massimo permesso."
+msgstr "La tabella dei filtri eccede il limite massimo permesso."
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2537
 msgid "The book of from addresses is larger than the maximum allowed size."
-msgstr "La tabella degli indirizzi eccede il limite massimo permesso"
+msgstr "La rubrica degli indirizzi eccede il limite massimo permesso."
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2661
 msgid "The book of pop3 addresses is larger than the maximum allowed size."
-msgstr "La tabella degli indirizzi POP3 eccede il limite massimo permesso."
+msgstr "La rubrica degli indirizzi POP3 eccede il limite massimo permesso."
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3521
 msgid "The chosen export format is not supported:"
@@ -6751,7 +6755,7 @@ msgstr "Il formato di esportazione selezionato non é supportato:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3146
 msgid "The chosen import format is unsupported. Please go back and chose a different one:"
-msgstr "Il formato di importazione specificato non é supportato.Torna indietro e seleziona uno differente:"
+msgstr "Il formato di importazione specificato non é supportato.Torna indietro e selezionane uno differente:"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:392
 msgid "The contact property FN is required and does not exist."
@@ -6759,11 +6763,11 @@ msgstr "La proprietá FN (Nome intero) del contatto é necessaria."
 
 #: cgi-bin/openwebmail/shares/vcard.pl:391
 msgid "The contact property N is required and does not exist."
-msgstr "La proprietá FN (Nome) del contatto é necessaria."
+msgstr "La proprietá N (Nome) del contatto é necessaria."
 
 #: cgi-bin/openwebmail/shares/vcard.pl:1038
 msgid "The day, month, and year must all be defined to store a birthday for a contact."
-msgstr "Il giorno, mese, anno deve essere definto per salvare la data di nascita del contatto."
+msgstr "Il giorno, mese, anno devono essere definti per salvare la data di nascita del contatto."
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:1124
 msgid "The destination folder is read-only:"
@@ -6798,26 +6802,26 @@ msgstr "Questo nome di cartella é riservato dal sistema e non puó essere usato
 #: cgi-bin/openwebmail/openwebmail.pl:192,
 #: cgi-bin/openwebmail/openwebmail.pl:299
 msgid "The following script must be setuid root to read the mail spools:"
-msgstr "Il seguente script dev'essere impostato con il setuid root per leggere la coda dei messaggi"
+msgstr "Il seguente script dev'essere impostato con il setuid root per leggere la coda di messaggi:"
 
 #: data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:400
 msgid "The group name must be defined."
-msgstr "Il nome del gruppo deve essere definito."
+msgstr "Il nome del gruppo dev'essere definito."
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3157,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3737
 msgid "The import file is 0 bytes."
-msgstr "La dimensione del file da importare é di 0 bytes."
+msgstr "La dimensione del file importato é di 0 bytes."
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3171,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3733
 msgid "The import file size exceeds the available free space:"
-msgstr "La dimensione del file da importare eccede il massimo spazio disponibile su disco:"
+msgstr "La dimensione del file da importare eccede lo spazio disponibile su disco:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3160,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3722
 msgid "The import file size exceeds the available quota space."
-msgstr "La dimensione del file da importare eccede il massimo spazio disponibile nella quota allocata."
+msgstr "La dimensione del file da importare eccede lo spazio disponibile nella quota allocata."
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3162,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3724
@@ -6826,7 +6830,7 @@ msgstr "La dimensione del file da importare eccede il mimite massimo per file:"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1880
 msgid "The nextdays value must be numeric."
-msgstr "Il valore del giorno seguente deve essere numerico."
+msgstr "Il valore del giorno seguente dev'essere numerico."
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:187
 msgid "The operation cannot be completed because the webdisk is read-only."
@@ -6834,11 +6838,11 @@ msgstr "L'operazione non puó essere completata perché il webdisk é di sola le
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:157
 msgid "The program uname is not available to obtain OS information."
-msgstr "Il programma uname non é disponibile per ottenere informazione sul sistema operativo."
+msgstr "Il programma uname per ottenere informazione sul sistema operativo non é disponibile."
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:3016
 msgid "The recipients list could not be validated. Please check the recipients and try again."
-msgstr "La lista dei destinatari non puó essere convalidata. Per favore ricontrollare la lista dei destinatari prima di riprovare."
+msgstr "La lista dei destinatari non puó essere convalidata. Per favore controllare la lista dei destinatari prima di riprovare."
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:2088
 msgid "The requested file or directory is outside of the webdisk system and cannot be accessed."
@@ -6850,7 +6854,7 @@ msgstr "L'operazione richiesta puó essere effettuata solo su un file (o cartell
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:1143
 msgid "The requested template file does not exist:"
-msgstr "Il modello di file righiesto non esiste:"
+msgstr "Il modello di file richiesto non esiste:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1422
 msgid "The same as composing character set"
@@ -6862,21 +6866,21 @@ msgstr "La data di inizio ricerca accade dopo la data di fine ricerca."
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:2080
 msgid "The symbolic link is too complex to be accessed."
-msgstr "Il collegamento simbolico é troppo complesso per essere accessibile."
+msgstr "Il collegamento simbolico non é accessibile perché troppo complesso."
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1099
 msgid "The target must be a directory when copying or moving multiple items. The target does not exist or is not a directory:"
-msgstr "Quando di copiano 2 o piú file la destinazione deve essere una cartella. La destinazione non esiste o non é una cartella:"
+msgstr "Quando di copiano due o piú file la destinazione deve essere una cartella. La destinazione non esiste o non é una cartella:"
 
 #: cgi-bin/openwebmail/shares/vcard.pl:1078,
 #: cgi-bin/openwebmail/shares/vcard.pl:549
 msgid "The timezone hour must be a number from 0 to 13."
-msgstr "L'ora di fuso orario deve essere tra 0 e 13."
+msgstr "L'ora di fuso orario deve essere compreso tra 0 e 13."
 
 #: cgi-bin/openwebmail/shares/vcard.pl:1081,
 #: cgi-bin/openwebmail/shares/vcard.pl:552
 msgid "The timezone minute must be either 00 or 30."
-msgstr "La data di fuso orario deve essere is 00 o 30."
+msgstr "I minuti nel fuso orario devono essere 00 o 30."
 
 #: cgi-bin/openwebmail/shares/vcard.pl:1086,
 #: cgi-bin/openwebmail/shares/vcard.pl:557
@@ -6887,7 +6891,7 @@ msgstr "Il valore di fuso orario inserito non é valido:"
 msgid "The upload exceeds the configured %d KB limit."
 msgid_plural "The upload exceeds the configured %d KB limit."
 msgstr[0] "Il file fornito eccede il limite configurato di %d KB."
-msgstr[1] "Il file fornito eccede il limite configurato di %d KB."
+msgstr[1] "I file forniti eccedono il limite configurato di %d KB."
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:2642
 msgid "The upload is not an approved file or type:"
@@ -6895,7 +6899,7 @@ msgstr "Il file fornito ha un formato non autorizzato:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:2695
 msgid "The xowmuid does not match any contacts in the addressbook:"
-msgstr "Il xowmuid non incontra alcun contatto in rubrica:"
+msgstr "Il xowmuid non trova alcun contatto in rubrica:"
 
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:142,
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:142
@@ -6919,16 +6923,16 @@ msgstr "Oggi e per i prossimi <input type=\"text\" name=\"nextdays\" size=\"2\" 
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:208,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:95
 msgid "This day only"
-msgstr "Solo oggi"
+msgstr "Solo per oggi"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:333,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:249
 msgid "This group contains too many members to be clicked directly. Please check the to, cc, or bcc box for this group and use the compose button."
-msgstr "Il gruppo contiene troppi membri per essere inclusi direttamente. Per favore controlla i campi A:, CC e BCC per questo gruppo ed usa il pulsante -componi-."
+msgstr "Il gruppo contiene troppi membri per essere inclusi direttamente. Per favore controlla i campi A:, CC e BCC per questo gruppo ed usa il pulsante di composizione."
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:341
 msgid "This is a partial message and needs to be rebuilt."
-msgstr "Questo é un messaggio parziale ed ha bisogno di essere ricostruito."
+msgstr "Questo messaggio non é completo ed ha bisogno di essere ricostruito."
 
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:132,
 #: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:101,
@@ -6939,9 +6943,9 @@ msgid ""
 "Deleting it will delete the item for all dates.\n"
 "Continue with Delete?"
 msgstr ""
-"Questa voce é stata aggiunta in date multiple. \n"
-"Rimuoverla cancellerá la voce in tutte le date.\n"
-"Continua con la cancellazione?"
+"Questa voce é stata aggiunta a molteplici date. \n"
+"Rimuoverla cancellerá la voce da tutte le date.\n"
+"Continuare con la cancellazione?"
 
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:120,
 #: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:91,
@@ -6952,13 +6956,13 @@ msgid ""
 "Editing it will change the item for all dates.\n"
 "Continue with Edit?"
 msgstr ""
-"Questa voce é stata aggiunta in date multiple. \n"
-"Modificarla cambierá la voce in tutte le date.\n"
-"Continua con la modifica?"
+"Questa voce é stata aggiunta a molteplici date. \n"
+"Modificarla cambierá la voce per tutte le date.\n"
+"Continuare con la modifica?"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:579
 msgid "This message has no subject, do you still want to send it?"
-msgstr "Questo messaggio non ha soggetto, vuoi mandarlo lo stesso?"
+msgstr "Questo messaggio non ha soggetto, vuoi inviarlo lo stesso?"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:461
 msgid "This message requests a read receipt, do you want to transmit?"
@@ -6975,7 +6979,7 @@ msgstr "Lo script deve essere impostato con setuid root:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:734
 msgid "Threshold to determine Spam:"
-msgstr "Limite per definire Spam:"
+msgstr "Limite per definire lo Spam:"
 
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1143,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1444,
@@ -7002,7 +7006,7 @@ msgstr "Ora"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1065
 msgid "Time interval in dayview:"
-msgstr "Divisione (tempo) nella vista giornaliera:"
+msgstr "Intervallo da usare nella vista giornaliera:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:91
 msgid "TimeZone offset:"
@@ -7010,7 +7014,7 @@ msgstr "Differenza di fuso orario:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:350
 msgid "Timestamp used for message date:"
-msgstr "Formato data utilizzato dei messaggi:"
+msgstr "Formato della data utilizzato nei messaggi:"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:822,
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:96
@@ -7191,7 +7195,7 @@ msgstr "URL"
 
 #: cgi-bin/openwebmail/shares/vfile.pl:298
 msgid "UTF encoded vfile cannot be properly decoded."
-msgstr "vfile encoded in UTF can't be properly decoded."
+msgstr "il vfile codificato in UTF non puó essere decodificato correttamente."
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:971
 msgid "Uganda"
@@ -7240,7 +7244,7 @@ msgstr "Tipo di file fornito non supportato:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:2373
 msgid "Unsupported vcard datatype:"
-msgstr "Tipo di dati vcard non supportato:"
+msgstr "Tipo di dati nella vcard non supportato:"
 
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:152,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:88
@@ -7274,7 +7278,7 @@ msgstr "Uruguay"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1185
 msgid "Use Regex in search and filterrule:"
-msgstr "Usa regular expressions in ricerche e filtri:"
+msgstr "Usa expressioni regolari nelle ricerche e nei filtri:"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editpop3.tmpl:21
 msgid "Use SSL"
@@ -7302,7 +7306,7 @@ msgstr "Cartelle utente"
 
 #: data/openwebmail/layouts/classic/templates/prefs_viewhistory.tmpl:5
 msgid "User History"
-msgstr "Storia utente"
+msgstr "Cronologia azioni dell'utente"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editpop3.tmpl:22
 msgid "User Id"
@@ -7365,11 +7369,11 @@ msgstr "Vietnamita"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:399
 msgid "View next after message move/copy:"
-msgstr "Visualizza messaggio successivo dopo spostamento/copia:"
+msgstr "Visualizza il messaggio successivo dopo lo spostamento/copia:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:979
 msgid "Virgin Islands, British"
-msgstr "sole Vergini Britanniche"
+msgstr "Isole Vergini Britanniche"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:980
 msgid "Virgin Islands, U.S."
@@ -7400,7 +7404,7 @@ msgstr "Virus"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:664
 msgid "Virus Check"
-msgstr "Controllo virus"
+msgstr "Controllo Virus"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:732
 msgid "Volapk"
@@ -7413,7 +7417,7 @@ msgstr "WK"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:434
 msgid "Wait time for background mail filtering:"
-msgstr "Tempo di attesa per il filtro di messaggi"
+msgstr "Tempo di attesa per il filtro di messaggi in background:"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:983
 msgid "Wallis and Futuna"
@@ -7426,7 +7430,7 @@ msgstr "Vallone"
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:516,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:679
 msgid "Warning: the quota limit(<tmpl_var quotalimit escape=\"js\"> kB) was hit. Oldest messages have been automatically removed."
-msgstr "Attenzione: il limite di quota (<tmpl_var quotalimit escape=\"js\"> kB) é stato raggiunto. I messaggi piú datati sono stati rimossi."
+msgstr "Attenzione: il limite di quota (<tmpl_var quotalimit escape=\"js\"> kB) é stato raggiunto. I messaggi piú datati sono stati rimossi automaticamente."
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:520,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:683,
@@ -7436,11 +7440,11 @@ msgstr "Attenzione: il limite di quote (<tmpl_var quotalimit escape=\"js\"> kB) 
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:50
 msgid "Warning: the uploaded data is not consistent. Each entry in the uploaded file does not contain the same number of fields. The imported data may not be correct or the import may fail. Please ensure all entries contain the same number of fields to guarantee correct import."
-msgstr "Attenzione: il dati forniti sono inconsistenti. non tutte le voci nel file fornito contengono lo stesso numero di campi. I dati importati non possono essere corretti o l'importazione potrebbe fallire. Assicurati che tutte le voci (righe) contengano lo stesso numero di campi (colonne) per essere importate correttamente."
+msgstr "Attenzione: il dati forniti sono inconsistenti. non tutte le voci nel file fornito contengono lo stesso numero di campi. I dati importati non possono essere corretti per effettuare l'importazione correttamente. Assicurarsi che tutte le voci (righe) contengano lo stesso numero di campi (colonne) per garantire un importazione corretta."
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:43
 msgid "We need help understanding how to organize the data you are importing.<br>Please define the fields for the import data. Fields may be used more than once, and undefined fields will be discarded."
-msgstr "E' necessario un input per capire come organizzare i dati che da importare <br>Per cortesia definisci i campi dei dati che stai importando.I campi possono essere usati piú di una volta inoltre quelli lasciati vuoti verranno ignorati."
+msgstr "E' necessaria maggiore informazione per capire come organizzare i dati che da importare.<br>Per cortesia definire i campi dei dati che si stanno importando.I campi possono essere usati piú di una volta. Quelli lasciati vuoti verranno ignorati."
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1110
 msgid "WebDisk Options"
@@ -7492,7 +7496,7 @@ msgstr "Settimana <tmpl_var weekofyear>"
 
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:16
 msgid "Week View"
-msgstr "Settimanale"
+msgstr "Vista Settimanale"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1029
 msgid "Week start:"
@@ -7542,7 +7546,7 @@ msgid ""
 "\n"
 "DO NOT ENABLE THIS FEATURE ON A PUBLIC COMPUTER or others will gain access to your account.\n"
 msgstr ""
-"Quando questa funzione é abilitata potrai fare il login a <tmpl_var programname escape=\"js\"> senza re-inserire utente e password, ma solo se non ci si scollega dalla sessione precedente e questa non é scaduta.\n"
+"Quando questa funzione é abilitata potrai fare il login a <tmpl_var programname escape=\"js\"> senza re-inserire utente e password,a meno che non ci si disconnetta dalla sessione precedente e questa sia scaduta.\n"
 "\n"
 "NON ABILITARE QUESTA FUNZIONE SE SI UTILIZZA UN COMPUTER PUBBLICO o altri utenti potranno accedere al tuo account.\n"
 
@@ -7569,7 +7573,7 @@ msgstr "Lavoro"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:641
 msgid "Work Information"
-msgstr "Informazione di lavoro"
+msgstr "Informazione sul lavoro"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:967
 msgid "X.509 Public Key Certificate"
@@ -7660,16 +7664,16 @@ msgstr "Non sei autorizzato/a ad inviare messaggi a questo indirizzo email:"
 #: cgi-bin/openwebmail/openwebmail-abook.pl:1159,
 #: cgi-bin/openwebmail/openwebmail-abook.pl:2688
 msgid "You do not have permission to edit the global addressbook."
-msgstr "Non hai autorizzazione di modificare la rubrica globale."
+msgstr "Non hai l'autorizzazione di modificare la rubrica globale."
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1665
 msgid "You must fill in the longitude and latitude before any maps or photos can be viewed."
-msgstr "Devi specificare la latitudine e longitudine prima di visualizzare alcuna foto o mappa."
+msgstr "Devi specificare la latitudine e longitudine prima di visualizzare foto o mappe."
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:528,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:691
 msgid "Your INBOX has exceeded the spool limit (<tmpl_var spoollimit escape=\"js\"> kB). Please move some messages from your INBOX to other folders."
-msgstr "Il tuo Inbox ha superato il limite di spool di (<tmpl_var spoollimit escape=\"js\"> kB). Per cortesia sposta qualche messaggio dall'Inbox a qualche altra cartella."
+msgstr "Il tuo Inbox ha superato il limite massimo configurato di (<tmpl_var spoollimit escape=\"js\"> kB). Per cortesia sposta qualche messaggio dall'Inbox a qualche altra cartella."
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:3055
 msgid "Your message:"
@@ -7727,7 +7731,7 @@ msgstr "abc, spa."
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:61,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:61
 msgid "about <tmpl_var programname escape=\"html\">"
-msgstr "Informaxioni <tmpl_var programname escape=\"html\">"
+msgstr "Informazioni <tmpl_var programname escape=\"html\">"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:751
 msgid "accounting, european division"
@@ -7742,12 +7746,12 @@ msgstr "aggiungi"
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:177,
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:177
 msgid "add an attachment from a url"
-msgstr "aggiungi un allegato da URL"
+msgstr "aggiungi un allegato da un collegamento URL"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:173,
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:173
 msgid "add an attachment from the webdisk"
-msgstr "aggiungi allegato da webdisk"
+msgstr "aggiungi un allegato dal webdisk"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:473
 msgid "add another address"
@@ -7763,11 +7767,11 @@ msgstr "aggiungi un altro valore personalizzato"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:730
 msgid "add another division"
-msgstr "aggiungi un'altra deivisione"
+msgstr "aggiungi un'altra divisione"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:368
 msgid "add another email address"
-msgstr "aggiungo un altro indirizzo email"
+msgstr "aggiungi un altro indirizzo email"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:265
 msgid "add another nickname"
@@ -7775,7 +7779,7 @@ msgstr "Aggiungi un altro soprannome"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:641
 msgid "add another set of work information"
-msgstr "aggiungi un altro blocco di informazioni lavoro"
+msgstr "aggiungi un altro blocco d'informazioni sul lavoro"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:410
 msgid "add another telephone number"
@@ -7805,7 +7809,7 @@ msgstr "aggiungi un altro agente"
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:38,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:38
 msgid "addressbook"
-msgstr "Rubrica"
+msgstr "rubrica"
 
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:228
 msgid "addressbook search"
@@ -7851,7 +7855,7 @@ msgstr "am"
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:307,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:307
 msgid "answered"
-msgstr "risposte"
+msgstr "risposto"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:1998,
 #: cgi-bin/openwebmail/openwebmail-send.pl:3002
@@ -7896,7 +7900,7 @@ msgstr "ritorna alla cartella <tmpl_var callerfoldername escape=\"html\">"
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:68,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:68
 msgid "back to All Addressbooks"
-msgstr "ritorna a -tutte le rubriche-"
+msgstr "ritorna a tutte le rubriche"
 
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:21,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:9,
@@ -8026,7 +8030,7 @@ msgstr "ritorna alle preferenze"
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:68,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:68
 msgid "back to the Global Addressbook"
-msgstr "ritorna alla rubrica globale"
+msgstr "ritorna alla Rubrica Globale"
 
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:40,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:82,
@@ -8036,7 +8040,7 @@ msgstr "ritorna alla rubrica globale"
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:68,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:68
 msgid "back to the Global LDAP Addressbook"
-msgstr "ritorna alla rubrica globale LDAP"
+msgstr "ritorna alla Rubrica Globale LDAP"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editfroms.tmpl:18,
 #: data/openwebmail/layouts/classic/templates/prefs_editpop3.tmpl:10,
@@ -8119,8 +8123,9 @@ msgstr "macchina"
 
 #: data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:140,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:432
+#, fuzzy
 msgid "cell"
-msgstr "cellulare"
+msgstr "cella"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:55,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:55
@@ -8135,17 +8140,17 @@ msgstr "Set di caratteri: <tmpl_var messagecharset escape=\"html\">"
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:265,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:182
 msgid "check/uncheck all boxes for Bcc"
-msgstr "seleziona/deseleziona tutti i campi per Bcc:"
+msgstr "seleziona/deseleziona tutti i campi di Bcc"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:264,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:181
 msgid "check/uncheck all boxes for Cc"
-msgstr "seleziona/deseleziona tutti i campi per Cc:"
+msgstr "seleziona/deseleziona tutti i campi di Cc"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:263,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:180
 msgid "check/uncheck all boxes for To"
-msgstr "seleziona.deseleziona tutti i campi per A:"
+msgstr "seleziona.deseleziona tutti i campi di A"
 
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:170
 msgid "check/uncheck all boxes for export"
@@ -8153,11 +8158,11 @@ msgstr "seleziona/deseleziona tutti i campi da esportare"
 
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:177
 msgid "check/uncheck all boxes for group membership"
-msgstr "seleziona/deseleziona tutti i campi da associare a gruppo"
+msgstr "seleziona/deseleziona tutti i campi di associazione a gruppo"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:266
 msgid "check/uncheck all boxes for move, copy, or delete"
-msgstr "seleziona/deseleziona tutti i campi da spastare, copiare o cancellare"
+msgstr "seleziona/deseleziona tutti i campi da spostare, copiare o cancellare"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:272
 msgid "chmod"
@@ -8178,7 +8183,7 @@ msgstr "città"
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:73,
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:73
 msgid "clear all checked"
-msgstr "deseleziona tutti i selezionati"
+msgstr "deseleziona tutte le selezioni"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editstationery.tmpl:15,
 #: data/openwebmail/layouts/classic/templates/prefs_editstationery.tmpl:15
@@ -8232,7 +8237,7 @@ msgstr "implodi tutti i contatti"
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:187,
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:194
 msgid "collapse this contact"
-msgstr "espandi questo contatto"
+msgstr "implodi questo contatto"
 
 #: data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:117,
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:100,
@@ -8244,7 +8249,7 @@ msgstr "componi messaggio"
 
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:231
 msgid "compose message to <tmpl_var from_address escape=\"html\">"
-msgstr "componi messaggio a <tmpl_var from_address escape=\"html\">"
+msgstr "scrivi messaggio a <tmpl_var from_address escape=\"html\">"
 
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:234
 msgid "compose message to <tmpl_var to_address escape=\"html\">"
@@ -8277,7 +8282,7 @@ msgstr "stato"
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:211,
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:211
 msgid "create a new filter rule like this one"
-msgstr "crea un nuovo filtro come questo"
+msgstr "crea un nuovo filtro simile a questo"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:279,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:279
@@ -8302,15 +8307,15 @@ msgstr "giorno"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:252
 msgid "dd-mm-yyyy"
-msgstr "dd-mm-yyyy"
+msgstr "gg-mm-aaaa"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:253
 msgid "dd.mm.yyyy"
-msgstr "dd.mm.yyyy"
+msgstr "gg.mm.aaaa"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:251
 msgid "dd/mm/yyyy"
-msgstr "dd/mm/yyyy"
+msgstr "gg/mm/aaaa"
 
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:75,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1036,
@@ -8354,11 +8359,11 @@ msgstr "cancella"
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:481,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:481
 msgid "delete all non-text attachments"
-msgstr "cancella tutti gli allegati tranne i testi"
+msgstr "cancella tutti gli allegati a parte i testi"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:481
 msgid "delete all non-text attachments?"
-msgstr "cancella tutti gli allegati tranne i testi?"
+msgstr "cancella tutti gli allegati a parte i testi?"
 
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:132,
 #: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:101,
@@ -8416,7 +8421,7 @@ msgstr "domicilio"
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:280,
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:280
 msgid "done"
-msgstr "fatto"
+msgstr "completato"
 
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:101,
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:66,
@@ -8441,7 +8446,7 @@ msgstr "scarica <tmpl_var subject escape=\"html\">.msg"
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:65,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:65
 msgid "download Draft"
-msgstr "scarica Bozza"
+msgstr "scarica Bozze"
 
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:65,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:65
@@ -8456,7 +8461,7 @@ msgstr "scarica Salvati"
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:65,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:65
 msgid "download Sent"
-msgstr "scarica inviati"
+msgstr "scarica Inviati"
 
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:65,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:65
@@ -8536,7 +8541,7 @@ msgstr "modifica indirizzi email personali"
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:707,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:707
 msgid "edit spam preferences"
-msgstr "modificaopzioni spam"
+msgstr "modifica opzioni antispam"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:43,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:180,
@@ -8563,6 +8568,7 @@ msgstr "email"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:78,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:78
+#, fuzzy
 msgid "empty folder"
 msgstr "cartella vuota"
 
@@ -8639,35 +8645,35 @@ msgstr "trova la tua posizione geografica"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:189
 msgid "first"
-msgstr "primo"
+msgstr "nome"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:344,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:344
 msgid "follow down"
-msgstr "segui sotto"
+msgstr "prosegui sotto"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:344,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:344
 msgid "follow up"
-msgstr "segui sopra"
+msgstr "prosegui sopra"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:55,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:70,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:70
 msgid "forward"
-msgstr "redirigi"
+msgstr "inoltra"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:57,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:72,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:72
 msgid "forward as attachment"
-msgstr "redirigi come allegato"
+msgstr "inoltra come allegato"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:59,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:74,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:74
 msgid "forward as original"
-msgstr "redirigi l'originale"
+msgstr "inoltra l'originale"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:309
 msgid "from subject date size"
@@ -8728,7 +8734,7 @@ msgstr "inizio"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:575
 msgid "home address"
-msgstr "indirizzo casa"
+msgstr "indirizzo di casa"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:68,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:113,
@@ -8738,11 +8744,11 @@ msgstr "cartella iniziale"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:805
 msgid "http://www.example.com"
-msgstr "http://www.example.com"
+msgstr "http://www.esempio.it"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1124
 msgid "http://www.example.com/mycard.vcf"
-msgstr "http://www.example.com/mycard.vcf"
+msgstr "http://www.esempio.it/cartella.vcf"
 
 #: data/openwebmail/layouts/classic/templates/abook_importfieldselect.tmpl:130,
 #: data/openwebmail/layouts/classic/templates/abook_importform.tmpl:92
@@ -8814,9 +8820,10 @@ msgstr "tastiera"
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:205,
 #: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:167
 msgid "last"
-msgstr "ultimo"
+msgstr "cognome"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:306
+#, fuzzy
 msgid "last name:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;sort override:<i>Trapp</i>"
 msgstr "cognome:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;sort override:<i>Trapp</i>"
 
@@ -8828,7 +8835,7 @@ msgstr "latitudine"
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:98,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:98
 msgid "learn ham"
-msgstr "impara i meggaggi non spam"
+msgstr "impara i messaggi non spam"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:75,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:95,
@@ -8884,7 +8891,7 @@ msgstr "cre postscript"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:278
 msgid "make thumbnails"
-msgstr "crea francobollo"
+msgstr "crea francobolli"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:79,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:290,
@@ -8899,7 +8906,7 @@ msgstr "gestisci cartelle"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:739
 msgid "manager, executive, etc"
-msgstr "manager, direttico, ecc..."
+msgstr "manager, direttivo, ecc..."
 
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:150,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:86
@@ -8918,7 +8925,7 @@ msgstr "imposta come non ancora letto"
 
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:180
 msgid "matches regular expression"
-msgstr "confrante espressioni regolari"
+msgstr "soddisfa l'espressione regolare"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:454
 msgid "message"
@@ -8935,19 +8942,19 @@ msgstr "mezzo"
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:361,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:361
 msgid "mini search icon"
-msgstr "icona di ricerca mini"
+msgstr "icona di ricerca piccola"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:249
 msgid "mm-dd-yyyy"
-msgstr "mm-dd-yyyy"
+msgstr "mm-gg-aaaa"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:250
 msgid "mm.dd.yyyy"
-msgstr "mm.dd.yyyy"
+msgstr "mm.gg.aaaa"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:248
 msgid "mm/dd/yyyy"
-msgstr "mm/dd/yyyy"
+msgstr "mm/gg/aaaa"
 
 #: data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:140,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:452
@@ -8969,7 +8976,7 @@ msgstr "sposta"
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:79,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:79
 msgid "move selected messages to trash"
-msgstr "sposta messaggi selezionati nel cestino"
+msgstr "sposta i messaggi selezionati nel cestino"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:102,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:102
@@ -8978,7 +8985,7 @@ msgstr "sposta nel cestino"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:157
 msgid "ms word preview"
-msgstr "anteprima Microsoft Word"
+msgstr "anteprima di file Microsoft Word"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:75,
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:75
@@ -9022,7 +9029,7 @@ msgstr "pagina successiva"
 
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:303
 msgid "no conversion"
-msgstr "nessuna conversazione"
+msgstr "nessuna conversione"
 
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:182
 msgid "no filter rules exist"
@@ -9039,7 +9046,7 @@ msgstr "Non esiste nessuna chiave per questo contatto"
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:257,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:499
 msgid "no next message"
-msgstr "nessun messaggio successico"
+msgstr "nessun messaggio successivo"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:121,
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:374,
@@ -9060,7 +9067,7 @@ msgstr "nessuna pagina successiva"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1043
 msgid "no one acts on behalf of this contact"
-msgstr "Nessuno puó essere delegato a questo contatto"
+msgstr "Questo contatto non puó essere delegato a nessuno"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:251,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:493
@@ -9131,7 +9138,7 @@ msgstr "pager"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:595
 msgid "parcel delivery address"
-msgstr "indirizzo consegna pacchi"
+msgstr "indirizzo di consegna pacchi"
 
 #: data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:70,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:219,
@@ -9213,7 +9220,7 @@ msgstr "stampa"
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:351,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:255
 msgid "read full note"
-msgstr "leggi l'intera nota"
+msgstr "leggi la nota intera"
 
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:154,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:90
@@ -9234,13 +9241,13 @@ msgstr "aggiorna"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:349
 msgid "remote images have been blocked to protect your privacy. click here to view them."
-msgstr "immagini remote sono state bloccate per proteggere la tua provacy. Clicca qui per visualizzarle invece."
+msgstr "le immagini remote sono state bloccate per proteggere la tua provacy. Se desideri visuallizarle invece clicca qui."
 
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:76,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:156,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:93
 msgid "rename"
-msgstr "rinomina"
+msgstr "cambia nome"
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:66,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:66
@@ -9294,7 +9301,7 @@ msgstr "cerca"
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:228,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:310
 msgid "search for messages from <tmpl_var from_address escape=\"html\">"
-msgstr "cerca messaggi da <tmpl_var from_address escape=\"html\">"
+msgstr "cerca messaggi inviati da <tmpl_var from_address escape=\"html\">"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:310
 msgid "search for messages to same recipients"
@@ -9335,7 +9342,7 @@ msgstr "visualizza una mappa di questo posto"
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:866,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:866
 msgid "show a satellite photo of this location"
-msgstr "mostra tutte le foto satellitari di questa zona"
+msgstr "mostra una foto satellitari di questa zona"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:49,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:63
@@ -9344,7 +9351,7 @@ msgstr "mostra file nascosti"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:68
 msgid "show thumbnails"
-msgstr "mostra francobolli"
+msgstr "mostra le immagini francobollo"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:98,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:98
@@ -9362,7 +9369,7 @@ msgstr "intestazioni semplici"
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:53,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:72
 msgid "single page"
-msgstr "pagine singola"
+msgstr "pagina singola"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:239,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:242
@@ -9402,7 +9409,7 @@ msgstr "orgina per email discendente"
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:132,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:132
 msgid "sort by filename"
-msgstr "ordina per nome"
+msgstr "ordina per nome del file"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:246,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:168,
@@ -9410,7 +9417,7 @@ msgstr "ordina per nome"
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:163,
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:163
 msgid "sort by first name ascending"
-msgstr "ordina per nome primo ascendente"
+msgstr "ordina per nome ascendente"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:246,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:168,
@@ -9418,7 +9425,7 @@ msgstr "ordina per nome primo ascendente"
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:163,
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:163
 msgid "sort by first name decending"
-msgstr "ordina per nome primo discendente"
+msgstr "ordina per nome discendente"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:242,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:164,
@@ -9426,7 +9433,7 @@ msgstr "ordina per nome primo discendente"
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:159,
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:159
 msgid "sort by full name ascending"
-msgstr "ordina per nome intero ascendente"
+msgstr "ordina per nome e cognome ascendente"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:242,
 #: data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:164,
@@ -9434,7 +9441,7 @@ msgstr "ordina per nome intero ascendente"
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:159,
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:159
 msgid "sort by full name decending"
-msgstr "ordina per nome intero discendente"
+msgstr "ordina per nome e cognome discendente"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:118,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:140,
@@ -9526,7 +9533,7 @@ msgstr "ordina per nota ascendente"
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:167,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:167
 msgid "sort by note decending"
-msgstr "ordina per data discendente"
+msgstr "ordina per nota discendente"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:219,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:222
@@ -9547,7 +9554,7 @@ msgstr "ordina per permesso"
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:163,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:163
 msgid "sort by phone number ascending"
-msgstr "ordina per numero di telefono scendente"
+msgstr "ordina per numero di telefono ascendente"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:256,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:163,
@@ -9585,12 +9592,12 @@ msgstr "ordina per dimensione"
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:268,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:269
 msgid "sort by size largest first"
-msgstr "ordina per dimensione grandi prima"
+msgstr "ordina per dimensione (grandi prima)"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:268,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:269
 msgid "sort by size smallest first"
-msgstr "ordina per dimensione piccoli prima"
+msgstr "ordina per dimensione (piccoli prima)"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:210
 msgid "sort by status (unread first)"
@@ -9602,17 +9609,17 @@ msgstr "ordina per soggetto"
 
 #: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:173
 msgid "sort categories decending"
-msgstr "ordina categorie per discensione"
+msgstr "ordina categorie discendente"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:239,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:242
 msgid "sort reverse alphanumerically"
-msgstr "ordina in alfanumerico inverso"
+msgstr "ordina in alfanumerico discendente"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:53,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:53
 msgid "spamassassin user preferences"
-msgstr "preferenza utente spamassassin"
+msgstr "preferenze utente spamassassin"
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:216,
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:300
@@ -9642,11 +9649,11 @@ msgstr "regione/provincia"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:210
 msgid "status"
-msgstr "stati"
+msgstr "stato"
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:210
 msgid "status unread first"
-msgstr "stato non letti"
+msgstr "stato non letti prima"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:509
 msgid "street address"
@@ -9679,17 +9686,17 @@ msgstr "tar"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2590
 msgid "terminated by signal"
-msgstr "terminato da segnale"
+msgstr "terminato dal segnale"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1521,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1587
 msgid "terminated by signal:"
-msgstr "terminato da segnale:"
+msgstr "terminato dal segnale:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1210,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:1210
 msgid "test sound"
-msgstr "prova suono"
+msgstr "prova il suono"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:263
 msgid "tgz"
@@ -9707,7 +9714,7 @@ msgstr "mappa dei fusi orari"
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:324,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:324
 msgid "undisclosed-recipients"
-msgstr "lista di destinatari nascosta"
+msgstr "lista di destinatari-nascosti"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1022,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1032
@@ -9790,11 +9797,11 @@ msgstr "visualizza tutti i selezionati"
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:59,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:59
 msgid "view history"
-msgstr "visualizza storia"
+msgstr "visualizza cronologia"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:616
 msgid "view larger"
-msgstr "visuallizza piú grandi"
+msgstr "allarga"
 
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:127,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:63
@@ -9833,7 +9840,7 @@ msgstr[1] "aspetta %d secondi dopo il login prima di prelevare"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:3062
 msgid "was read on:"
-msgstr "e' stato letto alle:"
+msgstr "é stato letto alle:"
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:90,
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:36,
@@ -9887,15 +9894,15 @@ msgstr "anno"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:255
 msgid "yyyy-mm-dd"
-msgstr "yyyy-mm-dd"
+msgstr "aaaa-mm-gg"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:256
 msgid "yyyy.mm.dd"
-msgstr "yyyy.mm.dd"
+msgstr "aaaa.mm.gg"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:254
 msgid "yyyy/mm/dd"
-msgstr "yyyy/mm/dd"
+msgstr "aaaa/mm/gg"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:257
 msgid "zip"
