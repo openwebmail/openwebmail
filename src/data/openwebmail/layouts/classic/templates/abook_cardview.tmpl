@@ -35,7 +35,7 @@
             <table cellspacing="0" cellpadding="0" border="0">
             <tr>
               <td align="center" width="60" height="60" class="rowlight">
-                <a name="PHOTO" href="<tmpl_var VALUE escape="html">" target="_new" class="icon"><tmpl_if use_texticon><tmpl_var VALUE escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_link escape="html">" title="<tmpl_var VALUE escape="html">" alt="<tmpl_var VALUE escape="html">" border="0" align="absmiddle"></tmpl_if></a>
+                <a name="PHOTO" href="<tmpl_var VALUE escape="html">" target="_new" class="icon" title="<tmpl_var VALUE escape="html">"><tmpl_if use_texticon><tmpl_var VALUE escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_link escape="html">" class="iconset_small" alt="<tmpl_var VALUE escape="html">"></tmpl_if></a>
               </td>
             </tr>
             </table>
@@ -69,11 +69,11 @@
                     <tmpl_if is_phonetic>
                     <span class="smalltext">gettext('phonetic pronunciation:')&nbsp;<tmpl_var VALUE escape="html"></span>
                     <tmpl_else>
-                    <a name="SOUND" href="<tmpl_var VALUE escape="html">" target="_new"><tmpl_if use_texticon>gettext('play pronunciation sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_playsound escape="html">" title="gettext('play pronunciation sound')" alt="gettext('play pronunciation sound')" border="0" align="absmiddle"></tmpl_if></a>
+                    <a name="SOUND" href="<tmpl_var VALUE escape="html">" target="_new" title="gettext('play pronunciation sound')"><tmpl_if use_texticon>gettext('play pronunciation sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_playsound escape="html">" class="iconset_small" alt="gettext('play pronunciation sound')"></tmpl_if></a>
                     </tmpl_if>
                     <tmpl_else>
                     <tmpl_if BASE64>
-                    <a name="SOUND" href="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" target="_new"><tmpl_if use_texticon>gettext('play pronunciation sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_playsound escape="html">" title="gettext('play pronunciation sound')" alt="gettext('play pronunciation sound')" border="0" align="absmiddle"></tmpl_if></a>
+                    <a name="SOUND" href="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" target="_new" title="gettext('play pronunciation sound')"><tmpl_if use_texticon>gettext('play pronunciation sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_playsound escape="html">" class="iconset_small" alt="gettext('play pronunciation sound')"></tmpl_if></a>
                     </tmpl_if>
                     </tmpl_if>
                     </tmpl_loop>
@@ -114,7 +114,7 @@
             <tr>
               <td nowrap>
                 <form name="emailform">
-                <tmpl_unless quotaoverlimit><a href="javascript:void(0);" onclick="javascript:parent.window.location='<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=sendto&amp;to=' + document.forms['emailform'].elements['email'].options[document.forms['emailform'].elements['email'].selectedIndex].value + '&amp;compose_caller=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">';" class="icon"><tmpl_if use_texticon><tmpl_var VALUE escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_editfroms escape="html">" title="gettext('compose message')" alt="gettext('compose message')" border="0" align="absmiddle"></tmpl_if></a></tmpl_unless>
+                <tmpl_unless quotaoverlimit><a href="javascript:void(0);" onclick="javascript:parent.window.location='<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=sendto&amp;to=' + document.forms['emailform'].elements['email'].options[document.forms['emailform'].elements['email'].selectedIndex].value + '&amp;compose_caller=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">';" class="icon" title="gettext('compose message')"><tmpl_if use_texticon><tmpl_var VALUE escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_editfroms escape="html">" class="iconset_small" alt="gettext('compose message')"></tmpl_if></a></tmpl_unless>
                 <select name="email">
                   <tmpl_loop EMAIL>
                   <option value="<tmpl_var nameaddress escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var VALUE escape="html"><tmpl_if PREF>&nbsp;*</tmpl_if></option>

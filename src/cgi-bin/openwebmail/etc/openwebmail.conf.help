@@ -25,7 +25,7 @@ ps: domains specified in this option should be equivalent ones,
 
     If you have virtual domains that are actually independent,
     you should leave this to auto, and try to
-    a. set option enable_domainnameselectmeu to yes, and
+    a. set option enable_domainnameselectmenu to yes, and
     b. specify all virtualdomains in the option domainselectmenu_list
 
 
@@ -497,7 +497,7 @@ This is used to define domainnames that are equivalent for each domain
 of this server.
 
 Openwebmail determines the user login domain from the following order:
-1. loginname inputed at login page,
+1. loginname input at the login page,
 2. hostname in the URL
 3. /bin/hostname
 
@@ -588,7 +588,7 @@ allowed_serverdomain	virtualdomain1.com, virtualdomain2.com
 
 allowed_clientdomain
 -----------------------------------------------------------------------
-This limits the clients access by their domainnam
+This limits the clients access by their domainname
 
 If this option is empty or 'all', any client can access the system.
 If this option is 'none', no client can access the system.

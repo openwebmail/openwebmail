@@ -1392,7 +1392,7 @@ sub addrbookedit {
                                                        (0..$#global_abookfolders)
                                                     ],
                       totalentries               => $stats->{totalentries},
-                      totalsizes                 => lenstr($stats->{totalsizes}),
+                      totalsizes                 => lenstr($stats->{totalsizes}, 1),
 
                       # footer.tmpl
                       footer_template            => get_footer($config{footer_template_file}),

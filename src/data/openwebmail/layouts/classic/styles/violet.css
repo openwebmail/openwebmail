@@ -19,6 +19,8 @@ td { font-family: Arial, Helvetica, sans-serif; }
 .attachmentdark { background-color: #eec0ee; }
 .attachmentlight { background-color: #eec0ee; }
 img.attachment { border: 2px solid #eec0ee; }
+img.iconset_button { border: 0; vertical-align: middle; margin-bottom: .25em; }
+img.iconset_small { border: 0; vertical-align: middle; margin-bottom: .25em; }
 form { margin: 0; }
 textarea { overflow: auto; }
 input.mono { font-family: monospace; font-size: 80%; }

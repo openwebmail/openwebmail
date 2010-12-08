@@ -1140,7 +1140,7 @@ sub get_template {
    return (
             -f $templatefile
             ? $templatefile
-            : $templatename eq 'error.tmpl'
+            : $templatename eq 'shared_error.tmpl'
               ? die "$config{ow_layoutsdir}/$layout/templates/$templatename does not exist. No error messages can be displayed."
               : openwebmailerror(gettext('The requested template file does not exist:') . " $templatefile ($!)")
           );
@@ -1159,7 +1159,7 @@ sub verifysession {
       $start_url = "https://$ENV{HTTP_HOST}$start_url" if cookie('ow-ssl') && $start_url !~ m#^https?://#i;
 
       my $template = HTML::Template->new(
-                                           filename          => get_template('sessiontimeout.tmpl'),
+                                           filename          => get_template('shared_sessiontimeout.tmpl'),
                                            filter            => $htmltemplatefilters,
                                            die_on_bad_params => 0,
                                            loop_context_vars => 0,
@@ -1167,7 +1167,16 @@ sub verifysession {
                                            cache             => 1,
                                         );
 
-      $template->param( start_url => $start_url );
+      $template->param(
+                         # header.tmpl
+                         header_template => get_header($config{header_template_file}),
+
+                         # shared_sessiontimeout.tmpl
+                         start_url       => $start_url,
+
+                         # footer.tmpl
+                         footer_template => get_footer($config{footer_template_file}),
+                      );
 
       httpprint([], [$template->output]);
 
@@ -1743,7 +1752,7 @@ sub openwebmailerror {
    ($file) = $file =~ m/[\\\/]([^\\\/]+)$/ if defined $file && $file;
 
    my $template = HTML::Template->new(
-                                        filename          => get_template('error.tmpl'),
+                                        filename          => get_template('shared_error.tmpl'),
                                         filter            => $htmltemplatefilters,
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
@@ -1752,7 +1761,7 @@ sub openwebmailerror {
                                      );
 
    $template->param(
-                      # error.tmpl
+                      # shared_error.tmpl
                       url_styles      => -d "$config{ow_layoutsurl}/$prefs{layout}/styles"
                                          ? "$config{ow_layoutsurl}/$prefs{layout}/styles"
                                          : "$config{ow_layoutsurl}/classic/styles",
@@ -1793,7 +1802,7 @@ sub autoclosewindow {
    $seconds = 5 if !defined $seconds || $seconds < 3;
 
    my $template = HTML::Template->new(
-                                        filename          => get_template('autoclose.tmpl'),
+                                        filename          => get_template('shared_autoclose.tmpl'),
                                         filter            => $htmltemplatefilters,
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
@@ -1805,7 +1814,7 @@ sub autoclosewindow {
                       # header.tmpl
                       header_template => get_header($config{header_template_file}),
 
-                      # autoclose.tmpl
+                      # shared_autoclose.tmpl
                       message_title   => $title,
                       message         => $message,
                       seconds         => $seconds,

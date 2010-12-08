@@ -13,7 +13,7 @@
     <tmpl_if bcc><span class="messageheaderproperty">gettext('Bcc:')</span>&nbsp;<tmpl_var bcc escape="html"><br></tmpl_if>
     <span class="messageheaderproperty">gettext('Subject:')</span>&nbsp;<tmpl_if subject><tmpl_var subject escape="html"><tmpl_else>gettext('(no subject)')</tmpl_if>
 
-    <tmpl_if status_important>&nbsp;<tmpl_if use_texticon>gettext('important')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_important escape="html">" title="gettext('important')" alt="gettext('important')" border="0" align="absmiddle"></tmpl_if></tmpl_if><tmpl_if status_answered>&nbsp;<tmpl_if use_texticon>gettext('answered')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_readreplied escape="html">" title="gettext('answered')" alt="gettext('answered')" border="0" align="absmiddle"></tmpl_if></tmpl_if><br>
+    <tmpl_if status_important>&nbsp;<a title="gettext('important')"><tmpl_if use_texticon>gettext('important')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_important escape="html">" class="iconset_small" alt="gettext('important')"></tmpl_if></a></tmpl_if><tmpl_if status_answered>&nbsp;<a title="gettext('answered')"><tmpl_if use_texticon>gettext('answered')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_readreplied escape="html">" class="iconset_small" alt="gettext('answered')"></tmpl_if></a></tmpl_if><br>
   </td>
   <td width="10%" nowrap valign="top" align="right" class="windowdark">&nbsp;</td>
 </tr>

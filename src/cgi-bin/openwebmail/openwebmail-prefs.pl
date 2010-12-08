@@ -2490,7 +2490,7 @@ sub viewhistory {
                       (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # prefs_viewhistory.tmpl
-                      historyloop     => $historyloop,
+                      historyloop     => [ reverse @{$historyloop} ],
 
                       # footer.tmpl
                       footer_template => get_footer($config{footer_template_file}),

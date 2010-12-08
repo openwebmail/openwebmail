@@ -388,8 +388,8 @@ sub parsevcard {
 
    # mandatory properties exist or croak
    if (!defined $r_onlyreturn) {
-      openwebmailerror(gettext('The contact property N is required and does not exist.')) if !defined $parsedvcard{N}[0]{VALUE};
-      openwebmailerror(gettext('The contact property FN is required and does not exist.')) if !defined $parsedvcard{FN}[0]{VALUE} && $version == '3.0';
+      openwebmailerror(gettext('The name of the contact is required and does not exist.')) if !defined $parsedvcard{N}[0]{VALUE};
+      openwebmailerror(gettext('The full name of the contact is required and does not exist.')) if !defined $parsedvcard{FN}[0]{VALUE} && $version == '3.0';
    }
 
    # The returned card should be the id of this card pointing to a hash of all of the card data.

@@ -37,23 +37,23 @@
     <table cellpadding="0" cellspacing="0" border="0" width="100%">
     <tr>
       <td>
-      <tmpl_if is_caller_readmessage>
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=readmessage&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=simple&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>gettext('back to message reading')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" title="gettext('back to message reading')" alt="gettext('back to message reading')" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
-      </tmpl_if>
+        <tmpl_if is_caller_readmessage>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=readmessage&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=simple&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon" title="gettext('back to message reading')"><tmpl_if use_texticon>gettext('back to message reading')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="gettext('back to message reading')"></tmpl_if></a>&nbsp;
+        </tmpl_if>
 
-      <tmpl_if is_caller_addrlistview>
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;abookfolder=<tmpl_var abookfolder escape="url">&amp;abookpage=<tmpl_var abookpage escape="url">&amp;abooksort=<tmpl_var abooksort escape="url">&amp;abookkeyword=<tmpl_var abookkeyword escape="url">&amp;abooksearchtype=<tmpl_var abooksearchtype escape="url">&amp;abookcollapse=<tmpl_var abookcollapse escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>gettext('back to addressbook listing')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" title="gettext('back to addressbook listing')" alt="gettext('back to addressbook listing')" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
-      </tmpl_if>
+        <tmpl_if is_caller_addrlistview>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;abookfolder=<tmpl_var abookfolder escape="url">&amp;abookpage=<tmpl_var abookpage escape="url">&amp;abooksort=<tmpl_var abooksort escape="url">&amp;abookkeyword=<tmpl_var abookkeyword escape="url">&amp;abooksearchtype=<tmpl_var abooksearchtype escape="url">&amp;abookcollapse=<tmpl_var abookcollapse escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon" title="gettext('back to addressbook listing')"><tmpl_if use_texticon>gettext('back to addressbook listing')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="gettext('back to addressbook listing')"></tmpl_if></a>&nbsp;
+        </tmpl_if>
 
-      <tmpl_if is_caller_listmessages>
-        <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon"><tmpl_if use_texticon>gettext('back to message listing')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" title="gettext('back to message listing')" alt="gettext('back to message listing')" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
-      </tmpl_if>
+        <tmpl_if is_caller_listmessages>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon" title="gettext('back to message listing')"><tmpl_if use_texticon>gettext('back to message listing')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="gettext('back to message listing')"></tmpl_if></a>&nbsp;
+        </tmpl_if>
 
         <!--
           this refresh button is actually the same as the add button, because
           we need to post the request to keep user input data in the submission
         -->
-        <a href="javascript:document.composeform.addbutton.click();" accesskey="R" class="icon"><tmpl_if use_texticon>gettext('refresh')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_refresh escape="html">" title="gettext('refresh')" alt="gettext('refresh')" border="0" align="absmiddle"></tmpl_if></a>
+        <a href="javascript:document.composeform.addbutton.click();" accesskey="R" class="icon" title="gettext('refresh')"><tmpl_if use_texticon>gettext('refresh')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_refresh escape="html">" class="iconset_button" alt="gettext('refresh')"></tmpl_if></a>
       </td>
       <td align="right">
         <table cellpadding="0" cellspacing="0" border="0">
@@ -109,7 +109,7 @@
   <td class="windowdark">
    <input type="text" name="to" id="to" value="<tmpl_var to escape="html">" size="66" accesskey="T" <tmpl_if enable_htmlcompose><tmpl_if enable_addressbook>onkeydown="autosuggest(event, this);" onfocus="hideLayer('popup_autosuggest');" autocomplete="off"</tmpl_if></tmpl_if>>
     <tmpl_if enable_addressbook>
-    <a href="javascript:selectcontacts();" accesskey="K" class="icon"><tmpl_if use_texticon>gettext('addressbook')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_addrbook escape="html">" title="gettext('addressbook')" alt="gettext('addressbook')" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+    <a href="javascript:selectcontacts();" accesskey="K" class="icon" title="gettext('addressbook')"><tmpl_if use_texticon>gettext('addressbook')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_addrbook escape="html">" class="iconset_small" alt="gettext('addressbook')"></tmpl_if></a>&nbsp;
     </tmpl_if>
   </td>
 </tr>
@@ -153,7 +153,7 @@
           <td align="right" nowrap><tmpl_var attachment_size escape="html"></td>
           <td nowrap>
             <tmpl_if attachment_file><a href="javascript:DeleteAttFile('<tmpl_var attachment_file escape="js">','<tmpl_var attachment_name escape="js">',<tmpl_var is_referenced escape="js">);">&nbsp;gettext('[Delete]')</a></tmpl_if>
-            <tmpl_if save_to_webdisk><a href="#here" title="gettext('save to webdisk')" onclick="window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=send_saveatt&amp;attfile=<tmpl_var attachment_file escape="js">&amp;attname=<tmpl_var attachment_name escape="js">&amp;attnamecharset=<tmpl_var attachment_namecharset escape="js">&amp;sessionid=<tmpl_var sessionid escape="js">', '_blank','width=640,height=480,scrollbars=yes,resizable=yes,location=no'); return false;">&nbsp;gettext('[Webdisk]')</a></tmpl_if>
+            <tmpl_if save_to_webdisk><a href="javascript:void(0);" title="gettext('save to webdisk')" onclick="window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=send_saveatt&amp;attfile=<tmpl_var attachment_file escape="js">&amp;attname=<tmpl_var attachment_name escape="js">&amp;attnamecharset=<tmpl_var attachment_namecharset escape="js">&amp;sessionid=<tmpl_var sessionid escape="js">', '_blank','width=640,height=480,scrollbars=yes,resizable=yes,location=no'); return false;">&nbsp;gettext('[Webdisk]')</a></tmpl_if>
             <tmpl_if show_wordpreview><a href="<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl/<tmpl_var attachment_name escape="url">?action=viewattfile&amp;attfile=<tmpl_var attachment_file escape="url">&amp;wordpreview=1&amp;sessionid=<tmpl_var sessionid escape="url">" title="gettext('ms word preview')" target="_new">&nbsp;gettext('[Preview]')</a></tmpl_if>
           </td>
         </tr>
@@ -170,11 +170,11 @@
     <input type="submit" name="addbutton" value="gettext('add')" onclick="bodygethtml(); return sessioncheck();">
     <tmpl_if enable_webdisk>
     <input type="hidden" name="webdiskselection" value="">
-    <a href="#" onclick="bodygethtml(); window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=send_addatt&amp;sessionid=<tmpl_var sessionid escape="url">', '_addatt','width=640,height=480,scrollbars=yes,resizable=yes,location=no'); return false;" class="icon"><tmpl_if use_texticon>gettext('add an attachment from the webdisk')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_webdisk escape="html">" title="gettext('add an attachment from the webdisk')" alt="gettext('add an attachment from the webdisk')" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+    <a href="#" onclick="bodygethtml(); window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=send_addatt&amp;sessionid=<tmpl_var sessionid escape="url">', '_addatt','width=640,height=480,scrollbars=yes,resizable=yes,location=no'); return false;" class="icon" title="gettext('add an attachment from the webdisk')"><tmpl_if use_texticon>gettext('add an attachment from the webdisk')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_webdisk escape="html">" class="iconset_small" alt="gettext('add an attachment from the webdisk')"></tmpl_if></a>&nbsp;
     </tmpl_if>
     <tmpl_if enable_urlattach>
     <input type="hidden" name="urlselection" value="">
-    <a href="#" onclick="bodygethtml(); addurlattachment(); return false;" class="icon"><tmpl_if use_texticon>gettext('add an attachment from a url')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_link escape="html">" title="gettext('add an attachment from a url')" alt="gettext('add an attachment from a url')" border="0" align="absmiddle"></tmpl_if></a>&nbsp;
+    <a href="#" onclick="bodygethtml(); addurlattachment(); return false;" class="icon" title="gettext('add an attachment from a url')"><tmpl_if use_texticon>gettext('add an attachment from a url')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_link escape="html">" class="iconset_small" alt="gettext('add an attachment from a url')"></tmpl_if></a>&nbsp;
     </tmpl_if>
   </td>
 </tr>
@@ -251,7 +251,7 @@
 
       <tmpl_if show_phonekbd_button>
       <td>
-        <a href="javascript:document.composeform.show_phonekbd.value=1; bodygethtml(); document.composeform.submit();"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_keyboard escape="html">" border="0" align="absmiddle" alt="gettext('keyboard')"></a>
+        <a href="javascript:document.composeform.show_phonekbd.value=1; bodygethtml(); document.composeform.submit();"><tmpl_if use_texticon>gettext('keyboard')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_keyboard escape="html">" class="iconset_small" alt="gettext('keyboard')"></tmpl_if></a>
       </td>
       </tmpl_if>
     </tr>
@@ -262,7 +262,7 @@
     <tmpl_if show_phonekbd>
     <tr>
       <td colspan="3">
-        <a href="javascript:document.composeform.show_phonekbd.value=0; bodygethtml(); document.composeform.submit();"><img src="<tmpl_var url_html escape="none">/images/system/phonekbd.gif" border="0" align="absmiddle" alt="gettext('keyboard')"></a>
+        <a href="javascript:document.composeform.show_phonekbd.value=0; bodygethtml(); document.composeform.submit();"><tmpl_if use_texticon>gettext('keyboard')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/system/phonekbd.gif" alt="gettext('keyboard')"></tmpl_if></a>
       </td>
     </tr>
     </tmpl_if>
@@ -337,7 +337,7 @@
       <tmpl_unless sendbuttons_before>
       <tmpl_if show_phonekbd_button>
       <td>
-        <a href="javascript:document.composeform.show_phonekbd.value=1; bodygethtml(); document.composeform.submit();"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_keyboard escape="html">" border="0" align="absmiddle" alt="gettext('keyboard')"></a>
+        <a href="javascript:document.composeform.show_phonekbd.value=1; bodygethtml(); document.composeform.submit();"><tmpl_if use_texticon>gettext('keyboard')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_keyboard escape="html">" class="iconset_small" alt="gettext('keyboard')"></tmpl_if></a>
       </td>
       </tmpl_if>
       </tmpl_unless>

@@ -38,7 +38,7 @@
     </tmpl_loop>
   </select>
   &nbsp;
-  <a href="javascript:void(0);" onclick="calPopup(this,document.forms['editcalendarform'].elements['year'].options[document.forms['editcalendarform'].elements['year'].selectedIndex].value,document.forms['editcalendarform'].elements['month'].options[document.forms['editcalendarform'].elements['month'].selectedIndex].value,document.forms['editcalendarform'].elements['day'].options[document.forms['editcalendarform'].elements['day'].selectedIndex].value,'change_editcalendarform','popup_calendar',25,15);" title="gettext('calendar')"><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_calendar escape="html">" border="0" align="absmiddle" alt="gettext('calendar')"></a>&nbsp;
+  <a href="javascript:void(0);" onclick="calPopup(this,document.forms['editcalendarform'].elements['year'].options[document.forms['editcalendarform'].elements['year'].selectedIndex].value,document.forms['editcalendarform'].elements['month'].options[document.forms['editcalendarform'].elements['month'].selectedIndex].value,document.forms['editcalendarform'].elements['day'].options[document.forms['editcalendarform'].elements['day'].selectedIndex].value,'change_editcalendarform','popup_calendar',25,15);" title="gettext('calendar')"><tmpl_if use_texticon>gettext('calendar')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_calendar escape="html">" class="iconset_small" alt="gettext('calendar')"></tmpl_if></a>&nbsp;
   </td>
 </tr>
 <tr>

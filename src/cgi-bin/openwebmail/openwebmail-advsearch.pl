@@ -358,7 +358,7 @@ sub advsearch {
                                                                    startdayselectloop   => [
                                                                                               map { {
                                                                                                        option      => $_,
-                                                                                                       label       => $_,
+                                                                                                       label       => sprintf('%02d', $_),
                                                                                                        selected    => $_ eq $startday ? 1 : 0
                                                                                                   } } (1..ow::datetime::days_in_month($startyear,$startmonth))
                                                                                            ]
