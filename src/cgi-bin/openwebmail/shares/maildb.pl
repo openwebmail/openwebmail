@@ -865,6 +865,8 @@ sub update_message_status {
    # -5: io error
    my ($messageid, $status, $folderdb, $folderfile) = @_;
 
+   $status = '' unless defined $status && $status;
+
    if (update_folderindex($folderfile, $folderdb) < 0) {
       writelog("db error - cannot update index db $folderdb");
       writehistory("db error - cannot update index db $folderdb");
