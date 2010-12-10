@@ -336,9 +336,9 @@ sub fetchmail {
             writelog("spamcheck - pipe error - $report");
             writehistory("spamcheck - pipe error - $report");
             $spamcheck_err++;
-         } elsif ($spamscore > $prefs{'spamcheck_threshold'}) {
-            writelog("spamcheck - spam $spamscore/$prefs{'spamcheck_threshold'} found in msg $msgid from $pop3user\@$pop3host");
-            writehistory("spamcheck - spam $spamscore/$prefs{'spamcheck_threshold'} found in msg $msgid from $pop3user\@$pop3host");
+         } elsif ($spamscore > $prefs{spamcheck_threshold}) {
+            writelog("spamcheck - spam $spamscore/$prefs{spamcheck_threshold} found in msg $msgid from $pop3user\@$pop3host");
+            writehistory("spamcheck - spam $spamscore/$prefs{spamcheck_threshold} found in msg $msgid from $pop3user\@$pop3host");
 
             $spam_found        = 1;
             $spamcheck_xheader = sprintf("X-OWM-SpamCheck: %s %.1f/%.1f\n", '*' x $spamscore, $spamscore, $prefs{spamcheck_threshold});
@@ -387,7 +387,7 @@ sub fetchmail {
    sendcmd($socket, "quit\r\n", \@result);
    close($socket);
 
-   return($retr_total);
+   return $retr_total;
 }
 
 sub sendcmd {
@@ -410,7 +410,7 @@ sub sendcmd {
    @{$r_result} = split(/\s+/, $ret);
 
    # remove strings +OK or -ERR from @result
-   shift @{$r_result} if ($r_result->[0] =~ m/^[\+\-]/);
+   shift @{$r_result} if $r_result->[0] =~ m/^[\+\-]/;
 
    return 1 if $ret !~ m/^\-/;
 
@@ -440,6 +440,7 @@ sub append_pop3msg_to_folder {
    my ($faked_dilimeter, $viruscheck_xheader, $spamcheck_xheader, $r_lines, $folderfile) = @_;
 
    if (!-f $folderfile) {
+      # create this folder since it does not exist yet
       sysopen(F, $folderfile, O_WRONLY|O_APPEND|O_CREAT) or
          writelog("cannot open file $folderfile");
 
@@ -483,7 +484,7 @@ sub append_pop3msg_to_folder {
          }
       }
 
-      print F $_ or $err++;
+      print F $line or $err++;
    }
 
    if (!$err && $#{$r_lines} >= 0 && $r_lines->[$#{$r_lines}] ne "\n") {
