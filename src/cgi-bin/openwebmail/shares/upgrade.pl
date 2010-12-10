@@ -660,17 +660,68 @@ sub upgrade_all {
       }
    }
 
-   if ($user_releasedate lt '20101125') {
-      # users preferences need to be updated to accomodate the new layouts, styles, and iconsets
+   if ($user_releasedate lt '20101210') {
+      # users preferences need to be updated to accomodate:
+      # - new layouts
+      # - renamed styles
+      # - renamed iconsets
       # and for the new available languages and charsets
       my $rcfile = dotpath('openwebmailrc');
 
       if (-f $rcfile) {
          %prefs = readprefs();
 
-         $prefs{style} = lc $prefs{style};
-         $prefs{iconset} = 'Text' if defined $prefs{iconset} && $prefs{iconset} =~ m/^Text/;
          $prefs{layout} = 'classic' unless defined $prefs{layout};
+
+         $prefs{style} = lc $prefs{style};
+
+         # iconset remap
+         my $newiconsets = {
+                              'Adjunct.Blue'                => 'adjunct_blue',
+                              'Adjunct.Metal'               => 'adjunct_metal',
+                              'Adjunct.Silver'              => 'adjunct_silver',
+                              'Cool3D'                      => 'cool3d',
+                              'Cool3D.Chinese.Simplified'   => 'cool3d.zh_CN',
+                              'Cool3D.Chinese.Traditional'  => 'cool3d.zh_TW',
+                              'Cool3D.Czech'                => 'cool3d.cs_CZ',
+                              'Cool3D.Danish'               => 'cool3d.da_DK',
+                              'Cool3D.Deutsch'              => 'cool3d.de_DE',
+                              'Cool3D.Dutch'                => 'cool3d.nl_NL',
+                              'Cool3D.English'              => 'cool3d.en_US',
+                              'Cool3D.English.Large'        => 'cool3d_large.en_US',
+                              'Cool3D.Greek'                => 'cool3d.el_GR',
+                              'Cool3D.Hebrew'               => 'cool3d.he_IL',
+                              'Cool3D.Italian'              => 'cool3d.it_IT',
+                              'Cool3D.Japanese'             => 'cool3d.ja_JP',
+                              'Cool3D.Korean'               => 'cool3d.ko_KR',
+                              'Cool3D.Norwegian'            => 'cool3d.no_NO',
+                              'Cool3D.Polish'               => 'cool3d.pl_PL',
+                              'Cool3D.Portuguese.Brazilian' => 'cool3d.pt_BR',
+                              'Cool3D.Russian'              => 'cool3d.ru_RU',
+                              'Cool3D.Slovak'               => 'cool3d.sk_SK',
+                              'Cool3D.Soumi'                => 'cool3d.fi_FI',
+                              'Cool3D.Spanish'              => 'cool3d.es_ES',
+                              'Cool3D.Turkish'              => 'cool3d.tr_TR',
+                              'Cool3D.Urdu'                 => 'cool3d.ur_PK',
+                              'Default'                     => 'classic',
+                              'Default.Chinese.Traditional' => 'classic.zh_TW',
+                              'Default.Deutsch'             => 'classic.de_DE',
+                              'Default.English'             => 'classic.en_US',
+                              'Default.Norwegian'           => 'classic.no_NO',
+                              'Default.Polish'              => 'classic.pl_PL',
+                              'Default.Slovak'              => 'classic.sk_SK',
+                              'Default.Spanish'             => 'classic.es_ES',
+                              'Jabo.Danish'                 => 'jabo.da_DK',
+                              'Vertito.English'             => 'vertito.en_US',
+                              'XP.Blue'                     => 'xp_blue',
+                              'XP.Green'                    => 'xp_green',
+                              'XP.Purple'                   => 'xp_purple',
+                              'XP.Red'                      => 'xp_red',
+                           };
+
+         $prefs{iconset} = 'Text' if defined $prefs{iconset} && $prefs{iconset} =~ m/^Text/;
+
+         $prefs{iconset} = $newiconsets->{$prefs{iconset}} if exists $newiconsets->{$prefs{iconset}};
 
          # get iconset configuration
          my %iconset_config = ();
@@ -704,8 +755,8 @@ sub upgrade_all {
          close(RC) or
             openwebmailerror(gettext('Cannot close file:') . " $rcfile ($!)");
 
-         writehistory('release upgrade - openwebmailrc by 20101125');
-         writelog('release upgrade - openwebmailrc by 20101125');
+         writehistory('release upgrade - openwebmailrc by 20101210');
+         writelog('release upgrade - openwebmailrc by 20101210');
       }
    }
 

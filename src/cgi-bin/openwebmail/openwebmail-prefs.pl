@@ -869,7 +869,7 @@ sub editprefs {
                          'KW' => gettext('Kuwait'),
                          'KY' => gettext('Cayman Islands'),
                          'KZ' => gettext('Kazakhstan'),
-                         'LA' => gettext("Lao People's Democratic Republic"),
+                         'LA' => gettext("Laos"),
                          'LB' => gettext('Lebanon'),
                          'LC' => gettext('Saint Lucia'),
                          'LI' => gettext('Liechtenstein'),
@@ -931,7 +931,7 @@ sub editprefs {
                          'QA' => gettext('Qatar'),
                          'RE' => gettext('Réunion'),
                          'RO' => gettext('Romania'),
-                         'RU' => gettext('Russian Federation'),
+                         'RU' => gettext('Russia'),
                          'RW' => gettext('Rwanda'),
                          'SA' => gettext('Saudi Arabia'),
                          'SB' => gettext('Solomon Islands'),
@@ -1193,7 +1193,9 @@ sub editprefs {
                       iconsetselectloop                 => [
                                                               map { {
                                                                        option   => $_,
-                                                                       label    => $_ =~ m/^Text$/ ? gettext('Text Only') : $_,
+                                                                       label    => $_ =~ m/^Text$/ ? gettext('Text Only') :
+                                                                                   $_ =~ m/^(.+)\.([a-z][a-z])_([A-Z][A-Z])$/ ? "$1 - $languagecodes{$2} : $countrycodes{$3} ($2_$3)" :
+                                                                                   $_,
                                                                        selected => defined $prefs{iconset} && $_ eq $prefs{iconset} ? 1 : 0
                                                                   } } sort { $a cmp $b } ('Text', @iconsets)
                                                            ],
