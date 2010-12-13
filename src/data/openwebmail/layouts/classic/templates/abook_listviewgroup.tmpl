@@ -241,9 +241,9 @@ group from the list. This file was created by copying the abook_listview.tmpl an
   <tmpl_if is_group>
     <tmpl_if is_first>
       <tmpl_if cannot_link>
-        <tmpl_if use_texticon>[oOo]<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_group escape="html">" class="iconset_small" title="gettext('all members')" alt="gettext('all members')"></tmpl_if>&nbsp;gettext('All Members') (<tmpl_var group_count escape="html">)
+        <a title="gettext('all members')"><tmpl_if use_texticon>[oOo]<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_group escape="html">" class="iconset_small" alt="gettext('all members')"></tmpl_if></a>&nbsp;gettext('All Members') (<tmpl_var group_count escape="html">)
       <tmpl_else>
-        <tmpl_if use_texticon>[oOo]<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_group escape="html">" class="iconset_small" title="gettext('all members')" alt="gettext('all members')"></tmpl_if>&nbsp;gettext('All Members') (<tmpl_var group_count escape="html">)
+        <a title="gettext('all members')"><tmpl_if use_texticon>[oOo]<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_group escape="html">" class="iconset_small" alt="gettext('all members')"></tmpl_if></a>&nbsp;gettext('All Members') (<tmpl_var group_count escape="html">)
       </tmpl_if>
     <tmpl_else>
       <tmpl_var VALUE escape="html">
@@ -466,7 +466,7 @@ function sortby(sortorder) {
 
 function clear_all() {
    // uncheck all of the checked boxes
-   if (confirm('gettext('Are you sure you want to clear all checked boxes?')')) {
+   if (confirm('jgettext('Are you sure you want to clear all checked boxes?')')) {
       document.contactsForm.clearall.value = 1;
       document.contactsForm.submit();
    }
@@ -481,15 +481,15 @@ function popup_showchecked() {
    html += '<head>\n';
    html += '<meta http-equiv="Content-Type" content="text/html; charset=<tmpl_var charset escape="html">">\n';
    html += '<link rel="stylesheet" type="text/css" href="'+document.styleSheets[0].href+'">\n';
-   html += '<title>gettext('Currently Checked Addresses')</title>\n';
+   html += '<title>jgettext('Currently Checked Addresses')</title>\n';
    html += '</head>\n';
    html += '<body style="font-size: <tmpl_var fontsize escape="html">; direction: <tmpl_var languagedirection escape="html">;">\n';
    html += '<table cellspacing="1" cellpadding="1" border="0" width="95%" align="center">\n';
-   html += '<tr><td class="titlebar" colspan="2">gettext('Currently Checked Addresses List')</td></tr>\n';
+   html += '<tr><td class="titlebar" colspan="2">jgettext('Currently Checked Addresses List')</td></tr>\n';
    html += '<tr><td colspan="2">&nbsp;</td></tr>\n';
 
    <tmpl_loop showcheckedloop>
-   html += '<tr><td class="columnheader" colspan="2"><tmpl_if to>gettext('Members')</tmpl_if></td></tr>\n';
+   html += '<tr><td class="columnheader" colspan="2"><tmpl_if to>jgettext('Members')</tmpl_if></td></tr>\n';
    <tmpl_if addresses>
    <tmpl_loop addresses>
    html += '<tr>\n';
@@ -502,7 +502,7 @@ function popup_showchecked() {
    html += '</tr>\n';
    </tmpl_loop>
    <tmpl_else>
-   html += '<tr><td colspan="2" class="rowlight" align="center">gettext('none')</td></tr>\n';
+   html += '<tr><td colspan="2" class="rowlight" align="center">jgettext('none')</td></tr>\n';
    </tmpl_if>
    html += '<tr><td colspan="2">&nbsp;</td></tr>\n';
    </tmpl_loop>
@@ -510,7 +510,7 @@ function popup_showchecked() {
    html += '<tr>\n';
    html += '<td align="center" colspan="2">\n';
    html += '<form action="#" method="post" name="showchecked">\n';
-   html += '<br><input type="button" name="ok" value="gettext('Close')" onclick="window.close();">\n';
+   html += '<br><input type="button" name="ok" value="jgettext('Close')" onclick="window.close();">\n';
    html += '</form>\n';
    html += '</td>\n';
    html += '</tr>\n';
@@ -525,7 +525,7 @@ function popup_showchecked() {
       hWnd.document.close();
       hWnd.focus();
    } else {
-      alert('gettext('A popup window has been blocked.\nPlease unblock popups and try again.')');
+      alert('jgettext('A popup window has been blocked.\nPlease unblock popups and try again.')');
    }
 }
 
@@ -533,7 +533,7 @@ popup_showchecked();
 </tmpl_if>
 
 <tmpl_if clear_all>
-alert('gettext('All checked selections have been cleared.')');
+alert('jgettext('All checked selections have been cleared.')');
 </tmpl_if>
 
 <tmpl_if selectdone>

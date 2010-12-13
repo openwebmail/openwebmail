@@ -127,14 +127,14 @@ function opconfirm(op, abookfolder_index) {
    var abookfoldername = document.editbooksForm.elements[abookfolder_index].value;
 
    if (op == 'delete') {
-      if(confirm('gettext('Are you sure you want to delete this folder and all its contents?') (' + abookfoldername + ')')) {
+      if(confirm('jgettext('Are you sure you want to delete this folder and all its contents?') (' + abookfoldername + ')')) {
          document.editbooksForm.targetbook.value = abookfoldername;
          return true;
       } else {
          return false;
       }
    } else if (op == 'rename') {
-      var newname = prompt('gettext('Please enter the new name for this folder')', abookfoldername);
+      var newname = prompt('jgettext('Please enter the new name for this folder')', abookfoldername);
       if (newname == abookfoldername || newname == null || newname == '') {
          return false;
       }

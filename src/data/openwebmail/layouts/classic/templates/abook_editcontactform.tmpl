@@ -1441,10 +1441,10 @@
 <!--
 // popup_calendar.js language and preferences
 var wStart     = <tmpl_var weekstart escape="js">;
-var wDay       = new Array('gettext('Sunday')','gettext('Monday')','gettext('Tuesday')','gettext('Wednesday')','gettext('Thursday')','gettext('Friday')','gettext('Saturday')');
+var wDay       = new Array('jgettext('Sunday')','jgettext('Monday')','jgettext('Tuesday')','jgettext('Wednesday')','jgettext('Thursday')','jgettext('Friday')','jgettext('Saturday')');
 var wDayAbbrev = new Array(gettext(''S','M','T','W','T','F','S''));
-var wMonth     = new Array('gettext('January')','gettext('February')','gettext('March')','gettext('April')','gettext('May')','gettext('June')','gettext('July')','gettext('August')','gettext('September')','gettext('October')','gettext('November')','gettext('December')');
-var wOrder     = new Array('gettext('1st')','gettext('2nd')','gettext('3rd')','gettext('4th')','gettext('last')');
+var wMonth     = new Array('jgettext('January')','jgettext('February')','jgettext('March')','jgettext('April')','jgettext('May')','jgettext('June')','jgettext('July')','jgettext('August')','jgettext('September')','jgettext('October')','jgettext('November')','jgettext('December')');
+var wOrder     = new Array('jgettext('1st')','jgettext('2nd')','jgettext('3rd')','jgettext('4th')','jgettext('last')');
 
 function updateFN(caller) {
    // given a changed caller from the N property, update the FN property
@@ -1662,16 +1662,16 @@ function showGeo(count,show) {
          window.open('http://maps.google.com/maps?q='+latitude+','+longitude+'&output=embed','_showGeo','width=550,height=500,resizable=yes,scrollbars=yes');
       }
    } else {
-      alert('gettext('You must fill in the longitude and latitude before any maps or photos can be viewed.')');
+      alert('jgettext('You must fill in the longitude and latitude before any maps or photos can be viewed.')');
    }
 }
 
 function confirm_agent_action(message_option) {
    // provide confirm dialogs for actions performed on agents
    if (message_option == 'save') {
-      return(confirm('gettext('All data must be saved before viewing or creating an agent card. Save and continue?')'));
+      return(confirm('jgettext('All data must be saved before viewing or creating an agent card. Save and continue?')'));
    } else if (message_option == 'cancel') {
-      return(confirm('gettext('All changes to this agent will be lost, continue?')'));
+      return(confirm('jgettext('All changes to this agent will be lost, continue?')'));
    }
 }
 
@@ -1683,12 +1683,12 @@ function savecheck() {
    var email      = document.editForm.elements['EMAIL.0.VALUE'].value;
 
    if (givenname == '' && familyname == '') {
-      alert("gettext('Please fill in the first name or last name fields first.')");
+      alert("jgettext('Please fill in the first name or last name fields first.')");
       return false;
    }
 
    if (email == '') {
-      return confirm("gettext('The email address is empty. Continue?')");
+      return confirm("jgettext('The email address is empty. Continue?')");
    }
 
    return true;

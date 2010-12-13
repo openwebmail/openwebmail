@@ -232,7 +232,7 @@
         <tr>
           <td align="right" nowrap>&nbsp;gettext('Message Format:')</td>
           <td>
-            <select name="newmsgformat" <tmpl_if enable_htmlcompose>onChange="return (sessioncheck() && msgfmtchangeconfirm());"<tmpl_else>onclick="alert('gettext('Sorry, your browser is not able to support HTML composing.')');"</tmpl_if>>
+            <select name="newmsgformat" <tmpl_if enable_htmlcompose>onChange="return (sessioncheck() && msgfmtchangeconfirm());"<tmpl_else>onclick="alert('jgettext('Sorry, your browser is not able to support HTML composing.')');"</tmpl_if>>
             <tmpl_loop newmsgformatselectloop>
               <tmpl_if option_text><option value="text" <tmpl_if selected>selected</tmpl_if>>gettext('Text')</option></tmpl_if>
               <tmpl_if option_html><option value="html" <tmpl_if selected>selected</tmpl_if>>gettext('HTML')</option></tmpl_if>
@@ -317,7 +317,7 @@
           <td align="right" nowrap>&nbsp;gettext('Message Format:')</td>
           <td>
             <input type="hidden" name="msgformat" value="<tmpl_var msgformat escape="html">">
-            <select name="newmsgformat" <tmpl_if enable_htmlcompose>onChange="return (sessioncheck() && msgfmtchangeconfirm());"<tmpl_else>onclick="alert('gettext('Sorry, your browser is not able to support HTML composing.')');"</tmpl_if>>
+            <select name="newmsgformat" <tmpl_if enable_htmlcompose>onChange="return (sessioncheck() && msgfmtchangeconfirm());"<tmpl_else>onclick="alert('jgettext('Sorry, your browser is not able to support HTML composing.')');"</tmpl_if>>
             <tmpl_loop newmsgformatselectloop>
               <tmpl_if option_text><option value="text" <tmpl_if selected>selected</tmpl_if>>gettext('Text')</option></tmpl_if>
               <tmpl_if option_html><option value="html" <tmpl_if selected>selected</tmpl_if>>gettext('HTML')</option></tmpl_if>
@@ -498,13 +498,13 @@ function selectcontacts() {
 
       hWnd.focus();
    } else {
-      alert('gettext('A popup window has been blocked.\nPlease unblock popups and try again.')');
+      alert('jgettext('A popup window has been blocked.\nPlease unblock popups and try again.')');
    }
 }
 
 function DeleteAttFile(deleteattfile, shortfilename, is_referenced) {
    if (is_referenced) {
-      if(confirm('gettext('The attachment:\n\n' + shortfilename + '\n\nis being used in the message.\nIt will not appear in the message if you delete it.\nDelete the attachment?')')) {
+      if(confirm('jgettext('The attachment:\n\n' + shortfilename + '\n\nis being used in the message.\nIt will not appear in the message if you delete it.\nDelete the attachment?')')) {
          document.composeform.deleteattfile.value = deleteattfile;
          bodygethtml();
          document.composeform.submit();
@@ -531,7 +531,7 @@ function msgfmtchangeconfirm() {
    if (document.composeform.msgformat.value == 'html' || document.composeform.msgformat.value == 'both') {
       if (document.composeform.newmsgformat.value == 'text') {
          // (html || both) -> text
-         if (confirm('gettext('The HTML data will be lost after the conversion, are you sure you want to change to Text mode?')')) {
+         if (confirm('jgettext('The HTML data will be lost after the conversion, are you sure you want to change to Text mode?')')) {
             bodygethtml();
             document.composeform.submit();
             return true;
@@ -571,12 +571,12 @@ function owmspellcheck() {
 
 function sendcheck() {
    if (document.composeform.to.value == '' && document.composeform.cc.value == '' && document.composeform.bcc.value == '') {
-      alert('gettext('To, Cc, and Bcc are empty. Please specify the recipients before sending.')');
+      alert('jgettext('To, Cc, and Bcc are empty. Please specify the recipients before sending.')');
       return false;
    }
 
    if (document.composeform.subject.value == '' || document.composeform.subject.value == 'N/A' ) {
-      return(confirm('gettext('This message has no subject, do you still want to send it?')'));
+      return(confirm('jgettext('This message has no subject, do you still want to send it?')'));
    }
 
    return true;
@@ -584,7 +584,7 @@ function sendcheck() {
 
 <tmpl_if enable_urlattach>
 function addurlattachment() {
-   attachmenturl = prompt('gettext('Please enter the URL of a file to attach')', 'http://');
+   attachmenturl = prompt('jgettext('Please enter the URL of a file to attach')', 'http://');
    if (attachmenturl == null || attachmenturl == '' || attachmenturl == 'http://') {
       return false;
    } else {
@@ -605,11 +605,11 @@ function sessionlastsecond() {
 </tmpl_if>
 
 <tmpl_if popup_draftsaved>
-popup_message('<tmpl_var charset escape="js">', 'gettext('Draft Saved')', 'gettext('Draft <tmpl_var subject escape="js"> has been saved successfully')', 'gettext('close')', '_savedraft', 400, 100, 6);
+popup_message('<tmpl_var charset escape="js">', 'jgettext('Draft Saved')', 'jgettext('Draft <tmpl_var subject escape="js"> has been saved successfully')', 'jgettext('close')', '_savedraft', 400, 100, 6);
 </tmpl_if>
 
 <tmpl_if popup_attlimitreached>
-popup_message('<tmpl_var charset escape="js">', 'gettext('Attachment Limit Reached')', 'gettext('Add attachment failed.<br>The attachment limit of <tmpl_var attachments_limit escape="js"> Kb was reached.')', 'gettext('close')', '_attlimit', 400, 100, 120);
+popup_message('<tmpl_var charset escape="js">', 'jgettext('Attachment Limit Reached')', 'jgettext('Add attachment failed.<br>The attachment limit of <tmpl_var attachments_limit escape="js"> Kb was reached.')', 'jgettext('close')', '_attlimit', 400, 100, 120);
 </tmpl_if>
 //-->
 </script>

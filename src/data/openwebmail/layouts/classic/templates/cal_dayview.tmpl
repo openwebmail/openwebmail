@@ -117,7 +117,7 @@
           <tmpl_if is_global>
             <span class="colortext"><tmpl_var eventtime escape="html"></span>&nbsp;<tmpl_var eventtxt escape="html">
           <tmpl_else>
-            <a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=caledit&amp;eventid=<tmpl_var eventid>&amp;year=<tmpl_var year>&amp;month=<tmpl_var month>&amp;day=<tmpl_var day>&amp;cal_caller=<tmpl_var cal_caller escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="gettext('edit event')" <tmpl_if is_multi> onclick="return confirm('gettext('This item was added for multiple dates.\nEditing it will change the item for all dates.\nContinue with Edit?')')"</tmpl_if>><span class="colortext"><tmpl_var eventtime escape="html"></span>&nbsp;<tmpl_var eventtxt escape="html"></a>
+            <a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=caledit&amp;eventid=<tmpl_var eventid>&amp;year=<tmpl_var year>&amp;month=<tmpl_var month>&amp;day=<tmpl_var day>&amp;cal_caller=<tmpl_var cal_caller escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="gettext('edit event')" <tmpl_if is_multi> onclick="return confirm('jgettext('This item was added for multiple dates.\nEditing it will change the item for all dates.\nContinue with Edit?')')"</tmpl_if>><span class="colortext"><tmpl_var eventtime escape="html"></span>&nbsp;<tmpl_var eventtxt escape="html"></a>
           </tmpl_if>
 
           <tmpl_if eventlink>
@@ -129,7 +129,7 @@
           </tmpl_if>
 
           <tmpl_unless is_global>
-            <a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=caldel&amp;eventid=<tmpl_var eventid>&amp;year=<tmpl_var year>&amp;month=<tmpl_var month>&amp;day=<tmpl_var day>&amp;cal_caller=<tmpl_var cal_caller escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" onclick="return confirm(<tmpl_if is_multi>'gettext('This item was added for multiple dates.\nDeleting it will delete the item for all dates.\nContinue with Delete?')'<tmpl_else>'gettext('Are you sure you want to delete this item?')'</tmpl_if>)" title="gettext('delete event')"><tmpl_if use_texticon>gettext('delete event')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete event')"></tmpl_if></a>
+            <a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=caldel&amp;eventid=<tmpl_var eventid>&amp;year=<tmpl_var year>&amp;month=<tmpl_var month>&amp;day=<tmpl_var day>&amp;cal_caller=<tmpl_var cal_caller escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" onclick="return confirm(<tmpl_if is_multi>'jgettext('This item was added for multiple dates.\nDeleting it will delete the item for all dates.\nContinue with Delete?')'<tmpl_else>'jgettext('Are you sure you want to delete this item?')'</tmpl_if>)" title="gettext('delete event')"><tmpl_if use_texticon>gettext('delete event')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete event')"></tmpl_if></a>
           </tmpl_unless>
         <tmpl_else>
           <tmpl_if timelabel>
@@ -237,7 +237,7 @@
       </td>
     </tr>
     <tr>
-      <td colspan="2" nowrap><input type="checkbox" name="thisandnextdays" value="1">&nbsp;<label>gettext('This day and next <input type="text" name="nextdays" size="2" /> days')</label></td>
+      <td colspan="2" nowrap><input type="checkbox" id="thisandnextdays" name="thisandnextdays" value="1">&nbsp;gettext('<label for="thisandnextdays">This day and next </label><input type="text" name="nextdays" size="2"> days')</td>
     </tr>
     <tr>
       <td colspan="2" nowrap>
@@ -252,7 +252,7 @@
       </td>
     </tr>
     <tr>
-      <td colspan="2" nowrap><input type="checkbox" name="everyyear" value="1">&nbsp;<label>gettext('Every year')</label></td>
+      <td colspan="2" nowrap><input type="checkbox" id="everyyear" name="everyyear" value="1">&nbsp;<label for="everyyear">gettext('Every year')</label></td>
     </tr>
     <tr>
       <td colspan="2" nowrap>gettext('Event Link:')</td>
@@ -315,26 +315,26 @@
 <!--
 // popup_calendar.js language and preferences
 var wStart     = <tmpl_var weekstart escape="js">;
-var wDay       = new Array('gettext('Sunday')','gettext('Monday')','gettext('Tuesday')','gettext('Wednesday')','gettext('Thursday')','gettext('Friday')','gettext('Saturday')');
+var wDay       = new Array('jgettext('Sunday')','jgettext('Monday')','jgettext('Tuesday')','jgettext('Wednesday')','jgettext('Thursday')','jgettext('Friday')','jgettext('Saturday')');
 var wDayAbbrev = new Array(gettext(''S','M','T','W','T','F','S''));
-var wMonth     = new Array('gettext('January')','gettext('February')','gettext('March')','gettext('April')','gettext('May')','gettext('June')','gettext('July')','gettext('August')','gettext('September')','gettext('October')','gettext('November')','gettext('December')');
-var wOrder     = new Array('gettext('1st')','gettext('2nd')','gettext('3rd')','gettext('4th')','gettext('last')');
+var wMonth     = new Array('jgettext('January')','jgettext('February')','jgettext('March')','jgettext('April')','jgettext('May')','jgettext('June')','jgettext('July')','jgettext('August')','jgettext('September')','jgettext('October')','jgettext('November')','jgettext('December')');
+var wOrder     = new Array('jgettext('1st')','jgettext('2nd')','jgettext('3rd')','jgettext('4th')','jgettext('last')');
 
 // cal_update_recurrence.js language and preferences
-var thisdayonlytxt = 'gettext('This day only')';
-var everyoddmonththisyeartxt = 'gettext('Every odd month this year')';
-var everyevenmonththisyeartxt = 'gettext('Every even month this year')';
+var thisdayonlytxt = 'jgettext('This day only')';
+var everyoddmonththisyeartxt = 'jgettext('Every odd month this year')';
+var everyevenmonththisyeartxt = 'jgettext('Every even month this year')';
 
 function thewdayofthismonthtxt(wOrderNumber,wDayNumber) {
-   return 'gettext('The ' + wOrder[(wOrderNumber-1)] + ' ' + wDay[wDayNumber] + ' of the month')';
+   return 'jgettext('The ' + wOrder[(wOrderNumber-1)] + ' ' + wDay[wDayNumber] + ' of the month')';
 }
 
 function everywdaythismonthtxt(wDayNumber) {
-   return 'gettext('Every ' + wDay[wDayNumber] + ' this month')';
+   return 'jgettext('Every ' + wDay[wDayNumber] + ' this month')';
 }
 
 function alerttxt(selectedmonth,daysinmonth,formYear,daysinmonth) {
-   return gettext(''Sorry, ' + selectedmonth + ' only has ' + daysinmonth + ' days in ' + formYear + '.\nChanging the day to ' + daysinmonth + '.'');
+   return jgettext(''Sorry, ' + selectedmonth + ' only has ' + daysinmonth + ' days in ' + formYear + '.\nChanging the day to ' + daysinmonth + '.'');
 }
 
 function change_dateselform(year,month,day) {

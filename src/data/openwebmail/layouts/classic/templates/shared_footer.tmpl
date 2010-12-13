@@ -20,7 +20,7 @@ function timeoutcheck () {
 
       if (remainingseconds < 65) {
          if (remainingseconds >= 5) {
-            window.defaultStatus = gettext(''session time: ' + (remainingseconds - 5) + ' seconds left'');
+            window.defaultStatus = jgettext(''session time: ' + (remainingseconds - 5) + ' seconds left'');
          }
          if (!warn) {
             // templates may define a sessionlastsecond function to perform an action
@@ -39,7 +39,7 @@ function timeoutcheck () {
          }
       }
    } else {
-      window.defaultStatus = "gettext('session timeout')";
+      window.defaultStatus = "jgettext('session timeout')";
       clearTimeout(timer);
    }
 }
@@ -48,7 +48,7 @@ function sessioncheck () {
    if (remainingseconds > 0) {
       return true;
    } else {
-      alert("gettext('Sorry, your session has timed out. Please login again.')");
+      alert("jgettext('Sorry, your session has timed out. Please login again.')");
       return false;
    }
 }

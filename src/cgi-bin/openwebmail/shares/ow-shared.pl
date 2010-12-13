@@ -498,6 +498,9 @@ read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if -f "$
 $po = loadlang($config{default_locale});
 
 $htmltemplatefilters = [
+                          # translate and escape strings identified with jgettext('') using the po file for this locale
+                          { sub => sub { my $text_aref = shift; s#(jgettext\(["'](.+?)["']\))#jgettext($2)#ige for @{$text_aref} },
+                            format => 'array' },
                           # translate strings identified with gettext('') using the po file for this locale
                           { sub => sub { my $text_aref = shift; s#(gettext\(["'](.+?)["']\))#gettext($2)#ige for @{$text_aref} },
                             format => 'array' },
@@ -2598,6 +2601,19 @@ sub loadlang {
    } else {
       return OWM::PO->new(file => "$config{ow_langdir}/en_US.UTF-8.po");
    }
+}
+
+sub jgettext  {
+   my $result = gettext(shift);
+
+   # javascript escape any ' character not preceeded by \+\s and not followed by \s\+
+   $result =~ s/(?<!(?:\+\s|.\+))'(?!(?:\s\+|\+.))/\\'/g;
+
+   # except for the ones at the beginning and end
+   $result =~ s/^\\'/'/;
+   $result =~ s/\\'$/'/;
+
+   return $result;
 }
 
 sub gettext  {

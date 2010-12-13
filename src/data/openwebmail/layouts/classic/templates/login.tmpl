@@ -106,7 +106,7 @@ if (document.loginform.loginname.value == '') {
 
 function httpcompresshelp() {
    if (document.loginform.httpcompress.checked) {
-      var msg = 'gettext('HTTP compression can reduce the use of network bandwidth between your computer and the webmail server, but there are some compatibility issues:\n\n1. some proxy servers only support HTTP compression via HTTP 1.1. You may need to manually enable HTTP 1.1 support in the proxy settings of your browser\n\n2. some proxy servers do not support HTTP compression at all. You may have to list the webmail server as directly connected in the proxy configuration of your browser.\n\n3. some browsers have problems when using HTTP compression with SSL.\n\n4. some browsers claim to support HTTP compression but actually do not.\n\nIf you encounter problems please login again with this option unchecked.\n')';
+      var msg = 'jgettext('HTTP compression can reduce the use of network bandwidth between your computer and the webmail server, but there are some compatibility issues:\n\n1. some proxy servers only support HTTP compression via HTTP 1.1. You may need to manually enable HTTP 1.1 support in the proxy settings of your browser\n\n2. some proxy servers do not support HTTP compression at all. You may have to list the webmail server as directly connected in the proxy configuration of your browser.\n\n3. some browsers have problems when using HTTP compression with SSL.\n\n4. some browsers claim to support HTTP compression but actually do not.\n\nIf you encounter problems please login again with this option unchecked.\n')';
       alert(msg);
    }
    return true;
@@ -114,7 +114,7 @@ function httpcompresshelp() {
 
 function autologinhelp() {
    if (document.loginform.autologin.checked) {
-      var msg = 'gettext('When this feature is enabled you may login to <tmpl_var programname escape="js"> without re-entering your username and password, but only if you did not logout of your previous session and that session has not timed out.\n\nDO NOT ENABLE THIS FEATURE ON A PUBLIC COMPUTER or others will gain access to your account.\n')';
+      var msg = 'jgettext('When this feature is enabled you may login to <tmpl_var programname escape="js"> without re-entering your username and password, but only if you did not logout of your previous session and that session has not timed out.\n\nDO NOT ENABLE THIS FEATURE ON A PUBLIC COMPUTER or others will gain access to your account.\n')';
       alert(msg);
    }
    return true;

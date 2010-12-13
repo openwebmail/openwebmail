@@ -186,10 +186,10 @@
         </select>
       </td>
       <td>
-        <input type="submit" name="movebutton" value="gettext('Move')" onclick="return OpConfirm('gettext('Are you sure you want to move the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
+        <input type="submit" name="movebutton" value="gettext('Move')" onclick="return OpConfirm('jgettext('Are you sure you want to move the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
       </td>
       <td>
-        <input type="submit" name="copybutton" value="gettext('Copy')" onclick="return OpConfirm('gettext('Are you sure you want to copy the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
+        <input type="submit" name="copybutton" value="gettext('Copy')" onclick="return OpConfirm('jgettext('Are you sure you want to copy the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
       </td>
     </tr>
     </table>
@@ -454,10 +454,10 @@
         </select>
       </td>
       <td>
-        <input type="submit" name="movebutton" value="gettext('Move')" onclick="return OpConfirm('gettext('Are you sure you want to move the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
+        <input type="submit" name="movebutton" value="gettext('Move')" onclick="return OpConfirm('jgettext('Are you sure you want to move the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
       </td>
       <td>
-        <input type="submit" name="copybutton" value="gettext('Copy')" onclick="return OpConfirm('gettext('Are you sure you want to copy the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
+        <input type="submit" name="copybutton" value="gettext('Copy')" onclick="return OpConfirm('jgettext('Are you sure you want to copy the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
       </td>
     </tr>
     </table>
@@ -513,44 +513,44 @@ function OpConfirm(text, conf) {
 var popup_ok = 1;
 
 <tmpl_if popup_quotahitdelmail>
-popup_ok = popup_message('<tmpl_var charset escape="js">', 'gettext('QUOTA HIT')', '<span class="warning">gettext('Warning: the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit. Oldest messages have been automatically removed.')</span>', 'gettext('close')', '_quotahit_delmail', 400, 100, 60);
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('QUOTA HIT')', '<span class="warning">jgettext('Warning: the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit. Oldest messages have been automatically removed.')</span>', 'jgettext('close')', '_quotahit_delmail', 400, 100, 60);
 </tmpl_if>
 
 <tmpl_if popup_quotahitdelfile>
-popup_ok = popup_message('<tmpl_var charset escape="js">', 'gettext('QUOTA HIT')', '<span class="warning">gettext('Warning: the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit. Some files from the webdisk have been automatically removed.')</span>', 'gettext('close')', '_quotahit_delfile', 400, 100, 60);
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('QUOTA HIT')', '<span class="warning">jgettext('Warning: the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit. Some files from the webdisk have been automatically removed.')</span>', 'jgettext('close')', '_quotahit_delfile', 400, 100, 60);
 </tmpl_if>
 
 <tmpl_if quotaoverlimit>
-popup_ok = popup_message('<tmpl_var charset escape="js">', 'gettext('QUOTA HIT')', '<span class="warning">gettext('Quota limit exceeded. Please delete some messages or webdisk files to free disk space.')</span>', 'gettext('close')', '_quotahit_alert', 400, 100, 60);
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('QUOTA HIT')', '<span class="warning">jgettext('Quota limit exceeded. Please delete some messages or webdisk files to free disk space.')</span>', 'jgettext('close')', '_quotahit_alert', 400, 100, 60);
 </tmpl_if>
 
 <tmpl_if spooloverlimit>
-popup_ok = popup_message('<tmpl_var charset escape="js">', 'gettext('QUOTA HIT')', '<span class="warning">gettext('Your INBOX has exceeded the spool limit (<tmpl_var spoollimit escape="js"> kB). Please move some messages from your INBOX to other folders.')</span>', 'gettext('close')', '_spool_overlimit', 400, 100, 60);
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('QUOTA HIT')', '<span class="warning">jgettext('Your INBOX has exceeded the spool limit (<tmpl_var spoollimit escape="js"> kB). Please move some messages from your INBOX to other folders.')</span>', 'jgettext('close')', '_spool_overlimit', 400, 100, 60);
 </tmpl_if>
 
 <tmpl_if popup_messagesent>
-popup_ok = popup_message('<tmpl_var charset escape="js">', 'gettext('Message Sent')', 'gettext('Message <tmpl_var sentsubject escape="js"> has been sent successfully')', 'gettext('close')', '_messagesent', 400, 100, <tmpl_var mailsentwindowtime escape="js">);
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('Message Sent')', 'jgettext('Message <tmpl_var sentsubject escape="js"> has been sent successfully')', 'jgettext('close')', '_messagesent', 400, 100, <tmpl_var mailsentwindowtime escape="js">);
 </tmpl_if>
 
 <tmpl_if incomingmessagesloop>
-popup_ok = popup_message('<tmpl_var charset escape="js">', 'gettext('Incoming Messages')', '<tmpl_loop incomingmessagesloop>
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('Incoming Messages')', '<tmpl_loop incomingmessagesloop>
   <tmpl_if is_defaultfolder>
-  <tmpl_if incomingfolder_INBOX>gettext('Inbox')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
-  <tmpl_if incomingfolder_saved-messages>gettext('Saved')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
-  <tmpl_if incomingfolder_sent-mail>gettext('Sent')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
-  <tmpl_if incomingfolder_saved-drafts>gettext('Draft')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
-  <tmpl_if incomingfolder_mail-trash>gettext('Trash')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
-  <tmpl_if incomingfolder_spam-mail>gettext('Spam')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
-  <tmpl_if incomingfolder_virus-mail>gettext('Virus')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
-  <tmpl_if incomingfolder_DELETE>gettext('--DELETE--')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_INBOX>jgettext('Inbox')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_saved-messages>jgettext('Saved')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_sent-mail>jgettext('Sent')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_saved-drafts>jgettext('Draft')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_mail-trash>jgettext('Trash')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_spam-mail>jgettext('Spam')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_virus-mail>jgettext('Virus')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_DELETE>jgettext('--DELETE--')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
   <tmpl_else>
   <tmpl_var incomingfolder escape="js">&nbsp;<tmpl_var incomingcount escape="js"><br>
   </tmpl_if>
-</tmpl_loop>', 'gettext('close')', '_incoming', 400, <tmpl_var newmailwindowheight escape="js">, <tmpl_var newmailwindowtime escape="js">);
+</tmpl_loop>', 'jgettext('close')', '_incoming', 400, <tmpl_var newmailwindowheight escape="js">, <tmpl_var newmailwindowtime escape="js">);
 </tmpl_if>
 
 if (popup_ok == 0) {
-   alert('gettext('A popup window has been blocked.\nPlease unblock popups and try again.')');
+   alert('jgettext('A popup window has been blocked.\nPlease unblock popups and try again.')');
 }
 
 //-->

@@ -176,7 +176,7 @@
       </td>
       <td align="right">
         <nobr>
-        <tmpl_if mkpspdf><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=<tmpl_var mkpspdf escape="url">&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;wdpage=<tmpl_var wdpage escape="url">&amp;wdkeyword=<tmpl_var wdkeyword escape="url">&amp;wdsearchtype=<tmpl_var wdsearchtype escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">"<tmpl_if mkps><tmpl_if withconfirm> onclick="return confirm('gettext('Make a postscript file from <tmpl_var filename escape="js">?')');"</tmpl_if>>[gettext('make postscript')]<tmpl_else><tmpl_if withconfirm> onclick="return confirm('gettext('Make a pdf file from <tmpl_var filename escape="js">?')');"</tmpl_if>>[gettext('make pdf')]</tmpl_if></a></tmpl_if>
+        <tmpl_if mkpspdf><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=<tmpl_var mkpspdf escape="url">&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;wdpage=<tmpl_var wdpage escape="url">&amp;wdkeyword=<tmpl_var wdkeyword escape="url">&amp;wdsearchtype=<tmpl_var wdsearchtype escape="url">&amp;filesort=<tmpl_var filesort escape="url">&amp;showthumbnail=<tmpl_var showthumbnail escape="url">&amp;showhidden=<tmpl_var showhidden escape="url">&amp;singlepage=<tmpl_var singlepage escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">"<tmpl_if mkps><tmpl_if withconfirm> onclick="return confirm('jgettext('Make a postscript file from <tmpl_var filename escape="js">?')');"</tmpl_if>>[gettext('make postscript')]<tmpl_else><tmpl_if withconfirm> onclick="return confirm('jgettext('Make a pdf file from <tmpl_var filename escape="js">?')');"</tmpl_if>>[gettext('make pdf')]</tmpl_if></a></tmpl_if>
 
         <tmpl_if preview><a href="javascript:void(0);" onclick="window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=preview&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">','_previewfile','width=780,height=550,scrollbars=yes,resizable=yes,location=no');">&nbsp;[gettext('preview')]</a></tmpl_if>
 
@@ -186,7 +186,7 @@
 
         <tmpl_if wordpreview><a href="javascript:void(0);" onclick="window.open('<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=wordpreview&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">','_wordpreview','width=780,height=550,scrollbars=yes,resizable=yes,location=no');">[gettext('preview')]</a></tmpl_if>
 
-        <tmpl_if candeflate><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=extractarchive&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" <tmpl_if withconfirm> onclick="return confirm('gettext('Extract archive file <tmpl_var filename escape="js">?')');"</tmpl_if>>&nbsp;[gettext('extract')]</a></tmpl_if>
+        <tmpl_if candeflate><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=extractarchive&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" <tmpl_if withconfirm> onclick="return confirm('jgettext('Extract archive file <tmpl_var filename escape="js">?')');"</tmpl_if>>&nbsp;[gettext('extract')]</a></tmpl_if>
 
         <tmpl_if thumbnail><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl/<tmpl_var fname escape="url">?action=viewinline&amp;selitems=<tmpl_var filename escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">" class="icon" target="_blank"><img src="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=viewinline&amp;selitems=<tmpl_var thumbnail escape="url">&amp;currentdir=<tmpl_var currentdir escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">"></a></tmpl_if>
         </nobr>
@@ -235,8 +235,8 @@
       <td>
         <nobr>
         <tmpl_if canwrite>
-        <input type="submit" name="newfilebutton" value="gettext('new file')" accesskey="F" onclick="if (document.dirform.destname.value == '') { alert('gettext('Please provide a target name for the new file.')'); return false; }">
-        <input type="submit" name="mkdirbutton" value="gettext('new folder')" accesskey="M" onclick="if (document.dirform.destname.value == '') { alert('gettext('Please provide a target name for the new folder.')'); return false; }">
+        <input type="submit" name="newfilebutton" value="gettext('new file')" accesskey="F" onclick="if (document.dirform.destname.value == '') { alert('jgettext('Please provide a target name for the new file.')'); return false; }">
+        <input type="submit" name="mkdirbutton" value="gettext('new folder')" accesskey="M" onclick="if (document.dirform.destname.value == '') { alert('jgettext('Please provide a target name for the new folder.')'); return false; }">
         </tmpl_if>
 
         <tmpl_unless is_readonly>
@@ -339,7 +339,7 @@ function has_selection() {
       }
    }
 
-   alert('gettext('There are no files or directories selected.')');
+   alert('jgettext('There are no files or directories selected.')');
 
    return false;
 }
@@ -349,19 +349,19 @@ function has_target(op) {
    // otherwise alert and return false
    if (document.dirform.destname.value == '') {
       if (op == 'copy') {
-         alert('gettext('Please provide a destination target name.')');
+         alert('jgettext('Please provide a destination target name.')');
       } else if (op == 'move') {
-         alert('gettext('Please provide a destination target name.')');
+         alert('jgettext('Please provide a destination target name.')');
       } else if (op == 'mkzip') {
-         alert('gettext('Please provide a destination target name.')');
+         alert('jgettext('Please provide a destination target name.')');
       } else if (op == 'mktgz') {
-         alert('gettext('Please provide a destination target name.')');
+         alert('jgettext('Please provide a destination target name.')');
       } else if (op == 'mktar') {
-         alert('gettext('Please provide a destination target name.')');
+         alert('jgettext('Please provide a destination target name.')');
       } else if (op == 'symlink') {
-         alert('gettext('Please provide a destination target name.')');
+         alert('jgettext('Please provide a destination target name.')');
       } else {
-         alert('gettext('System error - the operation is not defined.')');
+         alert('jgettext('System error - the operation is not defined.')');
       }
 
       return false;
@@ -373,25 +373,25 @@ function has_target(op) {
 function opconfirm(op, do_confirm) {
    if (do_confirm) {
       if (op == 'copy') {
-         return confirm('gettext('Copy the selected item(s)?')\n( ' + selectedstr() + ' )');
+         return confirm('jgettext('Copy the selected item(s)?')\n( ' + selectedstr() + ' )');
       } else if (op == 'move') {
-         return confirm('gettext('Move the selected item(s)?')\n( ' + selectedstr() + ' )');
+         return confirm('jgettext('Move the selected item(s)?')\n( ' + selectedstr() + ' )');
       } else if (op == 'delete') {
-         return confirm('gettext('Delete the selected item(s)?')\n( ' + selectedstr() + ' )');
+         return confirm('jgettext('Delete the selected item(s)?')\n( ' + selectedstr() + ' )');
       } else if (op == 'mkzip') {
-         return confirm('gettext('Zip the selected item(s)?')\n( ' + selectedstr() + ' )');
+         return confirm('jgettext('Zip the selected item(s)?')\n( ' + selectedstr() + ' )');
       } else if (op == 'gzip') {
-         return confirm('gettext('Gzip the selected item(s)?')\n( ' + selectedstr() + ' )');
+         return confirm('jgettext('Gzip the selected item(s)?')\n( ' + selectedstr() + ' )');
       } else if (op == 'mktgz') {
-         return confirm('gettext('Tgz the selected item(s)?')\n( ' + selectedstr() + ' )');
+         return confirm('jgettext('Tgz the selected item(s)?')\n( ' + selectedstr() + ' )');
       } else if (op == 'mktar') {
-         return confirm('gettext('Tar the selected item(s)?')\n( ' + selectedstr() + ' )');
+         return confirm('jgettext('Tar the selected item(s)?')\n( ' + selectedstr() + ' )');
       } else if (op == 'symlink') {
-         return confirm('gettext('Symlink the selected item(s)?')\n( ' + selectedstr() + ' )');
+         return confirm('jgettext('Symlink the selected item(s)?')\n( ' + selectedstr() + ' )');
       } else if (op == 'mkthumb') {
-         return confirm('gettext('Make thumbnails from the selected item(s)?')\n( ' + selectedstr() + ' )');
+         return confirm('jgettext('Make thumbnails from the selected item(s)?')\n( ' + selectedstr() + ' )');
       } else {
-         alert('gettext('System error - the operation is not defined.')');
+         alert('jgettext('System error - the operation is not defined.')');
          return false;
       }
    }
@@ -426,7 +426,7 @@ function selectedstr() {
 
 function uploadfilled() {
    if (document.dirform.upload.value == '') {
-      alert('gettext('Please choose a file to upload first.')');
+      alert('jgettext('Please choose a file to upload first.')');
       return false;
    } else {
       document.dirform.msg.value = 'Uploading file '+document.dirform.upload.value+', please wait...';
@@ -437,7 +437,7 @@ function uploadfilled() {
 function chmodinput() {
    var oldperm = document.dirform.permission.value;
    var newperm = '';
-   newperm = prompt(gettext("'Please enter the desired permissions for selected items:\n( ' + selectedstr() +' )\n\nPermission examples:\n0755 for shared directories, 0644 for shared files\n0700 for private directories, 0600 for private files'"), oldperm);
+   newperm = prompt(jgettext("'Please enter the desired permissions for selected items:\n( ' + selectedstr() + ' )\n\nPermission examples:\n0755 for shared directories, 0644 for shared files\n0700 for private directories, 0600 for private files'"), oldperm);
    if (newperm == oldperm || newperm == null) {
       return false;
    } else {
@@ -447,7 +447,7 @@ function chmodinput() {
 }
 
 <tmpl_if popup_quotadellimit>
-popup_message('<tmpl_var charset escape="js">', 'gettext('QUOTA HIT')', '<span class="warning">gettext('Warning: the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit. Some files from the webdisk have been automatically removed.')</span>', 'gettext('close')', '_quotahit_del', 400, 100, 60);
+popup_message('<tmpl_var charset escape="js">', 'jgettext('QUOTA HIT')', '<span class="warning">jgettext('Warning: the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit. Some files from the webdisk have been automatically removed.')</span>', 'jgettext('close')', '_quotahit_del', 400, 100, 60);
 </tmpl_if>
 //-->
 </script>

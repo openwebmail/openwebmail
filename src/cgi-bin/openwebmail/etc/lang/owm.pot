@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenWebMail\n"
-"PO-Revision-Date: 2010-11-26 17:25+0000\n"
+"PO-Revision-Date: 2010-12-13 06:29+0000\n"
 "Last-Translator: OpenWebMail Team <openwebmail@acatysmoof.com>\n"
 "Language-Team: OpenWebMail Team <openwebmail@acatysmoof.com>\n"
 "MIME-Version: 1.0\n"
@@ -14,7 +14,7 @@ msgstr ""
 msgid "# Message forwarded as attachment"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-webdisk.pl:2353, cgi-bin/openwebmail/openwebmail-webdisk.pl:616, cgi-bin/openwebmail/shares/ow-shared.pl:2207
+#: cgi-bin/openwebmail/openwebmail-webdisk.pl:2353, cgi-bin/openwebmail/openwebmail-webdisk.pl:616, cgi-bin/openwebmail/shares/ow-shared.pl:2219
 msgid "%d Byte"
 msgid_plural "%d Bytes"
 msgstr[0] ""
@@ -50,7 +50,7 @@ msgid_plural "%d characters"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1772, cgi-bin/openwebmail/openwebmail-prefs.pl:1783
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1774, cgi-bin/openwebmail/openwebmail-prefs.pl:1785
 msgid "%d day"
 msgid_plural "%d days"
 msgstr[0] ""
@@ -80,25 +80,25 @@ msgid_plural "%d messages"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1668
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1670
 msgid "%d minute"
 msgid_plural "%d minutes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1217, cgi-bin/openwebmail/openwebmail-prefs.pl:1514, cgi-bin/openwebmail/openwebmail-prefs.pl:1524
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1219, cgi-bin/openwebmail/openwebmail-prefs.pl:1516, cgi-bin/openwebmail/openwebmail-prefs.pl:1526
 msgid "%d pixel"
 msgid_plural "%d pixels"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1216
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1218
 msgid "%d point"
 msgid_plural "%d points"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1321, cgi-bin/openwebmail/openwebmail-prefs.pl:1745, cgi-bin/openwebmail/openwebmail-prefs.pl:1753
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1323, cgi-bin/openwebmail/openwebmail-prefs.pl:1747, cgi-bin/openwebmail/openwebmail-prefs.pl:1755
 msgid "%d second"
 msgid_plural "%d seconds"
 msgstr[0] ""
@@ -113,7 +113,7 @@ msgstr[1] ""
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:440
 msgid ""
 "'Please enter the desired permissions for selected items:\n"
-"( ' + selectedstr() +' )\n"
+"( ' + selectedstr() + ' )\n"
 "\n"
 "Permission examples:\n"
 "0755 for shared directories, 0644 for shared files\n"
@@ -130,7 +130,7 @@ msgid ""
 "Changing the day to ' + daysinmonth + '.'"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/footer.tmpl:23
+#: data/openwebmail/layouts/classic/templates/shared_footer.tmpl:23
 msgid "'session time: ' + (remainingseconds - 5) + ' seconds left'"
 msgstr ""
 
@@ -146,7 +146,7 @@ msgstr ""
 msgid "-- Stationery for Reply --"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1204
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1206
 msgid "-- User Defined --"
 msgstr ""
 
@@ -238,8 +238,16 @@ msgstr ""
 msgid "4th"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/error.tmpl:30, data/openwebmail/layouts/classic/templates/footer.tmpl:4
+#: data/openwebmail/layouts/classic/templates/shared_error.tmpl:30, data/openwebmail/layouts/classic/templates/shared_footer.tmpl:4
 msgid "<a href=\"http://openwebmail.acatysmoof.com\" target=\"_blank\"><tmpl_var programname escape=\"html\"></a> version <tmpl_var programversion escape=\"html\">"
+msgstr ""
+
+#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:240
+msgid "<label for=\"thisandnextdays\">This day and next </label><input type=\"text\" name=\"nextdays\" size=\"2\"> days"
+msgstr ""
+
+#: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:105
+msgid "<label for=\"thisandnextdays\">This day and the next </label><input type=\"text\" name=\"nextdays\" size=\"2\" value=\"<tmpl_var nextdays escape=\"html\">\"> days"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/send_compose.tmpl:164
@@ -258,7 +266,7 @@ msgstr ""
 msgid "<tmpl_var hour escape=\"none\">:<tmpl_var min escape=\"none\"><tmpl_var ampm escape=\"none\">"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/error.tmpl:16, data/openwebmail/layouts/classic/templates/error.tmpl:6
+#: data/openwebmail/layouts/classic/templates/shared_error.tmpl:16, data/openwebmail/layouts/classic/templates/shared_error.tmpl:6
 msgid "<tmpl_var programname escape=\"html\"> Error"
 msgstr ""
 
@@ -266,7 +274,7 @@ msgstr ""
 msgid "<tmpl_var timeintransitsign escape=\"html\"><tmpl_var timeintransithour escape=\"html\">h <tmpl_var timeintransitmin escape=\"html\">m <tmpl_var timeintransitsec escape=\"html\">s difference"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:934
+#: cgi-bin/openwebmail/shares/ow-shared.pl:937
 msgid "A %var% style configuration variable is too recursive:"
 msgstr ""
 
@@ -340,7 +348,7 @@ msgstr ""
 msgid "Access denied: the operation is not allowed."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:609
+#: cgi-bin/openwebmail/shares/ow-shared.pl:612
 msgid "Access denied: the session id is not properly defined."
 msgstr ""
 
@@ -352,35 +360,35 @@ msgstr ""
 msgid "Access denied: the webmail module is not enabled."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1193
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1205
 msgid "Access denied: your request did not come from the same ip address that initiated this session."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1187
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1199
 msgid "Access denied: your request did not contain the proper session id cookie."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2081
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2093
 msgid "Access to hidden files has been disabled."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2115
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2127
 msgid "Access to mail folder files has been disabled."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2118
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2130
 msgid "Access to special unix file types has been disabled."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2091
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2103
 msgid "Access to symbolic links has been disabled."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2111
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2123
 msgid "Access to the log file is not allowed."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2105
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2117
 msgid "Access to the sessions directory is not allowed."
 msgstr ""
 
@@ -632,7 +640,7 @@ msgstr ""
 msgid "An import format must be chosen."
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/error.tmpl:20
+#: data/openwebmail/layouts/classic/templates/shared_error.tmpl:20
 msgid "An unknown error has occured."
 msgstr ""
 
@@ -840,7 +848,7 @@ msgstr ""
 msgid "Auto Reply:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1615, data/openwebmail/layouts/classic/templates/prefs.tmpl:106, data/openwebmail/layouts/classic/templates/prefs.tmpl:566
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1617, data/openwebmail/layouts/classic/templates/prefs.tmpl:106, data/openwebmail/layouts/classic/templates/prefs.tmpl:566
 msgid "Auto Selected"
 msgstr ""
 
@@ -1136,23 +1144,23 @@ msgstr ""
 msgid "Cannot change to directory:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-folder.pl:194, cgi-bin/openwebmail/openwebmail-folder.pl:352, cgi-bin/openwebmail/openwebmail-folder.pl:470, cgi-bin/openwebmail/openwebmail-folder.pl:538, cgi-bin/openwebmail/openwebmail-main.pl:297, cgi-bin/openwebmail/openwebmail-main.pl:366, cgi-bin/openwebmail/openwebmail-main.pl:581, cgi-bin/openwebmail/openwebmail-prefs.pl:2999, cgi-bin/openwebmail/openwebmail-prefs.pl:3132, cgi-bin/openwebmail/openwebmail-prefs.pl:541, cgi-bin/openwebmail/openwebmail-read.pl:165, cgi-bin/openwebmail/openwebmail-read.pl:338, cgi-bin/openwebmail/openwebmail-read.pl:546, cgi-bin/openwebmail/openwebmail-send.pl:2068, cgi-bin/openwebmail/openwebmail-send.pl:2643, cgi-bin/openwebmail/shares/getmessage.pl:70, cgi-bin/openwebmail/shares/maildb.pl:137, cgi-bin/openwebmail/shares/maildb.pl:194, cgi-bin/openwebmail/shares/maildb.pl:198, cgi-bin/openwebmail/shares/maildb.pl:634, cgi-bin/openwebmail/shares/maildb.pl:639, cgi-bin/openwebmail/shares/maildb.pl:717, cgi-bin/openwebmail/shares/maildb.pl:756, cgi-bin/openwebmail/shares/maildb.pl:775, cgi-bin/openwebmail/shares/mailfilter.pl:920, cgi-bin/openwebmail/shares/ow-shared.pl:1300, cgi-bin/openwebmail/shares/ow-shared.pl:1303
+#: cgi-bin/openwebmail/openwebmail-folder.pl:194, cgi-bin/openwebmail/openwebmail-folder.pl:352, cgi-bin/openwebmail/openwebmail-folder.pl:470, cgi-bin/openwebmail/openwebmail-folder.pl:538, cgi-bin/openwebmail/openwebmail-main.pl:297, cgi-bin/openwebmail/openwebmail-main.pl:366, cgi-bin/openwebmail/openwebmail-main.pl:581, cgi-bin/openwebmail/openwebmail-prefs.pl:3001, cgi-bin/openwebmail/openwebmail-prefs.pl:3134, cgi-bin/openwebmail/openwebmail-prefs.pl:541, cgi-bin/openwebmail/openwebmail-read.pl:165, cgi-bin/openwebmail/openwebmail-read.pl:338, cgi-bin/openwebmail/openwebmail-read.pl:546, cgi-bin/openwebmail/openwebmail-send.pl:2068, cgi-bin/openwebmail/openwebmail-send.pl:2643, cgi-bin/openwebmail/shares/getmessage.pl:70, cgi-bin/openwebmail/shares/maildb.pl:137, cgi-bin/openwebmail/shares/maildb.pl:194, cgi-bin/openwebmail/shares/maildb.pl:198, cgi-bin/openwebmail/shares/maildb.pl:634, cgi-bin/openwebmail/shares/maildb.pl:639, cgi-bin/openwebmail/shares/maildb.pl:717, cgi-bin/openwebmail/shares/maildb.pl:756, cgi-bin/openwebmail/shares/maildb.pl:775, cgi-bin/openwebmail/shares/mailfilter.pl:920, cgi-bin/openwebmail/shares/ow-shared.pl:1312, cgi-bin/openwebmail/shares/ow-shared.pl:1315
 msgid "Cannot close db:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2959, cgi-bin/openwebmail/openwebmail-abook.pl:2979, cgi-bin/openwebmail/openwebmail-prefs.pl:1000, cgi-bin/openwebmail/openwebmail-prefs.pl:1009, cgi-bin/openwebmail/openwebmail-prefs.pl:258, cgi-bin/openwebmail/openwebmail-prefs.pl:336, cgi-bin/openwebmail/openwebmail-prefs.pl:445, cgi-bin/openwebmail/openwebmail-prefs.pl:454, cgi-bin/openwebmail/openwebmail-prefs.pl:463, cgi-bin/openwebmail/openwebmail-send.pl:1609, cgi-bin/openwebmail/openwebmail-send.pl:1673, cgi-bin/openwebmail/openwebmail-send.pl:2107, cgi-bin/openwebmail/openwebmail-webdisk.pl:2191, cgi-bin/openwebmail/openwebmail-webdisk.pl:364, cgi-bin/openwebmail/shares/ow-shared.pl:1008, cgi-bin/openwebmail/shares/ow-shared.pl:1605, cgi-bin/openwebmail/shares/ow-shared.pl:1622, cgi-bin/openwebmail/shares/ow-shared.pl:1687, cgi-bin/openwebmail/shares/ow-shared.pl:2400, cgi-bin/openwebmail/shares/ow-shared.pl:2483, cgi-bin/openwebmail/shares/ow-shared.pl:2517, cgi-bin/openwebmail/shares/ow-shared.pl:2537
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2959, cgi-bin/openwebmail/openwebmail-abook.pl:2979, cgi-bin/openwebmail/openwebmail-prefs.pl:1000, cgi-bin/openwebmail/openwebmail-prefs.pl:1009, cgi-bin/openwebmail/openwebmail-prefs.pl:258, cgi-bin/openwebmail/openwebmail-prefs.pl:336, cgi-bin/openwebmail/openwebmail-prefs.pl:445, cgi-bin/openwebmail/openwebmail-prefs.pl:454, cgi-bin/openwebmail/openwebmail-prefs.pl:463, cgi-bin/openwebmail/openwebmail-send.pl:1609, cgi-bin/openwebmail/openwebmail-send.pl:1673, cgi-bin/openwebmail/openwebmail-send.pl:2107, cgi-bin/openwebmail/openwebmail-webdisk.pl:2191, cgi-bin/openwebmail/openwebmail-webdisk.pl:364, cgi-bin/openwebmail/shares/ow-shared.pl:1011, cgi-bin/openwebmail/shares/ow-shared.pl:1617, cgi-bin/openwebmail/shares/ow-shared.pl:1634, cgi-bin/openwebmail/shares/ow-shared.pl:1699, cgi-bin/openwebmail/shares/ow-shared.pl:2412, cgi-bin/openwebmail/shares/ow-shared.pl:2495, cgi-bin/openwebmail/shares/ow-shared.pl:2529, cgi-bin/openwebmail/shares/ow-shared.pl:2549
 msgid "Cannot close directory:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1206, cgi-bin/openwebmail/openwebmail-abook.pl:1233, cgi-bin/openwebmail/openwebmail-abook.pl:2616, cgi-bin/openwebmail/openwebmail-abook.pl:2771, cgi-bin/openwebmail/openwebmail-abook.pl:2848, cgi-bin/openwebmail/openwebmail-abook.pl:2911, cgi-bin/openwebmail/openwebmail-abook.pl:3207, cgi-bin/openwebmail/openwebmail-abook.pl:3324, cgi-bin/openwebmail/openwebmail-abook.pl:3359, cgi-bin/openwebmail/openwebmail-abook.pl:3387, cgi-bin/openwebmail/openwebmail-abook.pl:3773, cgi-bin/openwebmail/openwebmail-abook.pl:3791, cgi-bin/openwebmail/openwebmail-abook.pl:4163, cgi-bin/openwebmail/openwebmail-advsearch.pl:494, cgi-bin/openwebmail/openwebmail-advsearch.pl:517, cgi-bin/openwebmail/openwebmail-advsearch.pl:695, cgi-bin/openwebmail/openwebmail-folder.pl:369, cgi-bin/openwebmail/openwebmail-folder.pl:529, cgi-bin/openwebmail/openwebmail-main.pl:156, cgi-bin/openwebmail/openwebmail-prefs.pl:1945, cgi-bin/openwebmail/openwebmail-prefs.pl:1969, cgi-bin/openwebmail/openwebmail-prefs.pl:1980, cgi-bin/openwebmail/openwebmail-prefs.pl:2038, cgi-bin/openwebmail/openwebmail-prefs.pl:2461, cgi-bin/openwebmail/openwebmail-prefs.pl:2584, cgi-bin/openwebmail/openwebmail-read.pl:1355, cgi-bin/openwebmail/openwebmail-send.pl:1001, cgi-bin/openwebmail/openwebmail-send.pl:1004, cgi-bin/openwebmail/openwebmail-send.pl:1591, cgi-bin/openwebmail/openwebmail-send.pl:1652, cgi-bin/openwebmail/openwebmail-send.pl:1692, cgi-bin/openwebmail/openwebmail-send.pl:2827, cgi-bin/openwebmail/openwebmail-send.pl:2905, cgi-bin/openwebmail/openwebmail-send.pl:2945, cgi-bin/openwebmail/openwebmail-viewatt.pl:449, cgi-bin/openwebmail/openwebmail-webdisk.pl:1254, cgi-bin/openwebmail/openwebmail-webdisk.pl:1883, cgi-bin/openwebmail/openwebmail-webdisk.pl:1899, cgi-bin/openwebmail/openwebmail-webdisk.pl:1945, cgi-bin/openwebmail/openwebmail-webdisk.pl:1961, cgi-bin/openwebmail/openwebmail-webdisk.pl:1996, cgi-bin/openwebmail/openwebmail-webdisk.pl:2146, cgi-bin/openwebmail/openwebmail-webdisk.pl:983, cgi-bin/openwebmail/shares/adrbook.pl:128, cgi-bin/openwebmail/shares/adrbook.pl:237, cgi-bin/openwebmail/shares/adrbook.pl:243, cgi-bin/openwebmail/shares/adrbook.pl:258, cgi-bin/openwebmail/shares/adrbook.pl:274, cgi-bin/openwebmail/shares/calbook.pl:115, cgi-bin/openwebmail/shares/calbook.pl:142, cgi-bin/openwebmail/shares/calbook.pl:94, cgi-bin/openwebmail/shares/filterbook.pl:116, cgi-bin/openwebmail/shares/filterbook.pl:144, cgi-bin/openwebmail/shares/maildb.pl:1802, cgi-bin/openwebmail/shares/maildb.pl:189, cgi-bin/openwebmail/shares/maildb.pl:621, cgi-bin/openwebmail/shares/ow-shared.pl:1040, cgi-bin/openwebmail/shares/ow-shared.pl:1295, cgi-bin/openwebmail/shares/ow-shared.pl:1852, cgi-bin/openwebmail/shares/ow-shared.pl:1894, cgi-bin/openwebmail/shares/ow-shared.pl:1910, cgi-bin/openwebmail/shares/ow-shared.pl:1921, cgi-bin/openwebmail/shares/statbook.pl:54, cgi-bin/openwebmail/shares/statbook.pl:82, cgi-bin/openwebmail/shares/upgrade.pl:695, cgi-bin/openwebmail/shares/upgrade.pl:705, cgi-bin/openwebmail/shares/upgrade.pl:732, cgi-bin/openwebmail/shares/upgrade.pl:746, cgi-bin/openwebmail/shares/vfile.pl:98
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1206, cgi-bin/openwebmail/openwebmail-abook.pl:1233, cgi-bin/openwebmail/openwebmail-abook.pl:2616, cgi-bin/openwebmail/openwebmail-abook.pl:2771, cgi-bin/openwebmail/openwebmail-abook.pl:2848, cgi-bin/openwebmail/openwebmail-abook.pl:2911, cgi-bin/openwebmail/openwebmail-abook.pl:3207, cgi-bin/openwebmail/openwebmail-abook.pl:3324, cgi-bin/openwebmail/openwebmail-abook.pl:3359, cgi-bin/openwebmail/openwebmail-abook.pl:3387, cgi-bin/openwebmail/openwebmail-abook.pl:3773, cgi-bin/openwebmail/openwebmail-abook.pl:3791, cgi-bin/openwebmail/openwebmail-abook.pl:4163, cgi-bin/openwebmail/openwebmail-advsearch.pl:494, cgi-bin/openwebmail/openwebmail-advsearch.pl:517, cgi-bin/openwebmail/openwebmail-advsearch.pl:695, cgi-bin/openwebmail/openwebmail-folder.pl:369, cgi-bin/openwebmail/openwebmail-folder.pl:529, cgi-bin/openwebmail/openwebmail-main.pl:156, cgi-bin/openwebmail/openwebmail-prefs.pl:1947, cgi-bin/openwebmail/openwebmail-prefs.pl:1971, cgi-bin/openwebmail/openwebmail-prefs.pl:1982, cgi-bin/openwebmail/openwebmail-prefs.pl:2040, cgi-bin/openwebmail/openwebmail-prefs.pl:2463, cgi-bin/openwebmail/openwebmail-prefs.pl:2586, cgi-bin/openwebmail/openwebmail-read.pl:1355, cgi-bin/openwebmail/openwebmail-send.pl:1001, cgi-bin/openwebmail/openwebmail-send.pl:1004, cgi-bin/openwebmail/openwebmail-send.pl:1591, cgi-bin/openwebmail/openwebmail-send.pl:1652, cgi-bin/openwebmail/openwebmail-send.pl:1692, cgi-bin/openwebmail/openwebmail-send.pl:2827, cgi-bin/openwebmail/openwebmail-send.pl:2905, cgi-bin/openwebmail/openwebmail-send.pl:2945, cgi-bin/openwebmail/openwebmail-viewatt.pl:449, cgi-bin/openwebmail/openwebmail-webdisk.pl:1254, cgi-bin/openwebmail/openwebmail-webdisk.pl:1883, cgi-bin/openwebmail/openwebmail-webdisk.pl:1899, cgi-bin/openwebmail/openwebmail-webdisk.pl:1945, cgi-bin/openwebmail/openwebmail-webdisk.pl:1961, cgi-bin/openwebmail/openwebmail-webdisk.pl:1996, cgi-bin/openwebmail/openwebmail-webdisk.pl:2146, cgi-bin/openwebmail/openwebmail-webdisk.pl:983, cgi-bin/openwebmail/shares/adrbook.pl:128, cgi-bin/openwebmail/shares/adrbook.pl:237, cgi-bin/openwebmail/shares/adrbook.pl:243, cgi-bin/openwebmail/shares/adrbook.pl:258, cgi-bin/openwebmail/shares/adrbook.pl:274, cgi-bin/openwebmail/shares/calbook.pl:115, cgi-bin/openwebmail/shares/calbook.pl:142, cgi-bin/openwebmail/shares/calbook.pl:94, cgi-bin/openwebmail/shares/filterbook.pl:116, cgi-bin/openwebmail/shares/filterbook.pl:144, cgi-bin/openwebmail/shares/maildb.pl:1804, cgi-bin/openwebmail/shares/maildb.pl:189, cgi-bin/openwebmail/shares/maildb.pl:621, cgi-bin/openwebmail/shares/ow-shared.pl:1043, cgi-bin/openwebmail/shares/ow-shared.pl:1307, cgi-bin/openwebmail/shares/ow-shared.pl:1864, cgi-bin/openwebmail/shares/ow-shared.pl:1906, cgi-bin/openwebmail/shares/ow-shared.pl:1922, cgi-bin/openwebmail/shares/ow-shared.pl:1933, cgi-bin/openwebmail/shares/statbook.pl:54, cgi-bin/openwebmail/shares/statbook.pl:82, cgi-bin/openwebmail/shares/upgrade.pl:746, cgi-bin/openwebmail/shares/upgrade.pl:756, cgi-bin/openwebmail/shares/upgrade.pl:783, cgi-bin/openwebmail/shares/upgrade.pl:797, cgi-bin/openwebmail/shares/vfile.pl:98
 msgid "Cannot close file:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-webdisk.pl:145, cgi-bin/openwebmail/openwebmail-webdisk.pl:959, cgi-bin/openwebmail/openwebmail.pl:408, cgi-bin/openwebmail/openwebmail.pl:422, cgi-bin/openwebmail/openwebmail.pl:437, cgi-bin/openwebmail/openwebmail.pl:494, cgi-bin/openwebmail/shares/ow-shared.pl:2289
+#: cgi-bin/openwebmail/openwebmail-webdisk.pl:145, cgi-bin/openwebmail/openwebmail-webdisk.pl:959, cgi-bin/openwebmail/openwebmail.pl:408, cgi-bin/openwebmail/openwebmail.pl:422, cgi-bin/openwebmail/openwebmail.pl:437, cgi-bin/openwebmail/openwebmail.pl:494, cgi-bin/openwebmail/shares/ow-shared.pl:2301
 msgid "Cannot create directory:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-folder.pl:376, cgi-bin/openwebmail/openwebmail-folder.pl:423, cgi-bin/openwebmail/openwebmail-folder.pl:556, cgi-bin/openwebmail/shares/maildb.pl:1805, cgi-bin/openwebmail/shares/maildb.pl:201, cgi-bin/openwebmail/shares/maildb.pl:642
+#: cgi-bin/openwebmail/openwebmail-folder.pl:376, cgi-bin/openwebmail/openwebmail-folder.pl:423, cgi-bin/openwebmail/openwebmail-folder.pl:556, cgi-bin/openwebmail/shares/maildb.pl:1807, cgi-bin/openwebmail/shares/maildb.pl:201, cgi-bin/openwebmail/shares/maildb.pl:642
 msgid "Cannot delete db:"
 msgstr ""
 
@@ -1160,7 +1168,7 @@ msgstr ""
 msgid "Cannot delete directory:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1448, cgi-bin/openwebmail/openwebmail-folder.pl:382, cgi-bin/openwebmail/openwebmail-folder.pl:429, cgi-bin/openwebmail/openwebmail-folder.pl:456, cgi-bin/openwebmail/openwebmail-folder.pl:552, cgi-bin/openwebmail/openwebmail-folder.pl:600, cgi-bin/openwebmail/openwebmail-prefs.pl:2875
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1448, cgi-bin/openwebmail/openwebmail-folder.pl:382, cgi-bin/openwebmail/openwebmail-folder.pl:429, cgi-bin/openwebmail/openwebmail-folder.pl:456, cgi-bin/openwebmail/openwebmail-folder.pl:552, cgi-bin/openwebmail/openwebmail-folder.pl:600, cgi-bin/openwebmail/openwebmail-prefs.pl:2877
 msgid "Cannot delete file:"
 msgstr ""
 
@@ -1180,7 +1188,7 @@ msgstr ""
 msgid "Cannot load vfile parser module:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1198, cgi-bin/openwebmail/openwebmail-abook.pl:1225, cgi-bin/openwebmail/openwebmail-abook.pl:1496, cgi-bin/openwebmail/openwebmail-abook.pl:2840, cgi-bin/openwebmail/openwebmail-abook.pl:3379, cgi-bin/openwebmail/openwebmail-abook.pl:3786, cgi-bin/openwebmail/openwebmail-advsearch.pl:469, cgi-bin/openwebmail/openwebmail-advsearch.pl:507, cgi-bin/openwebmail/openwebmail-folder.pl:303, cgi-bin/openwebmail/openwebmail-folder.pl:330, cgi-bin/openwebmail/openwebmail-folder.pl:372, cgi-bin/openwebmail/openwebmail-folder.pl:451, cgi-bin/openwebmail/openwebmail-folder.pl:625, cgi-bin/openwebmail/openwebmail-main.pl:1008, cgi-bin/openwebmail/openwebmail-main.pl:1023, cgi-bin/openwebmail/openwebmail-main.pl:1113, cgi-bin/openwebmail/openwebmail-main.pl:1299, cgi-bin/openwebmail/openwebmail-main.pl:1302, cgi-bin/openwebmail/openwebmail-main.pl:1349, cgi-bin/openwebmail/openwebmail-main.pl:936, cgi-bin/openwebmail/openwebmail-main.pl:959, cgi-bin/openwebmail/openwebmail-prefs.pl:2821, cgi-bin/openwebmail/openwebmail-prefs.pl:2852, cgi-bin/openwebmail/openwebmail-prefs.pl:3085, cgi-bin/openwebmail/openwebmail-read.pl:1237, cgi-bin/openwebmail/openwebmail-read.pl:1248, cgi-bin/openwebmail/openwebmail-read.pl:1483, cgi-bin/openwebmail/openwebmail-send.pl:2131, cgi-bin/openwebmail/openwebmail-send.pl:950, cgi-bin/openwebmail/openwebmail-viewatt.pl:444, cgi-bin/openwebmail/openwebmail-webdisk.pl:1180, cgi-bin/openwebmail/openwebmail-webdisk.pl:1249, cgi-bin/openwebmail/openwebmail-webdisk.pl:2475, cgi-bin/openwebmail/shares/adrbook.pl:120, cgi-bin/openwebmail/shares/adrbook.pl:159, cgi-bin/openwebmail/shares/adrbook.pl:165, cgi-bin/openwebmail/shares/adrbook.pl:250, cgi-bin/openwebmail/shares/adrbook.pl:266, cgi-bin/openwebmail/shares/calbook.pl:119, cgi-bin/openwebmail/shares/cut.pl:98, cgi-bin/openwebmail/shares/getmsgids.pl:115, cgi-bin/openwebmail/shares/getmsgids.pl:141, cgi-bin/openwebmail/shares/mailfilter.pl:113, cgi-bin/openwebmail/shares/mailfilter.pl:85, cgi-bin/openwebmail/shares/ow-shared.pl:1874, cgi-bin/openwebmail/shares/upgrade.pl:142, cgi-bin/openwebmail/shares/upgrade.pl:197, cgi-bin/openwebmail/shares/upgrade.pl:248, cgi-bin/openwebmail/shares/upgrade.pl:312, cgi-bin/openwebmail/shares/upgrade.pl:406, cgi-bin/openwebmail/shares/upgrade.pl:98, cgi-bin/openwebmail/shares/vfile.pl:80
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1198, cgi-bin/openwebmail/openwebmail-abook.pl:1225, cgi-bin/openwebmail/openwebmail-abook.pl:1496, cgi-bin/openwebmail/openwebmail-abook.pl:2840, cgi-bin/openwebmail/openwebmail-abook.pl:3379, cgi-bin/openwebmail/openwebmail-abook.pl:3786, cgi-bin/openwebmail/openwebmail-advsearch.pl:469, cgi-bin/openwebmail/openwebmail-advsearch.pl:507, cgi-bin/openwebmail/openwebmail-folder.pl:303, cgi-bin/openwebmail/openwebmail-folder.pl:330, cgi-bin/openwebmail/openwebmail-folder.pl:372, cgi-bin/openwebmail/openwebmail-folder.pl:451, cgi-bin/openwebmail/openwebmail-folder.pl:625, cgi-bin/openwebmail/openwebmail-main.pl:1008, cgi-bin/openwebmail/openwebmail-main.pl:1023, cgi-bin/openwebmail/openwebmail-main.pl:1113, cgi-bin/openwebmail/openwebmail-main.pl:1299, cgi-bin/openwebmail/openwebmail-main.pl:1302, cgi-bin/openwebmail/openwebmail-main.pl:1349, cgi-bin/openwebmail/openwebmail-main.pl:936, cgi-bin/openwebmail/openwebmail-main.pl:959, cgi-bin/openwebmail/openwebmail-prefs.pl:2823, cgi-bin/openwebmail/openwebmail-prefs.pl:2854, cgi-bin/openwebmail/openwebmail-prefs.pl:3087, cgi-bin/openwebmail/openwebmail-read.pl:1237, cgi-bin/openwebmail/openwebmail-read.pl:1248, cgi-bin/openwebmail/openwebmail-read.pl:1483, cgi-bin/openwebmail/openwebmail-send.pl:2131, cgi-bin/openwebmail/openwebmail-send.pl:950, cgi-bin/openwebmail/openwebmail-viewatt.pl:444, cgi-bin/openwebmail/openwebmail-webdisk.pl:1180, cgi-bin/openwebmail/openwebmail-webdisk.pl:1249, cgi-bin/openwebmail/openwebmail-webdisk.pl:2475, cgi-bin/openwebmail/shares/adrbook.pl:120, cgi-bin/openwebmail/shares/adrbook.pl:159, cgi-bin/openwebmail/shares/adrbook.pl:165, cgi-bin/openwebmail/shares/adrbook.pl:250, cgi-bin/openwebmail/shares/adrbook.pl:266, cgi-bin/openwebmail/shares/calbook.pl:119, cgi-bin/openwebmail/shares/cut.pl:98, cgi-bin/openwebmail/shares/getmsgids.pl:115, cgi-bin/openwebmail/shares/getmsgids.pl:141, cgi-bin/openwebmail/shares/mailfilter.pl:113, cgi-bin/openwebmail/shares/mailfilter.pl:85, cgi-bin/openwebmail/shares/ow-shared.pl:1886, cgi-bin/openwebmail/shares/upgrade.pl:142, cgi-bin/openwebmail/shares/upgrade.pl:197, cgi-bin/openwebmail/shares/upgrade.pl:248, cgi-bin/openwebmail/shares/upgrade.pl:312, cgi-bin/openwebmail/shares/upgrade.pl:406, cgi-bin/openwebmail/shares/upgrade.pl:98, cgi-bin/openwebmail/shares/vfile.pl:80
 msgid "Cannot lock file:"
 msgstr ""
 
@@ -1196,15 +1204,15 @@ msgstr ""
 msgid "Cannot open any of the following SMTP servers:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-advsearch.pl:565, cgi-bin/openwebmail/openwebmail-advsearch.pl:692, cgi-bin/openwebmail/openwebmail-folder.pl:188, cgi-bin/openwebmail/openwebmail-folder.pl:340, cgi-bin/openwebmail/openwebmail-folder.pl:464, cgi-bin/openwebmail/openwebmail-folder.pl:535, cgi-bin/openwebmail/openwebmail-main.pl:292, cgi-bin/openwebmail/openwebmail-main.pl:347, cgi-bin/openwebmail/openwebmail-main.pl:455, cgi-bin/openwebmail/openwebmail-prefs.pl:2912, cgi-bin/openwebmail/openwebmail-prefs.pl:3118, cgi-bin/openwebmail/openwebmail-prefs.pl:518, cgi-bin/openwebmail/openwebmail-read.pl:160, cgi-bin/openwebmail/openwebmail-read.pl:316, cgi-bin/openwebmail/openwebmail-read.pl:536, cgi-bin/openwebmail/openwebmail-send.pl:2057, cgi-bin/openwebmail/openwebmail-send.pl:2626, cgi-bin/openwebmail/openwebmail-send.pl:2680, cgi-bin/openwebmail/openwebmail-send.pl:2921, cgi-bin/openwebmail/shares/getmessage.pl:65, cgi-bin/openwebmail/shares/maildb.pl:120, cgi-bin/openwebmail/shares/maildb.pl:221, cgi-bin/openwebmail/shares/maildb.pl:228, cgi-bin/openwebmail/shares/maildb.pl:251, cgi-bin/openwebmail/shares/maildb.pl:254, cgi-bin/openwebmail/shares/maildb.pl:712, cgi-bin/openwebmail/shares/maildb.pl:743, cgi-bin/openwebmail/shares/maildb.pl:770, cgi-bin/openwebmail/shares/mailfilter.pl:903
+#: cgi-bin/openwebmail/openwebmail-advsearch.pl:565, cgi-bin/openwebmail/openwebmail-advsearch.pl:692, cgi-bin/openwebmail/openwebmail-folder.pl:188, cgi-bin/openwebmail/openwebmail-folder.pl:340, cgi-bin/openwebmail/openwebmail-folder.pl:464, cgi-bin/openwebmail/openwebmail-folder.pl:535, cgi-bin/openwebmail/openwebmail-main.pl:292, cgi-bin/openwebmail/openwebmail-main.pl:347, cgi-bin/openwebmail/openwebmail-main.pl:455, cgi-bin/openwebmail/openwebmail-prefs.pl:2914, cgi-bin/openwebmail/openwebmail-prefs.pl:3120, cgi-bin/openwebmail/openwebmail-prefs.pl:518, cgi-bin/openwebmail/openwebmail-read.pl:160, cgi-bin/openwebmail/openwebmail-read.pl:316, cgi-bin/openwebmail/openwebmail-read.pl:536, cgi-bin/openwebmail/openwebmail-send.pl:2057, cgi-bin/openwebmail/openwebmail-send.pl:2626, cgi-bin/openwebmail/openwebmail-send.pl:2680, cgi-bin/openwebmail/openwebmail-send.pl:2921, cgi-bin/openwebmail/shares/getmessage.pl:65, cgi-bin/openwebmail/shares/maildb.pl:120, cgi-bin/openwebmail/shares/maildb.pl:221, cgi-bin/openwebmail/shares/maildb.pl:228, cgi-bin/openwebmail/shares/maildb.pl:251, cgi-bin/openwebmail/shares/maildb.pl:254, cgi-bin/openwebmail/shares/maildb.pl:712, cgi-bin/openwebmail/shares/maildb.pl:743, cgi-bin/openwebmail/shares/maildb.pl:770, cgi-bin/openwebmail/shares/mailfilter.pl:903
 msgid "Cannot open db:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2954, cgi-bin/openwebmail/openwebmail-abook.pl:2974, cgi-bin/openwebmail/openwebmail-prefs.pl:1004, cgi-bin/openwebmail/openwebmail-prefs.pl:246, cgi-bin/openwebmail/openwebmail-prefs.pl:331, cgi-bin/openwebmail/openwebmail-prefs.pl:440, cgi-bin/openwebmail/openwebmail-prefs.pl:449, cgi-bin/openwebmail/openwebmail-prefs.pl:458, cgi-bin/openwebmail/openwebmail-prefs.pl:995, cgi-bin/openwebmail/openwebmail-read.pl:501, cgi-bin/openwebmail/openwebmail-send.pl:1604, cgi-bin/openwebmail/openwebmail-send.pl:1668, cgi-bin/openwebmail/openwebmail-send.pl:2096, cgi-bin/openwebmail/openwebmail-webdisk.pl:2186, cgi-bin/openwebmail/openwebmail-webdisk.pl:359, cgi-bin/openwebmail/openwebmail.pl:841, cgi-bin/openwebmail/shares/ow-shared.pl:1006, cgi-bin/openwebmail/shares/ow-shared.pl:1600, cgi-bin/openwebmail/shares/ow-shared.pl:1617, cgi-bin/openwebmail/shares/ow-shared.pl:1682, cgi-bin/openwebmail/shares/ow-shared.pl:2395, cgi-bin/openwebmail/shares/ow-shared.pl:2478, cgi-bin/openwebmail/shares/ow-shared.pl:2505, cgi-bin/openwebmail/shares/ow-shared.pl:2524, cgi-bin/openwebmail/shares/upgrade.pl:379
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2954, cgi-bin/openwebmail/openwebmail-abook.pl:2974, cgi-bin/openwebmail/openwebmail-prefs.pl:1004, cgi-bin/openwebmail/openwebmail-prefs.pl:246, cgi-bin/openwebmail/openwebmail-prefs.pl:331, cgi-bin/openwebmail/openwebmail-prefs.pl:440, cgi-bin/openwebmail/openwebmail-prefs.pl:449, cgi-bin/openwebmail/openwebmail-prefs.pl:458, cgi-bin/openwebmail/openwebmail-prefs.pl:995, cgi-bin/openwebmail/openwebmail-read.pl:501, cgi-bin/openwebmail/openwebmail-send.pl:1604, cgi-bin/openwebmail/openwebmail-send.pl:1668, cgi-bin/openwebmail/openwebmail-send.pl:2096, cgi-bin/openwebmail/openwebmail-webdisk.pl:2186, cgi-bin/openwebmail/openwebmail-webdisk.pl:359, cgi-bin/openwebmail/openwebmail.pl:841, cgi-bin/openwebmail/shares/ow-shared.pl:1009, cgi-bin/openwebmail/shares/ow-shared.pl:1612, cgi-bin/openwebmail/shares/ow-shared.pl:1629, cgi-bin/openwebmail/shares/ow-shared.pl:1694, cgi-bin/openwebmail/shares/ow-shared.pl:2407, cgi-bin/openwebmail/shares/ow-shared.pl:2490, cgi-bin/openwebmail/shares/ow-shared.pl:2517, cgi-bin/openwebmail/shares/ow-shared.pl:2536, cgi-bin/openwebmail/shares/upgrade.pl:379
 msgid "Cannot open directory:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1201, cgi-bin/openwebmail/openwebmail-abook.pl:1228, cgi-bin/openwebmail/openwebmail-abook.pl:1425, cgi-bin/openwebmail/openwebmail-abook.pl:2587, cgi-bin/openwebmail/openwebmail-abook.pl:2603, cgi-bin/openwebmail/openwebmail-abook.pl:2766, cgi-bin/openwebmail/openwebmail-abook.pl:2843, cgi-bin/openwebmail/openwebmail-abook.pl:2906, cgi-bin/openwebmail/openwebmail-abook.pl:3196, cgi-bin/openwebmail/openwebmail-abook.pl:3321, cgi-bin/openwebmail/openwebmail-abook.pl:3356, cgi-bin/openwebmail/openwebmail-abook.pl:3382, cgi-bin/openwebmail/openwebmail-abook.pl:3771, cgi-bin/openwebmail/openwebmail-abook.pl:3788, cgi-bin/openwebmail/openwebmail-abook.pl:4155, cgi-bin/openwebmail/openwebmail-advsearch.pl:472, cgi-bin/openwebmail/openwebmail-advsearch.pl:510, cgi-bin/openwebmail/openwebmail-advsearch.pl:568, cgi-bin/openwebmail/openwebmail-folder.pl:366, cgi-bin/openwebmail/openwebmail-folder.pl:526, cgi-bin/openwebmail/openwebmail-main.pl:1016, cgi-bin/openwebmail/openwebmail-main.pl:1275, cgi-bin/openwebmail/openwebmail-main.pl:1323, cgi-bin/openwebmail/openwebmail-main.pl:151, cgi-bin/openwebmail/openwebmail-prefs.pl:1941, cgi-bin/openwebmail/openwebmail-prefs.pl:1957, cgi-bin/openwebmail/openwebmail-prefs.pl:1975, cgi-bin/openwebmail/openwebmail-prefs.pl:2032, cgi-bin/openwebmail/openwebmail-prefs.pl:2435, cgi-bin/openwebmail/openwebmail-prefs.pl:2578, cgi-bin/openwebmail/openwebmail-read.pl:1349, cgi-bin/openwebmail/openwebmail-send.pl:1518, cgi-bin/openwebmail/openwebmail-send.pl:1567, cgi-bin/openwebmail/openwebmail-send.pl:1647, cgi-bin/openwebmail/openwebmail-send.pl:1689, cgi-bin/openwebmail/openwebmail-send.pl:2042, cgi-bin/openwebmail/openwebmail-send.pl:2126, cgi-bin/openwebmail/openwebmail-send.pl:2805, cgi-bin/openwebmail/openwebmail-send.pl:2885, cgi-bin/openwebmail/openwebmail-send.pl:2934, cgi-bin/openwebmail/openwebmail-send.pl:974, cgi-bin/openwebmail/openwebmail-send.pl:983, cgi-bin/openwebmail/openwebmail-viewatt.pl:369, cgi-bin/openwebmail/openwebmail-viewatt.pl:441, cgi-bin/openwebmail/openwebmail-webdisk.pl:1189, cgi-bin/openwebmail/openwebmail-webdisk.pl:1246, cgi-bin/openwebmail/openwebmail-webdisk.pl:1863, cgi-bin/openwebmail/openwebmail-webdisk.pl:1917, cgi-bin/openwebmail/openwebmail-webdisk.pl:1988, cgi-bin/openwebmail/openwebmail-webdisk.pl:2132, cgi-bin/openwebmail/openwebmail-webdisk.pl:2478, cgi-bin/openwebmail/openwebmail-webdisk.pl:2552, cgi-bin/openwebmail/openwebmail-webdisk.pl:2557, cgi-bin/openwebmail/openwebmail-webdisk.pl:2565, cgi-bin/openwebmail/openwebmail-webdisk.pl:2570, cgi-bin/openwebmail/openwebmail-webdisk.pl:2574, cgi-bin/openwebmail/openwebmail-webdisk.pl:2584, cgi-bin/openwebmail/openwebmail-webdisk.pl:978, cgi-bin/openwebmail/openwebmail.pl:123, cgi-bin/openwebmail/openwebmail.pl:311, cgi-bin/openwebmail/openwebmail.pl:506, cgi-bin/openwebmail/openwebmail.pl:523, cgi-bin/openwebmail/shares/adrbook.pl:123, cgi-bin/openwebmail/shares/adrbook.pl:162, cgi-bin/openwebmail/shares/adrbook.pl:168, cgi-bin/openwebmail/shares/adrbook.pl:253, cgi-bin/openwebmail/shares/adrbook.pl:269, cgi-bin/openwebmail/shares/calbook.pl:112, cgi-bin/openwebmail/shares/calbook.pl:122, cgi-bin/openwebmail/shares/calbook.pl:58, cgi-bin/openwebmail/shares/filterbook.pl:128, cgi-bin/openwebmail/shares/filterbook.pl:98, cgi-bin/openwebmail/shares/getmsgids.pl:144, cgi-bin/openwebmail/shares/getmsgids.pl:225, cgi-bin/openwebmail/shares/getmsgids.pl:410, cgi-bin/openwebmail/shares/getmsgids.pl:419, cgi-bin/openwebmail/shares/getmsgids.pl:477, cgi-bin/openwebmail/shares/getmsgids.pl:504, cgi-bin/openwebmail/shares/getmsgids.pl:536, cgi-bin/openwebmail/shares/maildb.pl:178, cgi-bin/openwebmail/shares/maildb.pl:1799, cgi-bin/openwebmail/shares/maildb.pl:214, cgi-bin/openwebmail/shares/mailfilter.pl:105, cgi-bin/openwebmail/shares/mailfilter.pl:89, cgi-bin/openwebmail/shares/ow-shared.pl:1025, cgi-bin/openwebmail/shares/ow-shared.pl:1052, cgi-bin/openwebmail/shares/ow-shared.pl:1221, cgi-bin/openwebmail/shares/ow-shared.pl:1276, cgi-bin/openwebmail/shares/ow-shared.pl:1845, cgi-bin/openwebmail/shares/ow-shared.pl:1881, cgi-bin/openwebmail/shares/ow-shared.pl:1897, cgi-bin/openwebmail/shares/ow-shared.pl:1902, cgi-bin/openwebmail/shares/ow-shared.pl:1916, cgi-bin/openwebmail/shares/ow-shared.pl:864, cgi-bin/openwebmail/shares/statbook.pl:56, cgi-bin/openwebmail/shares/statbook.pl:84, cgi-bin/openwebmail/shares/upgrade.pl:101, cgi-bin/openwebmail/shares/upgrade.pl:126, cgi-bin/openwebmail/shares/upgrade.pl:145, cgi-bin/openwebmail/shares/upgrade.pl:180, cgi-bin/openwebmail/shares/upgrade.pl:200, cgi-bin/openwebmail/shares/upgrade.pl:215, cgi-bin/openwebmail/shares/upgrade.pl:251, cgi-bin/openwebmail/shares/upgrade.pl:281, cgi-bin/openwebmail/shares/upgrade.pl:315, cgi-bin/openwebmail/shares/upgrade.pl:344, cgi-bin/openwebmail/shares/upgrade.pl:409, cgi-bin/openwebmail/shares/upgrade.pl:431, cgi-bin/openwebmail/shares/upgrade.pl:474, cgi-bin/openwebmail/shares/upgrade.pl:486, cgi-bin/openwebmail/shares/upgrade.pl:502, cgi-bin/openwebmail/shares/upgrade.pl:514, cgi-bin/openwebmail/shares/upgrade.pl:530, cgi-bin/openwebmail/shares/upgrade.pl:542, cgi-bin/openwebmail/shares/upgrade.pl:561, cgi-bin/openwebmail/shares/upgrade.pl:630, cgi-bin/openwebmail/shares/upgrade.pl:652, cgi-bin/openwebmail/shares/upgrade.pl:683, cgi-bin/openwebmail/shares/upgrade.pl:699, cgi-bin/openwebmail/shares/upgrade.pl:725, cgi-bin/openwebmail/shares/upgrade.pl:741, cgi-bin/openwebmail/shares/upgrade.pl:764, cgi-bin/openwebmail/shares/vfile.pl:83
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1201, cgi-bin/openwebmail/openwebmail-abook.pl:1228, cgi-bin/openwebmail/openwebmail-abook.pl:1425, cgi-bin/openwebmail/openwebmail-abook.pl:2587, cgi-bin/openwebmail/openwebmail-abook.pl:2603, cgi-bin/openwebmail/openwebmail-abook.pl:2766, cgi-bin/openwebmail/openwebmail-abook.pl:2843, cgi-bin/openwebmail/openwebmail-abook.pl:2906, cgi-bin/openwebmail/openwebmail-abook.pl:3196, cgi-bin/openwebmail/openwebmail-abook.pl:3321, cgi-bin/openwebmail/openwebmail-abook.pl:3356, cgi-bin/openwebmail/openwebmail-abook.pl:3382, cgi-bin/openwebmail/openwebmail-abook.pl:3771, cgi-bin/openwebmail/openwebmail-abook.pl:3788, cgi-bin/openwebmail/openwebmail-abook.pl:4155, cgi-bin/openwebmail/openwebmail-advsearch.pl:472, cgi-bin/openwebmail/openwebmail-advsearch.pl:510, cgi-bin/openwebmail/openwebmail-advsearch.pl:568, cgi-bin/openwebmail/openwebmail-folder.pl:366, cgi-bin/openwebmail/openwebmail-folder.pl:526, cgi-bin/openwebmail/openwebmail-main.pl:1016, cgi-bin/openwebmail/openwebmail-main.pl:1275, cgi-bin/openwebmail/openwebmail-main.pl:1323, cgi-bin/openwebmail/openwebmail-main.pl:151, cgi-bin/openwebmail/openwebmail-prefs.pl:1943, cgi-bin/openwebmail/openwebmail-prefs.pl:1959, cgi-bin/openwebmail/openwebmail-prefs.pl:1977, cgi-bin/openwebmail/openwebmail-prefs.pl:2034, cgi-bin/openwebmail/openwebmail-prefs.pl:2437, cgi-bin/openwebmail/openwebmail-prefs.pl:2580, cgi-bin/openwebmail/openwebmail-read.pl:1349, cgi-bin/openwebmail/openwebmail-send.pl:1518, cgi-bin/openwebmail/openwebmail-send.pl:1567, cgi-bin/openwebmail/openwebmail-send.pl:1647, cgi-bin/openwebmail/openwebmail-send.pl:1689, cgi-bin/openwebmail/openwebmail-send.pl:2042, cgi-bin/openwebmail/openwebmail-send.pl:2126, cgi-bin/openwebmail/openwebmail-send.pl:2805, cgi-bin/openwebmail/openwebmail-send.pl:2885, cgi-bin/openwebmail/openwebmail-send.pl:2934, cgi-bin/openwebmail/openwebmail-send.pl:974, cgi-bin/openwebmail/openwebmail-send.pl:983, cgi-bin/openwebmail/openwebmail-viewatt.pl:369, cgi-bin/openwebmail/openwebmail-viewatt.pl:441, cgi-bin/openwebmail/openwebmail-webdisk.pl:1189, cgi-bin/openwebmail/openwebmail-webdisk.pl:1246, cgi-bin/openwebmail/openwebmail-webdisk.pl:1863, cgi-bin/openwebmail/openwebmail-webdisk.pl:1917, cgi-bin/openwebmail/openwebmail-webdisk.pl:1988, cgi-bin/openwebmail/openwebmail-webdisk.pl:2132, cgi-bin/openwebmail/openwebmail-webdisk.pl:2478, cgi-bin/openwebmail/openwebmail-webdisk.pl:2552, cgi-bin/openwebmail/openwebmail-webdisk.pl:2557, cgi-bin/openwebmail/openwebmail-webdisk.pl:2565, cgi-bin/openwebmail/openwebmail-webdisk.pl:2570, cgi-bin/openwebmail/openwebmail-webdisk.pl:2574, cgi-bin/openwebmail/openwebmail-webdisk.pl:2584, cgi-bin/openwebmail/openwebmail-webdisk.pl:978, cgi-bin/openwebmail/openwebmail.pl:123, cgi-bin/openwebmail/openwebmail.pl:311, cgi-bin/openwebmail/openwebmail.pl:506, cgi-bin/openwebmail/openwebmail.pl:523, cgi-bin/openwebmail/shares/adrbook.pl:123, cgi-bin/openwebmail/shares/adrbook.pl:162, cgi-bin/openwebmail/shares/adrbook.pl:168, cgi-bin/openwebmail/shares/adrbook.pl:253, cgi-bin/openwebmail/shares/adrbook.pl:269, cgi-bin/openwebmail/shares/calbook.pl:112, cgi-bin/openwebmail/shares/calbook.pl:122, cgi-bin/openwebmail/shares/calbook.pl:58, cgi-bin/openwebmail/shares/filterbook.pl:128, cgi-bin/openwebmail/shares/filterbook.pl:98, cgi-bin/openwebmail/shares/getmsgids.pl:144, cgi-bin/openwebmail/shares/getmsgids.pl:225, cgi-bin/openwebmail/shares/getmsgids.pl:410, cgi-bin/openwebmail/shares/getmsgids.pl:419, cgi-bin/openwebmail/shares/getmsgids.pl:477, cgi-bin/openwebmail/shares/getmsgids.pl:504, cgi-bin/openwebmail/shares/getmsgids.pl:536, cgi-bin/openwebmail/shares/maildb.pl:178, cgi-bin/openwebmail/shares/maildb.pl:1801, cgi-bin/openwebmail/shares/maildb.pl:214, cgi-bin/openwebmail/shares/mailfilter.pl:105, cgi-bin/openwebmail/shares/mailfilter.pl:89, cgi-bin/openwebmail/shares/ow-shared.pl:1028, cgi-bin/openwebmail/shares/ow-shared.pl:1055, cgi-bin/openwebmail/shares/ow-shared.pl:1233, cgi-bin/openwebmail/shares/ow-shared.pl:1288, cgi-bin/openwebmail/shares/ow-shared.pl:1857, cgi-bin/openwebmail/shares/ow-shared.pl:1893, cgi-bin/openwebmail/shares/ow-shared.pl:1909, cgi-bin/openwebmail/shares/ow-shared.pl:1914, cgi-bin/openwebmail/shares/ow-shared.pl:1928, cgi-bin/openwebmail/shares/ow-shared.pl:867, cgi-bin/openwebmail/shares/statbook.pl:56, cgi-bin/openwebmail/shares/statbook.pl:84, cgi-bin/openwebmail/shares/upgrade.pl:101, cgi-bin/openwebmail/shares/upgrade.pl:126, cgi-bin/openwebmail/shares/upgrade.pl:145, cgi-bin/openwebmail/shares/upgrade.pl:180, cgi-bin/openwebmail/shares/upgrade.pl:200, cgi-bin/openwebmail/shares/upgrade.pl:215, cgi-bin/openwebmail/shares/upgrade.pl:251, cgi-bin/openwebmail/shares/upgrade.pl:281, cgi-bin/openwebmail/shares/upgrade.pl:315, cgi-bin/openwebmail/shares/upgrade.pl:344, cgi-bin/openwebmail/shares/upgrade.pl:409, cgi-bin/openwebmail/shares/upgrade.pl:431, cgi-bin/openwebmail/shares/upgrade.pl:474, cgi-bin/openwebmail/shares/upgrade.pl:486, cgi-bin/openwebmail/shares/upgrade.pl:502, cgi-bin/openwebmail/shares/upgrade.pl:514, cgi-bin/openwebmail/shares/upgrade.pl:530, cgi-bin/openwebmail/shares/upgrade.pl:542, cgi-bin/openwebmail/shares/upgrade.pl:561, cgi-bin/openwebmail/shares/upgrade.pl:630, cgi-bin/openwebmail/shares/upgrade.pl:652, cgi-bin/openwebmail/shares/upgrade.pl:734, cgi-bin/openwebmail/shares/upgrade.pl:750, cgi-bin/openwebmail/shares/upgrade.pl:776, cgi-bin/openwebmail/shares/upgrade.pl:792, cgi-bin/openwebmail/shares/upgrade.pl:815, cgi-bin/openwebmail/shares/vfile.pl:83
 msgid "Cannot open file:"
 msgstr ""
 
@@ -1216,7 +1224,7 @@ msgstr ""
 msgid "Cannot read directory:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2595, cgi-bin/openwebmail/openwebmail-prefs.pl:2689, cgi-bin/openwebmail/openwebmail-webdisk.pl:1358, cgi-bin/openwebmail/openwebmail-webdisk.pl:1635
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2597, cgi-bin/openwebmail/openwebmail-prefs.pl:2691, cgi-bin/openwebmail/openwebmail-webdisk.pl:1358, cgi-bin/openwebmail/openwebmail-webdisk.pl:1635
 msgid "Cannot read file:"
 msgstr ""
 
@@ -1256,7 +1264,7 @@ msgstr ""
 msgid "Cannot update index db:"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1204
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1216
 msgid "Cannot update timestamp on file:"
 msgstr ""
 
@@ -1264,7 +1272,7 @@ msgstr ""
 msgid "Cannot write calendar file:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:1120, cgi-bin/openwebmail/openwebmail-prefs.pl:2713
+#: cgi-bin/openwebmail/openwebmail-main.pl:1120, cgi-bin/openwebmail/openwebmail-prefs.pl:2715
 msgid "Cannot write file:"
 msgstr ""
 
@@ -1668,11 +1676,11 @@ msgstr ""
 msgid "Dayview <tmpl_var monthname> <tmpl_var day> <tmpl_var current_year>"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:75
+#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:75, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:75
 msgid "Dayview <tmpl_var nextday_dayname escape=\"html\"> <tmpl_var nextday_monthname escape=\"html\"> <tmpl_var nextday_day> <tmpl_var nextday_year>"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:71
+#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:71, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:71
 msgid "Dayview <tmpl_var prevday_dayname escape=\"html\"> <tmpl_var prevday_monthname escape=\"html\"> <tmpl_var prevday_day> <tmpl_var prevday_year>"
 msgstr ""
 
@@ -1728,7 +1736,7 @@ msgstr ""
 msgid "Delete <tmpl_var filename escape=\"js\">?"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1770, cgi-bin/openwebmail/openwebmail-prefs.pl:1781
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1772, cgi-bin/openwebmail/openwebmail-prefs.pl:1783
 msgid "Delete at logout"
 msgstr ""
 
@@ -1808,7 +1816,7 @@ msgstr ""
 msgid "Disabled"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:1138, cgi-bin/openwebmail/openwebmail-prefs.pl:2701
+#: cgi-bin/openwebmail/openwebmail-main.pl:1138, cgi-bin/openwebmail/openwebmail-prefs.pl:2703
 msgid "Disallowed POP3 server:"
 msgstr ""
 
@@ -2202,7 +2210,7 @@ msgstr ""
 msgid "File created:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2583, cgi-bin/openwebmail/openwebmail-main.pl:1002, cgi-bin/openwebmail/openwebmail-prefs.pl:1954, cgi-bin/openwebmail/openwebmail-send.pl:1512, cgi-bin/openwebmail/openwebmail-webdisk.pl:1003, cgi-bin/openwebmail/openwebmail-webdisk.pl:1064, cgi-bin/openwebmail/openwebmail-webdisk.pl:1117, cgi-bin/openwebmail/openwebmail-webdisk.pl:1450, cgi-bin/openwebmail/openwebmail-webdisk.pl:1565, cgi-bin/openwebmail/openwebmail-webdisk.pl:1634, cgi-bin/openwebmail/shares/adrbook.pl:67, cgi-bin/openwebmail/shares/upgrade.pl:680
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2583, cgi-bin/openwebmail/openwebmail-main.pl:1002, cgi-bin/openwebmail/openwebmail-prefs.pl:1956, cgi-bin/openwebmail/openwebmail-send.pl:1512, cgi-bin/openwebmail/openwebmail-webdisk.pl:1003, cgi-bin/openwebmail/openwebmail-webdisk.pl:1064, cgi-bin/openwebmail/openwebmail-webdisk.pl:1117, cgi-bin/openwebmail/openwebmail-webdisk.pl:1450, cgi-bin/openwebmail/openwebmail-webdisk.pl:1565, cgi-bin/openwebmail/openwebmail-webdisk.pl:1634, cgi-bin/openwebmail/shares/adrbook.pl:67, cgi-bin/openwebmail/shares/upgrade.pl:731
 msgid "File does not exist:"
 msgstr ""
 
@@ -2312,7 +2320,7 @@ msgstr[1] ""
 msgid "Font size:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1771, cgi-bin/openwebmail/openwebmail-prefs.pl:1782
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1773, cgi-bin/openwebmail/openwebmail-prefs.pl:1784
 msgid "Forever"
 msgstr ""
 
@@ -2607,7 +2615,7 @@ msgstr ""
 msgid "Height"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/error.tmpl:30, data/openwebmail/layouts/classic/templates/footer.tmpl:4
+#: data/openwebmail/layouts/classic/templates/shared_error.tmpl:30, data/openwebmail/layouts/classic/templates/shared_footer.tmpl:4
 msgid "Help?"
 msgstr ""
 
@@ -2695,11 +2703,11 @@ msgstr ""
 msgid "Illegal characters in folder name:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1822
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1824
 msgid "Illegal characters in forward email address."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:470, cgi-bin/openwebmail/shares/ow-shared.pl:620
+#: cgi-bin/openwebmail/openwebmail.pl:470, cgi-bin/openwebmail/shares/ow-shared.pl:623
 msgid "Illegal characters in session id:"
 msgstr ""
 
@@ -2833,7 +2841,7 @@ msgstr ""
 msgid "Invalid export format:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1962, cgi-bin/openwebmail/shares/upgrade.pl:688
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1964, cgi-bin/openwebmail/shares/upgrade.pl:739
 msgid "Invalid file format."
 msgstr ""
 
@@ -2849,11 +2857,11 @@ msgstr ""
 msgid "Invalid longitude format."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/maildb.pl:1044
+#: cgi-bin/openwebmail/shares/maildb.pl:1046
 msgid "Invalid message operation:"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:860
+#: cgi-bin/openwebmail/shares/ow-shared.pl:863
 msgid "Invalid path for configuation file:"
 msgstr ""
 
@@ -2977,7 +2985,7 @@ msgstr ""
 msgid "June"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2205
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2217
 msgid "KB"
 msgstr ""
 
@@ -3086,7 +3094,7 @@ msgid "Lao"
 msgstr ""
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:872
-msgid "Lao People's Democratic Republic"
+msgid "Laos"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:196, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:250, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:172, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:157, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:167, data/openwebmail/layouts/classic/templates/prefs.tmpl:912, data/openwebmail/layouts/classic/templates/prefs.tmpl:926, data/openwebmail/layouts/classic/templates/prefs.tmpl:940, data/openwebmail/layouts/classic/templates/prefs.tmpl:954, data/openwebmail/layouts/classic/templates/prefs.tmpl:968
@@ -3165,11 +3173,11 @@ msgstr ""
 msgid "Lingala"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:61, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:61
+#: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:61, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:61, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:61
 msgid "List <tmpl_var next_year escape=\"html\">"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:59, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:59
+#: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:59, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:59, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:59
 msgid "List <tmpl_var prev_year escape=\"html\">"
 msgstr ""
 
@@ -3217,7 +3225,7 @@ msgstr ""
 msgid "Login Again"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1187, cgi-bin/openwebmail/shares/ow-shared.pl:1193, cgi-bin/openwebmail/shares/ow-shared.pl:1216
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1199, cgi-bin/openwebmail/shares/ow-shared.pl:1205, cgi-bin/openwebmail/shares/ow-shared.pl:1228
 msgid "Login again?"
 msgstr ""
 
@@ -3277,7 +3285,7 @@ msgstr ""
 msgid "Luxembourgish"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2203
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2215
 msgid "MB"
 msgstr ""
 
@@ -3409,7 +3417,7 @@ msgstr ""
 msgid "Mauritius"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1513, cgi-bin/openwebmail/openwebmail-prefs.pl:1523
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1515, cgi-bin/openwebmail/openwebmail-prefs.pl:1525
 msgid "Maximum"
 msgstr ""
 
@@ -3601,11 +3609,11 @@ msgstr ""
 msgid "Monthview <tmpl_var monthname> <tmpl_var year>"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:66, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:66
+#: data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:66, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:66, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:66
 msgid "Monthview <tmpl_var nextmonth_monthname escape=\"html\"> <tmpl_var nextmonth_year>"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:64, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:64
+#: data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:64, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:64, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:64
 msgid "Monthview <tmpl_var prevmonth_monthname escape=\"html\"> <tmpl_var prevmonth_year>"
 msgstr ""
 
@@ -3909,7 +3917,7 @@ msgstr ""
 msgid "Non-Urgent"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1616, cgi-bin/openwebmail/openwebmail-prefs.pl:1719, cgi-bin/openwebmail/openwebmail-prefs.pl:1737, data/openwebmail/layouts/classic/templates/prefs.tmpl:1089, data/openwebmail/layouts/classic/templates/prefs.tmpl:917, data/openwebmail/layouts/classic/templates/prefs.tmpl:931, data/openwebmail/layouts/classic/templates/prefs.tmpl:945, data/openwebmail/layouts/classic/templates/prefs.tmpl:959, data/openwebmail/layouts/classic/templates/prefs.tmpl:973
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1618, cgi-bin/openwebmail/openwebmail-prefs.pl:1721, cgi-bin/openwebmail/openwebmail-prefs.pl:1739, data/openwebmail/layouts/classic/templates/prefs.tmpl:1089, data/openwebmail/layouts/classic/templates/prefs.tmpl:917, data/openwebmail/layouts/classic/templates/prefs.tmpl:931, data/openwebmail/layouts/classic/templates/prefs.tmpl:945, data/openwebmail/layouts/classic/templates/prefs.tmpl:959, data/openwebmail/layouts/classic/templates/prefs.tmpl:973
 msgid "None"
 msgstr ""
 
@@ -4145,37 +4153,37 @@ msgstr ""
 msgid "Password Changed"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2329
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2331
 msgid "Password change failed: authentication system error."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2327
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2329
 msgid "Password change failed: function not supported."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2330, cgi-bin/openwebmail/openwebmail-prefs.pl:2332
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2332, cgi-bin/openwebmail/openwebmail-prefs.pl:2334
 msgid "Password change failed: incorrect user name or password."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2328
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2330
 msgid "Password change failed: parameter format error."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2299
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2301
 msgid "Password change failed: password is shorter than the required minimum length of %d character."
 msgid_plural "Password change failed: password is shorter than the required minimum length of %d characters."
 msgstr[0] ""
 msgstr[1] ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2331
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2333
 msgid "Password change failed: unknown error code:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2304
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2306
 msgid "Password changed failed: new password confirm mismatch."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2302
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2304
 msgid "Password changed failed: password requires both alpha and numeric characters."
 msgstr ""
 
@@ -4307,7 +4315,7 @@ msgstr ""
 msgid "Please try again later. The indexing process has not yet completed for folder:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2573, cgi-bin/openwebmail/openwebmail-prefs.pl:2698, cgi-bin/openwebmail/openwebmail-prefs.pl:3081
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2575, cgi-bin/openwebmail/openwebmail-prefs.pl:2700, cgi-bin/openwebmail/openwebmail-prefs.pl:3083
 msgid "Please try again."
 msgstr ""
 
@@ -4435,11 +4443,11 @@ msgstr ""
 msgid "Quota limit exceeded. Please delete some messages or webdisk files to free disk space."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:711
+#: cgi-bin/openwebmail/shares/ow-shared.pl:714
 msgid "Quota system error."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:708
+#: cgi-bin/openwebmail/shares/ow-shared.pl:711
 msgid "Quota usage limit parameter format error."
 msgstr ""
 
@@ -4539,15 +4547,15 @@ msgstr ""
 msgid "Result Lines:"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:29, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:29
+#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:29, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:29, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:29
 msgid "Return to <tmpl_var current_monthname escape=\"html\"> <tmpl_var current_day> <tmpl_var current_year>"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:28, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:28
+#: data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:28, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:28, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:28
 msgid "Return to <tmpl_var current_monthname escape=\"html\"> <tmpl_var year>"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:27, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:27
+#: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:27, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:27, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:27
 msgid "Return to List <tmpl_var current_year>"
 msgstr ""
 
@@ -4555,7 +4563,11 @@ msgstr ""
 msgid "Return to Week <tmpl_var currentweekofyear>: <tmpl_var currentweekstart_monthname escape=\"html\"> <tmpl_var currentweekstart_day> <tmpl_var currentweekstart_year> - <tmpl_var currentweekstop_monthname escape=\"html\"> <tmpl_var currentweekstop_day> <tmpl_var currentweekstop_year>"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:28, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:28
+#: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:27
+msgid "Return to Week <tmpl_var currentweekofyear>: <tmpl_var currentweekstart_monthname escape=\"html\"> <tmpl_var currentweekstart_day> <tmpl_var currentweekstart_year> - <tmpl_varcurrentweekstop_monthname escape=\"html\"> <tmpl_var currentweekstop_day> <tmpl_var currentweekstop_year>"
+msgstr ""
+
+#: data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:28, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:28, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:28
 msgid "Return to Year <tmpl_var current_year>"
 msgstr ""
 
@@ -4583,12 +4595,12 @@ msgstr ""
 msgid "Rundi"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:693
-msgid "Russian"
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:934
+msgid "Russia"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:934
-msgid "Russian Federation"
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:693
+msgid "Russian"
 msgstr ""
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:935
@@ -4815,11 +4827,11 @@ msgstr ""
 msgid "Service is not available for user@domain:"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1216
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1228
 msgid "Session ID does not exist:"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/sessiontimeout.tmpl:6
+#: data/openwebmail/layouts/classic/templates/shared_sessiontimeout.tmpl:6
 msgid "Session Timeout"
 msgstr ""
 
@@ -4831,7 +4843,7 @@ msgstr ""
 msgid "Sessions"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail.pl:481, cgi-bin/openwebmail/shares/ow-shared.pl:690
+#: cgi-bin/openwebmail/openwebmail.pl:481, cgi-bin/openwebmail/shares/ow-shared.pl:693
 msgid "Setting effective group id to \"mail\" failed:"
 msgstr ""
 
@@ -4951,7 +4963,7 @@ msgstr ""
 msgid "Somalia"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:655
+#: cgi-bin/openwebmail/shares/ow-shared.pl:658
 msgid "Sorry, root login is disabled for security."
 msgstr ""
 
@@ -4963,11 +4975,11 @@ msgstr ""
 msgid "Sorry, your browser is not able to support HTML composing."
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/sessiontimeout.tmpl:9
+#: data/openwebmail/layouts/classic/templates/shared_sessiontimeout.tmpl:9
 msgid "Sorry, your session appears to have timed out.<br>Please go back and <a href=\"<tmpl_var start_url escape=\"none\">\">login</a>."
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/footer.tmpl:51
+#: data/openwebmail/layouts/classic/templates/shared_footer.tmpl:51
 msgid "Sorry, your session has timed out. Please login again."
 msgstr ""
 
@@ -5231,7 +5243,7 @@ msgstr ""
 msgid "The HTML data will be lost after the conversion, are you sure you want to change to Text mode?"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:602
+#: cgi-bin/openwebmail/shares/ow-shared.pl:605
 msgid "The SMTP username or password are not properly defined:"
 msgstr ""
 
@@ -5294,15 +5306,15 @@ msgstr ""
 msgid "The birthday year must be a number between 1 and 9999."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:3081
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:3083
 msgid "The book of filters is larger than the maximum allowed size."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2573
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2575
 msgid "The book of from addresses is larger than the maximum allowed size."
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2698
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2700
 msgid "The book of pop3 addresses is larger than the maximum allowed size."
 msgstr ""
 
@@ -5312,14 +5324,6 @@ msgstr ""
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3163
 msgid "The chosen import format is unsupported. Please go back and chose a different one:"
-msgstr ""
-
-#: cgi-bin/openwebmail/shares/vcard.pl:392
-msgid "The contact property FN is required and does not exist."
-msgstr ""
-
-#: cgi-bin/openwebmail/shares/vcard.pl:391
-msgid "The contact property N is required and does not exist."
 msgstr ""
 
 #: cgi-bin/openwebmail/shares/vcard.pl:1038
@@ -5358,6 +5362,10 @@ msgstr ""
 msgid "The following script must be setuid root to read the mail spools:"
 msgstr ""
 
+#: cgi-bin/openwebmail/shares/vcard.pl:392
+msgid "The full name of the contact is required and does not exist."
+msgstr ""
+
 #: data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:400
 msgid "The group name must be defined."
 msgstr ""
@@ -5378,6 +5386,10 @@ msgstr ""
 msgid "The import file size exceeds the import file size limit:"
 msgstr ""
 
+#: cgi-bin/openwebmail/shares/vcard.pl:391
+msgid "The name of the contact is required and does not exist."
+msgstr ""
+
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1895
 msgid "The nextdays value must be numeric."
 msgstr ""
@@ -5394,7 +5406,7 @@ msgstr ""
 msgid "The recipients list could not be validated. Please check the recipients and try again."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2095
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2107
 msgid "The requested file or directory is outside of the webdisk system and cannot be accessed."
 msgstr ""
 
@@ -5402,11 +5414,11 @@ msgstr ""
 msgid "The requested operation can only be performed on one file or directory at a time:"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1145
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1148
 msgid "The requested template file does not exist:"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1424
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1426
 msgid "The same as composing character set"
 msgstr ""
 
@@ -5414,7 +5426,7 @@ msgstr ""
 msgid "The search start date is after the search end date."
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2087
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2099
 msgid "The symbolic link is too complex to be accessed."
 msgstr ""
 
@@ -5456,14 +5468,6 @@ msgstr ""
 msgid "There are no files or directories selected."
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:240
-msgid "This day and next <input type=\"text\" name=\"nextdays\" size=\"2\" /> days"
-msgstr ""
-
-#: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:105
-msgid "This day and the next <input type=\"text\" name=\"nextdays\" size=\"2\" value=\"<tmpl_var nextdays escape=\"html\">\"> days"
-msgstr ""
-
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:232, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:324, data/openwebmail/layouts/classic/templates/cal_edit.tmpl:208, data/openwebmail/layouts/classic/templates/cal_edit.tmpl:95
 msgid "This day only"
 msgstr ""
@@ -5502,7 +5506,7 @@ msgstr ""
 msgid "This month only"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:632
+#: cgi-bin/openwebmail/shares/ow-shared.pl:635
 msgid "This script must be setuid root:"
 msgstr ""
 
@@ -5786,7 +5790,7 @@ msgstr ""
 msgid "User Preferences"
 msgstr ""
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:648
+#: cgi-bin/openwebmail/shares/ow-shared.pl:651
 msgid "User does not exist:"
 msgstr ""
 
@@ -6001,11 +6005,11 @@ msgstr ""
 msgid "Xhosa"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:62, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:62
+#: data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:62, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:62, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:62
 msgid "Year <tmpl_var next_year escape=\"html\">"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:60, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:60
+#: data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:60, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:60, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:60
 msgid "Year <tmpl_var prev_year escape=\"html\">"
 msgstr ""
 
@@ -6031,6 +6035,10 @@ msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:22, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:22, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:73, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:20, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:20, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:65, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:21, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:21
 msgid "Yearview <tmpl_var year>"
+msgstr ""
+
+#: data/openwebmail/layouts/classic/templates/cal_listview.tmpl:20
+msgid "Yearview <tmpl_varyear>"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:21, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:21, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:20, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:20
@@ -6217,7 +6225,7 @@ msgstr ""
 msgid "all headers"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:333, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:335, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:249, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:251, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:237, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:239, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:244, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:246
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:333, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:333, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:249, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:249, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:237, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:237, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:239, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:239, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:244, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:244, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:246, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:246
 msgid "all members"
 msgstr ""
 
@@ -6349,7 +6357,7 @@ msgstr ""
 msgid "browser javascript support level"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:88, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:88, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:88, data/openwebmail/layouts/classic/templates/advsearch.tmpl:122, data/openwebmail/layouts/classic/templates/advsearch.tmpl:122, data/openwebmail/layouts/classic/templates/advsearch.tmpl:92, data/openwebmail/layouts/classic/templates/advsearch.tmpl:92, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:163, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:163, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:45, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:45, data/openwebmail/layouts/classic/templates/cal_edit.tmpl:41, data/openwebmail/layouts/classic/templates/cal_edit.tmpl:41, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:43, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:43, data/openwebmail/layouts/classic/templates/main_listview.tmpl:63, data/openwebmail/layouts/classic/templates/main_listview.tmpl:63, data/openwebmail/layouts/classic/templates/main_listview.tmpl:63, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:83, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:83, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:83, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:40, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:40, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:40
+#: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:337, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:337, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:337, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:88, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:88, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:88, data/openwebmail/layouts/classic/templates/advsearch.tmpl:122, data/openwebmail/layouts/classic/templates/advsearch.tmpl:122, data/openwebmail/layouts/classic/templates/advsearch.tmpl:122, data/openwebmail/layouts/classic/templates/advsearch.tmpl:92, data/openwebmail/layouts/classic/templates/advsearch.tmpl:92, data/openwebmail/layouts/classic/templates/advsearch.tmpl:92, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:163, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:163, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:163, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:45, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:45, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:45, data/openwebmail/layouts/classic/templates/cal_edit.tmpl:41, data/openwebmail/layouts/classic/templates/cal_edit.tmpl:41, data/openwebmail/layouts/classic/templates/cal_edit.tmpl:41, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:43, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:43, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:43, data/openwebmail/layouts/classic/templates/main_listview.tmpl:63, data/openwebmail/layouts/classic/templates/main_listview.tmpl:63, data/openwebmail/layouts/classic/templates/main_listview.tmpl:63, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:83, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:83, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:83, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:40, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:40, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:40
 msgid "calendar"
 msgstr ""
 
@@ -6481,7 +6489,7 @@ msgstr ""
 msgid "country"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:211, data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:211
+#: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:211
 msgid "create a new filter rule like this one"
 msgstr ""
 
@@ -6505,6 +6513,10 @@ msgstr ""
 msgid "day"
 msgstr ""
 
+#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:25, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:23, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:24, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:23, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:24
+msgid "dayview"
+msgstr ""
+
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:252
 msgid "dd-mm-yyyy"
 msgstr ""
@@ -6517,7 +6529,7 @@ msgstr ""
 msgid "dd/mm/yyyy"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:75, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1036, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1036, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1036, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1094, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1094, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1094, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1120, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1120, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1120, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1150, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1150, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1150, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1180, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1180, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1180, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1210, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1210, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1210, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1261, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1261, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1261, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1273, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1273, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1273, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1308, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1308, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1308, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:153, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:153, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:153, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:240, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:240, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:240, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:271, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:271, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:271, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:302, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:302, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:302, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:338, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:338, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:338, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:386, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:386, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:386, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:439, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:439, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:439, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:618, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:618, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:618, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:623, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:623, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:623, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:680, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:680, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:680, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:796, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:796, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:796, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:836, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:836, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:836, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:867, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:867, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:867, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:899, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:899, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:899, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:931, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:931, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:931, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:970, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:970, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:970, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:149, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:149, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:149, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:198, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:198, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:198, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:285, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:285, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:285, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:101, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:101, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:117, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:117, data/openwebmail/layouts/classic/templates/editfolders.tmpl:157, data/openwebmail/layouts/classic/templates/editfolders.tmpl:95, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:247
+#: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:75, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1036, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1036, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1036, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1094, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1094, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1094, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1120, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1120, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1120, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1150, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1150, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1150, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1180, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1180, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1180, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1210, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1210, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1210, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1261, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1261, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1261, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1273, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1273, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1273, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1308, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1308, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1308, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:153, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:153, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:153, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:240, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:240, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:240, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:271, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:271, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:271, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:302, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:302, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:302, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:338, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:338, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:338, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:386, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:386, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:386, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:439, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:439, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:439, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:618, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:618, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:618, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:623, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:623, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:623, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:680, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:680, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:680, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:796, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:796, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:796, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:836, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:836, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:836, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:867, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:867, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:867, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:899, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:899, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:899, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:931, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:931, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:931, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:970, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:970, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:970, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:149, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:149, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:149, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:198, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:198, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:198, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:285, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:285, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:285, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:101, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:101, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:101, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:117, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:117, data/openwebmail/layouts/classic/templates/editfolders.tmpl:157, data/openwebmail/layouts/classic/templates/editfolders.tmpl:95, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:247
 msgid "delete"
 msgstr ""
 
@@ -6529,7 +6541,7 @@ msgstr ""
 msgid "delete all non-text attachments?"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:101, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:117
+#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:101, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:132, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:117
 msgid "delete event"
 msgstr ""
 
@@ -6577,16 +6589,12 @@ msgstr ""
 msgid "download"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:272, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:272
+#: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:272, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:272, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:272
 msgid "download &quot;<tmpl_var subject escape=\"html\">.msg&quot;"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:126, data/openwebmail/layouts/classic/templates/editfolders.tmpl:126, data/openwebmail/layouts/classic/templates/editfolders.tmpl:126
 msgid "download <tmpl_var foldername escape=\"html\">"
-msgstr ""
-
-#: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:272
-msgid "download <tmpl_var subject escape=\"html\">.msg"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:63, data/openwebmail/layouts/classic/templates/editfolders.tmpl:63, data/openwebmail/layouts/classic/templates/editfolders.tmpl:63
@@ -6621,7 +6629,7 @@ msgstr ""
 msgid "download all non-text attachments"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1022, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1022, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1022, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1025, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1025, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1025, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1025, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1032, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1032, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1032, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1032
+#: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1022, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1022, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1022, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1025, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1025, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1025, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1032, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1032, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1032
 msgid "download this agent"
 msgstr ""
 
@@ -6629,7 +6637,7 @@ msgstr ""
 msgid "download this attachment"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:963, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:963, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:963, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:963, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:965, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:965, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:965, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:965
+#: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:963, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:963, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:963, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:965, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:965, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:965
 msgid "download this privacy key"
 msgstr ""
 
@@ -6669,7 +6677,7 @@ msgstr ""
 msgid "edit this account"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:136, data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:136
+#: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:136
 msgid "edit this filter rule"
 msgstr ""
 
@@ -6689,13 +6697,13 @@ msgstr ""
 msgid "enter a url to the file (http://...)"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1793, cgi-bin/openwebmail/openwebmail-prefs.pl:1803
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1795, cgi-bin/openwebmail/openwebmail-prefs.pl:1805
 msgid "every hour"
 msgid_plural "every %d hours"
 msgstr[0] ""
 msgstr[1] ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1792, cgi-bin/openwebmail/openwebmail-prefs.pl:1802
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1794, cgi-bin/openwebmail/openwebmail-prefs.pl:1804
 msgid "every minute"
 msgid_plural "every %d minutes"
 msgstr[0] ""
@@ -6733,6 +6741,10 @@ msgstr ""
 msgid "fax"
 msgstr ""
 
+#: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:130, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:140, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:158, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:168
+msgid "file icon"
+msgstr ""
+
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:864, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:864, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:864
 msgid "find your geographic position"
 msgstr ""
@@ -6765,7 +6777,7 @@ msgstr ""
 msgid "from subject date size"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:70, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:70, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:115, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:115
+#: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:70, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:70, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:70, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:115, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:115, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:115
 msgid "go to parent directory"
 msgstr ""
 
@@ -6793,7 +6805,7 @@ msgstr ""
 msgid "home address"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:68, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:68, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:113, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:113
+#: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:68, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:68, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:68, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:113, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:113, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:113
 msgid "home directory"
 msgstr ""
 
@@ -6853,7 +6865,7 @@ msgstr ""
 msgid "jump to the top of the page"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/send_compose.tmpl:254, data/openwebmail/layouts/classic/templates/send_compose.tmpl:265, data/openwebmail/layouts/classic/templates/send_compose.tmpl:340
+#: data/openwebmail/layouts/classic/templates/send_compose.tmpl:254, data/openwebmail/layouts/classic/templates/send_compose.tmpl:254, data/openwebmail/layouts/classic/templates/send_compose.tmpl:265, data/openwebmail/layouts/classic/templates/send_compose.tmpl:265, data/openwebmail/layouts/classic/templates/send_compose.tmpl:340, data/openwebmail/layouts/classic/templates/send_compose.tmpl:340
 msgid "keyboard"
 msgstr ""
 
@@ -6883,6 +6895,10 @@ msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:185
 msgid "list archive"
+msgstr ""
+
+#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:26, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:24, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:25, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:24, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:25
+msgid "listview"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:96, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:96, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:96, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:42, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:42, data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:42, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:40, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:40, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:40, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:41, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:41, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:41, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:40, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:40, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:40, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:42, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:42, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:42, data/openwebmail/layouts/classic/templates/main_listview.tmpl:71, data/openwebmail/layouts/classic/templates/main_listview.tmpl:71, data/openwebmail/layouts/classic/templates/main_listview.tmpl:71, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:91, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:91, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:91, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:46, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:46, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:46
@@ -6977,6 +6993,10 @@ msgstr ""
 msgid "month"
 msgstr ""
 
+#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:23, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:21, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:22, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:21, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:22
+msgid "monthview"
+msgstr ""
+
 #: data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:141
 msgid "more events..."
 msgstr ""
@@ -7019,6 +7039,10 @@ msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:121, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:374, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:281, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:92, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:275, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:87, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:274, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:87, data/openwebmail/layouts/classic/templates/main_listview.tmpl:373, data/openwebmail/layouts/classic/templates/main_listview.tmpl:94, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:162, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:43, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:216, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:57
 msgid "next page"
+msgstr ""
+
+#: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:72
+msgid "next week"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:303
@@ -7065,7 +7089,7 @@ msgstr ""
 msgid "number of active sessions in the past 1, 5, 15 minutes"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/autoclose.tmpl:12, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:172
+#: data/openwebmail/layouts/classic/templates/shared_autoclose.tmpl:12, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:172
 msgid "ok"
 msgstr ""
 
@@ -7097,7 +7121,7 @@ msgstr ""
 msgid "phonetic pronunciation:"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:72, data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:72, data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:72, data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:76, data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:76, data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:76, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:221, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:221, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:221, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:225, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:225, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:225, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:179, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:179, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:179, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:183, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:183, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:183
+#: data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:72, data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:72, data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:72, data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:76, data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:76, data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:76, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:221, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:221, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:225, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:225, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:225, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:179, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:179, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:179, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:183, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:183, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:183
 msgid "play pronunciation sound"
 msgstr ""
 
@@ -7135,6 +7159,10 @@ msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:119, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:372, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:279, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:90, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:273, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:85, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:272, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:85, data/openwebmail/layouts/classic/templates/main_listview.tmpl:371, data/openwebmail/layouts/classic/templates/main_listview.tmpl:92, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:160, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:41, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:214, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:55
 msgid "previous page"
+msgstr ""
+
+#: data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:70
+msgid "previous week"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:79, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:79, data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:79
@@ -7229,7 +7257,7 @@ msgstr ""
 msgid "sent <tmpl_var messagedatesent escape=\"html\">"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/footer.tmpl:42
+#: data/openwebmail/layouts/classic/templates/shared_footer.tmpl:42
 msgid "session timeout"
 msgstr ""
 
@@ -7269,76 +7297,76 @@ msgstr ""
 msgid "sort alphanumerically"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:258, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:258, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:165, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:165, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:173, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:173
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:258, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:165, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:173
 msgid "sort by categories ascending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:258, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:258, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:165, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:165, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:173
-msgid "sort by categories decending"
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:258, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:165, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:173
+msgid "sort by categories descending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:254, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:254, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:176, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:176, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:161, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:161, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:171, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:171
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:254, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:176, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:161, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:171
 msgid "sort by email ascending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:254, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:254, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:176, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:176, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:161, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:161, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:171, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:171
-msgid "sort by email decending"
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:254, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:176, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:161, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:171
+msgid "sort by email descending"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:110, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:110, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:132, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:132
 msgid "sort by filename"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:246, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:246, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:168, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:168, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:153, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:153, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:163, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:163
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:246, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:168, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:153, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:163
 msgid "sort by first name ascending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:246, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:246, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:168, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:168, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:153, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:153, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:163, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:163
-msgid "sort by first name decending"
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:246, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:168, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:153, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:163
+msgid "sort by first name descending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:242, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:242, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:164, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:164, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:149, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:149, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:159, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:159
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:242, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:164, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:149, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:159
 msgid "sort by full name ascending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:242, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:242, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:164, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:164, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:149, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:149, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:159, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:159
-msgid "sort by full name decending"
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:242, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:164, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:149, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:159
+msgid "sort by full name descending"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:118, data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:118, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:140, data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:140
 msgid "sort by last modified timestamp"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:250, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:250, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:172, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:172, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:157, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:157, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:167, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:167
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:250, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:172, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:157, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:167
 msgid "sort by last name ascending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:250, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:250, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:172, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:172, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:157, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:157, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:167, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:167
-msgid "sort by last name decending"
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:250, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:172, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:157, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:167
+msgid "sort by last name descending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:248, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:248, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:170, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:170, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:155, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:155, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:165, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:165
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:248, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:170, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:155, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:165
 msgid "sort by middle name ascending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:248, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:248, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:170, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:170, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:155, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:155, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:165, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:165
-msgid "sort by middle name decending"
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:248, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:170, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:155, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:165
+msgid "sort by middle name descending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:244, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:244, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:166, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:166, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:151, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:151, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:161, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:161
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:244, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:166, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:151, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:161
 msgid "sort by name prefix ascending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:244, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:244, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:166, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:166, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:151, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:151, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:161, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:161
-msgid "sort by name prefix decending"
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:244, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:166, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:151, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:161
+msgid "sort by name prefix descending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:252, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:252, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:174, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:174, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:159, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:159, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:169, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:169
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:252, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:174, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:159, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:169
 msgid "sort by name suffix ascending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:252, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:252, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:174, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:174, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:159, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:159, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:169, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:169
-msgid "sort by name suffix decending"
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:252, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:174, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:159, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:169
+msgid "sort by name suffix descending"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:219, data/openwebmail/layouts/classic/templates/main_listview.tmpl:222
@@ -7349,12 +7377,12 @@ msgstr ""
 msgid "sort by newest threads first"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:260, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:260, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:167, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:167
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:260, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:167
 msgid "sort by note ascending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:260, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:260, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:167, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:167
-msgid "sort by note decending"
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:260, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:167
+msgid "sort by note descending"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:219, data/openwebmail/layouts/classic/templates/main_listview.tmpl:222
@@ -7369,12 +7397,12 @@ msgstr ""
 msgid "sort by permissions"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:256, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:256, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:163, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:163
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:256, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:163
 msgid "sort by phone number ascending"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:256, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:256, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:163, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:163
-msgid "sort by phone number decending"
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:256, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:163
+msgid "sort by phone number descending"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:218, data/openwebmail/layouts/classic/templates/main_listview.tmpl:228
@@ -7411,10 +7439,6 @@ msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:260
 msgid "sort by subject"
-msgstr ""
-
-#: data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:173
-msgid "sort categories decending"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:239, data/openwebmail/layouts/classic/templates/main_listview.tmpl:242
@@ -7597,7 +7621,7 @@ msgstr ""
 msgid "voice"
 msgstr ""
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:1306
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:1308
 msgid "wait %d second after login to fetch"
 msgid_plural "wait %d seconds after login to fetch"
 msgstr[0] ""
@@ -7615,6 +7639,10 @@ msgstr ""
 msgid "webmail"
 msgstr ""
 
+#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:24, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:22, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:23, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:22, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:23
+msgid "weekview"
+msgstr ""
+
 #: data/openwebmail/layouts/classic/templates/abook_cardview.tmpl:140, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:430
 msgid "work"
 msgstr ""
@@ -7627,7 +7655,7 @@ msgstr ""
 msgid "write mail to <tmpl_var email escape=\"html\">"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:335, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:251
+#: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:335, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:335, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:251, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:251
 msgid "write mail to all group members"
 msgstr ""
 
@@ -7637,6 +7665,10 @@ msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:345
 msgid "year"
+msgstr ""
+
+#: data/openwebmail/layouts/classic/templates/cal_dayview.tmpl:22, data/openwebmail/layouts/classic/templates/cal_listview.tmpl:20, data/openwebmail/layouts/classic/templates/cal_monthview.tmpl:21, data/openwebmail/layouts/classic/templates/cal_weekview.tmpl:20, data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:21
+msgid "yearview"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:255

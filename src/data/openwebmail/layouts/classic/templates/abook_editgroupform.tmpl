@@ -183,7 +183,7 @@
             <a name="SOUND" href="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" target="_new" title="gettext('play pronunciation sound')"><tmpl_if use_texticon>gettext('play pronunciation sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_playsound escape="html">" class="iconset_small" alt="gettext('play pronunciation sound')"></tmpl_if></a>
             </tmpl_if>
             </tmpl_if>
-            &nbsp;<a href="javascript:document.editForm.formchange.value='SOUND,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete thissound')"><tmpl_if use_texticon>gettext('delete this sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete this sound')"></tmpl_if></a>&nbsp;&nbsp;
+            &nbsp;<a href="javascript:document.editForm.formchange.value='SOUND,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete this sound')"><tmpl_if use_texticon>gettext('delete this sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete this sound')"></tmpl_if></a>&nbsp;&nbsp;
             <tmpl_if GROUP><input type="hidden" name="SOUND.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">"></tmpl_if>
             <input type="hidden" name="SOUND.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">">
             <tmpl_loop TYPES>
@@ -397,12 +397,12 @@ function savecheck() {
    var email    = document.editForm.elements['EMAIL.0.VALUE'].value;
 
    if (fullname == '') {
-      alert("gettext('The group name must be defined.')");
+      alert("jgettext('The group name must be defined.')");
       return false;
    }
 
    if (email == '') {
-      alert("gettext('Empty groups are not allowed. Please add members to this group.')");
+      alert("jgettext('Empty groups are not allowed. Please add members to this group.')");
       return false;
    }
 
@@ -426,7 +426,7 @@ function selectcontacts() {
 
       hWnd.focus();
    } else {
-      alert('gettext('A popup window has been blocked.\nPlease unblock popups and try again.')');
+      alert('jgettext('A popup window has been blocked.\nPlease unblock popups and try again.')');
    }
 }
 // -->
