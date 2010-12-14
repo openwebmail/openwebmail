@@ -35,7 +35,7 @@
         </tr>
         <tr>
           <td align="right" nowrap>gettext('Password:')</td>
-          <td align="left"><input type="password" name="password" size="<tmpl_var loginfieldwidth escape="html">"></td>
+          <td align="left" nowrap><input type="password" name="password" size="<tmpl_var loginfieldwidth escape="html">" <tmpl_if login_virtual_keyboard>class="keyboardInput" lang="<tmpl_var keyboard_language escape="html">"</tmpl_if>></td>
         </tr>
 
         <tmpl_if enable_domainselect>

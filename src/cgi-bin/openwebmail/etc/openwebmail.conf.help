@@ -669,6 +669,16 @@ login_fieldwidth
 The width of the username and password fields in the login
 
 
+login_virtual_keyboard
+-----------------------------------------------------------------------
+Set this to 'yes' if you want a virtual keyboard to appear next to the
+password field on the login page. The virtual keyboard allows users to
+enter their password with the mouse instead of the keyboard. This
+addresses a security concern if your users use public machines because
+they may have keylogging spyware installed which can steal passwords
+entered via keyboards
+
+
 case_insensitive_login
 -----------------------------------------------------------------------
 Set this to 'yes' if you want case insensitive login in openwebmail,

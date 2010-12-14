@@ -247,7 +247,7 @@ sub loginmenu {
    my $template = HTML::Template->new(
                                         filename          => get_template("login.tmpl"),
                                         filter            => $htmltemplatefilters,
-                                        die_on_bad_params => 1,
+                                        die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
                                         cache             => 1,
@@ -273,6 +273,8 @@ sub loginmenu {
                       use_httpcompression    => $use_httpcompression,
                       enable_autologin       => $enable_autologin,
                       use_autologin          => $use_autologin,
+                      login_virtual_keyboard => $config{login_virtual_keyboard},
+                      keyboard_language      => (ow::lang::localeinfo($prefs{locale}))[0],
 
                       # footer.tmpl
                       footer_template        => get_footer($config{footer_template_file}),

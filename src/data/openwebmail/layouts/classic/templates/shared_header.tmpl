@@ -13,6 +13,30 @@
   <link rel="alternate stylesheet" type="text/css" href="<tmpl_var url_styles escape="none">/<tmpl_var stylesheet escape="html">" title="<tmpl_var stylesheet escape="html">">
   </tmpl_loop>
   </tmpl_if>
+
+  <tmpl_if login_virtual_keyboard>
+  <script type="text/javascript">
+  <!--
+  var owm_vki_imageuri = '<tmpl_var url_html escape="js">/javascript/keyboard/keyboard.png';
+  var owm_vki_i18n = {
+                        '00': 'jgettext('display number pad')',
+                        '01': 'jgettext('display virtual keyboard interface')',
+                        '02': 'jgettext('select keyboard layout')',
+                        '03': 'jgettext('dead keys')',
+                        '04': 'jgettext('on')',
+                        '05': 'jgettext('off')',
+                        '06': 'jgettext('close the keyboard')',
+                        '07': 'jgettext('clear')',
+                        '08': 'jgettext('clear this input')',
+                        '09': 'jgettext('version')',
+                        '10': 'jgettext('decrease keyboard size')',
+                        '11': 'jgettext('increase keyboard size')'
+                     };
+  // -->
+  </script>
+  <link rel="stylesheet" type="text/css" href="<tmpl_var url_html escape="none">/javascript/keyboard/keyboard.css">
+  <script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/keyboard/keyboard.js" charset="utf-8"></script>
+  </tmpl_if>
 </head>
 
 <!-- <tmpl_var diagnostics> -->

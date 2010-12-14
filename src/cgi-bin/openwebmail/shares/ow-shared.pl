@@ -236,6 +236,7 @@ $persistence_count = 0;
                                    has_spamfolder_by_default          => 1,
                                    has_virusfolder_by_default         => 1,
                                    iconv_error_labels                 => 1,
+                                   login_virtual_keyboard             => 1,
                                    pop3_delmail_by_default            => 1,
                                    pop3_delmail_hidden                => 1,
                                    pop3_usessl_by_default             => 1,
@@ -1645,25 +1646,28 @@ sub get_header {
 
 
    $template->param(
-                      charset            => $prefs{charset},
-                      titleinfo          => $titleinfo,
-                      url_ico            => $config{ico_url},
-                      url_help           => $helpurl,
-                      url_bg             => $prefs{bgurl},
-                      url_styles         => $stylesurl,
-                      stylesheet         => -f "$stylesdir/$prefs{style}.css" ? "$prefs{style}.css" : 'default.css',
-                      showaltstyles      => $showaltstyles,
-                      stylesheetsloop    => [
-                                               map { {
-                                                        url_styles => $stylesurl,
-                                                        stylesheet => $_ . '.css',
-                                                   } } @styles
-                                            ],
-                      diagnostics        => "$$:$persistence_count",
-                      bgrepeat           => $prefs{bgrepeat},
-                      fontsize           => $prefs{fontsize},
-                      languagedirection  => $ow::lang::RTL{$prefs{locale}} ? 'rtl' : 'ltr',
-                      headerpluginoutput => htmlplugin($config{header_pluginfile}, $config{header_pluginfile_charset}, $prefs{charset}),
+                      charset                => $prefs{charset},
+                      titleinfo              => $titleinfo,
+                      url_cgi                => $config{ow_cgiurl},
+                      url_html               => $config{ow_htmlurl},
+                      url_ico                => $config{ico_url},
+                      url_help               => $helpurl,
+                      url_bg                 => $prefs{bgurl},
+                      url_styles             => $stylesurl,
+                      stylesheet             => -f "$stylesdir/$prefs{style}.css" ? "$prefs{style}.css" : 'default.css',
+                      showaltstyles          => $showaltstyles,
+                      stylesheetsloop        => [
+                                                   map { {
+                                                            url_styles => $stylesurl,
+                                                            stylesheet => $_ . '.css',
+                                                       } } @styles
+                                                ],
+                      login_virtual_keyboard => $config{login_virtual_keyboard},
+                      diagnostics            => "$$:$persistence_count",
+                      bgrepeat               => $prefs{bgrepeat},
+                      fontsize               => $prefs{fontsize},
+                      languagedirection      => $ow::lang::RTL{$prefs{locale}} ? 'rtl' : 'ltr',
+                      headerpluginoutput     => htmlplugin($config{header_pluginfile}, $config{header_pluginfile_charset}, $prefs{charset}),
                    );
 
    return $template->output;
@@ -1703,6 +1707,8 @@ sub get_footer {
       $helpurl = $firstmatch || "$helpurl/en_US.UTF-8";
    }
 
+   $helpurl = $config{help_url} if defined $config{help_url} && $config{help_url} ne '@@@HELP_URL@@@';
+
    # build the template
    my $template = HTML::Template->new(
                                       filename          => get_template($footertemplatefile),
@@ -1720,6 +1726,9 @@ sub get_footer {
                       remainingseconds   => $remainingseconds,
                       url_help           => $helpurl,
                       url_cgi            => $config{ow_cgiurl},
+                      help_text          => defined $config{help_text} && $config{help_text} ne '@@@HELP_TEXT@@@'
+                                            ? $config{help_text}
+                                            : gettext('Help?'),
                       sessionid          => $thissession,
                       footerpluginoutput => htmlplugin($config{footer_pluginfile}, $config{footer_pluginfile_charset}, $prefs{charset}),
                    );
