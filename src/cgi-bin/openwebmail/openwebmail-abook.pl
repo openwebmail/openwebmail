@@ -1694,7 +1694,7 @@ sub addrcardview {
          $FIELD->{keyword}         = $keyword;
 
          # HT_ signifies a sub to format a field for HTML::Template looping
-         # call a defined subroutine for this field (like HT_BDAY), or else just run it generic (HT_GENERIC)
+         # call a defined subroutine for this field (like HT_ADR), or else just run it generic (HT_GENERIC)
          no strict 'refs';
          my $sub = "HT_$propertyname";
          $sub =~ s/-/_/g; # X-OWM-CUSTOM becomes X_OWM_CUSTOM
@@ -2098,7 +2098,7 @@ sub addreditform {
             $FIELD->{targetagentpath} = scalar @targetagent ? join(',',@targetagent) : '';
          }
 
-         # call a defined subroutine for this field (like HT_BDAY), or else just run it generic (HT_GENERIC)
+         # call a defined subroutine for this field (like HT_ADR), or else just run it generic (HT_GENERIC)
          no strict 'refs';
          my $sub = "HT_$propertyname";
          $sub =~ s/-/_/g; # X-OWM-CUSTOM becomes X_OWM_CUSTOM
@@ -3417,11 +3417,11 @@ sub importfsv {
      if (scalar grep { !m/^none$/ } @importfields) == 0;
 
    my %validfields = (
-                        PROFILE  => 1, CATEGORIES    => 1, N     => 1, FN     => 1, SOUND  => 1,
-                        NICKNAME => 1, 'SORT-STRING' => 1, BDAY  => 1, EMAIL  => 1, TEL    => 1,
-                        ADR      => 1, LABEL         => 1, TITLE => 1, ROLE   => 1, ORG    => 1,
-                        URL      => 1, TZ            => 1, GEO   => 1, MAILER => 1, NOTE   => 1,
-                        CLASS    => 1, SOURCE        => 1, NAME  => 1, UID    => 1, PRODID => 1,
+                        PROFILE  => 1, CATEGORIES    => 1, N     => 1, FN     => 1, SOUND        => 1,
+                        NICKNAME => 1, 'SORT-STRING' => 1, EMAIL => 1, TEL    => 1, 'X-OWM-BDAY' => 1,
+                        ADR      => 1, LABEL         => 1, TITLE => 1, ROLE   => 1, ORG          => 1,
+                        URL      => 1, TZ            => 1, GEO   => 1, MAILER => 1, NOTE         => 1,
+                        CLASS    => 1, SOURCE        => 1, NAME  => 1, UID    => 1, PRODID       => 1,
                      );
 
    # validate and rename importfields so they can be
@@ -4058,7 +4058,7 @@ sub HT_TZ {
    return ($FIELD, $CHARSET);
 }
 
-sub HT_BDAY {
+sub HT_X_OWM_BDAY {
    my ($FIELD, $CHARSET) = HT_GENERIC(@_);
 
    $FIELD->{age} = calculate_age(

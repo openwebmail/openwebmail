@@ -67,7 +67,7 @@ use vars qw(%property_handlers);
    'N'           => [\&parsevcard_N,\&outputvcard_N,10],                    # vCard 2.1 (required) and 3.0 (required)
    'NICKNAME'    => ['','',30],                                             # vCard 3.0
    'PHOTO'       => ['','',200],                                            # vCard 2.1 and 3.0
-   'BDAY'        => [\&parsevcard_BDAY,\&outputvcard_BDAY,120],             # vCard 2.1 and 3.0
+   'BDAY'        => ['',\&outputvcard_BDAY,120],                            # vCard 2.1 and 3.0 (always parsed into X-OWM-BDAY)
    'ADR'         => [\&parsevcard_ADR,\&outputvcard_ADR,60],                # vCard 2.1 and 3.0
    'LABEL'       => ['','',70],                                             # vCard 2.1 and 3.0
    'TEL'         => ['','',50],                                             # vCard 2.1 and 3.0
@@ -95,6 +95,7 @@ use vars qw(%property_handlers);
    # These are X- extension propertynames
    'X-OWM-BOOK'    => ['','',310],                                                  # Openwebmail: remember addressbook name
    'X-OWM-GROUP'   => ['','',320],                                                  # Openwebmail: vcard is a group if defined
+   'X-OWM-BDAY'    => [\&parsevcard_X_OWM_BDAY,\&outputvcard_X_OWM_BDAY,325],       # Openwebmail: partial bday information support
    'X-OWM-CUSTOM'  => [\&parsevcard_X_OWM_CUSTOM,\&outputvcard_X_OWM_CUSTOM,330],   # Openwebmail: user custom field
    'X-OWM-CHARSET' => ['','',340],                                                  # Openwebmail: vcard character set support
    'X-OWM-UID'     => [\&parsevcard_X_OWM_UID,'',350],                              # Openwebmail: unique id
@@ -295,6 +296,11 @@ sub parsevcard {
          # undef all whitespace final values
          $propertyvalue = undef if $propertyvalue =~ m/^\s+$/;
 
+         # the vcard spec does not support partial BDAY information
+         # Always parse the BDAY propertyname value into the X-OWM-BDAY
+         # propertyname which supports partial BDAY information
+         $propertyname = 'X-OWM-BDAY' if $propertyname eq 'BDAY';
+
          # Apply specific parsing to the propertyvalue based on the propertyname. This is
          # where hooks for specific propertynames get called, like parsevcard_ADR() to
          # process ADDRESS information. The hooks are defined as subroutines in the
@@ -352,30 +358,30 @@ sub parsevcard {
    }
 
    # define FN using N if FN not defined
-   if (defined $parsedvcard{N} && !defined $parsedvcard{FN}) {
-      my $is_FN_required = (defined $r_onlyreturn && exists $r_onlyreturn->{FN}) ? 1 : 0;
+   if (
+         (defined $parsedvcard{N} && !defined $parsedvcard{FN})
+         &&
+         (!defined $r_onlyreturn || (defined $r_onlyreturn && exists $r_onlyreturn->{FN}))
+      ) {
+      $parsedvcard{FN}[0]{VALUE} .= $parsedvcard{N}[0]{VALUE}{NAMEPREFIX} if defined $parsedvcard{N}[0]{VALUE}{NAMEPREFIX};
 
-      if ($is_FN_required) {
-         $parsedvcard{FN}[0]{VALUE} .= $parsedvcard{N}[0]{VALUE}{NAMEPREFIX} if defined $parsedvcard{N}[0]{VALUE}{NAMEPREFIX};
-
-         if (
-               defined $parsedvcard{N}[0]{VALUE}{GIVENNAME}
-               && defined $parsedvcard{N}[0]{VALUE}{FAMILYNAME}
-               && $parsedvcard{N}[0]{VALUE}{GIVENNAME} =~ m/^[\xA1-\xF9][\x40-\x7E\xA1-\xFE]/
-            ) {
-            # chinese name
-            # big5:[A1-F9][40-7E,A1-FE], gb2312:[A1-F9][A1-FE]
-            $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{FAMILYNAME} . $parsedvcard{N}[0]{VALUE}{GIVENNAME};
-            $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{ADDITIONALNAMES} if defined $parsedvcard{N}[0]{VALUE}{ADDITIONALNAMES};
-         } else {
-            $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{GIVENNAME} if defined $parsedvcard{N}[0]{VALUE}{GIVENNAME};
-            $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{ADDITIONALNAMES} if defined $parsedvcard{N}[0]{VALUE}{ADDITIONALNAMES};
-            $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{FAMILYNAME} if defined $parsedvcard{N}[0]{VALUE}{FAMILYNAME};
-         }
-
-         $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{NAMESUFFIX} if defined $parsedvcard{N}[0]{VALUE}{NAMESUFFIX};
-         $parsedvcard{FN}[0]{VALUE} =~ s/^\s+//g; # no leading whitespace
+      if (
+            defined $parsedvcard{N}[0]{VALUE}{GIVENNAME}
+            && defined $parsedvcard{N}[0]{VALUE}{FAMILYNAME}
+            && $parsedvcard{N}[0]{VALUE}{GIVENNAME} =~ m/^[\xA1-\xF9][\x40-\x7E\xA1-\xFE]/
+         ) {
+         # chinese name
+         # big5:[A1-F9][40-7E,A1-FE], gb2312:[A1-F9][A1-FE]
+         $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{FAMILYNAME} . $parsedvcard{N}[0]{VALUE}{GIVENNAME};
+         $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{ADDITIONALNAMES} if defined $parsedvcard{N}[0]{VALUE}{ADDITIONALNAMES};
+      } else {
+         $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{GIVENNAME} if defined $parsedvcard{N}[0]{VALUE}{GIVENNAME};
+         $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{ADDITIONALNAMES} if defined $parsedvcard{N}[0]{VALUE}{ADDITIONALNAMES};
+         $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{FAMILYNAME} if defined $parsedvcard{N}[0]{VALUE}{FAMILYNAME};
       }
+
+      $parsedvcard{FN}[0]{VALUE} .= ' ' . $parsedvcard{N}[0]{VALUE}{NAMESUFFIX} if defined $parsedvcard{N}[0]{VALUE}{NAMESUFFIX};
+      $parsedvcard{FN}[0]{VALUE} =~ s/^\s+//g; # no leading whitespace
    }
 
    # remove N if it is no longer needed
@@ -429,55 +435,6 @@ sub parsevcard_N {
    foreach my $key (keys %{$value}) {
       # delete empty keys
       delete $value->{$key} unless $value->{$key};
-   }
-
-   return ($name, $value, $group, $r_types);
-}
-
-sub parsevcard_BDAY {
-   # We have decided to only support ISO-8601 in two formats:
-   # YYYY-MM-DD and YYYYMMDD
-   # If anyone wants to implement complete ISO-8601 support for
-   # other formats specified as acceptable in RFC 2426 section 3.1.5
-   # for the BDAY property that would be great
-   my ($name, $value, $version, $group, $r_types) = @_;
-
-   if (defined $value) {
-      if ($value =~ m/^(\d{4})-?(\d{1,2})-?(\d{1,2})$/) {
-         # ISO-8601 format
-         my ($bdayyear, $bdaymonth, $bdayday) = ($1, sprintf("%02d",$2), sprintf("%02d",$3));
-
-         openwebmailerror(gettext('The birthday year must be a number between 1 and 9999.'))
-            if $bdayyear < 1 || $bdayyear > 9999;
-
-         openwebmailerror(gettext('The birthday month must be a number between 1 and 12.'))
-            if $bdaymonth < 1 || $bdaymonth > 12;
-
-         openwebmailerror(gettext('The birthday day must be a number between 1 and 31.'))
-            if $bdayday < 1 || $bdayday > 31;
-
-         # verify valid number of days for this birthday month
-         my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
-         $days_in_month[2]++ if $bdayyear % 4 == 0 && ($bdayyear % 100 != 0 || $bdayyear % 400 == 0);
-
-         openwebmailerror(gettext('The birth day exceeds the maximum number of days in the selected birth month.'))
-            if $bdayday > $days_in_month[$bdaymonth];
-
-         $value = {
-                     YEAR  => $bdayyear,
-                     MONTH => $bdaymonth,
-                     DAY   => $bdayday,
-                  };
-      } else {
-         openwebmailerror(gettext('The birthday value is invalid:') . " ($value)")
-            if $value ne '';
-      }
-
-      foreach my $key (keys %{$value}) {
-         $value->{$key} =~ s/^\s+//g;
-         $value->{$key} =~ s/\s+$//g;
-         delete $value->{$key} unless $value->{$key};
-      }
    }
 
    return ($name, $value, $group, $r_types);
@@ -709,6 +666,56 @@ sub parsevcard_REV {
    return ($name, $value, $group, $r_types);
 }
 
+sub parsevcard_X_OWM_BDAY {
+   # We have decided to only support ISO-8601 in two formats:
+   # YYYY-MM-DD and YYYYMMDD
+   # TODO: implement complete ISO-8601 support for other formats
+   # specified as acceptable in RFC 2426 section 3.1.5 for the BDAY
+   # property
+   # the vcard spec does not support partial BDAY date storage
+   # so we support it with the X-OWM-BDAY propertyname
+   my ($name, $value, $version, $group, $r_types) = @_;
+
+   if (defined $value) {
+      if ($value =~ m/^(\d{4})?-?(\d{1,2})?-?(\d{1,2})?$/) {
+         # ISO-8601 format confirmed
+         my $bdayyear  = defined $1 ? $1 : '';
+         my $bdaymonth = defined $2 ? sprintf('%02d',$2) : '';
+         my $bdayday   = defined $3 ? sprintf('%02d',$3) : '';
+
+         $bdayyear  = '' if $bdayyear  < 1 || $bdayyear  > 9999;
+         $bdaymonth = '' if $bdaymonth < 1 || $bdaymonth > 12;
+         $bdayday   = '' if $bdayday   < 1 || $bdayday   > 31;
+
+         if ($bdayyear ne '' && $bdaymonth ne '' && $bdayday ne '') {
+            # verify valid number of days for this birthday month
+            my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+            $days_in_month[2]++ if $bdayyear % 4 == 0 && ($bdayyear % 100 != 0 || $bdayyear % 400 == 0);
+
+            openwebmailerror(gettext('The birth day exceeds the maximum number of days in the selected birth month.'))
+               if $bdayday > $days_in_month[$bdaymonth];
+         }
+
+         $value = {
+                     YEAR  => $bdayyear,
+                     MONTH => $bdaymonth,
+                     DAY   => $bdayday,
+                  };
+      } else {
+         openwebmailerror(gettext('The birthday value is invalid:') . " ($value)")
+            if $value ne '';
+      }
+
+      foreach my $key (keys %{$value}) {
+         $value->{$key} =~ s/^\s+//g;
+         $value->{$key} =~ s/\s+$//g;
+         delete $value->{$key} unless $value->{$key};
+      }
+   }
+
+   return ($name, $value, $group, $r_types);
+}
+
 sub parsevcard_X_OWM_UID {
    # This vCard implementation demands a X-OWM-UID for all objects,
    # which is a unique id for tracking the vcard in the software.
@@ -771,6 +778,21 @@ sub outputvcard {
          $r_vcards->{$uid} = $r_vcards->{$xowmuid};
          delete $r_vcards->{$xowmuid};
          $xowmuid = $uid;
+      }
+
+      # the vcard spec does not support partial BDAY information
+      # output the X-OWM-BDAY propertyname value as a BDAY propertyname
+      # if all of the date values are present and valid
+      # otherwise output as X-OWM-BDAY which accepts partial information
+      if (
+            exists $r_vcards->{$xowmuid}{'X-OWM-BDAY'}
+            && defined $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}
+            && (exists $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{YEAR}  && $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{YEAR}  > 0)
+            && (exists $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{MONTH} && $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{MONTH} > 0)
+            && (exists $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{DAY}   && $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{DAY}   > 0)
+         ) {
+         $r_vcards->{$xowmuid}{BDAY} = $r_vcards->{$xowmuid}{'X-OWM-BDAY'};
+         delete $r_vcards->{$xowmuid}{'X-OWM-BDAY'};
       }
 
       my @vcard = ();
@@ -1008,15 +1030,11 @@ sub outputvcard_BDAY {
    my $bdaymonth = $r_entry->{VALUE}{MONTH} || undef;
    my $bdayday   = $r_entry->{VALUE}{DAY}   || undef;
 
-   if (defined $bdayyear) {
-      openwebmailerror(gettext('The birthday year must be a number between 1 and 9999.'))
-         if $bdayyear !~ m/^\d{1,4}$/ || ($bdayyear < 1 || $bdayyear > 9999);
-   }
+   openwebmailerror(gettext('The birthday year must be a number between 1 and 9999.'))
+      if defined $bdayyear && ($bdayyear !~ m/^\d{1,4}$/ || ($bdayyear < 1 || $bdayyear > 9999));
 
-   if (defined $bdaymonth) {
-      openwebmailerror(gettext('The birthday month must be a number between 1 and 12.'))
-         if $bdaymonth !~ m/^\d{1,2}$/ || ($bdaymonth < 1 || $bdaymonth > 12);
-   }
+   openwebmailerror(gettext('The birthday month must be a number between 1 and 12.'))
+      if defined $bdaymonth && ($bdaymonth !~ m/^\d{1,2}$/ || ($bdaymonth < 1 || $bdaymonth > 12));
 
    if (defined $bdayday) {
       openwebmailerror(gettext('The birthday day must be a number between 1 and 31.'))
@@ -1031,8 +1049,6 @@ sub outputvcard_BDAY {
       }
    }
 
-   # TODO: the vcard spec does not support individual bday elements, but we should with
-   # X-OWM-BDAYYEAR, X-OWM-BDAYMONTH, and X-OWM-BDAYDAY custom attributes
    if (defined $bdayyear || defined $bdaymonth || defined $bdayday) {
       if (!defined $bdayyear || !defined $bdaymonth || !defined $bdayday) {
          openwebmailerror(gettext('The day, month, and year must all be defined to store a birthday for a contact.'));
@@ -1204,6 +1220,43 @@ sub outputvcard_REV {
    $r_entry->{VALUE} = $rev_year .
                        '-' .
                        sprintf("%02d-%02dT%02d:%02d:%02dZ",$rev_mon,$rev_mday,$rev_hour,$rev_min,$rev_sec);
+
+   return $r_entry;
+}
+
+sub outputvcard_X_OWM_BDAY {
+   # We have decided to only support ISO-8601 in two formats:
+   # YYYY-MM-DD and YYYYMMDD
+   # TODO: implement complete ISO-8601 support for other formats
+   # specified as acceptable in RFC 2426 section 3.1.5 for the BDAY
+   # property
+   # the vcard spec does not support partial BDAY date storage
+   # so we support it with this X-OWM-BDAY propertyname
+   my ($r_entry, $version) = @_;
+
+   my $bdayyear  = $r_entry->{VALUE}{YEAR}  || '';
+   my $bdaymonth = $r_entry->{VALUE}{MONTH} || '';
+   my $bdayday   = $r_entry->{VALUE}{DAY}   || '';
+
+   openwebmailerror(gettext('The birthday year must be a number between 1 and 9999.'))
+      if $bdayyear ne '' && ($bdayyear !~ m/^\d{1,4}$/ || ($bdayyear < 1 || $bdayyear > 9999));
+
+   openwebmailerror(gettext('The birthday month must be a number between 1 and 12.'))
+      if $bdaymonth ne '' && ($bdaymonth !~ m/^\d{1,2}$/ || ($bdaymonth < 1 || $bdaymonth > 12));
+
+   openwebmailerror(gettext('The birthday day must be a number between 1 and 31.'))
+      if $bdayday ne '' && ($bdayday !~ m/^\d{1,2}$/ || ($bdayday < 1 || $bdayday > 31));
+
+   if ($bdayyear ne '' && $bdaymonth ne '' && $bdayday ne '') {
+      my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);
+      $days_in_month[2]++ if $bdayyear % 4 == 0 && ($bdayyear % 100 != 0 || $bdayyear % 400 == 0);
+
+      openwebmailerror(gettext('The birth day exceeds the maximum number of days in the selected birth month.'))
+         if $bdayday > $days_in_month[$bdaymonth];
+   }
+
+   $r_entry->{VALUE} = sprintf('%04d-%02d-%02d', $bdayyear, $bdaymonth, $bdayday);
+   $r_entry->{VALUE} = '' if $r_entry->{VALUE} eq '0000-00-00';
 
    return $r_entry;
 }

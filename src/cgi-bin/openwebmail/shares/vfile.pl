@@ -237,7 +237,7 @@ sub outputvfile {
 
    if (defined $supported_parsers{$outputtype}[2]) {
       # load the parser
-      eval {require "shares/$supported_parsers{$outputtype}[0]"};
+      eval { require "shares/$supported_parsers{$outputtype}[0]" };
       openwebmailerror(gettext('Cannot load vfile parser module:') . " shares/$supported_parsers{$outputtype}[0]  ($@)") if $@;
 
       # return the output text

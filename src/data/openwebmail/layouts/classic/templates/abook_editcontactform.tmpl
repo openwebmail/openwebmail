@@ -319,23 +319,23 @@
     </tr>
     </tmpl_if>
 
-    <tmpl_if BDAY>
+    <tmpl_if X-OWM-BDAY>
     <tr>
       <td>
         <table cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td colspan="5"><b>gettext('Birthday')</b></td>
         </tr>
-        <tmpl_loop BDAY>
+        <tmpl_loop X-OWM-BDAY>
         <tr>
-          <td><tmpl_if GROUP><input class="mono" type="text" name="BDAY.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if></td>
-          <td><input class="mono" type="text" name="BDAY.<tmpl_var count escape="html">.VALUE.MONTH" value="<tmpl_var MONTH escape="html">" size="3" maxlength="2" onblur="updateBDAY_AGE(this);">&nbsp;&nbsp;</td>
-          <td><input class="mono" type="text" name="BDAY.<tmpl_var count escape="html">.VALUE.DAY" value="<tmpl_var DAY escape="html">" size="3" maxlength="2" onblur="updateBDAY_AGE(this);">&nbsp;&nbsp;</td>
-          <td><input class="mono" type="text" name="BDAY.<tmpl_var count escape="html">.VALUE.YEAR" value="<tmpl_var YEAR escape="html">" size="5" maxlength="4" onblur="updateBDAY_AGE(this);">&nbsp;&nbsp;</td>
+          <td><tmpl_if GROUP><input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if></td>
+          <td><input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.VALUE.MONTH" value="<tmpl_var MONTH escape="html">" size="3" maxlength="2" onblur="updateX_OWM_BDAY_AGE(this);">&nbsp;&nbsp;</td>
+          <td><input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.VALUE.DAY" value="<tmpl_var DAY escape="html">" size="3" maxlength="2" onblur="updateX_OWM_BDAY_AGE(this);">&nbsp;&nbsp;</td>
+          <td><input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.VALUE.YEAR" value="<tmpl_var YEAR escape="html">" size="5" maxlength="4" onblur="updateX_OWM_BDAY_AGE(this);">&nbsp;&nbsp;</td>
           <td>
-            <input class="mono" type="text" name="BDAY.<tmpl_var count escape="html">.VALUE.AGE" value="<tmpl_var AGE escape="html">" size="4" maxlength="4" onfocus="updateBDAY_AGE(this);" onblur="updateBDAY_YEAR(this);">
-            <a href="javascript:void(0);" onclick="calPopup(this,document.editForm.elements['BDAY.<tmpl_var count escape="js">.VALUE.YEAR'].value,document.editForm.elements['BDAY.<tmpl_var count escape="js">.VALUE.MONTH'].value,document.editForm.elements['BDAY.<tmpl_var count escape="js">.VALUE.DAY'].value,'updateBDAY','popup_calendar',50,0);" title="gettext('calendar')"><tmpl_if use_texticon>gettext('calendar')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_calendar escape="html">" class="iconset_small" alt="gettext('calendar')"></tmpl_if></a>&nbsp;
-            <tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='BDAY,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+            <input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.VALUE.AGE" value="<tmpl_var AGE escape="html">" size="4" maxlength="4" onfocus="updateX_OWM_BDAY_AGE(this);" onblur="updateX_OWM_BDAY_YEAR(this);">
+            <a href="javascript:void(0);" onclick="calPopup(this,document.editForm.elements['X-OWM-BDAY.<tmpl_var count escape="js">.VALUE.YEAR'].value,document.editForm.elements['X-OWM-BDAY.<tmpl_var count escape="js">.VALUE.MONTH'].value,document.editForm.elements['X-OWM-BDAY.<tmpl_var count escape="js">.VALUE.DAY'].value,'updateX_OWM_BDAY','popup_calendar',50,0);" title="gettext('calendar')"><tmpl_if use_texticon>gettext('calendar')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_calendar escape="html">" class="iconset_small" alt="gettext('calendar')"></tmpl_if></a>&nbsp;
+            <tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='X-OWM-BDAY,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
           </td>
         </tr>
         <tr>
@@ -348,7 +348,7 @@
         <tr>
           <td colspan="5" class="smalltext">
             <tmpl_loop TYPES>
-            <input type="hidden" name="BDAY.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            <input type="hidden" name="X-OWM-BDAY.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
             </tmpl_loop>
             &nbsp;
           </td>
@@ -1478,45 +1478,45 @@ function updateFN(caller) {
    document.editForm.elements['FN.'+i+'.VALUE'].value = FN;
 }
 
-function updateBDAY_AGE(caller) {
-   // calculate and set the age from the year, month and day BDAY fields
+function updateX_OWM_BDAY_AGE(caller) {
+   // calculate and set the age from the year, month and day X-OWM-BDAY fields
    var caller_parts = caller.name.split('.');
    var i = caller_parts[1];
 
-   var year  = validateYear(document.editForm.elements['BDAY.'+i+'.VALUE.YEAR'].value);
-   var month = validateMonth(document.editForm.elements['BDAY.'+i+'.VALUE.MONTH'].value);
-   var day   = validateDay(year,month,document.editForm.elements['BDAY.'+i+'.VALUE.DAY'].value);
+   var year  = validateYear(document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.YEAR'].value);
+   var month = validateMonth(document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.MONTH'].value);
+   var day   = validateDay(year,month,document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.DAY'].value);
 
-   document.editForm.elements['BDAY.'+i+'.VALUE.YEAR'].value = year;
-   document.editForm.elements['BDAY.'+i+'.VALUE.MONTH'].value = month;
-   document.editForm.elements['BDAY.'+i+'.VALUE.DAY'].value = day;
-   document.editForm.elements['BDAY.'+i+'.VALUE.AGE'].value = calculateAge(year,month,day);
+   document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.YEAR'].value = year;
+   document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.MONTH'].value = month;
+   document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.DAY'].value = day;
+   document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.AGE'].value = calculateAge(year,month,day);
 }
 
-function updateBDAY_YEAR(caller) {
-   // calculate and set the year from an existing BDAY age field
+function updateX_OWM_BDAY_YEAR(caller) {
+   // calculate and set the year from an existing X-OWM-BDAY age field
    var caller_parts = caller.name.split('.');
    var i = caller_parts[1];
 
-   var age   = document.editForm.elements['BDAY.'+i+'.VALUE.AGE'].value;
-   var year  = validateYear(document.editForm.elements['BDAY.'+i+'.VALUE.YEAR'].value);
-   var month = validateMonth(document.editForm.elements['BDAY.'+i+'.VALUE.MONTH'].value);
-   var day   = validateDay(year,month,document.editForm.elements['BDAY.'+i+'.VALUE.DAY'].value);
+   var age   = document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.AGE'].value;
+   var year  = validateYear(document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.YEAR'].value);
+   var month = validateMonth(document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.MONTH'].value);
+   var day   = validateDay(year,month,document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.DAY'].value);
 
    year = calculateYearFromAge(age,month,day);
 
    if (year != '') {
-      document.editForm.elements['BDAY.'+i+'.VALUE.YEAR'].value = year;
+      document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.YEAR'].value = year;
    }
 }
 
-function updateBDAY(year,month,day) {
-   // update the year, month, and day options with the selection from the BDAY calPopup
-   // this function is called directly from the BDAY calPopup
-   document.editForm.elements['BDAY.0.VALUE.YEAR'].value  = year;
-   document.editForm.elements['BDAY.0.VALUE.MONTH'].value = month;
-   document.editForm.elements['BDAY.0.VALUE.DAY'].value   = day;
-   document.editForm.elements['BDAY.0.VALUE.AGE'].value   = calculateAge(year,month,day);
+function updateX_OWM_BDAY(year,month,day) {
+   // update the year, month, and day options with the selection from the X-OWM-BDAY calPopup
+   // this function is called directly from the X-OWM-BDAY calPopup
+   document.editForm.elements['X-OWM-BDAY.0.VALUE.YEAR'].value  = year;
+   document.editForm.elements['X-OWM-BDAY.0.VALUE.MONTH'].value = month;
+   document.editForm.elements['X-OWM-BDAY.0.VALUE.DAY'].value   = day;
+   document.editForm.elements['X-OWM-BDAY.0.VALUE.AGE'].value   = calculateAge(year,month,day);
 }
 
 function calculateAge(year,month,day) {
