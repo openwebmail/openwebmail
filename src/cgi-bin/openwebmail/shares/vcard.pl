@@ -787,9 +787,9 @@ sub outputvcard {
       if (
             exists $r_vcards->{$xowmuid}{'X-OWM-BDAY'}
             && defined $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}
-            && (exists $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{YEAR}  && $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{YEAR}  > 0)
-            && (exists $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{MONTH} && $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{MONTH} > 0)
-            && (exists $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{DAY}   && $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{DAY}   > 0)
+            && (exists $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{YEAR}  && $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{YEAR}  ne '')
+            && (exists $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{MONTH} && $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{MONTH} ne '')
+            && (exists $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{DAY}   && $r_vcards->{$xowmuid}{'X-OWM-BDAY'}[0]{VALUE}{DAY}   ne '')
          ) {
          $r_vcards->{$xowmuid}{BDAY} = $r_vcards->{$xowmuid}{'X-OWM-BDAY'};
          delete $r_vcards->{$xowmuid}{'X-OWM-BDAY'};
@@ -1254,6 +1254,10 @@ sub outputvcard_X_OWM_BDAY {
       openwebmailerror(gettext('The birth day exceeds the maximum number of days in the selected birth month.'))
          if $bdayday > $days_in_month[$bdaymonth];
    }
+
+   $bdayyear  = 0 unless $bdayyear;
+   $bdaymonth = 0 unless $bdaymonth;
+   $bdayday   = 0 unless $bdayday;
 
    $r_entry->{VALUE} = sprintf('%04d-%02d-%02d', $bdayyear, $bdaymonth, $bdayday);
    $r_entry->{VALUE} = '' if $r_entry->{VALUE} eq '0000-00-00';

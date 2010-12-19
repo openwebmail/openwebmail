@@ -1366,9 +1366,13 @@ sub get_virtualuser_by_user {
 
 sub get_domain_user_userinfo {
    my ($logindomain, $loginuser) = @_;
-   my ($domain, $user, $realname, $uid, $gid, $homedir) = ();
 
-   $user = get_user_by_virtualuser($loginuser) || '';
+   my $domain   = '';
+   my $user     = get_user_by_virtualuser($loginuser) || '';
+   my $realname = '';
+   my $uid      = '';
+   my $gid      = '';
+   my $homedir  = '';
 
    if ($user eq '') {
       my @domainlist = ($logindomain);
@@ -1383,18 +1387,20 @@ sub get_domain_user_userinfo {
       }
    }
 
-   if ($user=~/^(.*)\@(.*)$/) {
-      ($user, $domain)=($1, lc($2));
+   if ($user =~ m/^(.*)\@(.*)$/) {
+      ($user, $domain) = ($1, lc($2));
    } else {
       if ($user eq '') {
          if ($config{enable_strictvirtuser}) {
             # if the loginuser is mapped in virtusertable by any vuser,
             # then one of the vuser should be used instead of loginname for login
             my $vu = get_virtualuser_by_user($loginuser);
-            return('', '', '', '', '', '') if $vu ne '';
+
+            return ('', '', '', '', '', '') if $vu ne '';
          }
          $user = $loginuser;
       }
+
       if ($config{auth_domain} ne 'auto') {
          $domain = lc($config{auth_domain});
       } else {
@@ -1402,20 +1408,22 @@ sub get_domain_user_userinfo {
       }
    }
 
-   my ($errcode, $errmsg);
+   my $errcode = 0;
+   my $errmsg  = '';
+
    if ($config{auth_withdomain}) {
       ($errcode, $errmsg, $realname, $uid, $gid, $homedir) = ow::auth::get_userinfo(\%config, "$user\@$domain");
    } else {
       ($errcode, $errmsg, $realname, $uid, $gid, $homedir) = ow::auth::get_userinfo(\%config, $user);
    }
-   writelog("userinfo error - $config{auth_module}, ret $errcode, $errmsg") if ($errcode != 0);
+
+   writelog("userinfo error - $config{auth_module}, ret $errcode, $errmsg") if $errcode != 0;
 
    $realname = $loginuser if $realname eq '';
-   if ($uid ne '') {
-      return($domain, $user, $realname, $uid, $gid, $homedir);
-   } else {
-      return('', '', '', '', '', '');
-   }
+
+   return ('', '', '', '', '', '') if $uid eq '';
+
+   return ($domain, $user, $realname, $uid, $gid, $homedir);
 }
 
 sub get_defaultemails {
@@ -2201,7 +2209,8 @@ sub is_vdomain_adm {
 
 sub vdomain_userspool {
    my ($vuser, $vhomedir) = @_;
-   my $dest = '';
+
+   my $dest  = '';
    my $spool = ow::tool::untaint("$config{vdomain_vmpop3_mailpath}/$domain/$vuser");
 
    if ($config{vdomain_mailbox_command}) {
@@ -2219,6 +2228,9 @@ sub vdomain_userspool {
 
 sub lenstr {
    my ($len, $bytestr) = @_;
+
+   $len     = 0 unless defined $len && $len =~ m/^\d+$/ && $len > 0;
+   $bytestr = 0 unless defined $bytestr && $bytestr eq 1;
 
    if ($len >= 1048576) {
       $len = int($len / 1048576 * 10 + 0.5) / 10 . ' ' . gettext('MB');
