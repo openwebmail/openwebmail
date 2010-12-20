@@ -2,25 +2,25 @@
 
 <table cellpadding="1" cellspacing="0" border="0" width="95%" align="center">
 <tr>
-  <td nowrap class="titlebar"><tmpl_if whitelist>Edit Spamassassin Whitelist<tmpl_else>Edit Spamassassin Blacklist</tmpl_if></td>
+  <td nowrap class="titlebar"><tmpl_if is_whitelist>gettext('Edit Spamassassin Whitelist')<tmpl_else>gettext('Edit Spamassassin Blacklist')</tmpl_if></td>
 </tr>
 <tr>
   <td class="menubar">
     <tmpl_unless prefs_caller>
-      <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon" title="back to <tmpl_var callerfoldername escape="html">"><tmpl_if use_texticon>back to <tmpl_var callerfoldername escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="back to <tmpl_var callerfoldername escape="html">"></tmpl_if></a>
+      <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon" title="<tmpl_if is_callerfolderdefault><tmpl_if callerfoldername_INBOX>gettext('back to Inbox')</tmpl_if><tmpl_if callerfoldername_saved-messages>gettext('back to Saved folder')</tmpl_if><tmpl_if callerfoldername_sent-mail>gettext('back to Sent folder')</tmpl_if><tmpl_if callerfoldername_saved-drafts>gettext('back to Draft folder')</tmpl_if><tmpl_if callerfoldername_mail-trash>gettext('back to Trash folder')</tmpl_if><tmpl_if callerfoldername_spam-mail>gettext('back to Spam folder')</tmpl_if><tmpl_if callerfoldername_virus-mail>gettext('back to Virus folder')</tmpl_if><tmpl_else>gettext('back to <tmpl_var callerfoldername escape="html"> folder')</tmpl_if>"><tmpl_if use_texticon><tmpl_if is_callerfolderdefault><tmpl_if callerfoldername_INBOX>gettext('back to Inbox')</tmpl_if><tmpl_if callerfoldername_saved-messages>gettext('back to Saved folder')</tmpl_if><tmpl_if callerfoldername_sent-mail>gettext('back to Sent folder')</tmpl_if><tmpl_if callerfoldername_saved-drafts>gettext('back to Draft folder')</tmpl_if><tmpl_if callerfoldername_mail-trash>gettext('back to Trash folder')</tmpl_if><tmpl_if callerfoldername_spam-mail>gettext('back to Spam folder')</tmpl_if><tmpl_if callerfoldername_virus-mail>gettext('back to Virus folder')</tmpl_if><tmpl_else>gettext('back to <tmpl_var callerfoldername escape="html"> folder')</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="<tmpl_if is_callerfolderdefault><tmpl_if callerfoldername_INBOX>gettext('back to Inbox')</tmpl_if><tmpl_if callerfoldername_saved-messages>gettext('back to Saved folder')</tmpl_if><tmpl_if callerfoldername_sent-mail>gettext('back to Sent folder')</tmpl_if><tmpl_if callerfoldername_saved-drafts>gettext('back to Draft folder')</tmpl_if><tmpl_if callerfoldername_mail-trash>gettext('back to Trash folder')</tmpl_if><tmpl_if callerfoldername_spam-mail>gettext('back to Spam folder')</tmpl_if><tmpl_if callerfoldername_virus-mail>gettext('back to Virus folder')</tmpl_if><tmpl_else>gettext('back to <tmpl_var callerfoldername escape="html"> folder')</tmpl_if>"></tmpl_if></a>
     <tmpl_else>
-      <a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editprefs&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon" title="back to user preferences"><tmpl_if use_texticon>back to user preferences<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="back to user preferences"></tmpl_if></a>
+      <a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editprefs&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon" title="gettext('back to user preferences')"><tmpl_if use_texticon>gettext('back to user preferences')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="gettext('back to user preferences')"></tmpl_if></a>
     </tmpl_unless>
     &nbsp;
-    <a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=edittest&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" class="icon" title="edit test rules"><tmpl_if use_texticon>edit test rules<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_satest escape="html">" class="iconset_button" alt="edit test rules"></tmpl_if></a>
-    <a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=editwhitelist&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" class="icon" title="edit white list"><tmpl_if use_texticon>edit white list<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_sawhitelist escape="html">" class="iconset_button" alt="edit white list"></tmpl_if></a>
-    <a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=editblacklist&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" class="icon" title="edit black list"><tmpl_if use_texticon>edit black list<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_sablacklist escape="html">" class="iconset_button" alt="edit black list"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=editrules&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" class="icon" title="gettext('edit spamassassin rules')"><tmpl_if use_texticon>gettext('edit spamassassin rules')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_satest escape="html">" class="iconset_button" alt="gettext('edit spamassassin rules')"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=editwhitelist&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" class="icon" title="gettext('edit spamassassin whitelist')"><tmpl_if use_texticon>gettext('edit spamassassin whitelist')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_sawhitelist escape="html">" class="iconset_button" alt="gettext('edit spamassassin whitelist')"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=editblacklist&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" class="icon" title="gettext('edit spamassassin blacklist')"><tmpl_if use_texticon>gettext('edit spamassassin blacklist')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_sablacklist escape="html">" class="iconset_button" alt="gettext('edit spamassassin blacklist')"></tmpl_if></a>
   </td>
 </tr>
 </table>
 
 <form action="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl" method="post" name="addlist">
-<input type="hidden" name="action" value=<tmpl_if whitelist>"addwhitelist"<tmpl_else>"addblacklist"</tmpl_if>>
+<input type="hidden" name="action" value="<tmpl_if is_whitelist>addwhitelist<tmpl_else>addblacklist</tmpl_if>">
 <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
 <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
 <input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
@@ -33,12 +33,12 @@
   <td colspan="2">&nbsp;</td>
 </tr>
 <tr>
-  <td nowrap class="columnheader" width="80%"><tmpl_if whitelist>Whitelist From Email Address<tmpl_else>Blacklist From Email Address</tmpl_if></td>
-  <td align="center" class="columnheader" width="20%">Action</td>
+  <td nowrap class="columnheader" width="80%"><tmpl_if is_whitelist>gettext('Whitelist Email Address')<tmpl_else>gettext('Blacklist Email Address')</tmpl_if></td>
+  <td align="center" class="columnheader" width="20%">gettext('Action')</td>
 </tr>
 <tr>
-  <td nowrap class="windowdark"><input type="text" name="email" size="60" /></td>
-  <td align="center" class="windowdark"><input type="submit" name="Add" value="Add" class="medtext" /></td>
+  <td nowrap class="windowdark"><input type="text" name="email" size="60"></td>
+  <td align="center" class="windowdark"><input type="submit" name="Add" value="gettext('add')" class="medtext"></td>
 </tr>
 </table>
 
@@ -48,12 +48,16 @@
 <tr>
   <td colspan="2">&nbsp;</td>
 </tr>
-<tmpl_loop testloop>
-<tr <tmpl_if uselightbar>class="rowlight" onMouseOver='this.className="rowhilite";' onMouseOut='this.className="rowlight";'<tmpl_else>class=<tmpl_if odd>"rowlight"<tmpl_else>"rowdark"</tmpl_if></tmpl_if> onClick="document.addlist.email.value='<tmpl_var email escape="js">';">
+<tr>
+  <td colspan="2" class="columnheader"><tmpl_if is_whitelist>gettext('Current Whitelist')<tmpl_else>gettext('Current Blacklist')</tmpl_if></td>
+</tr>
+<tmpl_if listloop>
+<tmpl_loop listloop>
+<tr <tmpl_if uselightbar>class="rowlight" onMouseOver='this.className="rowhilite";' onMouseOut='this.className="rowlight";'<tmpl_else>class=<tmpl_if odd>"rowlight"<tmpl_else>"rowdark"</tmpl_if></tmpl_if> onclick="document.addlist.email.value='<tmpl_var email escape="js">';">
   <td width="80%">&nbsp;<tmpl_var email escape="html"></td>
   <td align="center" width="20%">
     <form action="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl" method="post">
-    <input type="hidden" name="action" value=<tmpl_if whitelist>"deletewhitelist"<tmpl_else>"deleteblacklist"</tmpl_if>>
+    <input type="hidden" name="action" value="<tmpl_if is_whitelist>deletewhitelist<tmpl_else>deleteblacklist</tmpl_if>">
     <input type="hidden" name="email" value="<tmpl_var email escape="html">">
     <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
     <input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
@@ -61,11 +65,16 @@
     <input type="hidden" name="prefs_caller" value="<tmpl_var prefs_caller escape="html">">
     <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
     <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
-    <input type="submit" name="Delete" value="Delete" class="medtext" />
+    <input type="submit" name="delete" value="gettext('delete')" class="medtext">
     </form>
   </td>
 </tr>
 </tmpl_loop>
+<tmpl_else>
+<tr>
+  <td colspan="2" class="windowdarkbold" align="center"><tmpl_if is_whitelist>gettext('No email addresses have been whitelisted')<tmpl_else>gettext('No email addresses have been blacklisted')</tmpl_if></td>
+</tr>
+</tmpl_if>
 </table>
 
 <tmpl_var footer_template escape="none">

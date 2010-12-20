@@ -32,23 +32,23 @@ use warnings;
 
 use vars qw($SCRIPT_DIR);
 
-if (-f "/etc/openwebmail_path.conf") {
-   my $pathconf = "/etc/openwebmail_path.conf";
-   open(F, $pathconf) or die("Cannot open $pathconf: $!");
+if (-f '/etc/openwebmail_path.conf') {
+   my $pathconf = '/etc/openwebmail_path.conf';
+   open(F, $pathconf) or die "Cannot open $pathconf: $!";
    my $pathinfo = <F>;
-   close(F) or die("Cannot close $pathconf: $!");
+   close(F) or die "Cannot close $pathconf: $!";
    ($SCRIPT_DIR) = $pathinfo =~ m#^(\S*)#;
 } else {
    ($SCRIPT_DIR) = $0 =~ m#^(\S*)/[\w\d\-\.]+\.pl#;
 }
 
-die("SCRIPT_DIR cannot be set") if ($SCRIPT_DIR eq '');
+die 'SCRIPT_DIR cannot be set' if $SCRIPT_DIR eq '';
 push (@INC, $SCRIPT_DIR);
 push (@INC, "$SCRIPT_DIR/lib");
 
 # secure the environment
 delete $ENV{$_} for qw(ENV BASH_ENV CDPATH IFS TERM);
-$ENV{PATH}='/bin:/usr/bin';
+$ENV{PATH} = '/bin:/usr/bin';
 
 # make sure the openwebmail group can write
 umask(0002);
@@ -81,12 +81,10 @@ use vars qw(%config $thissession %prefs);
 use vars qw($homedir);
 
 # extern vars
-use vars qw(%lang_folders %lang_text %lang_err);	# defined in lang/xy
-use vars qw($htmltemplatefilters);                 # defined in ow-shared.pl
+use vars qw($htmltemplatefilters $po); # defined in ow-shared.pl
 
 # local globals
-use vars qw($folder $messageid);
-use vars qw($sort $page);
+use vars qw($folder $messageid $sort $msgdatetype $page $longpage $searchtype $keyword);
 use vars qw($prefs_caller);
 
 
@@ -97,29 +95,33 @@ $SIG{PIPE} = \&openwebmail_exit;	# for user stop
 $SIG{TERM} = \&openwebmail_exit;	# for user stop
 userenv_init();
 
-if (!$config{enable_webmail} || !$config{enable_saprefs}) {
-   openwebmailerror("$lang_text{webmail} $lang_err{access_denied}");
-}
+openwebmailerror(gettext('Access denied: the webmail module is not enabled.')) unless $config{enable_webmail};
+openwebmailerror(gettext('Access denied: the spam preferences module is not enabled.')) unless $config{enable_saprefs};
 
-$folder       = param('folder')       || 'INBOX';
-$page         = param('page')         || 1;
-$sort         = param('sort')         || $prefs{sort} || 'date_rev';
+$folder       = param('folder') || 'INBOX';
+$keyword      = param('keyword') || '';
+$longpage     = param('longpage') || 0;
+$msgdatetype  = param('msgdatetype') || $prefs{msgdatetype};
+$page         = param('page') || 1;
+$searchtype   = param('searchtype') || $prefs{searchtype} || 'subject';
+$sort         = param('sort') || $prefs{sort} || 'date_rev';
 $messageid    = param('message_id')   || '';
 $prefs_caller = param('prefs_caller') || '';
+
 my $action    = param('action')       || '';
 
 writelog("debug - request saprefs begin, action=$action") if $config{debug_request};
 
-$action eq 'edittest'         ? edittest()                     :
-$action eq 'addtest'          ? modtest("add")                 :
-$action eq 'deletetest'       ? modtest("delete")              :
-$action eq 'editwhitelist'    ? editlist("whitelist")          :
-$action eq 'addwhitelist'     ? modlist("add", "whitelist")    :
-$action eq 'deletewhitelist'  ? modlist("delete", "whitelist") :
-$action eq 'editblacklist'    ? editlist("blacklist")          :
-$action eq 'addblacklist'     ? modlist("add", "blacklist")    :
-$action eq 'deleteblacklist'  ? modlist("delete", "blacklist") :
-   openwebmailerror("Action $lang_err{has_illegal_chars}");
+$action eq 'editrules'        ? editrules()                    :
+$action eq 'addrule'          ? modrule('add')                 :
+$action eq 'deleterule'       ? modrule('delete')              :
+$action eq 'editwhitelist'    ? editlist('whitelist')          :
+$action eq 'editblacklist'    ? editlist('blacklist')          :
+$action eq 'addwhitelist'     ? modlist('add', 'whitelist')    :
+$action eq 'addblacklist'     ? modlist('add', 'blacklist')    :
+$action eq 'deletewhitelist'  ? modlist('delete', 'whitelist') :
+$action eq 'deleteblacklist'  ? modlist('delete', 'blacklist') :
+openwebmailerror(gettext('Action has illegal characters.'));
 
 writelog("debug - request saprefs end, action=$action") if $config{debug_request};
 
@@ -127,71 +129,56 @@ openwebmail_requestend();
 
 # BEGIN SUBROUTINES
 
-sub edittest {
-   my $saprefsfile = "$homedir/.spamassassin/user_prefs";
-   my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from) = read_saprefs($saprefsfile);
+sub editrules {
+   my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from) = read_saprefs();
 
-   my @testnames = sort (keys %{$r_rules});
+   my $rulesloop = [];
+   my $rulecount = 1;
 
-   my $i = 1;
-
-   my $testloop = [];
-
-   foreach my $testname (@testnames) {
-      my %test = %{${$r_rules}{$testname}};
+   foreach my $rulename (sort keys %{$r_rules}) {
+      my %rule = %{$r_rules->{$rulename}};
 
       # modification on these records are not supported
-      next if ($test{type} eq 'meta'
-               || defined $test{ifunset}
-               || defined $test{tflags});
+      next if $rule{type} eq 'meta' || defined $rule{ifunset} || defined $rule{tflags};
 
       my $score = '';
-      if (defined ${$test{score}}[0]) {
-         $score = ${$test{score}}[0];
+
+      if (defined $rule{score}[0]) {
+         $score = $rule{score}[0];
       } else {
-         $score = 1;                           # default 1 for no score test
-         $score = 0.01 if $testname =~ m/^T_/; # default 0.01 if test is for testing only
+         $score = 1;                           # default 1 for no score rule
+         $score = 0.01 if $rulename =~ m/^T_/; # default 0.01 if rule is for testing only
       }
-      push(@{$testloop}, {
-                           url_cgi        => $config{ow_cgiurl},
-                           folder         => $folder,
-                           page           => $page,
-                           sort           => $sort,
-                           message_id     => $messageid,
-                           sessionid      => $thissession,
-                           prefs_caller   => $prefs_caller,
-                           uselightbar    => $prefs{uselightbar},
-                           odd            => $i % 2,
-                           testnum        => $i,
-                           testname       => $testname,
-                           testdesc       => $test{desc},
-                           testtype       => $test{type},
-                           testheaderattr => $test{headerattr},
-                           testop         => $test{op},
-                           pattern        => $test{pattern},
-                           ignorecase     => $test{modifier} =~ m/i/ ? 1 : 0,
-                           singleline     => $test{modifier} =~ m/s/ ? 1 : 0,
-                           score          => $score,
+
+      push(@{$rulesloop}, {
+                             url_cgi         => $config{ow_cgiurl},
+                             folder          => $folder,
+                             page            => $page,
+                             sort            => $sort,
+                             message_id      => $messageid,
+                             sessionid       => $thissession,
+                             prefs_caller    => $prefs_caller,
+                             uselightbar     => $prefs{uselightbar},
+                             odd             => $rulecount % 2,
+                             rulenumber      => $rulecount,
+                             rulename        => $rulename,
+                             ruledescription => $rule{desc},
+                             ruletype        => $rule{type},
+                             ruleheaderattr  => $rule{headerattr},
+                             ruleop          => $rule{op},
+                             pattern         => $rule{pattern},
+                             ignorecase      => $rule{modifier} =~ m/i/ ? 1 : 0,
+                             singleline      => $rule{modifier} =~ m/s/ ? 1 : 0,
+                             score           => $score,
                          }
           );
-      $i++;
-   }
 
-   my @scores = (0);
-   for (my $i = 0.1; $i < 1; $i += 0.1) {
-      push @scores, $i, -$i;
+      $rulecount++;
    }
-   for (my $i = 1.5; $i < 11; $i += 0.5) {
-      push @scores, $i, -$i;
-   }
-   map {
-      push @scores, $_, -$_;
-   } (11..20, 30, 40, 50, 100, 200);
-   @scores = sort {$b <=> $a} @scores;
 
    # build the template
    my $template = HTML::Template->new(
-                                        filename          => get_template("sa_edittest.tmpl"),
+                                        filename          => get_template("sa_editrules.tmpl"),
                                         filter            => $htmltemplatefilters,
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
@@ -201,116 +188,97 @@ sub edittest {
 
    $template->param(
                       # header.tmpl
-                      header_template  => get_header($config{header_template_file}),
+                      header_template            => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon     => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
-                      url_html         => $config{ow_htmlurl},
-                      url_cgi          => $config{ow_cgiurl},
-                      iconset          => $prefs{iconset},
-                      sessionid        => $thissession,
-                      message_id       => $messageid,
-                      folder           => $folder,
-                      sort             => $sort,
-                      page             => $page,
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
+                      url_html                   => $config{ow_htmlurl},
+                      url_cgi                    => $config{ow_cgiurl},
+                      iconset                    => $prefs{iconset},
+                      sessionid                  => $thissession,
+                      message_id                 => $messageid,
+                      folder                     => $folder,
+                      sort                       => $sort,
+                      page                       => $page,
                       (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
-                      # sa_edittest.pl
-                      prefs_caller     => $prefs_caller,
-                      callerfoldername => ($lang_folders{$folder} || f2u($folder)),
-                      testloop         => $testloop,
-                      scoreloop        => [
-                                            map { {
-                                                    option   => $_,
-                                                    label    => $_,
-                                                    selected => $_ eq 0 ? 1 : 0
-                                                } } @scores
-                                          ],
+                      # sa_editrules.pl
+                      prefs_caller               => $prefs_caller,
+                      is_callerfolderdefault     => is_defaultfolder($folder) ? 1 : 0,
+                      "callerfoldername_$folder" => 1,
+                      callerfoldername           => f2u($folder),
+                      rulesloop                  => $rulesloop,
 
                       # footer.tmpl
-                      footer_template  => get_footer($config{footer_template_file}),
+                      footer_template            => get_footer($config{footer_template_file}),
                    );
+
    httpprint([], [$template->output]);
 }
 
-sub modtest {
+sub modrule {
    my $mode     =  shift;
-   my $testname =  param('testname') || '';
-   $testname    =~ s/^\s*//;
-   $testname    =~ s/\s*$//;
-   return edittest() if ($testname eq '');
+   my $rulename =  param('rulename') || '';
+   $rulename    =~ s/^\s*//;
+   $rulename    =~ s/\s*$//;
+   $rulename    =~ s/[^A-Z0-9_]/_/ig; # convert anything not letters, numbers, or underscore to underscore
+   return editrules() unless $rulename;
 
-   my %test;
-   my $saprefsfile = "$homedir/.spamassassin/user_prefs";
-   my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from) = read_saprefs($saprefsfile);
+   my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from) = read_saprefs();
 
+   my %rule = ();
    if ($mode eq 'add') {
-      $test{type} =  param('testtype');
-      $test{type} =~ s/^\s*//;
-      $test{type} =~ s/\s*$//;
+      $rule{type} =  param('ruletype') || '';
+      $rule{type} =~ s/^\s*//;
+      $rule{type} =~ s/\s*$//;
 
-      $test{pattern} = param('pattern');
+      $rule{pattern} = param('pattern') || '';
+      $rule{pattern} =~ s/^\s*\///; # remove leading whitespace and slashes
+      $rule{pattern} =~ s/\/\s*$//; # remove trailing whitespace and slashes
+      $rule{pattern} =~ s#\\/#/#g;  # escape internal slashes
+      $rule{pattern} =~ s#/#\\/#g;  # escape internal backslashes
 
-      # remove preceding/trailing spaces and // from pattern
-      $test{pattern} =~ s/^\s*\///;
-      $test{pattern} =~ s/\/\s*$//;
+      if ($rule{type} ne '' && $rule{pattern} ne '' && ow::tool::is_regex($rule{pattern})) {
+         $rule{desc} = param('ruledescription') || '';
 
-      # ensure all / are properly escaped
-      $test{pattern} =~ s#\\/#/#g;
-      $test{pattern} =~ s#/#\\/#g;
-
-      if ($test{type} ne ''
-         && $test{pattern} ne ''
-         && ow::tool::is_regex($test{pattern})) {
-
-         $test{desc} = param('testdesc') if (param('testdesc') ne '');
-
-         if ($test{type} eq 'header') {
-            $test{headerattr} = param('testheaderattr') || 'ALL';
-            $test{op}         = param('testop')         || '=~';
+         if ($rule{type} eq 'header') {
+            $rule{headerattr} = param('ruleheaderattr') || 'ALL';
+            $rule{op}         = param('ruleoperation')  || '=~';
          }
 
-         $test{modifier}  =  '';
-         $test{modifier} .= 'i' if (param('ignorecase') == 1);
-         $test{modifier} .= 's' if (param('singleline') == 1);
+         $rule{modifier}  =  '';
+         $rule{modifier} .= 'i' if param('ignorecase');
+         $rule{modifier} .= 's' if param('singleline');
 
-         $test{score}     = [sprintf("%4.2f", param('score'))];
+         $rule{score} = [ sprintf("%4.2f", (param('score') || 0)) ];
 
-         ${$r_rules}{$testname} = \%test;
-         write_saprefs($saprefsfile, $r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from);
+         $r_rules->{$rulename} = \%rule;
+         write_saprefs($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from);
       }
    } elsif ($mode eq 'delete') {
-      if (defined ${$r_rules}{$testname}) {
-         delete ${$r_rules}{$testname};
-         write_saprefs($saprefsfile, $r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from);
+      if (defined $r_rules->{$rulename}) {
+         delete $r_rules->{$rulename};
+         write_saprefs($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from);
       }
    }
-   return edittest();
+
+   return editrules();
 }
 
 sub editlist {
-   my ($listtype) = @_;
+   my $listtype = shift || 'whitelist';
 
-   return edittest() if ($listtype ne 'whitelist' && $listtype ne 'blacklist');
+   $listtype = 'whitelist' if $listtype ne 'whitelist' && $listtype ne 'blacklist';
 
-   my $saprefsfile = "$homedir/.spamassassin/user_prefs";
-   my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from) = read_saprefs($saprefsfile);
+   my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from) = read_saprefs();
 
-   my @list;
-   if ($listtype eq 'whitelist') {
-      @list = sort (keys %{$r_whitelist_from});
-   } else {
-      @list = sort (keys %{$r_blacklist_from});
-   }
+   my $listcount = 1;
+   my $listloop  = [];
 
-   my $i = 1;
-
-   my $testloop = [];
-
-   foreach my $email (@list) {
+   foreach my $email ($listtype eq 'whitelist' ? sort keys %{$r_whitelist_from} : sort keys %{$r_blacklist_from}) {
       next if $email !~ m/^(?:[a-zA-Z0-9!#\$%&'*+-\/=?^_`.{|}~]{1,64}@)?[%*a-zA-Z0-9.-]{4,255}$/; # rfc3696
 
-      push(@{$testloop}, {
+      push(@{$listloop}, {
                            url_cgi      => $config{ow_cgiurl},
                            folder       => $folder,
                            page         => $page,
@@ -319,12 +287,13 @@ sub editlist {
                            sessionid    => $thissession,
                            prefs_caller => $prefs_caller,
                            uselightbar  => $prefs{uselightbar},
-                           odd          => $i % 2,
+                           odd          => $listcount % 2,
                            email        => $email,
-                           whitelist    => $listtype eq 'whitelist' ? 1 : 0
+                           is_whitelist => $listtype eq 'whitelist' ? 1 : 0
                          }
           );
-      $i++;
+
+      $listcount++;
    }
 
    # build the template
@@ -339,60 +308,58 @@ sub editlist {
 
    $template->param(
                       # header.tmpl
-                      header_template  => get_header($config{header_template_file}),
+                      header_template            => get_header($config{header_template_file}),
 
                       # standard params
-                      use_texticon     => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
-                      url_html         => $config{ow_htmlurl},
-                      url_cgi          => $config{ow_cgiurl},
-                      iconset          => $prefs{iconset},
-                      sessionid        => $thissession,
-                      message_id       => $messageid,
-                      folder           => $folder,
-                      sort             => $sort,
-                      page             => $page,
+                      use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
+                      url_html                   => $config{ow_htmlurl},
+                      url_cgi                    => $config{ow_cgiurl},
+                      iconset                    => $prefs{iconset},
+                      sessionid                  => $thissession,
+                      message_id                 => $messageid,
+                      folder                     => $folder,
+                      sort                       => $sort,
+                      page                       => $page,
                       (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
 
                       # sa_edittest.pl
-                      prefs_caller     => $prefs_caller,
-                      callerfoldername => ($lang_folders{$folder} || f2u($folder)),
-                      testloop         => $testloop,
-                      whitelist        => $listtype eq 'whitelist' ? 1 : 0,
+                      prefs_caller               => $prefs_caller,
+                      is_callerfolderdefault     => is_defaultfolder($folder) ? 1 : 0,
+                      "callerfoldername_$folder" => 1,
+                      callerfoldername           => f2u($folder),
+                      listloop                   => $listloop,
+                      is_whitelist               => $listtype eq 'whitelist' ? 1 : 0,
 
                       # footer.tmpl
-                      footer_template  => get_footer($config{footer_template_file}),
+                      footer_template            => get_footer($config{footer_template_file}),
                    );
+
    httpprint([], [$template->output]);
 }
 
 sub modlist {
    my ($mode, $listtype) = @_;
-   return edittest() if ($listtype ne 'whitelist' && $listtype ne 'blacklist');
+
+   return editlist() if $listtype ne 'whitelist' && $listtype ne 'blacklist';
 
    my $email =  param('email') || '';
    $email    =~ s/^\s*//;
    $email    =~ s/\s*$//;
-   return editlist($listtype) if ($email eq '' || $email !~ m/^(?:[a-zA-Z0-9!#\$%&'*+-\/=?^_`.{|}~]{1,64}@)?[%*a-zA-Z0-9.-]{4,255}$/); # rfc3696
+   return editlist($listtype) if $email eq '' || $email !~ m/^(?:[a-zA-Z0-9!#\$%&'*+-\/=?^_`.{|}~]{1,64}@)?[%*a-zA-Z0-9.-]{4,255}$/; # rfc3696
 
-   my $saprefsfile = "$homedir/.spamassassin/user_prefs";
-   my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from) = read_saprefs($saprefsfile);
+   my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from) = read_saprefs();
 
-   my $r_list;
-   if ($listtype eq 'whitelist') {
-      $r_list = $r_whitelist_from;
-   } else {
-      $r_list = $r_blacklist_from;
-   }
+   my $r_list = $listtype eq 'whitelist' ? $r_whitelist_from : $r_blacklist_from;
 
    if ($mode eq 'add') {
-      if (!defined ${$r_list}{$email}) {
-         ${$r_list}{$email} = 1;
-         write_saprefs($saprefsfile, $r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from);
+      if (!defined $r_list->{$email}) {
+         $r_list->{$email} = 1;
+         write_saprefs($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from);
       }
    } elsif ($mode eq 'delete') {
-      if (defined ${$r_list}{$email}) {
-         delete ${$r_list}{$email};
-         write_saprefs($saprefsfile, $r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from);
+      if (defined $r_list->{$email}) {
+         delete $r_list->{$email};
+         write_saprefs($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from);
       }
    }
 
@@ -400,96 +367,123 @@ sub modlist {
 }
 
 sub read_saprefs {
-   my ($file) = @_;
-   my (@lines, @datas, %rules, %whitelist_from, %blacklist_from);
+   my $saprefsfile = "$homedir/.spamassassin/user_prefs";
 
-   ow::filelock::lock($file, LOCK_SH);
-   if (!sysopen(F, $file, O_RDONLY)) {
-      ow::filelock::lock($file, LOCK_UN);
-      return(\@datas, \%rules, \%whitelist_from, \%blacklist_from);
+   my @lines          = ();
+   my @datas          = ();
+   my %rules          = ();
+   my %whitelist_from = ();
+   my %blacklist_from = ();
+
+   ow::filelock::lock($saprefsfile, LOCK_SH) or
+      openwebmailerror(gettext('Cannot lock file:') . " $saprefsfile");
+
+   if (!sysopen(F, $saprefsfile, O_RDONLY)) {
+      ow::filelock::lock($saprefsfile, LOCK_UN) or
+         openwebmailerror(gettext('Cannot unlock file:') . " $saprefsfile");
+
+      writelog("Cannot open file: $saprefsfile ($!)");
+
+      return (\@datas, \%rules, \%whitelist_from, \%blacklist_from);
    }
-   while(<F>) {
-      s/\s*$//;
-      push(@lines, $_);
+
+   while (defined(my $line = <F>)) {
+      $line =~ s/\s*$//;
+      push(@lines, $line);
    }
-   close(F);
+
+   close(F) or
+      openwebmailerror(gettext('Cannot close file:') . " $saprefsfile ($!)");
+
+   ow::filelock::lock($saprefsfile, LOCK_UN) or
+      openwebmailerror(gettext('Cannot unlock file:') . " $saprefsfile");
 
    for (my $i = 0; $i <= $#lines; $i++) {
       my $line = $lines[$i];
 
-      # ruleset related lines
-      if ($line =~ /^(?:score|describe|tflags|header|uri|body|full|rawbody|meta)\s/) {
+      # parse ruleset related lines
+      if ($line =~ m/^(?:score|describe|tflags|header|uri|body|full|rawbody|meta)\s/) {
          while (defined $lines[$i + 1] && $lines[$i + 1] =~ /^ /) {
+            # part of a multi-line rule
             $i++;
             $line .= $lines[$i];
             $line =~ s/\s*$//;
          }
 
-         my ($key, $testname, $value);
-         ($key, $testname, $value) = split(/\s+/, $line, 3);
+         my ($key, $rulename, $value) = split(/\s+/, $line, 3);
+
+         $key      ||= '';
+         $rulename ||= '';
+         $value    ||= '';
 
          if ($key eq 'score') {
-            $rules{$testname}{score} = [split(/\s+/, $value)];
-
+            $rules{$rulename}{score} = [split(/\s+/, $value)];
          } elsif ($key eq 'describe') {
-            $rules{$testname}{desc} = $value;
-
+            $rules{$rulename}{desc} = $value;
          } elsif ($key eq 'tflags') {
-            $rules{$testname}{tflags} = [split(/\s+/, $value)];
-
-         } elsif ($key =~ /^(?:header|uri|body|full|rawbody|meta)$/) {
-            $rules{$testname}{type} = $key;
+            $rules{$rulename}{tflags} = [split(/\s+/, $value)];
+         } elsif ($key =~ m/^(?:header|uri|body|full|rawbody|meta)$/) {
+            $rules{$rulename}{type} = $key;
 
             if ($key eq 'meta') {
-               $rules{$testname}{expression} = $value;
+               $rules{$rulename}{expression} = $value;
             } else {
-               my ($headerattr, $op, $pattern);
+               my $headerattr = '';
+               my $op         = '';
+               my $pattern    = '';
+
                if ($key eq 'header') {
                   ($headerattr, $op, $pattern) = split(/\s+/, $value, 3);
-                  $rules{$testname}{headerattr} = $headerattr;
-                  $rules{$testname}{op} = $op;
+                  $rules{$rulename}{headerattr} = $headerattr;
+                  $rules{$rulename}{op} = $op;
                } else {
                   $pattern = $value;
                }
-               $rules{$testname}{ifunset}  = $1 if ($pattern =~ s/\s*\[\s*if-unset:\s(.*)\]$//);
-               $rules{$testname}{modifier} = $1 if ($pattern =~ s/\/([oigms]+)$/\//);
+
+               $rules{$rulename}{ifunset}  = $1 if $pattern =~ s/\s*\[\s*if-unset:\s(.*)\]$//;
+               $rules{$rulename}{modifier} = $1 if $pattern =~ s/\/([oigms]+)$/\//;
+
                $pattern =~ s/^\s*\///;
                $pattern =~ s/\/\s*$//;
-               $rules{$testname}{pattern} = $pattern;
+
+               $rules{$rulename}{pattern} = $pattern;
             }
          }
-      } elsif ($line =~ /^whitelist_from\s/) {
+      } elsif ($line =~ m/^whitelist_from\s/) {
          my @list = split(/\s+/, $line);
          shift @list;
-         foreach (@list) { $whitelist_from{$_} = 1 }
-
-      } elsif ($line =~ /^blacklist_from\s/) {
+         $whitelist_from{$_} = 1 for @list;
+      } elsif ($line =~ m/^blacklist_from\s/) {
          my @list = split(/\s+/, $line);
          shift @list;
-         foreach (@list) { $blacklist_from{$_} = 1 }
-
+         $blacklist_from{$_} = 1 for @list;
       } else {
          push(@datas, $line);
       }
    }
 
-   close(F);
-   ow::filelock::lock($file, LOCK_UN);
-
    return(\@datas, \%rules, \%whitelist_from, \%blacklist_from);
 }
 
 sub write_saprefs {
-   my ($file, $r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from)=@_;
+   my ($r_datas, $r_rules, $r_whitelist_from, $r_blacklist_from) = @_;
 
-   my @p = split(/\//, $file);
+   my $saprefsfile = "$homedir/.spamassassin/user_prefs";
+
+   my @p = split(m#/#, $saprefsfile);
    pop @p;
    my $dir = join('/', @p);
-   mkdir ($dir, 0700) if (!-d $dir);
+   mkdir($dir, 0700) unless -d $dir;
 
-   ow::filelock::lock($file, LOCK_EX|LOCK_NB);
-   if (!sysopen(F, $file, O_WRONLY|O_TRUNC|O_CREAT)) {
-      ow::filelock::lock($file, LOCK_UN);
+   ow::filelock::lock($saprefsfile, LOCK_EX|LOCK_NB) or
+      openwebmailerror(gettext('Cannot lock file:') . " $saprefsfile");
+
+   if (!sysopen(F, $saprefsfile, O_WRONLY|O_TRUNC|O_CREAT)) {
+      writelog("Cannot open file: $saprefsfile ($!)");
+
+      ow::filelock::lock($saprefsfile, LOCK_UN) or
+         writelog("Cannot unlock file: $saprefsfile");
+
       return -1;
    }
 
@@ -497,64 +491,73 @@ sub write_saprefs {
    $data =~ s/\n\n+/\n\n/g;
    print F $data;
 
-   my $s;
-   my @list = sort (keys %{$r_whitelist_from});
-   foreach my $email (@list) {
-      if (length($s)+length($email)>60) {
-         print F "whitelist_from $s\n";
-         $s = '';
+   my $whitelist_string = '';
+
+   foreach my $email (sort keys %{$r_whitelist_from}) {
+      if (length($whitelist_string) + length($email) > 60) {
+         print F "whitelist_from $whitelist_string\n";
+         $whitelist_string = '';
       }
-      $s .= ' ' if ($s ne '');
-      $s .= $email;
+
+      $whitelist_string .= ' ' if $whitelist_string ne '';
+      $whitelist_string .= $email;
    }
-   print F "whitelist_from $s\n" if ($s ne '');
+
+   print F "whitelist_from $whitelist_string\n" if $whitelist_string ne '';
    print F "\n";
 
-   $s = '';
-   @list = sort (keys %{$r_blacklist_from});
-   foreach my $email (@list) {
-      if (length($s) + length($email) > 60) {
-         print F "blacklist_from $s\n";
-         $s = '';
+   my $blacklist_string = '';
+
+   foreach my $email (sort keys %{$r_blacklist_from}) {
+      if (length($blacklist_string) + length($email) > 60) {
+         print F "blacklist_from $blacklist_string\n";
+         $blacklist_string = '';
       }
-      $s .= ' ' if ($s ne '');
-      $s .= $email;
+      $blacklist_string .= ' ' if $blacklist_string ne '';
+      $blacklist_string .= $email;
    }
-   print F "blacklist_from $s\n" if ($s ne '');
+
+   print F "blacklist_from $blacklist_string\n" if $blacklist_string ne '';
    print F "\n";
 
-   my @testnames = sort { $a cmp $b } keys %{$r_rules};
-   foreach my $testname (@testnames) {
-      my %test = %{${$r_rules}{$testname}};
-      if (defined $test{type}) {
-         if ($test{type} eq 'meta') {
-            print "meta $testname\t\t$test{expression}\n";
+   foreach my $rulename (sort keys %{$r_rules}) {
+      my %rule = %{$r_rules->{$rulename}};
+      if (defined $rule{type}) {
+         if ($rule{type} eq 'meta') {
+            print "meta $rulename\t\t$rule{expression}\n";
          } else {
-            my $pattern = '/' . $test{pattern} . '/';
-            $pattern   .= $test{modifier} if (defined $test{modifier});
-            $pattern   .= " [if-unset: $test{ifunset}]" if (defined $test{ifunset});
-            if ($test{type} eq 'header') {
-               print F "header\t\t$testname\t\t$test{headerattr} $test{op} $pattern\n";
+            my $pattern = '/' . $rule{pattern} . '/';
+            $pattern   .= $rule{modifier} if defined $rule{modifier};
+            $pattern   .= " [if-unset: $rule{ifunset}]" if defined $rule{ifunset};
+
+            if ($rule{type} eq 'header') {
+               print F "header\t\t$rulename\t\t$rule{headerattr} $rule{op} $pattern\n";
             } else {
-               print F "$test{type}\t\t$testname\t\t$pattern\n";
+               print F "$rule{type}\t\t$rulename\t\t$pattern\n";
             }
          }
       }
 
-      if (defined $test{score}) {
-         print F "score\t\t$testname\t\t" . join(' ', @{$test{score}}) . "\n";
+      if (defined $rule{score}) {
+         print F "score\t\t$rulename\t\t" . join(' ', @{$rule{score}}) . "\n";
       }
-      if (defined $test{tflags}) {
-         print F "tflags\t\t$testname\t\t" . join(' ', @{$test{tflags}}) . "\n";
+
+      if (defined $rule{tflags}) {
+         print F "tflags\t\t$rulename\t\t" . join(' ', @{$rule{tflags}}) . "\n";
       }
-      if (defined $test{desc}) {
-         print F "describe\t$testname\t\t$test{desc}\n";
+
+      if (defined $rule{desc}) {
+         print F "describe\t$rulename\t\t$rule{desc}\n";
       }
+
       print F "\n";
    }
 
-   close(F);
-   ow::filelock::lock($file, LOCK_UN);
+   close(F) or
+      openwebmailerror(gettext('Cannot close file:') . " $saprefsfile ($!)");
+
+   ow::filelock::lock($saprefsfile, LOCK_UN) or
+      openwebmailerror(gettext('Cannot unlock file:') . " $saprefsfile");
 
    return 0;
 }

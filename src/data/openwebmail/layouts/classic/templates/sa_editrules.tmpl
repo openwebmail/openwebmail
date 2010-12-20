@@ -1,0 +1,350 @@
+<tmpl_var header_template escape="none">
+
+<table cellpadding="1" cellspacing="0" border="0" width="95%" align="center">
+<tr>
+  <td nowrap class="titlebar">gettext('Edit Spamassassin Rules')</td>
+</tr>
+<tr>
+  <td class="menubar">
+    <tmpl_unless prefs_caller>
+      <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon" title="<tmpl_if is_callerfolderdefault><tmpl_if callerfoldername_INBOX>gettext('back to Inbox')</tmpl_if><tmpl_if callerfoldername_saved-messages>gettext('back to Saved folder')</tmpl_if><tmpl_if callerfoldername_sent-mail>gettext('back to Sent folder')</tmpl_if><tmpl_if callerfoldername_saved-drafts>gettext('back to Draft folder')</tmpl_if><tmpl_if callerfoldername_mail-trash>gettext('back to Trash folder')</tmpl_if><tmpl_if callerfoldername_spam-mail>gettext('back to Spam folder')</tmpl_if><tmpl_if callerfoldername_virus-mail>gettext('back to Virus folder')</tmpl_if><tmpl_else>gettext('back to <tmpl_var callerfoldername escape="html"> folder')</tmpl_if>"><tmpl_if use_texticon><tmpl_if is_callerfolderdefault><tmpl_if callerfoldername_INBOX>gettext('back to Inbox')</tmpl_if><tmpl_if callerfoldername_saved-messages>gettext('back to Saved folder')</tmpl_if><tmpl_if callerfoldername_sent-mail>gettext('back to Sent folder')</tmpl_if><tmpl_if callerfoldername_saved-drafts>gettext('back to Draft folder')</tmpl_if><tmpl_if callerfoldername_mail-trash>gettext('back to Trash folder')</tmpl_if><tmpl_if callerfoldername_spam-mail>gettext('back to Spam folder')</tmpl_if><tmpl_if callerfoldername_virus-mail>gettext('back to Virus folder')</tmpl_if><tmpl_else>gettext('back to <tmpl_var callerfoldername escape="html"> folder')</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="<tmpl_if is_callerfolderdefault><tmpl_if callerfoldername_INBOX>gettext('back to Inbox')</tmpl_if><tmpl_if callerfoldername_saved-messages>gettext('back to Saved folder')</tmpl_if><tmpl_if callerfoldername_sent-mail>gettext('back to Sent folder')</tmpl_if><tmpl_if callerfoldername_saved-drafts>gettext('back to Draft folder')</tmpl_if><tmpl_if callerfoldername_mail-trash>gettext('back to Trash folder')</tmpl_if><tmpl_if callerfoldername_spam-mail>gettext('back to Spam folder')</tmpl_if><tmpl_if callerfoldername_virus-mail>gettext('back to Virus folder')</tmpl_if><tmpl_else>gettext('back to <tmpl_var callerfoldername escape="html"> folder')</tmpl_if>"></tmpl_if></a>
+    <tmpl_else>
+      <a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editprefs&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" accesskey="B" class="icon" title="gettext('back to user preferences')"><tmpl_if use_texticon>gettext('back to user preferences')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="gettext('back to user preferences')"></tmpl_if></a>
+    </tmpl_unless>
+    &nbsp;
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=editwhitelist&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" class="icon" title="gettext('edit spamassassin whitelist')"><tmpl_if use_texticon>gettext('edit spamassassin whitelist')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_sawhitelist escape="html">" class="iconset_button" alt="gettext('edit spamassassin whitelist')"></tmpl_if></a>
+    <a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=editblacklist&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var message_id escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;page=<tmpl_var page escape="url">&amp;prefs_caller=<tmpl_var prefs_caller escape="url">" class="icon" title="gettext('edit spamassassin blacklist')"><tmpl_if use_texticon>gettext('edit spamassassin blacklist')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_sablacklist escape="html">" class="iconset_button" alt="gettext('edit spamassassin blacklist')"></tmpl_if></a>
+  </td>
+</tr>
+</table>
+
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl" method="post" name="addrule">
+<input type="hidden" name="action" value="addrule">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="prefs_caller" value="<tmpl_var prefs_caller escape="html">">
+
+<table cellpadding="2" cellspacing="0" border="0" align="center" width="95%">
+<tr>
+  <td colspan="2">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="columnheader">gettext('Rule Editor')</td>
+</tr>
+<tr>
+  <td class="windowdarkbold">gettext('Rule Name:')</td>
+  <td class="windowdark"><input type="text" name="rulename" size="45">&nbsp;gettext('(letters, digits &amp; underline only)')</td>
+</tr>
+<tr>
+  <td class="windowdarkbold">gettext('Rule Description:')</td>
+  <td class="windowdark"><input type="text" name="ruledescription"  size="60"></td>
+</tr>
+<tr>
+  <td class="windowdarkbold">gettext('Rule Type:')</td>
+  <td class="windowdark">
+    <table cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td class="windowdark">
+        <select name="ruletype"  onchange="setheaderdivvisibility();">
+          <option selected="selected" value="header">gettext('header')</option>
+          <option value="body">gettext('body text (html removed)')</option>
+          <option value="uri">gettext('body links')</option>
+          <option value="rawbody">gettext('body and attachments (raw)')</option>
+          <option value="full">gettext('body and attachments (decoded)')</option>
+        </select>
+        &nbsp;
+      </td>
+      <td class="windowdark">
+        <div id="headerdiv" style="visibility:visible;">
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td class="windowdarkbold">gettext('Header:')&nbsp;&nbsp;</td>
+          <td class="windowdark">
+            <select name="ruleheaderattr_select"  onchange="setheaderattrfield();">
+              <option value="ALL">gettext('All')</option>
+              <option value="Subject">gettext('Subject')</option>
+              <option value="From">gettext('From')</option>
+              <option value="To">gettext('To')</option>
+              <option value="Cc">gettext('Cc')</option>
+              <option value="ToCc">gettext('To and Cc')</option>
+              <option value="MESSAGEID">gettext('Message ID')</option>
+              <option selected="selected" value="USERDEFINE">gettext('-- User Defined --')</option>
+            </select>
+          </td>
+          <td class="windowdark">&nbsp;<input type="text" name="ruleheaderattr"  size="15">&nbsp;</td>
+          <td class="windowdark">
+            <select name="ruleoperation" >
+              <option selected="selected" value="=~">gettext('Include')</option>
+              <option value="!~">gettext('Exclude')</option>
+            </select>
+          </td>
+        </tr>
+        </table>
+        </div>
+      </td>
+    </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td class="windowdarkbold">gettext('Rule Expression:')</td>
+  <td class="windowdark"><input type="text" name="pattern"  size="45"> &nbsp; <label for="ignorecase">gettext('ignore case')</label><input type="checkbox" id="ignorecase" name="ignorecase" value="1"> &nbsp; <label for="singleline">gettext('single line match')</label><input type="checkbox" id="singleline" name="singleline" value="1"></td>
+</tr>
+<tr>
+  <td class="windowdarkbold">gettext('Rule Score:')</td>
+  <td class="windowdark">
+    <select name="score">
+      <option value="-200">-200</option>
+      <option value="-100">-100</option>
+      <option value="-50">-50</option>
+      <option value="-40">-40</option>
+      <option value="-30">-30</option>
+      <option value="-20">-20</option>
+      <option value="-19">-19</option>
+      <option value="-18">-18</option>
+      <option value="-17">-17</option>
+      <option value="-16">-16</option>
+      <option value="-15">-15</option>
+      <option value="-14">-14</option>
+      <option value="-13">-13</option>
+      <option value="-12">-12</option>
+      <option value="-11">-11</option>
+      <option value="-10.5">-10.5</option>
+      <option value="-10.0">-10.0</option>
+      <option value="-9.5">-9.5</option>
+      <option value="-9.0">-9.0</option>
+      <option value="-8.5">-8.5</option>
+      <option value="-8.0">-8.0</option>
+      <option value="-7.5">-7.5</option>
+      <option value="-7.0">-7.0</option>
+      <option value="-6.5">-6.5</option>
+      <option value="-6.0">-6.0</option>
+      <option value="-5.5">-5.5</option>
+      <option value="-5.0">-5.0</option>
+      <option value="-4.5">-4.5</option>
+      <option value="-4.0">-4.0</option>
+      <option value="-3.5">-3.5</option>
+      <option value="-3.0">-3.0</option>
+      <option value="-2.5">-2.5</option>
+      <option value="-2.0">-2.0</option>
+      <option value="-1.5">-1.5</option>
+      <option value="-1.0">-1.0</option>
+      <option value="-0.9">-0.9</option>
+      <option value="-0.8">-0.8</option>
+      <option value="-0.7">-0.7</option>
+      <option value="-0.6">-0.6</option>
+      <option value="-0.5">-0.5</option>
+      <option value="-0.4">-0.4</option>
+      <option value="-0.3">-0.3</option>
+      <option value="-0.2">-0.2</option>
+      <option value="-0.1">-0.1</option>
+      <option value="0" selected>0</option>
+      <option value="0.1">0.1</option>
+      <option value="0.2">0.2</option>
+      <option value="0.3">0.3</option>
+      <option value="0.4">0.4</option>
+      <option value="0.5">0.5</option>
+      <option value="0.6">0.6</option>
+      <option value="0.7">0.7</option>
+      <option value="0.8">0.8</option>
+      <option value="0.9">0.9</option>
+      <option value="1.0">1.0</option>
+      <option value="1.5">1.5</option>
+      <option value="2.0">2.0</option>
+      <option value="2.5">2.5</option>
+      <option value="3.0">3.0</option>
+      <option value="3.5">3.5</option>
+      <option value="4.0">4.0</option>
+      <option value="4.5">4.5</option>
+      <option value="5.0">5.0</option>
+      <option value="5.5">5.5</option>
+      <option value="6.0">6.0</option>
+      <option value="6.5">6.5</option>
+      <option value="7.0">7.0</option>
+      <option value="7.5">7.5</option>
+      <option value="8.0">8.0</option>
+      <option value="8.5">8.5</option>
+      <option value="9.0">9.0</option>
+      <option value="9.5">9.5</option>
+      <option value="10.0">10.0</option>
+      <option value="10.5">10.5</option>
+      <option value="11">11</option>
+      <option value="12">12</option>
+      <option value="13">13</option>
+      <option value="14">14</option>
+      <option value="15">15</option>
+      <option value="16">16</option>
+      <option value="17">17</option>
+      <option value="18">18</option>
+      <option value="19">19</option>
+      <option value="20">20</option>
+      <option value="30">30</option>
+      <option value="40">40</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+      <option value="200">200</option>
+    </select>
+    gettext('(less than 0 for spam, more than 0 for ham)')
+  </td>
+</tr>
+<tr>
+  <td colspan="2" class="windowdark">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="2" class="windowdark"><input type="submit" name="add/modify" value="gettext('add/modify')" class="medtext"></td>
+</tr>
+<tr>
+  <td colspan="2" class="windowdark">&nbsp;</td>
+</tr>
+</table>
+
+</form>
+
+<table cellpadding="2" cellspacing="0" border="0" align="center" width="95%">
+<tr>
+  <td colspan="3">&nbsp;</td>
+</tr>
+<tr>
+  <td colspan="3" class="columnheader">gettext('Current Rules')</td>
+</tr>
+<tmpl_if rulesloop>
+<tmpl_loop rulesloop>
+<tr <tmpl_if uselightbar>class="rowlight" onMouseOver='this.className="rowhilite";' onMouseOut='this.className="rowlight";'<tmpl_else>class=<tmpl_if odd>"rowlight"<tmpl_else>"rowdark"</tmpl_if></tmpl_if> onClick="update('<tmpl_var rulename escape="js">', '<tmpl_var ruledescription escape="js">', '<tmpl_var ruletype escape="js">', '<tmpl_var ruleheaderattr escape="js">', '<tmpl_var ruleop escape="js">', '<tmpl_var pattern escape="js">', <tmpl_var ignorecase escape="js">, <tmpl_var singleline escape="js">, <tmpl_var score escape="js">)">
+  <td class="columnheadercolor" align="center"><tmpl_var rulenumber escape="html"></td>
+  <td>
+    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+    <tr>
+      <td width="15%">gettext('Rule Name:')&nbsp;</td>
+      <td><tmpl_var rulename escape="html"></td>
+    </tr>
+    <tr>
+      <td>gettext('Rule Description:')&nbsp;</td>
+      <td><tmpl_var ruledescription escape="html"></td>
+    </tr>
+    <tr>
+      <td>gettext('Rule Type:')&nbsp;</td>
+      <td><tmpl_var ruletype escape="html"> <tmpl_var ruleheaderattr escape="html"> <tmpl_var ruleop escape="html"></td>
+    </tr>
+    <tr>
+      <td>gettext('Rule Expression:')&nbsp;</td>
+      <td>/<tmpl_var pattern escape="html">/<tmpl_if ignorecase>i</tmpl_if><tmpl_if singleline>s</tmpl_if></td>
+    </tr>
+    <tr>
+      <td>gettext('Rule Score:')&nbsp;</td>
+      <td><tmpl_var score escape="html"></td>
+    </tr>
+    </table>
+  </td>
+  <td align="center">
+    <form action="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl" method="post">
+    <input type="hidden" name="action" value="deleterule">
+    <input type="hidden" name="rulename" value="<tmpl_var rulename escape="html">">
+    <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+    <input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+    <input type="hidden" name="page" value="<tmpl_var page escape="html">">
+    <input type="hidden" name="prefs_caller" value="<tmpl_var prefs_caller escape="html">">
+    <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+    <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+    <input type="submit" name="delete" value="gettext('delete')" class="medtext">
+    </form>
+  </td>
+</tr>
+</tmpl_loop>
+<tmpl_else>
+<tr>
+  <td colspan="2" align="center" class="windowdarkbold">gettext('No spamassassin rules have been created')</td>
+</tr>
+</tmpl_if>
+</table>
+
+<script type="text/javascript">
+<!--
+function setheaderattrfield() {
+   var s = document.addrule.ruleheaderattr_select.value;
+   if (s == 'USERDEFINE') {
+      document.addrule.ruleheaderattr.value = '';
+      document.addrule.ruleheaderattr.disabled = 0;
+   } else {
+      document.addrule.ruleheaderattr.value = s;
+      document.addrule.ruleheaderattr.disabled = 1;
+   }
+}
+
+function setheaderdivvisibility() {
+   var div = document.getElementById('headerdiv');
+
+   if (document.addrule.ruletype.value == 'header') {
+      div.style.visibility = 'visible';
+   } else {
+      div.style.visibility = 'hidden';
+   }
+}
+
+function update(rulename, desc, type, headerattr, op, pattern, ignorecase, singleline, score) {
+   document.addrule.rulename.value = rulename;
+   document.addrule.ruledescription.value = desc;
+
+   selectoption(document.addrule.ruletype, type);
+
+   if (type == 'header') {
+      document.addrule.ruleheaderattr.value = headerattr;
+      selectoption(document.addrule.ruleheaderattr_select, headerattr);
+      selectoption(document.addrule.ruleoperation, op);
+   }
+
+   document.addrule.pattern.value = pattern;
+
+   document.addrule.ignorecase.checked = (ignorecase == 1 ? true : false);
+   document.addrule.singleline.checked = (singleline == 1 ? true : false);
+
+   var e = document.addrule.score;
+
+   for (var i = 0; i < e.length; i++) {
+      if (e.options[i].value <= score) {
+         e.options[i].selected = true;
+      }
+   }
+
+   setheaderattrfield();
+   setheaderdivvisibility();
+}
+
+function addcheck() {
+   if (document.addrule.rulename.value == '') {
+      alert('jgettext('Please specify the spamassassin rule name.')');
+      return false;
+   }
+
+   if (document.addrule.pattern.value == '') {
+      alert('jgettext('Please specify the spamassassin rule expression.')');
+      return false;
+   }
+
+   return true;
+}
+
+function selectoption(menu, value) {
+   var i_default = 0;
+
+   for (var i=0; i<menu.length; i++) {
+      if (menu.options[i].value == value) {
+         menu.options[i].selected = true;
+         return i;
+      }
+
+      if (menu.options[i].defaultSelected) {
+         i_default = i;
+      }
+   }
+
+   menu.options[i_default].selected = true;
+
+   return i_default;
+}
+//-->
+</script>
+
+<tmpl_var footer_template escape="none">
