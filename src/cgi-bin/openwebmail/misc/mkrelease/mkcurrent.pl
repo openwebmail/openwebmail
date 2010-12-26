@@ -27,6 +27,7 @@ $global = {
              msgen       => '/usr/local/bin/msgen',
              msgmerge    => '/usr/local/bin/msgmerge',
              msgfmt      => '/usr/local/bin/msgfmt',
+             iconv       => '/usr/local/bin/iconv',
              java        => '/usr/local/bin/java',
              md5         => '/sbin/md5',
              rm          => '/bin/rm',
@@ -154,9 +155,31 @@ my @pofiles = glob 'cgi-bin/openwebmail/etc/lang/*.po';
 foreach my $pofile (sort @pofiles) {
    my $filename = File::Basename::basename($pofile,(qw(.po)));
 
+   next if $filename eq 'en_US.UTF-8.po';
+
    print "Updating strings in ${filename}...\n";
    system("$global->{msgmerge} --update --sort-output --quiet --backup=none $pofile $potfile") == 0
       or die "Cannot merge strings into $filename: ($!)\n";
+}
+
+# auto-create any other character sets needed
+my $pofilefrom = './cgi-bin/openwebmail/etc/lang/zh_TW.UTF-8.po';
+my $pofileto   = './cgi-bin/openwebmail/etc/lang/zh_TW.Big5.po';
+if (-f $pofilefrom) {
+   print "Converting zh_TW.UTF-8.po -> zh_TW.Big5.po...\n";
+
+   # do not check for errors since some characters cannot be converted perfectly
+   system("$global->{iconv} --from-code=UTF-8 --to-code=BIG-5 --unicode-subst='<U+%04X>' $pofilefrom > $pofileto");
+
+   open(PO, $pofileto) or die "Cannot open ${pofileto}: $!\n";
+   sysread PO, my $pofileto_text, -s PO; # slurp
+   close(PO) or die "Cannot close ${pofileto}: $!\n";
+
+   $pofileto_text =~ s#Content-Type: text/plain; charset=UTF-8#Content-Type: text/plain; charset=Big5#;
+
+   open(PO, ">$pofileto") or die "Cannot open ${pofileto}: $!\n";
+   print PO $pofileto_text;
+   close(PO) or die "Cannot close ${pofileto}: $!\n";
 }
 
 # miniturize xinha javascript

@@ -51,7 +51,7 @@ my $pot = {};
 $pot->{''} = new Locale::PO(
                               -msgid  => '',
                               -msgstr => "Project-Id-Version: OpenWebMail\\n" .
-                                         "PO-Revision-Date: $datestring\\n" .
+                                         "POT-Creation-Date: $datestring\\n" .
                                          "Last-Translator: OpenWebMail Team <openwebmail\@acatysmoof.com>\\n" .
                                          "Language-Team: OpenWebMail Team <openwebmail\@acatysmoof.com>\\n" .
                                          "MIME-Version: 1.0\\n" .
