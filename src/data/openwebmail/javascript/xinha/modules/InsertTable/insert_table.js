@@ -18,14 +18,14 @@
     --
     --
     --  $HeadURL: http://svn.xinha.org/trunk/modules/InsertTable/insert_table.js $
-    --  $LastChangedDate: 2008-10-12 10:52:26 -0700 (Sun, 12 Oct 2008) $
-    --  $LastChangedRevision: 1085 $
-    --  $LastChangedBy: ray $
+    --  $LastChangedDate: 2010-11-16 20:08:18 -0800 (Tue, 16 Nov 2010) $
+    --  $LastChangedRevision: 1272 $
+    --  $LastChangedBy: ejucovy $
     --------------------------------------------------------------------------*/
 InsertTable._pluginInfo = {
   name          : "InsertTable",
   origin        : "Xinha Core",
-  version       : "$LastChangedRevision: 1085 $".replace(/^[^:]*:\s*(.*)\s*\$$/, '$1'),
+  version       : "$LastChangedRevision: 1272 $".replace(/^[^:]*:\s*(.*)\s*\$$/, '$1'),
   developer     : "The Xinha Core Developer Team",
   developer_url : "$HeadURL: http://svn.xinha.org/trunk/modules/InsertTable/insert_table.js $".replace(/^[^:]*:\s*(.*)\s*\$$/, '$1'),
   sponsor       : "",
@@ -38,8 +38,12 @@ function InsertTable(editor) {
 	var cfg = editor.config;
 	var self = this;
 
-	editor.config.btnList.inserttable[3] = function() { self.show(); }
-      }
+	if(typeof editor._insertTable == 'undefined') {
+	    editor._insertTable = function() {
+		self.show();
+	    }
+	}
+}
 
 InsertTable.prototype._lc = function(string) {
 	return Xinha._lc(string, 'Xinha');

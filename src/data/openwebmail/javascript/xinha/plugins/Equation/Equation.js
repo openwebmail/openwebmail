@@ -165,7 +165,7 @@ Equation.prototype.unParse = function ()
 	{
 		var node = spans[i];
 		if (node.className.indexOf ("AM") == -1 || node.getElementsByTagName("math").length == 0) continue;
-		var formula = node.getAttribute("title");
+		var formula = '`' + node.getElementsByTagName('math')[0].getAttribute('title') + '`';
 		node.innerHTML = formula;
 		node.setAttribute("title", null);
 	}
@@ -191,6 +191,8 @@ Equation.prototype.buttonPress = function()
 
 Equation.prototype.insert = function (param)
 {
+	if (typeof param == 'undefined' || param == null) return;
+
 	if (typeof param["formula"] != "undefined")
 	{
 		var formula = (param["formula"] != '') ? param["formula"].replace(/^`?(.*)`?$/m,"`$1`") : '';

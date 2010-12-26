@@ -15,7 +15,7 @@
 
 DoubleClick._pluginInfo = {
   name          : "DoubleClick",
-  version       : "1.0",
+  version       : "1.1",
   developer     : "Marijn Kampf",
   developer_url : "http://www.marijn.org",
   c_owner       : "Marijn Kampf",
@@ -37,7 +37,7 @@ function DoubleClick(editor) {
   //              - target is the selected object
   this.editor.dblClickList = {
     // Edit Link dialog
-    a: [ function(e) {e.config.btnList['createlink'][3](e); } ],
+    a: [ function(e, target) {e.execCommand("createlink", false, target);} ],
     // Follow link
     //a: [ function(editor, target) { window.location = target.href; properties(target); } ],
 
@@ -48,19 +48,15 @@ function DoubleClick(editor) {
 
 DoubleClick.prototype.onGenerate = function() {
   var self = this;
-  var doc = this.editordoc = this.editor._iframe.contentWindow.document;
-  Xinha._addEvents(doc, ["dblclick"],
-          function (event) {
-          return self.onDoubleClick(Xinha.is_ie ? self.editor._iframe.contentWindow.event : event);
-          });
-  this.currentClick = null;
-};
-
-DoubleClick.prototype.onDoubleClick = function(ev) {
-  var target = Xinha.is_ie ? ev.srcElement : ev.target;
-  var tagName = target.tagName.toLowerCase();
-
-  if (this.editor.dblClickList[tagName] != undefined) {
-    this.editor.dblClickList[tagName][0](this.editor, target);
+  var config = this.editor.config;
+  for( var i in this.editor.dblClickList ) {
+      if( typeof i != 'string' ) {
+	  continue;
+      }
+      var actions = this.editor.dblClickList[i];
+      if( typeof actions != 'object' ) {
+	  continue;
+      }
+      this.editor.config.dblclickList[i] = actions;
   }
 };

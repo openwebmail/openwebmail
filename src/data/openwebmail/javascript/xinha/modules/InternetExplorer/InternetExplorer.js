@@ -26,15 +26,15 @@
     --   namespace that way.
     --
     --  $HeadURL: http://svn.xinha.org/trunk/modules/InternetExplorer/InternetExplorer.js $
-    --  $LastChangedDate: 2010-01-31 03:43:35 -0800 (Sun, 31 Jan 2010) $
-    --  $LastChangedRevision: 1233 $
+    --  $LastChangedDate: 2010-05-11 05:31:04 -0700 (Tue, 11 May 2010) $
+    --  $LastChangedRevision: 1260 $
     --  $LastChangedBy: gogo $
     --------------------------------------------------------------------------*/
                                                     
 InternetExplorer._pluginInfo = {
   name          : "Internet Explorer",
   origin        : "Xinha Core",
-  version       : "$LastChangedRevision: 1233 $".replace(/^[^:]*:\s*(.*)\s*\$$/, '$1'),
+  version       : "$LastChangedRevision: 1260 $".replace(/^[^:]*:\s*(.*)\s*\$$/, '$1'),
   developer     : "The Xinha Core Developer Team",
   developer_url : "$HeadURL: http://svn.xinha.org/trunk/modules/InternetExplorer/InternetExplorer.js $".replace(/^[^:]*:\s*(.*)\s*\$$/, '$1'),
   sponsor       : "",
@@ -333,8 +333,8 @@ Xinha.prototype.getParentElement = function(sel)
   if ( typeof sel == 'undefined' )
   {
     sel = this.getSelection();
-  }
-  var range = this.createRange(sel);
+  } 
+  var range = this.createRange(sel); 
   switch ( sel.type )
   {
     case "Text":
@@ -362,7 +362,15 @@ Xinha.prototype.getParentElement = function(sel)
       // only correct, but very important to us.  MSIE is
       // certainly the buggiest browser in the world and I
       // wonder, God, how can Earth stand it?
-      return range.parentElement();
+      try
+      {
+        return range.parentElement();
+      }
+      catch(e)
+      {
+        return this._doc.body; // ??
+      }
+      
     case "Control":
       return range.item(0);
     default:
@@ -447,9 +455,9 @@ Xinha.prototype.selectionEmpty = function(sel)
  * 
  * @returns Range
  */
-Xinha.prototype.saveSelection = function()
+Xinha.prototype.saveSelection = function(sel)
 {
-  return this.createRange(this.getSelection())
+  return this.createRange(sel ? sel : this.getSelection())
 }
 /** 
  * Restores a selection previously stored
@@ -799,7 +807,20 @@ Xinha.prototype.getSelection = function()
 Xinha.prototype.createRange = function(sel)
 {
   if (!sel) sel = this.getSelection();
-  if(sel.type == 'None') this.focusEditor();
+  
+  // ticket:1508 - when you do a key event within a 
+  // absolute position div, in IE, the toolbar update
+  // for formatblock etc causes a getParentElement() (above)
+  // which produces a "None" select, then if we focusEditor() it
+  // defocuses the absolute div and focuses into the iframe outside of the
+  // div somewhere.  
+  //
+  // Removing this is probably a workaround and maybe it breaks something else
+  // focusEditor is used in a number of spots, I woudl have thought it should
+  // do nothing if the editor is already focused.
+  //
+  // if(sel.type == 'None') this.focusEditor();
+  
   return sel.createRange();
 };
 
