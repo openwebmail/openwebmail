@@ -383,7 +383,7 @@
 <tmpl_if is_msgformathtml>
 <script type="text/javascript">
    var _editor_url  = '<tmpl_var url_html escape="none">/javascript/xinha/';
-   var _editor_lang = 'en';
+   var _editor_lang = '<tmpl_var language escape="js">';
    var _editor_skin = "openwebmail";
 </script>
 
@@ -416,9 +416,9 @@
                 null;
 
      if (theRules) {
-        xinha_config.pageStyle = 'body { font-family: ' + theRules[0].style.fontFamily + '; font-size: ' + document.body.style.fontSize + '; direction: <tmpl_var languagedirection>; }';
+        xinha_config.pageStyle = 'body { font-family: ' + theRules[0].style.fontFamily + '; font-size: ' + document.body.style.fontSize + '; direction: <tmpl_var languagedirection escape="js">; }';
      } else {
-        xinha_config.pageStyle = 'body { direction: <tmpl_var languagedirection>; }';
+        xinha_config.pageStyle = 'body { direction: <tmpl_var languagedirection escape="js">; }';
      }
 
      xinha_config.toolbar =

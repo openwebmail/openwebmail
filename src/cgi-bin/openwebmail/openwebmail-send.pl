@@ -1333,6 +1333,7 @@ sub compose {
                       sendbuttons_before      => $prefs{sendbuttonposition} =~ m#^(?:before|both)$# ? 1 : 0,
                       sendbuttons_after       => $prefs{sendbuttonposition} =~ m#^(?:after|both)$# ? 1 : 0,
                       selectableimagesloop    => $selectableimagesloop,
+                      language                => (split(/_/,$prefs{language}))[0] || 'en',
                       languagedirection       => $composecharset eq $prefs{charset}
                                                  && defined $ow::lang::RTL{$prefs{locale}}
                                                  && $ow::lang::RTL{$prefs{locale}} ? 'rtl' : 'ltr',
