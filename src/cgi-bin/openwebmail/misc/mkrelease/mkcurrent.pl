@@ -58,8 +58,10 @@ die "The tar command cannot be executed.\n" unless -x $global->{tar};
 die "The msgen command cannot be executed.\n" unless -x $global->{msgen};
 die "The msgmerge command cannot be executed.\n" unless -x $global->{msgmerge};
 die "The msgfmt command cannot be executed.\n" unless -x $global->{msgfmt};
+die "The iconv command cannot be executed.\n" unless -x $global->{iconv};
 die "The java command cannot be executed.\n" unless -x $global->{java};
 die "The md5 command cannot be executed.\n" unless -x $global->{md5};
+die "The rm command cannot be executed.\n" unless -x $global->{rm};
 
 # get the revision number currently at the HEAD of SVN
 my $svninfo = `$global->{svn} info $global->{svnserver} --revision HEAD`;

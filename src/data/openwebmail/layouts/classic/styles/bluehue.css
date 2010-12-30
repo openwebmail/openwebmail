@@ -18,13 +18,17 @@ td { font-family: Arial, Helvetica, sans-serif; }
 .warning { color: #dd0000; font-weight: bold; }
 .attachmentdark { background-color: #ddddff; }
 .attachmentlight { background-color: #e5e5ff; }
+.spellcheck { border: 2px solid #000000; background-color: #ffffff; padding: 6px 6px 20px 6px; }
+.alreadychecked { color: #0000ff; font-weight: bold; }
 img.attachment { border: 2px solid #ddddff; }
 img.iconset_button { border: 0; vertical-align: middle; margin-bottom: .25em; }
 img.iconset_small { border: 0; vertical-align: middle; margin-bottom: .25em; }
 form { margin: 0; }
 textarea { overflow: auto; }
 input.mono { font-family: monospace; font-size: 80%; }
+input.misspelled { background-color: #ffffcc; border: 1px solid #ff9999; }
 select.mono { font-family: monospace; font-size: 80%; offset: 0px; padding: 0px; margin: 0px; }
+select.misspelled { background-color: #ffffcc; border: 1px solid #999999; }
 iframe.map { border: 1px solid black; margin: 5px 0 0 0; }
 pre { white-space: pre-wrap; }
 h1 { font-family: Arial, Helvetica, sans-serif; font-size: 140%; font-weight: bold; }

@@ -1,4 +1,3 @@
-package ow::htmltext;
 
 #                              The BSD License
 #
@@ -30,6 +29,8 @@ package ow::htmltext;
 
 # htmltext.pl:
 # routines to convert strings from text to html or from html to text
+
+package ow::htmltext;
 
 use strict;
 use warnings;
@@ -115,7 +116,7 @@ sub _pre2html {
    $t =~ s#</(?:p|div|table|th|tr)> *\r?\n#</$1>ESCAPE_NEWLINE#ig;
    $t =~ s#\n#<br>\n#g;
    $t =~ s#ESCAPE_NEWLINE#\n#ig;
-   return($t);
+   return $t;
 }
 
 sub text2html {
@@ -150,7 +151,7 @@ sub text2html {
    $t =~ s#&(?![A-Za-z0-9]{2,8};)#&amp;#g;
    $t =~ s/ESCAPE_UNICODE_(\d{2,3})/&#$1;/g;
 
-   return($t);
+   return $t;
 }
 
 sub text2html_nolink { return text2html(shift,1) };

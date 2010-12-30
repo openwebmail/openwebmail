@@ -371,11 +371,10 @@
 <tmpl_if enable_spellcheck>
 <form action="<tmpl_var url_cgi escape="none">/openwebmail-spell.pl" method="post" name="spellcheckform" id="spellcheckform" target="_spellcheck">
 <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
-<input type="hidden" name="htmlmode" value="<tmpl_if msgformattext>0<tmpl_else>1</tmpl_if>">
-<input type="hidden" name="form" value="">
-<input type="hidden" name="field" value="">
-<input type="hidden" name="string" value="">
 <input type="hidden" name="dictionary" value="<tmpl_var spellcheck_dictionary escape="html">">
+<input type="hidden" name="htmlmode" value="<tmpl_var is_msgformathtml escape="html">">
+<input type="hidden" name="subject" value="">
+<input type="hidden" name="body" value="">
 </form>
 </tmpl_if>
 
@@ -562,10 +561,9 @@ function bodysethtml() {
 
 function owmspellcheck() {
    bodygethtml();
-   document.spellcheckform.form.value   = 'composeform';
-   document.spellcheckform.field.value  = 'body';
-   document.spellcheckform.string.value = document.composeform.body.value;
-   window.open('','_spellcheck','width=600,height=400,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
+   document.spellcheckform.subject.value = document.composeform.subject.value;
+   document.spellcheckform.body.value    = document.composeform.body.value;
+   window.open('','_spellcheck','width=700,height=500,top=40,left=80,scrollbars=yes,resizable=yes,location=no');
    return true;
 }
 
