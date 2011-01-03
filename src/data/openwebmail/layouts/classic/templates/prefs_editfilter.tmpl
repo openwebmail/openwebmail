@@ -111,7 +111,7 @@
     </select>
   </td>
   <td class="rowlight" align="center" nowrap><input type="checkbox" name="enable" value="1" checked></td>
-  <td class="rowlight" align="center" nowrap><input type="submit" name="newfilterselect" value="Add/Modify" accesskey="A"></td>
+  <td class="rowlight" align="center" nowrap><input type="submit" name="newfilterselect" value=gettext('Add/Modify') accesskey="A"></td>
 </tr>
 </form>
 
@@ -187,7 +187,7 @@
   <td colspan="9">&nbsp;</td>
 </tr>
 <tr>
-  <td colspan="9" class="columnheader">Global Filter Rules (read only)</td>
+  <td colspan="9" class="columnheader">gettext('Global Filter Rules (read only)')</td>
 </tr>
 
 <tmpl_if globalrulesloop>
@@ -208,7 +208,7 @@
     <tmpl_if include_include>gettext('Include')</tmpl_if>
     <tmpl_if include_exclude>gettext('Exclude')</tmpl_if>
   </td>
-  <td class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>" align="center"><a href="javascript:update('<tmpl_var priority escape="js">','<tmpl_var type escape="js">','<tmpl_var include escape="js">','<tmpl_var text escape="js">','<tmpl_var operation escape="js">','<tmpl_var dest escape="js">','<tmpl_var enable escape="js">')" title="gettext('create a new filter rule like this one')"><tmpl_var text escape="html"></a></td>
+  <td class="<tmpl_if odd>rowdark<tmpl_else>rowlight</tmpl_if>" align="center"><a href="javascript:update('<tmpl_var priority escape="js">','<tmpl_var type escape="js">','<tmpl_var include escape="js">','<tmpl_var text escape="js">','<tmpl_var operation escape="js">','<tmpl_var dest escape="js">','<tmpl_var enable escape="js">')" title="gettext('create a new filter rule like this one')"><tmpl_var text escape="html"></a></td>
   <td class="<tmpl_if odd>rowdark<tmpl_else>rowlight</tmpl_if>" align="center">
     <tmpl_if destfolder_INBOX>
     -----
