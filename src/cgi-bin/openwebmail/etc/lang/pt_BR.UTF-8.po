@@ -1,14 +1,14 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenWebMail\n"
-"POT-Creation-Date: 2010-12-30 08:04+0000\n"
-"PO-Revision-Date: 2011-01-03 14:24-0300\n"
+"POT-Creation-Date: 2011-01-3  20:25+0000\n"
+"PO-Revision-Date: 2011-01-03 18:29-0300\n"
 "Last-Translator: Joao S Veiga <openwebmail@it.eng.br>\n"
 "Language-Team: Joao S Veiga <openwebmail@it.eng.br>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "Plural-Forms: nplurals=2; plural=n != 1\n"
 "X-Poedit-Language: Portuguese\n"
 "X-Poedit-Country: BRAZIL\n"
@@ -607,6 +607,7 @@ msgstr "Falha ao adicionar anexo.<br>O limite de anexo de <tmpl_var attachments_
 msgid "Add from Webdisk"
 msgstr "Adicionar do Webdisk"
 
+#: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:114,
 #: data/openwebmail/layouts/classic/templates/prefs_editfroms.tmpl:51,
 #: data/openwebmail/layouts/classic/templates/prefs_editpop3.tmpl:60
 msgid "Add/Modify"
@@ -3446,6 +3447,10 @@ msgstr "Lista de Contatos Global"
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:91
 msgid "Global Addressbooks"
 msgstr "Listas de Contatos Globais"
+
+#: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:190
+msgid "Global Filter Rules (read only)"
+msgstr "Regras Globais de Filtro (não editáveis)"
 
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:102,
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:67,

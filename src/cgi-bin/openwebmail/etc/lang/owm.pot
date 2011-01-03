@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenWebMail\n"
-"POT-Creation-Date: 2010-12-30 07:52+0000\n"
+"POT-Creation-Date: 2011-01-3  20:25+0000\n"
 "Last-Translator: OpenWebMail Team <openwebmail@acatysmoof.com>\n"
 "Language-Team: OpenWebMail Team <openwebmail@acatysmoof.com>\n"
 "MIME-Version: 1.0\n"
@@ -460,7 +460,7 @@ msgstr ""
 msgid "Add from Webdisk"
 msgstr ""
 
-#: data/openwebmail/layouts/classic/templates/prefs_editfroms.tmpl:51, data/openwebmail/layouts/classic/templates/prefs_editpop3.tmpl:60
+#: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:114, data/openwebmail/layouts/classic/templates/prefs_editfroms.tmpl:51, data/openwebmail/layouts/classic/templates/prefs_editpop3.tmpl:60
 msgid "Add/Modify"
 msgstr ""
 
@@ -2502,6 +2502,10 @@ msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:91
 msgid "Global Addressbooks"
+msgstr ""
+
+#: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:190
+msgid "Global Filter Rules (read only)"
 msgstr ""
 
 #: data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:102, data/openwebmail/layouts/classic/templates/abook_editbooks.tmpl:67, data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:52, data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:52, data/openwebmail/layouts/classic/templates/abook_importform.tmpl:77, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:168, data/openwebmail/layouts/classic/templates/abook_listview.tmpl:57, data/openwebmail/layouts/classic/templates/abook_listviewcompose.tmpl:57, data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:50, data/openwebmail/layouts/classic/templates/abook_listviewgroup.tmpl:51
