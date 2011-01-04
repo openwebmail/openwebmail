@@ -1,7 +1,7 @@
 
 #                              The BSD License
 #
-#  Copyright (c) 2009-2010, The OpenWebMail Project
+#  Copyright (c) 2009-2011, The OpenWebMail Project
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -896,7 +896,7 @@ sub update_message_status {
 
    for ($i = 0; $i <= $#messageids; $i++) {
       if ($messageids[$i] eq $messageid) {
-         @attr = string2msgattr( $FDB{$messageid} ) if ( defined $FDB{$messageid} );
+         @attr = string2msgattr($FDB{$messageid}) if defined $FDB{$messageid};
 
          my $messagestart = $attr[$_OFFSET];
          my $headerlen    = $attr[$_HEADERSIZE];

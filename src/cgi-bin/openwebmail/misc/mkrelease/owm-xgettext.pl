@@ -44,7 +44,7 @@ die("The output file already exists\n") if -f $opt->{output};
 
 my ($sec,$min,$hour,$mday,$month,$year,$wday,$yday,$isdst) = gmtime(time);
 $year += 1900;
-my $datestring = sprintf('%04d-%02d-%-02d %02d:%02d+0000', $year, $month + 1, $mday, $hour, $min);
+my $datestring = sprintf('%04d-%02d-%02d %02d:%02d+0000', $year, $month + 1, $mday, $hour, $min);
 
 my $pot = {};
 

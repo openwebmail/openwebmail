@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenWebMail\n"
-"POT-Creation-Date: 2011-01-3  20:25+0000\n"
+"POT-Creation-Date: 2011-01-04 06:26+0000\n"
 "Last-Translator: OpenWebMail Team <openwebmail@acatysmoof.com>\n"
 "Language-Team: OpenWebMail Team <openwebmail@acatysmoof.com>\n"
 "MIME-Version: 1.0\n"
