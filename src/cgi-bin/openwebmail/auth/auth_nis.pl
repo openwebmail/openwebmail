@@ -10,7 +10,10 @@ package ow::auth_nis;
 ########## No configuration required from here ###################
 
 use strict;
+use warnings FATAL => 'all';
+
 use IO::Socket;
+
 require "modules/tool.pl";
 
 my %conf;

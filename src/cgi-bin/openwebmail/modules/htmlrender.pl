@@ -35,7 +35,8 @@ package ow::htmlrender;
 # html4nobase, html4link, html4disablejs, html4disableemblink, html4blockimages, html4attachment, html4mailto, html2table
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
+
 require "modules/tool.pl";
 
 my @jsevents = (

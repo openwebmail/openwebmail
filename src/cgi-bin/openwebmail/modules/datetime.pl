@@ -10,7 +10,7 @@
 package ow::datetime;
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Time::Local;
 use Fcntl qw(O_RDONLY);
@@ -75,7 +75,7 @@ sub gettimeoffset {
 }
 
 sub timeoffset2seconds {
-   my $timeoffset = shift;
+   my $timeoffset = shift || '';
 
    my $seconds = 0;
 
@@ -313,16 +313,19 @@ sub datefield2dateserial {
    my $datefield = shift;
    $datefield =~ s/GMT//;
 
-   my $sec        = '';
-   my $min        = '';
-   my $hour       = '';
-   my $mday       = '';
-   my $mon        = '';
-   my $year       = '';
-   my $timeoffset = '';
-   my $timezone   = '';
-   my $ampm       = '';
+   # defaults
+   my ($gmsec,$gmmin,$gmhour,$gmmday,$gmmon,$gmyear,$gmwday,$gmyday,$gmisdst) = gmtime(time);
+   my $sec        = '00';
+   my $min        = '00';
+   my $hour       = '02';
+   my $mday       = '01';
+   my $mon        = '1';
+   my $year       = $gmyear + 1900;
+   my $timeoffset = '-0000';
+   my $timezone   = 'GMT';
+   my $ampm       = 'am';
 
+   # figure out the values for this datefield string
    foreach my $string (split(/[\s,]+/, $datefield)) {
       if ($string =~ m/^\d\d?$/) {
          if ($string <= 31 && $mday eq '') {
@@ -331,7 +334,7 @@ sub datefield2dateserial {
             $year = $string + 1900;
             $year += 100 if $year < 1970;
          }
-      } elsif ($string =~ m/^[A-Z][a-z][a-z]/) {
+      } elsif ($string =~ m/^(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i) {
          foreach my $i (0..11) {
             if ($string =~ m/^$month_en[$i]/i) {
                $mon = $i + 1;

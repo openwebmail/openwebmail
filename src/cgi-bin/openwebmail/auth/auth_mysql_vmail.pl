@@ -9,8 +9,11 @@ package ow::auth_mysql_vmail;
 ########## No configuration required from here ###################
 
 use strict;
+use warnings FATAL => 'all';
+
 use DBI;
 use Digest::MD5;
+
 require "modules/tool.pl";
 
 my %conf;

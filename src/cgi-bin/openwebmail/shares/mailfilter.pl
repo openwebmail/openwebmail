@@ -35,7 +35,7 @@
 # 4. smart filter rules
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 
@@ -52,8 +52,10 @@ sub filtermessage {
    # filter inbox messages in background
    # return: 0 filter not necessary
    #         1 filter started (either forground or background)
-   # there are 4 op for a msg: 'copy', 'move', 'delete' and 'keep'
+   # there are 4 operations for a message: 'copy', 'move', 'delete' and 'keep'
    my ($user, $folder, $r_prefs) = @_;
+
+   writelog("debug_mailfilter :: $folder :: filtermessage for user $user") if $config{debug_mailfilter};
 
    # return immediately if nothing to do
    return 0 if (
@@ -75,6 +77,9 @@ sub filtermessage {
    # automatic 'test & set' the metainfo value in filtercheckfile
    my $metainfo = ow::tool::metainfo($folderfile);
 
+   writelog("debug_mailfilter :: $folder :: metainfo before filtering is $metainfo") if $config{debug_mailfilter};
+
+   # create the filter.check file if it does not exist
    if (!-f $filtercheckfile) {
       sysopen(F, $filtercheckfile, O_WRONLY|O_APPEND|O_CREAT) or writelog("cannot open file $filtercheckfile");
       close(F) or writelog("cannot close file $filtercheckfile ($!)");
@@ -95,11 +100,19 @@ sub filtermessage {
 
    $filtercheckline = '' unless defined $filtercheckline && $filtercheckline ne '';
 
+   writelog("debug_mailfilter :: $folder :: filter.check metainfo line : $filtercheckline") if $config{debug_mailfilter};
+
    if ($filtercheckline eq $metainfo) {
+      # the folder metainfo timestamps match what is stored in the filter.check file
+      # filtering is up to date - no need to filter right now
       ow::filelock::lock($filtercheckfile, LOCK_UN) or writelog("cannot unlock file $filtercheckfile");
+      writelog("debug_mailfilter :: $folder :: folder and filter.check metainfo matches - no filtering needed") if $config{debug_mailfilter};
       return 0;
    }
 
+   writelog("debug_mailfilter :: $folder :: folder and filter.check metainfo mismatch - updating filter.check file") if $config{debug_mailfilter};
+
+   # update the metainfo in the filter.check file
    if (!sysopen(FILTERCHECK, $filtercheckfile, O_WRONLY|O_TRUNC|O_CREAT)) {
       ow::filelock::lock($filtercheckfile, LOCK_UN) or writelog("cannot unlock file $filtercheckfile");
       openwebmailerror(gettext('Cannot open file:') . " $filtercheckfile");
@@ -113,19 +126,27 @@ sub filtermessage {
    openwebmailerror(gettext('Cannot lock file:') . ' ' . f2u($folderfile))
       unless ow::filelock::lock($folderfile, LOCK_EX);
 
+   writelog("debug_mailfilter :: $folder :: updating the folder index db before filtering") if $config{debug_mailfilter};
+
    if (!update_folderindex($folderfile, $folderdb) < 0) {
       ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
       openwebmailerror(gettext('Cannot update index db:') . ' ' . f2u($folderdb));
    }
 
+   writelog("debug_mailfilter :: $folder :: update index complete - begin filtering") if $config{debug_mailfilter};
+
    my @allmessageids = ();
+
+   writelog("debug_mailfilter :: $folder :: getting the offset and status of every message") if $config{debug_mailfilter};
+   writelog("debug_mailfilter :: $folder :: forced_recheck = $forced_recheck") if $config{debug_mailfilter};
 
    # 1 means ignore_internal
    my ($total, $r_msgid2attrs) = get_msgid2attrs($folderdb, 1, $_OFFSET, $_STATUS);
 
    foreach my $id (keys %{$r_msgid2attrs}) {
-      next if defined $r_msgid2attrs->{$id}[1] && $r_msgid2attrs->{$id}[1] =~ m/V/ && !$forced_recheck; # skip verified msg if no forced check
-      next if defined $r_msgid2attrs->{$id}[1] && $r_msgid2attrs->{$id}[1] =~ m/Z/;                     # skip any zapped msg
+      my $msg_status = $r_msgid2attrs->{$id}[1];
+      next if defined $msg_status && $msg_status =~ m/V/ && !$forced_recheck; # skip verified messages if no forced check
+      next if defined $msg_status && $msg_status =~ m/Z/;                     # skip zapped messages
       push(@allmessageids, $id);
    }
 
@@ -133,11 +154,14 @@ sub filtermessage {
 
    # return immediately if no message found
    if (scalar @allmessageids < 1) {
+      writelog("debug_mailfilter :: $folder :: no messages found for filtering") if $config{debug_mailfilter};
       ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
       return 0;
    }
 
-   if ($r_prefs->{bgfilterthreshold} > 0 && $#allmessageids + 1 >= $r_prefs->{bgfilterthreshold}) {
+   writelog("debug_mailfilter :: $folder :: ready to filter " . scalar @allmessageids . " messages") if $config{debug_mailfilter};
+
+   if ($r_prefs->{bgfilterthreshold} > 0 && scalar @allmessageids >= $r_prefs->{bgfilterthreshold}) {
       # release folder lock before fork, the forked child does lock in per message basis
       ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
 
@@ -145,13 +169,18 @@ sub filtermessage {
       local $SIG{CHLD} = sub { wait; $_filter_complete = 1 if $? == 0 }; # signaled when filter completes
       local $| = 1; # flush all output
 
+      writelog("debug_mailfilter :: $folder :: forking child process to filter messages in the background") if $config{debug_fork} || $config{debug_mailfilter};
+
       # child
       if (fork() == 0) {
          close(STDIN);
          close(STDOUT);
          close(STDERR);
-         writelog("debug - mailfilter process forked")
-            if $config{debug_fork} || $config{debug_mailfilter};
+
+         local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
+         local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
+
+         writelog("debug_mailfilter :: mailfilter process forked") if $config{debug_fork} || $config{debug_mailfilter};
 
          ow::suid::drop_ruid_rgid(); # set ruid=euid to avoid fork in spamcheck.pl
 
@@ -168,22 +197,24 @@ sub filtermessage {
                                 0
                              ); # 0 means no globallock
 
-         writelog("debug - mailfilter process terminated") if $config{debug_fork} || $config{debug_mailfilter};
+         writelog("debug_mailfilter :: mailfilter process terminated") if $config{debug_fork} || $config{debug_mailfilter};
 
          # terminate this forked filter process
          openwebmail_exit(0);
       }
 
       # wait background filtering to complete for few seconds
-      my $seconds = $r_prefs->{bgfilterwait};
+      my $seconds = $r_prefs->{bgfilterwait} || 5;
       $seconds = 5 if $seconds < 5;
+
+      writelog("debug_mailfilter :: $folder :: waiting $seconds for background filter to complete") if $config{debug_mailfilter};
 
       for (my $i = 0; $i < $seconds; $i++) {
          sleep 1;
          last if $_filter_complete;
       }
    } else {
-      writelog("debug - mailfilter allmessageids started") if $config{debug_mailfilter};
+      writelog("debug_mailfilter :: $folder :: filtering messages in the foreground") if $config{debug_mailfilter};
 
       filter_allmessageids(
                              $user,
@@ -198,7 +229,7 @@ sub filtermessage {
                              1
                           ); # 1 meas has globallock
 
-      writelog("debug - mailfilter allmessageids ended") if $config{debug_mailfilter};
+      writelog("debug_mailfilter :: $folder :: filtering messages in the foreground complete") if $config{debug_mailfilter};
 
       ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
    }
@@ -207,6 +238,8 @@ sub filtermessage {
 }
 
 sub filter_allmessageids {
+   # given a set of messageids that are not status Z (to be zapped), and are not
+   # status V (already verified), filter the messages according to the filterbook
    my (
          $user,
          $folder,
@@ -220,14 +253,17 @@ sub filter_allmessageids {
          $has_globallock
       ) = @_;
 
+   writelog("debug_mailfilter :: $folderfile :: sub filter_allmessageids") if $config{debug_mailfilter};
+
    # create a pidfile that contains the backgrounded process id in it
    # other processes can check for a running backgrounded filter and wait for it
-   my $pidfile = '';;
+   my $pidfile = '';
 
    # threshold > 0 means the bg filter may be actived if the inbox has enough new messages,
    # so we update pid file to terminate any other bg filter process
    if ($r_prefs->{bgfilterthreshold} > 0) {
       $pidfile = dotpath('filter.pid');
+      writelog("debug_mailfilter :: $folderfile :: storing background process id in file $pidfile") if $config{debug_mailfilter};
       sysopen(F, $pidfile, O_WRONLY|O_TRUNC|O_CREAT) or writelog("cannot open file $pidfile ($!)");
       print F $$;
       close(F) or writelog("cannot close file $pidfile ($!)");
@@ -238,9 +274,15 @@ sub filter_allmessageids {
    my @sorted_filterrules = ();
    my $filterbookfile     = dotpath('filter.book');
 
-   read_filterbook($filterbookfile, \%filterrules) if $config{enable_userfilter} && -f $filterbookfile;
+   if ($config{enable_userfilter} && -f $filterbookfile) {
+      writelog("debug_mailfilter :: $folderfile :: reading filterbook $filterbookfile") if $config{debug_mailfilter};
+      read_filterbook($filterbookfile, \%filterrules);
+   }
 
-   read_filterbook($config{global_filterbook}, \%filterrules) if $config{enable_globalfilter} && -f $config{global_filterbook};
+   if ($config{enable_globalfilter} && -f $config{global_filterbook}) {
+      writelog("debug_mailfilter :: $folderfile :: reading global filterbook $config{global_filterbook}") if $config{debug_mailfilter};
+      read_filterbook($config{global_filterbook}, \%filterrules);
+   }
 
    foreach my $key (sort_filterrules(\%filterrules)) {
       my $r_rule = $filterrules{$key};
@@ -257,11 +299,12 @@ sub filter_allmessageids {
          $r_rule->{op} = 'delete' if $r_rule->{op} eq 'move'; # move to DELETE is 'delete'
       }
 
+      writelog("debug_mailfilter :: $folderfile :: using filter rule $key") if $config{debug_mailfilter};
+
       push(@sorted_filterrules, $key);
    }
 
-   writelog("debug - mailfilter read " . scalar @sorted_filterrules . " sorted filterrules")
-      if $config{debug_mailfilter};
+   writelog("debug_mailfilter :: $folderfile :: using " . scalar @sorted_filterrules . " rules") if $config{debug_mailfilter};
 
    # return immediately if nothing to do
    return 1 if (
@@ -280,43 +323,45 @@ sub filter_allmessageids {
    my $append_err          = 0;
 
    my $i = $#{$r_allmessageids};
+
    while ($i >= 0) {
       my $messageid_i = $r_allmessageids->[$i];
-      writelog("debug - mailfilter loop $i, msgid=$messageid_i") if $config{debug_mailfilter};
+      writelog("debug_mailfilter :: loop $i, msgid=$messageid_i") if $config{debug_mailfilter};
 
-      if ($is_verified{$messageid_i} || $messageid_i =~ m/^DUP\d+\-/) {
+      if (exists $is_verified{$messageid_i} || $messageid_i =~ m/^DUP\d+\-/) {
          # skip already verified message or duplicated msg in src folder
          $i--;
          next;
       }
 
+      # quit if there are too many errors
       last if $io_errcount >= 3;
 
       if (!$has_globallock) {
          # terminated if other filter process is active on same folder
          sysopen(F, $pidfile, O_RDONLY) or writelog("cannot open file $pidfile");
-         $_ = <F>;
+         my $process_id = <F>;
          close(F) or writelog("cannot close file $pidfile ($!)");
 
-         writelog("debug - mailfilter opened pidfile $pidfile") if $config{debug_mailfilter};
+         writelog("debug_mailfilter :: opened pidfile $pidfile") if $config{debug_mailfilter};
 
-         if ($_ ne $$) {
-            writelog("mailfilter - bg process terminated - reason: another filter pid=$_ is active.");
+         if ($process_id ne $$) {
+            writelog("debug_mailfilter :: bg process terminated :: another filter pid=$process_id is active") if $config{debug_mailfilter};
             openwebmail_exit(0);
          }
 
          # reload messageids if folder is changed
          my $curr_metainfo = ow::tool::metainfo($folderfile);
+
          if ($metainfo ne $curr_metainfo) {
             my $lockget_messagesize = lockget_messageids($folderfile, $folderdb, $r_allmessageids);
 
-            if ($lockget_messagesize < 0) {
-               openwebmail_exit(0);
-            } else {
-               $i = $#{$r_allmessageids};
-               writelog("mailfilter - reload $i msgids - reason: $folderfile is changed");
-            }
+            openwebmail_exit(0) if $lockget_messagesize < 0;
 
+            $i = $#{$r_allmessageids};
+            writelog("debug_mailfilter :: reload $i msgids :: $folderfile is changed") if $config{debug_mailfilter};
+
+            # update filter.check with the current metainfo
             if (!sysopen(FILTERCHECK, $filtercheckfile, O_WRONLY|O_TRUNC|O_CREAT)) {
                writelog("mailfilter - $filtercheckfile open error");
                openwebmail_exit(0);
@@ -326,7 +371,7 @@ sub filter_allmessageids {
 
             close(FILTERCHECK) or writelog("cannot close file $filtercheckfile ($!)");
 
-            writelog("debug - mailfilter resetting metainfo $metainfo") if $config{debug_mailfilter};
+            writelog("debug_mailfilter :: updating filter.check metainfo $metainfo") if $config{debug_mailfilter};
 
             $metainfo = $curr_metainfo;
 
@@ -353,29 +398,14 @@ sub filter_allmessageids {
 
       if (scalar @attr < 1) {
          # message not found in db
-         writelog("debug - mailfilter message not found in db") if $config{debug_mailfilter};
+         writelog("debug_mailfilter :: message not found in db") if $config{debug_mailfilter};
          $i--;
          next;
       }
 
-      # set unset attributes to defaults
-      $attr[$_OFFSET]       ||= 0;
-      $attr[$_SIZE]         ||= 0;
-      $attr[$_HEADERSIZE]   ||= 0;
-      $attr[$_HEADERCHKSUM] ||= '';
-      $attr[$_RECVDATE]     ||= '';
-      $attr[$_DATE]         ||= '';
-      $attr[$_FROM]         ||= '';
-      $attr[$_TO]           ||= '';
-      $attr[$_SUBJECT]      ||= '';
-      $attr[$_CONTENT_TYPE] ||= '';
-      $attr[$_CHARSET]      ||= '';
-      $attr[$_STATUS]       ||= '';
-      $attr[$_REFERENCES]   ||= '';
-
       if (is_internal_subject($attr[$_SUBJECT]) || $attr[$_STATUS] =~ m/Z/i) {
          # skip internal or zapped
-         writelog("debug - mailfilter skipping internal message $messageid_i") if $config{debug_mailfilter};
+         writelog("debug_mailfilter :: skipping internal or zapped message $messageid_i") if $config{debug_mailfilter};
          $is_verified{$messageid_i} = 1;
          $i--;
          next;
@@ -394,7 +424,7 @@ sub filter_allmessageids {
             next;
          }
 
-         writelog("debug - mailfilter check $messageid_i, subject=$attr[$_SUBJECT]") if $config{debug_mailfilter};
+         writelog("debug_mailfilter :: checking $messageid_i, subject=$attr[$_SUBJECT]") if $config{debug_mailfilter};
 
          # message matches the database, mark it Verified
          if ($attr[$_STATUS] !~ m/V/i) {
@@ -408,12 +438,12 @@ sub filter_allmessageids {
 
             ow::dbm::closedb(\%FDB, $folderdb) or writelog("cannot close db $folderdb");
 
-            writelog("debug - mailfilter marking message verified") if $config{debug_mailfilter};
+            writelog("debug_mailfilter :: marked message verified") if $config{debug_mailfilter};
          }
 
          # 1. virus check
          if ($config{enable_viruscheck} && !$to_be_moved) {
-            writelog("debug - mailfilter viruscheck $messageid_i") if $config{debug_mailfilter};
+            writelog("debug_mailfilter :: viruscheck $messageid_i") if $config{debug_mailfilter};
 
             my $virusfound = 0;
 
@@ -452,18 +482,18 @@ sub filter_allmessageids {
 
             if ($virusfound) {
                $append_err = append_filteredmsg_to_folder(
-                                                               $folderfile,
-                                                               $folderdb,
-                                                               $messageid_i,
-                                                               \@attr,
-                                                               \$currmessage,
-                                                               $user,
-                                                               $config{virus_destination},
-                                                               $has_globallock
-                                                            );
+                                                            $folderfile,
+                                                            $folderdb,
+                                                            $messageid_i,
+                                                            \@attr,
+                                                            \$currmessage,
+                                                            $user,
+                                                            $config{virus_destination},
+                                                            $has_globallock
+                                                         );
 
                if ($append_err >= 0) {
-                  writelog("debug - mailfilter move $messageid_i -> $config{virus_destination}") if $config{debug_mailfilter};
+                  writelog("debug_mailfilter :: move $messageid_i -> $config{virus_destination}") if $config{debug_mailfilter};
                   filterfolderdb_increase($config{virus_destination}, 1);
                   $to_be_moved = 1;
                } else {
@@ -472,12 +502,12 @@ sub filter_allmessageids {
                }
             }
          } else {
-            writelog("debug - mailfilter skipping viruscheck") if $config{debug_mailfilter};
+            writelog("debug_mailfilter :: skipping viruscheck") if $config{debug_mailfilter};
          }
 
          # 2. static filter rules (including global and personal rules)
          if (!$to_be_moved) {
-            writelog("debug - mailfilter static rules check $messageid_i") if $config{debug_mailfilter};
+            writelog("debug_mailfilter :: static rules check $messageid_i") if $config{debug_mailfilter};
 
             foreach my $key (@sorted_filterrules) {
                my $r_rule = $filterrules{$key};
@@ -486,6 +516,8 @@ sub filter_allmessageids {
                # precompile text into regex of message charset for speed
                if (!defined $r_rule->{'regex.' . $attr[$_CHARSET]}) {
                   my $text = (iconv($r_rule->{charset}, $attr[$_CHARSET], $r_rule->{text}))[0];
+
+                  $text = '' unless defined $text;
 
                   if ($r_prefs->{regexmatch} && ow::tool::is_regex($text)) { # do regex compare?
                      $r_rule->{'regex.' . $attr[$_CHARSET]} = qr/$text/im;
@@ -497,26 +529,28 @@ sub filter_allmessageids {
                if ($r_rule->{type} eq 'from' || $r_rule->{type} eq 'to' || $r_rule->{type} eq 'subject') {
                   if ($decoded_header eq '') {
                      $decoded_header = decode_mimewords_iconv($header, $attr[$_CHARSET]);
+                     $decoded_header = '' unless defined $decoded_header;
                      $decoded_header =~ s/\s*\n\s+/ /sg; # concatenate folding lines
                   }
 
                   ow::mailparse::parse_header(\$decoded_header, \%msg) unless defined $msg{from};
 
-                  $is_matched = 1 if $msg{$r_rule->{type}} =~ m/$r_rule->{'regex.' . $attr[$_CHARSET]}/
+                  $is_matched = 1 if exists $msg{$r_rule->{type}}
+                                     && defined $msg{$r_rule->{type}}
+                                     && $msg{$r_rule->{type}} =~ m/$r_rule->{'regex.' . $attr[$_CHARSET]}/
                                      xor $r_rule->{inc} eq 'exclude';
                } elsif ($r_rule->{type} eq 'header') {
                   if ($decoded_header eq '') {
                      $decoded_header = decode_mimewords_iconv($header, $attr[$_CHARSET]);
+                     $decoded_header = '' unless defined $decoded_header;
                      $decoded_header =~ s/\s*\n\s+/ /sg; # concatenate folding lines
                   }
 
                   $is_matched = 1 if $decoded_header =~ m/$r_rule->{'regex.' . $attr[$_CHARSET]}/
                                      xor $r_rule->{inc} eq 'exclude';
                } elsif ($r_rule->{type} eq 'smtprelay') {
-                  if (!defined $r_smtprelays) {
-                     ($r_smtprelays, $r_connectfrom, $r_byas)
-                       = ow::mailparse::get_smtprelays_connectfrom_byas_from_header($header);
-                  }
+                  ($r_smtprelays, $r_connectfrom, $r_byas) = ow::mailparse::get_smtprelays_connectfrom_byas_from_header($header)
+                     unless defined $r_smtprelays;
 
                   my $smtprelays = '';
 
@@ -606,8 +640,7 @@ sub filter_allmessageids {
                }
 
                if ($is_matched) {
-                  writelog("debug - mailfilter matches $r_rule->{type} rule $r_rule->{'regex.' . $attr[$_CHARSET]}")
-                     if $config{debug_mailfilter};
+                  writelog("debug_mailfilter :: matches $r_rule->{type} rule $r_rule->{'regex.' . $attr[$_CHARSET]}") if $config{debug_mailfilter};
 
                   # copy message to other folder and set reserved_in_folder or to_be_moved flag
                   filterruledb_increase($key, 1);
@@ -638,7 +671,7 @@ sub filter_allmessageids {
                         if (!$reserved_in_folder) {
                            if ($config{debug_mailfilter}) {
                               my $fstext = (iconv($r_rule->{charset}, $r_prefs->{fscharset}, $r_rule->{text}))[0];
-                              writelog("debug - mailfilter move $messageid_i -> $r_rule->{fsdest} (rule: $r_rule->{type} $r_rule->{inc} $fstext)");
+                              writelog("debug_mailfilter :: move message $messageid_i -> $r_rule->{fsdest} (rule: $r_rule->{type} $r_rule->{inc} $fstext)");
                            }
 
                            $to_be_moved = 1;
@@ -655,12 +688,12 @@ sub filter_allmessageids {
                }
             }
          } else {
-            writelog("debug - mailfilter skipping static rules check for message already marked to be moved $messageid_i") if $config{debug_mailfilter};
+            writelog("debug_mailfilter :: skipping static rules check for message already marked to be moved $messageid_i") if $config{debug_mailfilter};
          }
 
          # 3. spam check
          if ($config{enable_spamcheck} && !$reserved_in_folder && !$to_be_moved) {
-            writelog("debug - mailfilter spamcheck $messageid_i") if $config{debug_mailfilter};
+            writelog("debug_mailfilter :: spamcheck $messageid_i") if $config{debug_mailfilter};
 
             my $spamfound = 0;
 
@@ -712,7 +745,7 @@ sub filter_allmessageids {
                                                          );
 
                if ($append_err >= 0) {
-                  writelog("debug - mailfilter move $messageid_i -> $config{spam_destination}") if $config{debug_mailfilter};
+                  writelog("debug_mailfilter :: move message $messageid_i -> $config{spam_destination}") if $config{debug_mailfilter};
                   filterfolderdb_increase($config{spam_destination}, 1);
                   $to_be_moved = 1;
                } else {
@@ -724,7 +757,7 @@ sub filter_allmessageids {
 
          # 4. smart filter rules
          if ($config{enable_smartfilter} && !$reserved_in_folder && !$to_be_moved) {
-            writelog("debug - mailfilter smart rules check $messageid_i") if $config{debug_mailfilter};
+            writelog("debug_mailfilter :: smart rules check $messageid_i") if $config{debug_mailfilter};
 
             # bypass smart filters for good messages
             if ($config{smartfilter_bypass_goodmessage} && !$reserved_in_folder && !$to_be_moved) {
@@ -884,7 +917,7 @@ sub filter_allmessageids {
                                                          );
 
                if ($append_err >= 0) {
-                  writelog("debug - mailfilter move $messageid_i -> mail-trash (smartrule: $matchedsmartrule)") if $config{debug_mailfilter};
+                  writelog("debug_mailfilter :: move message $messageid_i -> mail-trash (smartrule: $matchedsmartrule)") if $config{debug_mailfilter};
                   filterfolderdb_increase('mail-trash', 1);
                } else {
                   writelog("mailfilter - move $messageid_i -> mail-trash write error $append_err");
@@ -941,7 +974,7 @@ sub filter_allmessageids {
    } # end of messageids loop
 
    if ($has_globallock || ow::filelock::lock($folderfile, LOCK_EX)) {
-      # remove repeated msgs with repeated count > ${$r_prefs}{'filter_repeatlimit'}
+      # remove repeated msgs with repeated count > $r_prefs->{filter_repeatlimit}
       my @repeatedids = ();
       my $fromsubject = '';
       my $r_ids       = [];
@@ -963,7 +996,7 @@ sub filter_allmessageids {
             if ($moved > 0) {
                if ($config{debug_mailfilter}) {
                   my $idsstr = join(',', @repeatedids);
-                  writelog("debug - mailfilter move $idsstr -> mail-trash (smartrule: filter_repeatlimit)");
+                  writelog("debug_mailfilter :: move messages $idsstr -> mail-trash (smartrule: filter_repeatlimit)");
                }
 
                filterruledb_increase("filter_repeatlimit", $moved);
@@ -1064,7 +1097,9 @@ sub domain {
 sub append_filteredmsg_to_folder {
    my ($folderfile, $folderdb, $messageid, $r_attr, $r_currmessage, $user, $destination, $has_globallock) = @_;
 
-   if (${$r_currmessage} eq '') {
+   writelog("debug_mailprocess :: $folderfile :: append_filteredmsg_to_folder messageid $messageid") if $config{debug_mailprocess};
+
+   if (!defined ${$r_currmessage} || ${$r_currmessage} eq '') {
       # lockget_message_block returns:
       # -1: lock/open error
       # -2: message id not in database
@@ -1077,12 +1112,15 @@ sub append_filteredmsg_to_folder {
 
    my ($dstfile, $dstdb) = get_folderpath_folderdb($user, $destination);
 
+   writelog("debug_mailprocess :: $folderfile :: destination $dstfile") if $config{debug_mailprocess};
+
    # -6: cannot open dstfile
    if (!-f $dstfile) {
       if (!sysopen(DEST, $dstfile, O_WRONLY|O_TRUNC|O_CREAT)) {
          writelog("cannot open file $dstfile ($!)");
          return -6;
       }
+
       close(DEST) or writelog("cannot close file $dstfile ($!)");
    }
 

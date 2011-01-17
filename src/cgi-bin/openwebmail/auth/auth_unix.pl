@@ -10,7 +10,10 @@ package ow::auth_unix;
 ########## No configuration required from here ###################
 
 use strict;
+use warnings FATAL => 'all';
+
 use Fcntl qw(:DEFAULT :flock);
+
 require "modules/filelock.pl";
 require "modules/tool.pl";
 
@@ -35,7 +38,7 @@ my $change_smbpasswd = $conf{'change_smbpasswd'} || 'no';
 #  0 : ok
 # -2 : parameter format error
 # -3 : authentication system/internal error
-# -4 : user doesn't exist
+# -4 : user does not exist
 sub get_userinfo {
    my ($r_config, $user)=@_;
    return(-2, 'User is null') if ($user eq '');
@@ -51,7 +54,7 @@ sub get_userinfo {
          ($uid, $gid, $realname, $homedir)= (getpwnam_file($user, $passwdfile_plaintext))[2,3,6,7];
       }
    }
-   return(-4, "User $user doesn't exist") if ($uid eq "");
+   return(-4, "User $user does not exist") if ($uid eq "");
 
    # get other gid for this user in /etc/group
    while (my @gr=getgrent()) {
@@ -62,14 +65,15 @@ sub get_userinfo {
    # guess real homedir under sun's automounter
    $homedir="/export$homedir" if (-d "/export$homedir");
 
-   return(0, "", $realname, $uid, $gid, $homedir);
+   return(0, '', $realname, $uid, $gid, $homedir);
 }
 
 
-#  0 : ok
-# -1 : function not supported
-# -3 : authentication system/internal error
-sub get_userlist {	# only used by openwebmail-tool.pl -a
+sub get_userlist {
+   # only used by openwebmail-tool.pl -a
+   #  0 : ok
+   # -1 : function not supported
+   # -3 : authentication system/internal error
    my $r_config=$_[0];
    my @userlist=();
    my $line;
@@ -77,11 +81,11 @@ sub get_userlist {	# only used by openwebmail-tool.pl -a
    # a file should be locked only if it is local accessable
    if (-f $passwdfile_plaintext) {
       ow::filelock::lock($passwdfile_plaintext, LOCK_SH) or
-         return (-3, "Couldn't get read lock on $passwdfile_plaintext", @userlist);
+         return (-3, "Could not get read lock on $passwdfile_plaintext", @userlist);
    }
    open(PASSWD, $passwdfile_plaintext);
    while (defined($line=<PASSWD>)) {
-      next if ($line=~/^#/);
+      next if $line =~ m/^#/ || $line =~ m/^\s*$/;
       chomp($line);
       push(@userlist, (split(/:/, $line))[0]);
    }
@@ -102,30 +106,46 @@ sub check_userpassword {
    # a file should be locked only if it is local accessable
    if (-f $passwdfile_encrypted) {
       ow::filelock::lock($passwdfile_encrypted, LOCK_SH) or
-         return (-3, "Couldn't get read lock on $passwdfile_encrypted");
+         return (-3, "Could not get read lock on $passwdfile_encrypted");
    }
    if ( ! open(PASSWD, $passwdfile_encrypted) ) {
       ow::filelock::lock($passwdfile_encrypted, LOCK_UN) if ( -f $passwdfile_encrypted);
-      return (-3, "Couldn't open $passwdfile_encrypted");
+      return (-3, "Could not open $passwdfile_encrypted");
    }
 
-   my ($line, $u, $p, $expirefield, $expire);
-   if ($passwdfile_encrypted=~/master\.passwd/) {
-      $expirefield=6;	# /etc/master.passwd (*bsd)
+   my $u      = '';
+   my $p      = '';
+   my $expire = '';
+
+   # 6 = /etc/master.passwd (*bsd)
+   # 7 = /etc/shadow (linux, solaris)
+   my $expirefield = $passwdfile_encrypted =~ m/master\.passwd/ ? 6 : 7;
+
+   if ($passwdfile_encrypted =~ m/master\.passwd/) {
+      $expirefield = 6; # /etc/master.passwd (*bsd)
    } else {
-      $expirefield=7;  	# /etc/shadow (linux, solaris)
+      $expirefield = 7; # /etc/shadow (linux, solaris)
    }
-   while (defined($line=<PASSWD>)) {
+
+   while (defined(my $line = <PASSWD>)) {
+      next if $line =~ m/^\s*$/;
+
       chomp($line);
+
       ($u, $p, $expire) = (split(/:/, $line))[0,1, $expirefield];
-      last if ($u eq $user); # We've found the user in /etc/passwd
+
+      $u      = '' unless defined $u;
+      $p      = '' unless defined $p;
+      $expire = '' unless defined $expire;
+
+      last if $u eq $user; # We found the user in /etc/passwd
    }
 
    close(PASSWD);
-   ow::filelock::lock($passwdfile_encrypted, LOCK_UN) if ( -f $passwdfile_encrypted);
+   ow::filelock::lock($passwdfile_encrypted, LOCK_UN) if -f $passwdfile_encrypted;
 
-   return(-4, "User $user doesn't exist") if ($u ne $user);
-   return(-4, "Password incorrect") if (crypt($password,$p) ne $p);
+   return(-4, "User $user does not exist") if $u ne $user;
+   return(-4, "Password incorrect") if crypt($password,$p) ne $p;
 
    # check expiration
    if ($check_expire=~/yes/i && $expire=~/^\d\d\d\d+$/) {
@@ -141,14 +161,14 @@ sub check_userpassword {
    }
    # emulate pam_shells.so
    if ($check_shell=~/yes/i && !has_valid_shell($user)) {
-      return (-4, "user $user doesn't have valid shell");
+      return (-4, "user $user does not have valid shell");
    }
    # valid user on cobalt ?
    if ($check_cobaltuser=~/yes/i) {
       my $cbhttphost=$ENV{'HTTP_HOST'}; $cbhttphost=~s/:\d+$//;	# remove port number
       my $cbhomedir="/home/sites/$cbhttphost/users/$user";
       if (!-d $cbhomedir) {
-         return (-4, "This cobalt user $user doesn't has homedir $cbhomedir");
+         return (-4, "This cobalt user $user does not has homedir $cbhomedir");
       }
    }
 
@@ -162,32 +182,49 @@ sub check_userpassword {
 # -3 : authentication system/internal error
 # -4 : password incorrect
 sub change_userpassword {
-   my ($r_config, $user, $oldpassword, $newpassword)=@_;
-   my ($u, $p, $misc, $encrypted);
-   my ($content, $line);
+   my ($r_config, $user, $oldpassword, $newpassword) = @_;
+
+   my $u         = '';
+   my $p         = '';
+   my $misc      = '';
+   my $encrypted = '';
+   my $content   = '';
+
    return (-2, "User or password is null") if ($user eq '' || $oldpassword eq '' || $newpassword eq '');
    return (-2, "Password too short") if (length($newpassword)<${$r_config}{'passwd_minlen'});
 
    # a passwdfile could be modified only if it is local accessable
-   return (-1, "$passwdfile_encrypted doesn't exist on local") if (! -f $passwdfile_encrypted);
+   return (-1, "$passwdfile_encrypted does not exist on local") if (! -f $passwdfile_encrypted);
 
    ow::filelock::lock($passwdfile_encrypted, LOCK_EX) or
-      return (-3, "Couldn't get write lock on $passwdfile_encrypted");
-   if ( ! open(PASSWD, $passwdfile_encrypted) ) {
+      return (-3, "Could not get write lock on $passwdfile_encrypted");
+
+   if (!open(PASSWD, $passwdfile_encrypted)) {
       ow::filelock::lock($passwdfile_encrypted, LOCK_UN);
-      return (-3, "Couldn't open $passwdfile_encrypted");
+      return (-3, "Could not open $passwdfile_encrypted");
    }
-   while (defined($line=<PASSWD>)) {
+
+   while (defined(my $line = <PASSWD>)) {
+      next if $line =~ m/^\s*$/;
+
       $content .= $line;
+
       chomp($line);
-      ($u, $p, $misc) = split(/:/, $line, 3) if ($u ne $user);
+
+      ($u, $p, $misc) = split(/:/, $line, 3) if $u ne $user;
+
+      $u    = '' unless defined $u;
+      $p    = '' unless defined $p;
+      $misc = '' unless defined $misc;
    }
+
    close(PASSWD);
 
    if ($u ne $user) {
       ow::filelock::lock($passwdfile_encrypted, LOCK_UN);
-      return (-4, "User $user doesn't exist");
+      return (-4, "User $user does not exist");
    }
+
    if (crypt($oldpassword,$p) ne $p) {
       ow::filelock::lock($passwdfile_encrypted, LOCK_UN);
       return (-4, "Password incorrect");
@@ -195,9 +232,11 @@ sub change_userpassword {
 
    my @salt_chars = ('a'..'z','A'..'Z','0'..'9');
    my $salt = $salt_chars[rand(62)] . $salt_chars[rand(62)];
+
    if ($p =~ /^\$1\$/) {	# if orig encryption is MD5, keep using it
       $salt = '$1$'. $salt;
    }
+
    $encrypted= crypt($newpassword, $salt);
 
    my $oldline=join(":", $u, $p, $misc);
@@ -216,6 +255,7 @@ sub change_userpassword {
    if ($passwdmkdb ne "" && $passwdmkdb ne "none" ) {
       # disable $SIG{CHLD} temporarily for system() return value
       # local $SIG{CHLD}; undef $SIG{CHLD};	# already done in auth.pl
+
       # update passwd and db with pwdmkdb program
       if ( system("$passwdmkdb $tmpfile")!=0 ) {
          goto authsys_error;
@@ -246,24 +286,44 @@ authsys_error:
 # this routine is slower than system getpwnam() but can work with file
 # other than /etc/passwd. ps: it always return '*' for passwd field.
 sub getpwnam_file {
-   my ($user, $passwdfile_plaintext)=@_;
-   my ($name, $passwd, $uid, $gid, $gcos, $dir, $shell);
+   my ($user, $passwdfile_plaintext) = @_;
 
-   return("", "", "", "", "", "", "", "", "") if ($user eq "");
+   my $name   = '';
+   my $passwd = '';
+   my $uid    = '';
+   my $gid    = '';
+   my $gcos   = '';
+   my $dir    = '';
+   my $shell  = '';
+
+   return('', '', '', '', '', '', '', '', '') if $user eq '';
 
    open(PASSWD, $passwdfile_plaintext);
-   while(<PASSWD>) {
-      next if (/^#/);
-      chomp;
-      ($name, $passwd, $uid, $gid, $gcos, $dir, $shell)=split(/:/);
-      last if ($name eq $user);
+
+   while(defined(my $line = <PASSWD>)) {
+      next if $line =~ m/^#/ || $line =~ m/^\s*$/;
+
+      chomp($line);
+
+      ($name, $passwd, $uid, $gid, $gcos, $dir, $shell) = split(/:/,$line);
+
+      $name   = '' unless defined $name;
+      $passwd = '' unless defined $passwd;
+      $uid    = '' unless defined $uid;
+      $gid    = '' unless defined $gid;
+      $gcos   = '' unless defined $gcos;
+      $dir    = '' unless defined $dir;
+      $shell  = '' unless defined $shell;
+
+      last if $name eq $user;
    }
+
    close(PASSWD);
 
    if ($name eq $user) {
-      return($name, "*", $uid, $gid, 0, "", $gcos, $dir, $shell);
+      return($name, '*', $uid, $gid, 0, '', $gcos, $dir, $shell);
    } else {
-      return("", "", "", "", "", "", "", "", "");
+      return('', '', '', '', '', '', '', '', '');
    }
 }
 

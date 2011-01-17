@@ -9,7 +9,10 @@ package openwebmail::auth_mysql_postnuke;
 ########## No configuration required from here ###################
 
 use strict;
+use warnings FATAL => 'all';
+
 use DBI;
+
 require "modules/tool.pl";
 
 my %conf;

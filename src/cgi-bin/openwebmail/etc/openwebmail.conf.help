@@ -550,7 +550,17 @@ If this option is set to yes, info of forked process will be logged
 
 debug_maildb
 -----------------------------------------------------------------------
+If this option is set to yes, details of the maildb will be logged
+
+
+debug_maildb_buffer
+-----------------------------------------------------------------------
 If this option is set to yes, details of the maildb buffers will be logged
+
+
+debug_mailprocess
+-----------------------------------------------------------------------
+If this option is set to yes, details of mail processing will be logged
 
 
 debug_mailfilter

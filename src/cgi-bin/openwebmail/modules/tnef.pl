@@ -13,15 +13,17 @@ package ow::tnef;
 #
 
 use strict;
+use warnings FATAL => 'all';
+
 use Fcntl qw(:DEFAULT :flock);
+
 require "modules/tool.pl";
 require "modules/suid.pl";
 
 sub get_tnef_filelist {
    my ($tnefbin, $r_tnef) = @_;
 
-   local $SIG{CHLD};
-   undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
+   local $SIG{CHLD}; # disable $SIG{CHLD} temporarily for wait()
 
    local $| = 1; # flush all output
 
@@ -53,8 +55,7 @@ sub get_tnef_archive {
    my ($tnefbin, $tnefname, $r_tnef) = @_;
    my ($arcname, $arcdata);
 
-   local $SIG{CHLD};
-   undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
+   local $SIG{CHLD}; # disable $SIG{CHLD} temporarily for wait()
 
    local $| = 1; # flush all output
 

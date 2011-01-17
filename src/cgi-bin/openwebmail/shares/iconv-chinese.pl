@@ -31,7 +31,7 @@
 # The table and code were adopted from Encode::HanConvert on CPAN
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 

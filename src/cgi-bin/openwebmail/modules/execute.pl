@@ -8,8 +8,12 @@ package ow::execute;
 #
 
 use strict;
+use warnings FATAL => 'all';
+
 use IPC::Open3;
+
 use vars qw(*cmdOUT *cmdIN *cmdERR);
+
 sub execute {
    my @cmd;
    foreach (@_) {
@@ -18,9 +22,12 @@ sub execute {
    }
 
    my ($childpid, $stdout, $stderr);
-   my $mypid=$$;
-   local $SIG{CHLD}; undef $SIG{CHLD};	# disable $SIG{CHLD} temporarily for wait()
-   local $|=1;				# flush CGI related output in parent
+
+   my $mypid = $$;
+
+   local $SIG{CHLD};                    # disable $SIG{CHLD} temporarily for wait()
+
+   local $| = 1;                        # flush CGI related output in parent
 
    eval { $childpid = open3(\*cmdIN, \*cmdOUT, \*cmdERR, @cmd); };
    if ($@) {			# open3 return err only in child

@@ -8,10 +8,13 @@ package ow::filelock;
 ########## No configuration required from here ###################
 
 use strict;
+use warnings FATAL => 'all';
+
 use Fcntl qw(:DEFAULT :flock);
+
 require "modules/tool.pl";
 
-my %conf;
+my %conf = ();
 if (($_=ow::tool::find_configfile('etc/filelock.conf', 'etc/defaults/filelock.conf')) ne '') {
    my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
    die $err if ($ret<0);

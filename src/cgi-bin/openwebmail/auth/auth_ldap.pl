@@ -9,7 +9,10 @@ package ow::auth_ldap;
 ########## No configuration required from here ###################
 
 use strict;
+use warnings FATAL => 'all';
+
 use Net::LDAP;
+
 require "modules/tool.pl";
 
 my %conf;

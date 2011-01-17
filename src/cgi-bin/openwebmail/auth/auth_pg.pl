@@ -8,8 +8,11 @@ package ow::auth_pg;
 ########## No configuration required from here ###################
 
 use strict;
+use warnings FATAL => 'all';
+
 use Pg;
 use Digest::MD5;
+
 require "modules/tool.pl";
 
 my %conf;

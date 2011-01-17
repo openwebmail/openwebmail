@@ -4,6 +4,8 @@ package ow::spamcheck;
 #
 
 use strict;
+use warnings FATAL => 'all';
+
 require "modules/tool.pl";
 require "modules/suid.pl";
 

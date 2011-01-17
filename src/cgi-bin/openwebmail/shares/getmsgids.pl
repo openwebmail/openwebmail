@@ -31,7 +31,7 @@
 # The search supports full content search and caches results for repeated queries.
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 
@@ -89,13 +89,16 @@ sub getinfomessageids {
          close(STDOUT);
          close(STDERR);
 
-         writelog("debug - update folderindex process forked") if $config{debug_fork};
+         local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
+         local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
+
+         writelog("debug_fork :: update folderindex process forked") if $config{debug_fork};
 
          ow::filelock::lock($folderfile, LOCK_SH|LOCK_NB) or openwebmail_exit(1);
          update_folderindex($folderfile, $folderdb);
          ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
 
-         writelog("debug - update folderindex process terminated") if $config{debug_fork};
+         writelog("debug_fork :: update folderindex process terminated") if $config{debug_fork};
          openwebmail_exit(0);
       }
 

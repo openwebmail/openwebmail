@@ -28,7 +28,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -108,7 +108,7 @@ $searchtype    = param('searchtype') || 'subject';
 $keyword       = param('keyword') || '';
 $messageid     = param('message_id') ||'';
 
-writelog("debug - request cal begin, action=$action") if $config{debug_request};
+writelog("debug_request :: request cal begin, action=$action") if $config{debug_request};
 
 $action eq 'calyear'   ? viewyear()  :
 $action eq 'calmonth'  ? viewmonth() :
@@ -120,7 +120,7 @@ $action eq 'caladdmod' ? addmod()    :
 $action eq 'caldel'    ? del()       :
 openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request cal end, action=$action") if $config{debug_request};
+writelog("debug_request :: request cal end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 

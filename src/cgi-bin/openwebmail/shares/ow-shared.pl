@@ -29,7 +29,7 @@
 # routines shared by openwebmail*.pl
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use lib 'lib';
 use Fcntl qw(:DEFAULT :flock);
@@ -153,7 +153,9 @@ $persistence_count = 0;
                                    create_syshomedir                  => 1,
                                    debug_fork                         => 1,
                                    debug_maildb                       => 1,
+                                   debug_maildb_buffer                => 1,
                                    debug_mailfilter                   => 1,
+                                   debug_mailprocess                  => 1,
                                    debug_request                      => 1,
                                    default_abook_collapse             => 1,
                                    default_abook_defaultfilter        => 1,
@@ -1957,13 +1959,18 @@ sub decode_mimewords_iconv {
    # decode mimewords and iconv to the requested charset
    # mimeword example: =?CHARSET?(B|Q)?...?=
    my ($string, $tocharset) = @_;
+
+   return '' unless defined $string && defined $tocharset;
+
    my @decoded_strings = ow::mime::decode_mimewords($string);
 
    my $result = '';
+
    foreach my $decoded_array (@decoded_strings) {
       my $decoded_string  = $decoded_array->[0];
       my $decoded_charset = $decoded_array->[1];
-      $result .= (iconv($decoded_charset, $tocharset, $decoded_string))[0];
+      my $decoded_result  = (iconv($decoded_charset, $tocharset, $decoded_string))[0];
+      $result .= $decoded_result if defined $decoded_result;
    }
 
    return $result;
@@ -2468,7 +2475,17 @@ sub getfolders {
 sub get_folderpath_folderdb {
    my ($username, $foldername) = @_;
 
-   my ($folderfile, $folderdb);
+   if (
+         (!defined $username || $username =~ m/^\s*$/)
+         ||
+         (!defined $foldername || $foldername =~ m/^\s*$/)
+      ) {
+      writelog("username or foldername are not defined");
+      openwebmailerror(gettext('System Error'));
+   }
+
+   my $folderfile = '';
+   my $folderdb   = '';
 
    if ($foldername eq 'INBOX') {
       if ($config{use_homedirspools}) {
@@ -2478,6 +2495,7 @@ sub get_folderpath_folderdb {
       } else {
          $folderfile = "$config{mailspooldir}/$username";
       }
+
       $folderdb = dotpath('db') . "/$username";
    } elsif ($foldername eq 'DELETE') {
       $folderfile = $folderdb = '';
@@ -2489,7 +2507,7 @@ sub get_folderpath_folderdb {
       $folderfile = "$homedir/$config{homedirfolderdirname}/$foldername";
    }
 
-   return(ow::tool::untaint($folderfile), ow::tool::untaint($folderdb));
+   return (ow::tool::untaint($folderfile), ow::tool::untaint($folderdb));
 }
 
 sub del_staledb {

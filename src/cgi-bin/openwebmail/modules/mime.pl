@@ -11,6 +11,8 @@ package ow::mime;
 #
 
 use strict;
+use warnings FATAL => 'all';
+
 use MIME::Base64;
 use MIME::QuotedPrint;
 use vars qw($NONPRINT $BIG5CHARS $WORDCHARS);
@@ -31,6 +33,7 @@ sub decode_content {
    $encoding =~ m/^quoted-printable/i                               ? return decode_qp($content)     :
    $encoding =~ m/^base64/i && $content !~ m#[^A-Za-z0-9+/=\n\r]#sg ? return decode_base64($content) :
    $encoding =~ m/^x-uuencode/i                                     ? return uudecode($content)      :
+
    return $content;
 }
 
@@ -40,21 +43,25 @@ sub decode_mimewords {
 
     return (wantarray ? () : $encstr) unless defined $encstr;
 
-    my @tokens;
-    $@ = '';           ### error-return
+    my @tokens = ();
+    $@ = ''; # error-return
 
-    ### Collapse boundaries between adjacent encoded words:
+    # Collapse boundaries between adjacent encoded words:
     $encstr =~ s{(\?\=)\s*(\=\?)}{$1$2}gs;
     pos($encstr) = 0;
-    ### print STDOUT "ENC = [", $encstr, "]\n";
+    # print STDOUT "ENC = [", $encstr, "]\n";
 
-    ### Decode:
-    my ($charset, $encoding, $enc, $dec);
+    # Decode:
+    my $charset  = '';
+    my $encoding = '';
+    my $enc      = '';
+    my $dec      = '';
+
     while (1) {
-	last if (pos($encstr) >= length($encstr));
-	my $pos = pos($encstr);               ### save it
+	last if pos($encstr) >= length($encstr);
+	my $pos = pos($encstr); # save it
 
-	### Case 1: are we looking at "=?..?..?="?
+	# Case 1: are we looking at "=?..?..?="?
 	if ($encstr =~    m{\G             # from where we left off..
 			    =\?([^?]*)     # "=?" + charset +
 			     \?([bq])      #  "?" + encoding +
@@ -67,17 +74,18 @@ sub decode_mimewords {
 	    next;
 	}
 
-	### Case 2: are we looking at a bad "=?..." prefix?
-	### We need this to detect problems for case 3, which stops at "=?":
-	pos($encstr) = $pos;               # reset the pointer.
+	# Case 2: are we looking at a bad "=?..." prefix?
+	# We need this to detect problems for case 3, which stops at "=?":
+	pos($encstr) = $pos; # reset the pointer
+
 	if ($encstr =~ m{\G=\?}xg) {
 	    $@ .= qq|unterminated "=?..?..?=" in "$encstr" (pos $pos)\n|;
 	    push @tokens, ['=?'];
 	    next;
 	}
 
-	### Case 3: are we looking at ordinary text?
-	pos($encstr) = $pos;               # reset the pointer.
+	# Case 3: are we looking at ordinary text?
+	pos($encstr) = $pos; # reset the pointer
 	if ($encstr =~ m{\G                # from where we left off...
 			 ([\x00-\xFF]*?    #   shortest possible string,
 			  \n*)             #   followed by 0 or more NLs,
@@ -88,10 +96,11 @@ sub decode_mimewords {
 	    next;
 	}
 
-	### Case 4: bug!
+	# Case 4: bug!
 	die "mime: unexpected case:\n($encstr) pos $pos";
     }
-    return (wantarray ? @tokens : join('',map {$_->[0]} @tokens));
+
+    return (wantarray ? @tokens : join('', map { $_->[0] } @tokens));
 }
 
 sub encode_mimeword {

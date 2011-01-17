@@ -29,7 +29,7 @@
 # adrbook.pl - The main front-end for reading and writing addressbook data
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 

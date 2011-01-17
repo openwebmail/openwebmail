@@ -4,6 +4,8 @@ package ow::lang;
 #
 
 use strict;
+use warnings FATAL => 'all';
+
 use vars qw(%charactersets %RTL);
 
 # preferred MIME character sets as described in

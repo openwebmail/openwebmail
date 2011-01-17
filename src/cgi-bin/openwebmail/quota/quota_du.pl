@@ -14,6 +14,7 @@ package ow::quota_du;
 #
 
 use strict;
+use warnings FATAL => 'all';
 
 my $duinfo_db="/var/tmp/duinfo";
 my $duinfo_lifetime=60;

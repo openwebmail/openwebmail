@@ -1,7 +1,7 @@
 package OWM::PO;
 
-use warnings;
 use strict;
+use warnings;
 
 use vars '$VERSION';
 $VERSION = '0.01';

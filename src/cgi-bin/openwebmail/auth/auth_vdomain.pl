@@ -8,7 +8,10 @@ package ow::auth_vdomain;
 ########## No configuration required from here ###################
 
 use strict;
+use warnings FATAL => 'all';
+
 use Fcntl qw(:DEFAULT :flock);
+
 require "modules/filelock.pl";
 require "modules/tool.pl";
 

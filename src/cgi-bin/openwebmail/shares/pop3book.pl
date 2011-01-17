@@ -29,7 +29,7 @@
 # pop3book.pl - read/write pop3book
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 use MIME::Base64;

@@ -28,7 +28,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -92,7 +92,7 @@ use vars qw($pipepid $piperun $pipeexit $pipesig);
 # than english letters, you have to define new entry in the hash below
 use vars qw(%dictionary_letters);
 
-if ($dictionary_letters{english} eq '') {
+if (!exists $dictionary_letters{english} || !defined $dictionary_letters{english} || $dictionary_letters{english} eq '') {
    %dictionary_letters =
    (
       english   => 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
@@ -121,7 +121,7 @@ openwebmailerror(gettext('Access denied: the webmail module is not enabled.'))
 
 my $action = param('action') || '';
 
-writelog("debug - request spell begin, action=$action") if $config{debug_request};
+writelog("debug_request :: request spell begin, action=$action") if $config{debug_request};
 
 defined param('body')       ? check('start')  :
 defined param('checkagain') ? check('again')  :
@@ -129,7 +129,7 @@ defined param('finish')     ? check('finish') :
 defined param('editpdict')  ? editpdict()     :
 openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request spell end, action=$action") if $config{debug_request};
+writelog("debug_request :: request spell end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -383,6 +383,8 @@ sub spellcheck_words {
       } else {
          # spellcheck this word
          my $result = spellcheck($word);
+
+         $result->{type} = 'unknown' unless defined $result->{type};
 
          if ($result->{type} eq 'none' || $result->{type} eq 'guess') {
             $words->[$i]{misspelled} = 1;

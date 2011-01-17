@@ -40,7 +40,7 @@
 # for options webdisk_lssymlink and webdisk_allow_symlinkout
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -182,7 +182,7 @@ my $action = param('action')                ? param('action')  :
              param('downloadbutton')        ? 'download'       :
              param('uploadbutton')          ? 'upload'         : 'showdir';
 
-writelog("debug - request webdisk begin, action=$action, currentdir=$currentdir") if $config{debug_request};
+writelog("debug_request :: request webdisk begin, action=$action, currentdir=$currentdir") if $config{debug_request};
 
 openwebmailerror(gettext('The operation cannot be completed because the webdisk is read-only.'))
    if $action =~ m/^(?:mkdir|newfile|copy|move|symlink|delete|chmod|gzip|mkzip|mktgz|extractarchive|mkpdf|mkps|mkthumbnail|upload)$/ && $config{webdisk_readonly};
@@ -302,7 +302,7 @@ if ($action eq 'mkdir') {
    openwebmailerror(gettext('Action has illegal characters.'));
 }
 
-writelog("debug - request webdisk end, action=$action, currentdir=$currentdir") if $config{debug_request};
+writelog("debug_request :: request webdisk end, action=$action, currentdir=$currentdir") if $config{debug_request};
 
 openwebmail_requestend();
 

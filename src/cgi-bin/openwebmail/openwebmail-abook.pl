@@ -35,7 +35,7 @@
 # data structure format described above before coding in this module
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -152,7 +152,7 @@ $abookfolder = 'ALL' if $abookfolder ne 'ALL' && !-e abookfolder2file($abookfold
 refresh_ldapcache();
 
 my $action = param('action') || '';
-writelog("debug - request abook begin, action=$action - " . __FILE__ . ':' . __LINE__) if $config{debug_request};
+writelog("debug_request :: request abook begin, action=$action - " . __FILE__ . ':' . __LINE__) if $config{debug_request};
 
 $action eq "addrlistview"          ? addrlistview()          :
 $action eq "addrcardview"          ? addrcardview()          :
@@ -170,7 +170,7 @@ $action eq "addrbookdownload"      ? addrbookdownload()      :
 $action eq "addrautosuggest"       ? addrautosuggest()       :
 openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request abook end, action=$action - " . __FILE__ . ':' . __LINE__) if $config{debug_request};
+writelog("debug_request :: request abook end, action=$action - " . __FILE__ . ':' . __LINE__) if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -199,11 +199,14 @@ sub refresh_ldapcache {
 
    if (fork() == 0) {
       # child
-      writelog("debug - refresh_ldapcache_abookfile process forked - " . __FILE__ . ':' . __LINE__) if $config{debug_fork};
+      writelog("debug_fork :: refresh_ldapcache_abookfile process forked - " . __FILE__ . ':' . __LINE__) if $config{debug_fork};
 
       close(STDIN);
       close(STDOUT);
       close(STDERR);
+
+      local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
+      local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
 
       my @ldaplist = (); # keep the order in global addressbook
 

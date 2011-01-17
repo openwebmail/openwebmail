@@ -4,6 +4,8 @@ package ow::auth;
 #
 
 use strict;
+use warnings FATAL => 'all';
+
 require "modules/suid.pl";
 require "modules/tool.pl";
 
@@ -23,7 +25,7 @@ sub load {
 
 sub get_userlist {
    # disable $SIG{CHLD} temporarily in case module routine calls system()/wait()
-   local $SIG{CHLD}; undef $SIG{CHLD};
+   local $SIG{CHLD};
 
    my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
    my @results=ow::auth::internal::get_userlist(@_);
@@ -33,7 +35,7 @@ sub get_userlist {
 
 sub get_userinfo {
    # disable $SIG{CHLD} temporarily in case module routine calls system()/wait()
-   local $SIG{CHLD}; undef $SIG{CHLD};
+   local $SIG{CHLD};
 
    my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
    my @results=ow::auth::internal::get_userinfo(@_);
@@ -43,7 +45,7 @@ sub get_userinfo {
 
 sub check_userpassword {
    # disable $SIG{CHLD} temporarily in case module routine calls system()/wait()
-   local $SIG{CHLD}; undef $SIG{CHLD};
+   local $SIG{CHLD};
 
    my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
    my @results=ow::auth::internal::check_userpassword(@_);
@@ -53,7 +55,7 @@ sub check_userpassword {
 
 sub change_userpassword {
    # disable $SIG{CHLD} temporarily in case module routine calls system()/wait()
-   local $SIG{CHLD}; undef $SIG{CHLD};
+   local $SIG{CHLD};
 
    my ($origruid, $origeuid, $origegid)=ow::suid::set_uid_to_root();
    my @results=ow::auth::internal::change_userpassword(@_);

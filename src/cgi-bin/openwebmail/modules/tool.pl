@@ -31,7 +31,7 @@
 package ow::tool;
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 use Digest::MD5 qw(md5);
@@ -539,13 +539,13 @@ sub zombie_cleaner {
    #
    # Note: zombie_cleaner is called at the begin/end of each request
    #
-   # Openwebmail doesn't put zombie_cleaner() into $SIG{CHLD} because
+   # OpenWebMail doesn't put zombie_cleaner() into $SIG{CHLD} because
    # 1. if $SIG{CHLD} is set some signal handler, even a very simple one,
    #    we got "recursive call...,out of memory!" in httpd error log occasionally
    # 2. if $SIG{CHLD} is set to 'IGNORE', we got warning in system log
    #    "application bug: perl5.8.3 has SIGCHLD set to SIG_IGN but calls wait()..."
    #
-   while (waitpid(-1,WNOHANG)>0) {}
+   while (waitpid(-1,WNOHANG) > 0) {}
 }
 
 sub stacktrace {

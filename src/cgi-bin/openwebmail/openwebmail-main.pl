@@ -28,7 +28,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -137,7 +137,7 @@ if (param('clearsearchbutton')) {
 }
 
 # TODO: This action processing seems a little overly complicated. It could probably be cleaner and simpler.
-writelog("debug - request main begin, action=$action, folder=$folder") if $config{debug_request};
+writelog("debug_request :: request main begin, action=$action, folder=$folder") if $config{debug_request};
 
 if ($action eq 'movemessage' || defined param('movebutton') || defined param('copybutton') ) {
    my $destination = ow::tool::untaint(safefoldername(param('destination')));
@@ -268,7 +268,7 @@ if ($action eq 'movemessage' || defined param('movebutton') || defined param('co
    openwebmailerror(gettext('Action has illegal characters.'));
 }
 
-writelog("debug - request main end, action=$action, folder=$folder") if $config{debug_request};
+writelog("debug_request :: request main end, action=$action, folder=$folder") if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -283,7 +283,7 @@ sub listmessages {
    my $inboxsize_k            = 0;
    my $folder_allmessages     = 0;
 
-   my %FDB;
+   my %FDB = ();
 
    # make note of how many inbox messages we have before re-reading the inbox
    my $spooldb = (get_folderpath_folderdb($user, 'INBOX'))[1];
@@ -291,11 +291,13 @@ sub listmessages {
       ow::dbm::opendb(\%FDB, $spooldb, LOCK_SH) or
          openwebmailerror(gettext('Cannot open db:') . " $spooldb ($!)");
 
-      $orig_inbox_newmessages = $FDB{NEWMESSAGES}; # new messages in INBOX
+      $orig_inbox_newmessages = $FDB{NEWMESSAGES} || 0; # new messages in INBOX
 
       ow::dbm::closedb(\%FDB, $spooldb) or
          openwebmailerror(gettext('Cannot close db:') . " $spooldb ($!)");
    }
+
+   writelog("debug_mailprocess :: $folder :: listmessages") if $config{debug_mailprocess};
 
    # filter messages in the background
    filtermessage($user, 'INBOX', \%prefs);
@@ -390,9 +392,9 @@ sub listmessages {
    my $destinationdefault = '';
    if ($quotalimit > 0 && $quotausage >= $quotalimit) {
       $destinationdefault = 'DELETE';
-   } elsif ($folder =~ m#^(?:mail-trash|spam-mail|virus-mail)$#) {
+   } elsif ($folder =~ m/^(?:mail-trash|spam-mail|virus-mail)$/) {
       $destinationdefault = 'INBOX';
-   } elsif ($folder =~ m#^(?:sent-mail|saved-drafts)$#) {
+   } elsif ($folder =~ m/^(?:sent-mail|saved-drafts)$/) {
       $destinationdefault = 'mail-trash';
    } else {
       $destinationdefault = $prefs{defaultdestination} || 'mail-trash';
@@ -455,13 +457,14 @@ sub listmessages {
       openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($folderdb) . " ($!)");
 
    my $messagesloop = [];
+
    foreach my $messagenumber ($firstmessage  .. $lastmessage) {
       my $messageid    = $r_messageids->[$messagenumber - 1];
       my $messagedepth = $r_messagedepths->[$messagenumber - 1] || 0;
 
       next unless defined $FDB{$messageid};
 
-      my @attr    = split(/\n/, $FDB{$messageid});
+      my @attr    = string2msgattr($FDB{$messageid});
       my $charset = $attr[$_CHARSET] || '';
 
       # assume msg is from sender using same language as the recipient's browser
@@ -506,16 +509,16 @@ sub listmessages {
       my $from_xowmuid = exists $contacts->{lc($from_addr)} ? $contacts->{lc($from_addr)} : 0;
 
       my ($add_givenname, $add_familyname, $add_email) =
-        $sort =~ m#^(?:sender|sender_rev)$# ? (split(/\s+/, $from_name, 2), $from_addr) :
+        $sort =~ m/^(?:sender|sender_rev)$/ ? (split(/\s+/, $from_name, 2), $from_addr) :
         scalar @to_addrlist == 1
         && (
-             $sort =~ m#^(?:recipient|recipient_rev)$#
-             || $folder =~ m#^(?:sent-mail|saved-drafts)$#
-             || $folder =~ m#^\Q$categorizedfolders_prefix\E[\Q$prefs{categorizedfolders_fs}\E]#i
+             $sort =~ m/^(?:recipient|recipient_rev)$/
+             || $folder =~ m/^(?:sent-mail|saved-drafts)$/
+             || $folder =~ m/^\Q$categorizedfolders_prefix\E[\Q$prefs{categorizedfolders_fs}\E]/i
            ) ? (split(/\s+/, $to_names, 2), $to_addrs) : (split(/\s+/, $from_name, 2), $from_addr);
 
       # subject
-      $subject = substr($subject, 0, 64) . "..." if length $subject > 67;
+      $subject = substr($subject, 0, 64) . '...' if length $subject > 67;
 
       my $subject_keyword = $subject;
       $subject_keyword =~ s/^(?:\s*.{1,3}[.\s]*:\s*)+//; # strip leading Re: Fw: R: Res: Ref:
@@ -791,15 +794,15 @@ sub listmessages {
    httpprint([
                 -Refresh => ($prefs{refreshinterval} * 60) .
                             ";URL=openwebmail-main.pl?action=listmessages&session_noupdate=1&" .
-                            join ("&", (
-                                          "folder=" . ow::tool::escapeURL($folder),
-                                          "keyword=" . ow::tool::escapeURL($keyword),
-                                          "longpage=" . ow::tool::escapeURL($longpage),
-                                          "msgdatetype=" . ow::tool::escapeURL($msgdatetype),
-                                          "page=" . ow::tool::escapeURL($page),
-                                          "searchtype=" . ow::tool::escapeURL($searchtype),
-                                          "sessionid=" . ow::tool::escapeURL($thissession),
-                                          "sort=" . ow::tool::escapeURL($sort),
+                            join ('&', (
+                                          'folder='      . ow::tool::escapeURL($folder),
+                                          'keyword='     . ow::tool::escapeURL($keyword),
+                                          'longpage='    . ow::tool::escapeURL($longpage),
+                                          'msgdatetype=' . ow::tool::escapeURL($msgdatetype),
+                                          'page='        . ow::tool::escapeURL($page),
+                                          'searchtype='  . ow::tool::escapeURL($searchtype),
+                                          'sessionid='   . ow::tool::escapeURL($thissession),
+                                          'sort='        . ow::tool::escapeURL($sort),
                                        )
                                  )
              ], [$template->output]);
@@ -1044,7 +1047,11 @@ sub movemessage {
          close(STDIN);
          close(STDOUT);
          close(STDERR);
-         writelog("debug - $learntype process forked") if $config{debug_fork};
+
+         local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
+         local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
+
+         writelog("debug_fork :: $learntype process forked") if $config{debug_fork};
 
          ow::suid::drop_ruid_rgid(); # set ruid=euid to avoid fork in spamcheck.pl
 
@@ -1078,7 +1085,7 @@ sub movemessage {
          writelog($m);
          writehistory($m);
 
-         writelog("debug - $learntype process terminated") if $config{debug_fork};
+         writelog("debug_fork :: $learntype process terminated") if $config{debug_fork};
          openwebmail_exit(0);
       }
    }
@@ -1221,7 +1228,10 @@ sub pop3_fetches {
          close(STDOUT);
          close(STDERR);
 
-         writelog("debug - pop3_fetches process forked") if $config{debug_fork};
+         local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
+         local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
+
+         writelog("debug_fork :: pop3_fetches process forked") if $config{debug_fork};
 
          ow::suid::drop_ruid_rgid(); # set ruid=euid can avoid fork in spamcheck.pl
          foreach (values %accounts) {
@@ -1248,7 +1258,7 @@ sub pop3_fetches {
             }
          }
 
-         writelog("debug - fetch pop3s process terminated") if $config{debug_fork};
+         writelog("debug_fork :: fetch pop3s process terminated") if $config{debug_fork};
          openwebmail_exit(0);
       }
 

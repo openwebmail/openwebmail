@@ -10,7 +10,7 @@ package ow::dbm;
 
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 require "modules/filelock.pl";
@@ -38,67 +38,86 @@ $dbmopen_haslock = $dbmopen_haslock =~ m/yes/i ? 1 : 0;
 
 sub opendb {
    my ($r_hash, $db, $flag, $perm) = @_;
-   $perm=0600 if (!$perm);
-   ($dbm_errno, $dbm_errmsg, $dbm_warning)=(0, '', '');
 
-   my ($openerror, $dbtype, $defaultdbtype)=('', '', '');
-   for (my $retry=0; $retry<3; $retry++) {
+   $perm = 0600 unless defined $perm && $perm;
+
+   $dbm_errno   = 0;
+   $dbm_errmsg  = '';
+   $dbm_warning = '';
+
+   my $openerror     = '';
+   my $dbtype        = '';
+   my $defaultdbtype = '';
+
+   for (my $retry = 0; $retry < 3; $retry++) {
       if (!$dbmopen_haslock) {
          if (! -f "$db$dbm_ext") { # ensure dbm existence before lock
             my %t = ();
             my $createerror = '';
 
-            dbmopen(%t, "$db$dbmopen_ext", $perm) or $createerror=$!;
+            dbmopen(%t, "$db$dbmopen_ext", $perm) or $createerror = $!;
             dbmclose(%t);
 
             if ($createerror ne '') {
-               ($dbm_errno, $dbm_errmsg)=(-1, $createerror);
+               $dbm_errno  = -1;
+               $dbm_errmsg = $createerror;
                return 0;
-            } elsif (! -f "$db$dbm_ext") {	# dbmopen ok but dbm file not found
-               ($dbm_errno, $dbm_errmsg)=(-2, "wrong dbm_ext/dbmopen_ext setting?");
+            } elsif (! -f "$db$dbm_ext") {
+               # dbmopen ok but dbm file not found
+               $dbm_errno  = -2;
+               $dbm_errmsg = 'wrong dbm_ext/dbmopen_ext setting?';
                return 0;
             }
          }
+
          if (! ow::filelock::lock("$db$dbm_ext", $flag, $perm) ) {
             if ($flag & LOCK_SH) {
-               ($dbm_errno, $dbm_errmsg)=(-3, "read lock failed");
+               $dbm_errno  = -3;
+               $dbm_errmsg = 'read lock failed';
             } else {
-               ($dbm_errno, $dbm_errmsg)=(-3, "write lock failed");
+               $dbm_errno  = -3;
+               $dbm_errmsg = 'write lock failed';
             }
+
             return 0;
          }
       }
 
-      return 1 if (dbmopen(%{$r_hash}, "$db$dbmopen_ext", $perm));
-      $openerror=$!;
+      return 1 if dbmopen(%{$r_hash}, "$db$dbmopen_ext", $perm);
 
-      ow::filelock::lock("$db$dbm_ext", LOCK_UN) if (!$dbmopen_haslock);
+      $openerror = $!;
+
+      ow::filelock::lock("$db$dbm_ext", LOCK_UN) unless $dbmopen_haslock;
 
       # db may be temporarily unavailable because of too many concurrent accesses,
       # eg: reading a message with lots of attachments
-      if ($openerror=~/Resource temporarily unavailable/) {
-         $dbm_warning.="db temporarily unavailable, retry ".($retry+1).". ";
+      if ($openerror =~ m/Resource temporarily unavailable/) {
+         $dbm_warning .= 'db temporarily unavailable, retry ' . ($retry + 1) . '. ';
          sleep 1;
          next;
       }
 
       # if existing db is in wrong format, then unlink it and create a new one
-      if ( -f "$db$dbm_ext" && -r _ && $dbtype eq '') {
-         $dbtype=get_dbtype("$db$dbm_ext");
-         $defaultdbtype=get_defaultdbtype();
-         if ($dbtype ne $defaultdbtype) {	# db is in wrong format
-            if (unlink("$db$dbm_ext") ) {
-               $dbm_warning="changing db format from $dbtype to $defaultdbtype. ";
+      if (-f "$db$dbm_ext" && -r _ && $dbtype eq '') {
+         $dbtype = get_dbtype("$db$dbm_ext");
+         $defaultdbtype = get_defaultdbtype();
+         if ($dbtype ne $defaultdbtype) {
+            # db is in wrong format
+            if (unlink("$db$dbm_ext")) {
+               $dbm_warning = 'changing db format from $dbtype to $defaultdbtype. ';
                next;
             } else {
-               $openerror.="(wrong db format, default:$defaultdbtype, $db$dbm_ext:$dbtype)";
+               $openerror .= "(wrong db format, default:$defaultdbtype, $db$dbm_ext:$dbtype)";
             }
          }
       }
 
-      last;	# default to leave the loop
+      last; # default to leave the loop
    }
-   ($dbm_errno, $dbm_errmsg)=(-4 , $openerror);
+
+   $dbm_errno  = -4;
+   $dbm_errmsg = $openerror;
+
    return 0;
 }
 

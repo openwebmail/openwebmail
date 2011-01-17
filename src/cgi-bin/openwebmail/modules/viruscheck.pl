@@ -4,6 +4,8 @@ package ow::viruscheck;
 #
 
 use strict;
+use warnings FATAL => 'all';
+
 require "modules/tool.pl";
 
 # sub scanmsg(pipecmd, msg_reference)
@@ -42,7 +44,8 @@ sub scanmsg {
 sub pipecmd_msg {
    my ($pipecmd, $r_message) = @_;
 
-   my $username = getpwuid($>); # username of euid
+   # username of euid
+   my $username = getpwuid($>);
 
    $pipecmd = ow::tool::untaint($pipecmd);
    $pipecmd =~ s/\@\@\@USERNAME\@\@\@/$username/g;
@@ -57,28 +60,31 @@ sub pipecmd_msg {
    # slurp in all the output
    local $/ = undef;
 
-   my $stderr=<$errfh>;
-   close($errfh) || return("could not close the stderrfile $errfile: $!");
+   my $stderr = <$errfh>;
+   close($errfh) or return("could not close the stderrfile $errfile: $!");
 
-   my $stdout=<$outfh>;
-   close($outfh) || return("could not close the stdoutfile $outfile: $!");
+   my $stdout = <$outfh>;
+   close($outfh) or return("could not close the stdoutfile $outfile: $!");
 
    unlink $errfile;
    unlink $outfile;
 
    foreach ($stderr, $stdout) {
-      return $_ if (defined $_ && $_ =~ m#\S#g);
+      return $_ if defined $_ && $_ =~ m#\S#g;
    }
 }
 
 sub _pipecmd_msg {
    my ($pipecmd, $r_message, $outfile, $errfile) = @_;
+
    open(P, "|$pipecmd 2>$errfile >$outfile") or return("pipecmd open failed: $!");
+
    if (ref($r_message) eq 'ARRAY') {
       print P @{$r_message} or return("print array to pipe failed: $!\n");
    } else {
       print P ${$r_message} or return("print string to pipe failed: $!\n");
    }
+
    # this close fails because clamdscan exits immediately, so do not check for error
    close(P);
    return 0;

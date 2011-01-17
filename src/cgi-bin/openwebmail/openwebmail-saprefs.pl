@@ -28,7 +28,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -110,7 +110,7 @@ $prefs_caller = param('prefs_caller') || '';
 
 my $action    = param('action')       || '';
 
-writelog("debug - request saprefs begin, action=$action") if $config{debug_request};
+writelog("debug_request :: request saprefs begin, action=$action") if $config{debug_request};
 
 $action eq 'editrules'        ? editrules()                    :
 $action eq 'addrule'          ? modrule('add')                 :
@@ -123,7 +123,7 @@ $action eq 'deletewhitelist'  ? modlist('delete', 'whitelist') :
 $action eq 'deleteblacklist'  ? modlist('delete', 'blacklist') :
 openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request saprefs end, action=$action") if $config{debug_request};
+writelog("debug_request :: request saprefs end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 

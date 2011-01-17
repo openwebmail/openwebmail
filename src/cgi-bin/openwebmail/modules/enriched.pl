@@ -6,6 +6,7 @@ package ow::enriched;
 #
 
 use strict;
+use warnings FATAL => 'all';
 
 use vars qw($nofill_i @nofill_list);
 sub enriched2html {

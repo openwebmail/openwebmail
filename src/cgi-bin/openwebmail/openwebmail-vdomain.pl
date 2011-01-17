@@ -166,7 +166,7 @@ foreach ("$config{'vdomain_vmpop3_pwdpath'}/$domain/$config{'vdomain_vmpop3_pwdn
 
 my $action = param('action');
 
-writelog("debug - request vdomain begin, action=$action") if $config{debug_request};
+writelog("debug_request :: request vdomain begin, action=$action") if $config{debug_request};
 
 if ($action eq 'display_vuserlist') {
    display_vuserlist();
@@ -182,7 +182,7 @@ if ($action eq 'display_vuserlist') {
    openwebmailerror("Action $lang_err{'has_illegal_chars'}");
 }
 
-writelog("debug - request vdomain end, action=$action") if $config{debug_request};
+writelog("debug_request :: request vdomain end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 ########## END MAIN ##############################################

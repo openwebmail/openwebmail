@@ -29,7 +29,7 @@
 # lunar.pl - convert solar calendar to chinese lunar calendar
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 

@@ -28,7 +28,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -114,11 +114,11 @@ $messageid       = param('message_id') || '';
 
 my $action  = param('action') || '';
 
-writelog("debug - request advsearch begin, action=$action") if $config{debug_request};
+writelog("debug_request :: request advsearch begin, action=$action") if $config{debug_request};
 
 $action eq 'advsearch' ? advsearch() : openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request advsearch end, action=$action") if $config{debug_request};
+writelog("debug_request :: request advsearch end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 

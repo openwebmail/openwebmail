@@ -29,7 +29,7 @@
 # calbook.pl - read and write calendar books
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 

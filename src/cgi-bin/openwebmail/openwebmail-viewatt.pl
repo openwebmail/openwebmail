@@ -28,7 +28,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -116,7 +116,7 @@ $messageid       = param('message_id') || '';
 
 my $action = param('action') || '';
 
-writelog("debug - request viewatt begin, action=$action") if $config{debug_request};
+writelog("debug_request :: request viewatt begin, action=$action") if $config{debug_request};
 
 $action eq 'viewattachment'                            ? viewattachment() :
 $action eq 'viewattfile'                               ? viewattfile()    :
@@ -124,7 +124,7 @@ $action eq 'saveattfile'    && $config{enable_webdisk} ? saveattfile()    :
 $action eq 'saveattachment' && $config{enable_webdisk} ? saveattachment() :
 openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request viewatt end, action=$action") if $config{debug_request};
+writelog("debug_request :: request viewatt end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 

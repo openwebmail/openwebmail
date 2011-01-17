@@ -29,7 +29,7 @@
 # fetchmail.pl - fetch mail messages from pop3 server
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 use IO::Socket;
@@ -194,7 +194,7 @@ sub fetchmail {
       my $msgfrom       = '';
       my $msgdate       = '';
       my $msgid         = '';
-      my $msgsize       = '';
+      my $msgsize       = 0;
       my $headersize    = 0;
 
       my @lines         = ();
@@ -283,7 +283,7 @@ sub fetchmail {
          ) {
          my @completemsg = ($has_dilimeter ? @lines : ($faked_dilimeter, @lines));
 
-         writelog("debug - viruscheck forking cmd $config{viruscheck_pipe} for message $msgid from $pop3user\@$pop3host") if $config{debug_fork};
+         writelog("debug_fork :: viruscheck forking cmd $config{viruscheck_pipe} for message $msgid from $pop3user\@$pop3host") if $config{debug_fork};
 
          my ($ret, $report, $virusname) = ow::viruscheck::scanmsg($config{viruscheck_pipe}, \@completemsg);
 
@@ -311,7 +311,7 @@ sub fetchmail {
             }
          } else {
             $viruscheck_xheader = "X-OWM-VirusCheck: clean\n";
-            writelog("debug - not infected for message $msgid from $pop3user\@$pop3host, ret: $report") if $config{debug_fork};
+            writelog("debug_fork :: not infected for message $msgid from $pop3user\@$pop3host, ret: $report") if $config{debug_fork};
          }
       }
 
@@ -328,7 +328,7 @@ sub fetchmail {
          ) {
          my @completemsg = ($has_dilimeter ? @lines : ($faked_dilimeter, @lines));
 
-         writelog("debug - spamcheck forking cmd $config{spamcheck_pipe} for message $msgid from $pop3user\@$pop3host") if $config{debug_fork};
+         writelog("debug_fork :: spamcheck forking cmd $config{spamcheck_pipe} for message $msgid from $pop3user\@$pop3host") if $config{debug_fork};
 
          my ($spamscore, $report) = ow::spamcheck::scanmsg($config{spamcheck_pipe}, \@completemsg);
 
@@ -356,7 +356,7 @@ sub fetchmail {
             }
          } else {
             $spamcheck_xheader = sprintf("X-OWM-SpamCheck: %s %.1f/%.1f\n", '*' x $spamscore, $spamscore, $prefs{spamcheck_threshold});
-            writelog("debug - not spam $spamscore/$prefs{spamcheck_threshold} for message $msgid from $pop3user\@$pop3host") if $config{debug_fork};
+            writelog("debug_fork :: not spam $spamscore/$prefs{spamcheck_threshold} for message $msgid from $pop3user\@$pop3host") if $config{debug_fork};
          }
       }
 
@@ -392,7 +392,7 @@ sub fetchmail {
 
 sub sendcmd {
    my ($socket, $cmd, $r_result, $timeout) = @_;
-   $timeout = 60 if $timeout <= 0;
+   $timeout = 60 if !defined $timeout || $timeout <= 0;
 
    my $ret = '';
 
@@ -419,7 +419,7 @@ sub sendcmd {
 
 sub readdata {
    my ($socket, $r_line, $timeout) = @_;
-   $timeout = 60 if $timeout <= 0;
+   $timeout = 60 if !defined $timeout || $timeout <= 0;
 
    ${$r_line} = ''; # empty line buff
 

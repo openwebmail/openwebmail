@@ -30,7 +30,7 @@
 # these routines convert data file formats from old releases to most current releases
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 use MIME::Base64;

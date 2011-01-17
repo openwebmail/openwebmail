@@ -29,7 +29,7 @@
 # filterbook.pl - read/write stationery book
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 

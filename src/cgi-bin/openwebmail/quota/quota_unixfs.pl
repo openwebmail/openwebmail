@@ -12,6 +12,8 @@ package ow::quota_unixfs;
 ########## No configuration required from here ###################
 
 use strict;
+use warnings FATAL => 'all';
+
 use Quota;
 
 #  0 : ok

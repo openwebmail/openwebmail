@@ -30,7 +30,7 @@
 #            pass file to parser, return hash of data
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 

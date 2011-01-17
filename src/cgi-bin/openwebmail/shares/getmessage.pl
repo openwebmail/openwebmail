@@ -29,7 +29,7 @@
 # getmessage.pl - get and parse a message
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 

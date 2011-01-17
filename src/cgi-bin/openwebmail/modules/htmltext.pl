@@ -33,7 +33,7 @@
 package ow::htmltext;
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 sub html2text {
    my $t = shift;

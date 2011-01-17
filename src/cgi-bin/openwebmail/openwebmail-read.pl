@@ -28,7 +28,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -121,7 +121,7 @@ $longpage    = param('longpage') || 0;
 $searchtype  = param('searchtype') || 'subject';
 $keyword     = param('keyword') || '';
 
-writelog("debug - request read begin, action=$action, folder=$folder") if $config{debug_request};
+writelog("debug_request :: request read begin, action=$action, folder=$folder") if $config{debug_request};
 
 $action eq 'readmessage'     ? readmessage()      :
 $action eq 'rebuildmessage'  ? rebuildmessage()   :
@@ -129,7 +129,7 @@ $action eq 'deleteattnodes'  ? delete_attnodes()  :
 $action eq 'downloadnontext' ? download_nontext() :
 openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request read end, action=$action, folder=$folder") if $config{debug_request};
+writelog("debug_request :: request read end, action=$action, folder=$folder") if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -512,7 +512,11 @@ sub readmessage {
          close(STDIN);
          close(STDOUT);
          close(STDERR);
-         writelog('debug - update msg status process forked') if $config{debug_fork};
+
+         local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
+         local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
+
+         writelog('debug_fork :: update msg status process forked') if $config{debug_fork};
 
          my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
          ow::filelock::lock($folderfile, LOCK_EX) or openwebmail_exit(1);
@@ -524,7 +528,7 @@ sub readmessage {
 
          ow::filelock::lock($folderfile, LOCK_UN);
 
-         writelog('debug - update msg status process terminated') if $config{debug_fork};
+         writelog('debug_fork :: update msg status process terminated') if $config{debug_fork};
          openwebmail_exit(0);
       }
    } elsif (param('db_chkstatus')) { # check and set msg status R flag

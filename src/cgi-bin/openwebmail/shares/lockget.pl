@@ -35,7 +35,7 @@
 # the two routines returns size, size < 0 means error
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 
@@ -49,7 +49,7 @@ sub lockget_messageids {
 
       if (!update_folderindex($folderfile, $folderdb) < 0) {
          ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
-         return(-1, "Couldn't update index db $folderdb");
+         return(-1, "Could not update index db $folderdb");
       }
    }
 

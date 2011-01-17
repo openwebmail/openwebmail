@@ -30,7 +30,7 @@
 # openwebmail-tool.pl - command tool for mail/event/notify/index...
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -242,7 +242,7 @@ load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
 if (-f "$SCRIPT_DIR/etc/openwebmail.conf") {
    # load the custom config over the default config and merge everything
    read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
-   print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
+   print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if $opt{debug};
 } else {
    # there is no custom config, so just do the merge with the default config
    read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
@@ -251,19 +251,19 @@ if (-f "$SCRIPT_DIR/etc/openwebmail.conf") {
 $logindomain=$default_logindomain||ow::tool::hostname();
 $logindomain=lc(safedomainname($logindomain));
 if (defined $config{'domainname_equiv'}{'map'}{$logindomain}) {
-   print "D domain equivalence found: $logindomain -> $config{'domainname_equiv'}{'map'}{$logindomain}\n" if ($opt{'debug'});
+   print "D domain equivalence found: $logindomain -> $config{'domainname_equiv'}{'map'}{$logindomain}\n" if $opt{debug};
    $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain};
 }
 
 if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
    read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
-   print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
+   print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if $opt{debug};
 }
 
 %prefs = readprefs();
 $po = loadlang($prefs{locale}); # for converted filename $lang_text{abook_converted}
 
-writelog("debug - request tool begin, argv=" . join(' ', @ARGV)) if $config{debug_request};
+writelog("debug_request :: request tool begin, argv=" . join(' ', @ARGV)) if $config{debug_request};
 
 my $retval=0;
 if ($opt{'init'}) {
@@ -296,7 +296,7 @@ if ($opt{'init'}) {
       $retval=showhelp();
    }
 }
-writelog("debug - request tool end, argv=" . join(' ', @ARGV)) if $config{debug_request};
+writelog("debug_request :: request tool end, argv=" . join(' ', @ARGV)) if $config{debug_request};
 
 openwebmail_exit($retval);
 
@@ -654,16 +654,16 @@ sub allusers {
       load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
       if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
          read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
-         print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
+         print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if $opt{debug};
       }
 
       if ( -f "$config{'ow_sitesconfdir'}/$logindomain") {
          read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
-         print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
+         print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if $opt{debug};
       }
 
       ow::auth::load($config{'auth_module'});
-      print "D ow::auth::load $config{'auth_module'}\n" if ($opt{'debug'});
+      print "D ow::auth::load $config{'auth_module'}\n" if $opt{debug};
 
       my ($errcode, $errmsg, @userlist)=ow::auth::get_userlist(\%config);
       if ($errcode!=0) {
@@ -707,7 +707,7 @@ sub alldomains {
    while ($domain=readdir(SITEDIR)) {
       next if ($domain=~/^(\.|readme|sameple)/i);
       $domainnames{$domain}=1;
-      print "D found domain $domain\n" if ($opt{'debug'});
+      print "D found domain $domain\n" if $opt{debug};
    }
    closedir(SITEDIR);
 
@@ -729,7 +729,7 @@ sub usertool {
       load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
       if ( -f "$SCRIPT_DIR/etc/openwebmail.conf") {
          read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf");
-         print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if ($opt{'debug'});
+         print "D readconf $SCRIPT_DIR/etc/openwebmail.conf\n" if $opt{debug};
       }
 
       if ($config{'smtpauth'}) {	# load smtp auth user/pass
@@ -747,19 +747,19 @@ sub usertool {
       }
       $loginuser=lc($loginuser) if ($config{'case_insensitive_login'});
       $logindomain=lc(safedomainname($logindomain));
-      print "D loginuser=$loginuser, logindomain=$logindomain\n" if ($opt{'debug'});
+      print "D loginuser=$loginuser, logindomain=$logindomain\n" if $opt{debug};
 
       if (defined $config{'domainname_equiv'}{'map'}{$logindomain}) {
          $logindomain=$config{'domainname_equiv'}{'map'}{$logindomain};
-         print "D logindomain equiv to $logindomain\n" if ($opt{'debug'});
+         print "D logindomain equiv to $logindomain\n" if $opt{debug};
       }
 
       if (!is_localuser("$loginuser\@$logindomain") && -f "$config{'ow_sitesconfdir'}/$logindomain") {
          read_owconf(\%config, \%config_raw, "$config{'ow_sitesconfdir'}/$logindomain");
-         print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if ($opt{'debug'});
+         print "D readconf $config{'ow_sitesconfdir'}/$logindomain\n" if $opt{debug};
       }
       ow::auth::load($config{'auth_module'});
-      print "D ow::auth::load $config{'auth_module'}\n" if ($opt{'debug'});
+      print "D ow::auth::load $config{'auth_module'}\n" if $opt{debug};
 
       update_virtuserdb();	# update index db of virtusertable
 
@@ -779,7 +779,7 @@ sub usertool {
       if ($user eq 'root' || $user eq 'toor'||
           $user eq 'daemon' || $user eq 'operator' || $user eq 'bin' ||
           $user eq 'tty' || $user eq 'kmem' || $user eq 'uucp') {
-         print "D system user $user, skipped!\n" if ($opt{'debug'});
+         print "D system user $user, skipped!\n" if $opt{debug};
          next;
       }
 
@@ -797,7 +797,7 @@ sub usertool {
       $userconf="$config{'ow_usersconfdir'}/$domain/$user" if ($config{'auth_withdomain'});
       if ( -f "$userconf") {
          read_owconf(\%config, \%config_raw, "$userconf");
-         print "D readconf $userconf\n" if ($opt{'debug'});
+         print "D readconf $userconf\n" if $opt{debug};
       }
 
       # override auto guessing domainanmes if loginame has domain
@@ -807,21 +807,21 @@ sub usertool {
       # override realname if defined in config
       if ($config{'default_realname'} ne 'auto') {
          $userrealname=$config{'default_realname'};
-         print "D change realname to $userrealname\n" if ($opt{'debug'});
+         print "D change realname to $userrealname\n" if $opt{debug};
       }
 
       my $syshomedir=$homedir;	# keep this for later use
       my $owuserdir = ow::tool::untaint("$config{'ow_usersdir'}/".($config{'auth_withdomain'}?"$domain/$user":$user));
       if ( !$config{'use_syshomedir'} ) {
          $homedir = $owuserdir;
-         print "D change homedir to $homedir\n" if ($opt{'debug'});
+         print "D change homedir to $homedir\n" if $opt{debug};
       }
       if ($homedir eq '/') {
-         print "D homedir is /, skipped!\n" if ($opt{'debug'});
+         print "D homedir is /, skipped!\n" if $opt{debug};
       }
 
       if (defined $homedir_processed{$homedir}) {
-         print "D $loginname homedir already processed, skipped!\n" if ($opt{'debug'});
+         print "D $loginname homedir already processed, skipped!\n" if $opt{debug};
          next;
       }
       $homedir_processed{$homedir}=1;
@@ -849,9 +849,9 @@ sub usertool {
             my $fgid=(split(/\s+/,$ugid))[0];
             if (mkdir ($owuserdir, 0700) && chown($uuid, $fgid, $owuserdir)) {
                writelog("create owuserdir - $owuserdir, uid=$uuid, gid=$fgid");
-               print "D create owuserdir $owuserdir, uid=$uuid, gid=$fgid\n" if ($opt{'debug'});
+               print "D create owuserdir $owuserdir, uid=$uuid, gid=$fgid\n" if $opt{debug};
             } else {
-               print "D cannot create $owuserdir ($!)\n" if ($opt{'debug'});
+               print "D cannot create $owuserdir ($!)\n" if $opt{debug};
                next;
             }
          }
@@ -866,7 +866,7 @@ sub usertool {
             openwebmail_exit(0);
          }
       }
-      print "D ruid=$<, euid=$>, rgid=$(, eguid=$)\n" if ($opt{'debug'});
+      print "D ruid=$<, euid=$>, rgid=$(, eguid=$)\n" if $opt{debug};
 
       # locate existing .openwebmail
       find_and_move_dotdir($syshomedir, $owuserdir) if (!-d dotpath('/'));	# locate existing .openwebmail
@@ -875,7 +875,7 @@ sub usertool {
       my $user_releasedate=read_releasedatefile();
 
       if ( ! -d $homedir ) {
-         print "D $homedir doesn't exist\n" if ($opt{'debug'});
+         print "D $homedir doesn't exist\n" if $opt{debug};
          next;
       }
 
@@ -884,14 +884,14 @@ sub usertool {
          if (-f "$homedir/.openwebmailrc") {
             if (mkdir ($folderdir, 0700)) {
                writelog("create folderdir - $folderdir, euid=$>, egid=$)");
-               print "D create folderdir $folderdir, euid=$>, egid=$<\n" if ($opt{'debug'});
+               print "D create folderdir $folderdir, euid=$>, egid=$<\n" if $opt{debug};
                upgrade_20021218($user_releasedate);
             } else {
-               print "D cannot create $folderdir ($!)\n" if ($opt{'debug'});
+               print "D cannot create $folderdir ($!)\n" if $opt{debug};
                next;
             }
          } else {
-            print "D $folderdir doesn't exist\n" if ($opt{'debug'});
+            print "D $folderdir doesn't exist\n" if $opt{debug};
             next;
          }
       }
@@ -900,13 +900,13 @@ sub usertool {
          check_and_create_dotdir(dotpath('/'));	# create dirs under ~/.openwebmail/
          if ($user_releasedate ne $config{'releasedate'}) {
             upgrade_all($user_releasedate);
-            print "D do release upgrade...\n" if ($opt{'debug'});
+            print "D do release upgrade...\n" if $opt{debug};
             update_releasedatefile();
          }
          update_openwebmailrc($user_releasedate);
       }
       if ( ! -d dotpath('/') ) {
-         print "D ".dotpath('/')." doesn't exist\n" if ($opt{'debug'});
+         print "D ".dotpath('/')." doesn't exist\n" if $opt{debug};
          next;
       }
 

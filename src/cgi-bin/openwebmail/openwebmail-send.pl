@@ -30,7 +30,7 @@
 # TODO: refactor all of the code in this file. Lots of reuse here, and strangely organized
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -120,7 +120,7 @@ $keyword     = param('keyword') || '';
 
 my $action   = param('action') || '';
 
-writelog("debug - request send begin, action=$action") if $config{debug_request};
+writelog("debug_request :: request send begin, action=$action") if $config{debug_request};
 
 $action eq 'compose'      ? compose()      :
 $action eq 'replyreceipt' ? replyreceipt() :
@@ -131,7 +131,7 @@ $action eq 'sendmessage'  ?
                           :
 openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request send end, action=$action") if $config{debug_request};
+writelog("debug_request :: request send end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -2226,7 +2226,7 @@ sub sendmessage {
    my @related = ();
    my @mixed   = ();
    foreach my $r_att (@{$r_attfiles}) {
-      if ($r_att->{referencecount} > 0 && $msgformat ne 'text') {
+      if (exists $r_att->{referencecount} && $r_att->{referencecount} > 0 && $msgformat ne 'text') {
          push(@related, $r_att);
       } else {
          $r_att->{referencecount} = 0;

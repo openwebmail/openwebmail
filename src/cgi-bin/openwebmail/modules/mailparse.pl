@@ -46,7 +46,7 @@
 package ow::mailparse;
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 require "modules/tool.pl";
 require "modules/mime.pl";
@@ -84,56 +84,66 @@ sub parse_rfc822block {
    my $body        = '';
    my %msg         = ();
 
-   $nodeid=0 unless defined $nodeid;
-   $headerlen=index(${$r_block}, "\n\n")+1;	# header end at 1st \n
-   $header=substr(${$r_block}, 0, $headerlen);
+   $nodeid = 0 unless defined $nodeid;
+   $headerlen = index(${$r_block}, "\n\n") + 1; # header end at 1st \n
+   $header = substr(${$r_block}, 0, $headerlen);
 
-   $msg{'content-type'}='N/A';	# assume msg as simple text
+   $msg{'content-type'} = 'N/A'; # assume msg as simple text
+
    parse_header(\$header, \%msg);
 
    # recover incomplete header for msgs resent from mailing list, tricky!
    if ($msg{'content-type'} eq 'N/A') {
-      my $testdata=substr(${$r_block}, $headerlen+1, 256);
-      if (($testdata=~/multi\-part message in MIME format/i &&
-           $testdata=~/\n--(\S*?)\n/s) ||
-          $testdata=~/\n--(\S*?)\nContent\-/is ||
-          $testdata=~/^--(\S*?)\nContent\-/is ) {
-         $msg{'content-type'}=qq|multipart/mixed; boundary="$1"|;
+      my $testdata = substr(${$r_block}, $headerlen + 1, 256);
+      if (
+            (
+               $testdata =~ m/multi\-part message in MIME format/i
+               && $testdata =~ m/\n--(\S*?)\n/s
+            )
+            || $testdata =~ m/\n--(\S*?)\nContent\-/is
+            || $testdata =~ m/^--(\S*?)\nContent\-/is
+         ) {
+         $msg{'content-type'} = qq|multipart/mixed; boundary="$1"|;
       }
    }
 
    if ($msg{'content-type'} =~ /^multipart/i) {
-      my ($subtype, $boundary, $boundarylen);
-      my ($bodystart, $boundarystart, $nextboundarystart, $attblockstart);
-      my $search_html_related_att=0;
+      my $search_html_related_att = 0;
 
-      $subtype = $msg{'content-type'};
+      my $subtype = $msg{'content-type'};
       $subtype =~ s/^multipart\/(.*?)[;\s].*$/$1/i;
 
-      $boundary = $msg{'content-type'};
+      my $boundary = $msg{'content-type'};
       $boundary =~ s/.*?boundary\s?=\s?"([^"]+)".*$/$1/i or
          $boundary =~ s/.*?boundary\s?=\s?([^\s;]+);?\s?.*$/$1/i;
-      $boundary="--$boundary";
-      $boundarylen=length($boundary);
+      $boundary = "--$boundary";
 
-      $bodystart=$headerlen+1;
-      $boundarystart=index(${$r_block}, $boundary, $bodystart);
+      my $boundarylen = length($boundary);
+
+      my $bodystart = $headerlen + 1;
+
+      my $boundarystart = index(${$r_block}, $boundary, $bodystart);
+
       if ($boundarystart >= $bodystart) {
-          $body=substr(${$r_block}, $bodystart, $boundarystart-$bodystart);
+          $body = substr(${$r_block}, $bodystart, $boundarystart - $bodystart);
       } else {
-          $body=substr(${$r_block}, $bodystart);
-          return($header, $body, \@attachments);
+          $body = substr(${$r_block}, $bodystart);
+          return ($header, $body, \@attachments);
       }
 
-      my $i=0;
-      $attblockstart=$boundarystart+$boundarylen;
-      while ( substr(${$r_block}, $attblockstart, 2) ne "--") {
+
+      my $i = 0;
+      my $nextboundarystart = 0;
+      my $attblockstart = $boundarystart + $boundarylen;
+
+      while (substr(${$r_block}, $attblockstart, 2) ne '--') {
          # skip \n after boundary
-         while ( substr(${$r_block}, $attblockstart, 1) =~ /[\n\r]/ ) {
+         while (substr(${$r_block}, $attblockstart, 1) =~ m/[\n\r]/) {
             $attblockstart++;
          }
 
-         $nextboundarystart=index(${$r_block}, "$boundary\n", $attblockstart);
+         $nextboundarystart = index(${$r_block}, "$boundary\n", $attblockstart);
+
          if ($nextboundarystart == $attblockstart) {
             # this attblock is empty?, skip it.
             $boundarystart=$nextboundarystart;
@@ -192,7 +202,7 @@ sub parse_rfc822block {
       }
       return($header, $body, \@attachments);
 
-   } elsif ($msg{'content-type'} =~ /^message\/partial/i ) {
+   } elsif ($msg{'content-type'} =~ m/^message\/partial/i) {
       if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
          my $partialbody=substr(${$r_block}, $headerlen+1);
          my ($partialid, $partialnumber, $partialtotal);

@@ -31,7 +31,7 @@
 # adapted from jcode.pl 2.13 written by Kazumasa Utashiro. <utashiro@iij.ad.jp>
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 my $re_jis0208  = '\e\$\@|\e\$B|\e&\@\e\$B';
 my $re_jis0212  = '\e\$\(D';

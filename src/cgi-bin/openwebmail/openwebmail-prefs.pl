@@ -30,7 +30,7 @@
 # TODO: Eliminate global_vars option to all the templates
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -117,7 +117,7 @@ $prefs_caller  = param('prefs_caller') || ( $config{enable_webmail}  ? 'main'   
                                             $config{enable_calendar} ? 'cal'     :
                                             $config{enable_webdisk}  ? 'webdisk' : '');
 
-writelog("debug - request prefs begin, action=$action") if $config{debug_request};
+writelog("debug_request :: request prefs begin, action=$action") if $config{debug_request};
 
 $action eq 'userfirsttime'                                   ? userfirsttime()     :
 $action eq 'timeoutwarning'                                  ? timeoutwarning()    :
@@ -146,7 +146,7 @@ $config{enable_webmail} ?
    openwebmailerror(gettext('Action has illegal characters.'))
 : openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request prefs end, action=$action") if $config{debug_request};
+writelog("debug_request :: request prefs end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 
@@ -1312,7 +1312,7 @@ sub editprefs {
                       disablebgfilterthresholdselect    => defined $config_raw{DEFAULT_bgfilterthreshold} ? 1 : 0,
                       bgfilterthresholdselectloop       => [
                                                               map { {
-                                                                       "option_$_" => $_,
+                                                                       "option_$_" => $_ == 0 ? 'no' : $_,
                                                                        selected    => $_ eq $prefs{bgfilterthreshold} ? 1 : 0
                                                                   } } qw(0 1 20 50 100 200 500)
                                                            ],
@@ -1643,7 +1643,7 @@ sub editprefs {
                       disablecalendar_weekstartselect   => defined $config_raw{DEFAULT_calendar_weekstart} ? 1 : 0,
                       calendar_weekstartselectloop      => [
                                                               map { {
-                                                                       "option_$_" => $_,
+                                                                       "option_$_" => $_ == 0 ? 'sun' : $_,
                                                                        selected    => $_ eq $prefs{calendar_weekstart} ? 1 : 0
                                                                   } } qw(1 2 3 4 5 6 0)
                                                            ],
@@ -2197,11 +2197,14 @@ sub writedotvacationmsg {
    if ($autoreply) {
       local $|=1; # flush all output
       if (fork() == 0) {		# child
-         writelog("debug - vacationinit autoreply process forked") if $config{debug_fork};
+         writelog("debug_fork :: vacationinit autoreply process forked") if $config{debug_fork};
 
          close(STDIN);
          close(STDOUT);
          close(STDERR);
+
+         local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
+         local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
 
          ow::suid::drop_ruid_rgid();
 

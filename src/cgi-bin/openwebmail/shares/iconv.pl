@@ -29,7 +29,7 @@
 # iconv.pl - do charset conversions with system iconv() support
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 use Text::Iconv;
@@ -231,7 +231,7 @@ sub is_convertible {
 sub iconv {
    my ($from, $to, @text) = @_;
 
-   return @text unless is_convertible($from, $to);
+   return @text unless defined $from && defined $to && is_convertible($from, $to) && scalar @text > 0;
 
    $from = official_charset($from);
    $to   = official_charset($to);

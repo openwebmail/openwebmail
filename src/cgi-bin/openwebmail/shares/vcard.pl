@@ -36,7 +36,7 @@
 # See vfile.pl for usage instuctions.
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use MIME::QuotedPrint;
 use MIME::Base64;

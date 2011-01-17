@@ -28,7 +28,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -150,7 +150,7 @@ if ($config{forced_ssl_login} && !($ENV{HTTPS} =~ /on/i || $ENV{SERVER_PORT} == 
    openwebmail_exit(0);
 }
 
-writelog("debug - request login begin") if $config{debug_request};
+writelog("debug_request :: request login begin") if $config{debug_request};
 
 if (param('loginname') && param('password')) {
    login();
@@ -160,7 +160,7 @@ if (param('loginname') && param('password')) {
    loginmenu();
 }
 
-writelog("debug - request login end") if $config{debug_request};
+writelog("debug_request :: request login end") if $config{debug_request};
 
 openwebmail_requestend();
 

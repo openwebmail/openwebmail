@@ -33,7 +33,7 @@
 #   - Functions may change the current folderfile read position! Be careful!
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 
@@ -42,7 +42,7 @@ use vars qw(%config %prefs);
 
 # define the version of the mail index database
 use vars qw($_DBVERSION);
-$_DBVERSION = 20100828.1;
+$_DBVERSION = 20110117;
 
 # globals, message attribute number constant
 use vars qw(
@@ -105,6 +105,9 @@ sub update_folderindex {
    # this routine indexes the messages in a folder and
    # marks duplicated messages with a 'Z' (to be zapped)
    my ($folderfile, $folderdb) = @_;
+
+   writelog("debug_mailprocess :: $folderfile :: updating folder index") if $config{debug_mailprocess};
+
    $folderdb = ow::tool::untaint($folderdb);
 
    my $is_db_reuseable = 0; # 0: not exist, 1: reuseable, -1: not reuseable
@@ -119,7 +122,8 @@ sub update_folderindex {
       ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
          openwebmailerror(gettext('Cannot open db:') . " $folderdb ($!)");
 
-      if ($FDB{DBVERSION} eq $_DBVERSION) {
+      if (defined $FDB{DBVERSION} && $FDB{DBVERSION} eq $_DBVERSION) {
+         # this db file is the current dbversion, so lets use its data
          my ($foldersize) = $foldermeta =~ m/^mtime=\d+ size=(\d+)$/;
 
          if (
@@ -132,14 +136,19 @@ sub update_folderindex {
                && $foldersize >= $FDB{INTERNALSIZE} + $FDB{ZAPSIZE}
                && $FDB{METAINFO} eq $foldermeta
             ) {
-            # folder attributes are correct - no update needed
+            # database attributes match the folder metainfo - no update needed
             ow::dbm::closedb(\%FDB, $folderdb) or
                openwebmailerror(gettext('Cannot close db:') . " $folderdb ($!)");
+
+            writelog("debug_mailprocess :: $folderfile :: db/folder metainfo matches - no update needed") if $config{debug_mailprocess};
 
             return 0; # all ok
          }
 
+         writelog("debug_mailprocess :: $folderfile :: db/folder metainfo mismatch ::\nfolder  : $foldermeta\ndatabase: $FDB{METAINFO}") if $config{debug_mailprocess};
+
          $is_db_reuseable = -1;
+
          @oldmessageids = get_messageids_sorted_by_offset_db(\%FDB);
 
          # check if the db is reuseable or if it needs to be rebuilt
@@ -156,21 +165,28 @@ sub update_folderindex {
             ) {
             $is_db_reuseable = 1;
 
+            writelog("debug_mailprocess :: $folderfile :: db seems to be reusable - double check against the folder itself") if $config{debug_mailprocess};
             # seems to be reusable - double check against the folder itself
-            # assume the db is reuseable if the last few records in db
+            # assume the db is reuseable if some records in the db
             # are consistent against the old messages in the folder
             my @oldmessageidindexes_to_check = ();
 
             if ($#oldmessageids >= 4) {
+               # more than 3 messages, spot check some
                my $checkevery = int(($#oldmessageids - 1) / 3);
+
+               writelog("debug_mailprocess :: $folderfile :: checking every $checkevery messages out of $#oldmessageids old message ids") if $config{debug_mailprocess};
 
                for (my $index = 0; $index < $#oldmessageids - 1; $index += $checkevery) {
                   push (@oldmessageidindexes_to_check, $index);
                }
 
+               # and the second to last and last message too
                push(@oldmessageidindexes_to_check, $#oldmessageids - 1, $#oldmessageids);
             } else {
+               # 3 or less messages, just check them all
                @oldmessageidindexes_to_check = (0..$#oldmessageids);
+               writelog("debug_mailprocess :: $folderfile :: checking every message - $#oldmessageids old message ids") if $config{debug_mailprocess};
             }
 
             if ($#oldmessageidindexes_to_check >= 0) {
@@ -178,8 +194,11 @@ sub update_folderindex {
                   openwebmailerror(gettext('Cannot open file:') . " $folderfile ($!)");
 
                foreach my $index (@oldmessageidindexes_to_check) {
-                  my @attr = string2msgattr($FDB{$oldmessageids[$index]});
+                  my $msgid = $oldmessageids[$index];
+                  my @attr  = string2msgattr($FDB{$msgid});
+
                   if (!is_msgattr_consistent_with_folder(\@attr, $folderhandle)) {
+                     writelog("debug_mailprocess :: $folderfile :: attributes from db do not match spool for messageid $msgid - db is not reuseable") if $config{debug_mailprocess};
                      $is_db_reuseable = -1;
                      last;
                   }
@@ -194,6 +213,8 @@ sub update_folderindex {
             openwebmailerror(gettext('Cannot close db:') . " $folderdb ($!)");
       } else {
          # old db version - remove it so we can make a new one
+         writelog("debug_mailprocess :: $folderfile :: old db version - removing old db") if $config{debug_mailprocess};
+
          ow::dbm::closedb(\%FDB, $folderdb) or
             openwebmailerror(gettext('Cannot close db:') . " $folderdb ($!)");
 
@@ -201,6 +222,8 @@ sub update_folderindex {
             openwebmailerror(gettext('Cannot delete db:') . " $folderdb ($!)");
       }
    }
+
+   writelog("debug_mailprocess :: $folderfile :: is_db_reuseable = $is_db_reuseable") if $config{debug_mailprocess};
 
    my $totalmessages    = -1; # so first message is index 0
    my $totalsize        = 0;
@@ -217,6 +240,7 @@ sub update_folderindex {
 
    if ($is_db_reuseable == 0) {
       # db does not exist for this folder - make a new db
+      writelog("debug_mailprocess :: $folderfile :: making a new db") if $config{debug_mailprocess};
       ow::dbm::opendb(\%FDB, $folderdb, LOCK_EX) or
          openwebmailerror(gettext('Cannot open db:') . " $folderdb ($!)");
 
@@ -224,6 +248,7 @@ sub update_folderindex {
       %FDB = ();
    } elsif ($is_db_reuseable > 0) {
       # the existing db is reuseable - we just need to append the new messages information to it
+      writelog("debug_mailprocess :: $folderfile :: re-using the existing db") if $config{debug_mailprocess}; 
       ow::dbm::opendb(\%FDB, $folderdb, LOCK_EX) or
          openwebmailerror(gettext('Cannot open db:') . " $folderdb ($!)");
 
@@ -237,13 +262,15 @@ sub update_folderindex {
          $zapmessages      = $FDB{ZAPMESSAGES};
          $zapsize          = $FDB{ZAPSIZE};
 
-         my @attr = string2msgattr($FDB{$oldmessageids[$#oldmessageids]});
+         my $last_msgid = $oldmessageids[$#oldmessageids];
+         my @attr = string2msgattr($FDB{$last_msgid});
          $totalsize = $attr[$_OFFSET] + $attr[$_SIZE];
       }
    } elsif ($is_db_reuseable < 0) {
       # db is inconsistent and cannot be used entirely
       # to save overhead, try to salvage as many records as possible from
       # the old database into our new updated database
+      writelog("debug_mailprocess :: $folderfile :: db is inconsistent - salvage as many records as possible") if $config{debug_mailprocess};
       ow::dbm::renamedb($folderdb, "$folderdb.old") or
          openwebmailerror(gettext('Cannot rename db:') . " $folderdb -> $folderdb.old ($!)");
 
@@ -282,7 +309,10 @@ sub update_folderindex {
                ) {
                my $buff = '';
                seek($folderhandle, $attr[$_OFFSET], 0);
+
+               # read this message header into buff
                my $readlen = read($folderhandle, $buff, $attr[$_HEADERSIZE]);
+
                if (
                      $readlen == $attr[$_HEADERSIZE]
                      && $buff =~ m/^From /
@@ -324,6 +354,7 @@ sub update_folderindex {
          $last_is_new      = 0;
          $last_is_internal = 0;
          $last_is_zap      = 0;
+
          if ($status =~ m/Z/i) {
             $last_is_zap = 1;
          } elsif (is_internal_subject($subject)) {
@@ -341,7 +372,7 @@ sub update_folderindex {
          if ($totalsize + $lastsize == $foldersize) {
             $is_last_ok = 1;
          } else {
-            # did the last valid header match end at the start at a new message?
+            # did the last valid header match end at the start of a new message?
             seek($folderhandle, $totalsize + $lastsize - 1, 0);
             my $buff = '';
             read($folderhandle, $buff, 6);
@@ -368,7 +399,11 @@ sub update_folderindex {
       }
    }
 
+   writelog("debug_mailprocess :: $folderfile :: db is ready for updating") if $config{debug_mailprocess};
+
    # db is now ready for updating
+   # set the point at which we will start reading from
+   # the spool in order to update the database
    $BUFF_filehandle = $folderhandle;
    $BUFF_filestart  = $totalsize;
    $BUFF_fileoffset = $BUFF_filestart;
@@ -414,7 +449,7 @@ sub update_folderindex {
          $message{msg_type} = '';
       }
 
-      writelog("debug - database mail header parsed" . join("\n", map { "$_ => $message{$_}" } sort keys %message)) if $config{debug_maildb};
+      writelog("debug_maildb - database mail header parsed:" . join("\n", map { "$_ => $message{$_}" } sort keys %message)) if $config{debug_maildb};
 
       $message{offset}       = $header_offset;
       $message{headersize}   = length ${$r_header_content};
@@ -432,6 +467,7 @@ sub update_folderindex {
 
       if ($skip) {
          # the old db has this message - copy the info from the old db
+         writelog("debug_mailprocess :: copying attributes from old db for message $message{'message-id'}") if $config{debug_mailprocess};
          $flag{$1} = 1 if $oldstatus =~ m/(T|V|Z)/i;
 
          $message{charset} = $oldcharset;
@@ -440,7 +476,7 @@ sub update_folderindex {
          $skip -= $message{headersize};
       } else {
          # the old db does not have this message - parse it to get its info
-         writelog("debug - database parsing message header_offset=$header_offset") if $config{debug_maildb};
+         writelog("debug_maildb - database parsing message header_offset=$header_offset") if $config{debug_maildb};
 
          if ($message{msg_type} eq 'm') {
             # multipart message
@@ -454,7 +490,7 @@ sub update_folderindex {
                                             && $block =~ m/^content-type:.*;\s*charset="?([^\s"';]*)"?/ims # 'm' to check multiple lines
                                          );
 
-               writelog("debug - detected message block charset='$message{charset}'") if $config{debug_maildb};
+               writelog("debug_maildb - detected message block charset='$message{charset}'") if $config{debug_maildb};
 
                $flag{T} = 1 if (  # has_att?
                                   !$flag{T}
@@ -465,7 +501,7 @@ sub update_folderindex {
                                      )
                                );
 
-               writelog("debug - detected message block attachments flag T=$flag{T}") if $config{debug_maildb};
+               writelog("debug_maildb - detected message block attachments flag T=$flag{T}") if $config{debug_maildb};
 
                $block = (!$flag{T} || $message{charset} eq '') ? _skip_to_next_text_block() : '';
             }
@@ -613,9 +649,11 @@ sub update_folderindex {
                                    $message{'content-type'},
                                    $message{charset},
                                    $message{status},
-                                   $message{references},
+                                   $message{references}
                                 );
    }
+
+   writelog("debug_mailprocess :: $folderfile :: db update complete") if $config{debug_mailprocess};
 
    close($folderhandle) or
       openwebmailerror(gettext('Cannot close file:') . " $folderfile ($!)");
@@ -677,7 +715,7 @@ sub _skip_to_next_text_block {
    # we are only interested in returning the first 4096 or less bytes of the block
    my $block_content = '';
 
-   writelog("debug - _skip_to_next_text_block start") if $config{debug_maildb};
+   writelog("debug_maildb_buffer - _skip_to_next_text_block start") if $config{debug_maildb_buffer};
 
    # skip past any leading new line characters
    buffer_skipleading("\n");
@@ -723,32 +761,57 @@ sub get_messageids_sorted_by_offset_db {
    # same as above, only no DBM open close
    my $r_FDB = shift;
 
-   my %offset = ();
-   while (my($key,$data) = each(%{$r_FDB})) {
-      $offset{$key} = (string2msgattr($data))[$_OFFSET] unless exists $is_internal_dbkey{$key} && $is_internal_dbkey{$key};
+   my %ids     = ();
+   my %offsets = ();
+
+   # %FDB is a hash of messageids pointing to multi-line strings like:
+   # '<000e01c72c17$92dcc3c0$7d7b0b3e@venus>' => '283933767
+   # 5175
+   # 3272
+   # <IO<CE><E9>ef=(<C0><91><D9>Y<EA>qE
+   # 20061230133722
+   # 20061201133654
+   # "Sampei02" <sampei02@tiscali.it>
+   # <sendmail-milter-users@lists.sourceforge.net>
+   # [Sendmail-milter-users] two milter filters ?
+   # text/plain; charset="us-ascii"
+   # us-ascii
+   # RO
+   # ',
+   while (my ($key,$data) = each(%{$r_FDB})) {
+      unless (exists $is_internal_dbkey{$key} && $is_internal_dbkey{$key}) {
+         my $offset = (string2msgattr($data))[$_OFFSET];
+
+         openwebmailerror(gettext('Two messages have the same offset in the spool database:') . " $main::folder :: $key && $offsets{$offset}")
+            if exists $offsets{$offset};
+
+         $offsets{$offset} = $key;
+         $ids{$key}        = $offset;
+      }
    }
 
-   return sort { $offset{$a} <=> $offset{$b} } keys %offset;
+   my @ids_sorted = sort { $ids{$a} <=> $ids{$b} } keys %ids;
+
+   return @ids_sorted;
 }
 
 sub get_msgid2attrs {
-   my ($folderdb, $ignore_internal, @attrnum) = @_;
+   my ($folderdb, $ignore_internal, @attrnums) = @_;
 
    my %msgid2attr = ();
-   my $total      = 0;
-   my @attr       = ();
    my %FDB        = ();
+   my $total      = 0;
 
    ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
       openwebmailerror(gettext('Cannot open db:') . " $folderdb ($!)");
 
    while (my($key, $data) = each(%FDB)) {
       next if exists $is_internal_dbkey{$key} && $is_internal_dbkey{$key};
-      @attr = string2msgattr($data);
+      my @attr = string2msgattr($data);
       next if defined $attr[$_STATUS] && $attr[$_STATUS] =~ m/Z/i;
       next if $ignore_internal && is_internal_subject($attr[$_SUBJECT]);
       $total++;
-      my @attr2 = @attr[@attrnum];
+      my @attr2 = @attr[@attrnums];
       $msgid2attr{$key} = \@attr2;
    }
 
@@ -774,7 +837,7 @@ sub get_message_attributes {
    ow::dbm::closedb(\%FDB, $folderdb) or
       openwebmailerror(gettext('Cannot close db:') . " $folderdb ($!)");
 
-   return (@attr);
+   return @attr;
 }
 
 sub get_message_header {
@@ -913,7 +976,8 @@ sub update_message_status {
             writelog("db warning - msg $messageid in $folderfile header start does not match db header start - forcing reindex");
             writehistory("db warning - msg $messageid in $folderfile header start does not match db header start - forcing reindex");
 
-            @FDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
+            $FDB{METAINFO} = 'ERR';
+            $FDB{LSTMTIME} = -1;
 
             ow::dbm::closedb(\%FDB, $folderdb) or writelog("cannot close db $folderdb");
 
@@ -1121,7 +1185,8 @@ sub operate_message_with_ids {
 
          close($srchandle) or writelog("cannot close file $srcfile");
 
-         @SRCDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
+         $SRCDB{METAINFO} = 'ERR';
+         $SRCDB{LSTMTIME} = -1;
 
          ow::dbm::closedb(\%SRCDB, $srcdb) or writelog("cannot close db $srcdb");
 
@@ -1131,7 +1196,8 @@ sub operate_message_with_ids {
          if ($op eq 'move' || $op eq 'copy') {
             close($dsthandle) or writelog("cannot close file $dstfile");
 
-            @DSTDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
+            $DSTDB{METAINFO} = 'ERR';
+            $DSTDB{LSTMTIME} = -1;
 
             ow::dbm::closedb(\%DSTDB,$dstdb) or writelog("cannot close db $dstdb");
 
@@ -1182,7 +1248,8 @@ sub operate_message_with_ids {
 
                   close($dsthandle) or writelog("cannot close file $dstfile");
 
-                  @DSTDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
+                  $DSTDB{METAINFO} = 'ERR';
+                  $DSTDB{LSTMTIME} = -1;
 
                   ow::dbm::closedb(\%DSTDB, $dstdb) or writelog("cannot close db $dstdb");
 
@@ -1253,6 +1320,8 @@ sub append_message_to_folder {
    # -5: io error printing to dstfile
    my ($messageid, $r_attr, $r_message, $dstfile, $dstdb) = @_;
 
+   writelog("debug_mailprocess :: $dstfile :: append_message_to_folder") if $config{debug_mailprocess};
+
    my %FDB   = ();
    my @attr  = @{$r_attr};
    my $ioerr = 0;
@@ -1280,9 +1349,19 @@ sub append_message_to_folder {
 
       $attr[$_OFFSET] = (stat(DEST))[7];
 
+      if (!defined $attr[$_OFFSET]) {
+         writelog("cannot stat DEST filehandle");
+         openwebmail_exit(1);
+      }
+
       seek(DEST, $attr[$_OFFSET], 0);
 
       $attr[$_SIZE] = length(${$r_message});
+
+      if ($attr[$_SIZE] < 5) {
+         writelog("illegal message size :: messageid $messageid size $attr[$_SIZE]");
+         openwebmail_exit(1);
+      }
 
       print DEST ${$r_message} or $ioerr++;
 
@@ -1322,6 +1401,8 @@ sub _mark_duplicated_messageid {
 
    my @attr = string2msgattr($r_FDB->{$messageid});
 
+   writelog("debug_mailprocess :: _mark_duplicated_messageid") if $config{debug_mailprocess};
+
    if ($attr[$_SIZE] eq $newmsgsize) {
       # skip because new message is same size as existing one
       if ($attr[$_STATUS] =~ s/Z//ig) {
@@ -1352,6 +1433,9 @@ sub _mark_duplicated_messageid {
          }
       }
 
+      writelog("debug_mailprocess :: marking message as DUP - messageid $messageid") if $config{debug_mailprocess};
+
+      # mark message as DUP
       $r_FDB->{"DUP$attr[$_OFFSET]-$messageid"} = msgattr2string(@attr); # NOT a subtraction, but a dash
 
       delete $r_FDB->{$messageid};
@@ -1419,7 +1503,8 @@ sub folder_zapmessages {
          writelog("db warning - message $messageid in $srcfile index inconsistence");
          writehistory("db warning - message $messageid in $srcfile index inconsistence");
 
-         @FDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
+         $FDB{METAINFO} = 'ERR';
+         $FDB{LSTMTIME} = -1;
 
          ow::dbm::closedb(\%FDB, $srcdb) or writelog("cannot close db $srcdb");
 
@@ -1482,7 +1567,8 @@ sub folder_zapmessages {
       $FDB{METAINFO} = ow::tool::metainfo($srcfile);
       $FDB{LSTMTIME} = time();
    } else {
-      @FDB{'METAINFO', 'LSTMTIME'} = ('ERR', -1);
+      $FDB{METAINFO} = 'ERR';
+      $FDB{LSTMTIME} = -1;
    }
 
    ow::dbm::closedb(\%FDB, $srcdb) or writelog("cannot close db $srcdb");
@@ -1818,14 +1904,20 @@ sub msgattr2string {
    # so len( from + to + subject + contenttype + references ) must < 826
    my @attr = @_;
 
+   foreach my $attribute ($_OFFSET, $_SIZE, $_HEADERSIZE) {
+      $attr[$attribute] = 0 unless defined $attr[$attribute];
+   }
+
+   foreach my $attribute ($_HEADERCHKSUM, $_RECVDATE, $_DATE, $_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_CHARSET, $_STATUS, $_REFERENCES) {
+      $attr[$attribute] = '' unless defined $attr[$attribute];
+   }
+
+   foreach my $attribute ($_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_REFERENCES, $_CHARSET) {
+      $attr[$attribute] =~ s/[\r\n]/ /sg;
+   }
+
    writelog(ow::tool::stacktrace("message attributes error"))
      if $attr[$_OFFSET] < 0 || $attr[$_HEADERSIZE] <= 0 || $attr[$_SIZE] <= $attr[$_HEADERSIZE];
-
-   # remove delimiter \r,\n from string attributes
-   for my $i ($_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_REFERENCES, $_CHARSET) {
-      $attr[$i] = '' unless defined $attr[$i];
-      $attr[$i] =~ s/[\r\n]/ /sg;
-   }
 
    my $value = join("\n", @attr);
 
@@ -1839,8 +1931,8 @@ sub msgattr2string {
 
       if (length $value > 800) {
          # truncate FROM, TO, SUBJECT, CONTENT_TYPE, and REFERENCES to 160 characters
-         foreach my $i ($_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_REFERENCES) {
-            $attr[$i] = substr($attr[$i],0,157) . '...' if length $attr[$i] > 160;
+         foreach my $p ($_FROM, $_TO, $_SUBJECT, $_CONTENT_TYPE, $_REFERENCES) {
+            $attr[$p] = substr($attr[$p],0,157) . '...' if length $attr[$p] > 160;
          }
 
          $value = join("\n", @attr);
@@ -1852,7 +1944,38 @@ sub msgattr2string {
 
 sub string2msgattr {
    my $string = shift;
-   return (defined $string ? split(/\n/, $string) : ());
+
+   my @attr = defined $string ? split(/\n/, $string) : ();
+
+   # $string should be like:
+   # '283933767
+   # 5175
+   # 3272
+   # <IO<CE><E9>ef=(<C0><91><D9>Y<EA>qE
+   # 20061230133722
+   # 20061201133654
+   # "Sampei02" <sampei02@tiscali.it>
+   # <sendmail-milter-users@lists.sourceforge.net>
+   # [Sendmail-milter-users] two milter filters ?
+   # text/plain; charset="us-ascii"
+   # us-ascii
+   # RO
+   # <20050320225023.M10321@acatysmoof.com> <000b01c52f35$a8e9bd70$6602a8c0@typo> <20050322235332.M67567@acatysmoof.com>'
+   $attr[$_OFFSET]       = 0 unless defined $attr[$_OFFSET];
+   $attr[$_SIZE]         = 0 unless defined $attr[$_SIZE];
+   $attr[$_HEADERSIZE]   = 0 unless defined $attr[$_HEADERSIZE];
+   $attr[$_HEADERCHKSUM] = '' unless defined $attr[$_HEADERCHKSUM];
+   $attr[$_RECVDATE]     = '' unless defined $attr[$_RECVDATE];
+   $attr[$_DATE]         = '' unless defined $attr[$_DATE];
+   $attr[$_FROM]         = '' unless defined $attr[$_FROM];
+   $attr[$_TO]           = '' unless defined $attr[$_TO];
+   $attr[$_SUBJECT]      = '' unless defined $attr[$_SUBJECT];
+   $attr[$_CONTENT_TYPE] = '' unless defined $attr[$_CONTENT_TYPE];
+   $attr[$_CHARSET]      = '' unless defined $attr[$_CHARSET];
+   $attr[$_STATUS]       = '' unless defined $attr[$_STATUS];
+   $attr[$_REFERENCES]   = '' unless defined $attr[$_REFERENCES];
+
+   return @attr;
 }
 
 sub simpleheader {
@@ -1886,6 +2009,8 @@ sub is_msgattr_consistent_with_folder {
    # check if a message is valid based on its attr
    my ($r_attr, $folderhandle) = @_;
 
+   writelog("debug_mailprocess :: checking message attributes against spool file") if $config{debug_mailprocess};
+
    # fail if the db entry for this message is zeroed out or message not indexed yet
    return 0 if (
                   $r_attr->[$_OFFSET] < 0
@@ -1914,7 +2039,7 @@ sub buffer_readblock {
    # read a new block from the file to the buffer
    # return the length of bytes read
 
-   writelog("debug - buffer_readblock - BUFF_EOF=$BUFF_EOF BUFF_fileoffset=$BUFF_fileoffset BUFF_size=$BUFF_size BUFF_start=$BUFF_start") if $config{debug_maildb};
+   writelog("debug_maildb_buffer - buffer_readblock - BUFF_EOF=$BUFF_EOF BUFF_fileoffset=$BUFF_fileoffset BUFF_size=$BUFF_size BUFF_start=$BUFF_start") if $config{debug_maildb_buffer};
 
    if (!$BUFF_EOF) {
       # make sure we are still in the file where we think we should be
@@ -1928,12 +2053,12 @@ sub buffer_readblock {
       $BUFF_size += $readlen;
       $BUFF_fileoffset += $readlen;
 
-      writelog("debug - buffer_readblock - BUFF_EOF=$BUFF_EOF BUFF_fileoffset=$BUFF_fileoffset BUFF_size=$BUFF_size BUFF_start=$BUFF_start readlen=$readlen") if $config{debug_maildb};
+      writelog("debug_maildb_buffer - buffer_readblock - BUFF_EOF=$BUFF_EOF BUFF_fileoffset=$BUFF_fileoffset BUFF_size=$BUFF_size BUFF_start=$BUFF_start readlen=$readlen") if $config{debug_maildb_buffer};
 
       return $readlen;
    }
 
-   writelog("debug - buffer_readblock - BUFF_EOF=1") if $config{debug_maildb};
+   writelog("debug_maildb_buffer - buffer_readblock - BUFF_EOF=1") if $config{debug_maildb_buffer};
 
    return 0;
 }
@@ -1942,7 +2067,7 @@ sub buffer_startmsgchk {
    # check for the start of a new message
    my $pos = shift;
 
-   writelog("debug - buffer_startmsgchk - pos=$pos") if $config{debug_maildb};
+   writelog("debug_maildb_buffer - buffer_startmsgchk - pos=$pos") if $config{debug_maildb_buffer};
 
    # verify preceding new line characters
    # if this fails, bump the position to invalidate it
@@ -1957,7 +2082,7 @@ sub buffer_startmsgchk {
 
    # check this message start more closely (this will fail if the preceding newline characters check above failed)
    if ($BUFF_buff =~ m/$BUFF_regex/) {
-      writelog("debug - buffer_startmsgchk - BUFF_start=$BUFF_start BUFF_regex=$BUFF_regex") if $config{debug_maildb};
+      writelog("debug_maildb_buffer - buffer_startmsgchk - BUFF_start=$BUFF_start BUFF_regex=$BUFF_regex") if $config{debug_maildb_buffer};
 
       # the buffer contains a line that matches the BUFF_regex
       # qr/^From .*(\w\w\w)\s+(\w\w\w)\s+(\d+)\s+(\d+):(\d+):?(\d*)\s+([A-Z]{3,4}\d?\s+)?(\d\d+)/;
@@ -1975,7 +2100,7 @@ sub buffer_getchars {
    #  - or the entire buffer/file if size == -1
    my $size = shift;
 
-   writelog("debug - buffer_getchars - size=$size BUFF_size=$BUFF_size BUFF_EOF=$BUFF_EOF") if $config{debug_maildb};
+   writelog("debug_maildb_buffer - buffer_getchars - size=$size BUFF_size=$BUFF_size BUFF_EOF=$BUFF_EOF") if $config{debug_maildb_buffer};
 
    # make sure the buffer contains enough bytes to meet the request
    buffer_readblock() while (($size < 0 or $size > $BUFF_size) && !$BUFF_EOF);
@@ -1986,7 +2111,7 @@ sub buffer_getchars {
 
    buffer_skipchars($size); # gotten chars are removed from the buffer
 
-   writelog("debug - buffer_getchars - content='$content' taken from buffer") if $config{debug_maildb};
+   writelog("debug_maildb_buffer - buffer_getchars - content='$content' taken from buffer") if $config{debug_maildb_buffer};
 
    return $content;
 }
@@ -1997,7 +2122,7 @@ sub buffer_skipchars {
    # chars are removed from the buffer
    my $skip = shift;
 
-   writelog("debug - buffer_skipchars - skip=$skip") if $config{debug_maildb};
+   writelog("debug_maildb_buffer - buffer_skipchars - skip=$skip") if $config{debug_maildb_buffer};
 
    if ($skip < 0) {
       $BUFF_EOF  = 1;
@@ -2023,7 +2148,7 @@ sub buffer_skipleading {
    my $delim = shift;
    my $len   = length $delim;
 
-   writelog("debug - buffer_skipleading - delim=$delim len=$len BUFF_size=$BUFF_size") if $config{debug_maildb};
+   writelog("debug_maildb_buffer - buffer_skipleading - delim=$delim len=$len BUFF_size=$BUFF_size") if $config{debug_maildb_buffer};
 
    return unless $len;
 
@@ -2036,10 +2161,10 @@ sub buffer_skipleading {
       $skip += $len;
       $BUFF_size -= $len;
 
-      writelog("debug - buffer_skipleading - while loop skip=$skip BUFF_size=$BUFF_size") if $config{debug_maildb};
+      writelog("debug_maildb_buffer - buffer_skipleading - while loop skip=$skip BUFF_size=$BUFF_size") if $config{debug_maildb_buffer};
 
       if ($BUFF_size < $len) {
-         writelog("debug - buffer_skipleading - BUFF_size=$BUFF_size < len=$len") if $config{debug_maildb};
+         writelog("debug_maildb_buffer - buffer_skipleading - BUFF_size=$BUFF_size < len=$len") if $config{debug_maildb_buffer};
 
          $BUFF_start += $skip;
          $BUFF_buff = substr($BUFF_buff, $skip);
@@ -2051,18 +2176,19 @@ sub buffer_skipleading {
    $BUFF_start += $skip;
    $BUFF_buff = substr($BUFF_buff, $skip);
 
-   writelog("debug - buffer_skipleading - BUFF_start=$BUFF_start") if $config{debug_maildb};
+   writelog("debug_maildb_buffer - buffer_skipleading - BUFF_start=$BUFF_start") if $config{debug_maildb_buffer};
 }
 
 sub buffer_index {
    # search the buffer for a given string
-   # if $keep = 1 then buffer contents will grow until $str is found
-   # otherwise, previous contents of buffer are tossed.
+   # if $keep = 1 then buffer contents will grow until $string is found
+   # otherwise, previous contents of buffer are discarded
    my ($keep, @strings) = @_;
 
-   writelog("debug - buffer_index - keep=$keep strings=" . join(',', @strings)) if $config{debug_maildb};
+   writelog("debug_maildb_buffer - buffer_index - keep=$keep strings=" . join(',', @strings)) if $config{debug_maildb_buffer};
 
    my %strings = ();
+
    foreach my $string (@strings) {
       $strings{$string}{len}    = length $string;
       $strings{$string}{offset} = 0;
@@ -2072,12 +2198,12 @@ sub buffer_index {
 
    while ($pos < 0) {
       # search the buffer for the next message start
-      foreach my $string (@strings) {
-         $pos = index($BUFF_buff, $string, $strings{$string}{offset});
+      foreach my $str (@strings) {
+         $pos = index($BUFF_buff, $str, $strings{$str}{offset});
 
-         writelog("debug - buffer_index - found string string='$string' at index pos=$pos") if $config{debug_maildb};
+         writelog("debug_maildb_buffer - buffer_index - found string string='$str' at index pos=$pos") if $config{debug_maildb_buffer};
 
-         return ($pos, $string) if $pos >= 0;
+         return ($pos, $str) if $pos >= 0;
       }
 
       # keep the buffer size reasonable	- only keep last 1024 byte

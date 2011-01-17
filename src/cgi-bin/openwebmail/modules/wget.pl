@@ -9,7 +9,10 @@ package ow::wget;
 #
 
 use strict;
+use warnings FATAL => 'all';
+
 use Fcntl qw(:DEFAULT :flock);
+
 require "modules/tool.pl";
 
 sub get_handle {
@@ -22,7 +25,8 @@ sub get_handle {
    open(SAVEOUT,">&STDOUT"); open(STDOUT,">&=".fileno($outfh)); close($outfh);
    select(STDERR); $|=1; select(STDOUT); $|=1;
 
-   local $SIG{CHLD}; undef $SIG{CHLD};  # disable $SIG{CHLD} temporarily for wait()
+   local $SIG{CHLD}; # disable $SIG{CHLD} temporarily for wait()
+
    system($wgetbin, "-l0", "-O-", ow::tool::untaint($url));
 
    open(STDERR,">&SAVEERR"); close(SAVEERR);

@@ -29,7 +29,7 @@
 # cut.pl - routines to cut size of webmail or webdisk for quota
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Fcntl qw(:DEFAULT :flock);
 

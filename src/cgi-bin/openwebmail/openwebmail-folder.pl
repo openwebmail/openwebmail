@@ -28,7 +28,7 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use vars qw($SCRIPT_DIR);
 
@@ -112,7 +112,7 @@ $messageid       = param('message_id') || '';
 
 my $action = param('action') || '';
 
-writelog("debug - request folder begin, action=$action") if $config{debug_request};
+writelog("debug_request :: request folder begin, action=$action") if $config{debug_request};
 
 $action eq 'refreshfolders' ? refreshfolders() :
 $action eq 'addfolder'      ? addfolder()      :
@@ -125,7 +125,7 @@ $action eq 'deletefolder'   ? deletefolder()   :
 $action eq 'downloadfolder' ? downloadfolder() :
 openwebmailerror(gettext('Action has illegal characters.'));
 
-writelog("debug - request folder end, action=$action") if $config{debug_request};
+writelog("debug_request :: request folder end, action=$action") if $config{debug_request};
 
 openwebmail_requestend();
 
