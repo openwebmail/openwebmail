@@ -1,0 +1,130 @@
+This iconset was derived from the Silk icon set 1.3.
+
+Many additional icons for OpenWebMail were created based
+on the look and feel of the icons provided by this set.
+
+_________________________________________
+Mark James
+http://www.famfamfam.com/lab/icons/silk/
+_________________________________________
+
+This work is licensed under a
+Creative Commons Attribution 2.5 License.
+[ http://creativecommons.org/licenses/by/2.5/ ]
+
+This means you may use it for any purpose,
+and make any changes you like.
+All I ask is that you include a link back
+to this page in your credits.
+
+Are you using this icon set? Send me an email
+(including a link or picture if available) to
+mjames@gmail.com
+
+Any other questions about this icon set please
+contact mjames@gmail.com
+
+The icons used in this set were sourced from the
+following original files:
+
+# Iconset Variable Name			Image File To Use
+iconset_button_abookexport		icons/book_next.png
+iconset_button_abookimport		icons/book_previous.png
+iconset_button_abooknewcontact		icons/user_add.png
+iconset_button_abooknewgroup		icons/group_add.png
+iconset_button_abooks			icons/folder_user.png
+iconset_button_abookunselectall		icons/lightning.png
+iconset_button_abookviewselected	icons/application_form_magnify.png
+iconset_button_addrbook			icons/book_addresses.png
+iconset_button_adduser			icons/user_add.png
+iconset_button_advsearch		icons/magnifier.png
+iconset_button_back			icons/application_side_contract.png
+iconset_button_blank			owm/blank.png
+iconset_button_changepassword		icons/lock_edit.png
+iconset_button_clearstationery		icons/page_white_width.png
+iconset_button_compose			icons/email_edit.png
+iconset_button_dayview			icons/calendar_view_day.png
+iconset_button_editdraft		icons/page_white_edit.png
+iconset_button_editfroms		icons/group_edit.png
+iconset_button_editstationery		icons/page_white_text_width.png
+iconset_button_emptyfolder		owm/emptyfolder.png
+iconset_button_filtersetup		owm/filtersetup.png
+iconset_button_folder			icons/folder.png
+iconset_button_forward			owm/forward.png
+iconset_button_forwardasatt		owm/forwardasatt.png
+iconset_button_forwardasorig		owm/forwardasorig.png
+iconset_button_history			icons/script.png
+iconset_button_home			icons/house.png
+iconset_button_info			icons/information.png
+iconset_button_learnham			icons/accept.png
+iconset_button_learnspam		icons/delete.png
+iconset_button_listview			icons/table.png
+iconset_button_logout			icons/cancel.png
+iconset_button_monthview		icons/calendar_view_month.png
+iconset_button_pop3			icons/page_refresh.png
+iconset_button_pop3setup		icons/page_gear.png
+iconset_button_preferences		icons/wrench.png
+iconset_button_print			icons/printer.png
+iconset_button_refresh			icons/arrow_refresh.png
+iconset_button_reply			owm/reply.png
+iconset_button_replyall			owm/replyall.png
+iconset_button_sablacklist		icons/shield_delete.png
+iconset_button_sapreferences		owm/shield_wrench.png
+iconset_button_satest			owm/shield_edit.png
+iconset_button_sawhitelist		icons/shield_add.png
+iconset_button_sshterminal		icons/application_xp_terminal.png
+iconset_button_trash			icons/bin_empty.png
+iconset_button_vdusers			icons/group.png
+iconset_button_webcal			icons/date.png
+iconset_button_webdisk			icons/drive_web.png
+iconset_button_webmail			icons/email.png
+iconset_button_weekview			icons/calendar_view_week.png
+iconset_button_yearview			icons/calendar.png
+iconset_small_addrbook			icons/book_addresses.png
+iconset_small_arrowdoubleleftoff	icons/control_rewind.png
+iconset_small_arrowdoublelefton		icons/control_rewind_blue.png
+iconset_small_arrowdoublerightoff	icons/control_fastforward.png
+iconset_small_arrowdoublerighton	icons/control_fastforward_blue.png
+iconset_small_arrowdown			owm/control_down.png
+iconset_small_arrowleftoff		owm/control_playrev.png
+iconset_small_arrowlefton		owm/control_playrev_blue.png
+iconset_small_arrowrightoff		icons/control_play.png
+iconset_small_arrowrighton		icons/control_play_blue.png
+iconset_small_arrowup			owm/control_up.png
+iconset_small_blockemail		icons/email_error.png
+iconset_small_blockrelay		icons/computer_error.png
+iconset_small_calendar			icons/calendar.png
+iconset_small_camera			icons/camera.png
+iconset_small_compose			icons/email_edit.png
+iconset_small_contact			icons/user.png
+iconset_small_contactadd		owm/user_add.png
+iconset_small_disk			icons/drive.png
+iconset_small_dirup			owm/small_dirup.gif
+iconset_small_download			icons/bullet_disk.png
+iconset_small_earth			icons/world.png
+iconset_small_earthtimezone		icons/time.png
+iconset_small_editfroms			icons/group_edit.png
+iconset_small_editstationery		icons/page_white_text_width.png
+iconset_small_envelope			icons/email.png
+iconset_small_followdown		owm/followdown.png
+iconset_small_followup			icons/arrow_turn_right.png
+iconset_small_group			icons/group.png
+iconset_small_import			owm/user_add.png
+iconset_small_important			icons/exclamation.png
+iconset_small_keyboard			icons/keyboard.png
+iconset_small_link			icons/link.png
+iconset_small_minisearch		owm/small_minisearch.gif
+iconset_small_padlock			icons/lock.png
+iconset_small_paperclip			icons/attach.png
+iconset_small_playsound			icons/sound.png
+iconset_small_read			icons/email_open.png
+iconset_small_readreplied		icons/email_open_image.png
+iconset_small_sapreferences		owm/shield_wrench.png
+iconset_small_search			icons/zoom.png
+iconset_small_trash			icons/bullet_delete.png
+iconset_small_unread			icons/email.png
+iconset_small_unreadreplied		icons/email_go.png
+iconset_small_vcard			icons/vcard.png
+iconset_small_webdisk			icons/drive_web.png
+
+The owm/ files were ones we created for the project.
