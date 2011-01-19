@@ -270,7 +270,7 @@ SEARCH-FORM
 
 <DefineVar>
 LOGO-LINK
-<a href="http://www.openwebmail.org"><img src="/images/openwebmail.gif" border="0" title="go to the OpenWebMail Project homepage"></a><br><br>
+<a href="http://www.openwebmail.org"><img src="/images/openwebmail.png" border="0" title="go to the OpenWebMail Project homepage"></a><br><br>
 </DefineVar>
 
 
