@@ -549,7 +549,9 @@ sub zombie_cleaner {
 }
 
 sub stacktrace {
-   return Carp::longmess(join(' ', @_));
+   my @error_messages = @_;
+   my @stacktrace = grep { defined } Carp::longmess(join(' ', @error_messages));
+   return (scalar @stacktrace > 0 ? @stacktrace : (''));
 }
 
 sub log_time {
@@ -565,7 +567,7 @@ sub log_time {
    local $| = 1;
    select(STDOUT);
 
-   print Z "$today $time ", join(" ",@_), "\n";	# @_ contains msgs to log
+   print Z "$today $time ", join(' ',@_), "\n";	# @_ contains msgs to log
    close(Z);
    chmod(0666, "/tmp/openwebmail.debug");
 }

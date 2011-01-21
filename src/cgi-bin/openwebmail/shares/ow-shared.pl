@@ -1804,7 +1804,7 @@ sub openwebmailerror {
                       egid            => $),
                       mailgid         => getgrnam('mail') || '',
                       stacktrace      => $config{error_with_debuginfo}
-                                         ? join('', map { s/^\s*//gm if defined; defined $_ ? $_ : '' } ow::tool::stacktrace())
+                                         ? join('', map { s/^\s*//gm; $_; } ow::tool::stacktrace())
                                          : 0,
                       url_help        => -d "$config{ow_htmlurl}/help/$prefs{locale}"
                                          ? "$config{ow_htmlurl}/help/$prefs{locale}"

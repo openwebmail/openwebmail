@@ -1,13 +1,37 @@
-package ow::auth_unix;
+#                              The BSD License
 #
+#  Copyright (c) 2009-2011, The OpenWebMail Project
+#  All rights reserved.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions are met:
+#      * Redistributions of source code must retain the above copyright
+#        notice, this list of conditions and the following disclaimer.
+#      * Redistributions in binary form must reproduce the above copyright
+#        notice, this list of conditions and the following disclaimer in the
+#        documentation and/or other materials provided with the distribution.
+#      * Neither the name of The OpenWebMail Project nor the
+#        names of its contributors may be used to endorse or promote products
+#        derived from this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project ``AS IS'' AND ANY
+#  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#  DISCLAIMED. IN NO EVENT SHALL The OpenWebMail Project BE LIABLE FOR ANY
+#  DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 # auth_unix.pl -  authenticate user with unix password
 #
 # 2002/07/16 Trevor.Paquette.AT.TeraGo.ca
 #            add check for nologin, validshell, cobaltuser
 # 2001/12/20 tung.AT.turtle.ee.ncku.edu.tw
-#
 
-########## No configuration required from here ###################
+package ow::auth_unix;
 
 use strict;
 use warnings FATAL => 'all';
@@ -17,90 +41,109 @@ use Fcntl qw(:DEFAULT :flock);
 require "modules/filelock.pl";
 require "modules/tool.pl";
 
-my %conf;
-if (($_=ow::tool::find_configfile('etc/auth_unix.conf', 'etc/defaults/auth_unix.conf')) ne '') {
-   my ($ret, $err)=ow::tool::load_configfile($_, \%conf);
-   die $err if ($ret<0);
+my %conf = ();
+
+if (($_ = ow::tool::find_configfile('etc/auth_unix.conf', 'etc/defaults/auth_unix.conf')) ne '') {
+   my ($ret, $err) = ow::tool::load_configfile($_, \%conf);
+   die $err if $ret < 0;
 }
 
-my $passwdfile_plaintext = $conf{'passwdfile_plaintext'} || '/etc/passwd';
-my $passwdfile_encrypted = $conf{'passwdfile_encrypted'} || '/etc/master.passwd';
-my $passwdmkdb = $conf{'passwdmkdb'} || '/usr/sbin/pwd_mkdb';
+my $passwdfile_plaintext = $conf{passwdfile_plaintext} || '/etc/passwd';
+my $passwdfile_encrypted = $conf{passwdfile_encrypted} || '/etc/master.passwd';
+my $passwdmkdb           = $conf{passwdmkdb}           || '/usr/sbin/pwd_mkdb';
 
-my $check_expire = $conf{'check_expire'} || 'no';
-my $check_nologin = $conf{'check_nologin'} || 'no';
-my $check_shell = $conf{'check_shell'} || 'no';
-my $check_cobaltuser = $conf{'check_cobaltuser'} || 'no';
-my $change_smbpasswd = $conf{'change_smbpasswd'} || 'no';
+my $check_expire     = $conf{check_expire}     || 'no';
+my $check_nologin    = $conf{check_nologin}    || 'no';
+my $check_shell      = $conf{check_shell}      || 'no';
+my $check_cobaltuser = $conf{check_cobaltuser} || 'no';
+my $change_smbpasswd = $conf{change_smbpasswd} || 'no';
 
-########## end init ##############################################
-
-#  0 : ok
-# -2 : parameter format error
-# -3 : authentication system/internal error
-# -4 : user does not exist
 sub get_userinfo {
-   my ($r_config, $user)=@_;
-   return(-2, 'User is null') if ($user eq '');
+   #  0 : ok
+   # -2 : parameter format error
+   # -3 : authentication system/internal error
+   # -4 : user does not exist
+   my ($r_config, $user) = @_;
 
-   my ($uid, $gid, $realname, $homedir);
+   return(-2, 'User is null') if !defined $user || $user eq '';
+
+   my $uid      = '';
+   my $gid      = '';
+   my $realname = '';
+   my $homedir  = '';
+
    if ($passwdfile_plaintext eq "/etc/passwd") {
       ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
    } else {
-      if ($passwdfile_plaintext=~/\|/) { # maybe NIS, try getpwnam first
-         ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
+      if ($passwdfile_plaintext =~ m/\|/) {
+         # maybe NIS, try getpwnam first
+         ($uid, $gid, $realname, $homedir) = (getpwnam($user))[2,3,6,7];
       }
-      if ($uid eq "") { # else, open file directly
-         ($uid, $gid, $realname, $homedir)= (getpwnam_file($user, $passwdfile_plaintext))[2,3,6,7];
+
+      if (!defined $uid || $uid eq '') {
+         # else, open file directly
+         ($uid, $gid, $realname, $homedir) = (getpwnam_file($user, $passwdfile_plaintext))[2,3,6,7];
       }
    }
-   return(-4, "User $user does not exist") if ($uid eq "");
+
+   return(-4, "User $user does not exist") if !defined $uid || $uid eq '';
 
    # get other gid for this user in /etc/group
-   while (my @gr=getgrent()) {
-      $gid.=' '.$gr[2] if ($gr[3]=~/\b$user\b/ && $gid!~/\b$gr[2]\b/);
+   while (my @gr = getgrent()) {
+      $gid .= ' ' . $gr[2] if $gr[3] =~ m/\b$user\b/ && $gid !~ m/\b$gr[2]\b/;
    }
+
    # use 1st field for realname
-   $realname=(split(/,/, $realname))[0];
+   $realname = (split(/,/, $realname))[0];
+
    # guess real homedir under sun's automounter
-   $homedir="/export$homedir" if (-d "/export$homedir");
+   $homedir = "/export$homedir" if -d "/export$homedir";
 
-   return(0, '', $realname, $uid, $gid, $homedir);
+   $uid      = defined $uid      ? $uid      : '';
+   $gid      = defined $gid      ? $gid      : '';
+   $realname = defined $realname ? $realname : '';
+   $homedir  = defined $homedir  ? $homedir  : '';
+
+   return (0, '', $realname, $uid, $gid, $homedir);
 }
-
 
 sub get_userlist {
    # only used by openwebmail-tool.pl -a
    #  0 : ok
    # -1 : function not supported
    # -3 : authentication system/internal error
-   my $r_config=$_[0];
-   my @userlist=();
-   my $line;
+   my $r_config = shift;
 
-   # a file should be locked only if it is local accessable
+   my @userlist = ();
+
    if (-f $passwdfile_plaintext) {
+      # a file should be locked only if it is local accessable
       ow::filelock::lock($passwdfile_plaintext, LOCK_SH) or
          return (-3, "Could not get read lock on $passwdfile_plaintext", @userlist);
    }
+
    open(PASSWD, $passwdfile_plaintext);
-   while (defined($line=<PASSWD>)) {
+
+   while (defined(my $line = <PASSWD>)) {
       next if $line =~ m/^#/ || $line =~ m/^\s*$/;
       chomp($line);
       push(@userlist, (split(/:/, $line))[0]);
    }
+
    close(PASSWD);
-   ow::filelock::lock($passwdfile_plaintext, LOCK_UN) if ( -f $passwdfile_plaintext);
-   return(0, '', @userlist);
+
+   ow::filelock::lock($passwdfile_plaintext, LOCK_UN) if -f $passwdfile_plaintext;
+
+   return (0, '', @userlist);
 }
 
-
-#  0 : ok
-# -2 : parameter format error
-# -3 : authentication system/internal error
-# -4 : password incorrect
 sub check_userpassword {
-   my ($r_config, $user, $password)=@_;
+   #  0 : ok
+   # -2 : parameter format error
+   # -3 : authentication system/internal error
+   # -4 : password incorrect
+   my ($r_config, $user, $password) = @_;
+
    return (-2, "User or password is null") if ($user eq '' || $password eq '');
 
    # a file should be locked only if it is local accessable

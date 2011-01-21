@@ -254,32 +254,47 @@ sub guessoptions {
 }
 
 sub get_defaultdbtype {
-   if ($_defaultdbtype eq '') {
-      my $tmpdir=ow::tool::mktmpdir("dbmtest.tmp");
-      my $t=ow::tool::untaint("$tmpdir/t");
+   if (!defined $_defaultdbtype || $_defaultdbtype eq '') {
+      my $tmpdir    = ow::tool::mktmpdir('dbmtest.tmp');
+      my $tmpdbfile = ow::tool::untaint("$tmpdir/tmpdb");
 
-      my %t;
-      dbmopen(%t, "$t$dbmopen_ext", 0600);
-      dbmclose(%t);
-      $_defaultdbtype=get_dbtype("$t$dbm_ext");
+      my %TMPDB = ();
 
-      unlink ("$t$dbm_ext", "$t.dir", "$t.pag");
+      dbmopen(%TMPDB, "$tmpdbfile$dbmopen_ext", 0600);
+
+      dbmclose(%TMPDB);
+
+      $_defaultdbtype = get_dbtype("$tmpdbfile$dbm_ext");
+
+      unlink ("$tmpdbfile$dbm_ext", "$tmpdbfile.dir", "$tmpdbfile.pag");
+
       rmdir($tmpdir);
-    }
-    return($_defaultdbtype);
+   }
+
+   $_defaultdbtype = defined $_defaultdbtype ? $_defaultdbtype : '';
+
+   return $_defaultdbtype;
 }
 
 sub get_dbtype {
+   my $dbfile = shift;
+
    open(F, "-|") or
-      do { open(STDERR,">/dev/null"); exec(ow::tool::findbin("file"), $_[0]); exit 9 };
+      do { open(STDERR,">/dev/null"); exec(ow::tool::findbin('file'), $dbfile); exit 9 };
+
    local $/;
    undef $/;
+
    my $dbtype = <F>;
+
+   $dbtype = defined $dbtype ? $dbtype : '';
+
    $dbtype =~ s/^.*?:\s*//;
    $dbtype =~ s/\s*$//;
+
    close(F);
 
-   return($dbtype);
+   return $dbtype;
 }
 
 sub dblist2dbfiles {
