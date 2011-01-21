@@ -1773,6 +1773,9 @@ sub openwebmailerror {
 
    ($file) = $file =~ m/[\\\/]([^\\\/]+)$/ if defined $file && $file;
 
+   my @stacktrace = $config{error_with_debuginfo} ? ow::tool::stacktrace() : ();
+   @stacktrace = map { s/^\s*//gm } grep { defined } @stacktrace;
+
    my $template = HTML::Template->new(
                                         filename          => get_template('shared_error.tmpl'),
                                         filter            => $htmltemplatefilters,
@@ -1803,8 +1806,8 @@ sub openwebmailerror {
                       euid            => $>,
                       egid            => $),
                       mailgid         => getgrnam('mail') || '',
-                      stacktrace      => $config{error_with_debuginfo}
-                                         ? join('', map { s/^\s*//gm; $_; } ow::tool::stacktrace())
+                      stacktrace      => ($config{error_with_debuginfo} && scalar @stacktrace > 0)
+                                         ? join('', @stacktrace)
                                          : 0,
                       url_help        => -d "$config{ow_htmlurl}/help/$prefs{locale}"
                                          ? "$config{ow_htmlurl}/help/$prefs{locale}"
