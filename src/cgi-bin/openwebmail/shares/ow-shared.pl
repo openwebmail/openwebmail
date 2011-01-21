@@ -1769,12 +1769,19 @@ sub openwebmailerror {
    # this subroutine must not rely on any other subroutines that issue errors
    my ($message, $passthrough) = @_;
 
+   $message     = defined $message     ? $message     : '';
+   $passthrough = defined $passthrough ? $passthrough : 0;
+
    my ($package, $file, $linenumber) = caller;
 
    ($file) = $file =~ m/[\\\/]([^\\\/]+)$/ if defined $file && $file;
 
+   $package    = defined $package    ? $package    : '';
+   $file       = defined $file       ? $file       : '';
+   $linenumber = defined $linenumber ? $linenumber : 0;
+
    my @stacktrace = $config{error_with_debuginfo} ? ow::tool::stacktrace() : ();
-   @stacktrace = map { s/^\s*//gm } grep { defined } @stacktrace;
+   @stacktrace = map { s/^\s*//gm; $_ } grep { defined } @stacktrace;
 
    my $template = HTML::Template->new(
                                         filename          => get_template('shared_error.tmpl'),
