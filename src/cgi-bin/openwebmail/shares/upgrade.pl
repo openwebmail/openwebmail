@@ -554,13 +554,17 @@ sub upgrade_all {
 
       if (-f $rcfile) {
          %prefs = readprefs();
+
          if ($prefs{sort} eq 'date') {
             $prefs{sort} = 'date_rev';
 
             sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
                openwebmailerror(gettext('Cannot open file:') . " $rcfile ($!)");
 
-            print RC "$_=$prefs{$_}\n" for @openwebmailrcitem;
+            foreach my $item (@openwebmailrcitem) {
+               next unless exists $prefs{$item} && defined $prefs{$item};
+               print RC "$item=$prefs{$item}\n";
+            }
 
             close(RC) or writelog("cannot close file $rcfile");
 
@@ -629,7 +633,10 @@ sub upgrade_all {
          sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
             openwebmailerror(gettext('Cannot open file:') . " $rcfile ($!)");
 
-         print RC "$_=$prefs{$_}\n" for @openwebmailrcitem;
+         foreach my $item (@openwebmailrcitem) {
+            next unless exists $prefs{$item} && defined $prefs{$item};
+            print RC "$item=$prefs{$item}\n";
+         }
 
          close(RC) or writelog("cannot close file $rcfile");
 
@@ -651,7 +658,10 @@ sub upgrade_all {
          sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
             openwebmailerror(gettext('Cannot open file:') . " $rcfile ($!)");
 
-         print RC "$_=$prefs{$_}\n" for @openwebmailrcitem;
+         foreach my $item (@openwebmailrcitem) {
+            next unless exists $prefs{$item} && defined $prefs{$item};
+            print RC "$item=$prefs{$item}\n";
+         }
 
          close(RC) or writelog("cannot close file $rcfile");
 
@@ -753,6 +763,7 @@ sub upgrade_all {
             next unless exists $prefs{$item} && defined $prefs{$item};
             print RC "$item=$prefs{$item}\n";
          }
+
          print RC "$_=$iconset_config{$_}\n" for sort keys %iconset_config;
 
          close(RC) or
@@ -817,7 +828,10 @@ sub update_openwebmailrc {
       sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
          openwebmailerror(gettext('Cannot open file:') . " $rcfile ($!)");
 
-      print RC "$_=$prefs{$_}\n" for @openwebmailrcitem;
+      foreach my $item (@openwebmailrcitem) {
+         next unless exists $prefs{$item} && defined $prefs{$item};
+         print RC "$item=$prefs{$item}\n";
+      }
 
       close(RC) or writelog("cannot close file $rcfile");
    }

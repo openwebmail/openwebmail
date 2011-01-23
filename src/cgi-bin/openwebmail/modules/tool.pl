@@ -168,15 +168,22 @@ sub hostname {
 }
 
 sub clientip {
-   my $clientip;
-   if (defined $ENV{'HTTP_CLIENT_IP'}) {
-      $clientip=$ENV{'HTTP_CLIENT_IP'};
-   } elsif (defined $ENV{'HTTP_X_FORWARDED_FOR'} &&
-            $ENV{'HTTP_X_FORWARDED_FOR'} !~ /^(?:10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.0\.)/ ) {
-      $clientip=(split(/,/,$ENV{'HTTP_X_FORWARDED_FOR'}))[0];
+   my $clientip = '';
+
+   if (exists $ENV{HTTP_CLIENT_IP} && defined $ENV{HTTP_CLIENT_IP}) {
+      $clientip = $ENV{HTTP_CLIENT_IP};
+   } elsif (
+              exists $ENV{HTTP_X_FORWARDED_FOR}
+              && defined $ENV{HTTP_X_FORWARDED_FOR}
+              && $ENV{HTTP_X_FORWARDED_FOR} !~ m/^(?:10\.|172\.(?:1[6-9]|2[0-9]|3[0-1])\.|192\.168\.|127\.0\.)/
+           ) {
+      $clientip = (split(/,/,$ENV{HTTP_X_FORWARDED_FOR}))[0];
    } else {
-      $clientip=$ENV{'REMOTE_ADDR'}||"127.0.0.1";
+      $clientip = exists $ENV{REMOTE_ADDR} && defined $ENV{REMOTE_ADDR}
+                  ? $ENV{REMOTE_ADDR}
+                  : '127.0.0.1';
    }
+
    return $clientip;
 }
 

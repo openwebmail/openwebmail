@@ -42,7 +42,7 @@ use vars qw(%config %prefs);
 
 # define the version of the mail index database
 use vars qw($_DBVERSION);
-$_DBVERSION = 20110117;
+$_DBVERSION = 20110123;
 
 # globals, message attribute number constant
 use vars qw(

@@ -74,7 +74,7 @@ die "Cannot determine the HEAD revision number from SVN.\n" unless defined $revi
 my $revisioncurrent = 0;
 if (-f 'openwebmail-current.tar.gz') {
    my $openwebmailconf = `$global->{tar} -xzOf openwebmail-current.tar.gz cgi-bin/openwebmail/etc/defaults/openwebmail.conf`;
-   $revisioncurrent = $1 if $openwebmailconf =~ m#Rev: (\d+)#igs;
+   $revisioncurrent = $1 if $openwebmailconf =~ m#revision\s+(\d+)#igs;
 }
 
 # do we need to update?

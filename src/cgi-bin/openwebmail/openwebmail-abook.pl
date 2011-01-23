@@ -205,6 +205,12 @@ sub refresh_ldapcache {
       close(STDOUT);
       close(STDERR);
 
+      # closing STDIN made file descriptor 0 available
+      # the next sysopen chooses the first available file descriptor
+      # and warns if it is fd 0 and has been opened for writing
+      # open a bogus file to occupy fd 0 to prevent warnings
+      sysopen(BOGUS, '/dev/null', O_RDONLY);
+
       local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
       local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
 
@@ -328,6 +334,8 @@ sub refresh_ldapcache {
       }
       chmod(0444, $ldapcachefile); # set it to readonly
       ow::suid::restore_uid_from_root($origruid, $origeuid, $origegid);
+
+      close(BOGUS);
 
       openwebmail_exit(0);
    }

@@ -318,7 +318,7 @@ sub datefield2dateserial {
    my $sec        = '00';
    my $min        = '00';
    my $hour       = '02';
-   my $mday       = '01';
+   my $mday       = '';
    my $mon        = '1';
    my $year       = $gmyear + 1900;
    my $timeoffset = '-0000';
@@ -356,6 +356,8 @@ sub datefield2dateserial {
          $ampm = 'pm';
       }
    }
+
+   $mday = '01' if $mday eq '';
 
    $hour += 12 if $hour < 12 && $ampm eq 'pm';
    $timeoffset = $tzoffset{$timezone} if $timeoffset eq '';

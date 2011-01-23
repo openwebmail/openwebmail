@@ -513,6 +513,12 @@ sub readmessage {
          close(STDOUT);
          close(STDERR);
 
+         # closing STDIN made file descriptor 0 available
+         # the next sysopen chooses the first available file descriptor
+         # and warns if it is fd 0 and has been opened for writing
+         # open a bogus file to occupy fd 0 to prevent warnings
+         sysopen(BOGUS, '/dev/null', O_RDONLY);
+
          local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
          local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
 
@@ -529,6 +535,9 @@ sub readmessage {
          ow::filelock::lock($folderfile, LOCK_UN);
 
          writelog('debug_fork :: update msg status process terminated') if $config{debug_fork};
+
+         close(BOGUS);
+
          openwebmail_exit(0);
       }
    } elsif (param('db_chkstatus')) { # check and set msg status R flag
@@ -788,9 +797,19 @@ sub readmessage {
          # if convfrom eq msgcharset, we will try to get the attcharset from the attheader - it may differ from the msgheader
          # if convfrom ne msgcharset, the user has specified some other charset to interpret the message - use convfrom as attcharset
          if ($convfrom eq lc($messagesloop->[$i]{charset})) {
-            $attcharset = lc($messagesloop->[$i]{attachment}[$n]{filenamecharset}) ||
-                          lc($messagesloop->[$i]{attachment}[$n]{charset})         ||
-                          $convfrom;
+            my $message_filenamecharset = exists $messagesloop->[$i]{attachment}[$n]{filenamecharset}
+                                          && defined $messagesloop->[$i]{attachment}[$n]{filenamecharset}
+                                          ? $messagesloop->[$i]{attachment}[$n]{filenamecharset}
+                                          : '';
+
+            my $attachment_characterset = exists $messagesloop->[$i]{attachment}[$n]{charset}
+                                          && defined $messagesloop->[$i]{attachment}[$n]{charset}
+                                          ? $messagesloop->[$i]{attachment}[$n]{charset}
+                                          : '';
+
+            $attcharset = lc($message_filenamecharset)
+                          || lc($attachment_characterset)
+                          || $convfrom;
          }
 
          $messagesloop->[$i]{attachment}[$n]{filename} =

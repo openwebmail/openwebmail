@@ -732,7 +732,8 @@ sub userenv_init {
 sub login_name2domainuser {
    my ($loginname, $default_logindomain) = @_;
 
-   my ($logindomain, $loginuser) = ();
+   my $logindomain = '';
+   my $loginuser   = '';
 
    if ($loginname =~ m#^(.+)\@(.+)$#) {
       ($loginuser, $logindomain) = ($1, $2);
@@ -742,7 +743,7 @@ sub login_name2domainuser {
       $logindomain =~ s#:\d+$##; # remove port number
    }
 
-   $loginuser   = lc($loginuser) if ($config{'case_insensitive_login'});
+   $loginuser = lc($loginuser) if $config{case_insensitive_login};
 
    $logindomain = lc(safedomainname($logindomain));
    $logindomain = $config{domainname_equiv}{map}{$logindomain}
@@ -1383,13 +1384,13 @@ sub get_domain_user_userinfo {
          if exists $config{domain_equiv}{list}{$logindomain}
             && scalar @{$config{domain_equiv}{list}{$logindomain}} > 0;
 
-      foreach (@domainlist) {
-         $user = get_user_by_virtualuser("$loginuser\@$_") || '';
+      foreach my $listdomain (@domainlist) {
+         $user = get_user_by_virtualuser("$loginuser\@$listdomain") || '';
          last if $user ne '';
       }
    }
 
-   if ($user =~ m/^(.*)\@(.*)$/) {
+   if ($user =~ m/^(.+)\@(.+)$/) {
       ($user, $domain) = ($1, lc($2));
    } else {
       if ($user eq '') {
@@ -1422,6 +1423,13 @@ sub get_domain_user_userinfo {
    writelog("userinfo error - $config{auth_module}, ret $errcode, $errmsg") if $errcode != 0;
 
    $realname = $loginuser if $realname eq '';
+
+   $domain   = defined $domain   ? $domain   : '';
+   $user     = defined $user     ? $user     : '';
+   $realname = defined $realname ? $realname : '';
+   $uid      = defined $uid      ? $uid      : '';
+   $gid      = defined $gid      ? $gid      : '';
+   $homedir  = defined $homedir  ? $homedir  : '';
 
    return ('', '', '', '', '', '') if $uid eq '';
 
@@ -2005,8 +2013,10 @@ sub update_authpop3book {
 
 sub safedomainname {
    my $domainname = shift;
+
    $domainname =~ s#\.\.+##g;
    $domainname =~ s#[^A-Za-z\d\_\-\.]##g; # safe chars only
+
    return $domainname;
 }
 
@@ -2360,47 +2370,69 @@ sub autologin_add {
    # so a user may have different autologin settings on different computer
    # or even different browsers on same computer
    my $agentip = $ENV{HTTP_USER_AGENT} . ow::tool::clientip();
+
    my $autologindb = dotpath('autologin.check');
 
-   my (%DB, $timestamp);
+   my $timestamp = time();
 
-   return 0 if (!ow::dbm::opendb(\%DB, $autologindb, LOCK_EX));
+   my %DB = ();
 
-   $timestamp = time();
+   ow::dbm::opendb(\%DB, $autologindb, LOCK_EX) or
+      openwebmailerror(gettext('Cannot open db:') . " $autologindb ($!)");
 
-   foreach my $key (%DB) {
-      delete $DB{$key} if $timestamp - $DB{$key} > 86400 * 7;
+   foreach my $key (keys %DB) {
+      delete $DB{$key} if !defined $DB{$key} || $DB{$key} !~ m/^\d+$/;
+      delete $DB{$key} if ($timestamp - $DB{$key}) > (86400 * 7);
    }
 
    $DB{$agentip} = $timestamp;
-   ow::dbm::closedb(\%DB, $autologindb);
+
+   ow::dbm::closedb(\%DB, $autologindb) or
+      openwebmailerror(gettext('Cannot close db:') . " $autologindb ($!)");
+
    return 1;
 }
 
 sub autologin_rm {
    my $agentip = $ENV{HTTP_USER_AGENT} . ow::tool::clientip();
+
    my $autologindb = dotpath('autologin.check');
 
-   my %DB;
+   my %DB = ();
 
    return 0 unless ow::dbm::existdb($autologindb);
-   return 0 unless ow::dbm::opendb(\%DB, $autologindb, LOCK_EX);
-   delete $DB{$agentip};
-   ow::dbm::closedb(\%DB, $autologindb);
+
+   ow::dbm::opendb(\%DB, $autologindb, LOCK_EX) or
+      openwebmailerror(gettext('Cannot open db:') . " $autologindb ($!)");
+
+   delete $DB{$agentip} if defined $DB{$agentip};
+
+   ow::dbm::closedb(\%DB, $autologindb) or
+      openwebmailerror(gettext('Cannot close db:') . " $autologindb ($!)");
+
    return 1;
 }
 
 sub autologin_check {
    my $agentip = $ENV{HTTP_USER_AGENT} . ow::tool::clientip();
+
    my $autologindb = dotpath('autologin.check');
 
-   my (%DB, $timestamp);
+   my %DB = ();
+
+   my $timestamp = time();
 
    return 0 unless ow::dbm::existdb($autologindb);
-   return 0 unless ow::dbm::opendb(\%DB, $autologindb, LOCK_EX);
-   $DB{$agentip} = $timestamp = time() if defined $DB{$agentip};
-   ow::dbm::closedb(\%DB, $autologindb);
-   return 1 if $timestamp ne '';
+
+   ow::dbm::opendb(\%DB, $autologindb, LOCK_EX) or
+      openwebmailerror(gettext('Cannot open db:') . " $autologindb ($!)");
+
+   $DB{$agentip} = $timestamp if defined $DB{$agentip};
+
+   ow::dbm::closedb(\%DB, $autologindb) or
+      openwebmailerror(gettext('Cannot close db:') . " $autologindb ($!)");
+
+   return 1;
 }
 
 sub get_defaultfolders {

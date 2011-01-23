@@ -72,8 +72,8 @@ sub get_userinfo {
    my $realname = '';
    my $homedir  = '';
 
-   if ($passwdfile_plaintext eq "/etc/passwd") {
-      ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
+   if ($passwdfile_plaintext eq '/etc/passwd') {
+      ($uid, $gid, $realname, $homedir) = (getpwnam($user))[2,3,6,7];
    } else {
       if ($passwdfile_plaintext =~ m/\|/) {
          # maybe NIS, try getpwnam first
@@ -104,7 +104,10 @@ sub get_userinfo {
    $realname = defined $realname ? $realname : '';
    $homedir  = defined $homedir  ? $homedir  : '';
 
-   return (0, '', $realname, $uid, $gid, $homedir);
+   my $errorcode    = 0;
+   my $errormessage = '';
+
+   return ($errorcode, $errormessage, $realname, $uid, $gid, $homedir);
 }
 
 sub get_userlist {
@@ -177,9 +180,9 @@ sub check_userpassword {
 
       ($u, $p, $expire) = (split(/:/, $line))[0,1, $expirefield];
 
-      $u      = '' unless defined $u;
-      $p      = '' unless defined $p;
-      $expire = '' unless defined $expire;
+      $u      = defined $u ? $u : '';
+      $p      = defined $p ? $p : '';
+      $expire = defined $expire ? $expire : '';
 
       last if $u eq $user; # We found the user in /etc/passwd
    }
@@ -256,9 +259,9 @@ sub change_userpassword {
 
       ($u, $p, $misc) = split(/:/, $line, 3) if $u ne $user;
 
-      $u    = '' unless defined $u;
-      $p    = '' unless defined $p;
-      $misc = '' unless defined $misc;
+      $u    = defined $u ? $u : '';
+      $p    = defined $p ? $p : '';
+      $misc = defined $misc ? $misc : '';
    }
 
    close(PASSWD);
@@ -350,13 +353,13 @@ sub getpwnam_file {
 
       ($name, $passwd, $uid, $gid, $gcos, $dir, $shell) = split(/:/,$line);
 
-      $name   = '' unless defined $name;
-      $passwd = '' unless defined $passwd;
-      $uid    = '' unless defined $uid;
-      $gid    = '' unless defined $gid;
-      $gcos   = '' unless defined $gcos;
-      $dir    = '' unless defined $dir;
-      $shell  = '' unless defined $shell;
+      $name   = defined $name   ? $name   : '';
+      $passwd = defined $passwd ? $passwd : '';
+      $uid    = defined $uid    ? $uid    : '';
+      $gid    = defined $gid    ? $gid    : '';
+      $gcos   = defined $gcos   ? $gcos   : '';
+      $dir    = defined $dir    ? $dir    : '';
+      $shell  = defined $shell  ? $shell  : '';
 
       last if $name eq $user;
    }

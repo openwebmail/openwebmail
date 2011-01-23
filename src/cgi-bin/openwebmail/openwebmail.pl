@@ -753,45 +753,59 @@ sub ip2hostname {
 }
 
 sub autologin {
-   # auto login with cgi parm or cookie
-   $loginname = param('loginname') || cookie('ow-loginname');
+   # auto login with cgi param or cookie
+   $loginname = param('loginname') || cookie('ow-loginname') || '';
    $loginname =~ s#\s##g;
-   $default_logindomain = safedomainname(param('logindomain') || cookie('ow-default_logindomain'));
+
+   $default_logindomain = safedomainname(param('logindomain') || cookie('ow-default_logindomain') || '');
    return loginmenu() if $loginname eq '';
 
    ($logindomain, $loginuser) = login_name2domainuser($loginname, $default_logindomain);
+
    if (!is_localuser("$loginuser\@$logindomain") && -f "$config{ow_sitesconfdir}/$logindomain") {
       read_owconf(\%config, \%config_raw, "$config{ow_sitesconfdir}/$logindomain");
    }
+
    ow::auth::load($config{auth_module});
 
    ($domain, $user, $userrealname, $uuid, $ugid, $homedir) = get_domain_user_userinfo($logindomain, $loginuser);
 
-   if ($user eq ''
-       || ($uuid == 0 && !matchlist_fromhead('allowed_rootloginip', ow::tool::clientip()))
-       || cookie("ow-sessionkey-$domain-$user") eq '') {
-      return loginmenu();
-   }
+   my $sessioncookie = cookie("ow-sessionkey-$domain-$user") || '';
+
+   return loginmenu() if $user eq ''
+                         || (
+                               $uuid ne ''
+                               && $uuid == 0
+                               && !matchlist_fromhead('allowed_rootloginip', ow::tool::clientip())
+                            )
+                         || $sessioncookie eq '';
 
    my $userconf = "$config{ow_usersconfdir}/$user";
-   $userconf    = "$config{ow_usersconfdir}/$domain/$user" if ($config{auth_withdomain});
-   read_owconf(\%config, \%config_raw, "$userconf") if -f $userconf;
+   $userconf    = "$config{ow_usersconfdir}/$domain/$user" if $config{auth_withdomain};
 
-   my $owuserdir = ow::tool::untaint("$config{ow_usersdir}/".($config{auth_withdomain} ? "$domain/$user" : $user));
+   read_owconf(\%config, \%config_raw, $userconf) if -f $userconf;
+
+   my $owuserdir = ow::tool::untaint("$config{ow_usersdir}/" . ($config{auth_withdomain} ? "$domain/$user" : $user));
    $homedir = $owuserdir unless $config{use_syshomedir};
-   return loginmenu() unless autologin_check(); # db will not be created if it does not exist as euid has not been switched
 
-   # load user prefs for search_clean_oldsessions, it  will check $prefs{sessiontimeout}
+   # db will not be created if it does not exist as euid has not been switched
+   return loginmenu() unless autologin_check();
+
+   # load user prefs for search_clean_oldsessions, it will check $prefs{sessiontimeout}
    %prefs = readprefs();
+
    $thissession = (search_clean_oldsessions($loginname, $default_logindomain, $uuid, cookie("ow-sessionkey-$domain-$user")))[0];
    $thissession =~ s#\.\.+##g;
+
    return loginmenu() unless $thissession =~ m/^([\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+)$/;
 
    # redirect page to openwebmail main/calendar/webdisk
    my $refreshurl = refreshurl_after_login(param('action'));
+
    if (!$config{stay_ssl_afterlogin} && ($ENV{HTTPS} =~ /on/i || $ENV{SERVER_PORT} == 443)) {
-      $refreshurl="http://$ENV{HTTP_HOST}$refreshurl" if ($refreshurl !~ s#^https?://#http://#i);
+      $refreshurl = "http://$ENV{HTTP_HOST}$refreshurl" if $refreshurl !~ s#^https?://#http://#i;
    }
+
    print redirect(-location => $refreshurl);
 }
 

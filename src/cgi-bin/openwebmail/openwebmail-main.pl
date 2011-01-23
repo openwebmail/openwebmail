@@ -1048,6 +1048,12 @@ sub movemessage {
          close(STDOUT);
          close(STDERR);
 
+         # closing STDIN made file descriptor 0 available
+         # the next sysopen chooses the first available file descriptor
+         # and warns if it is fd 0 and has been opened for writing
+         # open a bogus file to occupy fd 0 to prevent warnings
+         sysopen(BOGUS, '/dev/null', O_RDONLY);
+
          local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
          local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
 
@@ -1086,6 +1092,9 @@ sub movemessage {
          writehistory($m);
 
          writelog("debug_fork :: $learntype process terminated") if $config{debug_fork};
+
+         close(BOGUS);
+
          openwebmail_exit(0);
       }
    }
@@ -1228,6 +1237,12 @@ sub pop3_fetches {
          close(STDOUT);
          close(STDERR);
 
+         # closing STDIN made file descriptor 0 available
+         # the next sysopen chooses the first available file descriptor
+         # and warns if it is fd 0 and has been opened for writing
+         # open a bogus file to occupy fd 0 to prevent warnings
+         sysopen(BOGUS, '/dev/null', O_RDONLY);
+
          local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
          local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
 
@@ -1259,6 +1274,9 @@ sub pop3_fetches {
          }
 
          writelog("debug_fork :: fetch pop3s process terminated") if $config{debug_fork};
+
+         close(BOGUS);
+
          openwebmail_exit(0);
       }
 
