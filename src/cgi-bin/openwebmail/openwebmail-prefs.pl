@@ -2923,21 +2923,27 @@ sub editfilter {
       openwebmailerror(gettext('Cannot open db:') . " $filterruledb ($!)");
 
    my $filterrulesloop = [];
+
    for(my $i = 0; $i < scalar @sorted_filterrules; $i++) {
       my $key  = $sorted_filterrules[$i];
       my %rule = %{$filterrules{$key}};
 
-      my ($matchcount, $matchdate) = split(':', $FILTERRULEDB{$key});
+      my $matchcount = 0;
+      my $matchdate  = 0;
 
-      if ($matchdate) {
-         $matchdate = ow::datetime::dateserial2str(
-                                                     $matchdate,
-                                                     $prefs{timeoffset},
-                                                     $prefs{daylightsaving},
-                                                     $prefs{dateformat},
-                                                     $prefs{hourformat},
-                                                     $prefs{timezone}
-                                                  );
+      if (defined $FILTERRULEDB{$key}) {
+         ($matchcount, $matchdate) = split(/:/, $FILTERRULEDB{$key});
+
+         if ($matchdate) {
+            $matchdate = ow::datetime::dateserial2str(
+                                                        $matchdate,
+                                                        $prefs{timeoffset},
+                                                        $prefs{daylightsaving},
+                                                        $prefs{dateformat},
+                                                        $prefs{hourformat},
+                                                        $prefs{timezone}
+                                                     );
+         }
       }
 
       my ($textstr, $deststr) = iconv($rule{charset}, $prefs{charset}, $rule{text}, $rule{dest});
@@ -2963,14 +2969,16 @@ sub editfilter {
    }
 
    my $globalrulesloop = [];
+
    for(my $i = 0; $i < scalar @sorted_globalfilterrules; $i++) {
       my $key  = $sorted_globalfilterrules[$i];
       my %rule = %{$globalfilterrules{$key}};
 
-      my ($matchcount, $matchdate) = (0,0);
+      my $matchcount = 0;
+      my $matchdate  = 0;
 
       if (defined $FILTERRULEDB{$key}) {
-         ($matchcount, $matchdate) = split(":", $FILTERRULEDB{$key});
+         ($matchcount, $matchdate) = split(/:/, $FILTERRULEDB{$key});
 
          if ($matchdate) {
             $matchdate = ow::datetime::dateserial2str(

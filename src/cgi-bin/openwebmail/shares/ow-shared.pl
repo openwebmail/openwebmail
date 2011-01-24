@@ -1304,7 +1304,7 @@ sub update_virtuserdb {
       next if $vu =~ m/^@/; # ignore entries for whole domain mapping
 
       $DB{$vu} = $u;
-      $DBR{$u} = defined $DBR{$u} ? ",$vu" : "$vu";
+      $DBR{$u} .= defined $DBR{$u} ? ",$vu" : "$vu";
    }
 
    close(VIRT) or
@@ -1422,7 +1422,7 @@ sub get_domain_user_userinfo {
 
    writelog("userinfo error - $config{auth_module}, ret $errcode, $errmsg") if $errcode != 0;
 
-   $realname = $loginuser if $realname eq '';
+   $realname = $loginuser if !defined $realname || $realname eq '';
 
    $domain   = defined $domain   ? $domain   : '';
    $user     = defined $user     ? $user     : '';
