@@ -176,12 +176,15 @@ sub editfolders {
 
       $lastcategoryname = $categoryname;
 
-      my %FDB;
       my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $currentfolder);
 
       my $foldersize = (-s $folderfile);
+      $foldersize = 0 unless defined $foldersize && $foldersize;
+
       my $newmessages = 0;
       my $allmessages = 0;
+
+      my %FDB = ();
 
       if (ow::dbm::existdb($folderdb)) {
          ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or

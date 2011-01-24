@@ -1006,7 +1006,7 @@ sub filter_allmessageids {
                   writelog("debug_mailfilter :: move messages $idsstr -> mail-trash (smartrule: filter_repeatlimit)");
                }
 
-               filterruledb_increase("filter_repeatlimit", $moved);
+               filterruledb_increase('filter_repeatlimit', $moved);
                filterfolderdb_increase('mail-trash', $moved);
             }
          } else {
@@ -1161,14 +1161,14 @@ sub append_filteredmsg_to_folder {
 sub filterruledb_increase {
    my ($rulestr, $number) = @_;
 
-   $number = 1 if $number == 0;
+   $number = 1 if !defined $number || $number == 0;
 
    my $filterruledb = dotpath('filter.ruledb');
 
    my %DB = ();
 
    if (ow::dbm::opendb(\%DB, $filterruledb, LOCK_EX)) {
-      my $count = (split(':', $DB{$rulestr}))[0] + $number;
+      my $count = (defined $DB{$rulestr} ? (split(/:/, $DB{$rulestr}))[0] : 0) + $number;
       my $date  = ow::datetime::gmtime2dateserial();
       $DB{$rulestr} = "$count:$date";
       ow::dbm::closedb(\%DB, $filterruledb) or writelog("cannot close db $filterruledb");;

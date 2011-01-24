@@ -782,8 +782,8 @@ sub get_messageids_sorted_by_offset_db {
       unless (exists $is_internal_dbkey{$key} && $is_internal_dbkey{$key}) {
          my $offset = (string2msgattr($data))[$_OFFSET];
 
-         openwebmailerror(gettext('Two messages have the same offset in the spool database:') . " $main::folder :: $key && $offsets{$offset}")
-            if exists $offsets{$offset};
+         openwebmailerror(gettext('Two messages have the same offset in the spool database:') . " $main::folder :: $key :: $offsets{$offset}")
+            if exists $offsets{$offset} && $key !~ m/^DUP/ && $offsets{$offset} !~ m/^DUP/;
 
          $offsets{$offset} = $key;
          $ids{$key}        = $offset;
