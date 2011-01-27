@@ -1184,12 +1184,19 @@ sub filterfolderdb_increase {
 
    $number = 1 if !defined $number || $number <= 0;
 
+   writelog("debug_mailfilter :: incrementing filter.folderdb count by $number for folder $foldername") if $config{debug_mailfilter};
+
    my $filterfolderdb = dotpath('filter.folderdb');
 
    my %DB = ();
 
    if (ow::dbm::opendb(\%DB, $filterfolderdb, LOCK_EX)) {
-      $DB{$foldername} += $number;
+      # initialize entry in db
+      $DB{$foldername}    = 0 unless defined $DB{$foldername};
+      $DB{_TOTALFILTERED} = 0 unless defined $DB{_TOTALFILTERED};
+
+      # update
+      $DB{$foldername}    += $number;
       $DB{_TOTALFILTERED} += $number;
       ow::dbm::closedb(\%DB, $filterfolderdb) or writelog("cannot close db $filterfolderdb");
       return 0;
@@ -1215,12 +1222,14 @@ sub read_filterfolderdb {
       %DB = ();
       if ($totalfiltered > 0) {
          my $dststr = '';
+
          foreach my $destination (sort keys %filtered) {
             next if $destination eq 'INBOX';
             $dststr .= ', ' if $dststr ne '';
             $dststr .= $destination;
             $dststr .= "($filtered{$destination})" if $filtered{$destination} ne $totalfiltered;
          }
+
          writelog("mailfilter - filter $totalfiltered messages from INBOX to $dststr");
          writehistory("mailfilter - filter $totalfiltered messages from INBOX to $dststr");
       }

@@ -114,21 +114,25 @@ sub encode_mimeword {
 sub encode_mimewords {
     my ($rawstr, %params) = @_;
 
+    $rawstr = '' unless defined $rawstr;
+
     my $charset = $params{Charset} || 'UTF-8';
 
-    #my $encoding = lc($params{Encoding} || 'q');
-    # q is used if there is english words in the string
-    my $encoding = lc($params{Encoding}) || (($rawstr=~/[A-Za-z]{4}/)? 'q':'b');
+    # my $encoding = lc($params{Encoding} || 'q');
+    # q is used if there are english words in the string
+    my $encoding = defined $params{Encoding} && $params{Encoding} ne ''
+                   ? lc($params{Encoding})
+                   : $rawstr =~ m/[A-Za-z]{4}/ ? 'q' : 'b';
 
     # determine chars used in a word based on the charset
-    my $wordchars = (lc($charset) eq 'big5') ? $BIG5CHARS : $WORDCHARS;
+    my $wordchars = lc($charset) eq 'big5' ? $BIG5CHARS : $WORDCHARS;
 
     ### Encode any "words" with unsafe characters.
     ### We limit such words to 18 characters, to guarantee that
     ### the worst-case encoding give us no more than 75 characters (rfc2047, section2)
     # 18*3   + ~7+10   < 75  under Q encoding (7 is =? ?Q? ?=, 10 is charsetname)
     # 40/6*8 + ~7+10+3 < 75  under B encoding (7 is =? ?B? ?=, 10 is charsetname, 3 is base64 padding)
-    my $maxlen=($encoding eq 'q')?18:40;
+    my $maxlen = $encoding eq 'q' ? 18 : 40;
 
     my $word;
     #$rawstr =~ s{([a-zA-Z0-9\x7F-\xFF]{1,18})}{	### get next "word"
@@ -139,7 +143,8 @@ sub encode_mimewords {
 	 ? $word                                          ### no unsafe chars
 	 : encode_mimeword($word, $encoding, $charset));  ### has unsafe chars
     }xeg;
-    $rawstr;
+
+    return $rawstr;
 }
 
 # _decode_Q STRING

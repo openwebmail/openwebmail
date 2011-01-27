@@ -2208,6 +2208,7 @@ sub writedotvacationmsg {
          # and warns if it is fd 0 and has been opened for writing
          # open a bogus file to occupy fd 0 to prevent warnings
          sysopen(BOGUS, '/dev/null', O_RDONLY);
+         my $suppress_warnings = <BOGUS>;
 
          local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
          local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };

@@ -1791,6 +1791,13 @@ sub openwebmailerror {
    my @stacktrace = $config{error_with_debuginfo} ? ow::tool::stacktrace() : ();
    @stacktrace = map { s/^\s*//gm; $_ } grep { defined } @stacktrace;
 
+   $config{ow_layoutsurl} = defined $config{ow_layoutsurl} ? $config{ow_layoutsurl} : '';
+   $config{ow_layoutsdir} = defined $config{ow_layoutsdir} ? $config{ow_layoutsdir} : '';
+   $config{ow_htmlurl}    = defined $config{ow_htmlurl}    ? $config{ow_htmlurl}    : '';
+   $prefs{layout}         = defined $prefs{layout}         ? $prefs{layout}         : '';
+   $prefs{style}          = defined $prefs{style}          ? $prefs{style}          : '';
+   $prefs{locale}         = defined $prefs{locale}         ? $prefs{locale}         : '';
+
    my $template = HTML::Template->new(
                                         filename          => get_template('shared_error.tmpl'),
                                         filter            => $htmltemplatefilters,
