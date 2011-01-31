@@ -418,8 +418,8 @@ sub init {
              qq|No site report sent.\n|;
    } else {
       print qq|Welcome to OpenWebMail!\n\n|.
-            qq|This program is going to send a short message back to the developer,\n|.
-            qq|to give us statistics for future developments. The content to be sent is:\n\n|.
+            qq|This program is going to send a short message back to the developers\n|.
+            qq|to give us statistics for future development. The content to be sent is:\n\n|.
             qq|$content\n|.
             qq|Send the site report?(Y/n) |;
       $_ = <STDIN>;
@@ -1494,13 +1494,15 @@ sub send_mail {
 
    $smtp->mail($from);
 
-   my @recipients=();
+   my @recipients = ();
+
    foreach (ow::tool::str2list($to)) {
-      my $email=(ow::tool::email2nameaddr($_))[1];
-      next if ($email eq "" || $email=~/\s/);
-      push (@recipients, $email);
+      my $email = (ow::tool::email2nameaddr($_))[1];
+      next if $email eq '' || $email =~ m/\s/;
+      push(@recipients, $email);
    }
-   if (! $smtp->recipient(@recipients, { SkipBad => 1 }) ) {
+
+   if (! $smtp->recipient(@recipients, { SkipBad => 0 }) ) {
       $smtp->reset();
       $smtp->quit();
       return -1;

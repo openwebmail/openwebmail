@@ -1917,12 +1917,30 @@ sub sendmessage {
       # save message to draft folder
       $savefolder = 'saved-drafts';
       $do_send = 0;
-      $do_save = 0 if ($quotalimit > 0 && $quotausage >= $quotalimit) || !$config{enable_savedraft};
+
+      if (!$config{enable_savedraft}) {
+         $do_save = 0;
+         $saveerrstr = gettext('The save draft feature is not enabled.');
+         $saveerr++;
+      }
+
+      if ($do_save = 1 && $quotalimit > 0 && $quotausage >= $quotalimit) {
+         $do_save = 0;
+         $saveerrstr = gettext('Save draft aborted, the quota has been exceeded.');
+         $saveerr++;
+      }
    } else {
       # save message to sent folder and send
       $savefolder = $folder;
-      $savefolder = 'sent-mail' if !$prefs{backupsentoncurrfolder} || $folder eq '' || $folder =~ /INBOX|saved-drafts/;
-      $do_save = 0 if ($quotalimit > 0 && $quotausage >= $quotalimit) || $backupsent == 0 || !$config{enable_backupsent};
+      $savefolder = 'sent-mail' if !$prefs{backupsentoncurrfolder} || $folder eq '' || $folder =~ m/INBOX|saved-drafts/;
+
+      $do_save = 0 if !$config{enable_backupsent} || $backupsent == 0;
+
+      if ($do_save = 1 && $quotalimit > 0 && $quotausage >= $quotalimit) {
+         $do_save = 0;
+         $saveerrstr = gettext('Message save aborted, the quota has been exceeded.');
+         $saveerr++;
+      }
    }
 
    # prepare to capture SMTP errors
@@ -2020,13 +2038,28 @@ sub sendmessage {
       }
 
       $smtp->mail($from) or $senderr++ if !$senderr;
+
       if (!$senderr) {
          my @ok = $smtp->recipient(@recipients, { SkipBad => 1 });
-         $senderr++ if scalar @ok < scalar @recipients;
+
+         if (scalar @ok < scalar @recipients) {
+           $senderr++;
+
+           my %ok_addresses        = map { $_, 1 } grep { defined } @ok;
+           my %recipient_addresses = map { $_, 1 } grep { defined } @recipients;
+
+           $senderrstr = gettext('Message send aborted due to the following bad recipient addresses:')
+                         . ' ' .
+                         join(', ', grep { !exists $ok_addresses{$_} } keys %recipient_addresses)
+                         . '. ' .
+                         gettext('A copy of the message has been saved to your drafts folder.');
+         };
       }
+
       $smtp->data() or $senderr++ if !$senderr;
 
       # save message to draft if smtp error
+      # if there is a quota problem, $saveerr and $saveerrstr are already set
       if ($senderr && (!$quotalimit || $quotausage < $quotalimit) && $config{enable_savedraft}) {
          $do_save    = 1;
          $savefolder = 'saved-drafts';
@@ -3012,8 +3045,11 @@ sub replyreceipt {
          }
 
          $smtp->mail($from);
+
          my @ok = $smtp->recipient(@recipients, { SkipBad => 1 });
-         if ($#ok < 0) {
+
+         if (scalar @ok < scalar @recipients) {
+            # Sending of reply receipt should fail if there exists any failing address in list
             $smtp->close();
             openwebmailerror(gettext('The recipients list could not be validated. Please check the recipients and try again.'));
          }
