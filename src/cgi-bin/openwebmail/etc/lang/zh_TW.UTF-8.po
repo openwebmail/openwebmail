@@ -1,10 +1,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenWebMail\n"
-"POT-Creation-Date: 2011-01-04 06:26+0000\n"
-"PO-Revision-Date: 2011-01-14 14:59+0800\n"
+"POT-Creation-Date: 2011-01-31 04:11+0000\n"
+"PO-Revision-Date: 2011-02-02 09:42+0800\n"
 "Last-Translator: Fr. Visminlu Vicente L. Chua, S.J. <chuavv@mail.savs.hcc.edu.tw>\n"
 "Language-Team: Fr. Visminlu Vicente L. Chua, S.J. <chuavv@mail.savs.hcc.edu.tw>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,7 +20,7 @@ msgstr "# 以附件方式轉寄"
 
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2353,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:616,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2240
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2274
 msgid "%d Byte"
 msgid_plural "%d Bytes"
 msgstr[0] "%d 位元組"
@@ -36,18 +37,18 @@ msgid "%d File"
 msgid_plural "%d Files"
 msgstr[0] "%d 檔案"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:981
+#: cgi-bin/openwebmail/openwebmail-abook.pl:992
 msgid "%d address per page"
 msgid_plural "%d addresses per page"
 msgstr[0] "每頁 %d 地址"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2899
+#: cgi-bin/openwebmail/openwebmail-send.pl:2932
 msgid "%d byte snipped ..."
 msgid_plural "%d bytes snipped ..."
 msgstr[0] "剪掉 %d 位元組"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1321,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:278
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1332,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:281
 msgid "%d character"
 msgid_plural "%d characters"
 msgstr[0] "%d 字元"
@@ -68,12 +69,12 @@ msgid "%d match found"
 msgid_plural "%d matches found"
 msgstr[0] "找到 %d  相配"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:671
+#: cgi-bin/openwebmail/openwebmail-main.pl:674
 msgid "%d message per page"
 msgid_plural "%d messages per page"
 msgstr[0] "每頁 %d 信件"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:432
+#: cgi-bin/openwebmail/openwebmail-main.pl:434
 msgid "%d message"
 msgid_plural "%d messages"
 msgstr[0] "%d 信件"
@@ -102,7 +103,7 @@ msgid "%d second"
 msgid_plural "%d seconds"
 msgstr[0] "%d 秒"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:433
+#: cgi-bin/openwebmail/openwebmail-main.pl:435
 msgid "%d unread"
 msgid_plural "%d unread"
 msgstr[0] "%d 未讀"
@@ -160,7 +161,7 @@ msgstr "(只能是字母、數字或底線)"
 #: cgi-bin/openwebmail/openwebmail-send.pl:1011,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1077,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1835,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2715,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2748,
 #: cgi-bin/openwebmail/openwebmail-send.pl:392,
 #: cgi-bin/openwebmail/openwebmail-send.pl:588,
 #: cgi-bin/openwebmail/openwebmail-send.pl:799,
@@ -387,7 +388,7 @@ msgstr "<tmpl_var programname escape=\"html\"> 錯誤"
 msgid "<tmpl_var timeintransitsign escape=\"html\"><tmpl_var timeintransithour escape=\"html\">h <tmpl_var timeintransitmin escape=\"html\">m <tmpl_var timeintransitsec escape=\"html\">s difference"
 msgstr "<tmpl_var timeintransitsign escape=\"html\"><tmpl_var timeintransithour escape=\"html\">時 <tmpl_var timeintransitmin escape=\"html\">分 <tmpl_var timeintransitsec escape=\"html\">秒 差別"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:938
+#: cgi-bin/openwebmail/shares/ow-shared.pl:941
 msgid "A %var% style configuration variable is too recursive:"
 msgstr "類型設定之變數 %var% 遞迴太多增次︰"
 
@@ -407,8 +408,12 @@ msgstr "聯絡人紀錄在群組名稱包含非法的歸位鍵符號︰"
 msgid "A contact property type contains an invalid carriage return:"
 msgstr "聯絡人紀錄在屬性類型包含非法的歸位鍵符號︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3143,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3300
+#: cgi-bin/openwebmail/openwebmail-send.pl:2055
+msgid "A copy of the message has been saved to your drafts folder."
+msgstr "郵件的副本已保存到您的草稿信件夾。"
+
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3154,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3311
 msgid "A file must be selected for import."
 msgstr "必須選擇要匯入的檔案."
 
@@ -426,7 +431,7 @@ msgstr ""
 "彈出視窗被封鎖。\n"
 "請解除封鎖，然後再試一次。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1559
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1570
 msgid "A valid xowmuid must be provided."
 msgstr "必須提供有效的 xowmuid"
 
@@ -442,7 +447,7 @@ msgstr "阿布哈茲"
 msgid "About"
 msgstr "關於"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4026,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4037,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1033
 msgid "Abu Dhabi, Volgograd, Kabul"
 msgstr "阿布扎比，伏爾加格勒，喀布爾"
@@ -451,7 +456,7 @@ msgstr "阿布扎比，伏爾加格勒，喀布爾"
 msgid "Access Classification"
 msgstr "存取分類"
 
-#: cgi-bin/openwebmail/openwebmail.pl:822
+#: cgi-bin/openwebmail/openwebmail.pl:836
 msgid "Access denied: all modules are disabled."
 msgstr "拒絕存取: 所有模組都停用。"
 
@@ -471,7 +476,7 @@ msgstr "拒絕存取：日曆模組未啟用。"
 msgid "Access denied: the operation is not allowed."
 msgstr "拒絕存取: 該操作是不允許的。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:613
+#: cgi-bin/openwebmail/shares/ow-shared.pl:615
 msgid "Access denied: the session id is not properly defined."
 msgstr "拒絕存取: session id 定義不正確。"
 
@@ -493,35 +498,35 @@ msgstr "拒絕存取：網路磁碟模組未啟用。"
 msgid "Access denied: the webmail module is not enabled."
 msgstr "拒絕存取：電子郵件模組未啟用。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1206
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1209
 msgid "Access denied: your request did not come from the same ip address that initiated this session."
 msgstr "拒絕存取︰您的請求和連線時的IP不一樣。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1200
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1203
 msgid "Access denied: your request did not contain the proper session id cookie."
 msgstr "拒絕存取︰您的請求不包含適當的連線ID的Cookie。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2110
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2144
 msgid "Access to hidden files has been disabled."
 msgstr "存取隱藏檔案已被禁止。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2144
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2178
 msgid "Access to mail folder files has been disabled."
 msgstr "存取信件匣已被禁止。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2147
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2181
 msgid "Access to special unix file types has been disabled."
 msgstr "存取 unix 特殊檔案類別已被禁止。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2120
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2154
 msgid "Access to symbolic links has been disabled."
 msgstr "捷徑存取已備制止。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2140
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2174
 msgid "Access to the log file is not allowed."
 msgstr "不允許存取日誌檔案。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2134
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2168
 msgid "Access to the sessions directory is not allowed."
 msgstr "不允許存取連線目錄。"
 
@@ -639,7 +644,7 @@ msgstr "通訊錄名稱"
 msgid "Addressbook Options"
 msgstr "通訊錄設定"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3350
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3361
 msgid "Addressbook already exists:"
 msgstr "通訊錄已存在︰"
 
@@ -715,7 +720,11 @@ msgstr "代理"
 msgid "Akan"
 msgstr "阿寒湖"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4009,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:763
+msgid "Aland Islands"
+msgstr "奧蘭群島"
+
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4020,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1016
 msgid "Alaska-Hawaii Standard"
 msgstr "阿拉斯加，夏威夷標準"
@@ -769,7 +778,7 @@ msgstr "全天"
 msgid "All Members"
 msgstr "所有成員"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1898
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1909
 msgid "All addressbooks are read-only."
 msgstr "所有通訊錄都是唯獨。"
 
@@ -814,17 +823,17 @@ msgstr "美屬薩摩亞"
 msgid "Amharic"
 msgstr "阿姆哈拉"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2624
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2635
 msgid "An agent upload may only contain one contact."
 msgstr "代理只能上傳一份收件人的紀錄。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3145,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3302
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3156,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3313
 msgid "An import destination must be chosen."
 msgstr "必須選擇匯出的目的。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3144,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3301
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3155,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3312
 msgid "An import format must be chosen."
 msgstr "必須選擇匯入格式。"
 
@@ -984,12 +993,12 @@ msgstr "至少一個名稱屬性在聯絡人紀錄必須被定義。"
 msgid "At top"
 msgstr "在上面"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4017,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4028,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1024
 msgid "Atlantic Daylight"
 msgstr "大西洋夏令"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4015,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4026,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1022
 msgid "Atlantic Standard"
 msgstr "大西洋標準"
@@ -1024,7 +1033,7 @@ msgstr "附件可用磁碟空間︰ <tmpl_var attspaceavailable_kb escape=\"html
 msgid "Attachment file can no longer be found:"
 msgstr "附件檔案已經找不到了︰"
 
-#: cgi-bin/openwebmail/openwebmail-read.pl:1429
+#: cgi-bin/openwebmail/openwebmail-read.pl:1452
 msgid "Attachment not found."
 msgstr "附件沒有找到"
 
@@ -1049,17 +1058,17 @@ msgstr "八月"
 msgid "Australia"
 msgstr "澳大利亞"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4034,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4045,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1041
 msgid "Australia Central Standard"
 msgstr "澳大利亞中部標準"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4035,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4046,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1042
 msgid "Australia Eastern Standard"
 msgstr "澳大利亞東部標準"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4037,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4048,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1044
 msgid "Australia Eastern Summer"
 msgstr "澳大利亞東部夏天"
@@ -1118,7 +1127,7 @@ msgstr "阿塞拜疆"
 msgid "Azerbaijani"
 msgstr "阿塞拜疆語"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4019,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4030,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1026
 msgid "Azores, South Sandwich Islands"
 msgstr "亞速爾群島，南桑威奇群島"
@@ -1158,7 +1167,7 @@ msgstr "儲存寄件備份"
 msgid "Backup to current folder (if not Inbox/Draft):"
 msgstr "備份到目前檔案夾（如果不是收件夾/草稿）："
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4024,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4035,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1031
 msgid "Baghdad, Moscow, Nairobi"
 msgstr "巴格達，莫斯科，內羅畢"
@@ -1175,7 +1184,7 @@ msgstr "巴林"
 msgid "Bambara"
 msgstr "班巴拉"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4031,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4042,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1038
 msgid "Bangkok, Jakarta"
 msgstr "曼谷，雅加達"
@@ -1388,7 +1397,7 @@ msgstr "加拿大"
 msgid "Cancel"
 msgstr "取消"
 
-#: cgi-bin/openwebmail/openwebmail-read.pl:1399,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1422,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1025,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1080,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1152,
@@ -1401,38 +1410,41 @@ msgstr "取消"
 msgid "Cannot change to directory:"
 msgstr "無法更改到目錄︰"
 
-#: cgi-bin/openwebmail/openwebmail-folder.pl:194,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:352,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:470,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:538,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:197,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:355,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:473,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:541,
 #: cgi-bin/openwebmail/openwebmail-main.pl:297,
-#: cgi-bin/openwebmail/openwebmail-main.pl:366,
-#: cgi-bin/openwebmail/openwebmail-main.pl:581,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:3001,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:3134,
+#: cgi-bin/openwebmail/openwebmail-main.pl:368,
+#: cgi-bin/openwebmail/openwebmail-main.pl:584,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:3019,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:3152,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:541,
 #: cgi-bin/openwebmail/openwebmail-read.pl:165,
 #: cgi-bin/openwebmail/openwebmail-read.pl:338,
-#: cgi-bin/openwebmail/openwebmail-read.pl:546,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2069,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2644,
+#: cgi-bin/openwebmail/openwebmail-read.pl:559,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2102,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2677,
 #: cgi-bin/openwebmail/shares/getmessage.pl:70,
-#: cgi-bin/openwebmail/shares/maildb.pl:137,
-#: cgi-bin/openwebmail/shares/maildb.pl:194,
-#: cgi-bin/openwebmail/shares/maildb.pl:198,
-#: cgi-bin/openwebmail/shares/maildb.pl:634,
-#: cgi-bin/openwebmail/shares/maildb.pl:639,
-#: cgi-bin/openwebmail/shares/maildb.pl:717,
-#: cgi-bin/openwebmail/shares/maildb.pl:756,
-#: cgi-bin/openwebmail/shares/maildb.pl:775,
-#: cgi-bin/openwebmail/shares/mailfilter.pl:920,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1313,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1316
+#: cgi-bin/openwebmail/shares/maildb.pl:141,
+#: cgi-bin/openwebmail/shares/maildb.pl:213,
+#: cgi-bin/openwebmail/shares/maildb.pl:219,
+#: cgi-bin/openwebmail/shares/maildb.pl:672,
+#: cgi-bin/openwebmail/shares/maildb.pl:677,
+#: cgi-bin/openwebmail/shares/maildb.pl:755,
+#: cgi-bin/openwebmail/shares/maildb.pl:819,
+#: cgi-bin/openwebmail/shares/maildb.pl:838,
+#: cgi-bin/openwebmail/shares/mailfilter.pl:960,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1316,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1319,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2398,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2418,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2440
 msgid "Cannot close db:"
 msgstr "無法關閉資料庫︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2959,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2979,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2970,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2990,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1000,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1009,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:258,
@@ -1442,46 +1454,46 @@ msgstr "無法關閉資料庫︰"
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:463,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1610,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1674,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2108,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2141,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2191,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:364,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1012,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1626,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1643,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1711,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2433,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2516,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2550,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2570
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1015,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1636,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1653,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1721,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2489,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2583,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2617,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2637
 msgid "Cannot close directory:"
 msgstr "無法關閉目錄︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1206,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1233,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2616,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2771,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2848,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2911,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3207,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3324,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3359,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3387,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3773,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3791,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4163,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1217,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1244,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2627,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2782,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2859,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2922,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3218,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3335,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3370,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3398,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3784,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3802,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4174,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:494,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:517,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:695,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:369,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:529,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:372,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:532,
 #: cgi-bin/openwebmail/openwebmail-main.pl:156,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1947,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1971,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1982,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2040,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2463,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2586,
-#: cgi-bin/openwebmail/openwebmail-read.pl:1355,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2473,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2596,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1378,
 #: cgi-bin/openwebmail/openwebmail-saprefs.pl:396,
 #: cgi-bin/openwebmail/openwebmail-saprefs.pl:557,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1001,
@@ -1489,12 +1501,12 @@ msgstr "無法關閉目錄︰"
 #: cgi-bin/openwebmail/openwebmail-send.pl:1592,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1653,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1693,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2828,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2906,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2946,
-#: cgi-bin/openwebmail/openwebmail-spell.pl:618,
-#: cgi-bin/openwebmail/openwebmail-spell.pl:627,
-#: cgi-bin/openwebmail/openwebmail-spell.pl:662,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2861,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2939,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2979,
+#: cgi-bin/openwebmail/openwebmail-spell.pl:620,
+#: cgi-bin/openwebmail/openwebmail-spell.pl:629,
+#: cgi-bin/openwebmail/openwebmail-spell.pl:664,
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:449,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1254,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1883,
@@ -1514,21 +1526,21 @@ msgstr "無法關閉目錄︰"
 #: cgi-bin/openwebmail/shares/calbook.pl:94,
 #: cgi-bin/openwebmail/shares/filterbook.pl:116,
 #: cgi-bin/openwebmail/shares/filterbook.pl:144,
-#: cgi-bin/openwebmail/shares/maildb.pl:1804,
-#: cgi-bin/openwebmail/shares/maildb.pl:189,
-#: cgi-bin/openwebmail/shares/maildb.pl:621,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1044,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1308,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1881,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1923,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1939,
+#: cgi-bin/openwebmail/shares/maildb.pl:1890,
+#: cgi-bin/openwebmail/shares/maildb.pl:208,
+#: cgi-bin/openwebmail/shares/maildb.pl:659,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1047,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1311,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1908,
 #: cgi-bin/openwebmail/shares/ow-shared.pl:1950,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1966,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1977,
 #: cgi-bin/openwebmail/shares/statbook.pl:54,
 #: cgi-bin/openwebmail/shares/statbook.pl:82,
-#: cgi-bin/openwebmail/shares/upgrade.pl:746,
 #: cgi-bin/openwebmail/shares/upgrade.pl:756,
-#: cgi-bin/openwebmail/shares/upgrade.pl:783,
+#: cgi-bin/openwebmail/shares/upgrade.pl:770,
 #: cgi-bin/openwebmail/shares/upgrade.pl:797,
+#: cgi-bin/openwebmail/shares/upgrade.pl:811,
 #: cgi-bin/openwebmail/shares/vfile.pl:98
 msgid "Cannot close file:"
 msgstr "無法關閉檔案︰"
@@ -1539,35 +1551,35 @@ msgstr "無法關閉檔案︰"
 #: cgi-bin/openwebmail/openwebmail.pl:424,
 #: cgi-bin/openwebmail/openwebmail.pl:439,
 #: cgi-bin/openwebmail/openwebmail.pl:496,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2322
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2356
 msgid "Cannot create directory:"
 msgstr "無法建新目錄："
 
-#: cgi-bin/openwebmail/openwebmail-folder.pl:376,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:423,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:556,
-#: cgi-bin/openwebmail/shares/maildb.pl:1807,
-#: cgi-bin/openwebmail/shares/maildb.pl:201,
-#: cgi-bin/openwebmail/shares/maildb.pl:642
+#: cgi-bin/openwebmail/openwebmail-folder.pl:379,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:426,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:559,
+#: cgi-bin/openwebmail/shares/maildb.pl:1893,
+#: cgi-bin/openwebmail/shares/maildb.pl:222,
+#: cgi-bin/openwebmail/shares/maildb.pl:680
 msgid "Cannot delete db:"
 msgstr "無法刪除資料庫："
 
-#: cgi-bin/openwebmail/openwebmail-folder.pl:385,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:432
+#: cgi-bin/openwebmail/openwebmail-folder.pl:388,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:435
 msgid "Cannot delete directory:"
 msgstr "無法刪除目錄："
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1448,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:382,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:429,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:456,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:552,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:600,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2877
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1459,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:385,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:432,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:459,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:555,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:603,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2887
 msgid "Cannot delete file:"
 msgstr "無法刪除檔案︰"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2077
+#: cgi-bin/openwebmail/openwebmail-send.pl:2110
 msgid "Cannot delete message ID from file:"
 msgstr "無法從檔案中刪除信息ID："
 
@@ -1575,7 +1587,7 @@ msgstr "無法從檔案中刪除信息ID："
 msgid "Cannot edit a directory."
 msgstr "不能編輯一個目錄。"
 
-#: cgi-bin/openwebmail/openwebmail-read.pl:1407
+#: cgi-bin/openwebmail/openwebmail-read.pl:1430
 msgid "Cannot execute command:"
 msgstr "無法執行指令︰"
 
@@ -1584,36 +1596,36 @@ msgstr "無法執行指令︰"
 msgid "Cannot load vfile parser module:"
 msgstr "無法下載 vfile 解析器模組︰ "
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1198,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1225,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1496,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2840,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3379,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3786,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1209,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1236,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1507,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2851,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3390,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3797,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:469,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:507,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:303,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:330,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:372,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:451,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:625,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1008,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1023,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1113,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1299,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1302,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1349,
-#: cgi-bin/openwebmail/openwebmail-main.pl:936,
-#: cgi-bin/openwebmail/openwebmail-main.pl:959,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2823,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2854,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:3087,
-#: cgi-bin/openwebmail/openwebmail-read.pl:1237,
-#: cgi-bin/openwebmail/openwebmail-read.pl:1248,
-#: cgi-bin/openwebmail/openwebmail-read.pl:1483,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:306,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:333,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:375,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:454,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:628,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1011,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1026,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1129,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1327,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1330,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1377,
+#: cgi-bin/openwebmail/openwebmail-main.pl:939,
+#: cgi-bin/openwebmail/openwebmail-main.pl:962,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2833,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2864,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:3105,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1260,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1271,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1506,
 #: cgi-bin/openwebmail/openwebmail-saprefs.pl:379,
 #: cgi-bin/openwebmail/openwebmail-saprefs.pl:479,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2132,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2165,
 #: cgi-bin/openwebmail/openwebmail-send.pl:950,
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:444,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1180,
@@ -1626,11 +1638,11 @@ msgstr "無法下載 vfile 解析器模組︰ "
 #: cgi-bin/openwebmail/shares/adrbook.pl:266,
 #: cgi-bin/openwebmail/shares/calbook.pl:119,
 #: cgi-bin/openwebmail/shares/cut.pl:98,
-#: cgi-bin/openwebmail/shares/getmsgids.pl:115,
-#: cgi-bin/openwebmail/shares/getmsgids.pl:141,
-#: cgi-bin/openwebmail/shares/mailfilter.pl:113,
-#: cgi-bin/openwebmail/shares/mailfilter.pl:85,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1903,
+#: cgi-bin/openwebmail/shares/getmsgids.pl:127,
+#: cgi-bin/openwebmail/shares/getmsgids.pl:153,
+#: cgi-bin/openwebmail/shares/mailfilter.pl:126,
+#: cgi-bin/openwebmail/shares/mailfilter.pl:90,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1930,
 #: cgi-bin/openwebmail/shares/upgrade.pl:142,
 #: cgi-bin/openwebmail/shares/upgrade.pl:197,
 #: cgi-bin/openwebmail/shares/upgrade.pl:248,
@@ -1649,45 +1661,48 @@ msgstr "無法鎖定或開啟檔案："
 msgid "Cannot make directory:"
 msgstr "無法建目錄："
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:1998,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3004
+#: cgi-bin/openwebmail/openwebmail-send.pl:2016,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3037
 msgid "Cannot open any of the following SMTP servers:"
 msgstr "無法開啟任何以下 SMTP 伺服器："
 
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:565,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:692,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:188,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:340,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:464,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:535,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:191,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:343,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:467,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:538,
 #: cgi-bin/openwebmail/openwebmail-main.pl:292,
-#: cgi-bin/openwebmail/openwebmail-main.pl:347,
-#: cgi-bin/openwebmail/openwebmail-main.pl:455,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2914,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:3120,
+#: cgi-bin/openwebmail/openwebmail-main.pl:349,
+#: cgi-bin/openwebmail/openwebmail-main.pl:457,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2924,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:3138,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:518,
 #: cgi-bin/openwebmail/openwebmail-read.pl:160,
 #: cgi-bin/openwebmail/openwebmail-read.pl:316,
-#: cgi-bin/openwebmail/openwebmail-read.pl:536,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2058,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2627,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2681,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2922,
+#: cgi-bin/openwebmail/openwebmail-read.pl:549,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2091,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2660,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2714,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2955,
 #: cgi-bin/openwebmail/shares/getmessage.pl:65,
-#: cgi-bin/openwebmail/shares/maildb.pl:120,
-#: cgi-bin/openwebmail/shares/maildb.pl:221,
-#: cgi-bin/openwebmail/shares/maildb.pl:228,
-#: cgi-bin/openwebmail/shares/maildb.pl:251,
-#: cgi-bin/openwebmail/shares/maildb.pl:254,
-#: cgi-bin/openwebmail/shares/maildb.pl:712,
-#: cgi-bin/openwebmail/shares/maildb.pl:743,
-#: cgi-bin/openwebmail/shares/maildb.pl:770,
-#: cgi-bin/openwebmail/shares/mailfilter.pl:903
+#: cgi-bin/openwebmail/shares/maildb.pl:123,
+#: cgi-bin/openwebmail/shares/maildb.pl:245,
+#: cgi-bin/openwebmail/shares/maildb.pl:253,
+#: cgi-bin/openwebmail/shares/maildb.pl:278,
+#: cgi-bin/openwebmail/shares/maildb.pl:281,
+#: cgi-bin/openwebmail/shares/maildb.pl:750,
+#: cgi-bin/openwebmail/shares/maildb.pl:806,
+#: cgi-bin/openwebmail/shares/maildb.pl:833,
+#: cgi-bin/openwebmail/shares/mailfilter.pl:943,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2388,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2413,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2435
 msgid "Cannot open db:"
 msgstr "無法開啟資料庫："
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2954,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2974,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2965,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2985,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1004,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:246,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:331,
@@ -1698,67 +1713,67 @@ msgstr "無法開啟資料庫："
 #: cgi-bin/openwebmail/openwebmail-read.pl:501,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1605,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1669,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2097,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2130,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2186,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:359,
-#: cgi-bin/openwebmail/openwebmail.pl:843,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1010,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1621,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1638,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1706,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2428,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2511,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2538,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2557,
+#: cgi-bin/openwebmail/openwebmail.pl:857,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1013,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1631,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1648,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1716,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2484,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2578,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2605,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2624,
 #: cgi-bin/openwebmail/shares/upgrade.pl:379
 msgid "Cannot open directory:"
 msgstr "無法開啟目錄："
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1201,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1228,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1425,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2587,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2603,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2766,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2843,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2906,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3196,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3321,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3356,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3382,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3771,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3788,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4155,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1212,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1239,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1436,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2598,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2614,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2777,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2854,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2917,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3207,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3332,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3367,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3393,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3782,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3799,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4166,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:472,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:510,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:568,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:366,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:526,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1016,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1275,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1323,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:369,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:529,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1019,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1303,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1351,
 #: cgi-bin/openwebmail/openwebmail-main.pl:151,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1943,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1959,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1977,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2034,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2437,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2580,
-#: cgi-bin/openwebmail/openwebmail-read.pl:1349,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2447,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2590,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1372,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1519,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1568,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1648,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1690,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2043,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2127,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2806,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2886,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2935,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2076,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2160,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2839,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2919,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2968,
 #: cgi-bin/openwebmail/openwebmail-send.pl:974,
 #: cgi-bin/openwebmail/openwebmail-send.pl:983,
-#: cgi-bin/openwebmail/openwebmail-spell.pl:609,
-#: cgi-bin/openwebmail/openwebmail-spell.pl:622,
-#: cgi-bin/openwebmail/openwebmail-spell.pl:640,
+#: cgi-bin/openwebmail/openwebmail-spell.pl:611,
+#: cgi-bin/openwebmail/openwebmail-spell.pl:624,
+#: cgi-bin/openwebmail/openwebmail-spell.pl:642,
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:369,
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:441,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1189,
@@ -1789,28 +1804,28 @@ msgstr "無法開啟目錄："
 #: cgi-bin/openwebmail/shares/calbook.pl:58,
 #: cgi-bin/openwebmail/shares/filterbook.pl:128,
 #: cgi-bin/openwebmail/shares/filterbook.pl:98,
-#: cgi-bin/openwebmail/shares/getmsgids.pl:144,
-#: cgi-bin/openwebmail/shares/getmsgids.pl:225,
-#: cgi-bin/openwebmail/shares/getmsgids.pl:410,
-#: cgi-bin/openwebmail/shares/getmsgids.pl:419,
-#: cgi-bin/openwebmail/shares/getmsgids.pl:477,
-#: cgi-bin/openwebmail/shares/getmsgids.pl:504,
-#: cgi-bin/openwebmail/shares/getmsgids.pl:536,
-#: cgi-bin/openwebmail/shares/maildb.pl:178,
-#: cgi-bin/openwebmail/shares/maildb.pl:1801,
-#: cgi-bin/openwebmail/shares/maildb.pl:214,
-#: cgi-bin/openwebmail/shares/mailfilter.pl:105,
-#: cgi-bin/openwebmail/shares/mailfilter.pl:89,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1029,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1056,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1234,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1289,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1874,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1910,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1926,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1931,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1945,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:868,
+#: cgi-bin/openwebmail/shares/getmsgids.pl:156,
+#: cgi-bin/openwebmail/shares/getmsgids.pl:237,
+#: cgi-bin/openwebmail/shares/getmsgids.pl:422,
+#: cgi-bin/openwebmail/shares/getmsgids.pl:431,
+#: cgi-bin/openwebmail/shares/getmsgids.pl:489,
+#: cgi-bin/openwebmail/shares/getmsgids.pl:516,
+#: cgi-bin/openwebmail/shares/getmsgids.pl:548,
+#: cgi-bin/openwebmail/shares/maildb.pl:1887,
+#: cgi-bin/openwebmail/shares/maildb.pl:194,
+#: cgi-bin/openwebmail/shares/maildb.pl:237,
+#: cgi-bin/openwebmail/shares/mailfilter.pl:118,
+#: cgi-bin/openwebmail/shares/mailfilter.pl:94,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1032,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1059,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1237,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1292,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1901,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1937,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1953,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1958,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1972,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:871,
 #: cgi-bin/openwebmail/shares/statbook.pl:56,
 #: cgi-bin/openwebmail/shares/statbook.pl:84,
 #: cgi-bin/openwebmail/shares/upgrade.pl:101,
@@ -1831,14 +1846,14 @@ msgstr "無法開啟目錄："
 #: cgi-bin/openwebmail/shares/upgrade.pl:514,
 #: cgi-bin/openwebmail/shares/upgrade.pl:530,
 #: cgi-bin/openwebmail/shares/upgrade.pl:542,
-#: cgi-bin/openwebmail/shares/upgrade.pl:561,
-#: cgi-bin/openwebmail/shares/upgrade.pl:630,
-#: cgi-bin/openwebmail/shares/upgrade.pl:652,
-#: cgi-bin/openwebmail/shares/upgrade.pl:734,
-#: cgi-bin/openwebmail/shares/upgrade.pl:750,
-#: cgi-bin/openwebmail/shares/upgrade.pl:776,
-#: cgi-bin/openwebmail/shares/upgrade.pl:792,
-#: cgi-bin/openwebmail/shares/upgrade.pl:815,
+#: cgi-bin/openwebmail/shares/upgrade.pl:562,
+#: cgi-bin/openwebmail/shares/upgrade.pl:634,
+#: cgi-bin/openwebmail/shares/upgrade.pl:659,
+#: cgi-bin/openwebmail/shares/upgrade.pl:744,
+#: cgi-bin/openwebmail/shares/upgrade.pl:760,
+#: cgi-bin/openwebmail/shares/upgrade.pl:790,
+#: cgi-bin/openwebmail/shares/upgrade.pl:806,
+#: cgi-bin/openwebmail/shares/upgrade.pl:829,
 #: cgi-bin/openwebmail/shares/vfile.pl:83
 msgid "Cannot open file:"
 msgstr "無法開啟檔案："
@@ -1849,7 +1864,7 @@ msgstr "無法開啟檔案："
 #: cgi-bin/openwebmail/openwebmail-cal.pl:150,
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1958,
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2025,
-#: cgi-bin/openwebmail/openwebmail-main.pl:825
+#: cgi-bin/openwebmail/openwebmail-main.pl:828
 msgid "Cannot read calendar file:"
 msgstr "無法讀取行事曆檔案："
 
@@ -1857,20 +1872,20 @@ msgstr "無法讀取行事曆檔案："
 msgid "Cannot read directory:"
 msgstr "無法讀取目錄："
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2597,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2691,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2607,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2701,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1358,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1635
 msgid "Cannot read file:"
 msgstr "無法讀取檔案："
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:1142,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1210
+#: cgi-bin/openwebmail/openwebmail-main.pl:1158,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1226
 msgid "Cannot read pop3 book:"
 msgstr "無法讀取的 POP3 書："
 
-#: cgi-bin/openwebmail/openwebmail-folder.pl:612,
-#: cgi-bin/openwebmail/shares/maildb.pl:248
+#: cgi-bin/openwebmail/openwebmail-folder.pl:615,
+#: cgi-bin/openwebmail/shares/maildb.pl:275
 msgid "Cannot rename db:"
 msgstr "無法重新命名資料庫："
 
@@ -1878,16 +1893,16 @@ msgstr "無法重新命名資料庫："
 msgid "Cannot rename directory:"
 msgstr "無法重新命名目錄："
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1482,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:604,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:608,
-#: cgi-bin/openwebmail/openwebmail-spell.pl:631,
-#: cgi-bin/openwebmail/openwebmail-spell.pl:635,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1493,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:607,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:611,
+#: cgi-bin/openwebmail/openwebmail-spell.pl:633,
+#: cgi-bin/openwebmail/openwebmail-spell.pl:637,
 #: cgi-bin/openwebmail/shares/adrbook.pl:137
 msgid "Cannot rename file:"
 msgstr "無法重新命名檔案："
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2938
+#: cgi-bin/openwebmail/openwebmail-send.pl:2971
 msgid "Cannot seek in file:"
 msgstr "無法在檔案內尋找："
 
@@ -1898,15 +1913,15 @@ msgstr "無法設置目前目錄。"
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:497,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:520,
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:698,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:312,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:379,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:426,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:436,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:475,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:491,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:672,
-#: cgi-bin/openwebmail/openwebmail-read.pl:1255,
-#: cgi-bin/openwebmail/openwebmail-read.pl:1511,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:315,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:382,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:429,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:439,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:478,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:494,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:675,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1278,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1534,
 #: cgi-bin/openwebmail/openwebmail-saprefs.pl:383,
 #: cgi-bin/openwebmail/openwebmail-saprefs.pl:399,
 #: cgi-bin/openwebmail/openwebmail-saprefs.pl:560,
@@ -1921,26 +1936,26 @@ msgstr "無法設置目前目錄。"
 #: cgi-bin/openwebmail/shares/adrbook.pl:277,
 #: cgi-bin/openwebmail/shares/calbook.pl:145,
 #: cgi-bin/openwebmail/shares/cut.pl:103,
-#: cgi-bin/openwebmail/shares/getmsgids.pl:123,
+#: cgi-bin/openwebmail/shares/getmsgids.pl:135,
 #: cgi-bin/openwebmail/shares/vfile.pl:101
 msgid "Cannot unlock file:"
 msgstr "無法解鎖檔案："
 
-#: cgi-bin/openwebmail/openwebmail-folder.pl:334,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:387,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:477,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1122,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2052,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:337,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:390,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:480,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1138,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2085,
 #: cgi-bin/openwebmail/openwebmail-send.pl:954,
-#: cgi-bin/openwebmail/shares/getmsgids.pl:119
+#: cgi-bin/openwebmail/shares/getmsgids.pl:131
 msgid "Cannot update db:"
 msgstr "無法更新資料庫︰"
 
-#: cgi-bin/openwebmail/shares/mailfilter.pl:118
+#: cgi-bin/openwebmail/shares/mailfilter.pl:133
 msgid "Cannot update index db:"
 msgstr "無法更新索引資料庫︰"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1217
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1220
 msgid "Cannot update timestamp on file:"
 msgstr "無法更新檔案日期︰"
 
@@ -1949,8 +1964,8 @@ msgstr "無法更新檔案日期︰"
 msgid "Cannot write calendar file:"
 msgstr "無法儲存行事曆檔案︰"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:1120,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2715
+#: cgi-bin/openwebmail/openwebmail-main.pl:1136,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2725
 msgid "Cannot write file:"
 msgstr "無法存檔︰"
 
@@ -1998,7 +2013,7 @@ msgstr "開曼群島"
 msgid "Cc"
 msgstr "副本"
 
-#: cgi-bin/openwebmail/openwebmail-read.pl:1000,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1023,
 #: cgi-bin/openwebmail/openwebmail-send.pl:457,
 #: cgi-bin/openwebmail/openwebmail-send.pl:672,
 #: cgi-bin/openwebmail/openwebmail-send.pl:804,
@@ -2017,12 +2032,12 @@ msgstr "手機"
 msgid "Central African Republic"
 msgstr "中非共和國"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4022,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4033,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1029
 msgid "Central European"
 msgstr "中歐的"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4013,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4024,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1020
 msgid "Central Standard"
 msgstr "中央標準"
@@ -2078,7 +2093,7 @@ msgstr "智利"
 msgid "China"
 msgstr "中國"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4032,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4043,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1039
 msgid "China Coast"
 msgstr "中原標準"
@@ -2272,6 +2287,10 @@ msgstr "科西嘉語"
 msgid "Costa Rica"
 msgstr "哥斯達黎加"
 
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:790
+msgid "Cote D'Ivoire"
+msgstr "科特迪瓦"
+
 #: data/openwebmail/layouts/classic/templates/prefs_editfilter.tmpl:23
 msgid "Count"
 msgstr "次數"
@@ -2363,10 +2382,6 @@ msgstr "捷克"
 msgid "Czech Republic"
 msgstr "捷克共和國"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:790
-msgid "Côte D'Ivoire"
-msgstr "科特迪瓦"
-
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:588
 msgid "Danish"
 msgstr "丹麥語"
@@ -2392,7 +2407,7 @@ msgstr "日期 (舊信優先)"
 msgid "Date format:"
 msgstr "日期格式︰"
 
-#: cgi-bin/openwebmail/openwebmail-read.pl:996,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1019,
 #: data/openwebmail/layouts/classic/templates/cal_edit.tmpl:23,
 #: data/openwebmail/layouts/classic/templates/read_printmessage.tmpl:8,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:271
@@ -2533,7 +2548,7 @@ msgstr "刪除被點選項目？"
 msgid "Delete this folder and all its contents?"
 msgstr "刪除這目錄和所有內容？"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:3060
+#: cgi-bin/openwebmail/openwebmail-send.pl:3096
 msgid "Delivered:"
 msgstr "已傳送："
 
@@ -2561,7 +2576,7 @@ msgstr "目的信匣"
 msgid "Destination:"
 msgstr "目的地︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4029,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4040,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1036
 msgid "Dhaka"
 msgstr "達卡"
@@ -2610,8 +2625,8 @@ msgstr "關閉郵件內的 javascript︰"
 msgid "Disabled"
 msgstr "停用"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:1138,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2703
+#: cgi-bin/openwebmail/openwebmail-main.pl:1154,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2713
 msgid "Disallowed POP3 server:"
 msgstr "禁止POP3伺服器︰"
 
@@ -2720,12 +2735,12 @@ msgstr "宗卡"
 msgid "ERROR"
 msgstr "錯誤"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4023,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4034,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1030
 msgid "Eastern European"
 msgstr "東歐"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4014,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4025,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1021
 msgid "Eastern Standard"
 msgstr "東部標準"
@@ -2841,17 +2856,17 @@ msgstr "電子郵件地址"
 msgid "Email Program"
 msgstr "電子郵件程式"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:709
+#: cgi-bin/openwebmail/openwebmail-main.pl:712
 msgid "Empty Spam folder (%d message)?"
 msgid_plural "Empty Spam folder (%d messages)?"
 msgstr[0] "清空廣告信匣 (%d 信件)？"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:707
+#: cgi-bin/openwebmail/openwebmail-main.pl:710
 msgid "Empty Trash folder (%d message)?"
 msgid_plural "Empty Trash folder (%d messages)?"
 msgstr[0] "清空垃圾信匣 (%d 信件)？"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:711
+#: cgi-bin/openwebmail/openwebmail-main.pl:714
 msgid "Empty Virus folder (%d message)?"
 msgid_plural "Empty Virus folder (%d messages)?"
 msgstr[0] "清空病毒信件匣 (%d 信件)？"
@@ -3015,8 +3030,8 @@ msgstr "不含"
 msgid "Exit"
 msgstr "離開"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3612,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3622,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3623,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3633,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:170,
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:543
 msgid "Export"
@@ -3106,8 +3121,8 @@ msgstr "檔案內容︰"
 msgid "File created:"
 msgstr "檔案已建︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2583,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1002,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2594,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1005,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1956,
 #: cgi-bin/openwebmail/openwebmail-send.pl:1513,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1003,
@@ -3117,7 +3132,7 @@ msgstr "檔案已建︰"
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1565,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1634,
 #: cgi-bin/openwebmail/shares/adrbook.pl:67,
-#: cgi-bin/openwebmail/shares/upgrade.pl:731
+#: cgi-bin/openwebmail/shares/upgrade.pl:741
 msgid "File does not exist:"
 msgstr "檔案不存在︰"
 
@@ -3225,7 +3240,7 @@ msgstr "電話號碼(數字由大到小)"
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:131,
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:161
 msgid "Folder"
-msgstr "信件匣"
+msgstr "目錄"
 
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:111,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:54
@@ -3241,13 +3256,13 @@ msgstr "大小"
 msgid "Folder Totals:"
 msgstr "共計︰"
 
-#: cgi-bin/openwebmail/openwebmail-folder.pl:522,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:594
+#: cgi-bin/openwebmail/openwebmail-folder.pl:525,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:597
 msgid "Folder already exists:"
 msgstr "檔案匣已存在︰"
 
-#: cgi-bin/openwebmail/openwebmail-folder.pl:514,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:585
+#: cgi-bin/openwebmail/openwebmail-folder.pl:517,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:588
 msgid "Folder name exceeds the %d character limit:"
 msgid_plural "Folder name exceeds the %d character limit:"
 msgstr[0] "目錄名稱超過字元 %d 極限︰"
@@ -3307,7 +3322,7 @@ msgstr "星期五"
 msgid "From"
 msgstr "寄件人"
 
-#: cgi-bin/openwebmail/openwebmail-read.pl:997,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1020,
 #: cgi-bin/openwebmail/openwebmail-send.pl:455,
 #: cgi-bin/openwebmail/openwebmail-send.pl:670,
 #: cgi-bin/openwebmail/openwebmail-send.pl:802,
@@ -3455,7 +3470,7 @@ msgstr "希臘文"
 msgid "Greenland"
 msgstr "格陵蘭"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4021,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4032,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1028
 msgid "Greenwich Mean"
 msgstr "格林威治"
@@ -3636,7 +3651,7 @@ msgstr "希伯來"
 msgid "Height"
 msgstr "高"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1739,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1749,
 #: data/openwebmail/layouts/classic/templates/shared_error.tmpl:30
 msgid "Help?"
 msgstr "說明？"
@@ -3720,14 +3735,14 @@ msgstr "伊多"
 msgid "Igbo"
 msgstr "伊格博"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3313
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3324
 msgid "Illegal character set for import"
 msgstr "無效匯入之字集"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1411,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1465,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:508,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:579
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1422,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1476,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:511,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:582
 msgid "Illegal characters in folder name:"
 msgstr "無效字元在目錄名稱內︰"
 
@@ -3736,7 +3751,7 @@ msgid "Illegal characters in forward email address."
 msgstr "無效字元在轉寄信件地址。"
 
 #: cgi-bin/openwebmail/openwebmail.pl:472,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:624
+#: cgi-bin/openwebmail/shares/ow-shared.pl:626
 msgid "Illegal characters in session id:"
 msgstr "連線編號包含無效字元︰"
 
@@ -3748,7 +3763,7 @@ msgstr "無效事件idate格式︰"
 msgid "Illegal operation:"
 msgstr "無效操作︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3315
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3326
 msgid "Illegal serial for import"
 msgstr "匯入序列號無效"
 
@@ -3785,7 +3800,7 @@ msgstr "匯入概述"
 msgid "Import address <tmpl_var fromaddress escape=\"js\">?"
 msgstr "匯入地址 <tmpl_var fromaddress escape=\"js\">？"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3303
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3314
 msgid "Import file has no auto assigned serial number."
 msgstr "匯入檔案沒有分配自動序列號。"
 
@@ -3797,7 +3812,7 @@ msgstr "匯入上面例子資料的第一欄？"
 msgid "Import to new addressbook..."
 msgstr "匯入至心通訊錄..."
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:592,
+#: cgi-bin/openwebmail/openwebmail-main.pl:595,
 #: cgi-bin/openwebmail/openwebmail-read.pl:359,
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:225,
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:41,
@@ -3822,8 +3837,8 @@ msgstr "匯入至心通訊錄..."
 msgid "Inbox"
 msgstr "新信匣"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:629,
-#: cgi-bin/openwebmail/openwebmail-read.pl:1103
+#: cgi-bin/openwebmail/openwebmail-main.pl:632,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1126
 msgid "Inbox: %d unread message"
 msgid_plural "Inbox: %d unread messages"
 msgstr[0] "新信匣︰%d 唯讀信件"
@@ -3844,7 +3859,7 @@ msgstr "包含"
 msgid "Incoming Messages"
 msgstr "傳入的信件"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4028,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4039,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1035,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:851
 msgid "India"
@@ -3866,12 +3881,12 @@ msgstr "國際語"
 msgid "Interlingue"
 msgstr "國際語"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4038,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4049,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1045
 msgid "International Date Line East"
 msgstr "國際日期變更線以東"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4007,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4018,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1014
 msgid "International Date Line West"
 msgstr "國際日期變更線以西"
@@ -3892,20 +3907,20 @@ msgstr "無效登入"
 msgid "Invalid contact contains more than one value for property:"
 msgstr "無效收件人紀錄的屬性包含多個值︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3446
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3457
 msgid "Invalid datatype for import:"
 msgstr "無效匯入的資料型態︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3581
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3592
 msgid "Invalid export format:"
 msgstr "無效匯出格式︰"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1964,
-#: cgi-bin/openwebmail/shares/upgrade.pl:739
+#: cgi-bin/openwebmail/shares/upgrade.pl:749
 msgid "Invalid file format."
 msgstr "無效檔案格式︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3329
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3340
 msgid "Invalid import format:"
 msgstr "無效匯入格式︰"
 
@@ -3919,15 +3934,15 @@ msgstr "無效的緯度格式。"
 msgid "Invalid longitude format."
 msgstr "無效的經度格式。"
 
-#: cgi-bin/openwebmail/shares/maildb.pl:1046
+#: cgi-bin/openwebmail/shares/maildb.pl:1110
 msgid "Invalid message operation:"
 msgstr "無效信件操作︰"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:864
+#: cgi-bin/openwebmail/shares/ow-shared.pl:867
 msgid "Invalid path for configuation file:"
 msgstr "設定檔之路徑無效︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3443
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3454
 msgid "Invalid property name for import:"
 msgstr "匯入屬性名稱無效︰"
 
@@ -3935,7 +3950,7 @@ msgstr "匯入屬性名稱無效︰"
 msgid "Invalid propertyname while parsing contact line:"
 msgstr "聯絡人紀錄列的屬性名稱無效："
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2439
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2450
 msgid "Invalid traverse direction:"
 msgstr "橫過方向無效︰"
 
@@ -4012,7 +4027,7 @@ msgstr "一月"
 msgid "Japan"
 msgstr "日本"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4033,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4044,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1040
 msgid "Japan Standard"
 msgstr "日本標準"
@@ -4065,7 +4080,7 @@ msgstr "七月"
 msgid "June"
 msgstr "六月"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2238
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2272
 msgid "KB"
 msgstr "KB"
 
@@ -4081,7 +4096,7 @@ msgstr "卡納達"
 msgid "Kanuri"
 msgstr "卡努裡"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4027,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4038,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1034
 msgid "Karachi"
 msgstr "卡拉奇"
@@ -4340,9 +4355,9 @@ msgstr "登入"
 msgid "Login Again"
 msgstr "重新登入"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1200,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1206,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1229
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1203,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1209,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1232
 msgid "Login again?"
 msgstr "重新登入？"
 
@@ -4383,7 +4398,7 @@ msgstr "登出成功，謝謝。"
 msgid "Longitude"
 msgstr "經度"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4036,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4047,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1043
 msgid "Lord Howe Island"
 msgstr "豪勳爵島"
@@ -4404,7 +4419,7 @@ msgstr "盧森堡"
 msgid "Luxembourgish"
 msgstr "盧森堡"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2236
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2270
 msgid "MB"
 msgstr "MB"
 
@@ -4602,7 +4617,7 @@ msgstr "信件格式︰"
 msgid "Message ID"
 msgstr "信件ID"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3811,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3822,
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:177
 msgid "Message ID can no longer be found:"
 msgstr "信件編號已找不到︰"
@@ -4627,7 +4642,7 @@ msgstr "信件已發出"
 msgid "Message Subject"
 msgstr "信件主旨"
 
-#: cgi-bin/openwebmail/openwebmail-read.pl:1425
+#: cgi-bin/openwebmail/openwebmail-read.pl:1448
 msgid "Message block read error:"
 msgstr "信件塊讀取錯誤："
 
@@ -4642,6 +4657,14 @@ msgstr "信件之節點已找不到："
 #: data/openwebmail/layouts/classic/templates/read_rebuildfailed.tmpl:6
 msgid "Message rebuild failed"
 msgstr "重建信件失敗"
+
+#: cgi-bin/openwebmail/openwebmail-send.pl:1941
+msgid "Message save aborted, the quota has been exceeded."
+msgstr "信件保存中止，已超出配額。"
+
+#: cgi-bin/openwebmail/openwebmail-send.pl:2051
+msgid "Message send aborted due to the following bad recipient addresses:"
+msgstr "信件發送中止由於下列有問題收件人地址："
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:278
 msgid "Messages Listing"
@@ -4811,7 +4834,7 @@ msgstr "蒙特塞拉特"
 msgid "Morocco"
 msgstr "摩洛哥"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4012,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4023,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1019
 msgid "Mountain Standard"
 msgstr "山地標準"
@@ -4828,7 +4851,7 @@ msgstr "山地標準"
 msgid "Move"
 msgstr "搬移"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:969
+#: cgi-bin/openwebmail/openwebmail-main.pl:972
 msgid "Move aborted: source and destination folder are the same."
 msgstr "移動中止：來源和目的目錄是相同的。"
 
@@ -4857,7 +4880,7 @@ msgstr "多個下載被禁用。請一個一個檔案下載。"
 msgid "Myanmar"
 msgstr "緬甸"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:283,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:292,
 #: cgi-bin/openwebmail/shares/adrbook.pl:204
 msgid "Name"
 msgstr "姓名"
@@ -4957,8 +4980,8 @@ msgstr "尼泊爾"
 msgid "Netherlands"
 msgstr "荷蘭"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2015,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3011
+#: cgi-bin/openwebmail/openwebmail-send.pl:2033,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3044
 msgid "Network server error:"
 msgstr "網絡伺服器錯誤："
 
@@ -4983,7 +5006,7 @@ msgstr "新密碼︰"
 msgid "New Zealand"
 msgstr "紐西蘭"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4039,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4050,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1046
 msgid "New Zealand Daylight"
 msgstr "紐西蘭夏令"
@@ -5004,12 +5027,12 @@ msgstr "確認新密碼不匹配。"
 msgid "New password is the same as the old one."
 msgstr "新密碼和就密碼是一樣。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4018,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4029,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1025
 msgid "Newfoundland Daylight"
 msgstr "紐芬蘭夏令"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4016,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4027,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1023
 msgid "Newfoundland Standard"
 msgstr "紐芬蘭標準"
@@ -5046,7 +5069,7 @@ msgstr "紐埃"
 msgid "No"
 msgstr "否"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3717
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3728
 msgid "No attachment node id provided"
 msgstr "沒有提供附件的節點編號"
 
@@ -5095,11 +5118,11 @@ msgstr "沒有複製、移動或連結的檔案。"
 msgid "No files were deleted."
 msgstr "沒有刪除任何檔案。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3416
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3427
 msgid "No import fields have been defined."
 msgstr "沒有定義匯入欄位。"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2915
+#: cgi-bin/openwebmail/openwebmail-send.pl:2948
 msgid "No message ID provided for replyreceipt"
 msgstr "回信收據沒有提供信件編號︰"
 
@@ -5107,7 +5130,7 @@ msgstr "回信收據沒有提供信件編號︰"
 msgid "No messages"
 msgstr "無信件"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2894
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2905
 msgid "No named file to view"
 msgstr "沒有檔案可檢視"
 
@@ -5129,7 +5152,7 @@ msgstr "沒有spamassassin規則被建立"
 msgid "No window notification"
 msgstr "不顯示通知視窗"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4008,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4019,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1015
 msgid "Nome, Anadyr"
 msgstr "諾姆阿納德爾"
@@ -5175,7 +5198,7 @@ msgid "Norwegian"
 msgstr "挪威語"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:669
-msgid "Norwegian Bokmål"
+msgid "Norwegian Bokmal"
 msgstr "挪威博克馬爾"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:674
@@ -5346,7 +5369,7 @@ msgstr "設定外部郵件"
 msgid "PROTOCOL"
 msgstr "協定"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4011,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4022,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1018
 msgid "Pacific Standard"
 msgstr "太平洋標準"
@@ -5419,37 +5442,37 @@ msgstr "更新密碼失敗"
 msgid "Password Changed"
 msgstr "密碼已更改"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2331
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2341
 msgid "Password change failed: authentication system error."
 msgstr "密碼更改失敗︰確認系統錯誤。"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2329
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2339
 msgid "Password change failed: function not supported."
 msgstr "密碼更改失敗︰不支援這功能。"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2332,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2334
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2342,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2344
 msgid "Password change failed: incorrect user name or password."
 msgstr "密碼更改失敗：不正確的帳號或密碼。"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2330
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2340
 msgid "Password change failed: parameter format error."
 msgstr "密碼更改失敗：參數格式錯誤。"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2301
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2311
 msgid "Password change failed: password is shorter than the required minimum length of %d character."
 msgid_plural "Password change failed: password is shorter than the required minimum length of %d characters."
 msgstr[0] "密碼更改失敗：密碼少於 %d 字元。"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2333
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2343
 msgid "Password change failed: unknown error code:"
 msgstr "密碼更改失敗：未知錯誤碼︰"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2306
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2316
 msgid "Password changed failed: new password confirm mismatch."
 msgstr "密碼更改失敗：確認新密碼不匹配。"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2304
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2314
 msgid "Password changed failed: password requires both alpha and numeric characters."
 msgstr "密碼更改失敗：密碼需要字母和數字。"
 
@@ -5547,7 +5570,7 @@ msgstr "皮特凱恩"
 msgid "Please Assign Field Names"
 msgstr "請鍵入欄位名稱"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2555
+#: cgi-bin/openwebmail/openwebmail-send.pl:2588
 msgid "Please check the message saved in the draft folder, and try again."
 msgstr "請檢查存於草稿裡的信件，然後再試一次。"
 
@@ -5606,13 +5629,13 @@ msgstr "請指定spamassassin的規則表示式"
 msgid "Please specify the spamassassin rule name."
 msgstr "請指定spamassassin的規則名稱"
 
-#: cgi-bin/openwebmail/shares/getmsgids.pl:109
+#: cgi-bin/openwebmail/shares/getmsgids.pl:121
 msgid "Please try again later. The indexing process has not yet completed for folder:"
 msgstr "請稍後再試。索引檔案夾過程尚未完成："
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2575,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2700,
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:3083
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2585,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2710,
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:3101
 msgid "Please try again."
 msgstr "請再試一次。"
 
@@ -5794,8 +5817,8 @@ msgstr "配額限制："
 msgid "Quota Usage:"
 msgstr "配額使用情況："
 
-#: cgi-bin/openwebmail/openwebmail-folder.pl:501,
-#: cgi-bin/openwebmail/openwebmail-main.pl:979,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:504,
+#: cgi-bin/openwebmail/openwebmail-main.pl:982,
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:416,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:193,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:196,
@@ -5806,11 +5829,11 @@ msgstr "配額使用情況："
 msgid "Quota limit exceeded. Please delete some messages or webdisk files to free disk space."
 msgstr "超出配額限制。請刪除一些信件或網絡磁碟的檔案以釋放磁碟空間。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:715
+#: cgi-bin/openwebmail/shares/ow-shared.pl:717
 msgid "Quota system error."
 msgstr "配額系統錯誤。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:712
+#: cgi-bin/openwebmail/shares/ow-shared.pl:714
 msgid "Quota usage limit parameter format error."
 msgstr "配額使用限制參數格式錯誤。"
 
@@ -5826,7 +5849,7 @@ msgstr "遠程埠"
 msgid "Raeto-Romance"
 msgstr "里托羅曼斯語"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4030,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4041,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1037
 msgid "Rangoon"
 msgstr "仰光"
@@ -5840,7 +5863,7 @@ msgstr "Re:"
 msgid "Read"
 msgstr "讀"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:3045
+#: cgi-bin/openwebmail/openwebmail-send.pl:3081
 msgid "Read receipt:"
 msgstr "讀收據："
 
@@ -5905,7 +5928,7 @@ msgstr "回信前，將原信件段落重排︰"
 msgid "Reply with original message:"
 msgstr "回信時，附上原信內容︰"
 
-#: cgi-bin/openwebmail/openwebmail-read.pl:998,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1021,
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:130,
 #: data/openwebmail/layouts/classic/templates/read_printmessage.tmpl:10,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:291,
@@ -5949,6 +5972,10 @@ msgstr "回至第<tmpl_var currentweekofyear>週: <tmpl_var currentweekstart_yea
 #: data/openwebmail/layouts/classic/templates/cal_yearview.tmpl:28
 msgid "Return to Year <tmpl_var current_year>"
 msgstr "返回至 <tmpl_var current_year>年"
+
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:932
+msgid "Reunion"
+msgstr "留尼汪"
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:933
 msgid "Romania"
@@ -6015,10 +6042,6 @@ msgstr "俄羅斯"
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:935
 msgid "Rwanda"
 msgstr "盧旺達"
-
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:932
-msgid "Réunion"
-msgstr "留尼汪"
 
 #: data/openwebmail/layouts/classic/templates/prefs_about.tmpl:85
 msgid "SCRIPT FILENAME"
@@ -6143,6 +6166,10 @@ msgstr "存檔"
 msgid "Save Stationery"
 msgstr "儲存信紙"
 
+#: cgi-bin/openwebmail/openwebmail-send.pl:1929
+msgid "Save draft aborted, the quota has been exceeded."
+msgstr "保存草稿中止，已超出配額。"
+
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2171,
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:33,
 #: data/openwebmail/layouts/classic/templates/webdisk_dirfilesel.tmpl:33
@@ -6247,7 +6274,7 @@ msgstr "寄信人 (筆畫多先)"
 msgid "Senegal"
 msgstr "塞內加爾"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:449,
+#: cgi-bin/openwebmail/openwebmail-main.pl:451,
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:225,
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:41,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:189,
@@ -6317,7 +6344,7 @@ msgstr "對這網域沒有服務可用︰"
 msgid "Service is not available for user@domain:"
 msgstr "對 user@domain 沒有服務可用︰"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1229
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1232
 msgid "Session ID does not exist:"
 msgstr "連線編號不存在︰"
 
@@ -6334,7 +6361,7 @@ msgid "Sessions"
 msgstr "連線"
 
 #: cgi-bin/openwebmail/openwebmail.pl:483,
-#: cgi-bin/openwebmail/shares/ow-shared.pl:694
+#: cgi-bin/openwebmail/shares/ow-shared.pl:696
 msgid "Setting effective group id to \"mail\" failed:"
 msgstr "設定 \"mail\" 有效群組編號失敗︰"
 
@@ -6460,12 +6487,12 @@ msgstr "索馬里語"
 msgid "Somalia"
 msgstr "索馬里"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:659
+#: cgi-bin/openwebmail/shares/ow-shared.pl:661
 msgid "Sorry, root login is disabled for security."
 msgstr "抱歉，為了安全禁止 root 登入。"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2547,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3087
+#: cgi-bin/openwebmail/openwebmail-send.pl:2580,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3123
 msgid "Sorry, there was an unknown problem sending your message."
 msgstr "抱歉，傳送您的信件時有未知問題。"
 
@@ -6546,7 +6573,7 @@ msgid "Spellcheck (<tmpl_var dictionary escape=\"html\">)"
 msgstr "拼字檢查 (<tmpl_var dictionary escape=\"html\">)"
 
 #: cgi-bin/openwebmail/openwebmail-spell.pl:338,
-#: cgi-bin/openwebmail/openwebmail-spell.pl:439
+#: cgi-bin/openwebmail/openwebmail-spell.pl:441
 msgid "Spellcheck error:"
 msgstr "拼字檢查錯誤："
 
@@ -6605,8 +6632,8 @@ msgstr "主旨 (新信優先)"
 msgid "Subject (Oldest first)"
 msgstr "主旨 (舊信優先)"
 
-#: cgi-bin/openwebmail/openwebmail-read.pl:1001,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3059,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1024,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3095,
 #: cgi-bin/openwebmail/openwebmail-send.pl:459,
 #: cgi-bin/openwebmail/openwebmail-send.pl:674,
 #: cgi-bin/openwebmail/openwebmail-send.pl:806,
@@ -6701,7 +6728,8 @@ msgstr "阿拉伯敘利亞共和國"
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:441,
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:444,
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:449,
-#: cgi-bin/openwebmail/openwebmail-viewatt.pl:454
+#: cgi-bin/openwebmail/openwebmail-viewatt.pl:454,
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2533
 msgid "System Error"
 msgstr "系統錯誤"
 
@@ -6755,7 +6783,7 @@ msgstr "預設名稱:"
 msgid "Tatar"
 msgstr "塔塔爾"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4025,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4036,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1032
 msgid "Tehran"
 msgstr "德黑蘭"
@@ -6824,37 +6852,37 @@ msgstr "@@@序列的字元不允許使用在事件字串或鏈接。"
 msgid "The HTML data will be lost after the conversion, are you sure you want to change to Text mode?"
 msgstr "轉換後會遺失HTML資料，您確定要轉換至文字模式？"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:606
+#: cgi-bin/openwebmail/shares/ow-shared.pl:608
 msgid "The SMTP username or password are not properly defined:"
 msgstr "SMTP的帳號或密碼定義不正確："
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1116,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1128,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1444
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1127,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1139,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1455
 msgid "The addressbook does not exist:"
 msgstr "通訊錄不存在︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1150,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1166
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1161,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1177
 msgid "The addressbook folder is read-only:"
 msgstr "通訊錄檔案匣式唯讀︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1418,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1475
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1429,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1486
 msgid "The addressbook folder name already exists:"
 msgstr "通訊錄檔案名稱已存在︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1421,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1478
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1432,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1489
 msgid "The addressbook folder name exceeds the %d character limit:"
 msgid_plural "The addressbook folder name exceeds the %d character limit:"
 msgstr[0] "通訊錄檔案夾名稱超過了 %d 字元的極限︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1221
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1232
 msgid "The addressbook size exceeds the available free space."
 msgstr "通訊錄大小超過了可用磁碟空間。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2597
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2608
 msgid "The attachment exceeds the %d KB limit."
 msgid_plural "The attachment exceeds the %d KB limit."
 msgstr[0] "附件檔案超過了 %d KB 的極限。"
@@ -6902,23 +6930,23 @@ msgstr "生日值無效︰"
 msgid "The birthday year must be a number between 1 and 9999."
 msgstr "生日之年份必須是在數字1到9999之間。"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:3083
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:3101
 msgid "The book of filters is larger than the maximum allowed size."
 msgstr "過濾書大於允許的最大值。"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2575
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2585
 msgid "The book of from addresses is larger than the maximum allowed size."
 msgstr "寄件地址大於允許的最大值。"
 
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:2700
+#: cgi-bin/openwebmail/openwebmail-prefs.pl:2710
 msgid "The book of pop3 addresses is larger than the maximum allowed size."
 msgstr "pop3地址大於允許的最大值。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3539
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3550
 msgid "The chosen export format is not supported:"
 msgstr "不支援您選擇的匯出格式︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3163
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3174
 msgid "The chosen import format is unsupported. Please go back and chose a different one:"
 msgstr "不支援您選擇的匯入格式。請返回然後點選另一個︰"
 
@@ -6926,7 +6954,7 @@ msgstr "不支援您選擇的匯入格式。請返回然後點選另一個︰"
 msgid "The day, month, and year must all be defined to store a birthday for a contact."
 msgstr "要存入生日到通訊錄必須定義日、月、年。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1129
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1140
 msgid "The destination folder is read-only:"
 msgstr "目的檔案夾是唯讀︰"
 
@@ -6942,7 +6970,7 @@ msgstr "事件開始時間是在事件結束時間之後。"
 msgid "The export system allows you to download contacts to your local computer. Follow the steps below to complete the download."
 msgstr "匯出系統允許您下載通訊錄到您的電腦。按照以下步驟來完成下載。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3167
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3178
 msgid "The file extension is incorrect for the chosen import format. The recommended extension for the format is:"
 msgstr "所點選匯入格的檔案類別不正確。建議檔案類別為這格式是："
 
@@ -6951,8 +6979,8 @@ msgstr "所點選匯入格的檔案類別不正確。建議檔案類別為這格
 msgid "The file was saved successfully:"
 msgstr "檔案儲存成功︰"
 
-#: cgi-bin/openwebmail/openwebmail-folder.pl:517,
-#: cgi-bin/openwebmail/openwebmail-folder.pl:588
+#: cgi-bin/openwebmail/openwebmail-folder.pl:520,
+#: cgi-bin/openwebmail/openwebmail-folder.pl:591
 msgid "The folder name is reserved by the system and cannot be used:"
 msgstr "檔案夾名稱是系統所保留，不能使用︰"
 
@@ -6969,23 +6997,23 @@ msgstr "稍見人的全名是需要的而不存在。"
 msgid "The group name must be defined."
 msgstr "必須定義群組名稱。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3174,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3755
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3185,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3766
 msgid "The import file is 0 bytes."
 msgstr "匯入檔案大小為 0 bytes。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3188,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3751
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3199,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3762
 msgid "The import file size exceeds the available free space:"
 msgstr "匯入檔案大小超過磁碟可用空間︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3177,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3740
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3188,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3751
 msgid "The import file size exceeds the available quota space."
 msgstr "匯入檔案大小超過了可用的配額空間。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3179,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3742
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3190,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3753
 msgid "The import file size exceeds the import file size limit:"
 msgstr "匯入檔案大小超過了匯入檔案大小極限："
 
@@ -7005,11 +7033,11 @@ msgstr "該操作無法完成，因為網絡硬碟是唯讀。"
 msgid "The program uname is not available to obtain OS information."
 msgstr "程式uname不存在所以無法獲取作業系統資訊。"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:3018
+#: cgi-bin/openwebmail/openwebmail-send.pl:3054
 msgid "The recipients list could not be validated. Please check the recipients and try again."
 msgstr "收件人列表無法驗證。請檢查收件人，然後再試一次。"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2124
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2158
 msgid "The requested file or directory is outside of the webdisk system and cannot be accessed."
 msgstr "所請求的檔案或目錄是網路硬碟系統之外而無法存取。"
 
@@ -7017,13 +7045,17 @@ msgstr "所請求的檔案或目錄是網路硬碟系統之外而無法存取。
 msgid "The requested operation can only be performed on one file or directory at a time:"
 msgstr "所請求的操作只能執行一次一個檔案或目錄上："
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:1149
+#: cgi-bin/openwebmail/shares/ow-shared.pl:1152
 msgid "The requested template file does not exist:"
 msgstr "請求的模板檔案不存在："
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1426
 msgid "The same as composing character set"
 msgstr "與寫信時字集相同"
+
+#: cgi-bin/openwebmail/openwebmail-send.pl:1923
+msgid "The save draft feature is not enabled."
+msgstr "保存草稿功能未啟動。"
 
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:165
 msgid "The search start date is after the search end date."
@@ -7033,7 +7065,7 @@ msgstr "搜索起始日期是搜索結束日期之後。"
 msgid "The spellcheck program cannot be found:"
 msgstr "找不到拼字檢查程式"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:2116
+#: cgi-bin/openwebmail/shares/ow-shared.pl:2150
 msgid "The symbolic link is too complex to be accessed."
 msgstr "符號鏈接是太複雜，無法存取。"
 
@@ -7061,11 +7093,11 @@ msgid "The upload exceeds the configured %d KB limit."
 msgid_plural "The upload exceeds the configured %d KB limit."
 msgstr[0] "上傳超過配置為%d KB的限制。"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2658
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2669
 msgid "The upload is not an approved file or type:"
 msgstr "檔案或類型並非核准上傳："
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2711
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2722
 msgid "The xowmuid does not match any contacts in the addressbook:"
 msgstr "xowmuid不符合通訊錄裡的任何收件人："
 
@@ -7137,7 +7169,7 @@ msgstr "此信件請求讀取回條，你想要傳出嗎？"
 msgid "This month only"
 msgstr "本月"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:636
+#: cgi-bin/openwebmail/shares/ow-shared.pl:638
 msgid "This script must be setuid root:"
 msgstr "這腳本權限必須設定為root︰"
 
@@ -7224,8 +7256,8 @@ msgstr "在一時間下載整個通訊錄，使用在管理通訊錄區下載連
 msgid "To, Cc, and Bcc are empty. Please specify the recipients before sending."
 msgstr "收件人、副本和秘密福本都是空的。請註明收件人才發送。"
 
-#: cgi-bin/openwebmail/openwebmail-read.pl:999,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3058,
+#: cgi-bin/openwebmail/openwebmail-read.pl:1022,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3094,
 #: cgi-bin/openwebmail/openwebmail-send.pl:456,
 #: cgi-bin/openwebmail/openwebmail-send.pl:671,
 #: cgi-bin/openwebmail/openwebmail-send.pl:803,
@@ -7352,6 +7384,10 @@ msgstr "圖瓦盧"
 msgid "Twi"
 msgstr "契維"
 
+#: cgi-bin/openwebmail/shares/maildb.pl:785
+msgid "Two messages have the same offset in the spool database:"
+msgstr "兩個信件具有相同的偏移在系統收信資料庫："
+
 #: data/openwebmail/layouts/classic/templates/read_printmessage.tmpl:74,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:402,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:444
@@ -7411,11 +7447,11 @@ msgstr "未知壓縮類型︰"
 msgid "Unknown spellcheck mode:"
 msgstr "不明的拼字檢查模式:"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2454
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2465
 msgid "Unsupported upload type:"
 msgstr "不支援的上傳類型："
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2389
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2400
 msgid "Unsupported vcard datatype:"
 msgstr "不支援的電子名片資料類型："
 
@@ -7489,7 +7525,7 @@ msgstr "使用者帳號"
 msgid "User Preferences"
 msgstr "個人偏好設定"
 
-#: cgi-bin/openwebmail/shares/ow-shared.pl:652
+#: cgi-bin/openwebmail/shares/ow-shared.pl:654
 msgid "User does not exist:"
 msgstr "帳號不存在︰"
 
@@ -7700,7 +7736,7 @@ msgstr "歡迎使用 <tmpl_var programname escape=\"html\">！"
 msgid "Welsh"
 msgstr "威爾士"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4020,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4031,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1027
 msgid "West Africa"
 msgstr "西非"
@@ -7837,13 +7873,13 @@ msgstr "你不可以從這個客戶端域連接："
 msgid "You are not allowed to connect from this client ip:"
 msgstr "您不可以從這客戶IP連接："
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:1960
+#: cgi-bin/openwebmail/openwebmail-send.pl:1978
 msgid "You are not allowed to send messages to this email address:"
 msgstr "您不得將信件發送到這個電子郵件地址："
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1148,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:1164,
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2704
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1159,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:1175,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2715
 msgid "You do not have permission to edit the global addressbook."
 msgstr "您沒有權限編輯全域通訊錄。"
 
@@ -7856,11 +7892,11 @@ msgstr "你必須先填寫經度和緯度才可以查看任何地圖或照片。
 msgid "Your INBOX has exceeded the spool limit (<tmpl_var spoollimit escape=\"js\"> kB). Please move some messages from your INBOX to other folders."
 msgstr "您的新信匣已超過系統收件匣的限額 (<tmpl_var spoollimit escape=\"js\"> kB)。請移動新信匣裡的一些信件到其它信件匣。"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:3057
+#: cgi-bin/openwebmail/openwebmail-send.pl:3093
 msgid "Your message:"
 msgstr "您的信件︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:4010,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:4021,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1017
 msgid "Yukon Standard"
 msgstr "育空標準"
@@ -8042,12 +8078,12 @@ msgstr "上午"
 msgid "answered"
 msgstr "已答覆"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2000,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3004
+#: cgi-bin/openwebmail/openwebmail-send.pl:2018,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3037
 msgid "at SMTP port:"
 msgstr "在SMTP埠︰"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:3762
+#: cgi-bin/openwebmail/openwebmail-abook.pl:3773
 msgid "attachment"
 msgstr "附件"
 
@@ -8971,7 +9007,7 @@ msgstr "回至家目錄"
 msgid "go to top"
 msgstr "回到頂部"
 
-#: cgi-bin/openwebmail/openwebmail-abook.pl:2316,
+#: cgi-bin/openwebmail/openwebmail-abook.pl:2327,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1101,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1123,
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1153,
@@ -10031,7 +10067,7 @@ msgstr "代理類型未知"
 msgid "unknown key type"
 msgstr "未知的鑰匙類型"
 
-#: cgi-bin/openwebmail/openwebmail-read.pl:1066
+#: cgi-bin/openwebmail/openwebmail-read.pl:1089
 msgid "unrecognized ms-tnef encapsulated data"
 msgstr "未確認的ms-tnef的封裝資料"
 
@@ -10147,7 +10183,7 @@ msgid "wait %d second after login to fetch"
 msgid_plural "wait %d seconds after login to fetch"
 msgstr[0] "等待 %d 秒"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:3064
+#: cgi-bin/openwebmail/openwebmail-send.pl:3100
 msgid "was read on:"
 msgstr "被閱讀："
 
@@ -10237,10 +10273,6 @@ msgstr "建zip檔"
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:560
 msgid "zip/postcode"
 msgstr "郵遞區號"
-
-#: cgi-bin/openwebmail/openwebmail-prefs.pl:763
-msgid "Åland Islands"
-msgstr "奧蘭群島"
 
 #~ msgid "Lao People's Democratic Republic"
 #~ msgstr "老撾人民民主共和國"
