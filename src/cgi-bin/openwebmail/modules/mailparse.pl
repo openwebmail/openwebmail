@@ -303,7 +303,7 @@ sub parse_attblock {
 
    $att{'content-id'} =~ s/^\s*\<(.+)\>\s*$/$1/ if defined $att{'content-id'};
 
-   if ($att{'content-type'} =~ /^multipart/i) {
+   if ($att{'content-type'} =~ m/^multipart/i) {
       my ($subtype, $boundary, $boundarylen);
       my ($boundarystart, $nextboundarystart, $subattblockstart);
       my $search_html_related_att=0;
@@ -453,20 +453,20 @@ sub parse_attblock {
                                $nodeid) );
       }
 
-   } elsif ($att{'content-type'}=~m/^application\/octet\-stream/i) {
-      # Apple-Mail is known to encapsulate html in application/octet-stream instead of text/html (duh)
-      # all in all, it would be nice to handle application/octet-streams that are html inline
+   } elsif ($att{'content-type'} =~ m/^application\/octet\-stream/i) {
+      # Apple-Mail is known to encapsulate html in application/octet-stream instead of text/html
+      # we should handle application/octet-streams that are html inline
       # bad things like script are stripped out later before display in the browser
       if (defined $searchid && ($searchid eq '' || $searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
-         my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
-         my $testpiece = substr($attcontent, 0, ($attcontentlength>500?500:$attcontentlength));
-         my $numberoftags = () = $testpiece =~ m/<(?:html|head|meta|style|script|title|body|p|br|font|table|tr|td|tbody|div)/igs;
-         if ($numberoftags >= 5) {
+         my $attcontent = substr(${$r_buff}, $attblockstart + $attheaderlen + 1, $attcontentlength);
+         my $testpiece = substr($attcontent, 0, ($attcontentlength > 500 ? 500 : $attcontentlength));
+         my $knowntags = () = $testpiece =~ m/<(?:html|head|meta|style|script|title|body|p|br|font|table|tr|td|tbody|div)/igs;
+         if ($knowntags >= 5) {
             # save att since it seems to be html (5 known tags in first 500 bytes)
             $att{'content-type'} = 'text/html';
             $att{'content-disposition'} = 'attachment; filename=Unknown.htm';
             push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength, @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'}, $nodeid) );
-         } elsif ($attcontent=~/\S/ ) { # not html - save att if contains chars other than \s
+         } elsif ($attcontent =~ m/\S/) { # not html - save att if it contains any non-whitespace chars
             push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength, @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'}, $nodeid) );
          }
       }
@@ -474,7 +474,7 @@ sub parse_attblock {
    } else {
       if (defined $searchid && ($searchid eq 'all' || $searchid =~ m/^$nodeid/)) {
          my $attcontent=substr(${$r_buff}, $attblockstart+$attheaderlen+1, $attcontentlength);
-         if ($attcontent=~/\S/ ) { # save att if contains chars other than \s
+         if ($attcontent=~/\S/) { # save att if it contains any non-whitespace chars
             push(@attachments, make_attachment($subtype,$boundary, $attheader,\$attcontent, $attcontentlength,
                                   @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'},
                                   $nodeid) );
@@ -482,14 +482,15 @@ sub parse_attblock {
       } else {
          # null searchid means CGI is in returning html code or in context searching
          # thus content of an non-text based attachment is no need to be returned
-         my $fakeddata="snipped...";
+         my $fakeddata = "snipped...";
          push(@attachments, make_attachment($subtype,$boundary, $attheader,\$fakeddata,$attcontentlength,
                                   @att{'content-transfer-encoding', 'content-type', 'content-disposition', 'content-id', 'content-location', 'content-description'},
                                   $nodeid) );
       }
 
    }
-   return(\@attachments);
+
+   return \@attachments;
 }
 
 sub parse_uuencode_body {
@@ -542,13 +543,14 @@ sub make_attachment {
    ($attfilename, $attfilenamecharset) = get_filename_charset($attcontenttype, $attdisposition);
 
    # guess a better contenttype
-   if ($attcontenttype eq 'N/A' || $attcontenttype =~ m!(\Qvideo/mpg\E)!i) {
-      my ($oldtype, $newtype)=($1, '');
-      $attfilename=~ /\.([\w\d]*)$/; $newtype=ow::tool::ext2contenttype($1);
-      $attcontenttype=~ s!$oldtype!$newtype!i;
+   if ($attcontenttype =~ m!(video/mpg|application/octet\-stream)!i || $attcontenttype =~ m!^(N/A)$!) {
+      my $oldtype = $1;
+      my ($extension) = $attfilename =~ m/\.([\w\d]*)$/;
+      my $newtype = ow::tool::ext2contenttype($extension);
+      $attcontenttype =~ s!\Q$oldtype\E!$newtype!i;
    }
 
-   # remove file=... from disipotion
+   # remove file=... from disposition
    $attdisposition =~ s/;.*// if defined $attdisposition;
 
    $attdescription = ow::mime::decode_mimewords($attdescription);

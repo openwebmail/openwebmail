@@ -744,19 +744,16 @@ sub readmessage {
                 && ($messagesloop->[$i]{attachment}[$n]{boundary} eq $messagesloop->[$i]{attachment}[$n+1]{boundary}) ) {
 
                # skip to next text/(html|enriched) attachment in the same alternative group
-               if ($messagesloop->[$i]{attachment}[$n]{subtype} =~ m#alternative#i
-                   && $messagesloop->[$i]{attachment}[$n+1]{subtype} =~ m#alternative#i
-                   && $messagesloop->[$i]{attachment}[$n+1]{'content-type'} =~ m#^text#i
-                   && $messagesloop->[$i]{attachment}[$n+1]{filename} =~ m#^Unknown\.#) {
-                  next;
-               }
+               next if $messagesloop->[$i]{attachment}[$n]{subtype} =~ m#alternative#i
+                       && $messagesloop->[$i]{attachment}[$n+1]{subtype} =~ m#alternative#i
+                       && $messagesloop->[$i]{attachment}[$n+1]{'content-type'} =~ m#^text#i
+                       && $messagesloop->[$i]{attachment}[$n+1]{filename} =~ m#^Unknown\.#;
+
                # skip to next attachment if this=Unknown.(txt|enriched) and next=Unknown.(html|enriched)
-               if ($messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^text/(?:plain|enriched)#i
-                   && $messagesloop->[$i]{attachment}[$n]{filename} =~ m#^Unknown\.#
-                   && $messagesloop->[$i]{attachment}[$n+1]{'content-type'} =~ m#^text/(?:html|enriched)#i
-                   && $messagesloop->[$i]{attachment}[$n+1]{filename} =~ m#^Unknown\.#) {
-                  next;
-               }
+               next if $messagesloop->[$i]{attachment}[$n]{'content-type'} =~ m#^text/(?:plain|enriched)#i
+                       && $messagesloop->[$i]{attachment}[$n]{filename} =~ m#^Unknown\.#
+                       && $messagesloop->[$i]{attachment}[$n+1]{'content-type'} =~ m#^text/(?:html|enriched)#i
+                       && $messagesloop->[$i]{attachment}[$n+1]{filename} =~ m#^Unknown\.#;
             }
          }
 
@@ -1134,9 +1131,9 @@ sub readmessage {
    # build the template
    my $template = HTML::Template->new(
                                         filename          => get_template(
-                                                                          $printfriendly eq 'yes'  ?
-                                                                          'read_printmessage.tmpl' :
-                                                                          'read_readmessage.tmpl'
+                                                                            $printfriendly eq 'yes'
+                                                                            ? 'read_printmessage.tmpl'
+                                                                            : 'read_readmessage.tmpl'
                                                                          ),
                                         filter            => $htmltemplatefilters,
                                         die_on_bad_params => 0,

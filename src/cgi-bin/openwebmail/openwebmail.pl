@@ -115,16 +115,18 @@ foreach my $table ('b2g', 'g2b', 'lunar') {
      if exists $config{$table . '_map'} && $config{$table . '_map'} && !ow::dbm::existdb("$config{ow_mapsdir}/$table");
 }
 
-if ($config{logfile}) {
-   my $mailgid = getgrnam('mail');
-   my ($fmode, $fuid, $fgid) = (stat($config{logfile}))[2,4,5];
-   if ( !($fmode & 0100000) ) {
+if (defined $config{logfile}) {
+   if (!-f $config{logfile}) {
       sysopen(LOGFILE, $config{logfile}, O_WRONLY|O_APPEND|O_CREAT, 0660) or
          openwebmailerror(gettext('Cannot open file:') . " $config{logfile} ($!)");
 
       close(LOGFILE) or writelog("cannot close file $config{logfile}");
    }
-   chmod(0660, $config{logfile}) if (($fmode & 0660) != 0660);
+
+   my($fmode, $fuid, $fgid) = (stat($config{logfile}))[2,4,5];
+   chmod(0660, $config{logfile}) if ($fmode & 0660) != 0660;
+
+   my $mailgid = getgrnam('mail');
    chown($>, $mailgid, $config{logfile}) if $fuid != $> || $fgid != $mailgid;
 }
 
