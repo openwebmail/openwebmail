@@ -391,7 +391,7 @@ sub showdir {
 
       my $vpath = absolute_vpath($currentdir, $filename);
 
-      next if !$config{webdisk_lsmailfolder} && is_under_dotdir_or_folderdir("$webdiskrootdir/$vpath");
+      next if !$config{webdisk_lsmailfolder} && is_under_dotdir_or_mail_folder("$webdiskrootdir/$vpath");
 
       my $fname = $vpath;
       $fname =~ s|.*/||;
@@ -2217,7 +2217,7 @@ sub dirfilesel {
 
       next if (!$config{webdisk_lshidden} || !$showhidden) && $filename =~ m/^(?:\.|:2e)/;
 
-      next if !$config{webdisk_lsmailfolder} && is_under_dotdir_or_folderdir("$webdiskrootdir/$currentdir/$filename");
+      next if !$config{webdisk_lsmailfolder} && is_under_dotdir_or_mail_folder("$webdiskrootdir/$currentdir/$filename");
 
       if (-l "$webdiskrootdir/$currentdir/$filename") {
          # symbolic link, aka:shortcut

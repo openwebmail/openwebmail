@@ -214,7 +214,7 @@ sub _cutfoldermail {
 sub cutdirfiles {
    my ($sizetocut, $dir) = @_;
 
-   return 0 if is_under_dotdir_or_folderdir($dir);
+   return 0 if is_under_dotdir_or_mail_folder($dir);
 
    if (!opendir(D, $dir)) {
       writelog("cannot open dir $dir");

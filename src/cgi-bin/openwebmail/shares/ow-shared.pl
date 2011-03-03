@@ -2096,42 +2096,11 @@ sub safexheaders {
    return $xheaders;
 }
 
-sub path2array {
-   my $path = shift;
-
-   my @p = ();
-
-   foreach my $dir (split(/\//, $path)) {
-      next if !defined $dir || $dir eq '.' || $dir eq '';
-
-      if ($dir eq '..') {
-         pop(@p); # remove ..
-      } else {
-         push(@p, $dir);
-      }
-   }
-
-   return(@p);
-}
-
 sub absolute_vpath {
    my ($base, $vpath) = @_;
    $vpath = '' unless defined $vpath;
    $vpath = "$base/$vpath" unless $vpath =~ m|^/|;
    return('/' . join('/', path2array($vpath)));
-}
-
-sub fullpath2vpath {
-   my ($realpath, $rootpath) = @_;
-
-   my @p = path2array($realpath);
-
-   foreach my $r (path2array($rootpath)) {
-      my $part = shift(@p) || '';
-      return if $r ne $part;
-   }
-
-   return('/' . join('/', @p));
 }
 
 sub verify_vpath {
@@ -2175,8 +2144,8 @@ sub verify_vpath {
       }
    }
 
-   openwebmailerror(gettext('Access to mail folder files has been disabled.'))
-      if !$config{webdisk_lsmailfolder} && is_under_dotdir_or_folderdir($realpath);
+   openwebmailerror(gettext('Access to mail folders has been disabled.'))
+      if !$config{webdisk_lsmailfolder} && is_under_dotdir_or_mail_folder($realpath);
 
    openwebmailerror(gettext('Access to special unix file types has been disabled.'))
       if !$config{webdisk_lsunixspec} && (-e $realpath && !-d _ && !-f _);
@@ -2279,7 +2248,7 @@ sub lenstr {
 
 sub dotpath {
    # return the path of files within openwebmail dot dir (~/.openwebmail/)
-   # passing global $domain, $user, $homedir as parameters
+   # passing filepath, global $domain, $user, $homedir as parameters
    return _dotpath(shift, $domain, $user, $homedir);
 }
 
@@ -2359,17 +2328,53 @@ sub check_and_create_dotdir {
    }
 }
 
-sub is_under_dotdir_or_folderdir {
-   my $file = shift;
+sub is_under_dotdir_or_mail_folder {
+   my $file = shift || return 0;
 
-   my $spoolfile = (get_folderpath_folderdb($user, 'INBOX'))[0];
+   my $resolvedfilepath = (resolv_symlink($file))[1];
 
-   foreach (dotpath('/'), "$homedir/$config{homedirfolderdirname}", $spoolfile) {
+   my $inboxdir = (get_folderpath_folderdb($user, 'INBOX'))[0];
+   $inboxdir =~ s/[\\\/]\Q$user\E$// if defined $user;
+
+   my $usermaildir = "$homedir/$config{homedirfolderdirname}";
+
+   foreach (dotpath('/'), $usermaildir, $inboxdir) {
       my $p = (resolv_symlink($_))[1];
       return 1 if fullpath2vpath($file, $p) ne '';
    }
 
    return 0;
+}
+
+sub fullpath2vpath {
+   my ($realpath, $rootpath) = @_;
+
+   my @p = path2array($realpath);
+
+   foreach my $r (path2array($rootpath)) {
+      my $part = shift(@p) || '';
+      return '' if $r ne $part;
+   }
+
+   return('/' . join('/', @p));
+}
+
+sub path2array {
+   my $path = shift || '';
+
+   my @p = ();
+
+   foreach my $dir (split(/\//, $path)) {
+      next if !defined $dir || $dir eq '.' || $dir eq '';
+
+      if ($dir eq '..') {
+         pop(@p); # remove ..
+      } else {
+         push(@p, $dir);
+      }
+   }
+
+   return(@p);
 }
 
 sub autologin_add {
