@@ -109,7 +109,7 @@ use vars qw(%action_redirect @actions);
 
 openwebmail_requestbegin();
 
-# check & create mapping table for solar/lunar, b2g, g2b convertion
+# check and create mapping table for solar/lunar, b2g, g2b convertion
 foreach my $table ('b2g', 'g2b', 'lunar') {
    openwebmailerror(gettext("Please execute 'openwebmail-tool.pl --init' on server first!"))
      if exists $config{$table . '_map'} && $config{$table . '_map'} && !ow::dbm::existdb("$config{ow_mapsdir}/$table");

@@ -394,8 +394,8 @@ sub editprefs {
    }
 
    my %unique = ();
-   my @availablelanguages = grep { !$unique{$_}++ }                            # eliminate duplicates
-                             map { join("_",(ow::lang::localeinfo($_))[0,1]) } # en_US
+   my @availablelanguages = grep { !$unique{$_}++ }                             # eliminate duplicates
+                             map { join('_', (ow::lang::localeinfo($_))[0,1]) } # en_US
                             sort keys %{$config{available_locales}};
 
    my @selectedlanguagecharsets =  map { (ow::lang::localeinfo($_))[4] }
@@ -1099,7 +1099,7 @@ sub editprefs {
                       quotaoverthreshold                => $quotaoverthreshold,
                       quotabytesusage                   => $quotabytesusage,
                       quotapercentusage                 => $quotapercentusage,
-                      userrealname                      => exists $userfroms->{$prefs{email}} ? $userfroms->{$prefs{email}} : 0,
+                      userrealname                      => defined $prefs{email} && exists $userfroms->{$prefs{email}} ? $userfroms->{$prefs{email}} : 0,
                       caller_calendar                   => $prefs_caller eq 'cal' ? 1 : 0,
                       calendardefaultview               => $prefs{calendar_defaultview},
                       caller_webdisk                    => $prefs_caller eq 'webdisk' ? 1 : 0,
@@ -1135,7 +1135,7 @@ sub editprefs {
                                                               map { {
                                                                        option   => $_,
                                                                        label    => $_,
-                                                                       selected => ((defined $prefs{charset}) ? $_ eq $prefs{charset} : $_ eq $defaultcharset) ? 1 : 0
+                                                                       selected => (defined $prefs{charset} ? $_ eq $prefs{charset} : $_ eq $defaultcharset) ? 1 : 0
                                                                   } } @selectedlanguagecharsets
                                                            ],
                       disabletimezoneselect             => defined $config_raw{DEFAULT_timezone} ? 1 : 0,
@@ -1144,8 +1144,8 @@ sub editprefs {
                                                                        option   => $_,
                                                                        label    => $usezonetabfile ? $_ : "$_ - $timezonelabels{$_}",
                                                                        selected => $usezonetabfile
-                                                                                   ? ($_ eq "$prefs{timeoffset} $prefs{timezone}" ? 1 : 0)
-                                                                                   : ($_ eq $prefs{timeoffset} ? 1 : 0)
+                                                                                   ? (defined $prefs{timeoffset} && defined $prefs{timezone} && $_ eq "$prefs{timeoffset} $prefs{timezone}" ? 1 : 0)
+                                                                                   : (defined $prefs{timeoffset} && $_ eq $prefs{timeoffset} ? 1 : 0)
                                                                   } } @zones
                                                            ],
                       disabledstselect                  => defined $config_raw{DEFAULT_daylightsaving} ? 1 : 0,
@@ -1803,7 +1803,7 @@ sub editprefs {
                                                                        label    => $_ < 60
                                                                                    ? sprintf(ngettext('every minute', 'every %d minutes', $_), $_)
                                                                                    : sprintf(ngettext('every hour', 'every %d hours', int($_ / 60)), int($_ / 60)),
-                                                                       selected => $_ eq $prefs{sessiontimeout} ? 1 : 0
+                                                                       selected => defined $prefs{sessiontimeout} && $_ eq $prefs{sessiontimeout} ? 1 : 0
                                                                   } } qw(10 30 60 120 180 360 720 1440)
                                                            ],
 
