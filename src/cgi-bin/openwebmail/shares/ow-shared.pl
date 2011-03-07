@@ -2504,16 +2504,17 @@ sub getfolders {
          # do not count spoolfile in folder finding
          next if ("$fdir/$filename" eq $spoolfile);
 
+         my $foldersize = (-s "$folderdir/$filename") || 0;
+
          # distingush default folders and user folders
          if (is_defaultfolder($filename) && $fdir eq $folderdir) {
-            $totalsize += (-s "$folderdir/$filename");
+            $totalsize += $foldersize;
          } else {
             if ($config{enable_userfolders}) {
-               $totalsize += (-s "$folderdir/$filename");
+               $totalsize += $foldersize;
                push(@userfolders, substr("$fdir/$filename", length($folderdir) + 1));
             }
          }
-
       }
    }
 

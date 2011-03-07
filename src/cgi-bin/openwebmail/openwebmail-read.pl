@@ -509,15 +509,16 @@ sub readmessage {
    if ($messagesloop->[0]{status} !~ m/R/i) {
       local $| = 1;        # flush all output
       if (fork() == 0) { # child
-         close(STDIN);
-         close(STDOUT);
-         close(STDERR);
+         close(STDIN);  # close fd0
+         close(STDOUT); # close fd1
+         close(STDERR); # close fd2
 
-         # closing STDIN made file descriptor 0 available
-         # the next sysopen chooses the first available file descriptor
-         # and warns if it is fd 0 and has been opened for writing
-         # open a bogus file to occupy fd 0 to prevent warnings
-         sysopen(BOGUS, '/dev/null', O_RDONLY);
+         # perl automatically chooses the lowest available file
+         # descriptor, so open some fake ones to occupy 0,1,2 to
+         # avoid warnings
+         sysopen(FDZERO, '/dev/null', O_RDONLY); # occupy fd0
+         sysopen(FDONE, '/dev/null', O_WRONLY);  # occupy fd1
+         sysopen(FDTWO, '/dev/null', O_WRONLY);  # occupy fd2
 
          local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
          local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
@@ -536,7 +537,9 @@ sub readmessage {
 
          writelog('debug_fork :: update msg status process terminated') if $config{debug_fork};
 
-         close(BOGUS);
+         close(FDZERO);
+         close(FDONE);
+         close(FDTWO);
 
          openwebmail_exit(0);
       }
@@ -587,6 +590,11 @@ sub readmessage {
       # update the messageid to this specific message!
       # in the future we need to do this for conversation view
       $messageid = $messagesloop->[$i]{'message-id'};
+
+      if (!defined $messageid) {
+         writelog("read error - no message-id for message in folder $folder");
+         $messageid = '';
+      }
 
       # to avoid using the HTML::Template global_vars option, we put only the vars we need into
       # each messageloop ourselves. This saves a lot of memory and significantly increases speed.
