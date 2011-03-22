@@ -422,14 +422,18 @@ sub markreadfolder {
          }
       }
 
-      ow::dbm::unlinkdb($tmpdb) or
-         openwebmailerror(gettext('Cannot delete db:') . " $tmpdb ($!)");
+      if (ow::dbm::existdb($tmpdb)) {
+         ow::dbm::unlinkdb($tmpdb) or
+            openwebmailerror(gettext('Cannot delete db:') . " $tmpdb ($!)");
+      }
 
-      ow::filelock::lock($tmpfile, LOCK_UN) or
-         openwebmailerror(gettext('Cannot unlock file:') . " $tmpfile ($!)");
+      if (-f $tmpfile) {
+         ow::filelock::lock($tmpfile, LOCK_UN) or
+            openwebmailerror(gettext('Cannot unlock file:') . " $tmpfile ($!)");
 
-      unlink($tmpfile) or
-         openwebmailerror(gettext('Cannot delete file:') . " $tmpfile ($!)");
+         unlink($tmpfile) or
+            openwebmailerror(gettext('Cannot delete file:') . " $tmpfile ($!)");
+      }
 
       rmdir($tmpdir) or
          openwebmailerror(gettext('Cannot delete directory:') . " $tmpdir ($!)");

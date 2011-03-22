@@ -1889,8 +1889,10 @@ sub empty_folder {
    close(F) or
       openwebmailerror(gettext('Cannot close file:') . " $folderfile ($!)");
 
-   ow::dbm::unlinkdb($folderdb) or
-      openwebmailerror(gettext('Cannot delete db:') . " $folderdb ($!)");
+   if (ow::dbm::existdb($folderdb)) {
+      ow::dbm::unlinkdb($folderdb) or
+         openwebmailerror(gettext('Cannot delete db:') . " $folderdb ($!)");
+   }
 
    return -2 if update_folderindex($folderfile, $folderdb) < 0;
 

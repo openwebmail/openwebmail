@@ -171,7 +171,7 @@ sub chmoddb {
 }
 
 sub unlinkdb {
-   ($dbm_errno, $dbm_errmsg, $dbm_warning)=(0, '', '');
+   ($dbm_errno, $dbm_errmsg, $dbm_warning) = (0, '', '');
    return 1 if unlink(dblist2dbfiles(@_));
    $dbm_errno  = -1;
    $dbm_errmsg = $!;
@@ -298,15 +298,17 @@ sub get_dbtype {
 }
 
 sub dblist2dbfiles {
-   my @dbfiles=();
-   foreach (@_) {	# @_ is list of db name
-      my $db=ow::tool::untaint($_);
+   my @dbfiles = ();
+
+   foreach (@_) { # @_ is list of db name
+      my $db = ow::tool::untaint($_);
       if ($dbm_ext eq '.dir' || $dbm_ext eq '.pag') {
          push(@dbfiles, "$db.dir", "$db.pag");
       } else {
          push(@dbfiles, "$db$dbm_ext");
       }
    }
+
    return(@dbfiles);
 }
 
