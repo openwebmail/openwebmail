@@ -304,11 +304,15 @@ sub iconv_open {
 
    foreach my $localfrom (@{$charset_localname{$from}}) {
       foreach my $localto (@{$charset_localname{$to}}) {
-         eval { $converter = Text::Iconv->new($localfrom, $localto) };
-         next if ($@);
+         eval {
+                 no warnings 'all';
+                 local $SIG{'__DIE__'};
+                 $converter = Text::Iconv->new($localfrom, $localto)
+              };
+         next if $@;
          $localname_cache{$from} = $localfrom;
          $localname_cache{$to}   = $localto;
-       	 return($converter);
+       	 return $converter;
       }
    }
 

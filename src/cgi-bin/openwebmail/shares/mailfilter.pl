@@ -173,15 +173,16 @@ sub filtermessage {
 
       # child
       if (fork() == 0) {
-         close(STDIN);
-         close(STDOUT);
-         close(STDERR);
+         close(STDIN);  # close fd0
+         close(STDOUT); # close fd1
+         close(STDERR); # close fd2
 
-         # closing STDIN made file descriptor 0 available
-         # the next sysopen chooses the first available file descriptor
-         # and warns if it is fd 0 and has been opened for writing
-         # open a bogus file to occupy fd 0 to prevent warnings
-         sysopen(BOGUS, '/dev/null', O_RDONLY);
+         # perl automatically chooses the lowest available file
+         # descriptor, so open some fake ones to occupy 0,1,2 to
+         # avoid warnings
+         sysopen(FDZERO, '/dev/null', O_RDONLY); # occupy fd0
+         sysopen(FDONE, '/dev/null', O_WRONLY);  # occupy fd1
+         sysopen(FDTWO, '/dev/null', O_WRONLY);  # occupy fd2
 
          local $SIG{__WARN__} = sub { writelog(@_); exit(1) };
          local $SIG{__DIE__}  = sub { writelog(@_); exit(1) };
@@ -205,7 +206,9 @@ sub filtermessage {
 
          writelog("debug_mailfilter :: mailfilter process terminated") if $config{debug_fork} || $config{debug_mailfilter};
 
-         close(BOGUS);
+         close(FDZERO);
+         close(FDONE);
+         close(FDTWO);
 
          openwebmail_exit(0);
       }
