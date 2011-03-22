@@ -58,10 +58,16 @@ sub parse_header {
 
    # unfold the header lines, but not the last blank line
    my $header = ${$r_header};
+
+   return if !defined $header || $header eq '';
+
    $header =~ s/\s+$//s;
    $header =~ s/\s*\n\s+/ /sg;
 
    my @headerlines = split(/\r*\n/, $header);
+
+   return unless scalar @headerlines > 0;
+
    $r_message->{delimiter} = shift(@headerlines) if $headerlines[0] =~ m/^From /;
 
    foreach my $headerline (@headerlines) {
