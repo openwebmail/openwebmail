@@ -1924,7 +1924,7 @@ sub sendmessage {
          $saveerr++;
       }
 
-      if ($do_save = 1 && $quotalimit > 0 && $quotausage >= $quotalimit) {
+      if ($do_save == 1 && $quotalimit > 0 && $quotausage >= $quotalimit) {
          $do_save = 0;
          $saveerrstr = gettext('Save draft aborted, the quota has been exceeded.');
          $saveerr++;
@@ -1932,11 +1932,11 @@ sub sendmessage {
    } else {
       # save message to sent folder and send
       $savefolder = $folder;
-      $savefolder = 'sent-mail' if !$prefs{backupsentoncurrfolder} || $folder eq '' || $folder =~ m/INBOX|saved-drafts/;
+      $savefolder = 'sent-mail' if !$prefs{backupsentoncurrfolder} || $folder eq '' || $folder =~ m/^(?:INBOX|saved-drafts)$/;
 
       $do_save = 0 if !$config{enable_backupsent} || $backupsent == 0;
 
-      if ($do_save = 1 && $quotalimit > 0 && $quotausage >= $quotalimit) {
+      if ($do_save == 1 && $quotalimit > 0 && $quotausage >= $quotalimit) {
          $do_save = 0;
          $saveerrstr = gettext('Message save aborted, the quota has been exceeded.');
          $saveerr++;

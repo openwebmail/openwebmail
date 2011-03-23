@@ -131,9 +131,9 @@
     <table cellpadding="0" cellspacing="0" border="0">
     <tr>
       <td><input type="text" name="replyto" value="<tmpl_var replyto escape="html">" size="45" accesskey="R">&nbsp;&nbsp;</td>
-      <td class="windowdarkbold">gettext('Confirm Reading')</td>
+      <td class="windowdarkbold"><label for="confirmreading">gettext('Confirm Reading')</label></td>
       <td>
-        <input type="checkbox" name="confirmreading" value="1" <tmpl_if confirmreading>checked</tmpl_if>>
+        <input type="checkbox" id="confirmreading" name="confirmreading" value="1" <tmpl_if confirmreading>checked</tmpl_if>>
       </td>
     </tr>
     </table>
@@ -187,8 +187,8 @@
         <input type="text" name="subject" value="<tmpl_var subject escape="html">" size="<tmpl_if enable_backupsent>45<tmpl_else>66</tmpl_if>" accesskey="S">&nbsp;&nbsp;
       </td>
       <tmpl_if enable_backupsent>
-      <td class="windowdarkbold">gettext('Backup sent message')</td>
-      <td><input type="checkbox" name="backupsent" value="1" <tmpl_if backupsent>checked</tmpl_if>></td>
+      <td class="windowdarkbold"><label for="backupsent">gettext('Backup sent message')</label></td>
+      <td><input type="checkbox" id="backupsent" name="backupsent" value="1" <tmpl_if backupsent>checked</tmpl_if>></td>
       </tmpl_if>
     </tr>
     </table>
