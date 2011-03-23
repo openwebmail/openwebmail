@@ -368,7 +368,7 @@ sub search_info_messages_for_keyword {
             # read and parse message
             seek($folderhandle, $attr[$_OFFSET], 0);
             read($folderhandle, $block, $attr[$_SIZE]);
-            ($header, $body, $r_attachments) = ow::mailparse::parse_rfc822block(\$block);
+            ($header, $body, $r_attachments) = ow::mailparse::parse_rfc822block(\$block, 0, 'all');
          }
 
          if ($searchtype eq 'all' || $searchtype eq 'textcontent') {

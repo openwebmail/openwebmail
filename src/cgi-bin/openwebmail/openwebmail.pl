@@ -302,7 +302,7 @@ sub login {
 
    # setuid is required if spool is located in system dir
    openwebmailerror(gettext('The following script must be setuid root to read the mail spools:') . " $0")
-     if ( $> != 0 && !$config{use_homedirspools} && ($config{mailspooldir} eq '/var/mail' || $config{mailspooldir} eq '/var/spool/mail'));
+     if ($> != 0 && !$config{use_homedirspools} && ($config{mailspooldir} eq '/var/mail' || $config{mailspooldir} eq '/var/spool/mail'));
 
    ow::auth::load($config{auth_module});
 
@@ -467,7 +467,7 @@ sub login {
 
    $thissession =~ s#\.\.+##g;  # remove ..
 
-   if ($thissession =~ /^([\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+)$/) {
+   if ($thissession =~ m/^([\w\.\-\%\@]+\*[\w\.\-]*\-session\-0\.\d+)$/) {
       local $1;          # fix perl $1 taintness propagation bug
       $thissession = $1; # untaint
    } else {

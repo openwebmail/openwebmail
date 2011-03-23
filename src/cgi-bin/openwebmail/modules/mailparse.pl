@@ -284,11 +284,24 @@ sub parse_rfc822block {
       } else {
          # null searchid means CGI is in returning html code or in context searching
          # thus content of an non-text based attachment is no need to be returned
-         my $bodylength=length(${$r_block})-($headerlen+1);
-         my $fakeddata="snipped...";
-         push(@attachments, make_attachment("","", "",\$fakeddata,$bodylength,
-					$msg{'content-transfer-encoding'},$msg{'content-type'}, "","","",$msg{'content-description'}, $nodeid) );
+         my $bodylength = length(${$r_block})-($headerlen+1);
+         my $fakeddata  = 'snipped...';
+         push(@attachments, make_attachment(
+                                              '',
+                                              '',
+                                              '',
+                                              \$fakeddata,$bodylength,
+                                              $msg{'content-transfer-encoding'},
+                                              $msg{'content-type'},
+                                              '',
+                                              '',
+                                              '',
+                                              $msg{'content-description'},
+                                              $nodeid
+                                           )
+             );
       }
+
       return($header, " ", \@attachments);
    }
 }
