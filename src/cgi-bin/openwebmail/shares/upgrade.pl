@@ -670,7 +670,7 @@ sub upgrade_all {
       }
    }
 
-   if ($user_releasedate lt '20101210') {
+   if ($user_releasedate lt '20110325') {
       # users preferences need to be updated to accomodate:
       # - new layouts
       # - renamed styles
@@ -733,29 +733,6 @@ sub upgrade_all {
 
          $prefs{iconset} = $newiconsets->{$prefs{iconset}} if exists $newiconsets->{$prefs{iconset}};
 
-         # get iconset configuration
-         my %iconset_config = ();
-
-         if ($prefs{iconset} !~ m/^Text$/) {
-            my $iconset_config = "$config{ow_htmldir}/images/iconsets/$prefs{iconset}/iconset.conf";
-            openwebmailerror(gettext('File does not exist:') . " $iconset_config") unless -f $iconset_config;
-
-            sysopen(ICONSETCONF, $iconset_config, O_RDONLY) or
-               openwebmailerror(gettext('Cannot open file:') . " $iconset_config ($!)");
-
-            while (defined(my $line = <ICONSETCONF>)) {
-               next if $line =~ m/^\s*$/ || $line =~ m/^#/;
-               my ($iconset_variable_name, $image_to_use) = $line =~ m/^([^\s]+)\s+([^\s]+)$/;
-               openwebmailerror(gettext('Invalid file format.'))
-                  unless defined $iconset_variable_name
-                         && $iconset_variable_name =~ m/^iconset_/
-                         && defined $image_to_use;
-               $iconset_config{$iconset_variable_name} = $image_to_use;
-            }
-
-            close(ICONSETCONF) or openwebmailerror(gettext('Cannot close file:') . " $iconset_config ($!)");
-         }
-
          sysopen(RC, $rcfile, O_WRONLY|O_TRUNC|O_CREAT) or
             openwebmailerror(gettext('Cannot open file:') . " $rcfile ($!)");
 
@@ -764,13 +741,11 @@ sub upgrade_all {
             print RC "$item=$prefs{$item}\n";
          }
 
-         print RC "$_=$iconset_config{$_}\n" for sort keys %iconset_config;
-
          close(RC) or
             openwebmailerror(gettext('Cannot close file:') . " $rcfile ($!)");
 
-         writehistory('release upgrade - openwebmailrc by 20101210');
-         writelog('release upgrade - openwebmailrc by 20101210');
+         writehistory('release upgrade - openwebmailrc by 20110325');
+         writelog('release upgrade - openwebmailrc by 20110325');
       }
    }
 

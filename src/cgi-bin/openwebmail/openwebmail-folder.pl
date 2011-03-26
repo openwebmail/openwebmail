@@ -82,7 +82,7 @@ ow::tool::has_module('Compress/Zlib.pm');
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
-use vars qw(%prefs);
+use vars qw(%prefs $icons);
 use vars qw($quotausage $quotalimit);
 
 # extern vars
@@ -214,9 +214,9 @@ sub editfolders {
                                url_cgi                     => $config{ow_cgiurl},
                                url_html                    => $config{ow_htmlurl},
                                use_texticon                => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
-                               iconset                     => $prefs{iconset},
                                charset                     => $prefs{charset},
-                               (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                               iconset                     => $prefs{iconset},
+                               (map { $_, $icons->{$_} } keys %{$icons}),
 
                                odd                         => (scalar @{$foldersloop} + 1) % 2 == 0 ? 0 : 1,
                                count                       => scalar @{$foldersloop} + 1,
@@ -261,9 +261,9 @@ sub editfolders {
                       url_cgi                    => $config{ow_cgiurl},
                       url_html                   => $config{ow_htmlurl},
                       use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
-                      iconset                    => $prefs{iconset},
                       charset                    => $prefs{charset},
-                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                      iconset                    => $prefs{iconset},
+                      (map { $_, $icons->{$_} } keys %{$icons}),
 
                       # editfolders.tmpl
                       enable_quota               => $enable_quota,

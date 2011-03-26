@@ -82,7 +82,7 @@ require "shares/adrbook.pl";
 ow::tool::has_module('Compress/Zlib.pm');
 
 # common globals
-use vars qw(%config $thissession $user %prefs);
+use vars qw(%config $thissession $user %prefs $icons);
 
 # extern vars
 use vars qw($htmltemplatefilters $po);                       # defined in ow-shared.pl
@@ -257,7 +257,7 @@ sub advsearch {
                                    url_html             => $config{ow_htmlurl},
                                    use_texticon         => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                    iconset              => $prefs{iconset},
-                                   (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                                   (map { $_, $icons->{$_} } keys %{$icons}),
 
                                    # results
                                    odd                  => $i % 2 == 0 ? 1 : 0,
@@ -310,7 +310,7 @@ sub advsearch {
                       url_html                   => $config{ow_htmlurl},
                       use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
-                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                      (map { $_, $icons->{$_} } keys %{$icons}),
 
                       # advsearch.tmpl
                       is_callerfolderdefault     => is_defaultfolder($folder) ? 1 : 0,

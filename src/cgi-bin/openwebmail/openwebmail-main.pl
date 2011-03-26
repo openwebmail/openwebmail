@@ -95,7 +95,7 @@ use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($default_logindomain);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
-use vars qw(%prefs);
+use vars qw(%prefs $icons);
 use vars qw($quotausage $quotalimit);
 
 # extern vars
@@ -103,9 +103,7 @@ use vars qw($htmltemplatefilters $po); # defined in ow-shared.pl
 use vars qw($_OFFSET $_SIZE $_HEADERSIZE $_HEADERCHKSUM $_RECVDATE $_DATE $_FROM $_TO $_SUBJECT $_CONTENT_TYPE $_CHARSET $_STATUS $_REFERENCES); # defined in maildb.pl
 
 # local globals
-use vars qw($folder $sort $msgdatetype);
-use vars qw($page $longpage);
-use vars qw($searchtype $keyword);
+use vars qw($folder $sort $msgdatetype $page $longpage $searchtype $keyword);
 use vars qw($pop3_fetches_complete);
 
 
@@ -669,7 +667,7 @@ sub listmessages {
                       use_texticon            => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},
-                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                      (map { $_, $icons->{$_} } keys %{$icons}),
 
                       # main_listview.tmpl
                       messagesperpagesummary  => sprintf(ngettext('%d message per page','%d messages per page', $msgsperpage), $msgsperpage),

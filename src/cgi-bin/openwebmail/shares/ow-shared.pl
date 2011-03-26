@@ -43,7 +43,7 @@ use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($default_logindomain $loginname $logindomain $loginuser);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
-use vars qw(%prefs %icontext);
+use vars qw(%prefs $icons);
 use vars qw($quotausage $quotalimit);
 use vars qw($htmltemplatefilters $po);
 
@@ -638,6 +638,7 @@ sub userenv_init {
       print gettext('This script must be setuid root:') . " $0";
       openwebmail_exit(0);
    }
+
    ow::auth::load($config{auth_module});
 
    $user = '';
@@ -667,7 +668,7 @@ sub userenv_init {
    $userconf = "$config{ow_usersconfdir}/$domain/$user" if $config{auth_withdomain};
    read_owconf(\%config, \%config_raw, $userconf) if -f $userconf;
 
-   # override auto guessing domainanmes if loginname has domain or domainselectmenu enabled
+   # override auto guessing domainnames if loginname has domain or domainselectmenu enabled
    if (${$config_raw{domainnames}}[0] eq 'auto' && ($loginname =~ m/\@/ || $config{enable_domainselectmenu})) {
       $config{domainnames} = [ $logindomain ];
    }
@@ -698,6 +699,7 @@ sub userenv_init {
    }
 
    %prefs = readprefs();
+   $icons = loadiconset($prefs{iconset});
    $po    = loadlang($prefs{locale});
    charset((ow::lang::localeinfo($prefs{locale}))[4]) if $CGI::VERSION >= 2.58; # setup charset of CGI module
 
@@ -828,7 +830,7 @@ sub read_owconf {
             $_ = ow::tool::untaint($_);
          }
       } else {
-         $r_config->{$key} =ow::tool::untaint($r_config->{$key});
+         $r_config->{$key} = ow::tool::untaint($r_config->{$key});
       }
    }
 
@@ -2695,6 +2697,40 @@ sub loadlang {
    } else {
       return OWM::PO->new(file => "$config{ow_langdir}/en_US.UTF-8.po");
    }
+}
+
+sub loadiconset {
+   my $iconset = shift || $prefs{iconset} || $config{default_iconset};
+
+   # get iconset configuration
+   my $iconset_hash = {};
+
+   return $iconset_hash if $iconset =~ m/^Text$/;
+
+   $iconset = $config{default_iconset} if !-f "$config{ow_htmldir}/images/iconsets/$iconset/iconset.conf";
+   $iconset = 'classic'                if !-f "$config{ow_htmldir}/images/iconsets/$iconset/iconset.conf";
+
+   $prefs{iconset} = $iconset if $prefs{iconset} ne $iconset;
+
+   my $iconset_config = "$config{ow_htmldir}/images/iconsets/$iconset/iconset.conf";
+   openwebmailerror(gettext('File does not exist:') . " $iconset_config") unless -f $iconset_config;
+
+   sysopen(ICONSETCONF, $iconset_config, O_RDONLY) or
+      openwebmailerror(gettext('Cannot open file:') . " $iconset_config ($!)");
+
+   while (defined(my $line = <ICONSETCONF>)) {
+      next if $line =~ m/^\s*$/ || $line =~ m/^#/;
+      my ($iconset_variable_name, $image_to_use) = $line =~ m/^([^\s]+)\s+([^\s]+)$/;
+      openwebmailerror(gettext('Invalid file format.'))
+         unless defined $iconset_variable_name
+                && $iconset_variable_name =~ m/^iconset_/
+                && defined $image_to_use;
+      $iconset_hash->{$iconset_variable_name} = $image_to_use;
+   }
+
+   close(ICONSETCONF) or openwebmailerror(gettext('Cannot close file:') . " $iconset_config ($!)");
+
+   return $iconset_hash;
 }
 
 sub jgettext  {

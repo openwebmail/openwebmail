@@ -93,7 +93,7 @@ ow::tool::has_module('Compress/Zlib.pm');
 use vars qw(%config %config_raw);
 use vars qw($thissession);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
-use vars qw(%prefs);
+use vars qw(%prefs $icons);
 use vars qw($quotausage $quotalimit);
 
 # extern vars
@@ -611,7 +611,7 @@ sub readmessage {
       $messagesloop->[$i]{use_texticon}          = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
       $messagesloop->[$i]{use_fixedfont}         = $prefs{usefixedfont};
       $messagesloop->[$i]{iconset}               = $prefs{iconset};
-      $messagesloop->[$i]{$_}                    = $prefs{$_} for grep { m/^iconset_/ } keys %prefs;
+      $messagesloop->[$i]{$_}                    = $icons->{$_} for keys %{$icons};
 
       # non-standard
       $messagesloop->[$i]{enable_userfilter}     = $config{enable_userfilter};
@@ -780,7 +780,7 @@ sub readmessage {
          $messagesloop->[$i]{attachment}[$n]{use_texticon}          = $prefs{iconset} =~ m/^Text$/ ? 1 : 0;
          $messagesloop->[$i]{attachment}[$n]{use_fixedfont}         = $prefs{usefixedfont};
          $messagesloop->[$i]{attachment}[$n]{iconset}               = $prefs{iconset};
-         $messagesloop->[$i]{attachment}[$n]{$_}                    = $prefs{$_} for grep { m/^iconset_/ } keys %prefs;
+         $messagesloop->[$i]{attachment}[$n]{$_}                    = $icons->{$_} for keys %{$icons};
 
          # non-standard
          $messagesloop->[$i]{attachment}[$n]{enable_addressbook}    = $config{enable_addressbook};
@@ -1167,9 +1167,9 @@ sub readmessage {
                       url_html                => $config{ow_htmlurl},
                       use_texticon            => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont           => $prefs{usefixedfont},
-                      iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},
-                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                      iconset                 => $prefs{iconset},
+                      (map { $_, $icons->{$_} } keys %{$icons}),
 
                       # read_readmessage.tmpl
                       folderselectloop        => $folderselectloop,

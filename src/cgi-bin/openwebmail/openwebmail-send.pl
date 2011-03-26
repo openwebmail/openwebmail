@@ -88,7 +88,7 @@ require "shares/statbook.pl";
 ow::tool::has_module('Compress/Zlib.pm');
 
 # common globals
-use vars qw(%config $thissession %prefs);
+use vars qw(%config $thissession %prefs $icons);
 use vars qw($loginname $logindomain $loginuser);
 use vars qw($domain $user $userrealname $uuid $ugid $homedir);
 use vars qw($quotausage $quotalimit);
@@ -1215,9 +1215,9 @@ sub compose {
                       url_html                => $config{ow_htmlurl},
                       use_texticon            => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont           => $prefs{usefixedfont},
-                      iconset                 => $prefs{iconset},
                       charset                 => $prefs{charset},
-                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                      iconset                 => $prefs{iconset},
+                      (map { $_, $icons->{$_} } keys %{$icons}),
 
                       # addressbook params
                       abookfolder             => $abookfolder,
@@ -3155,9 +3155,9 @@ sub replyreceipt {
                       url_html        => $config{ow_htmlurl},
                       use_texticon    => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       use_fixedfont   => $prefs{usefixedfont},
-                      iconset         => $prefs{iconset},
                       charset         => $prefs{charset},
-                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                      iconset         => $prefs{iconset},
+                      (map { $_, $icons->{$_} } keys %{$icons}),
 
                       # send_replyreceipt.tmpl
                       success         => $success,

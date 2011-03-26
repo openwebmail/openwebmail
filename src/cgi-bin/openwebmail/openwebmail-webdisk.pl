@@ -96,12 +96,12 @@ ow::tool::has_module('Compress/Zlib.pm');
 use vars qw(%config);
 use vars qw($thissession);
 use vars qw($domain $user $homedir);
-use vars qw(%prefs);
+use vars qw($quotausage $quotalimit);
+use vars qw(%prefs $icons);
 use vars qw($htmltemplatefilters $po);     # defined in ow-shared.pl
 
 # local globals
 use vars qw($folder $messageid $sort $msgdatetype $page $longpage $searchtype $keyword);
-use vars qw($quotausage $quotalimit);
 use vars qw($webdiskrootdir $wdpage $wdsearchtype $wdkeyword);
 
 # BEGIN MAIN PROGRAM
@@ -575,7 +575,7 @@ sub showdir {
                                  url_html      => $config{ow_htmlurl},
                                  use_texticon  => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                  iconset       => $prefs{iconset},
-                                 (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                                 (map { $_, $icons->{$_} } keys %{$icons}),
 
                                  # filesloop
                                  wdpage        => $wdpage,
@@ -653,7 +653,7 @@ sub showdir {
                       url_html                   => $config{ow_htmlurl},
                       use_texticon               => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset                    => $prefs{iconset},
-                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                      (map { $_, $icons->{$_} } keys %{$icons}),
 
                       # webdisk_showdir.tmpl
                       wdpage                     => $wdpage,
@@ -799,7 +799,7 @@ sub mkpathloop {
                    url_html     => $config{ow_htmlurl},
                    use_texticon => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                    iconset      => $prefs{iconset},
-                   (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                   (map { $_, $icons->{$_} } keys %{$icons}),
 
                    # pathloop
                    wdpage       => $wdpage,
@@ -859,7 +859,7 @@ sub mkheadersloop {
                    url_html      => $config{ow_htmlurl},
                    use_texticon  => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                    iconset       => $prefs{iconset},
-                   (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                   (map { $_, $icons->{$_} } keys %{$icons}),
 
                    # headersloop
                    wdpage        => $wdpage,
@@ -2324,7 +2324,7 @@ sub dirfilesel {
                                 url_html          => $config{ow_htmlurl},
                                 use_texticon      => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                                 iconset           => $prefs{iconset},
-                                (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                                (map { $_, $icons->{$_} } keys %{$icons}),
 
                                 # filesloop
                                 wdpage            => $wdpage,
@@ -2385,7 +2385,7 @@ sub dirfilesel {
                       url_html          => $config{ow_htmlurl},
                       use_texticon      => $prefs{iconset} =~ m/^Text$/ ? 1 : 0,
                       iconset           => $prefs{iconset},
-                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                      (map { $_, $icons->{$_} } keys %{$icons}),
 
                       # webdisk_dirfilesel.tmpl
                       wdpage            => $wdpage,

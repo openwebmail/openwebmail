@@ -77,8 +77,7 @@ require "shares/iconv.pl";
 ow::tool::has_module('Compress/Zlib.pm');
 
 # common globals
-use vars qw(%config $thissession %prefs);
-use vars qw($homedir);
+use vars qw(%config $thissession %prefs $icons $homedir);
 
 # extern vars
 use vars qw($htmltemplatefilters $po); # defined in ow-shared.pl
@@ -200,7 +199,7 @@ sub editrules {
                       folder                     => $folder,
                       sort                       => $sort,
                       page                       => $page,
-                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                      (map { $_, $icons->{$_} } keys %{$icons}),
 
                       # sa_editrules.pl
                       prefs_caller               => $prefs_caller,
@@ -320,7 +319,7 @@ sub editlist {
                       folder                     => $folder,
                       sort                       => $sort,
                       page                       => $page,
-                      (map { $_, $prefs{$_} } grep { m/^iconset_/ } keys %prefs),
+                      (map { $_, $icons->{$_} } keys %{$icons}),
 
                       # sa_edittest.pl
                       prefs_caller               => $prefs_caller,
