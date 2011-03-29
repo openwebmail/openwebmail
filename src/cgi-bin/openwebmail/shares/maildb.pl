@@ -635,6 +635,9 @@ sub update_folderindex {
          $newmessages++;
       }
 
+      writelog("warning - writing message $id with size 0 to db $folderdb (status $message{status})")
+         if $message{size} == 0;
+
       # write this message to the db (tied db)
       $FDB{$id} = msgattr2string(
                                    $message{offset},
@@ -898,7 +901,7 @@ sub get_message_block {
    }
 
    if ($attr[$_SIZE] <= 0) {
-      writelog("message size $attr[$_SIZE] for message $messageid in db $folderdb is invalid");
+      writelog(ow::tool::stacktrace("message size $attr[$_SIZE] for message $messageid in db $folderdb is invalid"));
       return -2;
    }
 
@@ -1963,6 +1966,7 @@ sub string2msgattr {
    # us-ascii
    # RO
    # <20050320225023.M10321@acatysmoof.com> <000b01c52f35$a8e9bd70$6602a8c0@typo> <20050322235332.M67567@acatysmoof.com>'
+
    $attr[$_OFFSET]       = 0 unless defined $attr[$_OFFSET];
    $attr[$_SIZE]         = 0 unless defined $attr[$_SIZE];
    $attr[$_HEADERSIZE]   = 0 unless defined $attr[$_HEADERSIZE];

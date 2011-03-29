@@ -133,7 +133,7 @@ sub filtermessage {
       openwebmailerror(gettext('Cannot update index db:') . ' ' . f2u($folderdb));
    }
 
-   writelog("debug_mailfilter :: $folder :: update index complete - begin filtering") if $config{debug_mailfilter};
+   writelog("debug_mailfilter :: $folder :: update index db complete - begin filtering") if $config{debug_mailfilter};
 
    my @allmessageids = ();
 
@@ -159,10 +159,10 @@ sub filtermessage {
       return 0;
    }
 
-   writelog("debug_mailfilter :: $folder :: ready to filter " . scalar @allmessageids . " messages") if $config{debug_mailfilter};
+   writelog("debug_mailfilter :: $folder :: ready to filter " . scalar @allmessageids . " messages (no V or Z status)") if $config{debug_mailfilter};
 
    if ($r_prefs->{bgfilterthreshold} > 0 && scalar @allmessageids >= $r_prefs->{bgfilterthreshold}) {
-      # release folder lock before fork, the forked child does lock in per message basis
+      # release folder lock before fork, the forked child does lock on a per-message basis
       ow::filelock::lock($folderfile, LOCK_UN) or writelog("cannot unlock file $folderfile");
 
       local $_filter_complete = 0;
@@ -353,8 +353,6 @@ sub filter_allmessageids {
          my $process_id = <F>;
          close(F) or writelog("cannot close file $pidfile ($!)");
 
-         writelog("debug_mailfilter :: opened pidfile $pidfile") if $config{debug_mailfilter};
-
          if ($process_id ne $$) {
             writelog("debug_mailfilter :: bg process terminated :: another filter pid=$process_id is active") if $config{debug_mailfilter};
             openwebmail_exit(0);
@@ -364,12 +362,15 @@ sub filter_allmessageids {
          my $curr_metainfo = ow::tool::metainfo($folderfile);
 
          if ($metainfo ne $curr_metainfo) {
-            my $lockget_messagesize = lockget_messageids($folderfile, $folderdb, $r_allmessageids);
+            my ($lockget_returnvalue, $lockget_errormessage) = lockget_messageids($folderfile, $folderdb, $r_allmessageids);
 
-            openwebmail_exit(0) if $lockget_messagesize < 0;
+            if ($lockget_returnvalue < 0) {
+               writelog("lockget error on folder $folderfile :: $lockget_errormessage");
+               openwebmail_exit(0);
+            }
 
             $i = $#{$r_allmessageids};
-            writelog("debug_mailfilter :: reload $i msgids :: $folderfile is changed") if $config{debug_mailfilter};
+            writelog("debug_mailfilter :: reloaded $i msgids :: $folderfile metainfo did not match anymore") if $config{debug_mailfilter};
 
             # update filter.check with the current metainfo
             if (!sysopen(FILTERCHECK, $filtercheckfile, O_WRONLY|O_TRUNC|O_CREAT)) {
@@ -405,6 +406,21 @@ sub filter_allmessageids {
       my $to_be_moved            = 0;
 
       my @attr = get_message_attributes($messageid_i, $folderdb);
+
+      writelog("debug_mailfilter :: got message $messageid_i attributes:
+                _OFFSET       = $attr[$_OFFSET]
+                _SIZE         = $attr[$_SIZE]
+                _HEADERSIZE   = $attr[$_HEADERSIZE]
+                _HEADERCHKSUM = $attr[$_HEADERCHKSUM]
+                _RECVDATE     = $attr[$_RECVDATE]
+                _DATE         = $attr[$_DATE]
+                _FROM         = $attr[$_FROM]
+                _TO           = $attr[$_TO]
+                _SUBJECT      = $attr[$_SUBJECT]
+                _CONTENT_TYPE = $attr[$_CONTENT_TYPE]
+                _CHARSET      = $attr[$_CHARSET]
+                _STATUS       = $attr[$_STATUS]
+                _REFERENCES   = $attr[$_REFERENCES]") if $config{debug_mailfilter};
 
       if (scalar @attr < 1) {
          # message not found in db

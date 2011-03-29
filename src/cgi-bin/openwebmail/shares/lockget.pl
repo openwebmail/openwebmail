@@ -53,6 +53,7 @@ sub lockget_messageids {
       }
    }
 
+   # populate the array ref with the messageids
    @{$r_messageids} = get_messageids_sorted_by_offset($folderdb);
 
    if (!$has_globallock) {
