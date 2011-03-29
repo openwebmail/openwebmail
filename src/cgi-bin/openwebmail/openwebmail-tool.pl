@@ -73,6 +73,7 @@ umask(0002);
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
 use Net::SMTP;
+use Cwd 'abs_path';
 
 # load OWM libraries
 require "modules/dbm.pl";
@@ -353,13 +354,59 @@ ps: <folder> can be INBOX, ALL or folder filename
 sub init {
    print "\n";
 
-   my $err=do_test(1);
-   if ($err<0) {
+   my $err = do_test(1);
+
+   if ($err < 0) {
       print qq|And execute '$SCRIPT_DIR/openwebmail-tool.pl --init' again!\n\n|.
             qq|ps: If you are running openwebmail in persistent mode,\n|.
             qq|    don't forget to 'touch openwebmail*.pl', so speedycgi\n|.
             qq|    will reload all scripts, modules and conf files in --init.\n\n|;
       return $err;
+   }
+
+   if ($] gt "5.011005") {
+      print qq|The version of Perl on your system ($]) does not support set user id.\n|.
+            qq|Attempting to wrap the openwebmail perl files in a C wrapper to enable set\n|.
+            qq|user id capability...\n\n|;
+
+      my $compiler = -x '/usr/bin/cc'        ? '/usr/bin/cc'        :
+                     -x '/usr/bin/gcc'       ? '/usr/bin/gcc'       :
+                     -x '/usr/local/bin/gcc' ? '/usr/local/bin/gcc' :
+                     die "No C compiler found. Please install a C compiler and try again.";
+
+      print "   Found C compiler $compiler\n";
+
+      opendir(DIR, $SCRIPT_DIR) or die "Cannot open directory: $SCRIPT_DIR";
+      my @files = grep { -f "$SCRIPT_DIR/$_" && m/^openwebmail.*\.pl$/ } readdir(DIR);
+      closedir(DIR) or die "Cannot close directory: $SCRIPT_DIR";
+
+      chdir($SCRIPT_DIR) or die "Cannot change directory to: $SCRIPT_DIR";
+
+      foreach my $file (@files) {
+         $file = ow::tool::untaint($file);
+         print "   wrapping file: $file...";
+         my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($file);
+         chmod $mode & 01777, $file; # wipe out set[ug]id bits
+         rename($file, ".$file") or die "Cannot rename file: $file -> .$file";
+         open(C,">.tmp$$.c") || die "Cannot open file: .tmp$$.c";
+         print C '
+                  main(argc,argv)
+                  int argc;
+                  char **argv;
+                  {
+                     execv("' . abs_path(".$file") . '",argv);
+                  }
+                 ' . "\n";
+         close C;
+         system($compiler, ".tmp$$.c", '-o', $file);
+         die "Compile error for .tmp$$.c: $?" if $?;
+         chmod $mode, $file;
+         chown $uid, $gid, $file;
+         unlink ".tmp$$.c";
+         print "done\n";
+      }
+
+      print "\n";
    }
 
    foreach my $table ('b2g', 'g2b', 'lunar') {
@@ -438,9 +485,11 @@ sub init {
 }
 
 sub do_test {
-   my ($in_init)=@_;
-   my $err=0;
-   print "\n" if (!$in_init);
+   my $in_init = shift;
+
+   my $err = 0;
+
+   print "\n" unless $in_init;
 
    if ($MIME::Base64::VERSION lt '3.00') {
       $err--;
