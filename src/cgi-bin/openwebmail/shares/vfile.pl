@@ -188,7 +188,11 @@ sub parsevfileline {
                # Send it to a parser for further handling.
                if (defined $supported_parsers{${$r_vtype}}) {
                   # load the parser
-                  eval {require "shares/$supported_parsers{${$r_vtype}}[0]"};
+                  eval {
+                          no warnings 'all';
+                          local $SIG{'__DIE__'};
+                          require "shares/$supported_parsers{${$r_vtype}}[0]";
+                       };
                   openwebmailerror(gettext('Cannot load vfile parser module:') . " shares/$supported_parsers{${$r_vtype}}[0]  ($@)") if $@;
 
                   my $r_parsedvobject = $supported_parsers{${$r_vtype}}[1]->(${$r_vcontents},${$r_vversion},$r_onlyreturn);
@@ -237,7 +241,11 @@ sub outputvfile {
 
    if (defined $supported_parsers{$outputtype}[2]) {
       # load the parser
-      eval { require "shares/$supported_parsers{$outputtype}[0]" };
+      eval {
+              no warnings 'all';
+              local $SIG{'__DIE__'};
+              require "shares/$supported_parsers{$outputtype}[0]";
+           };
       openwebmailerror(gettext('Cannot load vfile parser module:') . " shares/$supported_parsers{$outputtype}[0]  ($@)") if $@;
 
       # return the output text

@@ -65,21 +65,24 @@ sub fetchmail {
    my @result = ();
 
    eval {
-      alarm 60;
+           no warnings 'all';
+           local $SIG{'__DIE__'};
 
-      local $SIG{ALRM} = sub { die "alarm\n" };
+           alarm 60;
 
-      if ($pop3ssl && ow::tool::has_module('IO/Socket/SSL.pm')) {
-         $socket = new IO::Socket::SSL (PeerAddr => $pop3host, PeerPort => $pop3port, Proto => 'tcp');
-      } else {
-         $pop3port = 110 if $pop3ssl && $pop3port == 995;
-         $socket = new IO::Socket::INET (PeerAddr => $pop3host, PeerPort => $pop3port, Proto => 'tcp');
-      }
+           local $SIG{ALRM} = sub { die "alarm\n" };
 
-      $socket->autoflush(1);
+           if ($pop3ssl && ow::tool::has_module('IO/Socket/SSL.pm')) {
+              $socket = new IO::Socket::SSL (PeerAddr => $pop3host, PeerPort => $pop3port, Proto => 'tcp');
+           } else {
+              $pop3port = 110 if $pop3ssl && $pop3port == 995;
+              $socket = new IO::Socket::INET (PeerAddr => $pop3host, PeerPort => $pop3port, Proto => 'tcp');
+           }
 
-      alarm 0;
-   };
+           $socket->autoflush(1);
+
+           alarm 0;
+        };
 
    return(-1, 'connection timeout') if $@;
    return(-1, 'connection refused') unless $socket;
@@ -397,12 +400,14 @@ sub sendcmd {
    my $ret = '';
 
    eval {
-      alarm $timeout;
-      local $SIG{ALRM} = sub { die "alarm\n" };
-      print $socket $cmd;
-      $ret = <$socket>;
-      alarm 0;
-   };
+           no warnings 'all';
+           local $SIG{'__DIE__'};
+           alarm $timeout;
+           local $SIG{ALRM} = sub { die "alarm\n" };
+           print $socket $cmd;
+           $ret = <$socket>;
+           alarm 0;
+        };
 
    return 0 if $@;         # timeout
    return 0 if $ret eq ''; # socket not available?
@@ -424,11 +429,13 @@ sub readdata {
    ${$r_line} = ''; # empty line buff
 
    eval {
-      alarm $timeout;
-      local $SIG{ALRM} = sub { die "alarm\n" };
-      ${$r_line} = <$socket>;
-      alarm 0;
-   };
+           no warnings 'all';
+           local $SIG{'__DIE__'};
+           alarm $timeout;
+           local $SIG{ALRM} = sub { die "alarm\n" };
+           ${$r_line} = <$socket>;
+           alarm 0;
+        };
 
    return 0 if $@;               # timeout
    return 0 if ${$r_line} eq ''; # socket not available?

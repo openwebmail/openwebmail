@@ -96,18 +96,25 @@ sub flock_lock {
    # turn nonblocking lock to  30 secs timeouted lock
    # so owm gets higher chance to success in case other ap locks same file for only few secs
    # turn blocking    lock to 120 secs timeouted lock
-   # so openwebmaill won't hang because of file locking
+   # so openwebmail will not hang because of file locking
    eval {
-      local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
-      if ( $lockflag & LOCK_NB ) {	# nonblocking lock
-         alarm 30;
-      } else {
-         alarm 120;
-      }
-      $retval=flock($fh, $lockflag&(~LOCK_NB));
-      alarm 0;
-   };
+           no warnings 'all';
+           local $SIG{'__DIE__'};
+
+           local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
+
+           if ( $lockflag & LOCK_NB ) {	# nonblocking lock
+              alarm 30;
+           } else {
+              alarm 120;
+           }
+
+           $retval=flock($fh, $lockflag&(~LOCK_NB));
+           alarm 0;
+        };
+
    $retval=0 if ($@);	# eval error, it means timeout
+
    $opentable{"$dev-$inode"}{n}++ if ($retval);
 
    return($retval);

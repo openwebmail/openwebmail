@@ -224,12 +224,14 @@ sub guessoptions {
    ow::filelock::lock("$testdir/test$dbm_ext", LOCK_EX);
 
    eval {
-      local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
-      alarm 5;	# timeout 5 sec
-      dbmopen(%DB, "$testdir/test$dbmopen_ext", 0600);
-      dbmclose(%DB);
-      alarm 0;
-   };
+           no warnings 'all';
+           local $SIG{'__DIE__'};
+           local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
+           alarm 5;	# timeout 5 sec
+           dbmopen(%DB, "$testdir/test$dbmopen_ext", 0600);
+           dbmclose(%DB);
+           alarm 0;
+        };
 
    # eval error, it means timeout
    $dbmopen_haslock = $@ ? 1 : 0;

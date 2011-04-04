@@ -191,7 +191,14 @@ sub has_module {
    my $module = shift;
    return 1 if (defined $INC{$module});
    return 0 if ($_has_module_err{$module});
-   eval { require $module; };	# test module existance and load if it exists
+
+   eval {
+           # test module existance and load if it exists
+           no warnings 'all';
+           local $SIG{'__DIE__'};
+           require $module;
+        };
+
    if ($@) {
       $_has_module_err{$module} = 1;
       return 0;
@@ -531,13 +538,23 @@ sub untaint {
 
 sub is_tainted {
    # this subroutine comes from the perlsec documentation
-   return ! eval { eval('#' . substr(join('', @_), 0, 0)); 1 };
+   return ! eval {
+                    no warnings 'all';
+                    local $SIG{'__DIE__'};
+                    eval('#' . substr(join('', @_), 0, 0));
+                    1;
+                 };
 }
 
 sub is_regex {
    my $teststring = shift;
    return 0 unless defined $teststring && $teststring !~ m/^\s*$/;
-   return eval { my $is_valid = qr/$teststring/; 1; };
+   return eval {
+                  no warnings 'all';
+                  local $SIG{'__DIE__'};
+                  my $is_valid = qr/$teststring/;
+                  1;
+               };
 }
 
 sub zombie_cleaner {

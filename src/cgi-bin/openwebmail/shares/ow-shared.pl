@@ -511,6 +511,12 @@ $htmltemplatefilters = [
                             format => 'scalar' },
                        ];
 
+# preload the configuration for this site and language to support
+# error messages before openwebmail_requestbegin or in openwebmail-tool.pl
+load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
+read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if -f "$SCRIPT_DIR/etc/openwebmail.conf";
+$po = loadlang($config{default_locale});
+
 sub openwebmail_requestbegin {
    # routine used at the beginning of every CGI request
    # init euid/egid to nobody to drop uid www as early as possible

@@ -29,7 +29,12 @@ sub execute {
 
    local $| = 1;                        # flush CGI related output in parent
 
-   eval { $childpid = open3(\*cmdIN, \*cmdOUT, \*cmdERR, @cmd); };
+   eval {
+           no warnings 'all';
+           local $SIG{'__DIE__'};
+           $childpid = open3(\*cmdIN, \*cmdOUT, \*cmdERR, @cmd);
+        };
+
    if ($@) {			# open3 return err only in child
       if ($$!=$mypid){ 		# child
          print STDERR $@;	# pass $@ to parent through stderr pipe
