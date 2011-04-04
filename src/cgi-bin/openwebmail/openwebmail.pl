@@ -115,7 +115,7 @@ foreach my $table ('b2g', 'g2b', 'lunar') {
      if exists $config{$table . '_map'} && $config{$table . '_map'} && !ow::dbm::existdb("$config{ow_mapsdir}/$table");
 }
 
-if (defined $config{logfile}) {
+if (defined $config{logfile} && $config{logfile} ne '') {
    if (!-f $config{logfile}) {
       sysopen(LOGFILE, $config{logfile}, O_WRONLY|O_APPEND|O_CREAT, 0660) or
          openwebmailerror(gettext('Cannot open file:') . " $config{logfile} ($!)");
@@ -189,6 +189,7 @@ sub loginmenu {
    openwebmailerror(gettext('Service is not available for the domain:') . " $logindomain")
      unless matchlist_exact('allowed_serverdomain', $logindomain);
 
+   # load the etc/sites.conf/domain file if it exists
    read_owconf(\%config, \%config_raw, "$config{ow_sitesconfdir}/$logindomain") if -f "$config{ow_sitesconfdir}/$logindomain";
 
    # setuid is required if spool is located in system dir
@@ -307,7 +308,7 @@ sub login {
    ow::auth::load($config{auth_module});
 
    # create domain logfile
-   if ($config{logfile}) {
+   if (defined $config{logfile} && $config{logfile} ne '') {
       my $mailgid = getgrnam('mail');
       my ($fmode, $fuid, $fgid) = (stat($config{logfile}))[2,4,5];
       if ( !($fmode & 0100000) ) {

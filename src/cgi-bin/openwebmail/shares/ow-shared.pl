@@ -493,13 +493,6 @@ foreach my $opttype ('yesno', 'none', 'list') {
                           webdisk_fileeditrows
                        );
 
-# load the configuration for this site
-load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
-read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if -f "$SCRIPT_DIR/etc/openwebmail.conf";
-
-# load the default locale language strings
-$po = loadlang($config{default_locale});
-
 $htmltemplatefilters = [
                           # translate and escape strings identified with jgettext('') using the po file for this locale
                           { sub => sub { my $text_aref = shift; s#(jgettext\(["'](.+?)["']\))#jgettext($2)#ige for @{$text_aref} },
@@ -543,10 +536,18 @@ sub openwebmail_requestbegin {
    }
 
    # ow::tool::zombie_cleaner();          # clear pending zombies
-   openwebmail_clearall() if $_vars_used; # clear global
+   openwebmail_clearall() if $_vars_used; # clear global vars to keep persistence clean
    $_vars_used = 1;
+
    $SIG{PIPE} = \&openwebmail_exit;       # for user stop
    $SIG{TERM} = \&openwebmail_exit;       # for user stop
+
+   # load the configuration for this site
+   load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
+   read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if -f "$SCRIPT_DIR/etc/openwebmail.conf";
+
+   # load the default locale language strings
+   $po = loadlang($config{default_locale});
 }
 
 sub openwebmail_requestend {
