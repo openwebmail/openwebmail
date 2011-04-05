@@ -841,10 +841,18 @@ sub filter_allmessageids {
                   my ($hdr_user, $hdr_domain) = split(/\@/, (ow::tool::email2nameaddr($attr[$_FROM]))[1]);
                   my ($env_user, $env_domain) = split(/\@/, $envelopefrom);
                   if (
-                        $hdr_user ne $env_user
+                        (
+                           defined $hdr_user
+                           && defined $env_user
+                           && $hdr_user ne $env_user
+                        )
                         ||
                         (
-                           $hdr_domain ne ''
+                           defined $hdr_user
+                           && defined $env_user
+                           && defined $hdr_domain
+                           && defined $env_domain
+                           && $hdr_domain ne ''
                            && $env_domain ne ''
                            && $hdr_domain !~ m/\Q$env_domain\E/i
                            && $env_domain !~ m/\Q$hdr_domain\E/i

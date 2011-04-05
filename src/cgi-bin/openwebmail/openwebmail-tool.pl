@@ -385,6 +385,12 @@ sub init {
       foreach my $file (@files) {
          $file = ow::tool::untaint($file);
          print "   wrapping file: $file...";
+
+         if (-f ".$file") {
+            print "wrapped file already exists, skipping\n";
+            next;
+         }
+
          my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime,$blksize,$blocks) = stat($file);
          chmod $mode & 01777, $file; # wipe out set[ug]id bits
          rename($file, ".$file") or die "Cannot rename file: $file -> .$file";
@@ -464,7 +470,7 @@ sub init {
       print qq|$content\n|.
              qq|No site report sent.\n|;
    } else {
-      print qq|Welcome to OpenWebMail!\n\n|.
+      print qq|\nWelcome to OpenWebMail!\n\n|.
             qq|This program is going to send a short message back to the developers\n|.
             qq|to give us statistics for future development. The content to be sent is:\n\n|.
             qq|$content\n|.
