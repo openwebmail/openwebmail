@@ -1534,11 +1534,11 @@ sub sort_emails_by_domainnames {
 }
 
 sub is_http_compression_enabled {
-   return 1 if cookie('ow-httpcompress')
-               && exists $ENV{HTTP_ACCEPT_ENCODING}
+   return 1 if exists $ENV{HTTP_ACCEPT_ENCODING}
                && defined $ENV{HTTP_ACCEPT_ENCODING}
                && $ENV{HTTP_ACCEPT_ENCODING} =~ m/\bgzip\b/
-               && ow::tool::has_module('Compress/Zlib.pm');
+               && ow::tool::has_module('Compress/Zlib.pm')
+               && cookie('ow-httpcompress');
    return 0;
 }
 
