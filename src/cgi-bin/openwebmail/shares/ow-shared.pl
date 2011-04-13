@@ -33,6 +33,7 @@ use warnings FATAL => 'all';
 
 use lib 'lib';
 use Fcntl qw(:DEFAULT :flock);
+use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use HTML::Template 2.9;
 use OWM::PO;
 

@@ -1625,7 +1625,7 @@ Xinha.prototype._createToolbar = function ()
     if(e.tagName) e.unselectable = "on";        
     if(e.childNodes)
     {
-      for(var i = 0; i < e.childNodes.length; i++) if(e.tagName) noselect(e.childNodes(i));
+      for(var i = 0; i < e.childNodes.length; i++) if(e.tagName) noselect(e.childNodes.item(i));
     }
 	}
 	if(Xinha.is_ie) noselect(toolbar);
