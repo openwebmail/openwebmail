@@ -55,7 +55,7 @@ umask(0002);
 
 # load non-OWM libraries
 use Fcntl qw(:DEFAULT :flock);
-use CGI 3.31 qw(-private_tempfiles :standard);
+use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use CGI::Carp qw(fatalsToBrowser carpout);
 
 # load OWM libraries
