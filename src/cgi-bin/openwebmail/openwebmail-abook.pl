@@ -993,7 +993,7 @@ sub addrlistview {
                       xowmuidsloop               => [ map { { xowmuid => $_ } } @xowmuids ],
                       abook_addrperpage          => $addrperpage,
                       abook_addrperpagestring    => sprintf(ngettext('%d address per page','%d addresses per page',$addrperpage), $addrperpage),
-                      enable_quickadd            => is_abookfolder_writable($abookfolder) && $action ne 'addrimportattachment',
+                      enable_quickadd            => is_abookfolder_writable($abookfolder) && $main::action ne 'addrimportattachment',
                       showbuttons_before         => $prefs{abook_buttonposition} ne 'after' ? 1 : 0, # before or both
                       fieldorderloop             => [
                                                        map { {
@@ -3918,7 +3918,7 @@ sub internal_sort {
                                                      ]
                                                    } @{$contacts->{$xowmuid}{EMAIL}};
 
-            if ($action eq 'addrlistview' || ($action eq 'addredit' && param('save'))) {
+            if ($main::action eq 'addrlistview' || ($main::action eq 'addredit' && param('save'))) {
                if (exists $contacts->{$xowmuid}{'X-OWM-GROUP'}) {
                  # collapse all the email addresses into an additional "All Members" entry
                  unshift(@{$contacts->{$xowmuid}{EMAIL}}, {

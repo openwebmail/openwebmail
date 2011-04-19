@@ -287,11 +287,11 @@ if ($action eq 'mkdir') {
    showdir($currentdir, $gotodir, $filesort, $wdpage, $msg);
 } elsif ($action eq 'send_addatt') {
    # used in message compose to add an attachment
-   dirfilesel($action, $currentdir, $gotodir, $filesort, $wdpage);
+   dirfilesel($currentdir, $gotodir, $filesort, $wdpage);
 } elsif ($action eq 'send_saveatt' || $action eq 'read_saveatt') {
    # send_saveatt used in message compose to save an attachment
    # read_saveatt used in message reading to save an attachment
-   dirfilesel($action, $currentdir, $gotodir, $filesort, $wdpage);
+   dirfilesel($currentdir, $gotodir, $filesort, $wdpage);
 } elsif ($action eq 'userrefresh')  {
    $quotausage = (ow::quota::get_usage_limit(\%config, $user, $homedir, 1))[2]
       if $config{quota_module} ne 'none';
@@ -673,7 +673,7 @@ sub showdir {
                       isroot                     => $currentdir eq '/',
                       parentdir                  => absolute_vpath($currentdir, ".."),
                       filesort                   => $filesort,
-                      gotodir                    => $gotodir,
+                      gotodir                    => $newdir,
                       prevpage                   => ($wdpage > 1) ? $wdpage - 1 : '',
                       nextpage                   => ($wdpage < $totalpages) ? $wdpage + 1 : '',
                       is_right_to_left           => $ow::lang::RTL{$prefs{locale}},
@@ -814,14 +814,14 @@ sub mkpathloop {
       if ($caller_showdir) {
          $tmp->{showthumbnail} = $showthumbnail;
       } else {
-         $tmp->{action} = $action;
+         $tmp->{action} = $main::action;
 
-         if ($action eq 'send_saveatt') {
-            $tmp->{$action}   = 1;
-            $tmp->{attname} = param('attname')  || '';
-            $tmp->{attfile} = param('attfile')  || '';
-         } elsif ($action eq 'read_saveatt') {
-            $tmp->{$action}           = 1;
+         if ($main::action eq 'send_saveatt') {
+            $tmp->{$main::action} = 1;
+            $tmp->{attname}       = param('attname')  || '';
+            $tmp->{attfile}       = param('attfile')  || '';
+         } elsif ($main::action eq 'read_saveatt') {
+            $tmp->{$main::action}     = 1;
             $tmp->{attachment_nodeid} = param('attachment_nodeid');
             $tmp->{attname}           = param('attname')  || '';
             $tmp->{convfrom}          = param('convfrom') || '';
@@ -875,14 +875,14 @@ sub mkheadersloop {
       if ($caller_showdir) {
          $tmp->{showthumbnail} = $showthumbnail;
       } else {
-         $tmp->{action} = $action;
+         $tmp->{action} = $main::action;
 
-         if ($action eq 'send_saveatt') {
-            $tmp->{$action}   = 1;
-            $tmp->{attname} = param('attname')  || '';
-            $tmp->{attfile} = param('attfile')  || '';
-         } elsif ($action eq 'read_saveatt') {
-            $tmp->{$action}           = 1;
+         if ($main::action eq 'send_saveatt') {
+            $tmp->{$main::action} = 1;
+            $tmp->{attname}       = param('attname')  || '';
+            $tmp->{attfile}       = param('attfile')  || '';
+         } elsif ($main::action eq 'read_saveatt') {
+            $tmp->{$main::action}     = 1;
             $tmp->{attachment_nodeid} = param('attachment_nodeid');
             $tmp->{attname}           = param('attname')  || '';
             $tmp->{convfrom}          = param('convfrom') || '';
@@ -1718,7 +1718,7 @@ sub makethumbnail {
          next if $thumbnail_mtime == $img_mtime;
       }
 
-      $msg .= webdisk_execute(gettext('Make Thumbnail') . " :: $thumbnailstr", @cmd, "$webdiskrootdir/$vpath", "$webdiskrootdir/$thumbnail");
+      $main::msg .= webdisk_execute(gettext('Make Thumbnail') . " :: $thumbnailstr", @cmd, "$webdiskrootdir/$vpath", "$webdiskrootdir/$thumbnail");
 
       if (-f "$webdiskrootdir/$thumbnail.0") {
          unlink map { "$webdiskrootdir/$thumbnail.$_" } (1..20);
@@ -1729,7 +1729,7 @@ sub makethumbnail {
          if -f "$webdiskrootdir/$thumbnail";
    }
 
-   return $msg;
+   return $main::msg;
 }
 
 sub path2thumbnail {
@@ -2153,7 +2153,7 @@ writelog("upload size: $size");
 
 sub dirfilesel {
    # provide a reduced interface for users to choose or save attachments to and from the webdisk
-   my ($action, $olddir, $newdir, $filesort, $wdpage) = @_;
+   my ($olddir, $newdir, $filesort, $wdpage) = @_;
 
    my $showhidden        = param('showhidden') || 0;
    my $singlepage        = param('singlepage') || 0;
@@ -2169,8 +2169,8 @@ sub dirfilesel {
    $attname              = (iconv($attnamecharset, $prefs{charset}, $attname))[0];
 
    autoclosewindow(gettext('Save to Webdisk'), gettext('Parameter format error.'))
-      if ($action eq 'send_saveatt' && $attfile eq '')
-         || ($action eq 'read_saveatt' && $attachment_nodeid eq '');
+      if ($main::action eq 'send_saveatt' && $attfile eq '')
+         || ($main::action eq 'read_saveatt' && $attachment_nodeid eq '');
 
    my $currentdir = '';
    my @list       = ();
@@ -2328,8 +2328,8 @@ sub dirfilesel {
 
                                 # filesloop
                                 wdpage            => $wdpage,
-                                $action           => 1,
-                                action            => $action,
+                                $main::action     => 1,
+                                action            => $main::action,
                                 uselightbar       => $prefs{uselightbar},
                                 attfile           => $attfile,
                                 attname           => $attname,
@@ -2359,7 +2359,7 @@ sub dirfilesel {
    my $defaultname = '';
 
    $defaultname = f2u(absolute_vpath($currentdir, u2f($attname)))
-      if $action eq 'send_saveatt' || $action eq 'read_saveatt';
+      if $main::action eq 'send_saveatt' || $main::action eq 'read_saveatt';
 
    # build the template
    my $template = HTML::Template->new(
@@ -2391,11 +2391,11 @@ sub dirfilesel {
                       wdpage            => $wdpage,
                       wdkeyword         => $wdkeyword,
                       wdsearchtype      => $wdsearchtype,
-                      $action           => 1,
-                      action            => $action,
+                      $main::action     => 1,
+                      action            => $main::action,
                       currentdir        => $currentdir,
                       parentdir         => absolute_vpath($currentdir, '..'),
-                      gotodir           => $gotodir,
+                      gotodir           => $newdir,
                       isroot            => $currentdir eq '/',
                       attfile           => $attfile,
                       attname           => $attname,
