@@ -199,14 +199,14 @@ print "Building CKEditor (rev$build)...\n";
 # run "java -jar _dev/releaser/ckreleaser/ckreleaser.jar -h" for help
 system("$global->{java} -jar ./data/openwebmail/javascript/ckeditor/_dev/releaser/ckreleaser/ckreleaser.jar ./data/openwebmail/javascript/ckeditor/_dev/releaser/openwebmail-ckreleaser.release ./data/openwebmail/javascript/ckeditor ckeditor_build \"for OpenWebMail rev$build\" build_$build --verbose");
 
-rename('./data/openwebmail/javascript/ckeditor','./data/openwebmail/javascript/ckeditor_svn')
-  or die "Cannot rename directory: ./data/openwebmail/javascript/ckeditor -> ./data/openwebmail/javascript/ckeditor_svn ($!)";
+system('rm -rf ./data/openwebmail/javascript/ckeditor');
 
 rename('ckeditor_build/release','./data/openwebmail/javascript/ckeditor')
   or die "Cannot rename directory: ckeditor_build/release -> ./data/openwebmail/javascript/ckeditor ($!)";
 
-system('rm -rf ./data/openwebmail/javascript/ckeditor/_source ./data/openwebmail/javascript/ckeditor/ckeditor_basic.js ./data/openwebmail/javascript/ckeditor/openwebmail-*');
 system('rm -rf ckeditor_build');
+
+system('rm -rf ./data/openwebmail/javascript/ckeditor/_source ./data/openwebmail/javascript/ckeditor/ckeditor_basic.js ./data/openwebmail/javascript/ckeditor/openwebmail-*');
 
 print "done\n"; # ckeditor complete
 
