@@ -380,74 +380,56 @@
 
 <tmpl_if enable_htmlcompose>
 <tmpl_if is_msgformathtml>
-<script type="text/javascript">
-   var _editor_url  = '<tmpl_var url_html escape="none">/javascript/xinha/';
-   var _editor_lang = '<tmpl_var language escape="js">';
-   var _editor_skin = "openwebmail";
-</script>
-
-<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/xinha/XinhaLoader.js"></script>
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/ckeditor/ckeditor.js"></script>
 
 <script type="text/javascript">
-   xinha_editors = null;
-   xinha_init    = null;
-   xinha_config  = null;
-   xinha_plugins = null;
+<!--
+   // access the css rules to get the windowdark background color from the stylesheet being used
+   theRules = document.styleSheets[0].cssRules ? document.styleSheets[0].cssRules :
+              document.styleSheets[0].rules ? document.styleSheets[0].rules :
+              null;
 
-   xinha_init = xinha_init ? xinha_init : function() {
-     xinha_editors = xinha_editors ? xinha_editors : [ 'body' ];
-     xinha_plugins = xinha_plugins ? xinha_plugins : [ 'CharacterMap' ];
+   var windowdarkColor = '#cccccc';
 
-     if(!Xinha.loadPlugins(xinha_plugins, xinha_init)) return; // do not modify
-
-     xinha_config = xinha_config ? xinha_config() : new Xinha.Config();
-     xinha_config.showLoading = true;
-     xinha_config.autofocus = document.composeform.to.value == '' ? false : true;
-     xinha_config.statusBar = false;
-     xinha_config.flowToolbars = false;
-     xinha_config.sizeIncludesBars = false;
-     xinha_config.sizeIncludesPanels = false;
-     xinha_config.mozParaHandler = 'built-in';
-
-     // access the css rules to carry over font size and family to xinha
-     theRules = document.styleSheets[0].cssRules ? document.styleSheets[0].cssRules :
-                document.styleSheets[0].rules ? document.styleSheets[0].rules :
-                null;
-
-     if (theRules) {
-        xinha_config.pageStyle = 'body { font-family: ' + theRules[0].style.fontFamily + '; font-size: ' + document.body.style.fontSize + '; direction: <tmpl_var languagedirection escape="js">; }';
-     } else {
-        xinha_config.pageStyle = 'body { direction: <tmpl_var languagedirection escape="js">; }';
-     }
-
-     xinha_config.toolbar =
-       [
-         ["popupeditor"],
-         ["separator","undo","redo"], (Xinha.is_gecko ? [] : ["separator","cut","copy","paste","overwrite","saveas"]),
-         ["separator","bold","italic","underline","strikethrough"],
-         ["separator","justifyleft","justifycenter","justifyright","justifyfull"],
-         ["separator","forecolor","hilitecolor"],
-         ["separator","formatblock","fontname","fontsize"],
-         ["linebreak","subscript","superscript","lefttoright","righttoleft"],
-         ["separator","insertorderedlist","insertunorderedlist","outdent","indent"],
-         ["separator","inserthorizontalrule","createlink","insertimage","inserttable"],
-         ["separator","killword","clearfonts","removeformat"],
-         ["separator","htmlmode","showhelp","about"]
-       ];
-
-     xinha_config.selectableImages =
-       [
-         <tmpl_loop selectableimagesloop>
-         ['<tmpl_var converted_name escape="js">', '<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl/<tmpl_var attachment_name escape="js">?action=viewattfile&attfile=<tmpl_var attachment_file escape="js">&sessionid=<tmpl_var sessionid escape="js">']<tmpl_unless last>,</tmpl_unless>
-         </tmpl_loop>
-       ];
-
-     xinha_editors = Xinha.makeEditors(xinha_editors, xinha_config, xinha_plugins);
-
-     Xinha.startEditors(xinha_editors);
+   if (theRules) {
+      for (i=0; i<theRules.length; i++) {
+         if(theRules[i].selectorText.toLowerCase() == '.windowdark') {
+            windowdarkColor = theRules[i].style.backgroundColor;
+            break;
+         }
+      }
    }
 
-   xinha_init();
+   CKEDITOR.replace(
+                      'body',
+                      {
+                         removePlugins : 'contextmenu,adobeair,filebrowser,flash,newpage,pastefromword,print,preview,save,scayt,smiley,templates,wsc',
+                         language : '<tmpl_var language escape="js">',
+                         font_defaultLabel : (theRules ? theRules[0].style.fontFamily : 'Arial'),
+                         fontSize_defaultLabel : (theRules ? document.body.style.fontSize : '12px'),
+                         toolbar : [
+                                      ['Undo','Redo','-','Cut','Copy','Paste'],
+                                      ['Bold','Italic','Underline','Strike'],
+                                      ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+                                      ['Outdent','Indent'],
+                                      ['NumberedList','BulletedList','Subscript','Superscript'],
+                                      ['Link','Unlink','Image','Table','HorizontalRule','SpecialChar'],
+                                      '/',
+                                      ['Format','Font','FontSize'],
+                                      ['TextColor','BGColor'],
+                                      ['BidiLtr','BidiRtl'],
+                                      ['Find','SelectAll','RemoveFormat'],
+                                      ['Source'],
+                                      ['Maximize','About']
+                                   ],
+                         uiColor : windowdarkColor,
+                         enterMode : CKEDITOR.ENTER_BR,
+                         disableNativeSpellChecker : false
+                      }
+                   );
+
+   CKEDITOR.instances.body.addCss( 'body { font-family: ' + (theRules ? theRules[0].style.fontFamily : 'Arial') + '; font-size: ' + document.body.style.fontSize + '; }' );
+// -->
 </script>
 </tmpl_if>
 </tmpl_if>
@@ -549,13 +531,13 @@ function msgfmtchangeconfirm() {
 
 function bodygethtml() {
    if (document.composeform.msgformat.value != 'text') {
-      document.composeform.body.value = xinha_editors.body.getEditorContent();
+      document.composeform.body.value = CKEDITOR.instances.body.getData();
    }
 }
 
 function bodysethtml() {
    if (document.composeform.msgformat.value != 'text') {
-      xinha_editors.body.setEditorContent(document.composeform.body.value);
+      CKEDITOR.instances.body.setData(document.composeform.body.value);
    }
 }
 

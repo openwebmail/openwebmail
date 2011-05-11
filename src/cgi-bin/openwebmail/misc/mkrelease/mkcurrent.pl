@@ -184,31 +184,31 @@ if (-f $pofilefrom) {
    close(PO) or die "Cannot close ${pofileto}: $!\n";
 }
 
-# miniturize xinha javascript
-print "Compressing Xinha javascript...";
-my $yui_jar = "$ENV{PWD}/openwebmail-current/data/openwebmail/javascript/xinha/contrib/yuicompressor-2.4.2.jar";
-die "The YUI compressor jar is not available.\n" unless -f $yui_jar;
+# package ckeditor
+# get this ckeditor build number
+my $LEGAL = './data/openwebmail/javascript/ckeditor/LEGAL';
+open(FILE, "<$LEGAL") or die "Cannot open file: $LEGAL ($!)";
+my $firstline = <FILE>;
+close(FILE) or die "Cannot close file: $LEGAL ($!)";
 
-find(
-       {
-          # $File::Find::dir is the current directory name,
-          # $_ is the current filename within that directory
-          # $File::Find::name is the complete pathname to the file.
-          wanted => sub {
-                           if (-f $_ && m/\.js$/ && $File::Find::name !~ m#/(?:\.svn|lang|abbr|HtmlEntities)/#) {
-                              if (system("$global->{java} -jar $yui_jar --charset UTF-8 " . quotemeta($_) . " -o " . quotemeta($_)) == 0) {
-                                 print '.'; # a progress dot
-                              } else {
-                                 print "error: $File::Find::name failed to compress ($?)\n";
-                              }
-                           }
-                        },
-          follow => 1,
-       },
-       './data/openwebmail/javascript/xinha', # starting from
-    );
+my ($build) = $firstline =~ m/^.*\s(\d+)\s.*$/;
 
-print "done\n"; # miniturization complete
+print "Building CKEditor (rev$build)...\n";
+
+# Roll Release (This destroys the SVN structure, so only use when you are ready!)
+# run "java -jar _dev/releaser/ckreleaser/ckreleaser.jar -h" for help
+system("$global->{java} -jar ./data/openwebmail/javascript/ckeditor/_dev/releaser/ckreleaser/ckreleaser.jar ./data/openwebmail/javascript/ckeditor/_dev/releaser/openwebmail-ckreleaser.release ./data/openwebmail/javascript/ckeditor ckeditor_build \"for OpenWebMail rev$build\" build_$build --verbose");
+
+rename('./data/openwebmail/javascript/ckeditor','./data/openwebmail/javascript/ckeditor_svn')
+  or die "Cannot rename directory: ./data/openwebmail/javascript/ckeditor -> ./data/openwebmail/javascript/ckeditor_svn ($!)";
+
+rename('ckeditor_build/release','./data/openwebmail/javascript/ckeditor')
+  or die "Cannot rename directory: ckeditor_build/release -> ./data/openwebmail/javascript/ckeditor ($!)";
+
+system('rm -rf ./data/openwebmail/javascript/ckeditor/_source ./data/openwebmail/javascript/ckeditor/ckeditor_basic.js ./data/openwebmail/javascript/ckeditor/openwebmail-*');
+system('rm -rf ckeditor_build');
+
+print "done\n"; # ckeditor complete
 
 # set permissions on all the files
 print "Permissioning files and directories...\n";
@@ -222,7 +222,7 @@ find(
                         },
           follow => 1,
        },
-       './data/openwebmail/javascript/xinha', # starting from
+       './data/openwebmail/javascript/ckeditor', # starting from
     );
 
 my $mailgid = getgrnam('mail') or die "Cannot get mail gid number: ($!)";
