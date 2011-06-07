@@ -241,6 +241,7 @@ sub search_info_messages_for_keyword {
 
       foreach ($cache_lstmtime, $cache_folderdb, $cache_keyword, $cache_searchtype, $cache_ignore_internal) {
          $_ = <CACHE>;
+         $_ = '' unless defined;
          chomp;
       }
 
@@ -436,6 +437,7 @@ sub search_info_messages_for_keyword {
       $_ = <CACHE> for (0..4); # skip 5 lines
 
       while (<CACHE>) {
+         $_ = '' unless defined;
          chomp;
          $found{$_} = 1;
       }
@@ -494,7 +496,7 @@ sub get_messageids_sorted {
       foreach ($cache_lstmtime, $cache_folderdb, $cache_sort, $cache_ignore_internal) {
          $_ = <CACHE>;
          $_ = '' unless defined;
-         chomp if defined;
+         chomp;
       }
 
       close(CACHE) or writelog("cannot close file $cachefile ($!)");
@@ -555,12 +557,14 @@ sub get_messageids_sorted {
 
       foreach ($messageids_size, $messagedepths_size) {
          $_ = <CACHE>;
+         $_ = '' unless defined;
          chomp;
       }
 
       my $i = 0;
 
       while (<CACHE>) {
+         $_ = '' unless defined;
          chomp;
 
          if ($rev) {
