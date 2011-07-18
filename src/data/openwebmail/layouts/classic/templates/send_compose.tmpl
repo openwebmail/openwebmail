@@ -424,7 +424,12 @@
                                    ],
                          uiColor : windowdarkColor,
                          enterMode : CKEDITOR.ENTER_BR,
-                         disableNativeSpellChecker : false
+                         disableNativeSpellChecker : false,
+                         imageAttachments : [
+                                              <tmpl_loop selectableimagesloop>
+                                              ['<tmpl_var converted_name escape="js">', '<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl/<tmpl_var attachment_name escape="js">?action=viewattfile&attfile=<tmpl_var attachment_file escape="js">&sessionid=<tmpl_var sessionid escape="js">']<tmpl_unless last>,</tmpl_unless>
+                                              </tmpl_loop>
+                                            ]
                       }
                    );
 

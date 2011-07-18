@@ -283,7 +283,9 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 		// keyboard paste or execCommand ) (#4874).
 		CKEDITOR.env.ie && ( depressBeforeEvent = 1 );
 
-		var retval = editor.document.$.queryCommandEnabled( command ) ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED;
+		var retval = CKEDITOR.TRISTATE_OFF;
+		try { retval = editor.document.$.queryCommandEnabled( command ) ? CKEDITOR.TRISTATE_OFF : CKEDITOR.TRISTATE_DISABLED; }catch( er ){}
+
 		depressBeforeEvent = 0;
 		return retval;
 	}
@@ -395,6 +397,13 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 								editor.fire( 'paste', dataTransfer );
 							} );
 						});
+
+					// Dismiss the (wrong) 'beforepaste' event fired on context menu open. (#7953)
+					body.on( 'contextmenu', function()
+					{
+						depressBeforeEvent = 1;
+						setTimeout( function() { depressBeforeEvent = 0; }, 10 );
+					});
 
 					body.on( 'beforecut', function() { !depressBeforeEvent && fixCut( editor ); } );
 

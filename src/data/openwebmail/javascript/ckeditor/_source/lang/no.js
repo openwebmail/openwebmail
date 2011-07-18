@@ -34,8 +34,8 @@ CKEDITOR.lang['no'] =
 	editorTitle : 'Rikteksteditor, %1, trykk ALT 0 for hjelp.',
 
 	// ARIA descriptions.
-	toolbar	: 'Verktøylinje',
-	editor	: 'Rikteksteditor',
+	toolbars	: 'Verktøylinjer for editor',
+	editor		: 'Rikteksteditor',
 
 	// Toolbar buttons without dialogs.
 	source			: 'Kilde',
@@ -121,6 +121,8 @@ CKEDITOR.lang['no'] =
 		alignBottom		: 'Bunn',
 		invalidHeight	: 'Høyde må være et tall.',
 		invalidWidth	: 'Bredde må være et tall.',
+		invalidCssLength	: 'Den angitte verdien for feltet "%1" må være et positivt tall med eller uten en gyldig CSS-målingsenhet (px, %, in, cm, mm, em, ex, pt, eller pc).',
+		invalidHtmlLength	: 'Den angitte verdien for feltet "%1" må være et positivt tall med eller uten en gyldig HTML-målingsenhet (px eller %).',
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, utilgjenglig</span>'
@@ -182,7 +184,7 @@ CKEDITOR.lang['no'] =
 		cssClasses		: 'Stilarkklasser',
 		charset			: 'Lenket tegnsett',
 		styles			: 'Stil',
-		rel			: 'Relationship', // MISSING
+		rel			: 'Relasjon (rel)',
 		selectAnchor		: 'Velg et anker',
 		anchorName		: 'Anker etter navn',
 		anchorId			: 'Element etter ID',
@@ -201,7 +203,8 @@ CKEDITOR.lang['no'] =
 		menu		: 'Egenskaper for anker',
 		title		: 'Egenskaper for anker',
 		name		: 'Ankernavn',
-		errorName	: 'Vennligst skriv inn ankernavnet'
+		errorName	: 'Vennligst skriv inn ankernavnet',
+		remove		: 'Fjern anker'
 	},
 
 	// List style dialog
@@ -271,8 +274,8 @@ CKEDITOR.lang['no'] =
 		invalidBorder	: 'Rammestørrelse må være et tall.',
 		invalidWidth	: 'Tabellbredde må være et tall.',
 		invalidHeight	: 'Tabellhøyde må være et tall.',
-		invalidCellSpacing	: 'Cellemarg må være et tall.',
-		invalidCellPadding	: 'Cellepolstring må være et tall.',
+		invalidCellSpacing	: 'Cellemarg må være et positivt tall.',
+		invalidCellPadding	: 'Cellepolstring må være et positivt tall.',
 
 		cell :
 		{
@@ -413,7 +416,6 @@ CKEDITOR.lang['no'] =
 		upload		: 'Last opp',
 		alt			: 'Alternativ tekst',
 		lockRatio	: 'Lås forhold',
-		unlockRatio	: 'Ikke lås forhold',
 		resetSize	: 'Tilbakestill størrelse',
 		border		: 'Ramme',
 		hSpace		: 'HMarg',
@@ -715,6 +717,8 @@ CKEDITOR.lang['no'] =
 	{
 		title		: 'Om CKEditor',
 		dlgTitle	: 'Om CKEditor',
+		help	: 'Se $1 for hjelp.',
+		userGuide : 'CKEditors brukerveiledning',
 		moreInfo	: 'For lisensieringsinformasjon, vennligst besøk vårt nettsted:',
 		copy		: 'Copyright &copy; $1. Alle rettigheter reservert.'
 	},
@@ -745,9 +749,64 @@ CKEDITOR.lang['no'] =
 	toolbarCollapse	: 'Skjul verktøylinje',
 	toolbarExpand	: 'Vis verktøylinje',
 
+	toolbarGroups :
+	{
+		document : 'Dokument',
+		clipboard : 'Utklippstavle/Angre',
+		editing : 'Redigering',
+		forms : 'Skjema',
+		basicstyles : 'Basisstiler',
+		paragraph : 'Avsnitt',
+		links : 'Lenker',
+		insert : 'Innsetting',
+		styles : 'Stiler',
+		colors : 'Farger',
+		tools : 'Verktøy'
+	},
+
 	bidi :
 	{
 		ltr : 'Tekstretning fra venstre til høyre',
 		rtl : 'Tekstretning fra høyre til venstre'
+	},
+
+	docprops :
+	{
+		label : 'Dokumentegenskaper',
+		title : 'Dokumentegenskaper',
+		design : 'Design',
+		meta : 'Meta-data',
+		chooseColor : 'Velg',
+		other : '<annen>',
+		docTitle :	'Sidetittel',
+		charset : 	'Tegnsett',
+		charsetOther : 'Annet tegnsett',
+		charsetASCII : 'ASCII',
+		charsetCE : 'Sentraleuropeisk',
+		charsetCT : 'Tradisonell kinesisk(Big5)',
+		charsetCR : 'Kyrillisk',
+		charsetGR : 'Gresk',
+		charsetJP : 'Japansk',
+		charsetKR : 'Koreansk',
+		charsetTR : 'Tyrkisk',
+		charsetUN : 'Unicode (UTF-8)',
+		charsetWE : 'Vesteuropeisk',
+		docType : 'Dokumenttype header',
+		docTypeOther : 'Annet dokumenttype header',
+		xhtmlDec : 'Inkluder XHTML-deklarasjon',
+		bgColor : 'Bakgrunnsfarge',
+		bgImage : 'URL for bakgrunnsbilde',
+		bgFixed : 'Lås bakgrunnsbilde',
+		txtColor : 'Tekstfarge',
+		margin : 'Sidemargin',
+		marginTop : 'Topp',
+		marginLeft : 'Venstre',
+		marginRight : 'Høyre',
+		marginBottom : 'Bunn',
+		metaKeywords : 'Dokument nøkkelord (kommaseparert)',
+		metaDescription : 'Dokumentbeskrivelse',
+		metaAuthor : 'Forfatter',
+		metaCopyright : 'Kopirett',
+		previewHtml : '<p>Dette er en <strong>eksempeltekst</strong>. Du bruker <a href="javascript:void(0)">CKEditor</a>.</p>'
 	}
 };

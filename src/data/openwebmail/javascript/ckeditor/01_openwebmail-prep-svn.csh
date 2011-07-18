@@ -1,6 +1,7 @@
 #!/bin/tcsh
 
 # STEPS TO PREPARE CKEDITOR SVN TO BE PUT INTO OPENWEBMAIL SVN
+cd /home/alex/acatysmoof.com/services/webmail/openwebmail-svn/data/openwebmail/javascript
 
 # pull down the full current SVN
 svn export http://svn.ckeditor.com/CKEditor/trunk ckeditor_current

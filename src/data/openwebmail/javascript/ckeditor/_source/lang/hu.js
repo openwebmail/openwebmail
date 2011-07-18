@@ -34,8 +34,8 @@ CKEDITOR.lang['hu'] =
 	editorTitle : 'HTML szerkesztő',
 
 	// ARIA descriptions.
-	toolbar	: 'Eszköztár',
-	editor	: 'HTML szerkesztő',
+	toolbars	: 'Szerkesztő Eszköztár',
+	editor		: 'HTML szerkesztő',
 
 	// Toolbar buttons without dialogs.
 	source			: 'Forráskód',
@@ -56,7 +56,7 @@ CKEDITOR.lang['hu'] =
 	superscript		: 'Felső index',
 	horizontalrule	: 'Elválasztóvonal beillesztése',
 	pagebreak		: 'Oldaltörés beillesztése',
-	pagebreakAlt		: 'Page Break', // MISSING
+	pagebreakAlt		: 'Oldaltörés',
 	unlink			: 'Hivatkozás törlése',
 	undo			: 'Visszavonás',
 	redo			: 'Ismétlés',
@@ -121,9 +121,11 @@ CKEDITOR.lang['hu'] =
 		alignBottom		: 'Aljára',
 		invalidHeight	: 'A magasság mezőbe csak számokat írhat.',
 		invalidWidth	: 'A szélesség mezőbe csak számokat írhat.',
+		invalidCssLength	: '"%1"-hez megadott érték csakis egy pozitív szám lehet, esetleg egy érvényes CSS egységgel megjelölve(px, %, in, cm, mm, em, ex, pt vagy pc).',
+		invalidHtmlLength	: '"%1"-hez megadott érték csakis egy pozitív szám lehet, esetleg egy érvényes HTML egységgel megjelölve(px vagy %).',
 
 		// Put the voice-only part of the label in the span.
-		unavailable		: '%1<span class="cke_accessibility">, unavailable</span>' // MISSING
+		unavailable		: '%1<span class="cke_accessibility">, nem elérhető</span>'
 	},
 
 	contextmenu :
@@ -182,7 +184,7 @@ CKEDITOR.lang['hu'] =
 		cssClasses		: 'Stíluskészlet',
 		charset			: 'Hivatkozott tartalom kódlapja',
 		styles			: 'Stílus',
-		rel			: 'Relationship', // MISSING
+		rel			: 'Kapcsolat típusa',
 		selectAnchor		: 'Horgony választása',
 		anchorName		: 'Horgony név szerint',
 		anchorId			: 'Azonosító szerint',
@@ -201,7 +203,8 @@ CKEDITOR.lang['hu'] =
 		menu		: 'Horgony tulajdonságai',
 		title		: 'Horgony tulajdonságai',
 		name		: 'Horgony neve',
-		errorName	: 'Kérem adja meg a horgony nevét'
+		errorName	: 'Kérem adja meg a horgony nevét',
+		remove		: 'Horgony eltávolítása'
 	},
 
 	// List style dialog
@@ -413,7 +416,6 @@ CKEDITOR.lang['hu'] =
 		upload		: 'Feltöltés',
 		alt			: 'Buborék szöveg',
 		lockRatio	: 'Arány megtartása',
-		unlockRatio	: 'Arány figyelmen kívül hagyása',
 		resetSize	: 'Eredeti méret',
 		border		: 'Keret',
 		hSpace		: 'Vízsz. táv',
@@ -602,11 +604,11 @@ CKEDITOR.lang['hu'] =
 
 	iframe :
 	{
-		title		: 'IFrame Properties', // MISSING
-		toolbar		: 'IFrame', // MISSING
-		noUrl		: 'Please type the iframe URL', // MISSING
-		scrolling	: 'Enable scrollbars', // MISSING
-		border		: 'Show frame border' // MISSING
+		title		: 'IFrame Tulajdonságok',
+		toolbar		: 'IFrame',
+		noUrl		: 'Kérem írja be a iframe URL-t',
+		scrolling	: 'Gördítősáv bekapcsolása',
+		border		: 'Legyen keret'
 	},
 
 	font :
@@ -715,6 +717,8 @@ CKEDITOR.lang['hu'] =
 	{
 		title		: 'CKEditor névjegy',
 		dlgTitle	: 'CKEditor névjegy',
+		help	: 'Itt találsz segítséget: $1',
+		userGuide : 'CKEditor Felhasználói útmutató',
 		moreInfo	: 'Licenszelési információkért kérjük látogassa meg weboldalunkat:',
 		copy		: 'Copyright &copy; $1. Minden jog fenntartva.'
 	},
@@ -726,8 +730,8 @@ CKEDITOR.lang['hu'] =
 	{
 		anchor		: 'Horgony',
 		flash		: 'Flash animáció',
-		iframe		: 'IFrame', // MISSING
-		hiddenfield	: 'Hidden Field', // MISSING
+		iframe		: 'IFrame',
+		hiddenfield	: 'Rejtett mezõ',
 		unknown		: 'Ismeretlen objektum'
 	},
 
@@ -745,9 +749,64 @@ CKEDITOR.lang['hu'] =
 	toolbarCollapse	: 'Eszköztár összecsukása',
 	toolbarExpand	: 'Eszköztár szétnyitása',
 
+	toolbarGroups :
+	{
+		document : 'Dokumentum',
+		clipboard : 'Vágólap/Visszavonás',
+		editing : 'Szerkesztés',
+		forms : 'Űrlapok',
+		basicstyles : 'Alapstílusok',
+		paragraph : 'Bekezdés',
+		links : 'Hivatkozások',
+		insert : 'Beszúrás',
+		styles : 'Stílusok',
+		colors : 'Színek',
+		tools : 'Eszközök'
+	},
+
 	bidi :
 	{
 		ltr : 'Szöveg iránya balról jobbra',
 		rtl : 'Szöveg iránya jobbról balra'
+	},
+
+	docprops :
+	{
+		label : 'Dokumentum tulajdonságai',
+		title : 'Dokumentum tulajdonságai',
+		design : 'Design',
+		meta : 'Meta adatok',
+		chooseColor : 'Válasszon',
+		other : '<más>',
+		docTitle :	'Oldalcím',
+		charset : 	'Karakterkódolás',
+		charsetOther : 'Más karakterkódolás',
+		charsetASCII : 'ASCII',
+		charsetCE : 'Közép-Európai',
+		charsetCT : 'Kínai Tradicionális (Big5)',
+		charsetCR : 'Cyrill',
+		charsetGR : 'Görög',
+		charsetJP : 'Japán',
+		charsetKR : 'Koreai',
+		charsetTR : 'Török',
+		charsetUN : 'Unicode (UTF-8)',
+		charsetWE : 'Nyugat-Európai',
+		docType : 'Dokumentum típus fejléc',
+		docTypeOther : 'Más dokumentum típus fejléc',
+		xhtmlDec : 'XHTML deklarációk beillesztése',
+		bgColor : 'Háttérszín',
+		bgImage : 'Háttérkép cím',
+		bgFixed : 'Nem gördíthető háttér',
+		txtColor : 'Betűszín',
+		margin : 'Oldal margók',
+		marginTop : 'Felső',
+		marginLeft : 'Bal',
+		marginRight : 'Jobb',
+		marginBottom : 'Alsó',
+		metaKeywords : 'Dokumentum keresőszavak (vesszővel elválasztva)',
+		metaDescription : 'Dokumentum leírás',
+		metaAuthor : 'Szerző',
+		metaCopyright : 'Szerzői jog',
+		previewHtml : '<p>Ez itt egy <strong>példa</strong>. A <a href="javascript:void(0)">CKEditor</a>-t használod.</p>'
 	}
 };
