@@ -1082,7 +1082,7 @@ sub readmessage {
                $archivefilename = "$archivebasefilename.tgz" if ow::tool::findbin('tar') && ow::tool::findbin('gzip');
             }
 
-            my $orig_description = $messagesloop->[$i]{attachment}[$n]{'content-description'};
+            my $orig_description = $messagesloop->[$i]{attachment}[$n]{'content-description'} || '';
 
             if ($archivefilename ne '') {
                $messagesloop->[$i]{attachment}[$n]{'content-type'} = ow::tool::ext2contenttype($archivefilename);
