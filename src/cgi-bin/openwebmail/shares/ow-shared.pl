@@ -1203,7 +1203,7 @@ sub verifysession {
       openwebmail_exit(0);
    }
 
-   my $client_sessionkey = cookie("ow-sessionkey-$domain-$user");
+   my $client_sessionkey = cookie("ow-sessionkey-$domain-$user") || '';
 
    my ($sessionkey, $ip, $userinfo) = sessioninfo($thissession);
 

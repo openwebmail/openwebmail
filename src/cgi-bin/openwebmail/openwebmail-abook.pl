@@ -2449,7 +2449,7 @@ sub addredit {
       #################################################################
       # cancel the editing of an AGENT and move back up to the parent #
       #################################################################
-      my ($traversedirection, @targetagent) = split(/,/, param('targetagent'));
+      my ($traversedirection, @targetagent) = defined param('targetagent') ? split(/,/, param('targetagent')) : (0,());
       openwebmailerror(gettext('Invalid traverse direction:') . " $traversedirection") unless $traversedirection == -1;
       pop(@targetagent);
       param(-name => "targetagent", -value => scalar @targetagent ? '0,' . join(',',@targetagent) : 0);
@@ -2728,7 +2728,7 @@ sub addredit {
       }
 
       # align contact as described by the targetagent
-      my ($traversedirection, @targetagent) = split(/,/, param('targetagent'));
+      my ($traversedirection, @targetagent) = defined param('targetagent') ? split(/,/, param('targetagent')) : (0,());
 
       # if we're going into another agent we want to save the level above it
       pop(@targetagent) if $traversedirection == 1;
