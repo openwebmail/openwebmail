@@ -336,8 +336,12 @@ sub rotatefilename {
 }
 
 sub ext2contenttype {
-   my $ext = lc shift;
+   my $ext = shift;
+
+   return 'application/octet-stream' unless defined $ext;
+
    $ext =~ s/^.*\.//; # remove part before .
+   $ext =~ lc $ext;
 
    return 'text/plain'                    if $ext =~ m/^(?:asc|te?xt|cc?|h|cpp|asm|pas|f77|lst|sh|pl)$/;
    return 'text/html'                     if $ext =~ m/^(?:html?)$/;
