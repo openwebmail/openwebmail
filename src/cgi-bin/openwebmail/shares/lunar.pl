@@ -73,7 +73,7 @@ sub solar2lunar {
    my $lunardb = ow::tool::untaint("$config{ow_mapsdir}/lunar");
 
    if (ow::dbm::existdb($lunardb)) {
-      my %LUNAR = {};
+      my %LUNAR = ();
 
       my $date  = sprintf("%04d%02d%02d", $year, $mon, $day);
 
