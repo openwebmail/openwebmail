@@ -74,7 +74,7 @@ sub getinfomessageids {
    }
 
    # do new indexing in background if folder > 10 M && empty db
-   if (!ow::dbm::existdb($folderdb) && (-s $folderfile) >= 10485760) {
+   if (!ow::dbm::existdb($folderdb) && -f $folderfile && (-s $folderfile) >= 10485760) {
       local $_index_complete = 0;
 
       # signal when indexing completes
