@@ -171,7 +171,7 @@ sub about {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -268,7 +268,7 @@ sub userfirsttime {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    # TODO: sync the config option names with the tmpl vars
@@ -1070,7 +1070,7 @@ sub editprefs {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -1969,7 +1969,7 @@ sub saveprefs {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    # TODO: sync the config option names with the tmpl vars
@@ -2249,7 +2249,7 @@ sub editpassword {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    # TODO: sync the config option names with the tmpl vars
@@ -2338,7 +2338,7 @@ sub changepassword {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    # TODO: sync the config option names with the tmpl vars
@@ -2388,7 +2388,7 @@ sub editpassword_fail {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    # TODO: sync the config option names with the tmpl vars
@@ -2457,7 +2457,7 @@ sub viewhistory {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 1,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -2500,7 +2500,7 @@ sub editfroms {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 1,
                                         global_vars       => 1,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    # TODO: sync the config option names with the tmpl vars
@@ -2592,7 +2592,7 @@ sub editpop3 {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 1,
                                         global_vars       => 1,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    # TODO: sync the config option names with the tmpl vars
@@ -2745,7 +2745,7 @@ sub editstat {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 1,
                                         global_vars       => 1,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    # TODO: sync the config option names with the tmpl vars
@@ -3003,7 +3003,7 @@ sub editfilter {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 1,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -3163,7 +3163,7 @@ sub timeoutwarning {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(

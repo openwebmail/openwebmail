@@ -142,7 +142,7 @@ if ($config{forced_ssl_login} && !($ENV{HTTPS} =~ /on/i || $ENV{SERVER_PORT} == 
                                         die_on_bad_params => 1,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param( start_url => $start_url );
@@ -253,7 +253,7 @@ sub loginmenu {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    # TODO: sync the config option names with the tmpl vars
@@ -675,7 +675,7 @@ sub login {
                                         die_on_bad_params => 1,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -724,7 +724,7 @@ sub loginfailed {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
    $template->param(
                       # header.tmpl

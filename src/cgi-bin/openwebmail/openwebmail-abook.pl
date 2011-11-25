@@ -887,7 +887,7 @@ sub addrlistview {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -1068,7 +1068,7 @@ sub addrselectpopup {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -1281,7 +1281,7 @@ sub addrbookedit {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -1744,7 +1744,7 @@ sub addrcardview {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -1879,7 +1879,7 @@ sub addrautosuggest {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -2167,7 +2167,7 @@ sub addreditform {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -3078,7 +3078,7 @@ sub addrimportform {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -3245,7 +3245,7 @@ sub addrimportfieldselect {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(

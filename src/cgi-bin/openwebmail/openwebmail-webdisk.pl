@@ -636,7 +636,7 @@ sub showdir {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
    $template->param(
                       # header.tmpl
@@ -1203,7 +1203,7 @@ sub editfile {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
    $template->param(
                       # header.tmpl
@@ -1538,7 +1538,7 @@ sub listarchive {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
    $template->param(
                       # header.tmpl
@@ -1605,7 +1605,7 @@ sub wordpreview {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
    $template->param(
                       # header.tmpl
@@ -2368,7 +2368,7 @@ sub dirfilesel {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
    $template->param(
                       # header.tmpl

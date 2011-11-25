@@ -1181,7 +1181,7 @@ sub verifysession {
                                            die_on_bad_params => 0,
                                            loop_context_vars => 0,
                                            global_vars       => 0,
-                                           cache             => 1,
+                                           cache             => 0,
                                         );
 
       $template->param(
@@ -1669,7 +1669,7 @@ sub get_header {
                                       die_on_bad_params => 0,
                                       loop_context_vars => 0,
                                       global_vars       => 0,
-                                      cache             => 1,
+                                      cache             => 0,
                                      );
 
 
@@ -1744,7 +1744,7 @@ sub get_footer {
                                       die_on_bad_params => 0,
                                       loop_context_vars => 0,
                                       global_vars       => 0,
-                                      cache             => 1,
+                                      cache             => 0,
                                      );
 
 
@@ -1814,7 +1814,7 @@ sub openwebmailerror {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -1864,7 +1864,7 @@ sub autoclosewindow {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(

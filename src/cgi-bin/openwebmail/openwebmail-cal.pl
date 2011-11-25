@@ -329,7 +329,7 @@ sub viewyear {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -496,7 +496,7 @@ sub viewmonth {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -598,7 +598,7 @@ sub viewday {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
    $template->param(
                       # header.tmpl
@@ -802,7 +802,7 @@ sub viewweek {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
    $template->param(
                       # header.tmpl
@@ -930,7 +930,7 @@ sub viewlist {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
    $template->param(
                       # header.tmpl
@@ -1704,7 +1704,7 @@ sub edit {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(

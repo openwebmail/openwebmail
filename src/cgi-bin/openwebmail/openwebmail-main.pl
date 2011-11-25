@@ -646,7 +646,7 @@ sub listmessages {
                                         # TODO get rid of global_vars by explicitly declaring vars in loops
                                         # this is slow and makes a big mess of the loop vars
                                         global_vars       => 1,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -1429,7 +1429,7 @@ sub logout {
                                         die_on_bad_params => 1,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(

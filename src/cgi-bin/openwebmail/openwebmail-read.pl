@@ -1147,7 +1147,7 @@ sub readmessage {
                                         die_on_bad_params => 0,
                                         loop_context_vars => 0,
                                         global_vars       => 0,
-                                        cache             => 1,
+                                        cache             => 0,
                                      );
 
    $template->param(
@@ -1295,7 +1295,7 @@ sub rebuildmessage {
                                            die_on_bad_params => 1,
                                            loop_context_vars => 0,
                                            global_vars       => 0,
-                                           cache             => 1,
+                                           cache             => 0,
                                         );
 
       $template->param(
