@@ -2094,6 +2094,7 @@ sub lunar_string {
 
    my $lang = {
                  lunar_month => [
+                                   '', # lunarmonth is not 0 index based
                                    gettext('Primens'),
                                    gettext('Apricomens'),
                                    gettext('Peacimens'),
