@@ -4,7 +4,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 /**
- * @fileOverview Defines the {@link CKEDITOR.lang} object, for the
+ * @fileOverview Defines the {@link CKEDITOR.lang} object for the
  * Russian language.
  */
 
@@ -14,7 +14,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 /**
- * Constains the dictionary of language entries.
+ * Contains the dictionary of language entries.
  * @namespace
  */
 CKEDITOR.lang['ru'] =
@@ -121,8 +121,10 @@ CKEDITOR.lang['ru'] =
 		alignBottom		: 'По низу',
 		invalidHeight	: 'Высота задается числом.',
 		invalidWidth	: 'Ширина задается числом.',
-		invalidCssLength	: 'Значение, указанное в поле "%1", должно быть положительным целым числом. Допускается указание единиц меры CSS (px, %, in, cm, mm, em, ex, pt, или pc).',
+		invalidCssLength	: 'Значение, указанное в поле "%1", должно быть положительным целым числом. Допускается указание единиц меры CSS (px, %, in, cm, mm, em, ex, pt или pc).',
 		invalidHtmlLength	: 'Значение, указанное в поле "%1", должно быть положительным целым числом. Допускается указание единиц меры HTML (px или %).',
+		invalidInlineStyle	: 'Значение, указанное для стиля элемента, должно состоять из одной или нескольких пар данных в формате "параметр : значение", разделённых точкой с запятой.',
+		cssLengthTooltip	: 'Введите значение в пикселях, либо число с корректной единицей меры CSS (px, %, in, cm, mm, em, ex, pt или pc).',
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, недоступно</span>'
@@ -240,6 +242,7 @@ CKEDITOR.lang['ru'] =
 		findWhat			: 'Найти:',
 		replaceWith			: 'Заменить на:',
 		notFoundMsg			: 'Искомый текст не найден.',
+		findOptions			: 'Опции поиска',
 		matchCase			: 'Учитывать регистр',
 		matchWord			: 'Только слово целиком',
 		matchCyclic			: 'По всему тексту',

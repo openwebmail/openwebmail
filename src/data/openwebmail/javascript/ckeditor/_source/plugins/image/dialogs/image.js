@@ -290,8 +290,8 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				this.addLink = false;
 
 				var editor = this.getParentEditor(),
-					sel = this.getParentEditor().getSelection(),
-					element = sel.getSelectedElement(),
+					sel = editor.getSelection(),
+					element = sel && sel.getSelectedElement(),
 					link = element && element.getAscendant( 'a' );
 
 				//Hide loader.
@@ -491,20 +491,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 					accessKey : 'I',
 					elements :
 					[
-						{
-							id : 'cmbAttachments',
-							type : 'select',
-							label : 'Attachments',
-                                                       hidden : (editor.config.imageAttachments.unshift([editor.lang.common.notSet,'']) == 1 ? true : false),
-							items : editor.config.imageAttachments,
-							onChange : function()
-							{
-								var dialog = this.getDialog(),
-									newUrl = this.getValue();
-
-								dialog.setValueOf( 'info', 'txtUrl', newUrl );
-							}
-						},
 						{
 							type : 'vbox',
 							padding : 0,
@@ -1363,6 +1349,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 							type : 'text',
 							id : 'txtdlgGenStyle',
 							label : editor.lang.common.cssStyle,
+							validate : CKEDITOR.dialog.validate.inlineStyle( editor.lang.common.invalidInlineStyle ),
 							'default' : '',
 							setup : function( type, element )
 							{

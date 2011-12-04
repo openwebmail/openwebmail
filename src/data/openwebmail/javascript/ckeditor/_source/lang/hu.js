@@ -14,7 +14,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 /**
- * Constains the dictionary of language entries.
+ * Contains the dictionary of language entries.
  * @namespace
  */
 CKEDITOR.lang['hu'] =
@@ -123,6 +123,8 @@ CKEDITOR.lang['hu'] =
 		invalidWidth	: 'A szélesség mezőbe csak számokat írhat.',
 		invalidCssLength	: '"%1"-hez megadott érték csakis egy pozitív szám lehet, esetleg egy érvényes CSS egységgel megjelölve(px, %, in, cm, mm, em, ex, pt vagy pc).',
 		invalidHtmlLength	: '"%1"-hez megadott érték csakis egy pozitív szám lehet, esetleg egy érvényes HTML egységgel megjelölve(px vagy %).',
+		invalidInlineStyle	: 'Value specified for the inline style must consist of one or more tuples with the format of "name : value", separated by semi-colons.', // MISSING
+		cssLengthTooltip	: 'Enter a number for a value in pixels or a number with a valid CSS unit (px, %, in, cm, mm, em, ex, pt, or pc).', // MISSING
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, nem elérhető</span>'
@@ -240,6 +242,7 @@ CKEDITOR.lang['hu'] =
 		findWhat			: 'Keresett szöveg:',
 		replaceWith			: 'Csere erre:',
 		notFoundMsg			: 'A keresett szöveg nem található.',
+		findOptions			: 'Find Options', // MISSING
 		matchCase			: 'kis- és nagybetű megkülönböztetése',
 		matchWord			: 'csak ha ez a teljes szó',
 		matchCyclic			: 'Ciklikus keresés',

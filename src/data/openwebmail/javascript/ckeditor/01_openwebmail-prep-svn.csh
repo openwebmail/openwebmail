@@ -19,6 +19,6 @@ rm _dev/packager/package* _dev/packager/ckpackager/ckpackager.exe _dev/releaser/
 echo "This is a modified version of CKEditor SVN rev $BUILD and is distributed with OpenWebMail under the MPL license" >> LEGAL
 
 echo "You can manually copy ckeditor_current over ckeditor with"
-echo "tar -cf - ckeditor_current/* | (cd ckeditor && tar -xvf - .)"
+echo "cd ckeditor_current ; tar -cf - * | ( cd ../ckeditor ; tar -xvf - )"
 
 

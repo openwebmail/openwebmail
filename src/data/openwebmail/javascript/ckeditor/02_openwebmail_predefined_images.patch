@@ -1,5 +1,5 @@
---- image.js	2011-05-25 09:12:48.717321000 -0700
-+++ image.js	2011-07-09 01:27:57.000000000 -0700
+--- _source/plugins/image/dialogs/image.js	2011-05-25 09:12:48.717321000 -0700
++++ _source/plugins/image/dialogs/image.js	2011-07-09 01:27:57.000000000 -0700
 @@ -492,6 +480,20 @@
  					elements :
  					[

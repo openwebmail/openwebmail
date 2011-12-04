@@ -14,7 +14,7 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
 /**
- * Constains the dictionary of language entries.
+ * Contains the dictionary of language entries.
  * @namespace
  */
 CKEDITOR.lang['it'] =
@@ -123,6 +123,8 @@ CKEDITOR.lang['it'] =
 		invalidWidth	: 'La Larghezza dev\'essere un numero',
 		invalidCssLength	: 'Il valore indicato per il campo "%1" deve essere un numero positivo con o senza indicazione di una valida unità di misura per le classi CSS (px, %, in, cm, mm, em, ex, pt, o pc).',
 		invalidHtmlLength	: 'Il valore indicato per il campo "%1" deve essere un numero positivo con o senza indicazione di una valida unità di misura per le pagine HTML (px o %).',
+		invalidInlineStyle	: 'Il valore specificato per lo stile inline deve consistere in una o più tuple con il formato di "name : value", separati da semicolonne.',
+		cssLengthTooltip	: 'Inserisci un numero per il valore in pixel oppure un numero con una valida unità CSS (px, %, in, cm, mm, ex, pt, o pc).',
 
 		// Put the voice-only part of the label in the span.
 		unavailable		: '%1<span class="cke_accessibility">, non disponibile</span>'
@@ -240,6 +242,7 @@ CKEDITOR.lang['it'] =
 		findWhat			: 'Trova:',
 		replaceWith			: 'Sostituisci con:',
 		notFoundMsg			: 'L\'elemento cercato non è stato trovato.',
+		findOptions			: 'Opzioni di ricerca',
 		matchCase			: 'Maiuscole/minuscole',
 		matchWord			: 'Solo parole intere',
 		matchCyclic			: 'Ricerca ciclica',
