@@ -492,6 +492,20 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 					elements :
 					[
 						{
+							id : 'cmbAttachments',
+							type : 'select',
+							label : 'Attachments',
+                                                       hidden : (editor.config.imageAttachments.unshift([editor.lang.common.notSet,'']) == 1 ? true : false),
+							items : editor.config.imageAttachments,
+							onChange : function()
+							{
+								var dialog = this.getDialog(),
+									newUrl = this.getValue();
+
+								dialog.setValueOf( 'info', 'txtUrl', newUrl );
+							}
+						},
+						{
 							type : 'vbox',
 							padding : 0,
 							children :
