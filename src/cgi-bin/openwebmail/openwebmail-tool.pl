@@ -1319,7 +1319,8 @@ sub checknewmail {
 
 
 sub checknewevent {
-   my ($newevent, $oldevent);
+   my $newevent = 0;
+   my $oldevent = 0;
 
    my $localtime=ow::datetime::time_gm2local(time(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
    my ($wdaynum, $year, $month, $day, $hour, $min)=(ow::datetime::seconds2array($localtime))[6,5,4,3,2,1];
