@@ -2,25 +2,30 @@
 
 <head>
    <meta name="description" content="OpenWebMail Project :: Tech Specs">
+
+   <base href="http://openwebmail.acatysmoof.com/">
+
    <title>The OpenWebMail Project :: Tech Specs :: Internationalization and Localization</title>
-   <link rel="shortcut icon" href="/images/favicon.ico">
+
+   <link rel="shortcut icon" href="images/favicon.ico">
+
    <style type="text/css">
-   .heading { background-color: #3161bd; color: #ffffff; text-align: center; font-weight: bold; }
-   li { margin-bottom: 5px; }
-   table#languagestats { border-collapse: collapse; }
-   table#languagestats td { border: 1px solid #555555; }
-   #progressbar { position: relative; border: 1px solid black; width: 98%; background-color: #ff7777; }
-   #progressbar .text { position: relative; text-align: center; color: #000000; }
-   #progressbar .alltranslated { position: absolute; top: 0; left: 0; height: 100%; background-color: #63d569; }
-   #progressbar .translated { position: absolute; top: 0; left: 0; height: 100%; background-color: #5f9cf9; }
-   #progressbar .fuzzy { position: absolute; top: 0; left: 0; height: 100%; background-color: #eeedae; }
+      .heading { background-color: #3161bd; color: #ffffff; text-align: center; font-weight: bold; }
+      li { margin-bottom: 5px; }
+      table#languagestats { border-collapse: collapse; }
+      table#languagestats td { border: 1px solid #555555; }
+      #progressbar { position: relative; border: 1px solid black; width: 98%; background-color: #ff7777; }
+      #progressbar .text { position: relative; text-align: center; color: #000000; }
+      #progressbar .alltranslated { position: absolute; top: 0; left: 0; height: 100%; background-color: #63d569; }
+      #progressbar .translated { position: absolute; top: 0; left: 0; height: 100%; background-color: #5f9cf9; }
+      #progressbar .fuzzy { position: absolute; top: 0; left: 0; height: 100%; background-color: #eeedae; }
    </style>
 </head>
 
-<body text="#555555" bgcolor="#ffffff" background="/images/Globe.gif">
+<body text="#555555" bgcolor="#ffffff" background="images/Globe.gif">
 <center>
 
-<a href="http://openwebmail.acatysmoof.com"><img src="/images/openwebmail.png" alt="OpenWebMail Logo" border="0"></a>
+<a href="/"><img src="images/openwebmail.png" alt="OpenWebMail Logo" border="0"></a>
 <br><br>
 
 <table width="90%">
@@ -37,7 +42,7 @@
     <blockquote>
     <ul>
       <li>Download and install the <a href="http://www.poedit.net/download.php" target="_new">free poedit translation software</a></li>
-      <li>Choose to <a href="#update_translation">update an existing translation</a> or <a href="#new_translation">start a new translation</a></li>
+      <li>Choose to <a href="doc/tech/i18n/#update_translation">update an existing translation</a> or <a href="doc/tech/i18n/#new_translation">start a new translation</a></li>
     </ul>
     </blockquote>
 
@@ -241,9 +246,9 @@
     <ul>
       <li>Download the <a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/checkout/trunk/src/cgi-bin/openwebmail/etc/lang/owm.pot">current POT template catalog file</a> for OpenWebMail</li>
       <li>Create a new catalog from the POT file in PoEdit (File-&gt;New catalog from POT file...)</li>
-      <li>Adjust the settings for your language:<br><br><img src="./poedit_settings.png"><br><br><p>Plural Forms is a formula that describes how many different plurals there are in a language. English, for example, has only 2 plural forms (e.g. item, items). Arabic has 6 plural forms! In order to get all the translations for all the forms in your language you need to correctly set the plural forms formula before you begin translating. You can find the plural forms formula for your language at <a href="http://translate.sourceforge.net/wiki/l10n/pluralforms" target="_new">the Translate Toolkit website</a>. You can read more about plural forms at <a href="http://www.gnu.org/software/hello/manual/gettext/Plural-forms.html" target="_new">the GNU website</a></li>
+      <li>Adjust the settings for your language:<br><br><img src="doc/tech/i18n/poedit_settings.png"><br><br><p>Plural Forms is a formula that describes how many different plurals there are in a language. English, for example, has only 2 plural forms (e.g. item, items). Arabic has 6 plural forms! In order to get all the translations for all the forms in your language you need to correctly set the plural forms formula before you begin translating. You can find the plural forms formula for your language at <a href="http://translate.sourceforge.net/wiki/l10n/pluralforms" target="_new">the Translate Toolkit website</a>. You can read more about plural forms at <a href="http://www.gnu.org/software/hello/manual/gettext/Plural-forms.html" target="_new">the GNU website</a></li>
       <li>Save the PO file (happens automatically after settings)<br><i>Please use the naming convention of <b>locale.charset.po</b>, for example: en_US.UTF-8.po<br>Your locale is a combination of your <a href="http://www.loc.gov/standards/iso639-2/php/code_list.php" target="_new">ISO 639-1 language code</a> and your <a href="http://www.iso.org/iso/country_codes/iso-3166-1_decoding_table.htm" target="_new">ISO 3166-1 country code</a></i></li>
-      <li>Translate the strings (<a href="#tips">click here for help and tips</a>)</li>
+      <li>Translate the strings (<a href="doc/tech/i18n/#tips">click here for help and tips</a>)</li>
       <li>Save your work and email the PO file to the <a href="mailto:owm-i18n@openwebmail.acatysmoof.com">i18n mailing list</a> or <a href="mailto:openwebmail@acatysmoof.com">directly to the developers</a></li>
     </ul>
     </blockquote>
@@ -253,11 +258,11 @@
     <h3 id="update_translation">Update an Existing Translation</h3>
     <blockquote>
     <ul>
-      <li>Download the <a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/browse/trunk/src/cgi-bin/openwebmail/etc/lang" target="_new">current PO file for your language</a>. If you don't see your language there you can <a href="#new_translation">start a new translation</a>.</li>
+      <li>Download the <a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/browse/trunk/src/cgi-bin/openwebmail/etc/lang" target="_new">current PO file for your language</a>. If you don't see your language there you can <a href="doc/tech/i18n/#new_translation">start a new translation</a>.</li>
       <li>Open the PO file in PoEdit (File-&gt;Open...)</li>
       <li>Download the <a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/checkout/trunk/src/cgi-bin/openwebmail/etc/lang/owm.pot">current POT template catalog file</a> which contains the latest language strings for OpenWebMail</li>
       <li>Update your PO file with the latest strings from the POT file (Catalog-&gt;Update from POT file...);
-      <li>Translate the untranslated strings (<a href="#tips">click here for help and tips</a>)</li>
+      <li>Translate the untranslated strings (<a href="doc/tech/i18n/#tips">click here for help and tips</a>)</li>
       <li>Save your work and email the PO file to the <a href="mailto:owm-i18n@openwebmail.acatysmoof.com">i18n mailing list</a> or <a href="mailto:openwebmail@acatysmoof.com">directly to the developers</a></li>
     </ul>
     </blockquote>
@@ -270,12 +275,12 @@
       <li><b>How can I automate some translations?</b><br>PoEdit supports automatic translations through the use of existing translations compiled into databases PoEdit calls "Translation Memories" (TM). PoEdit can reference the generated TM database and automatically translate matching strings that exist in the PO file you are translating. The use of TM is highly recommended for OpenWebMail translation because our PO files contain many country names for which translations already exist in almost all languages. Using these can be a big time saver.
         <br><br>To create a TM database:<br><br>
         <ul>
-          <li>Designate a directory to store the translation memory databases in PoEdit (Preferences->Translation Memory tab->Browse)<br><br><img src="TM_01.png"><br><br></li>
+          <li>Designate a directory to store the translation memory databases in PoEdit (Preferences->Translation Memory tab->Browse)<br><br><img src="doc/tech/i18n/TM_01.png"><br><br></li>
           <li>Click the "Add" button to select your language</li>
           <li>Make a directory in your TM database directory that -exactly- matches the abbreviated name of the language you just selected.<br>For example: /Users/alex/Desktop/TM/it for Italian</li>
           <li>Download existing <a href="http://translationproject.org/latest/iso_3166">ISO 3166</a> and <a href="http://translationproject.org/latest/iso_639">ISO 639</a> translations for your language and put them into the abbreviated language directory you just made.</li>
-          <li>Click the "Generate database" button in PoEdit. You will be prompted for Search Paths. Click "Browse" and select the abbreviated language directory you made:<br><br><img src="TM_02.png"><br><br></li>
-          <li>Click the "Next &gt;" button. You should see that the PO files you downloaded previously are now listed:<br><br><img src="TM_03.png"><br><br></li>
+          <li>Click the "Generate database" button in PoEdit. You will be prompted for Search Paths. Click "Browse" and select the abbreviated language directory you made:<br><br><img src="doc/tech/i18n/TM_02.png"><br><br></li>
+          <li>Click the "Next &gt;" button. You should see that the PO files you downloaded previously are now listed:<br><br><img src="doc/tech/i18n/TM_03.png"><br><br></li>
           <li>Click the "Finish" button. The TM databases are generated</li>
         </ul>
 
