@@ -1,0 +1,45 @@
+Topic:          remote user can execute any program with apache
+
+Announced:      2004-05-08
+Credits:	Michel Blomgren <michel.AT.cycom.se>
+
+Affects:        all versions between 20031008 and 20040508
+Corrected:      openwebmail versions after 2.30 20040508
+
+Patches:        http://openwebmail.acatysmoof.com/download/cert/patches/SA-04:03
+
+I.   Background
+
+     userstat.pl is a script designed for static web pages to query the user mail
+     and calendar status in Open WebMail.
+
+II.  Problem Description
+
+     userstat.pl accepted parameter as the userid without strict checking. It
+     could be exploited to invoke any program on the server with apache privilege.
+     This problem was addressed by the patch from Ken Girrard
+     <kgirrard.AT.users.sourceforge.net> at SA-04:01.txt.
+
+     Girrard's patch does filter out spaces and tabs, which makes it impossible
+     to pass arguments to commands an attacker would want to execute.
+     Nevertheless, the patch doesn't filter out "|" (pipes) and "/", so it's
+     still possible to execute commands without arguments.
+
+     This is a very serious vulnerability and should be taken seriously.
+
+III. Impact
+
+     Remote user can execute any program on the openwebmail server with apache.
+
+IV.  Workaround
+
+     The userstat.pl is not used by the Open WebMail runtime system,
+     the sysadm can simply remove it.
+
+V.   Solution
+
+     A. upgrade to the latest openwebmail-current.tar.gz
+
+     B. or apply the patch in
+
+     http://openwebmail.acatysmoof.com/download/cert/patches/SA-04:03

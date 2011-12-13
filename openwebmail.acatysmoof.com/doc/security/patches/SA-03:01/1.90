@@ -1,0 +1,263 @@
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-abook.pl fix/cgi-bin/openwebmail/openwebmail-abook.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-abook.pl	Tue Feb 11 13:28:58 2003
++++ fix/cgi-bin/openwebmail/openwebmail-abook.pl	Thu Feb 20 13:58:08 2003
+@@ -4,9 +4,12 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-advsearch.pl fix/cgi-bin/openwebmail/openwebmail-advsearch.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-advsearch.pl	Wed Jan 22 23:05:05 2003
++++ fix/cgi-bin/openwebmail/openwebmail-advsearch.pl	Thu Feb 20 13:58:08 2003
+@@ -6,9 +6,12 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-cal.pl fix/cgi-bin/openwebmail/openwebmail-cal.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-cal.pl	Sat Feb  8 15:51:53 2003
++++ fix/cgi-bin/openwebmail/openwebmail-cal.pl	Thu Feb 20 13:58:08 2003
+@@ -10,9 +10,12 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-folder.pl fix/cgi-bin/openwebmail/openwebmail-folder.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-folder.pl	Wed Jan 22 23:05:05 2003
++++ fix/cgi-bin/openwebmail/openwebmail-folder.pl	Thu Feb 20 13:58:08 2003
+@@ -4,9 +4,12 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-main.pl fix/cgi-bin/openwebmail/openwebmail-main.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-main.pl	Tue Feb 11 23:18:28 2003
++++ fix/cgi-bin/openwebmail/openwebmail-main.pl	Thu Feb 20 13:58:08 2003
+@@ -4,9 +4,12 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-prefs.pl fix/cgi-bin/openwebmail/openwebmail-prefs.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-prefs.pl	Wed Feb 12 04:05:02 2003
++++ fix/cgi-bin/openwebmail/openwebmail-prefs.pl	Thu Feb 20 13:58:08 2003
+@@ -4,9 +4,12 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-read.pl fix/cgi-bin/openwebmail/openwebmail-read.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-read.pl	Sat Feb  8 11:20:19 2003
++++ fix/cgi-bin/openwebmail/openwebmail-read.pl	Thu Feb 20 13:58:08 2003
+@@ -4,9 +4,12 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-send.pl fix/cgi-bin/openwebmail/openwebmail-send.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-send.pl	Tue Feb 11 17:45:05 2003
++++ fix/cgi-bin/openwebmail/openwebmail-send.pl	Thu Feb 20 13:58:08 2003
+@@ -4,9 +4,12 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-spell.pl fix/cgi-bin/openwebmail/openwebmail-spell.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-spell.pl	Wed Jan 22 23:05:05 2003
++++ fix/cgi-bin/openwebmail/openwebmail-spell.pl	Thu Feb 20 13:58:08 2003
+@@ -27,9 +27,12 @@
+ 
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-tool.pl fix/cgi-bin/openwebmail/openwebmail-tool.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-tool.pl	Wed Jan 22 23:05:05 2003
++++ fix/cgi-bin/openwebmail/openwebmail-tool.pl	Thu Feb 20 13:58:08 2003
+@@ -7,18 +7,21 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) {
+-   $SCRIPT_DIR=$1;
+-} elsif ( -f ($ENV{'openwebmail'}||$ENV{'PWD'})."/openwebmail-tool.pl" ) {
+-   $SCRIPT_DIR=$ENV{'openwebmail'}||$ENV{'PWD'};
+-   ($SCRIPT_DIR =~ /^(.+)$/) && ($SCRIPT_DIR = $1);  # untaint
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+ }
+-if (!$SCRIPT_DIR) {
+-   print "Please execute script openwebmail-tool.pl with full path\n".
+-         " or 'cd your_openwebmail_cgi_dir; ./openwebmail-tool.pl'\n";
+-   exit 1;
++if (!$SCRIPT_DIR) { 
++   print qq|\nOpen WebMail is unable to locate itself on this system,\n|.
++         qq|please put 'the path of openwebmail CGI directory' to\n|.
++         qq|the first line of file /etc/openwebmail_path.conf\n\n|.
++         qq|For example, if the script is\n\n|.
++         qq|/usr/local/www/cgi-bin/openwebmail/openwebmail-tool.pl,\n\n|.
++         qq|then the content of /etc/openwebmail_path.conf should be:\n\n|.
++         qq|/usr/local/www/cgi-bin/openwebmail/\n\n|;
++    exit 0;
+ }
+-push (@INC, $SCRIPT_DIR, ".");
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; 	# no PATH should be needed
+ $ENV{ENV} = "";		# no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-viewatt.pl fix/cgi-bin/openwebmail/openwebmail-viewatt.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-viewatt.pl	Wed Jan 22 23:05:05 2003
++++ fix/cgi-bin/openwebmail/openwebmail-viewatt.pl	Thu Feb 20 13:58:08 2003
+@@ -4,9 +4,12 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail-webdisk.pl fix/cgi-bin/openwebmail/openwebmail-webdisk.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail-webdisk.pl	Thu Jan 23 13:29:33 2003
++++ fix/cgi-bin/openwebmail/openwebmail-webdisk.pl	Thu Feb 20 13:58:26 2003
+@@ -17,9 +17,12 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh
+diff -ruN 1.90/cgi-bin/openwebmail/openwebmail.pl fix/cgi-bin/openwebmail/openwebmail.pl
+--- 1.90/cgi-bin/openwebmail/openwebmail.pl	Wed Feb 12 04:07:01 2003
++++ fix/cgi-bin/openwebmail/openwebmail.pl	Thu Feb 20 13:58:08 2003
+@@ -18,9 +18,12 @@
+ #
+ 
+ use vars qw($SCRIPT_DIR);
+-if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+-if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+-push (@INC, $SCRIPT_DIR, ".");
++if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
++if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
++   $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
++}
++if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
++push (@INC, $SCRIPT_DIR);
+ 
+ $ENV{PATH} = ""; # no PATH should be needed
+ $ENV{ENV} = "";      # no startup script for sh

@@ -1,0 +1,39 @@
+Topic:          remote user can execute any program with apache
+
+Announced:      2004-06-29
+Credits:	Ken Girrard <kgirrard.AT.users.sourceforge.net>
+
+Affects:        all versions before 20040629
+Corrected:      openwebmail versions after 2.32 20040629
+
+Patches:        http://openwebmail.acatysmoof.com/download/cert/patches/SA-04:04
+
+I.   Background
+
+     vacation.pl is a script designed to do autoreply in Open WebMail.
+
+II.  Problem Description
+
+     vacation.pl accepted parameter as the name of the list file without
+     checking the file existence. It could be exploited to invoke any program
+     on the server with apache privilege.
+
+     This is a very serious vulnerability and should be taken seriously.
+
+III. Impact
+
+     Remote user can execute any program on the openwebmail server with apache.
+
+IV.  Workaround
+
+     move the vacation.pl to other directory, eg: /usr/local/bin/vacation.pl
+     and change the path of vacation.pl in option vacationinit & vacationpipe
+     in openwebmail.conf.default
+
+V.   Solution
+
+     A. upgrade to the latest openwebmail-current.tar.gz
+
+     B. or apply the patch in
+
+     http://openwebmail.acatysmoof.com/download/cert/patches/SA-04:04

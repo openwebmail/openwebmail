@@ -78,7 +78,7 @@ timedate_format: '%Y/%m/%d %H:%M:%S'
 #  test2: '/tmp/svnweb-test2'
 repos:
    openwebmail: '/home/alex/openwebmail.acatysmoof.com/dev/svn'
-   openwebmailweb: '/home/alex/openwebmail.acatysmoof.com/svn'
+   openwebmail_website: '/home/alex/openwebmail.acatysmoof.com/dev/svn'
 #
 # or a parent path contains repositories
 #

@@ -1,0 +1,53 @@
+Topic:          Local user can execute perl script with root
+
+Announced:      2003-02-20
+Credits:	pokleyzz <pokleyzz.AT.scan-associates.net>
+
+Affects:        all versions prior 1.90 20030220
+Corrected:      openwebmail versions after 1.90 20030220
+
+Patches:        http://openwebmail.acatysmoof.com/download/cert/patches/SA-03:01
+
+I.   Background
+
+     Openwebmail is a web-bases email system. It contains several Perl CGI
+     scripts run under superuser account (suidperl is used).
+
+II.  Problem Description
+
+     A local user may invoke their own perl script when running openwebmail
+     script through suidperl. This is a very serious vulnerability and
+     should be taken seriously.
+
+III. Impact
+
+     Local user can execute a perl script on the openwebmail server with root
+
+IV.  Workaround
+
+     None.
+
+V.   Solution
+
+     A. upgrade to the latest openwebmail-current.tar.gz
+
+     B. or apply the patch in
+
+     http://openwebmail.acatysmoof.com/download/cert/patches/SA-03:01/
+
+     C. or modify the scripts manually by replacing all the following block
+
+     use vars qw($SCRIPT_DIR);
+     if ( $ENV{'SCRIPT_FILENAME'} =~ m!^(.*?)/[\w\d\-\.]+\.pl! || $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+     if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\$SCRIPT_DIR not set in CGI script!\n"; exit 0; }
+     push (@INC, $SCRIPT_DIR, ".");
+
+        with
+
+     use vars qw($SCRIPT_DIR);
+     if ( $0 =~ m!^(.*?)/[\w\d\-\.]+\.pl! ) { $SCRIPT_DIR=$1; }
+     if (!$SCRIPT_DIR && open(F, '/etc/openwebmail_path.conf')) {
+        $_=<F>; close(F); if ( $_=~/^([^\s]*)/) { $SCRIPT_DIR=$1; }
+     }
+     if (!$SCRIPT_DIR) { print "Content-type: text/html\n\n\SCRIPT_DIR not set in /etc/openwebmail_path.conf !\n"; exit 0; }
+     push (@INC, $SCRIPT_DIR);
