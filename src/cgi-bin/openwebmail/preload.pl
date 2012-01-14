@@ -60,7 +60,7 @@ if (defined $ENV{'GATEWAY_INTERFACE'}) {	# CGI mode
    local $|=1;
    print qq|Content-type: text/html\n\n|.
          qq|<html><body>\n|.
-         qq|<h2>Open WebMail Preload Page</h2>\n|;
+         qq|<h2>OpenWebMail Preload Page</h2>\n|;
    if (defined $param{'password'} &&
        crypt($param{'password'},$cgipwd) eq $cgipwd){
       print qq|<pre>\n|;
@@ -78,7 +78,7 @@ if (defined $ENV{'GATEWAY_INTERFACE'}) {	# CGI mode
             qq|<input type="submit" name=" Submit " value=" Submit " />\n|.
             qq|</form>\n|;
    }
-   print qq|<a href='$cgiurl/openwebmail.pl'>Login Open WebMail</a>\n|.
+   print qq|<a href='$cgiurl/openwebmail.pl'>Login OpenWebMail</a>\n|.
          qq|</body></html>\n|;
 
 } else {					# cmd mode

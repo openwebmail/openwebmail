@@ -112,7 +112,7 @@ if ($status =~ /has no mail/) {
       $html=~s|_COLOR_|#000000|;
    }
 }
-$html=~s|_TEXT_|Open WebMail|;
+$html=~s|_TEXT_|OpenWebMail|;
 $html=~s/_USER_/$user/g;
 $html=~s|_COLOR_|#000000|;
 $html=~s/'/\\'/g;

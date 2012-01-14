@@ -1,4 +1,4 @@
-Open Webmail Help Notes:
+OpenWebMail Help Notes:
 ------------------------
 
 "The Message Toolbar" (tutorial/toolbars/message.html)

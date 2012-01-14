@@ -1,17 +1,17 @@
 OpenWebMail ReadMe Document
 $Id: readme.txt 349 2009-04-27 07:26:53Z ateslik $
 
-Open WebMail is a webmail system based on
+OpenWebMail is a webmail system based on
 the Neomail version 1.14 from Ernie Miller.
 
-Open WebMail is targeted on dealing with very big mail folder files in a
+OpenWebMail is targeted on dealing with very big mail folder files in a
 memory efficient way. It also provides many features to help users to
 switch from Microsoft Outlook smoothly.
 
 
 FEATURES
 ---------
-Open WebMail has the following enhanced features:
+OpenWebMail has the following enhanced features:
 
 For Users:
 
@@ -96,9 +96,9 @@ CGI.pm installation:
    make
    make install
 
-ps: It is reported that Open Webmail will hang in attachment uploading
+ps: It is reported that OpenWebMail will hang in attachment uploading
     when used with older version of CGI module. We recommend using CGI
-    version 2.74 or above for Open WebMail.
+    version 2.74 or above for OpenWebMail.
     To check the version of your CGI module :
 
     perl -MCGI -e 'print $CGI::VERSION'
@@ -233,7 +233,7 @@ If you are using RedHat 7.x (or most Linux) with Apache
 
 If you are using RedHat 6.2, please use /home/httpd instead of /var/www
 ps: It is highly recommended to read the doc/RedHat-README.txt(contributed by
-    elitric.AT.yahoo.com) if you are installing Open WebMail on RedHat Linux.
+    elitric.AT.yahoo.com) if you are installing OpenWebMail on RedHat Linux.
 
 ps: Thomas Chung (tchung.AT.openwebmail.org) maintains the rpm for all
     released and current version of openwebmail, It is available at
@@ -275,7 +275,7 @@ eg: /usr/local/apache/share, then
 
 4. execute /usr/local/apache/share/cgi-bin/openwebmail/openwebmail-tool.pl --init
 
-ps:If you are installing Open WebMail on Solaris, please put
+ps:If you are installing OpenWebMail on Solaris, please put
    'the path of your openwebmail cgi directory' in the first line of
    file /etc/openwebmail_path.conf.
 
@@ -382,7 +382,7 @@ other messages in INBOX. To enable virus check support, you have to
    please refer to openwebmail.conf.help for more detail
 
 ps: Thomas Chung has written a document
-    "HOWTO install and configure ClamAV for Open WebMail on Red Hat/Fedora Core"
+    "HOWTO install and configure ClamAV for OpenWebMail on Red Hat/Fedora Core"
     It is available at http://openwebmail.acatysmoof.com/download/redhat/howto/virus/ClamAV/HOWTO-clamav.txt
 
 
@@ -433,9 +433,9 @@ ps: The viruscheck/spamcheck is majorly designed to check messages fetched
     While viruscheck/spamcheck can also check all messages in INBOX, but
     we suggest that the sysadm should install antispam/antivurs softwares
     in either MTA or local deliver so mails can get checked before delivered
-    into INBOX. It is more efficient than scanning all mails in Open WebMail.
+    into INBOX. It is more efficient than scanning all mails in OpenWebMail.
     And the mails will get checked even the user is using client other than
-    Open WebMail.
+    OpenWebMail.
 
 
 LEARNSPAM SUPPORT
@@ -539,8 +539,8 @@ ps: Since openwebmail 20031128, you may set the option
 
 COMMAND TOOL openwebmail-tool.pl
 --------------------------------
-Since mail filtering is activated only in Open WebMail, it means messages
-will stay in the INBOX until user reads their mail with Open WebMail.
+Since mail filtering is activated only in OpenWebMail, it means messages
+will stay in the INBOX until user reads their mail with OpenWebMail.
 So 'finger' or other mail status check utility may give you wrong
 information since they don't know about the filter.
 
@@ -573,7 +573,7 @@ You have to set the crontab according to  your calendar_email_notifyinterval.
 
 GLOBAL ADDRESSBOOK
 --------------------------------------------
-Open WebMail supports multiples global addressbooks, the location for global
+OpenWebMail supports multiples global addressbooks, the location for global
 addressbook files is specified in the option ow_addressbooksdir.
 
 The sysadm have to create the empty global addressbooks manually with command
@@ -636,7 +636,7 @@ ps: To know if a specific dictionary is successfully installed on
 
 AUTOREPLY SUPPORT
 -----------------
-The auto reply function in Open WebMail is done with the vacation utility.
+The auto reply function in OpenWebMail is done with the vacation utility.
 Since vacation utility is not available on some unix, a perl version of
 vacation utility 'vacation.pl' is distributed with openwebmail.
 This vacation.pl has the same syntax as the one on Solaris.
@@ -737,13 +737,13 @@ To limit the WebDisk space used by the user, please refer to the
 VIRTUAL HOSTING
 ---------------
 You can have as many virtual domains as you want on same server with only one
-copy of openwebmail installed. Open Webmail supports per domain config file.
+copy of openwebmail installed. OpenWebMail supports per domain config file.
 Each domain can have its own set of configuration options, including
 domainname, authentication module, quota limit, mailspooldir ...
 
 You can even setup mail accounts for users without creating real unix accounts
 for them. Please refer to Kevin Ellis's webpage:
-"How to setup virtual users on Open WebMail using Postfix & vm-pop3d"
+"How to setup virtual users on OpenWebMail using Postfix & vm-pop3d"
 (http://www.bluelavalamp.net/owmvirtual/)
 
 eg: To create configuration file for virtualdomain 'sr1.domain.com'
@@ -755,14 +755,14 @@ eg: To create configuration file for virtualdomain 'sr1.domain.com'
 
 USER ALIAS MAPPING
 ------------------
-Open Webmail can use the sendmail virtusertable for user alias mapping.
+OpenWebMail can use the sendmail virtusertable for user alias mapping.
 The loginname typed by user may be pure name or name@somedomain. And this
 loginname can be mapped to another pure name or name@otherdomain in the
 virtusertable. This gives you the great flexibility in account management.
 
 Please refer to http://www.sendmail.org/virtual-hosting.html for more detail
 
-When a user logins Open WebMail with a loginname,
+When a user logins OpenWebMail with a loginname,
 this loginname will be checked in the following order:
 
 if (loginname is in the form of 'someone@somedomain') {
@@ -878,7 +878,7 @@ While options in system config file(openwebmail.conf) are applied to all
 users, you may find it useful to set the options on per user basis sometimes.
 For example, you may want to limit the client ip access for some users or
 limit the domain which the user can sent to. This could be easily done with
-the per user config file support in Open Webmail.
+the per user config file support in OpenWebMail.
 
 The user capability file is located in cgi-bin/openwebmail/etc/user.conf/
 and named as the realusername of user. Options in this file are actually
@@ -917,7 +917,7 @@ for authenticating users. More detail is available at Linux-PAM webpage.
 http://www.kernel.org/pub/linux/libs/pam/
 
 Solaris 2.6, Linux and FreeBSD 3.1 are known to support PAM.
-To make Open WebMail use the support of PAM, you have to:
+To make OpenWebMail use the support of PAM, you have to:
 
 1. download the Perl Authen::PAM module (Authen-PAM-0.14.tar.gz)
    It is available at http://www.cs.kuleuven.ac.be/~pelov/pam/
