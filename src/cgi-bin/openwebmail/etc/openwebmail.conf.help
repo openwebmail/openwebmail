@@ -12,7 +12,7 @@ If set this to auto, then the default domainnames may come from:
 
 1. if @domainname is specified in username, then that domain will be used
 2. if the option enable_domainselectmenu is set to yes, then the one
-   choosed from the domain select menu will be used
+   chosen from the domain select menu will be used
 3. $ENV{HTTP_HOST} will be used (the hostname in URL).
 4. If $ENV{HTTP_HOST} is IP, we get this by running '/bin/hostname'
 
@@ -103,7 +103,7 @@ When previous option auth_withdomain is set to yes, the domain may
 come from serverial sources:
 1. the domain mapped by virtusertable
 2. the domain part in loginname specified by user
-   (or the domain choosed in the domainname select menu)
+   (or the domain chosen in the domainname select menu)
 3. the domain in the webmail URL
 4. the domain by /bin/hostname
 
@@ -2151,7 +2151,7 @@ not INBOX or DRAFT
 default_sendcharset
 -----------------------------------------------------------------------
 whether to convert the message charset to another before sending
-If this option is set to sameascomposing, then the charset choosed by
+If this option is set to sameascomposing, then the charset chosen by
 user in composing widnow will be used for outgoing message
 
 available value: sameascomposing or charset listed in iconv.pl
