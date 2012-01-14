@@ -325,6 +325,7 @@ sub refreshfolders {
 
 sub markreadfolder {
    my $foldertomark = ow::tool::untaint(safefoldername(param('foldername'))) || '';
+
    my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $foldertomark);
 
    my $ioerr = 0;
@@ -337,7 +338,9 @@ sub markreadfolder {
       openwebmailerror(gettext('Cannot update db:') . ' ' . f2u($folderdb));
    }
 
-   my (%FDB, %offset, %status);
+   my %FDB    = ();
+   my %offset = ();
+   my %status = ();
 
    ow::dbm::opendb(\%FDB, $folderdb, LOCK_SH) or
          openwebmailerror(gettext('Cannot open db:') . ' ' . f2u($folderdb));
