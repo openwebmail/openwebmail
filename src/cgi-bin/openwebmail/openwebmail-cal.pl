@@ -1848,8 +1848,9 @@ sub addmod {
    my $everyyear       = param('everyyear')       || 0;
    my $eventcolor      = param('eventcolor')      || 'none';
    my $eventreminder   = param('eventreminder')   || 0;
+   my $cal_caller      = param('cal_caller')      || $prefs{calendar_defaultview};
 
-   if ($string !~ m/^\s+?$/) {
+   if ($string !~ m/^\s*$/) {
       # check for input that would corrupt our @@@ separated flatfile database format
       openwebmailerror(gettext('The @@@ character sequence is not allowed in event strings or links.'))
          if $string =~ m/\@\@\@/ || $link =~ m/\@\@\@/;
@@ -2001,7 +2002,6 @@ sub addmod {
       }
    }
 
-   my $cal_caller = param('cal_caller') || $prefs{calendar_defaultview};
    $cal_caller eq 'calyear'  ? viewyear()  :
    $cal_caller eq 'calmonth' ? viewmonth() :
    $cal_caller eq 'calweek'  ? viewweek()  :
