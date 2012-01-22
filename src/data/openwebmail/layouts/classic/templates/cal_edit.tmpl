@@ -166,7 +166,7 @@
   <td colspan="2" align="center" class="menubar">
     <table cellpadding="5" cellspacing="0" border="0" align="center" width="40%">
     <tr>
-      <td align="center"><input type="submit" name="Save" value="gettext('Save')"></td>
+      <td align="center"><input type="submit" name="Save" value="gettext('Save')" onclick="return check_eventform();"></td>
 </form>
 
       <td align="center">
@@ -227,6 +227,16 @@ function change_editcalendarform(year,month,day) {
    document.forms['editcalendarform'].elements['month'].selectedIndex = month - 1;
    document.forms['editcalendarform'].elements['day'].selectedIndex   = day - 1;
    cal_update_recurrence('editcalendarform');
+}
+
+function check_eventform() {
+   if (document.forms['editcalendarform'].elements['string'].value == '') {
+      alert('jgettext('Please provide a description for this calendar event.')');
+      document.forms['editcalendarform'].elements['string'].focus();
+      return false;
+   }
+
+   return true;
 }
 // -->
 </script>
