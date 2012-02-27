@@ -108,12 +108,12 @@ sub array2seconds {
    # replace any invalid inputs with the "now" values for that input field
    # in order to avoid unexpected error exceptions from the timegm routine
    my @t = gmtime();
-   $sec  = $t[0] if !defined $sec  || $sec < 0  || $sec > 59;
-   $min  = $t[1] if !defined $min  || $min < 0  || $min > 59;
-   $hour = $t[2] if !defined $hour || $hour < 0 || $hour > 23;
-   $d    = $t[3] if !defined $d    || $d < 1    || $d > 31;
-   $m    = $t[4] if !defined $m    || $m < 0    || $m > 11;
-   $y    = $t[5] if !defined $y    || $y < 70   || $y > 137; # invalid if outside 1970...2037
+   $sec  = $t[0] if !defined $sec  || $sec !~ m/^\d+$/  || $sec < 0  || $sec > 59;
+   $min  = $t[1] if !defined $min  || $min !~ m/^\d+$/  || $min < 0  || $min > 59;
+   $hour = $t[2] if !defined $hour || $hour !~ m/^\d+$/ || $hour < 0 || $hour > 23;
+   $d    = $t[3] if !defined $d    || $d !~ m/^\d+$/    || $d < 1    || $d > 31;
+   $m    = $t[4] if !defined $m    || $m !~ m/^\d+$/    || $m < 0    || $m > 11;
+   $y    = $t[5] if !defined $y    || $y !~ m/^\d+$/    || $y < 70   || $y > 137; # invalid if outside 1970...2037
 
    if ($d > 28) {
       my @days_in_month = qw(0 31 28 31 30 31 30 31 31 30 31 30 31);

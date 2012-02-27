@@ -109,6 +109,8 @@ sub b2g {
    # use range of big5
    my $str = shift;
 
+   $str = '' unless defined $str;
+
    my $b2gdb = ow::tool::untaint("$config{ow_mapsdir}/b2g");
 
    if (ow::dbm::existdb($b2gdb)) {
@@ -133,6 +135,8 @@ sub g2b {
    # from http://www.haiyan.com/steelk/navigator/ref/gbindex1.htm
    # use range of gb2312
    my $str = shift;
+
+   $str = '' unless defined $str;
 
    my $g2bdb = ow::tool::untaint("$config{ow_mapsdir}/g2b");
 

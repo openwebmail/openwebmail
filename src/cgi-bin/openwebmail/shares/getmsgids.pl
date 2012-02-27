@@ -723,13 +723,14 @@ sub get_messageids_sorted_by_subject {
       my $parent = 'ROOT.nonexistant'; # this should be a string that would never be used as a messageid
 
       foreach my $id (@parents) {
-         if ($id ne $messageid && defined $subject{$id}) {
+         if ($id ne $messageid && exists $subject{$id} && defined $subject{$id}) {
  	    $parent = $id;
 	    last;
          }
       }
 
-      $thread_parent{$messageid}   = $parent;
+      $thread_parent{$messageid} = $parent;
+
       $thread_children{$messageid} = ();
 
       push(@thread_pre_roots, $messageid) if $parent eq 'ROOT.nonexistant';
@@ -739,7 +740,8 @@ sub get_messageids_sorted_by_subject {
    # so we should connect them with the earliest article by the same title.
    @thread_pre_roots = sort {
                                $subject{$a} cmp $subject{$b}
-                               || $date{$a} <=> $date{$b}
+                               ||
+                               $date{$a} <=> $date{$b}
                             } @thread_pre_roots;
 
    my $previous_id = '';
@@ -763,7 +765,8 @@ sub get_messageids_sorted_by_subject {
    # very old root
    foreach my $id (sort { $date{$b} <=> $date{$a} } keys %thread_parent) {
       if ($thread_parent{$id} && $id ne 'ROOT.nonexistant') {
-         $date{$thread_parent{$id}} = $date{$id} if $date{$thread_parent{$id}} lt $date{$id};
+         $date{$thread_parent{$id}} = $date{$id}
+            if exists $date{$id} && exists $date{$thread_parent{$id}} && $date{$thread_parent{$id}} lt $date{$id};
          push(@{$thread_children{$thread_parent{$id}}}, $id);
       }
    }
