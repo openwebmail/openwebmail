@@ -4,6 +4,7 @@ package ow::mime;
 #
 # All functions comes from the Words.pm (author: eryq@zeegee.com)
 # in the MIME-tools-6.200_02.tar.gz package.
+# http://search.cpan.org/~dskoll/MIME-tools-5.502/lib/MIME/Words.pm
 #
 # This module requires MIME-Base64 perl module (MIME-Base64-2.12.tar.gz)
 # Note: The encoding/decoding speed would be much faster if you install
@@ -141,7 +142,8 @@ sub encode_mimewords {
 	$word = $1;
 	(($word !~ /[$NONPRINT]/o)
 	 ? $word                                          ### no unsafe chars
-	 : encode_mimeword($word, $encoding, $charset));  ### has unsafe chars
+	 : encode_mimeword($word, $encoding, $charset))   ### has unsafe chars
+           . ' ';
     }xeg;
 
     return $rawstr;
