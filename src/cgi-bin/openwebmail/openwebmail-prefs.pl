@@ -2560,7 +2560,7 @@ sub modfrom {
       if ($mode eq 'delete') {
          delete $userfroms->{$email};
       } else {
-         openwebmailerror(gettext('The book of from addresses is larger than the maximum allowed size.') . " <a href=" . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editfroms&sessionid=$thissession&folder=$folder&message_id=$messageid&sort=$sort&page=$page&longpage=$longpage&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . '">' . gettext('Please try again.') . "</a>", 'passthrough') if (-f $frombookfile && (-s $frombookfile) >= ($config{maxbooksize} * 1024));
+         openwebmailerror(gettext('The book of from addresses is larger than the maximum allowed size.') . " <a href=" . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editfroms&sessionid=$thissession&folder=$folder&message_id=$messageid&sort=$sort&page=$page&longpage=$longpage&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . '">' . gettext('Please try again.') . "</a>", 'passthrough') if (-f $frombookfile && ((-s $frombookfile) || 0) >= ($config{maxbooksize} * 1024));
          $userfroms->{$email} = $realname if !$config{frombook_for_realname_only} || defined $userfroms->{$email};
       }
 
@@ -2685,7 +2685,7 @@ sub modpop3 {
          delete $accounts{$thisaccount};
       } else {
          # add a new pop3 account
-         openwebmailerror(gettext('The book of pop3 addresses is larger than the maximum allowed size.') . " <a href=" . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editpop3&sessionid=$thissession&folder=$folder&message_id=$messageid&sort=$sort&page=$page&longpage=$longpage&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . '">' . gettext('Please try again.') . "</a>", 'passthrough') if ((-s $pop3bookfile) >= ($config{maxbooksize} * 1024));
+         openwebmailerror(gettext('The book of pop3 addresses is larger than the maximum allowed size.') . " <a href=" . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editpop3&sessionid=$thissession&folder=$folder&message_id=$messageid&sort=$sort&page=$page&longpage=$longpage&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . '">' . gettext('Please try again.') . "</a>", 'passthrough') if ((-s $pop3bookfile) || 0) >= ($config{maxbooksize} * 1024);
 
          foreach (@{$config{pop3_disallowed_servers}}) {
             openwebmailerror(gettext('Disallowed POP3 server:') . " $pop3host") if $pop3host eq $_;
@@ -3076,7 +3076,7 @@ sub modfilter {
       my %filterrules = ();
 
       if (-f $filterbookfile) {
-         openwebmailerror(gettext('The book of filters is larger than the maximum allowed size.') . " <a href=" . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editaddresses&sessionid=$thissession&folder=$folder&message_id=$messageid&sort=$sort&page=$page&longpage=$longpage&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . '">' . gettext('Please try again.') . "</a>", 'passthrough') if ($mode ne 'delete' && (-s $filterbookfile) >= ($config{maxbooksize}*1024));
+         openwebmailerror(gettext('The book of filters is larger than the maximum allowed size.') . " <a href=" . ow::htmltext::str2html("$config{ow_cgiurl}/openwebmail-prefs.pl?action=editaddresses&sessionid=$thissession&folder=$folder&message_id=$messageid&sort=$sort&page=$page&longpage=$longpage&userfirsttime=$userfirsttime&prefs_caller=$prefs_caller") . '">' . gettext('Please try again.') . "</a>", 'passthrough') if ($mode ne 'delete' && ((-s $filterbookfile) || 0) >= ($config{maxbooksize}*1024));
 
          # read personal filter and update it
          ow::filelock::lock($filterbookfile, LOCK_EX) or
