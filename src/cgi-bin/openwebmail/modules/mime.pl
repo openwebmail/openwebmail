@@ -141,9 +141,8 @@ sub encode_mimewords {
     $rawstr =~ s{([$wordchars]{1,$maxlen})}{		### get next "word"
 	$word = $1;
 	(($word !~ /[$NONPRINT]/o)
-	 ? $word                                          ### no unsafe chars
-	 : encode_mimeword($word, $encoding, $charset))   ### has unsafe chars
-           . ' ';
+	 ? $word                                                ### no unsafe chars
+	 : encode_mimeword($word, $encoding, $charset) . ' ')   ### has unsafe chars
     }xeg;
 
     return $rawstr;
