@@ -1911,7 +1911,8 @@ sub saveprefs {
         || ($newprefs{filter_fakedexecontenttype} && !$prefs{filter_fakedexecontenttype});
 
    unlink(dotpath('trash.check'))
-     if $newprefs{trashreserveddays} ne $prefs{trashreserveddays};
+     if defined($newprefs{trashreserveddays}) 
+        && ($newprefs{trashreserveddays} ne $prefs{trashreserveddays});
 
    my $value = param('signature') || '';
    $value =~ s/\r\n/\n/g;
