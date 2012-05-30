@@ -77,6 +77,7 @@ sub scanmsg {
 # output: Learned from 1 message(s) (1 message(s) examined).
 sub learnspam {
    my $ret = pipecmd_msg(@_);
+   chomp($ret);
    return (-99999, $ret) if ($ret!~/(\d+) message.*?(\d+) message/s);
    return($1, $2);
 }
@@ -85,6 +86,7 @@ sub learnspam {
 # output: Learned from 1 message(s) (1 message(s) examined).
 sub learnham {
    my $ret = pipecmd_msg(@_);
+   chomp($ret);
    return (-99999, $ret) if ($ret!~/(\d+) message.*?(\d+) message/s);
    return($1, $2);
 }
