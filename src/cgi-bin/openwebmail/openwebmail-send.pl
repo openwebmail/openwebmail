@@ -1311,6 +1311,7 @@ sub compose {
                       enable_backupsent       => $config{enable_backupsent},
                       backupsent              => $backupsent ? 1 : 0,
                       editrows                => $prefs{editrows} || 20,
+                      htmledit_height         => (($prefs{editrows} || 20) + 10) * 12,
                       editcolumns             => $prefs{editcolumns} || 78,
                       enable_savedraft        => $config{enable_savedraft},
                       enable_spellcheck       => $config{enable_spellcheck},

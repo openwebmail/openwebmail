@@ -403,6 +403,7 @@
    CKEDITOR.replace(
                       'body',
                       {
+                         height : '<tmpl_var htmledit_height escape="js">px',
                          removePlugins : 'contextmenu,adobeair,filebrowser,flash,newpage,pastefromword,print,preview,save,scayt,smiley,templates,wsc',
                          language : '<tmpl_var language escape="js">',
                          font_defaultLabel : (theRules ? theRules[0].style.fontFamily : 'Arial'),
