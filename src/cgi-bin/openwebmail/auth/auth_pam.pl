@@ -56,11 +56,11 @@ sub get_userinfo {
       if ($passwdfile_plaintext=~/\|/) { # maybe NIS, try getpwnam first
          ($uid, $gid, $realname, $homedir)= (getpwnam($user))[2,3,6,7];
       }
-      if ($uid eq "") { # else, open file directly
+      if (!defined($uid) || $uid eq "") { # else, open file directly
          ($uid, $gid, $realname, $homedir)= (getpwnam_file($user, $passwdfile_plaintext))[2,3,6,7];
       }
    }
-   return(-4, "User $user doesn't exist") if ($uid eq "");
+   return(-4, "User $user doesn't exist") if (!defined($uid) || $uid eq "");
 
    # get other gid for this user in /etc/group
    while (my @gr=getgrent()) {
