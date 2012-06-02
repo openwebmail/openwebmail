@@ -76,7 +76,9 @@ sub parse_header {
       next if $fieldname =~ m/^(?:received|body|attachment)$/i;
       $r_message->{lc($fieldname)} = $fieldbody;
    }
-
+   if (length $r_message->{'message-id'} >= 128) {
+      $r_message->{'message-id'} = '<' . substr($r_message->{'message-id'}, 1, 125) . '>';
+   }
    return;
 }
 
