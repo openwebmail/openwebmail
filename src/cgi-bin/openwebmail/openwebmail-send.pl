@@ -1697,6 +1697,7 @@ sub get_attachments {
             ow::mailparse::parse_header(\$attheader, \%att);   # parse the attheader to get the actual headers
 
             $att{'content-id'} =~ s/^\s*<(.+)>\s*$/$1/ if exists $att{'content-id'} && defined $att{'content-id'}; # strip enclosing space or <>'s
+            $att{'content-id'} = '' if !defined $att{'content-id'};
 
             ($att{name}, $att{namecharset}) = ow::mailparse::get_filename_charset($att{'content-type'}, $att{'content-disposition'});
             $att{name} =~ s/Unknown/attachment_$#attachmentfiles/;
