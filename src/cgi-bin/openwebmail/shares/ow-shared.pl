@@ -1807,6 +1807,9 @@ sub openwebmailerror {
    $prefs{layout}         = defined $prefs{layout}         ? $prefs{layout}         : '';
    $prefs{style}          = defined $prefs{style}          ? $prefs{style}          : '';
    $prefs{locale}         = defined $prefs{locale}         ? $prefs{locale}         : '';
+   $prefs{charset}        = defined $prefs{charset}        ? $prefs{charset}
+                          : defined $config{default_charset} ? $config{default_charset}
+                          : defined $config{DEFAULT_charset} ? $config{DEFAULT_charset}: 'utf-5';
 
    my $template = HTML::Template->new(
                                         filename          => get_template('shared_error.tmpl'),
@@ -1819,6 +1822,7 @@ sub openwebmailerror {
 
    $template->param(
                       # shared_error.tmpl
+                      charset         => $prefs{charset},
                       url_styles      => -d "$config{ow_layoutsurl}/$prefs{layout}/styles"
                                          ? "$config{ow_layoutsurl}/$prefs{layout}/styles"
                                          : "$config{ow_layoutsurl}/classic/styles",
