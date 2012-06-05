@@ -2278,6 +2278,7 @@ sub _dotpath {
    my $dotdir = '';
 
    if ($config{use_syshomedir_for_dotdir}) {
+      return '/dev/null' if !defined $homedir;
       $dotdir = "$homedir/$config{homedirdotdirname}";
    } else {
       my $owuserdir = "$config{ow_usersdir}/" .
