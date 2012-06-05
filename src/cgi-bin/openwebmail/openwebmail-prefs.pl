@@ -1888,7 +1888,7 @@ sub saveprefs {
                last;
             }
          }
-      } elsif ($key eq 'filter_repeatlimit') {
+      } elsif ($config{enable_smartfilter} && ($key eq 'filter_repeatlimit')) {
          # if repeatlimit changed, redo filtering may be needed
          unlink(dotpath('filter.check')) if $value != $prefs{filter_repeatlimit};
          $newprefs{$key} = $value;
