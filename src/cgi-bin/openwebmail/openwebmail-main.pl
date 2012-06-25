@@ -488,10 +488,10 @@ sub listmessages {
       }
 
       my $to_names = join(", ", @to_namelist);
-      $to_names = substr($to_names, 0, 29) . '...' if length $to_names > 32;
+      $to_names = mbsubstr($to_names, 0, 29, $prefs{charset}) . '...' if length $to_names > 32;
 
       my $to_addrs = join(", ", @to_addrlist);
-      $to_addrs = substr($to_addrs, 0, 61) . '...' if length $to_addrs > 64;
+      $to_addrs = mbsubstr($to_addrs, 0, 61, $prefs{charset}) . '...' if length $to_addrs > 64;
 
       my $to_keywords = join('|',@to_addrlist); # for searching
 
@@ -499,7 +499,7 @@ sub listmessages {
 
       my ($from_name, $from_addr) = ow::tool::email2nameaddr($from);
       $from_addr =~ s/"//g;
-      $from_name = substr($from_name, 0, 37) . '...' if length $from_name > 40;
+      $from_name = mbsubstr($from_name, 0, 37, $prefs{charset}) . '...' if length $from_name > 40;
       $from_name =~ s/\\(["'])/$1/g; # e.g: Toys \"R\" Us ==> Toys "R" Us
 
       my $from_xowmuid = exists $contacts->{lc($from_addr)} ? $contacts->{lc($from_addr)} : 0;
@@ -514,7 +514,7 @@ sub listmessages {
            ) ? (split(/\s+/, $to_names, 2), $to_addrs) : (split(/\s+/, $from_name, 2), $from_addr);
 
       # subject
-      $subject = substr($subject, 0, 64) . '...' if length $subject > 67;
+      $subject = mbsubstr($subject, 0, 64, $prefs{charset}) . '...' if length $subject > 67;
 
       my $subject_keyword = $subject;
       $subject_keyword =~ s/^(?:\s*.{1,3}[.\s]*:\s*)+//; # strip leading Re: Fw: R: Res: Ref:
@@ -890,7 +890,7 @@ sub get_upcomingevents {
                }
 
                my $itemstring = (iconv($items{$index}{charset}, $prefs{charset}, $items{$index}{string}))[0];
-               $itemstring = substr($itemstring, 0, 20) . ".." if length($itemstring) >= 21;
+               $itemstring = mbsubstr($itemstring, 0, 20, $prefs{charset}) . ".." if length($itemstring) >= 21;
                $itemstring .= '*' if $index >= 1E6;
 
                my $itemdatetext = $prefs{dateformat} || "mm/dd/yyyy";

@@ -36,6 +36,7 @@ use Fcntl qw(:DEFAULT :flock);
 use CGI 3.31 qw(-private_tempfiles :cgi charset);
 use HTML::Template 2.9;
 use OWM::PO;
+use Encode;
 
 # extern vars used by caller openwebmail-xxx.pl files
 use vars qw($SCRIPT_DIR);
@@ -2700,6 +2701,12 @@ sub u2f {
    my $string = shift;
    my $localecharset = (ow::lang::localeinfo($prefs{locale}))[4];
    return (iconv($localecharset, $prefs{fscharset}, $string))[0];
+}
+
+sub mbsubstr {
+  # does safe substr in multibyte strings
+  my ($string, $start, $n, $charset) = @_;
+  return Encode::encode($charset, substr(Encode::decode($charset, $string), $start, $n));
 }
 
 sub loadlang {
