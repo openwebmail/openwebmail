@@ -1120,8 +1120,11 @@ sub readmessage {
       if (defined $messagesloop->[$i]{status} && defined $messagesloop->[$i]{'disposition-notification-to'}) {
          if ($messagesloop->[$i]{status} !~ m#R#i && $messagesloop->[$i]{'disposition-notification-to'} ne '') {
             if ($prefs{sendreceipt} ne 'no') {
+               my $userfroms = get_userfroms();
+               my $from = (grep { $messagesloop->[$i]{header} =~ m/$_/ } keys %{$userfroms})[0] || '';
                $messagesloop->[$i]{sendreadreceipt} = 1;
                $messagesloop->[$i]{sendreadreceipt_ask} = $prefs{sendreceipt} eq 'ask' ? 1 : 0;
+               $messagesloop->[$i]{sendreadreceipt_defaultfrom} = $from eq '' ? $prefs{email} : '';
             }
          }
       }

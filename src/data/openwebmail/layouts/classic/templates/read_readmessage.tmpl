@@ -456,9 +456,17 @@
 <tmpl_if sendreadreceipt>
  <script type="text/javascript">
   <!--
-     function replyreceiptconfirm(url, ask) {
+     function replyreceiptconfirm(url, ask, defaultfrom) {
+        var confirmprompt = '';
         if (ask) {
-           if (!confirm('jgettext('This message requests a read receipt, do you want to transmit?')')) {
+           confirmprompt = 'jgettext('This message requests a read receipt, do you want to transmit?')' 
+                           + ((defaultfrom != '') ? '\n' : '');
+        }
+        if (defaultfrom != '') {
+           confirmprompt += 'jgettext('Could not find the receipt sender address in the message, using ')' + defaultfrom + '.';
+        }
+        if (ask || (defaultfrom != '')) {
+           if (!confirm(confirmprompt)) {
               return false;
            }
         }
@@ -470,7 +478,7 @@
         hWnd.location.href=url;
      }
 
-     replyreceiptconfirm('<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=replyreceipt&sessionid=<tmpl_var sessionid escape="url">&folder=<tmpl_var folder escape="url">&message_id=<tmpl_var messageid escape="url">', <tmpl_var sendreadreceipt_ask escape="html">);
+     replyreceiptconfirm('<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=replyreceipt&sessionid=<tmpl_var sessionid escape="url">&folder=<tmpl_var folder escape="url">&message_id=<tmpl_var messageid escape="url">', <tmpl_var sendreadreceipt_ask escape="html">, '<tmpl_var sendreadreceipt_defaultfrom escape="js">');
 //-->
 </script>
 </tmpl_if>

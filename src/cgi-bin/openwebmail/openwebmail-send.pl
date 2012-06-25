@@ -2983,11 +2983,10 @@ sub replyreceipt {
       # get notification-to
       if ($header =~ m/^Disposition-Notification-To:\s?(.*?)$/im) {
          my $to        = $1;
-         my $from      = $prefs{email};
          my $date      = ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $prefs{timeoffset}, $prefs{daylightsaving}, $prefs{timezone});
          my $userfroms = get_userfroms();
 
-         $from = (grep { $header =~ m/$_/ } keys %{$userfroms})[0];
+         my $from = (grep { $header =~ m/$_/ } keys %{$userfroms})[0] || $prefs{email};
 
          my $realname = $userfroms->{$from};
          $realname =~ s/['"]/ /g; # Get rid of shell escape attempts
