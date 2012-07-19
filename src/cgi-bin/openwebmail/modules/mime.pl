@@ -142,8 +142,9 @@ sub encode_mimewords {
 	$word = $1;
 	(($word !~ /[$NONPRINT]/o)
 	 ? $word                                                ### no unsafe chars
-	 : encode_mimeword($word, $encoding, $charset) . ' ')   ### has unsafe chars
+	 : encode_mimeword($word, $encoding, $charset))         ### has unsafe chars
     }xeg;
+    $rawstr =~ s/\?==\?/?= =?/g;                          ### rfc2047
 
     return $rawstr;
 }
