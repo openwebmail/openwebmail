@@ -111,7 +111,7 @@ function makeCalHtml(id, year, month, day, callback) {
       html += '</tr>\n';
    }
    html += '<tr>\n';
-   html += '<td align="center" colspan="7"><a class="stylecal" href="javascript:void(0);" onClick="updateCal(\''+id+'\','+todayDate.getFullYear()+','+(todayDate.getMonth()+1)+','+todayDate.getDate()+',\''+callback+'\'); return false;">Today</a></td>\n';
+   html += '<td align="center" colspan="7"><a class="stylecal" href="javascript:void(0);" onClick="updateCal(\''+id+'\','+todayDate.getFullYear()+','+(todayDate.getMonth()+1)+','+todayDate.getDate()+',\''+callback+'\'); return false;">'+wToday+'</a></td>\n';
    html += '</tr>\n';
    html += '</table>\n';
    html += '</td>\n';

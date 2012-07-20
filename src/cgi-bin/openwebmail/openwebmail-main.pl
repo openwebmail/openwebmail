@@ -430,6 +430,7 @@ sub listmessages {
    my $newmessagessummary = sprintf(ngettext('%d unread', '%d unread', $newmessages), $newmessages);
 
    my $msgsperpage = $prefs{msgsperpage} || 10;
+   my $showmsgsperpage = $longpage ? $msgsperpage : 1000;
    $msgsperpage = 1000 if $longpage;
 
    my $totalpage = int($totalmessage/$msgsperpage+0.999999);
@@ -667,7 +668,7 @@ sub listmessages {
                       (map { $_, $icons->{$_} } keys %{$icons}),
 
                       # main_listview.tmpl
-                      messagesperpagesummary  => sprintf(ngettext('%d message per page','%d messages per page', $msgsperpage), $msgsperpage),
+                      messagesperpagesummary  => sprintf(ngettext('%d message per page','%d messages per page', $showmsgsperpage), $showmsgsperpage),
                       folderselectloop        => $folderselectloop,
                       textbrowser             => $ENV{HTTP_USER_AGENT} =~ m/(?:lynx|w3m)/i ? 1 : 0,
                       enable_quota            => $enable_quota,

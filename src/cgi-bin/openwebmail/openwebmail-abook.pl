@@ -663,6 +663,7 @@ sub addrlistview {
 
    # calculate how many pages we have and which contacts are on this page
    my $addrperpage = $prefs{abook_addrperpage} || 10;
+   my $showaddrperpage = $abooklongpage ? $addrperpage : 1000;
    $addrperpage = 5 if $mode eq 'export';
    $addrperpage = 1000 if $abooklongpage;
 
@@ -992,7 +993,7 @@ sub addrlistview {
                       bccsloop                   => [ map { { bcc     => $_ } } grep { !exists $unique_bcc{$_}{checked} } @bccs ],
                       xowmuidsloop               => [ map { { xowmuid => $_ } } @xowmuids ],
                       abook_addrperpage          => $addrperpage,
-                      abook_addrperpagestring    => sprintf(ngettext('%d address per page','%d addresses per page',$addrperpage), $addrperpage),
+                      abook_addrperpagestring    => sprintf(ngettext('%d address per page','%d addresses per page',$showaddrperpage), $showaddrperpage),
                       enable_quickadd            => is_abookfolder_writable($abookfolder) && $action ne 'addrimportattachment',
                       showbuttons_before         => $prefs{abook_buttonposition} ne 'after' ? 1 : 0, # before or both
                       fieldorderloop             => [
