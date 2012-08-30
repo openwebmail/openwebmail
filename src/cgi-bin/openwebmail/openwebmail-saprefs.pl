@@ -440,6 +440,7 @@ sub read_saprefs {
                }
 
                $rules{$rulename}{ifunset}  = $1 if $pattern =~ s/\s*\[\s*if-unset:\s(.*)\]$//;
+               $rules{$rulename}{modifier} = "";
                $rules{$rulename}{modifier} = $1 if $pattern =~ s/\/([oigms]+)$/\//;
 
                $pattern =~ s/^\s*\///;
