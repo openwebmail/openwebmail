@@ -1467,18 +1467,22 @@ sub checknotify {
       }
    }
 
-   my ($m, $d)=(sprintf("%02d",$month), sprintf("%02d",$day));
-   my $title=$prefs{'dateformat'}||"mm/dd/yyyy";
-   $title=~s/yyyy/$year/;
-   $title=~s/mm/$m/;
-   $title=~s/dd/$d/;
-   $title.=" (".hourmin($checkstart)."-".hourmin($checkend).")\n\n";
-   my $from=$prefs{'email'};
-   my $userfroms=get_userfroms();
-   my $realname=$userfroms->{$from};
+   my $m = sprintf("%02d",$month);
+   my $d = sprintf("%02d",$day);
+
+   my $title = $prefs{dateformat} || 'mm/dd/yyyy';
+   $title =~ s/yyyy/$year/;
+   $title =~ s/mm/$m/;
+   $title =~ s/dd/$d/;
+   $title .= ' (' . hourmin($checkstart) . '-' . hourmin($checkend) . ")\n\n";
+
+   my $from      = $prefs{email};
+   my $userfroms = get_userfroms();
+   my $realname  = exists $userfroms->{$from} ? $userfroms->{$from} : ((keys %{$userfroms})[0] || '');
+
    foreach my $email (keys %message) {
-      my $date = ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $prefs{'timeoffset'}, $prefs{'daylightsaving'}, $prefs{'timezone'});
-      my $ret=send_mail($from, $realname, $email, $date, "calendar notification", $title.$message{$email});
+      my $date = ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $prefs{timeoffset}, $prefs{daylightsaving}, $prefs{timezone});
+      my $ret  = send_mail($from, $realname, $email, $date, "calendar notification", $title.$message{$email});
       if (!$opt{'quiet'}) {
          print "mailing notification to $email for $loginname";
          print ", return $ret" if ($ret!=0);
