@@ -424,7 +424,8 @@ sub showdir {
       my (
             $st_dev, $st_ino, $st_mode, $st_nlink, $st_uid, $st_gid, $st_rdev,
             $st_size, $st_atime, $st_mtime, $st_ctime, $st_blksize, $st_blocks
-         ) = stat("$webdiskrootdir/$vpath");
+         ) = (-l "$webdiskrootdir/$vpath" && !-e readlink("$webdiskrootdir/$vpath")) ? 
+              lstat("$webdiskrootdir/$vpath") : stat("$webdiskrootdir/$vpath");
 
       if (($st_mode & 0170000) == 0040000) {
          $ftype{$filename} = 'd';
