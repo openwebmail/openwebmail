@@ -71,7 +71,7 @@ sub gettimeoffset {
    my $is_dst = $localized[8];
    $seconds -= 3600 if $is_dst;
 
-   return sprintf(seconds2timeoffset($seconds));
+   return seconds2timeoffset($seconds);
 }
 
 sub timeoffset2seconds {
