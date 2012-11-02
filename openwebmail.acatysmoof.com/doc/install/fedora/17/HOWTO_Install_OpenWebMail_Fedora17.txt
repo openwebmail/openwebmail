@@ -1,0 +1,132 @@
+Overview
+========
+Fedora-17-x86_64-Live-Desktop.iso was the installer used.
+
+Fedora 17 ships without Perl. Install Perl (as root):
+
+yum install perl
+
+At time of writing this installs perl 5.14.2 which no longer directly supports
+setuid. OpenWebMail can still run on this operating system with the
+use of simple c wrappers to enable setuid, even under SELinux.
+
+Mimimum Requirements    Already Installed on Fedora 17?   How To Tell
+====================    ===============================   ===========
+- apache                no                                which httpd
+- wget                  no                                which wget
+- gcc or cc             no                                which gcc
+- iconv                 yes - 2.15 - /bin/iconv           iconv --version
+- CGI.pm                no                                perl -MCGI -e '{print $CGI::VERSION . "\n"}'
+- Text::Iconv           no                                perl -MText::Iconv -e '{print $Text::Iconv::VERSION . "\n"}'
+- HTML::Template        no                                perl -MHTML::Template -e '{print $HTML::Template::VERSION . "\n"}'
+
+A quick method to install these needed items (as root):
+yum install httpd (type 'service httpd start' after install)
+yum install wget
+yum install gcc
+yum install perl-CGI
+yum install perl-Text-Iconv
+yum install perl-HTML-Template
+
+Quick Install for Fedora 17
+==========================
+# become root
+su -
+
+# make tmp dir to unpack openwebmail
+mkdir /tmp/openwebmail
+cd /tmp/openwebmail
+
+# download -current version
+wget http://openwebmail.acatysmoof.com/download/current/openwebmail-current.tar.gz
+
+# unpack it
+tar -xvzBpf openwebmail-current.tar.gz
+
+# put it in the apache area
+mv cgi-bin/openwebmail /var/www/cgi-bin/
+mv data/openwebmail /var/www/html
+
+# cleanup
+cd /var/www/cgi-bin/openwebmail
+rm -rf /tmp/openwebmail
+
+# create the logfile
+touch /var/log/openwebmail.log
+chown root:mail /var/log/openwebmail.log
+
+# ONLY if you do not have an index file - use the provided redirect file
+cp -p /var/www/html/openwebmail/redirect.html /var/www/html/index.html
+
+# update openwebmail.conf
+vi etc/openwebmail.conf
+change:
+ow_cgidir               /usr/local/www/cgi-bin/openwebmail
+ow_cgiurl               /cgi-bin/openwebmail
+ow_htmldir              /usr/local/www/data/openwebmail
+ow_htmlurl              /openwebmail
+
+to:
+ow_cgidir               /var/www/cgi-bin/openwebmail
+ow_cgiurl               /cgi-bin/openwebmail
+ow_htmldir              /var/www/html/openwebmail
+ow_htmlurl              /openwebmail
+
+# create an auth_unix.conf config file for Fedora
+cp etc/defaults/auth_unix.conf etc/
+
+# update the auth_unix.conf file
+vi etc/auth_unix.conf
+change:
+passwdfile_plaintext    /etc/passwd
+passwdfile_encrypted    /etc/master.passwd
+passwdmkdb              /usr/sbin/pwd_mkdb
+
+to:
+passwdfile_plaintext    /etc/passwd
+passwdfile_encrypted    /etc/shadow
+passwdmkdb              none
+
+# create a dbm.conf file for Fedora
+cp etc/defaults/dbm.conf etc/
+
+# update the dbm.conf config file
+vi etc/dbm.conf
+change:
+dbm_ext           .db
+dbmopen_ext       none
+dbmopen_haslock   no
+
+to:
+dbm_ext           .pag
+dbmopen_ext       none
+dbmopen_haslock   no
+
+# initialize openwebmail
+# (.pl files will automatically be C wrapped if perl version is 5.12 or higher)
+./openwebmail-tool.pl --init
+
+# update all the openwebmail files to run safely under SELinux
+# skip this step if SELinux is disabled on your system
+chcon -u system_u /var/log/openwebmail.log
+chcon -t httpd_sys_script_rw_t /var/log/openwebmail.log
+restorecon -R /var/www/{html,cgi-bin}/openwebmail
+chcon -R -t httpd_sys_content_t auth etc lib misc modules quota shares
+chcon -t httpd_unconfined_script_exec_t /var/www/cgi-bin/openwebmail/openwebmail*
+
+# setuid the .pl files
+chmod 4755 openwebmail*.pl
+
+# ONLY if you are upgrading from a previous version of OpenWebMail
+# do you need to reindex all existing users databases to the new format
+# This step can take a while and should be done while no one is accessing
+# the system. Access from an old version will force the db to roll back
+# to the old format
+./openwebmail-tool.pl --alluser --index
+
+# go to the openwebmail page in your browser
+http://your.domain/cgi-bin/openwebmail/openwebmail.pl
+
+Questions?
+==========
+http://openwebmail.acatysmoof.com/archive
