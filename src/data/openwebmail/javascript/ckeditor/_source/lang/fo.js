@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -31,7 +31,8 @@ CKEDITOR.lang['fo'] =
 	 * Screenreader titles. Please note that screenreaders are not always capable
 	 * of reading non-English words. So be careful while translating it.
 	 */
-	editorTitle : 'Rich text editor, %1, trýst ALT og 0 fyri vegleiðing.',
+	editorTitle : 'Rich text editor, %1', // MISSING
+	editorHelp : 'Trýst ALT og 0 fyri vegleiðing',
 
 	// ARIA descriptions.
 	toolbars	: 'Editor toolbars',
@@ -119,6 +120,7 @@ CKEDITOR.lang['fo'] =
 		alignTop		: 'Ovast',
 		alignMiddle		: 'Miðja',
 		alignBottom		: 'Botnur',
+		invalidValue	: 'Invalid value.', // MISSING
 		invalidHeight	: 'Hædd má vera eitt tal.',
 		invalidWidth	: 'Breidd má vera eitt tal.',
 		invalidCssLength	: 'Virðið sett í "%1" feltið má vera eitt positivt tal, við ella uttan gyldugum CSS mátieind (px, %, in, cm, mm, em, ex, pt, ella pc).',

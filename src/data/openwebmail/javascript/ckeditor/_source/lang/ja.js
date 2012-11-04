@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -31,7 +31,8 @@ CKEDITOR.lang['ja'] =
 	 * Screenreader titles. Please note that screenreaders are not always capable
 	 * of reading non-English words. So be careful while translating it.
 	 */
-	editorTitle : 'リッチテキストエディタ, %1, ヘルプは ALT 0 を押してください',
+	editorTitle : 'リッチテキストエディタ, %1',
+	editorHelp : 'ヘルプは ALT 0 を押してください',
 
 	// ARIA descriptions.
 	toolbars	: 'Editor toolbars', // MISSING
@@ -119,6 +120,7 @@ CKEDITOR.lang['ja'] =
 		alignTop		: '上',
 		alignMiddle		: '中央',
 		alignBottom		: '下',
+		invalidValue	: 'Invalid value.', // MISSING
 		invalidHeight	: '高さは数値で入力してください。',
 		invalidWidth	: '幅は数値で入力してください。',
 		invalidCssLength	: 'Value specified for the "%1" field must be a positive number with or without a valid CSS measurement unit (px, %, in, cm, mm, em, ex, pt, or pc).', // MISSING

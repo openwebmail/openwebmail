@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -31,7 +31,8 @@ CKEDITOR.lang['de'] =
 	 * Screenreader titles. Please note that screenreaders are not always capable
 	 * of reading non-English words. So be careful while translating it.
 	 */
-	editorTitle : 'WYSIWYG-Editor, %1, drücken Sie ALT 0 für Hilfe.',
+	editorTitle : 'WYSIWYG-Editor, %1',
+	editorHelp : 'Drücken Sie ALT 0 für Hilfe',
 
 	// ARIA descriptions.
 	toolbars	: 'Editor Symbolleisten',
@@ -119,6 +120,7 @@ CKEDITOR.lang['de'] =
 		alignTop		: 'Oben',
 		alignMiddle		: 'Mitte',
 		alignBottom		: 'Unten',
+		invalidValue	: 'Invalid value.', // MISSING
 		invalidHeight	: 'Höhe muss eine Zahl sein.',
 		invalidWidth	: 'Breite muss eine Zahl sein.',
 		invalidCssLength	: 'Wert spezifiziert für "%1" Feld muss ein positiver numerischer Wert sein mit oder ohne korrekte CSS Messeinheit (px, %, in, cm, mm, em, ex, pt oder pc).',

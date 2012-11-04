@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -30,7 +30,7 @@ CKEDITOR.plugins.setLang( 'a11yhelp', 'gu',
 							{
 								name : 'Editor Context Menu', // MISSING
 								legend :
-									'Press ${contextMenu} or APPLICATION KEY to open context-menu. Then move to next menu option with TAB or DOWN ARROW. Move to previous option with  SHIFT+TAB or UP ARROW. Press SPACE or ENTER to select the menu option. Open sub-menu of current option wtih SPACE or ENTER or RIGHT ARROW. Go back to parent menu item with ESC or LEFT ARROW. Close context menu with ESC.'  // MISSING
+									'Press ${contextMenu} or APPLICATION KEY to open context-menu. Then move to next menu option with TAB or DOWN ARROW. Move to previous option with SHIFT+TAB or UP ARROW. Press SPACE or ENTER to select the menu option. Open sub-menu of current option with SPACE or ENTER or RIGHT ARROW. Go back to parent menu item with ESC or LEFT ARROW. Close context menu with ESC.'  // MISSING
 							},
 
 							{
@@ -47,20 +47,20 @@ CKEDITOR.plugins.setLang( 'a11yhelp', 'gu',
 						]
 			},
 			{
-				name : 'Commands', // MISSING
+				name : 'કમાંડસ',
 				items :
 						[
 							{
-								name : ' Undo command', // MISSING
-								legend : 'Press ${undo}' // MISSING
+								name : 'અન્ડું કમાંડ',
+								legend : '$ દબાવો {undo}'
 							},
 							{
-								name : ' Redo command', // MISSING
-								legend : 'Press ${redo}' // MISSING
+								name : 'ફરી કરો કમાંડ',
+								legend : '$ દબાવો {redo}'
 							},
 							{
-								name : ' Bold command', // MISSING
-								legend : 'Press ${bold}' // MISSING
+								name : 'બોલ્દનો કમાંડ',
+								legend : '$ દબાવો {bold}'
 							},
 							{
 								name : ' Italic command', // MISSING

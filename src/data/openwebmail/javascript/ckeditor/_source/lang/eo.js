@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -31,7 +31,8 @@ CKEDITOR.lang['eo'] =
 	 * Screenreader titles. Please note that screenreaders are not always capable
 	 * of reading non-English words. So be careful while translating it.
 	 */
-	editorTitle : 'Redaktilo por Riĉiga Teksto, %1, premu ALT 0 por helpo.',
+	editorTitle : 'riĉteksta redaktilo, %1',
+	editorHelp : 'Premu ALT 0 por helpilo',
 
 	// ARIA descriptions.
 	toolbars	: 'Ilobretoj de la redaktilo',
@@ -119,6 +120,7 @@ CKEDITOR.lang['eo'] =
 		alignTop		: 'Supre',
 		alignMiddle		: 'Centre',
 		alignBottom		: 'Malsupre',
+		invalidValue	: 'Nevalida Valoro',
 		invalidHeight	: 'Alto devas esti nombro.',
 		invalidWidth	: 'Larĝo devas esti nombro.',
 		invalidCssLength	: 'La valoro indikita por la "%1" kampo devas esti pozitiva nombro kun aŭ sen valida CSSmezurunuo (px, %, in, cm, mm, em, ex, pt, or pc).',

@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -30,19 +30,19 @@ CKEDITOR.plugins.setLang( 'a11yhelp', 'cs',
 							{
 								name : 'Kontextové menu editoru',
 								legend :
-									'Press ${contextMenu} or APPLICATION KEY to open context-menu. Then move to next menu option with TAB or DOWN ARROW. Move to previous option with  SHIFT+TAB or UP ARROW. Press SPACE or ENTER to select the menu option. Open sub-menu of current option wtih SPACE or ENTER or RIGHT ARROW. Go back to parent menu item with ESC or LEFT ARROW. Close context menu with ESC.'  // MISSING
+									'Stiskněte ${contextMenu} nebo klávesu APPLICATION k otevření kontextového menu. Pak se přesuňte na další možnost menu pomocí TAB nebo ŠIPKY DOLŮ. Přesuňte se na předchozí možnost pomocí  SHIFT+TAB nebo ŠIPKY NAHORU. Stiskněte MEZERNÍK nebo ENTER pro zvolení možnosti menu. Podmenu současné možnosti otevřete pomocí MEZERNÍKU nebo ENTER či ŠIPKY DOLEVA. Kontextové menu uzavřete stiskem ESC.' 
 							},
 
 							{
-								name : 'Editor List Box', // MISSING
+								name : 'Rámeček seznamu editoru',
 								legend :
-									'Inside a list-box, move to next list item with TAB OR DOWN ARROW. Move to previous list item with SHIFT + TAB or UP ARROW. Press SPACE or ENTER to select the list option. Press ESC to close the list-box.'  // MISSING
+									'Uvnitř rámečku seznamu se přesunete na další položku menu pomocí TAB nebo ŠIPKA DOLŮ. Na předchozí položku se přesunete SHIFT + TAB nebo ŠIPKA NAHORU. Stiskněte MEZERNÍK nebo ENTER pro zvolení možnosti seznamu. Stiskněte ESC pro uzavření seznamu.' 
 							},
 
 							{
 								name : 'Lišta cesty prvku v editoru',
 								legend :
-									'Press ${elementsPathFocus} to navigate to the elements path bar. Move to next element button with TAB or RIGHT ARROW. Move to previous button with  SHIFT+TAB or LEFT ARROW. Press SPACE or ENTER to select the element in editor.'  // MISSING
+									'Stiskněte ${elementsPathFocus} pro procházení lišty cesty prvku. Na další tlačítko prvku se přesunete pomocí TAB nebo ŠIPKA VPRAVO. Na předchozí položku se přesunete pomocí SHIFT + TAB nebo ŠIPKA VLEVO. Stiskněte MEZERNÍK nebo ENTER pro vybrání prvku v editoru.' 
 							}
 						]
 			},

@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -31,10 +31,11 @@ CKEDITOR.lang['vi'] =
 	 * Screenreader titles. Please note that screenreaders are not always capable
 	 * of reading non-English words. So be careful while translating it.
 	 */
-	editorTitle : 'Bộ soạn thảo, %1, nhấn ALT + 0 để xem hướng dẫn.',
+	editorTitle : 'Trình soạn thảo phong phú, %1',
+	editorHelp : 'Nhấn ALT + 0 để được giúp đỡ',
 
 	// ARIA descriptions.
-	toolbars	: 'Thanh công cụ soạn thảo',
+	toolbars	: 'Thanh công cụ',
 	editor		: 'Bộ soạn thảo',
 
 	// Toolbar buttons without dialogs.
@@ -119,6 +120,7 @@ CKEDITOR.lang['vi'] =
 		alignTop		: 'Trên',
 		alignMiddle		: 'Giữa',
 		alignBottom		: 'Dưới',
+		invalidValue	: 'Invalid value.', // MISSING
 		invalidHeight	: 'Chiều cao phải là số nguyên.',
 		invalidWidth	: 'Chiều rộng phải là số nguyên.',
 		invalidCssLength	: 'Giá trị quy định cho trường "%1" phải là một số dương có hoặc không có một đơn vị đo CSS hợp lệ (px, %, in, cm, mm, em, ex, pt, hoặc pc).',
@@ -511,8 +513,8 @@ CKEDITOR.lang['vi'] =
 		eleTitle : '%1 thành phần'
 	},
 
-	numberedlist	: 'Danh sách có thứ tự',
-	bulletedlist	: 'Danh sách không thứ tự',
+	numberedlist	: 'Chèn/Xoá Danh sách có thứ tự',
+	bulletedlist	: 'Chèn/Xoá Danh sách không thứ tự',
 	indent			: 'Dịch vào trong',
 	outdent			: 'Dịch ra ngoài',
 

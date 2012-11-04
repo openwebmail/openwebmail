@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2011, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -31,7 +31,8 @@ CKEDITOR.lang['cy'] =
 	 * Screenreader titles. Please note that screenreaders are not always capable
 	 * of reading non-English words. So be careful while translating it.
 	 */
-	editorTitle : 'Golygydd testun cyfoethog, %1, gwasgwch ALT 0 am gymorth.',
+	editorTitle : 'Golygydd testun cyfoethog, %1',
+	editorHelp : 'Gwasgwch ALT 0 am gymorth',
 
 	// ARIA descriptions.
 	toolbars	: 'Bariau offer golygydd',
@@ -119,6 +120,7 @@ CKEDITOR.lang['cy'] =
 		alignTop		: 'Brig',
 		alignMiddle		: 'Canol',
 		alignBottom		: 'Gwaelod',
+		invalidValue	: 'Gwerth annilys.',
 		invalidHeight	: 'Rhaid i\'r Uchder fod yn rhif.',
 		invalidWidth	: 'Rhaid i\'r Lled fod yn rhif.',
 		invalidCssLength	: 'Mae\'n rhaid i\'r gwerth ar gyfer maes "%1" fod yn rhif positif gyda neu heb uned fesuriad CSS dilys (px, %, in, cm, mm, em, ex, pt, neu pc).',
