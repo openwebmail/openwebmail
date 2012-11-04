@@ -1478,7 +1478,7 @@ sub checknotify {
 
    my $from      = $prefs{email};
    my $userfroms = get_userfroms();
-   my $realname  = exists $userfroms->{$from} ? $userfroms->{$from} : ((keys %{$userfroms})[0] || '');
+   my $realname  = (defined $from && exists $userfroms->{$from}) ? $userfroms->{$from} : ((keys %{$userfroms})[0] || '');
 
    foreach my $email (keys %message) {
       my $date = ow::datetime::dateserial2datefield(ow::datetime::gmtime2dateserial(), $prefs{timeoffset}, $prefs{daylightsaving}, $prefs{timezone});
