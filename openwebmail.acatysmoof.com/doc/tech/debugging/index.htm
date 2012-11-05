@@ -47,6 +47,21 @@
       <td>outputs all activity of the mailfilter system. Tracks which messages are filtered, and which filter did it.</td>
     </tr>
     <tr>
+      <td nowrap>debug_mailprocess    yes</td>
+      <td>to logfile set in openwebmail.conf</td>
+      <td>outputs basic details as message spools are processed. This is verbose. Use only as needed.</td>
+    </tr>
+    <tr>
+      <td nowrap>debug_maildb    yes</td>
+      <td>to logfile set in openwebmail.conf</td>
+      <td>outputs finer details regarding mail header parsing and basic mail db activity as message spools are processed. This is VERY verbose. Use only as needed.</td>
+    </tr>
+    <tr>
+      <td nowrap>debug_maildb_buffer    yes</td>
+      <td>to logfile set in openwebmail.conf</td>
+      <td>outputs in high detail the movements of the sliding buffer while message spools are processed. This is VERY verbose. Use only as needed.</td>
+    </tr>
+    <tr>
       <td nowrap>error_with_debuginfo   yes</td>
       <td>to browser window in the event of an error</td>
       <td>outputs a stacktrace dump in addition to the normal error message. Stacktraces can be large and will fill the browser window.</td>
