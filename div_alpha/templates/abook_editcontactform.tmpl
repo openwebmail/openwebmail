@@ -1,0 +1,1298 @@
+<tmpl_var header_template escape="none">
+
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl" method="post" name="editForm" id="editForm" enctype="multipart/form-data">
+<input type="hidden" name="action" value="addredit">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+<input type="hidden" name="searchtype" value="<tmpl_var searchtype escape="html">">
+<input type="hidden" name="keyword" value="<tmpl_var keyword escape="html">">
+<input type="hidden" name="msgdatetype" value="<tmpl_var msgdatetype escape="html">">
+<input type="hidden" name="message_id" value="<tmpl_var messageid escape="html">">
+
+<input type="hidden" name="abooksort" value="<tmpl_var abooksort escape="html">">
+<input type="hidden" name="abookpage" value="<tmpl_var abookpage escape="html">">
+<input type="hidden" name="abooklongpage" value="<tmpl_var abooklongpage escape="html">">
+<input type="hidden" name="abooksearchtype" value="<tmpl_var abooksearchtype escape="html">">
+<input type="hidden" name="abookkeyword" value="<tmpl_var abookkeyword escape="html">">
+<input type="hidden" name="abookcollapse" value="<tmpl_var abookcollapse escape="html">">
+
+<input type="hidden" name="rootxowmuid" value="<tmpl_var rootxowmuid escape="html">">
+<input type="hidden" name="editformcaller" value="<tmpl_var editformcaller escape="html">">
+<input type="hidden" name="formchange" value="">
+
+<!-- zero traversedirection by default -->
+<input type="hidden" name="targetagent" value="0<tmpl_if has_targetagent>,<tmpl_var targetagentpath escape="html"></tmpl_if>">
+
+<input type="hidden" name="X-OWM-UID.0.VALUE" value="<tmpl_var xowmuid escape="html">">
+
+<div id="wrapper">
+  <div id="header">
+    <div id="titlebar">
+      <div id="lefttitle">gettext('Edit Contact')</div>
+      <div id="righttitle">
+        <tmpl_if xowmuid>
+
+        <input type="hidden" name="abookfolder" value="<tmpl_var abookfolder escape="html">">
+        <tmpl_if is_abookfolderdefault><tmpl_if abookfolder_ALL>gettext('Addressbook: All Addressbooks')</tmpl_if><tmpl_if abookfolder_global>gettext('Addressbook: Global Addressbook')</tmpl_if><tmpl_if abookfolder_ldapcache>gettext('Addressbook: Global LDAP Addressbook')</tmpl_if><tmpl_else>gettext('Addressbook: <tmpl_var abookfolder_label escape="html">')</tmpl_if>
+
+        <tmpl_else>
+
+        <label for="abookfolder">gettext('Destination:')</label>
+
+        <select name="abookfolder">
+          <tmpl_loop writableabooksloop>
+          <tmpl_if is_defaultabookfolder>
+          <tmpl_if option_ALL><option value="ALL" <tmpl_if selected>selected</tmpl_if>>gettext('All Addressbooks')<tmpl_if is_global> *</tmpl_if></option></tmpl_if>
+          <tmpl_if option_global><option value="global" <tmpl_if selected>selected</tmpl_if>>gettext('Global Addressbook')<tmpl_if is_global> *</tmpl_if></option></tmpl_if>
+          <tmpl_if option_ldapcache><option value="ldapcache" <tmpl_if selected>selected</tmpl_if>>gettext('Global LDAP Addressbook')<tmpl_if is_global> *</tmpl_if></option></tmpl_if>
+          <tmpl_else>
+          <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"><tmpl_if is_global> *</tmpl_if></option>
+          </tmpl_if>
+          </tmpl_loop>
+        </select>
+
+        </tmpl_if>
+      </div>
+    </div>
+
+    <ul id="navigation">
+      <tmpl_if is_caller_readmessage>
+      <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=readmessage&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=simple&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon" title="gettext('back to message reading')"><tmpl_if use_texticon>gettext('back to message reading')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="gettext('back to message reading')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if is_caller_listmessages>
+      <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">" accesskey="B" class="icon" title="gettext('back to message listing')"><tmpl_if use_texticon>gettext('back to message listing')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="gettext('back to message listing')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if is_caller_ALL>
+      <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=simple&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;abookfolder=ALL&amp;abookpage=<tmpl_var abookpage escape="url">&amp;abooksort=<tmpl_var abooksort escape="url">&amp;abookkeyword=<tmpl_var abookkeyword escape="url">&amp;abooksearchtype=<tmpl_var abooksearchtype escape="url">&amp;abookcollapse=<tmpl_var abookcollapse escape="url">" accesskey="B" class="icon" title="gettext('back to all addressbooks')"><tmpl_if use_texticon>gettext('back to all addressbooks')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="gettext('back to all addressbooks')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if is_caller_abookfolder>
+      <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=simple&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;abookfolder=<tmpl_var abookfolder escape="url">&amp;abookpage=<tmpl_var abookpage escape="url">&amp;abooksort=<tmpl_var abooksort escape="url">&amp;abookkeyword=<tmpl_var abookkeyword escape="url">&amp;abooksearchtype=<tmpl_var abooksearchtype escape="url">&amp;abookcollapse=<tmpl_var abookcollapse escape="url">" accesskey="B" class="icon" title="<tmpl_if is_abookfolderdefault><tmpl_if abookfolder_ALL>gettext('back to All Addressbooks')</tmpl_if><tmpl_if abookfolder_global>gettext('back to the Global Addressbook')</tmpl_if><tmpl_if abookfolder_ldapcache>gettext('back to the Global LDAP Addressbook')</tmpl_if><tmpl_else>gettext('back to <tmpl_var abookfolder_label escape="html">')</tmpl_if>"><tmpl_if use_texticon><tmpl_if is_abookfolderdefault><tmpl_if abookfolder_ALL>gettext('back to All Addressbooks')</tmpl_if><tmpl_if abookfolder_global>gettext('back to the Global Addressbook')</tmpl_if><tmpl_if abookfolder_ldapcache>gettext('back to the Global LDAP Addressbook')</tmpl_if><tmpl_else>gettext('back to <tmpl_var abookfolder_label escape="html">')</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="<tmpl_if is_abookfolderdefault><tmpl_if abookfolder_ALL>gettext('back to All Addressbooks')</tmpl_if><tmpl_if abookfolder_global>gettext('back to the Global Addressbook')</tmpl_if><tmpl_if abookfolder_ldapcache>gettext('back to the Global LDAP Addressbook')</tmpl_if><tmpl_else>gettext('back to <tmpl_var abookfolder_label escape="html">')</tmpl_if>"></tmpl_if></a></li>
+      </tmpl_if>
+    </ul>
+  </div> <!-- #header end -->
+
+  <div id="content">
+    <div class="contentbox">
+      <div class="contentboxdata">
+        <tmpl_loop contactpath><tmpl_if depth>&nbsp;<tmpl_if use_texticon>=&gt;<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowrighton escape="html">" class="iconset_small" alt="=&gt;"></tmpl_if>&nbsp;</tmpl_if><tmpl_if newagent>gettext('New Agent')<tmpl_else><tmpl_var name escape="html"></tmpl_if></tmpl_loop></b>
+
+        <div class="right">
+          <select name="X-OWM-CHARSET.0.VALUE" accesskey="I" onchange="javascript:document.editForm.formchange.value='X-OWM-CHARSET,0,0'; document.editForm.submit();">
+            <tmpl_loop convtoselectloop>
+            <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+          </select>
+          <input type="hidden" name="convfrom" value="<tmpl_var composecharset escape="html">">
+        </div>
+      </div>
+    </div>
+
+    <tmpl_loop contactloop>
+    <div class="contentbox">
+      <div class="contentboxtitle">gettext('Personal Information')</div>
+
+      <div class="contentboxdata">
+        <div class="editcontact_row">
+          <tmpl_if PHOTO>
+          <tmpl_loop PHOTO>
+          <div class="contactphoto">
+            <tmpl_if URI>
+
+            <tmpl_if show_inline>
+            <a name="PHOTO" href="<tmpl_var VALUE escape="html">" target="_new"><img src="<tmpl_var VALUE escape="html">" border="1"></a>
+            <tmpl_else>
+            <a name="PHOTO" href="<tmpl_var VALUE escape="html">" target="_new" class="icon" title="<tmpl_var VALUE escape="html">"><tmpl_if use_texticon><tmpl_var VALUE escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_link escape="html">" class="iconset_small" alt="<tmpl_var VALUE escape="html">"></tmpl_if></a>
+            </tmpl_if>
+
+            <tmpl_else>
+            <tmpl_if BASE64>
+
+            <a name="PHOTO" href="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" target="_new"><img src="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" border="1"></a>
+
+            <tmpl_else>
+
+            gettext('Photo could not be displayed')
+            </tmpl_if>
+
+            </tmpl_if>
+
+            <a href="javascript:document.editForm.formchange.value='PHOTO,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a>
+
+            <input type="hidden" name="PHOTO.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">">
+            <tmpl_loop TYPES>
+            <input type="hidden" name="PHOTO.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+            <tmpl_if GROUP><input type="hidden" name="PHOTO.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">"></tmpl_if>
+          </div>
+          </tmpl_loop>
+                                        </tmpl_if>
+        </div>
+
+        <tmpl_if N>
+        <div class="editcontact_row">
+
+          <label>gettext('Name Attributes')<span class="required">*</span></label>
+
+          <tmpl_loop N>
+          <div class="nameattribute">
+            <tmpl_if GROUP><input class="mono" type="text" name="N.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+            <label><tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if></label>
+          </div>
+
+          <div class="nameattribute">
+            <input class="mono" type="text" name="N.<tmpl_var count escape="html">.VALUE.NAMEPREFIX" value="<tmpl_var NAMEPREFIX escape="html">" size="4" onblur="updateFN(this);">
+            <label><td class="smalltext">gettext('prefix')</label>
+          </div>
+
+          <div class="nameattribute">
+          <input class="mono" type="text" name="N.<tmpl_var count escape="html">.VALUE.GIVENNAME" value="<tmpl_var GIVENNAME escape="html">" size="10" onblur="updateFN(this);">
+            <label>gettext('first')</label>
+          </div>
+
+          <div class="nameattribute">
+            <input class="mono" type="text" name="N.<tmpl_var count escape="html">.VALUE.ADDITIONALNAMES" value="<tmpl_var ADDITIONALNAMES escape="html">" size="10" onblur="updateFN(this);">
+            <label>gettext('middle')</label>
+          </div>
+
+          <div class="nameattribute">
+            <input class="mono" type="text" name="N.<tmpl_var count escape="html">.VALUE.FAMILYNAME" value="<tmpl_var FAMILYNAME escape="html">" size="10" onblur="updateFN(this);">
+            <label>gettext('last')</label>
+          </div>
+
+          <div class="nameattribute">
+            <input class="mono" type="text" name="N.<tmpl_var count escape="html">.VALUE.NAMESUFFIX" value="<tmpl_var NAMESUFFIX escape="html">" size="4" onblur="updateFN(this);">
+            <label>gettext('suffix')</label>
+          </div>
+
+          <tmpl_loop TYPES>
+          <input type="hidden" name="N.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+          </tmpl_loop>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if FN>
+        <div class="editcontact_row">
+          <label>gettext('Full Name')</label>
+
+          <tmpl_loop SOUND>
+          <tmpl_if URI>
+          <tmpl_if is_phonetic>
+          <div class="smalltext">gettext('phonetic pronunciation:')&nbsp;<tmpl_var VALUE escape="html"></div>
+          <tmpl_else>
+          <a name="SOUND" href="<tmpl_var VALUE escape="html">" target="_new"><tmpl_if use_texticon>gettext('play pronunciation sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_playsound escape="html">" class="iconset_small" alt="gettext('play pronunciation sound')"></tmpl_if></a>
+          </tmpl_if>
+          <tmpl_else>
+          <tmpl_if BASE64>
+          <a name="SOUND" href="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" target="_new" title="gettext('play pronunciation sound')"><tmpl_if use_texticon>gettext('play pronunciation sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_playsound escape="html">" class="iconset_small" alt="gettext('play pronunciation sound')"></tmpl_if></a>
+          </tmpl_if>
+          </tmpl_if>
+          &nbsp;<a href="javascript:document.editForm.formchange.value='SOUND,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete this sound')"><tmpl_if use_texticon>gettext('delete this sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete this sound')"></tmpl_if></a>&nbsp;&nbsp;
+          <tmpl_if GROUP><input type="hidden" name="SOUND.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">"></tmpl_if>
+          <input type="hidden" name="SOUND.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">">
+          <tmpl_loop TYPES>
+          <input type="hidden" name="SOUND.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+          </tmpl_loop>
+          </tmpl_loop>
+
+          <tmpl_loop FN>
+
+          <tmpl_if GROUP><input class="mono" type="text" name="FN.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+          <input class="mono" type="text" name="FN.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='FN,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if><
+
+          <div class="smalltext"><tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if></div>
+
+          <tmpl_loop TYPES>
+          <input type="hidden" name="FN.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+          </tmpl_loop>
+
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if NICKNAME>
+        <div class="editcontact_row">
+          <label>gettext('Nicknames')</b>&nbsp;<a href="javascript:document.editForm.formchange.value='NICKNAME,0,1'; document.editForm.submit();" title="gettext('add another nickname')">+</a></label>
+
+          <tmpl_loop NICKNAME>
+          <div class="nickname">
+            <tmpl_if GROUP><input class="mono" type="text" name="NICKNAME.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+
+            <input class="mono" type="text" name="NICKNAME.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='NICKNAME,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+            <tmpl_loop TYPES>
+            <input type="hidden" name="NICKNAME.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+          </div>
+
+          <tmpl_if last>
+
+          <div class="smalltext"><tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if></div>
+
+          </tmpl_if>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if SORT-STRING>
+        <div class="editcontact_row">
+          <label>gettext('Last Name Sort Override')</label>
+
+          <tmpl_loop SORT-STRING>
+
+          <div class="sortstring">
+            <tmpl_if GROUP><input class="mono" type="text" name="SORT-STRING.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+            <input class="mono" type="text" name="SORT-STRING.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='SORT-STRING,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+          </div>
+
+          <div class="smalltext"><tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if></div>
+          <div class="smalltext">gettext('last name:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;sort override:<i>Trapp</i>')</div>
+
+          <tmpl_loop TYPES>
+          <input type="hidden" name="SORT-STRING.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+          </tmpl_loop>
+
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if X-OWM-BDAY>
+        <div class="editcontact_row">
+          <label>gettext('Birthday')</label>
+
+          <tmpl_loop X-OWM-BDAY>
+          <div class="birthday">
+            <tmpl_if GROUP><input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+            <tmpl_if GROUP><label>gettext('group')<tmpl_else>&nbsp;</label></tmpl_if>
+          </div>
+
+          <div class="birthday">
+            <input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.VALUE.MONTH" value="<tmpl_var MONTH escape="html">" size="3" maxlength="2" onblur="updateX_OWM_BDAY_AGE(this);">
+            <label>gettext('month')</label>
+          </div>
+
+          <div class="birthday">
+            <input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.VALUE.DAY" value="<tmpl_var DAY escape="html">" size="3" maxlength="2" onblur="updateX_OWM_BDAY_AGE(this);">
+            <label>gettext('day')</label>
+          </div>
+
+          <div class="birthday">
+            <input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.VALUE.YEAR" value="<tmpl_var YEAR escape="html">" size="5" maxlength="4" onblur="updateX_OWM_BDAY_AGE(this);">
+            <label>gettext('year')</label>
+          </div>
+
+          <div class="birthday">
+            <input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.VALUE.AGE" value="<tmpl_var AGE escape="html">" size="4" maxlength="4" onfocus="updateX_OWM_BDAY_AGE(this);" onblur="updateX_OWM_BDAY_YEAR(this);">
+            <label>gettext('age')</label>
+          </div>
+
+          <a href="javascript:void(0);" onclick="calPopup(this,document.editForm.elements['X-OWM-BDAY.<tmpl_var count escape="js">.VALUE.YEAR'].value,document.editForm.elements['X-OWM-BDAY.<tmpl_var count escape="js">.VALUE.MONTH'].value,document.editForm.elements['X-OWM-BDAY.<tmpl_var count escape="js">.VALUE.DAY'].value,'updateX_OWM_BDAY','popup_calendar',50,0);" title="gettext('calendar')"><tmpl_if use_texticon>gettext('calendar')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_calendar escape="html">" class="iconset_small" alt="gettext('calendar')"></tmpl_if></a>
+          <tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='X-OWM-BDAY,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+
+          <tmpl_loop TYPES>
+          <input type="hidden" name="X-OWM-BDAY.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+          </tmpl_loop>
+
+           </tmpl_loop>
+        </div>
+        </tmpl_if>
+      </div>
+    </div>
+
+    <div class="contentbox">
+      <div class="contentboxtitle">gettext('Email Addresses')&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();" title="gettext('add another email address')">+</div>
+
+      <div class="contentboxdata">
+        <tmpl_if EMAIL>
+        <tmpl_loop EMAIL>
+        <div class="email">
+          <div class="editcontact_row">
+            <tmpl_if GROUP><input class="mono" type="text" name="EMAIL.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+
+            <input class="mono" type="text" name="EMAIL.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">
+            <input type="radio" name="EMAIL.preferred" value="<tmpl_var count escape="html">" <tmpl_if PREF>checked="checked"</tmpl_if>>
+            <tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='EMAIL,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+
+            <div class="smalltext"><tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if></div>
+          </div>
+
+          <tmpl_loop TYPES>
+            <input type="hidden" name="EMAIL.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+          </tmpl_loop>
+        </div>
+        </tmpl_loop>
+        </tmpl_if>
+      </div>
+    </div>
+
+    <div class="contentbox">
+      <div class="contentboxtitle">gettext('Telephone Numbers')&nbsp;<a name="TEL" href="javascript:document.editForm.formchange.value='TEL,0,1'; document.editForm.submit();" title="gettext('add another telephone number')">+</a></div>
+
+      <tmpl_if TEL>
+      <div class="contentboxdata">
+        <tmpl_loop TEL>
+        <div class="phonenumber">
+          <tmpl_if GROUP><input class="mono" type="text" name="EMAIL.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if><input class="mono" type="text" name="TEL.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="25"><input type="radio" name="TEL.preferred" value="<tmpl_var count escape="html">" <tmpl_if PREF>checked="checked"</tmpl_if>>
+
+          <div id="phonetypes">
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="HOME" <tmpl_if HOME>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','HOME');"><div class="smalltext">gettext('home')</div></a>
+
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="WORK" <tmpl_if WORK>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','WORK');"><div class="smalltext">gettext('work')</div></a>
+
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="CELL" <tmpl_if CELL>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','CELL');"><div class="smalltext">gettext('cell')</div></a>
+
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="CAR" <tmpl_if CAR>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','CAR');"><div class="smalltext">gettext('car')</div></a>
+
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="VIDEO" <tmpl_if VIDEO>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','VIDEO');"><div class="smalltext">gettext('video')</div></a>
+
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="PAGER" <tmpl_if PAGER>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','PAGER');"><div class="smalltext">gettext('pager')</div></a>
+
+            <tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='TEL,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+
+            <tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if>
+
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="VOICE" <tmpl_if VOICE>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','VOICE');"><div class="smalltext">gettext('voice')</div></a>
+
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="FAX" <tmpl_if FAX>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','FAX');"><div class="smalltext">gettext('fax')</div></a>
+
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="ISDN" <tmpl_if ISDN>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','ISDN');"><div class="smalltext">gettext('isdn')</div></a>
+
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="BBS" <tmpl_if BBS>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','BBS');"><div class="smalltext">gettext('bbs')</div></a>
+
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="MODEM" <tmpl_if MODEM>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','MODEM');"><div class="smalltext">gettext('modem')</div></a>
+
+            <input class="mono" type="checkbox" name="TEL.<tmpl_var count escape="html">.TYPE" value="MSG" <tmpl_if MSG>checked="checked"</tmpl_if>>
+            <a href="javascript:toggle_checkbox('TEL.<tmpl_var count escape="html">.TYPE','MSG');"><div class="smalltext">gettext('message')</div></a>
+          </div>
+        </div>
+        </tmpl_loop>
+      </div>
+      </tmpl_if>
+    </div>
+
+    <div class="contentbox">
+      <div class="contentboxtitle">gettext('Addresses')&nbsp;<a name="ADR" href="javascript:document.editForm.formchange.value='ADR,0,1'; document.editForm.submit();" title="gettext('add another address')">+</a></div>
+
+      <tmpl_if ADR>
+      <div class="contentboxdata">
+        <tmpl_loop ADR>
+        <div class="address">
+          <div class="left">
+            <tmpl_if GROUP>
+            <div class="editcontact_row">
+              <input class="mono" type="text" name="ADR.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">
+              <div class="smalltext">gettext('group')</div>
+            </div>
+            </tmpl_if>
+
+            <div class="editcontact_row">
+              <input class="mono" type="text" name="ADR.<tmpl_var count escape="html">.VALUE.STREET" value="<tmpl_var STREET escape="html">" size="27">
+              <div class="smalltext">gettext('street address')</div>
+            </div>
+
+            <div class="editcontact_row">
+              <input class="mono" type="text" name="ADR.<tmpl_var count escape="html">.VALUE.EXTENDEDADDRESS" value="<tmpl_var EXTENDEDADDRESS escape="html">" size="27">
+              <div class="smalltext">gettext('suite, apartment, etc.')</div>
+            </div>
+
+            <div class="editcontact_row">
+              <input class="mono" type="text" name="ADR.<tmpl_var count escape="html">.VALUE.POSTOFFICEADDRESS" value="<tmpl_var POSTOFFICEADDRESS escape="html">" size="27">
+              <div class="smalltext">gettext('postoffice box')</div>
+            </div>
+
+            <div class="editcontact_row">
+              <div class="editcontact_subrow">
+                <input class="mono" type="text" name="ADR.<tmpl_var count escape="html">.VALUE.LOCALITY" value="<tmpl_var LOCALITY escape="html">" size="12">
+                <div class="smalltext">gettext('city')</div>
+              </div>
+
+              <div class="editcontact_subrow">
+                <input class="mono" type="text" name="ADR.<tmpl_var count escape="html">.VALUE.REGION" value="<tmpl_var REGION escape="html">" size="12">
+                <div class="smalltext">gettext('state/province')</div>
+              </div>
+            </div>
+
+            <div class="editcontact_row">
+              <div class="editcontact_subrow">
+                <input class="mono" type="text" name="ADR.<tmpl_var count escape="html">.VALUE.POSTALCODE" value="<tmpl_var POSTALCODE escape="html">" size="10">
+                <div class="smalltext">gettext('zip/postcode')</div>
+              </div>
+
+              <div class="editcontact_subrow">
+                <input class="mono" type="text" name="ADR.<tmpl_var count escape="html">.VALUE.COUNTRY" value="<tmpl_var COUNTRY escape="html">" size="10" onblur="if (document.forms['editForm'].elements['ADR.<tmpl_var count escape="html">.VALUE.LABEL'].value == '') { make_label('<tmpl_var count escape="js">'); update_map('<tmpl_var count escape="js">'); }">
+                <div class="smalltext">gettext('country')</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="right">
+            <div class="addresstypes">
+              <input class="mono" type="checkbox" name="ADR.<tmpl_var count escape="html">.TYPE" value="HOME" <tmpl_if HOME>checked="checked"</tmpl_if>>
+              <a href="javascript:toggle_checkbox('ADR.<tmpl_var count escape="html">.TYPE','HOME');"><div class="smalltext">gettext('home address')</div></a>
+
+              <input class="mono" type="checkbox" name="ADR.<tmpl_var count escape="html">.TYPE" value="WORK" <tmpl_if WORK>checked="checked"</tmpl_if>>
+              <a href="javascript:toggle_checkbox('ADR.<tmpl_var count escape="html">.TYPE','WORK');"><div class="smalltext">gettext('work address')</div></a>
+
+              <input class="mono" type="checkbox" name="ADR.<tmpl_var count escape="html">.TYPE" value="DOM" <tmpl_if DOM>checked="checked"</tmpl_if>>
+              <a href="javascript:toggle_checkbox('ADR.<tmpl_var count escape="html">.TYPE','DOM');"><div class="smalltext">gettext('domestic address')</div></a>
+
+              <input class="mono" type="checkbox" name="ADR.<tmpl_var count escape="html">.TYPE" value="INTL" <tmpl_if INTL>checked="checked"</tmpl_if>>
+              <a href="javascript:toggle_checkbox('ADR.<tmpl_var count escape="html">.TYPE','INTL');"><div class="smalltext">gettext('international address')</div></a>
+
+              <input class="mono" type="checkbox" name="ADR.<tmpl_var count escape="html">.TYPE" value="POSTAL" <tmpl_if POSTAL>checked="checked"</tmpl_if>>
+              <a href="javascript:toggle_checkbox('ADR.<tmpl_var count escape="html">.TYPE','POSTAL');"><div class="smalltext">gettext('postal address')</div></a>
+
+              <input class="mono" type="checkbox" name="ADR.<tmpl_var count escape="html">.TYPE" value="PARCEL" <tmpl_if PARCEL>checked="checked"</tmpl_if>>
+              <a href="javascript:toggle_checkbox('ADR.<tmpl_var count escape="html">.TYPE','PARCEL');"><div class="smalltext">gettext('parcel delivery address')</div></a>
+            </div>
+
+            <textarea rows="6" cols="25" wrap="hard" name="ADR.<tmpl_var count escape="html">.VALUE.LABEL"><tmpl_var LABEL escape="html"></textarea>
+            <input type="radio" name="ADR.preferred" value="<tmpl_var count escape="html">" <tmpl_if PREF>checked="checked"</tmpl_if>>
+
+            <tmpl_if enable_map>
+            <div class="editcontact_row">
+              <div class="addressmap">
+                <iframe name="map_<tmpl_var count escape="html">" class="map" width="370" height="100" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://maps.google.com/maps?q=<tmpl_var mapquery escape="url">&amp;iwloc=near&amp;output=embed"></iframe>
+              </div>
+            </div>
+            <div class="editcontact_row undermap">
+              <a href="javascript:make_label('<tmpl_var count escape="js">');"><div class="smalltext"><b>gettext('make label')</b></div></a>
+
+              <a href="javascript:void(0);" onclick="update_map('<tmpl_var count escape="js">');"><div class="smalltext"><b>gettext('update map')</b></div></a>
+
+              <a href="http://maps.google.com/maps?q=<tmpl_var mapquery escape="url">" target="_new" name="viewlarger_<tmpl_var count escape="html">"><div class="smalltext"><b>gettext('view larger')</b></div></a>
+
+              <tmpl_if deleteable>
+              <div class="deleteaddress"><a href="javascript:document.editForm.formchange.value='ADR,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></div>
+              </tmpl_if>
+            </div>
+            </tmpl_if>
+          </div>
+        </div>
+        </tmpl_loop>
+      </div>
+      </tmpl_if>
+    </div>
+
+    <div class="contentbox">
+      <div class="contentboxtitle">gettext('Work Information')&nbsp;<a name="ORG" href="javascript:document.editForm.formchange.value='ORG,0,1'; document.editForm.submit();" title="gettext('add another set of work information')">+</a></div>
+
+      <tmpl_if LOGO>
+      <div class="contentboxdata">
+        <tmpl_loop LOGO>
+        <div class="worklogo">
+          <tmpl_if URI>
+          <tmpl_if show_inline>
+          <a name="LOGO" href="<tmpl_var VALUE escape="html">" target="_new"><img src="<tmpl_var VALUE escape="html">" border="1"></a>
+          <tmpl_else>
+          <a name="LOGO" href="<tmpl_var VALUE escape="html">" target="_new" class="icon" title="<tmpl_var VALUE escape="html">"><tmpl_if use_texticon><tmpl_var VALUE escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_link escape="html">" class="iconset_small" alt="<tmpl_var VALUE escape="html">"></tmpl_if></a>
+          </tmpl_if>
+
+          <tmpl_else>
+          <tmpl_if BASE64>
+          <a name="LOGO" href="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" target="_new"><img src="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" border="1"></a>
+          <tmpl_else>
+          gettext('Logo could not be displayed')
+          </tmpl_if>
+          </tmpl_if>
+
+          <a href="javascript:document.editForm.formchange.value='LOGO,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a>
+          <input type="hidden" name="LOGO.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">">
+          <tmpl_loop TYPES>
+          <input type="hidden" name="LOGO.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+          </tmpl_loop>
+          <tmpl_if GROUP><input type="hidden" name="LOGO.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">"></tmpl_if>
+        </div>
+        </tmpl_loop>
+      </div>
+      </tmpl_if>
+
+      <tmpl_if ORG>
+      <tmpl_loop ORG>
+      <div class="left">
+        <div class="editcontact_row">
+          <tmpl_if GROUP><input class="mono" type="text" name="ORG.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;</tmpl_if>
+          <tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if>
+
+          <label>gettext('Company Name')</label>
+          <input class="mono" type="text" name="ORG.<tmpl_var count escape="html">.VALUE.ORGANIZATIONNAME" value="<tmpl_var ORGANIZATIONNAME escape="html">" size="30">
+          <div class="smalltext">gettext('abc, inc.')</div>
+        </div>
+
+        <div class="editcontact_row">
+          <label>gettext('Job Classification')</label>
+          <input class="mono" type="text" name="ORG.<tmpl_var count escape="html">.VALUE.ROLE" value="<tmpl_var ROLE escape="html">" size="30">
+          <div class="smalltext">>gettext('manager, executive, etc')</div>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="editcontact_row">
+          <label>gettext('Job Title')</label>
+          <input class="mono" type="text" name="ORG.<tmpl_var count escape="html">.VALUE.TITLE" value="<tmpl_var TITLE escape="html">" size="30">&nbsp;&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='ORG,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete this entire work grouping')"><tmpl_if use_texticon>gettext('delete this entire work grouping')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete this entire work grouping')"></tmpl_if></a></tmpl_if>
+          <div class="smalltext">gettext('v.p., research and development')</div>
+        </div>
+
+        <div class="editcontact_row">
+          <label>gettext('Division Structure')</b>&nbsp;<a href="javascript:document.editForm.formchange.value='ORG.<tmpl_var count escape="html">.VALUE.ORGANIZATIONALUNITS,0,1'; document.editForm.submit();" title="gettext('add another division')">+</a></label>
+
+          <tmpl_loop ORGANIZATIONALUNITS>
+          <input class="mono" type="text" name="ORG.<tmpl_var count escape="html">.VALUE.ORGANIZATIONALUNITS.<tmpl_var unitcount escape="html">" value="<tmpl_var unit escape="html">" size="30">&nbsp;&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='ORG.<tmpl_var count escape="html">.VALUE.ORGANIZATIONALUNITS,<tmpl_var unitcount escape="js">,-1'; document.editForm.submit();" title="gettext('delete this division')"><tmpl_if use_texticon>gettext('delete this division')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete this division')"></tmpl_if></a></tmpl_if></td>
+          <tmpl_if last>
+          <div class="smalltext">gettext('accounting, european division')</div>
+          </tmpl_if>
+          </tmpl_loop>
+        </div>
+      </div>
+
+      <tmpl_loop TYPES>
+            <input type="hidden" name="ORG.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+
+      </tmpl_loop>
+      </tmpl_if>
+    </div>
+
+    <div class="contentbox">
+      <div class="contentboxtitle">gettext('Miscellaneous Information')<a name="URL"></a></div>
+
+      <div class="contentboxdata">
+        <tmpl_if URL>
+        <div class="editcontact_row">
+          <label>gettext('Websites')</b>&nbsp;<a href="javascript:document.editForm.formchange.value='URL,0,1'; document.editForm.submit();" title="gettext('add another website')">+</a></label>
+
+          <tmpl_loop URL>
+          <div class="website">
+            <tmpl_if GROUP><input class="mono" type="text" name="URL.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12"><tmpl_else>&nbsp;</tmpl_if>
+
+            <input class="mono" type="text" name="URL.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='URL,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+            <tmpl_loop TYPES>
+            <input type="hidden" name="URL.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+            <br />
+
+            <tmpl_if last>
+
+            <div class="smalltext"><tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if></div>
+            <div class="smalltext">gettext('http://www.example.com')</div>
+
+            </tmpl_if>
+          </div>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if TZ>
+        <div class="editcontact_row">
+          <label>gettext('Timezone')</label>
+
+          <tmpl_loop TZ>
+          <tmpl_if GROUP><input class="mono" type="text" name="TZ.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if></td>
+
+          <select class="mono" name="TZ.<tmpl_var count escape="html">.VALUE">
+            <tmpl_loop tzselectloop>
+            <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+          </select>
+
+          <a href="<tmpl_var url_html escape="none">/images/system/timezone.gif" target="_timezonemap" title="gettext('timezone map')"><tmpl_if use_texticon>gettext('timezone map')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_earthtimezone escape="html">" class="iconset_small" alt="gettext('timezone map')"></tmpl_if></a>
+
+          <tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='TZ,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+          <tmpl_loop TYPES>
+          <input type="hidden" name="TZ.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+          </tmpl_loop>
+
+          <tmpl_if GROUP><div class="smalltext">gettext('group')</div></tmpl_if>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if GEO>
+        <div class="editcontact_row">
+          <label>gettext('Geographic Position')</label>
+
+          <tmpl_loop GEO>
+          <div class="geoposition">
+            <tmpl_if GROUP><input class="mono" type="text" name="GEO.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12"><tmpl_else>&nbsp;</tmpl_if>
+            <input class="mono" type="text" name="GEO.<tmpl_var count escape="html">.VALUE.LATITUDE" value="<tmpl_var LATITUDE escape="html">" size="20">
+            <input class="mono" type="text" name="GEO.<tmpl_var count escape="html">.VALUE.LONGITUDE" value="<tmpl_var LONGITUDE escape="html">" size="20">
+            <a href="http://itouchmap.com/latlong.html" target="_new" title="gettext('find your geographic position')"><tmpl_if use_texticon>gettext('find your geographic position')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_search escape="html">" class="iconset_small" alt="gettext('find your geographic position')"></tmpl_if></a>
+            <a href="javascript:showGeo('<tmpl_var count escape="html">','map');" title="gettext('show a map of this location')"><tmpl_if use_texticon>gettext('show a map of this location')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_earth escape="html">" class="iconset_small" alt="gettext('show a map of this location')"></tmpl_if></a>
+            <a href="javascript:showGeo('<tmpl_var count escape="html">','photo');" title="gettext('show a satellite photo of this location')"><tmpl_if use_texticon>gettext('show a satellite photo of this location')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_camera escape="html">" class="iconset_small" alt="gettext('show a satellite photo of this location')"></tmpl_if></a>
+            <tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='GEO,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+
+            <tmpl_if GROUP><div class="smalltext">gettext('group')</div></tmpl_if>
+            <div class="smalltext">gettext('latitude')&nbsp;&nbsp;(32.550266)</div>
+            <div class="smalltext">gettext('longitude')&nbsp;&nbsp;(-120.209183)</div>
+
+            <tmpl_loop TYPES>
+            <input type="hidden" name="GEO.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+          </div>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if MAILER>
+        <div class="editcontact_row">
+          <label>gettext('Email Program')</label>
+
+          <tmpl_loop MAILER>
+          <div class="emailprogram">
+            <tmpl_if GROUP><input class="mono" type="text" name="MAILER.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+            <input class="mono" type="text" name="MAILER.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='MAILER,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+
+            <tmpl_if GROUP><div class="smalltext">gettext('group')</div></tmpl_if>
+            <td class="smalltext">gettext('openwebmail, outlook, etc')</span>
+
+            <tmpl_loop TYPES>
+            <input type="hidden" name="MAILER.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+          </div>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if NOTE>
+        <div class="editcontact_row">
+          <label>gettext('Note')</label>
+
+          <tmpl_loop NOTE>
+          <div class="note">
+            <tmpl_if GROUP><input class="mono" type="text" name="NOTE.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+
+            <textarea class="mono" cols="60" rows="8" name="NOTE.<tmpl_var count escape="html">.VALUE"><tmpl_var VALUE escape="html"></textarea>
+            <tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='NOTE,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+
+            <tmpl_loop TYPES>
+            <input type="hidden" name="NOTE.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+
+            <tmpl_if GROUP><div class="smalltext">gettext('group')</div></tmpl_if>
+          </div>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if KEY>
+        <div class="editcontact_row">
+          <label>gettext('Privacy Keys')</b><a name="KEY"></label>
+
+          <div class="keys">
+            <tmpl_loop KEY>
+            <div class="key">
+              <tmpl_if VALUE>
+              <tmpl_if URI>
+              <a href="<tmpl_var VALUE escape="html">" target="_new" title="gettext('download this privacy key')"><tmpl_if use_texticon>gettext('download this privacy key')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_padlock escape="html">" class="iconset_small" alt="gettext('download this privacy key')"></tmpl_if>
+              <tmpl_else>
+              <a href="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" target="_new" title="gettext('download this privacy key')"><tmpl_if use_texticon>gettext('download this privacy key')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_padlock escape="html">" class="iconset_small" alt="gettext('download this privacy key')"></tmpl_if>
+              </tmpl_if>
+                <tmpl_if GPG>gettext('GNU GPG Privacy Guard Key')</tmpl_if><tmpl_if PGP>gettext('IETF PGP Pretty Good Privacy Key')</tmpl_if><tmpl_if X509>gettext('X.509 Public Key Certificate')</tmpl_if><tmpl_if unknown_type>gettext('unknown key type')</tmpl_if>
+              </a>
+
+              <a href="javascript:document.editForm.formchange.value='KEY,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a>
+              <tmpl_if GROUP><input type="hidden" name="KEY.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">"></tmpl_if>
+              <input type="hidden" name="KEY.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">">
+
+              <tmpl_loop TYPES>
+              <input type="hidden" name="KEY.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+              </tmpl_loop>
+              <tmpl_else>
+              gettext('no keys exist for this contact')
+              </tmpl_if>
+            </div>
+            </tmpl_loop>
+          </div>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if AGENT>
+        <div class="editcontact_row">
+          <label>gettext('Agents')</b><a name="AGENT"></a></label>
+
+          <div class="leftlabel">
+            <tmpl_if is_abookfolder_writable>
+            <a href="javascript:document.editForm.targetagent.value='1<tmpl_if has_targetagent>,<tmpl_var targetagentpath escape="html"></tmpl_if>,<tmpl_var totalagents escape="html">'; document.editForm.submit();" onClick="return (confirm_agent_action('save') && savecheck());">gettext('add new agent')</a>
+            </tmpl_if>
+          </div>
+
+          <div class="agents">
+            <tmpl_loop AGENT>
+            <div class="agent">
+              <tmpl_if VALUE>
+              <tmpl_if URI>
+              <a href="<tmpl_var VALUE escape="html">" target="_new" title="gettext('download this agent')"><tmpl_if use_texticon>gettext('download this agent')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_vcard escape="html">" class="iconset_small" alt="gettext('download this agent')"></tmpl_if>&nbsp;&nbsp;<tmpl_if VCARD>gettext('Versit Card (vCard)')</tmpl_if><tmpl_if unknown_type>gettext('unknown agent type')</tmpl_if></a>
+              <tmpl_else>
+              <tmpl_if VCARD>
+              <a href="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" target="_new" title="gettext('download this agent')"><tmpl_if use_texticon>gettext('download this agent')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_vcard escape="html">" class="iconset_small" alt="gettext('download this agent')"></tmpl_if></a>
+              <tmpl_if is_abookfolder_writable>
+              <a href="javascript:document.editForm.targetagent.value='1<tmpl_if has_targetagent>,<tmpl_var targetagentpath escape="html"></tmpl_if>,<tmpl_var count escape="html">'; document.editForm.submit();" onClick="return (confirm_agent_action('save') && savecheck());"><tmpl_var agentname escape="html"></a>
+              <tmpl_else>
+              <tmpl_var agentname escape="html">
+              </tmpl_if>
+              <tmpl_else>
+              <a href="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" target="_new" title="gettext('download this agent')"><tmpl_if use_texticon>gettext('download this agent')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_vcard escape="html">" class="iconset_small" alt="gettext('download this agent')"></tmpl_if>&nbsp;&nbsp;<tmpl_if VCARD>gettext('Versit Card (vCard)')</tmpl_if><tmpl_if unknown_type>gettext('unknown agent type')</tmpl_if></a>
+              </tmpl_if>
+              </tmpl_if>
+
+              <a href="javascript:document.editForm.formchange.value='AGENT,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a>
+              <tmpl_if GROUP><input type="hidden" name="AGENT.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">"></tmpl_if>
+              <input type="hidden" name="AGENT.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">">
+              <tmpl_loop TYPES>
+              <input type="hidden" name="AGENT.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+              </tmpl_loop>
+              <tmpl_else>
+              gettext('no one acts on behalf of this contact')
+              </tmpl_if>
+            </div>
+            </tmpl_loop>
+          </div>
+        </div>
+        </tmpl_if>
+      </div>
+    </div>
+
+    <div class="contentbox">
+      <div class="contentboxtitle">gettext('vCard Information')</div>
+
+      <div class="contentboxdata">
+        <tmpl_if CLASS>
+        <div class="editcontact_row">
+          <label>gettext('Access Classification')</label>
+
+          <tmpl_loop CLASS>
+          <div class="classification">
+            <tmpl_if GROUP><input class="mono" type="text" name="CLASS.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+
+            <select class="mono" name="CLASS.<tmpl_var count escape="html">.VALUE">
+              <tmpl_loop classselectloop>
+              <tmpl_if option_PUBLIC><option value="PUBLIC" <tmpl_if selected>selected</tmpl_if>>gettext('Public')</option></tmpl_if>
+              <tmpl_if option_PRIVATE><option value="PRIVATE" <tmpl_if selected>selected</tmpl_if>>gettext('Private')</option></tmpl_if>
+              <tmpl_if option_OTHER><option value="<tmpl_var option_OTHER escape="html">" selected><tmpl_var option_OTHER escape="html"></option></tmpl_if>
+              </tmpl_loop>
+            </select>
+
+            <tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='CLASS,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+
+            <tmpl_loop TYPES>
+            <input type="hidden" name="CLASS.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+
+            <tmpl_if GROUP><div class="smalltext">gettext('group')</div></tmpl_if>
+          </div>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if SOURCE>
+        <div class="editcontact_row">
+          <label>gettext('vCard Source URL')</label>
+
+          <tmpl_loop SOURCE>
+          <div class="vcardsourceurl">
+            <tmpl_if GROUP><input class="mono" type="text" name="SOURCE.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+            <tmpl_if GROUP><div class="smalltext">gettext('group')</div></tmpl_if>
+
+            <input class="mono" type="text" name="SOURCE.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='SOURCE,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+            <div class="smalltext">gettext('http://www.example.com/mycard.vcf')</div>
+
+            <tmpl_loop TYPES>
+            <input type="hidden" name="SOURCE.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+          </div>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if NAME>
+        <div class="editcontact_row">
+          <label>gettext('vCard Source Name')</label>
+
+          <tmpl_loop NAME>
+          <div class="vcardsourcename">
+            <tmpl_if GROUP><input class="mono" type="text" name="NAME.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+            <tmpl_if GROUP><div class="smalltext">gettext('group')</div></tmpl_if>
+
+            <input class="mono" type="text" name="NAME.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='NAME,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+            <div class="smalltext">gettext('a description of the source url')</div>
+
+            <tmpl_loop TYPES>
+            <input type="hidden" name="NAME.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+          </div>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if UID>
+        <div class="editcontact_row">
+          <label>gettext('External Unique ID')</label>
+
+          <tmpl_loop UID>
+          <div class="externaluid">
+            <tmpl_if GROUP><input class="mono" type="text" name="UID.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+            <tmpl_if GROUP><div class="smalltext">gettext('group')</div></tmpl_if>
+
+            <input class="mono" type="text" name="UID.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='UID,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+            <div class="smalltext">gettext('used by external programs to identify this card')</div>
+
+            <tmpl_loop TYPES>
+            <input type="hidden" name="UID.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+          </div>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+
+        <tmpl_if PRODID>
+        <div class="editcontact_row">
+          <label>gettext('Creator Program')</label>
+
+          <tmpl_loop PRODID>
+          <div class="creatorprogram">
+            <tmpl_if GROUP><input class="mono" type="text" name="PRODID.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+            <tmpl_if GROUP><div class="smalltext">gettext('group')</div></tmpl_if>
+
+            <input class="mono" type="text" name="PRODID.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='PRODID,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+            <div class="smalltext">gettext('outlook, openwebmail, etc')</div>
+
+            <tmpl_loop TYPES>
+            <input type="hidden" name="PRODID.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+            </tmpl_loop>
+          </div>
+          </tmpl_loop>
+        </div>
+        </tmpl_if>
+      </div>
+    </div>
+
+    <div class="contentbox">
+      <div class="contentboxtitle">gettext('Custom Properties')&nbsp;<a name="X-OWM-CUSTOM" href="javascript:document.editForm.formchange.value='X-OWM-CUSTOM,0,1'; document.editForm.submit();" title="gettext('add another custom property')">+</a></div>
+
+      <tmpl_if X-OWM-CUSTOM>
+      <div class="contentboxdata">
+        <tmpl_loop X-OWM-CUSTOM>
+        <div class="editcontact_row">
+          <tmpl_if GROUP><input class="mono" type="text" name="X-OWM-CUSTOM.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+          <tmpl_if GROUP><div class="smalltext">gettext('group')</div></tmpl_if>
+
+          <div class="left">
+            <label>gettext('Custom Name')</label>
+            <input class="mono" type="text" name="X-OWM-CUSTOM.<tmpl_var count escape="html">.VALUE.CUSTOMNAME" value="<tmpl_var CUSTOMNAME escape="html">" size="30">&nbsp;&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='X-OWM-CUSTOM,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+            <div class="smalltext">gettext('a custom name')</div>
+          </div>
+
+          <div class="right">
+            <div class="customvalues">
+              <tmpl_loop CUSTOMVALUES>
+              <div class="customvalue">
+                <label>gettext('Custom Values')</b>&nbsp;<a href="javascript:document.editForm.formchange.value='X-OWM-CUSTOM.<tmpl_var count escape="html">.VALUE.CUSTOMVALUES,0,1'; document.editForm.submit();" title="gettext('add another custom value')">+</a></label>
+                <input class="mono" type="text" name="X-OWM-CUSTOM.<tmpl_var count escape="html">.VALUE.CUSTOMVALUES.<tmpl_var valuescount escape="html">" value="<tmpl_var value escape="html">" size="30">&nbsp;&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='X-OWM-CUSTOM.<tmpl_var count escape="html">.VALUE.CUSTOMVALUES,<tmpl_var valuescount escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+
+                <tmpl_if last>
+                <div class="smalltext">gettext('custom values')</div>
+                </tmpl_if>
+              </div>
+              </tmpl_loop>
+            </div>
+          </div>
+
+          <tmpl_loop TYPES>
+          <input type="hidden" name="X-OWM-CUSTOM.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+          </tmpl_loop>
+        </div>
+        </tmpl_loop>
+      </div>
+      </tmpl_if>
+    </div>
+
+    <tmpl_if UNSUPPORTED>
+    <div class="contentbox">
+      <div class="contentboxdata">
+        <tmpl_loop UNSUPPORTED>
+        <div class="editcontact_row">
+          <label><tmpl_var propertyname escape="html"></label>
+
+          <tmpl_if GROUP><input class="mono" type="text" name="<tmpl_var propertyname escape="html">.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+          <input class="mono" type="text" name="<tmpl_var propertyname escape="html">.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<a href="javascript:document.editForm.formchange.value='<tmpl_var propertyname escape="html">,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a>
+
+          <tmpl_if GROUP><div class="smalltext">gettext('group')</div></tmpl_if>
+
+          <tmpl_loop TYPES>
+          <input type="hidden" name="<tmpl_var propertyname escape="html">.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
+          </tmpl_loop>
+        </div>
+        </tmpl_loop>
+      </div>
+    </div>
+    </tmpl_if>
+
+    <div class="contentbox">
+      <div class="contentboxtitle">gettext('Add Files to This Contact') - gettext('<tmpl_var availableattspace escape="html"> KB Available')</div>
+
+      <div class="contentboxdata">
+        <div id="addcontactfile">
+          <div id="filetype">
+            <select name="UPLOAD.TYPE" class="mono">
+              <option value="PHOTO" selected>gettext('Contact Photo (jpg,gif,png)')</option>
+              <option value="SOUND">gettext('Full Name Pronunciation Sound (aif,wav)')</option>
+              <option value="LOGO">gettext('Company Logo (jpg,gif,png)')</option>
+              <option value="KEY">gettext('Public Encryption Key (gpg,pgp)')</option>
+              <option value="AGENT">gettext('Agent vCard (vcf)')</option>
+            </select>
+            <div class="smalltest">gettext('choose a file type to add')</div>
+          </div>
+
+          <div id="fileurl">
+            <input class="mono" type="text" name="UPLOAD.URI" value="" size="25">
+            <div class="smalltest">gettext('enter a url to the file (http://...)')</div>
+          </div>
+
+          <div id="choosefile">
+            <input class="mono" type="file" name="UPLOAD.FILE" size="25">
+            <div class="smalltest">gettext('or upload the file directly')</div>
+          </div>
+
+          <div id="submitfile">
+            <input type="submit" name="upload" value="gettext('Add')"></td>
+          </div>
+
+          <!--future home of the upload via webdisk link-->
+        </div>
+      </div>
+    </div>
+
+    <div class="center" id="editcontact_submit">
+      <tmpl_if targetdepth><input type="submit" name="saveparent" value="gettext('save and return to parent')" accesskey="S" onclick="document.editForm.targetagent.value='-1<tmpl_if has_targetagent>,<tmpl_var targetagentpath escape="html"></tmpl_if>'; return (confirm_agent_action('save') && savecheck());">&nbsp;&nbsp;</tmpl_if><tmpl_if can_save><input type="submit" name="save" value="gettext('save')" accesskey="S" onclick="return savecheck();">&nbsp;&nbsp;</tmpl_if><input type="button" name="cancel" value="gettext('cancel')" onclick="document.cancelform.submit();"><tmpl_if targetdepth>&nbsp;&nbsp;<input type="submit" name="cancelparent" value="gettext('cancel and return to parent')" accesskey="C" onclick="document.editForm.targetagent.value='-1<tmpl_if has_targetagent>,<tmpl_var targetagentpath escape="html"></tmpl_if>'; confirm_agent_action('cancel');"></tmpl_if>
+    </div>
+
+    </tmpl_loop>
+  </div>
+  </form>
+
+  <tmpl_if is_caller_listmessages>
+  <form action="<tmpl_var url_cgi escape="none">/openwebmail-main.pl" method="post" name="cancelform" id="cancelform">
+  <input type="hidden" name="action" value="listmessages">
+  </tmpl_if>
+
+  <tmpl_if is_caller_readmessage>
+  <form action="<tmpl_var url_cgi escape="none">/openwebmail-read.pl" method="post" name="cancelform" id="cancelform">
+  <input type="hidden" name="action" value="readmessage">
+  </tmpl_if>
+
+  <tmpl_if is_caller_ALL>
+  <form action="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl" method="post" name="cancelform" id="cancelform">
+  <input type="hidden" name="action" value="addrlistview">
+  </tmpl_if>
+
+  <tmpl_if is_caller_abookfolder>
+  <form action="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl" method="post" name="cancelform" id="cancelform">
+  <input type="hidden" name="action" value="addrlistview">
+  </tmpl_if>
+
+  <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+  <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+  <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+  <input type="hidden" name="page" value="<tmpl_var page escape="html">">
+  <input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+  <input type="hidden" name="searchtype" value="<tmpl_var searchtype escape="html">">
+  <input type="hidden" name="keyword" value="<tmpl_var keyword escape="html">">
+  <input type="hidden" name="msgdatetype" value="<tmpl_var msgdatetype escape="html">">
+  <input type="hidden" name="message_id" value="<tmpl_var messageid escape="html">">
+
+  <input type="hidden" name="abookfolder" value="<tmpl_if is_caller_ALL>ALL<tmpl_else><tmpl_var abookfolder escape="html"></tmpl_if>">
+  <input type="hidden" name="abooksort" value="<tmpl_var abooksort escape="html">">
+  <input type="hidden" name="abookpage" value="<tmpl_var abookpage escape="html">">
+  <input type="hidden" name="abooklongpage" value="<tmpl_var abooklongpage escape="html">">
+  <input type="hidden" name="abooksearchtype" value="<tmpl_var abooksearchtype escape="html">">
+  <input type="hidden" name="abookkeyword" value="<tmpl_var abookkeyword escape="html">">
+  <input type="hidden" name="abookcollapse" value="<tmpl_var abookcollapse escape="html">">
+  </form>
+
+  <div id="popup_calendar"></div>
+
+  <script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_base.js"></script>
+  <script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_calendar.js"></script>
+  <script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/<tmpl_var makelabel escape="html">.js"></script>
+
+  <script type="text/javascript">
+  <!--
+  // popup_calendar.js language and preferences
+  var wStart     = <tmpl_var weekstart escape="js">;
+  var wDay       = new Array('jgettext('Sunday')','jgettext('Monday')','jgettext('Tuesday')','jgettext('Wednesday')','jgettext('Thursday')','jgettext('Friday')','jgettext('Saturday')');
+  var wDayAbbrev = new Array(gettext(''S','M','T','W','T','F','S''));
+  var wMonth     = new Array('jgettext('January')','jgettext('February')','jgettext('March')','jgettext('April')','jgettext('May')','jgettext('June')','jgettext('July')','jgettext('August')','jgettext('September')','jgettext('October')','jgettext('November')','jgettext('December')');
+  var wOrder     = new Array('jgettext('1st')','jgettext('2nd')','jgettext('3rd')','jgettext('4th')','jgettext('last')');
+
+  function updateFN(caller) {
+     // given a changed caller from the N property, update the FN property
+     var caller_parts = caller.name.split('.');
+     var i = caller_parts[1];
+
+     // Chinese Japan Korean unicode regex
+     var is_asian = /^[\u2e80-\u9fff\uac00-\ud7ff\uf900-\ufaff]/;
+
+     // build the FN from the N properties
+     var NAMEPREFIX      = document.editForm.elements['N.'+i+'.VALUE.NAMEPREFIX'].value;
+     var GIVENNAME       = document.editForm.elements['N.'+i+'.VALUE.GIVENNAME'].value;
+     var ADDITIONALNAMES = document.editForm.elements['N.'+i+'.VALUE.ADDITIONALNAMES'].value;
+     var FAMILYNAME      = document.editForm.elements['N.'+i+'.VALUE.FAMILYNAME'].value;
+     var NAMESUFFIX      = document.editForm.elements['N.'+i+'.VALUE.NAMESUFFIX'].value;
+     var FN              = '';
+
+     if (GIVENNAME != '' && FAMILYNAME != '' && GIVENNAME.match(is_asian)) {
+      // order the FN for Chinese, Japanese, and Korean names
+      FN += FAMILYNAME;
+      FN += GIVENNAME;
+      FN += ADDITIONALNAMES != '' ? ' ' + ADDITIONALNAMES : '';
+     } else {
+      FN += NAMEPREFIX != '' ? NAMEPREFIX + ' ' : '';
+      FN += GIVENNAME != '' ? GIVENNAME + ' ' : '';
+      FN += ADDITIONALNAMES != '' ? ADDITIONALNAMES + ' ' : '';
+      FN += FAMILYNAME != '' ? FAMILYNAME + ' ' : '';
+      FN += NAMESUFFIX;
+     }
+
+     document.editForm.elements['FN.'+i+'.VALUE'].value = FN;
+  }
+
+  function updateX_OWM_BDAY_AGE(caller) {
+     // calculate and set the age from the year, month and day X-OWM-BDAY fields
+     var caller_parts = caller.name.split('.');
+     var i = caller_parts[1];
+
+     var year  = validateYear(document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.YEAR'].value);
+     var month = validateMonth(document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.MONTH'].value);
+     var day   = validateDay(year,month,document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.DAY'].value);
+
+     document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.YEAR'].value = year;
+     document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.MONTH'].value = month;
+     document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.DAY'].value = day;
+     document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.AGE'].value = calculateAge(year,month,day);
+  }
+
+  function updateX_OWM_BDAY_YEAR(caller) {
+     // calculate and set the year from an existing X-OWM-BDAY age field
+     var caller_parts = caller.name.split('.');
+     var i = caller_parts[1];
+
+     var age   = document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.AGE'].value;
+     var year  = validateYear(document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.YEAR'].value);
+     var month = validateMonth(document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.MONTH'].value);
+     var day   = validateDay(year,month,document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.DAY'].value);
+
+     year = calculateYearFromAge(age,month,day);
+
+     if (year != '') {
+      document.editForm.elements['X-OWM-BDAY.'+i+'.VALUE.YEAR'].value = year;
+     }
+  }
+
+  function updateX_OWM_BDAY(year,month,day) {
+     // update the year, month, and day options with the selection from the X-OWM-BDAY calPopup
+     // this function is called directly from the X-OWM-BDAY calPopup
+     document.editForm.elements['X-OWM-BDAY.0.VALUE.YEAR'].value  = year;
+     document.editForm.elements['X-OWM-BDAY.0.VALUE.MONTH'].value = month;
+     document.editForm.elements['X-OWM-BDAY.0.VALUE.DAY'].value   = day;
+     document.editForm.elements['X-OWM-BDAY.0.VALUE.AGE'].value   = calculateAge(year,month,day);
+  }
+
+  function calculateAge(year,month,day) {
+     // given a year, month, and day, return the age in years
+     year  = validateYear(year);
+     month = validateMonth(month);
+     day   = validateDay(year,month,day);
+
+     if (isNaN(parseInt(year,10))) {
+      return '';
+     }
+
+     var todayDate  = new Date();
+     var todayYear  = todayDate.getFullYear();
+     var todayMonth = todayDate.getMonth()+1;
+     var todayDay   = todayDate.getDate();
+
+     var age = todayYear - year;
+
+     if (
+      (!isNaN(parseInt(month,10)) && todayMonth < month)
+      ||
+      (!isNaN(parseInt(month,10)) && month == todayMonth && !isNaN(parseInt(day,10)) && todayDay < day)
+      ) {
+      age--; // birthday has not happened yet
+     }
+
+     return age;
+  }
+
+  function calculateYearFromAge(age,month,day) {
+     // given an age, return the year
+     if (isNaN(parseInt(age,10))) {
+      return '';
+     }
+
+     month = (isNaN(parseInt(month,10))) ? 0 : month;
+     day = (isNaN(parseInt(day,10))) ? 0 : day;
+
+     var todayDate  = new Date();
+     var todayYear  = todayDate.getFullYear();
+     var todayMonth = todayDate.getMonth() + 1;
+     var todayDay   = todayDate.getDate();
+
+     var year = todayYear - age;
+
+     if (todayMonth < month || (todayMonth == month && todayDay < day)) {
+      year--; // birthday has not happened yet
+     }
+
+     return year;
+  }
+
+  function validateYear(year) {
+     // make sure the year value is logical
+     if (isNaN(parseInt(year,10))) {
+      return '';
+     } else if (year < 100) {
+      year = 100;
+     }
+
+     return year;
+  }
+
+  function validateMonth(month) {
+     // make sure the month value is logical
+     if (isNaN(parseInt(month,10))) {
+      return '';
+     } else if (month > 12) {
+      month = 12;
+     } else if (month < 1) {
+      month = 1;
+     }
+
+     return month;
+  }
+
+  function validateDay(year,month,day) {
+     // make sure the day value is logical for the month in which it occurs
+     var daysInMonth = new Array(0,31,28,31,30,31,30,31,31,30,31,30,31);
+
+     if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
+      daysInMonth[2] = 29;
+     }
+
+     if (isNaN(parseInt(day,10))) {
+      return '';
+     } else if (day > daysInMonth[month]) {
+      day = daysInMonth[month];
+     } else if (day < 1) {
+      day = 1;
+     }
+
+     return day;
+  }
+
+  function toggle_checkbox(name,value) {
+     // given a field name and value, toggle the checkbox that matches
+     for (var i=0; i<document.editForm.elements.length; i++) {
+      var e = document.editForm.elements[i];
+      if (e.type == 'checkbox' && e.name == name && e.value == value) {
+       e.checked = !e.checked;
+      }
+     }
+  }
+
+  function update_map(count) {
+     // given an address index count, update the google
+     // map iframe using the data from the address fields
+     var street            = document.editForm.elements['ADR.'+count+'.VALUE.STREET'].value;
+     var extendedaddress   = document.editForm.elements['ADR.'+count+'.VALUE.EXTENDEDADDRESS'].value;
+     var postofficeaddress = document.editForm.elements['ADR.'+count+'.VALUE.POSTOFFICEADDRESS'].value;
+     var locality          = document.editForm.elements['ADR.'+count+'.VALUE.LOCALITY'].value;
+     var region            = document.editForm.elements['ADR.'+count+'.VALUE.REGION'].value;
+     var postalcode        = document.editForm.elements['ADR.'+count+'.VALUE.POSTALCODE'].value;
+     var country           = document.editForm.elements['ADR.'+count+'.VALUE.COUNTRY'].value;
+
+     var address = [street,extendedaddress,postofficeaddress,locality,region,postalcode,country];
+
+     // update the map
+     window.frames['map_'+count].location = 'http://maps.google.com/maps?q='+address.join()+'&iwloc=near&output=embed';
+
+     // update the "view larger" link for the new map
+     for(l = 0; l < document.links.length; l++) {
+      if (document.links[l].name == 'viewlarger_'+count) {
+       document.links[l].href = 'http://maps.google.com/maps?q='+address.join();
+       break;
+      }
+     }
+
+     return false;
+  }
+
+  function showGeo(count,show) {
+     // popup photos or maps of specified longitudes and latitudes
+     var longitude = document.editForm.elements['GEO.'+count+'.VALUE.LONGITUDE'].value;
+     var latitude  = document.editForm.elements['GEO.'+count+'.VALUE.LATITUDE'].value;
+
+     if (longitude != '' && latitude != '') {
+      if (show == 'photo') {
+       window.open('http://maps.google.com/maps?q='+latitude+','+longitude+'&t=h&z=19&output=embed','_showGeo','width=550,height=500,resizable=yes,scrollbars=yes');
+      } else if (show == 'map') {
+       window.open('http://maps.google.com/maps?q='+latitude+','+longitude+'&output=embed','_showGeo','width=550,height=500,resizable=yes,scrollbars=yes');
+      }
+     } else {
+      alert('jgettext('You must fill in the longitude and latitude before any maps or photos can be viewed.')');
+     }
+  }
+
+  function confirm_agent_action(message_option) {
+     // provide confirm dialogs for actions performed on agents
+     if (message_option == 'save') {
+      return(confirm('jgettext('All data must be saved before viewing or creating an agent card. Save and continue?')'));
+     } else if (message_option == 'cancel') {
+      return(confirm('jgettext('All changes to this agent will be lost, continue?')'));
+     }
+  }
+
+  function savecheck() {
+     // ensure mandatory and recommended fields are filled in
+     // before allowing the caller action to continue
+     var givenname  = document.editForm.elements['N.0.VALUE.GIVENNAME'].value;
+     var familyname = document.editForm.elements['N.0.VALUE.FAMILYNAME'].value;
+     var email      = document.editForm.elements['EMAIL.0.VALUE'].value;
+
+     if (givenname == '' && familyname == '') {
+      alert("jgettext('Please fill in the first name or last name fields first.')");
+      return false;
+     }
+
+     if (email == '') {
+      return confirm("jgettext('The email address is empty. Continue?')");
+     }
+
+     return true;
+  }
+
+  <tmpl_if jumptolastchanged>
+  location.hash = '<tmpl_var jumptolastchanged escape="js">';
+  </tmpl_if>
+  // -->
+  </script>
+
+<tmpl_var footer_template escape="none">

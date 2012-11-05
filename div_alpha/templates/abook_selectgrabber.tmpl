@@ -1,0 +1,74 @@
+<tmpl_if comment>
+<!--
+When users want to select contact email addresses from a popup window, we need a way to first
+capture the addresses they already have in the fields of the page they are on so that we may
+mark those addresses as selected. However, those fields may not be passed to the popup via a
+GET query because it may be very large, such as when a user is addressing a message to many
+contacts. GET queries impose constraining limits on query string sizes. POST queries cannot be
+made directly into popup windows. This javascript grabber is the workaround solution.
+
+This page captures the parent window fields and re-submits the form to provide a listview
+where the correct contact email addresses are already selected.
+-->
+</tmpl_if>
+
+<html>
+
+<head>
+  <title>gettext('preparing selections, please wait...')</title>
+</head>
+
+
+<body>
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl" method="post" name="grabberForm" id="grabberForm">
+<input type="hidden" name="action" value="addrlistview">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+
+<input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+<input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+<input type="hidden" name="msgdatetype" value="<tmpl_var msgdatetype escape="html">">
+<input type="hidden" name="message_id" value="<tmpl_var messageid escape="html">">
+<input type="hidden" name="page" value="<tmpl_var page escape="html">">
+<input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+<input type="hidden" name="searchtype" value="<tmpl_var searchtype escape="html">">
+<input type="hidden" name="keyword" value="<tmpl_var keyword escape="html">">
+
+<input type="hidden" name="abookfolder" value="<tmpl_if is_caller_ALL>ALL<tmpl_else><tmpl_var abookfolder escape="html"></tmpl_if>">
+<input type="hidden" name="abooksort" value="<tmpl_var abooksort escape="html">">
+<input type="hidden" name="abookpage" value="<tmpl_var abookpage escape="html">">
+<input type="hidden" name="abooklongpage" value="<tmpl_var abooklongpage escape="html">">
+<input type="hidden" name="abooksearchtype" value="<tmpl_var abooksearchtype escape="html">">
+<input type="hidden" name="abookkeyword" value="<tmpl_var abookkeyword escape="html">">
+<input type="hidden" name="abookcollapse" value="<tmpl_var abookcollapse escape="html">">
+
+<input type="hidden" name="mode" value="<tmpl_var mode escape="html">">
+
+<!-- the values of these will be set by javascript -->
+<input type="hidden" name="to" value="">
+<input type="hidden" name="cc" value="">
+<input type="hidden" name="bcc" value="">
+<input type="hidden" name="xowmuid" value="">
+</form>
+
+<script type="text/javascript">
+<!--
+var mode = '<tmpl_var mode escape="js">';
+
+if (mode == 'group') {
+   // pull addresses from the calling window group member field
+   document.grabberForm.to.value = window.opener.document.editForm.elements['EMAIL.0.VALUE'].value;
+}
+
+if (mode == 'compose') {
+   // pull addresses from the calling window to, cc, and bcc fields
+   document.grabberForm.to.value  = window.opener.document.composeform.elements['to'].value;
+   document.grabberForm.cc.value  = window.opener.document.composeform.elements['cc'].value;
+   document.grabberForm.bcc.value = window.opener.document.composeform.elements['bcc'].value;
+}
+
+document.grabberForm.submit();
+// -->
+</script>
+</body>
+
+</html>

@@ -1,0 +1,563 @@
+<tmpl_var header_template escape="none">
+
+<div class="wrapper">
+  <div id="header">
+    <div id="titlebar">
+      <div id="lefttitle">
+        <form action="<tmpl_var url_cgi escape="none">/openwebmail-main.pl" method="post" name="FolderForm">
+          <input type="hidden" name="action" value="listmessages">
+          <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+          <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+          <div class="dropdown">
+          <select name="folder" accesskey="L" onchange="document.FolderForm.submit();">
+            <tmpl_loop folderselectloop>
+              <tmpl_if is_defaultfolder>
+                <tmpl_if option_INBOX>
+                  <option value="INBOX" <tmpl_if newmessagesthisfolder>class="hilitetext"</tmpl_if> <tmpl_if selected>selected</tmpl_if>>gettext('Inbox') (<tmpl_var newmessagesthisfolder escape="html">/<tmpl_var allmessagesthisfolder escape="html">)</option>
+                </tmpl_if>
+                <tmpl_if option_saved-messages>
+                  <option value="saved-messages" <tmpl_if newmessagesthisfolder>class="hilitetext"</tmpl_if> <tmpl_if selected>selected</tmpl_if>>gettext('Saved') (<tmpl_var newmessagesthisfolder escape="html">/<tmpl_var allmessagesthisfolder escape="html">)</option>
+                </tmpl_if>
+                <tmpl_if option_sent-mail>
+                  <option value="sent-mail" <tmpl_if newmessagesthisfolder>class="hilitetext"</tmpl_if> <tmpl_if selected>selected</tmpl_if>>gettext('Sent') (<tmpl_var newmessagesthisfolder escape="html">/<tmpl_var allmessagesthisfolder escape="html">)</option>
+                </tmpl_if>
+                <tmpl_if option_saved-drafts>
+                  <option value="saved-drafts" <tmpl_if newmessagesthisfolder>class="hilitetext"</tmpl_if> <tmpl_if selected>selected</tmpl_if>>gettext('Draft') (<tmpl_var newmessagesthisfolder escape="html">/<tmpl_var allmessagesthisfolder escape="html">)</option>
+                </tmpl_if>
+                <tmpl_if option_mail-trash>
+                  <option value="mail-trash" <tmpl_if newmessagesthisfolder>class="hilitetext"</tmpl_if> <tmpl_if selected>selected</tmpl_if>>gettext('Trash') (<tmpl_var newmessagesthisfolder escape="html">/<tmpl_var allmessagesthisfolder escape="html">)</option>
+                </tmpl_if>
+                <tmpl_if option_spam-mail>
+                  <option value="spam-mail" <tmpl_if newmessagesthisfolder>class="hilitetext"</tmpl_if> <tmpl_if selected>selected</tmpl_if>>gettext('Spam') (<tmpl_var newmessagesthisfolder escape="html">/<tmpl_var allmessagesthisfolder escape="html">)</option>
+                </tmpl_if>
+                <tmpl_if option_virus-mail>
+                  <option value="virus-mail" <tmpl_if newmessagesthisfolder>class="hilitetext"</tmpl_if> <tmpl_if selected>selected</tmpl_if>>gettext('Virus') (<tmpl_var newmessagesthisfolder escape="html">/<tmpl_var allmessagesthisfolder escape="html">)</option>
+                </tmpl_if>
+              <tmpl_else>
+                <option value="<tmpl_var option escape="html">" <tmpl_if newmessagesthisfolder>class="hilitetext"</tmpl_if> <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"> (<tmpl_var newmessagesthisfolder escape="html">/<tmpl_var allmessagesthisfolder escape="html">)</option>
+              </tmpl_if>
+            </tmpl_loop>
+          </select>
+          </div>
+          <tmpl_if textbrowser>
+            <input type="submit" name="read" value="gettext('Read')">
+          </tmpl_if>
+        </form>
+      </div>
+
+      <div id="centertitle"><tmpl_if enable_quota><tmpl_if quotashowusage>gettext('Quota Usage:') <tmpl_var quotabytesusage escape="html"> </tmpl_if><tmpl_if quotaoverthreshold>(<tmpl_var quotapercentusage escape="html">%) </tmpl_if><tmpl_else>&nbsp;</tmpl_if></div>
+
+      <div id="righttitle"><tmpl_if totalmessages><tmpl_var messagessummary escape="html"><tmpl_else>gettext('No messages')</tmpl_if></div>
+    </div>
+
+    <ul id="navigation">
+      <tmpl_unless overlimit>
+        <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;compose_caller=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="C" class="icon" title="gettext('compose new message')"><tmpl_if use_texticon>gettext('compose new message')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_compose escape="html">" class="iconset_button" alt="gettext('compose new message')"></tmpl_if></a></li>
+      </tmpl_unless>
+
+      <tmpl_if enable_webmail>
+        <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-folder.pl?action=editfolders&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="F" class="icon" title="gettext('manage folders')"><tmpl_if use_texticon>gettext('manage folders')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_folder escape="html">" class="iconset_button" alt="gettext('manage folders')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if enable_userfilter>
+        <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editfilter&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="I" class="icon" title="gettext('mail filter setup')"><tmpl_if use_texticon>gettext('mail filter setup')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_filtersetup escape="html">" class="iconset_button" alt="gettext('mail filter setup')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if enable_preference>
+        <tmpl_if enable_saprefs>
+          <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-saprefs.pl?action=editrules&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="J" class="icon" title="gettext('spamassassin user preferences')"><tmpl_if use_texticon>gettext('spamassassin user preferences')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_sapreferences escape="html">" class="iconset_button" alt="gettext('spamassassin user preferences')"></tmpl_if></a></li>
+        </tmpl_if>
+      </tmpl_if>
+
+      <tmpl_if enable_pop3>
+        <tmpl_if is_folder_inbox>
+          <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=pop3fetches&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="G" class="icon" title="gettext('retrieve pop3 mail')"><tmpl_if use_texticon>gettext('retrieve pop3 mail')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_pop3 escape="html">" class="iconset_button" alt="gettext('retrieve pop3 mail')"></tmpl_if></a></li>
+        </tmpl_if>
+      </tmpl_if>
+
+      <tmpl_if enable_advsearch>
+        <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-advsearch.pl?action=advsearch&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="V" class="icon" title="gettext('advanced search')"><tmpl_if use_texticon>gettext('advanced search')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_advsearch escape="html">" class="iconset_button" alt="gettext('advanced search')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if enable_webmail>
+        <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=userrefresh&amp;userfresh=1&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="R" class="icon" title="gettext('refresh')"><tmpl_if use_texticon>gettext('refresh')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_refresh escape="html">" class="iconset_button" alt="gettext('refresh')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if enable_addressbook>
+        <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrlistview&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="A" class="icon" title="gettext('addressbook')"><tmpl_if use_texticon>gettext('addressbook')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_addrbook escape="html">" class="iconset_button" alt="gettext('addressbook')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if enable_calendar>
+        <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=<tmpl_var calendar_defaultview escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="K" class="icon" title="gettext('calendar')"><tmpl_if use_texticon>gettext('calendar')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_webcal escape="html">" class="iconset_button" alt="gettext('calendar')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if enable_webdisk>
+        <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-webdisk.pl?action=showdir&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="E" class="icon" title="gettext('webdisk')"><tmpl_if use_texticon>gettext('webdisk')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_webdisk escape="html">" class="iconset_button" alt="gettext('webdisk')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if enable_sshterm>
+        <tmpl_if use_ssh2>
+          <li><a href="#" onclick="window.open('<tmpl_var url_html escape="none">/applet/mindterm2/ssh2.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');" accesskey="T" class="icon" title="gettext('ssh terminal')"><tmpl_if use_texticon>gettext('ssh terminal')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_sshterminal escape="html">" class="iconset_button" alt="gettext('ssh terminal')"></tmpl_if></a></li>
+        </tmpl_if>
+
+        <tmpl_if use_ssh1>
+          <li><a href="#" onclick="window.open('<tmpl_var url_html escape="none">/applet/mindterm/ssh.html', '_applet', 'width=400,height=100,top=2000,left=2000,resizable=no,menubar=no,scrollbars=no');" accesskey="T" class="icon" title="gettext('ssh terminal')"><tmpl_if use_texticon>gettext('ssh terminal')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_sshterminal escape="html">" class="iconset_button" alt="gettext('ssh terminal')"></tmpl_if></a></li>
+        </tmpl_if>
+      </tmpl_if>
+
+      <tmpl_if enable_preference>
+        <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-prefs.pl?action=editprefs&amp;prefs_caller=main&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="O" class="icon" title="gettext('user preferences')"><tmpl_if use_texticon>gettext('user preferences')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_preferences escape="html">" class="iconset_button" alt="gettext('user preferences')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=logout&amp;sessionid=<tmpl_var sessionid escape="url">" accesskey="X" class="icon" title="gettext('logout')"><tmpl_if use_texticon>gettext('logout')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_logout escape="html">" class="iconset_button" alt="gettext('logout')"></tmpl_if></a></li>
+
+      <tmpl_if enable_learnham>
+        <li class="right"><a href="javascript:document.pageform.destination.value='LEARNHAM'; document.pageform.movebutton.click();" accesskey="N" class="icon" title="gettext('learn ham')"><tmpl_if use_texticon>gettext('learn ham')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_learnham escape="html">" class="iconset_button" alt="gettext('learn ham')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if enable_learnspam>
+        <li class="right"><a href="javascript:document.pageform.destination.value='LEARNSPAM'; document.pageform.movebutton.click();" accesskey="N" class="icon" title="gettext('learn spam')"><tmpl_if use_texticon>gettext('learn spam')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_learnspam escape="html">" class="iconset_button" alt="gettext('learn spam')"></tmpl_if></a></li>
+      </tmpl_if>
+
+      <tmpl_if show_emptyfolder>
+        <li class="right"><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=emptyfolder&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" onclick="return confirm('<tmpl_var emptyfolderconfirm escape="js">');" accesskey="M" class="icon" title="gettext('empty folder')"><tmpl_if use_texticon>gettext('empty folder')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_emptyfolder escape="html">" class="iconset_button" alt="gettext('empty folder')"></tmpl_if></a></li>
+      <tmpl_else>
+        <li class="right"><a href="javascript:document.pageform.destination.value='<tmpl_var trashfolder escape="js">'; document.pageform.movebutton.click();" accesskey="Z" class="icon" title="gettext('move selected messages to trash')"><tmpl_if use_texticon>gettext('move selected messages to trash')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_trash escape="html">" class="iconset_button" alt="gettext('move selected messages to trash')"></tmpl_if></a></li>
+      </tmpl_if>
+    </ul>
+  </div>
+
+  <div id="content">
+    <div class="paginator">
+      <div class="left">
+        <div class="previouspage">
+        <tmpl_if prevpage>
+          <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;page=<tmpl_var prevpage escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="U" class="icon" title="gettext('previous page')"><tmpl_if use_texticon><tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowrighton escape="html"><tmpl_else><tmpl_var iconset_small_arrowlefton escape="html"></tmpl_if>" class="iconset_small" alt="<tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if>"></tmpl_if></a>
+        <tmpl_else>
+          <tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowrightoff escape="html"><tmpl_else><tmpl_var iconset_small_arrowleftoff escape="html"></tmpl_if>" class="iconset_small" title="gettext('no previous page')" alt="<tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if>"></tmpl_if>
+        </tmpl_if>
+        </div>
+
+        <div class="currentpage">
+          <tmpl_var page escape="html">/<tmpl_var totalpage escape="html">
+        </div>
+
+        <div class="nextpage">
+        <tmpl_if nextpage>
+          <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;page=<tmpl_var nextpage escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="D" class="icon" title="gettext('next page')"><tmpl_if use_texticon><tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowlefton escape="html"><tmpl_else><tmpl_var iconset_small_arrowrighton escape="html"></tmpl_if>" class="iconset_small" alt="<tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if>"></tmpl_if></a>
+        <tmpl_else>
+          <tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowleftoff escape="html"><tmpl_else><tmpl_var iconset_small_arrowrightoff escape="html"></tmpl_if>" class="iconset_small" title="gettext('no next page')" alt="<tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if>"></tmpl_if>
+        </tmpl_if>
+        </div>
+      </div>
+
+      <div class="right">
+        <tmpl_loop eventreminderloop>
+          <tmpl_if itemdaysfromnow>
+            <span class="smallblacktext">[+<tmpl_var itemdaysfromnow escape="html">]</span>
+          </tmpl_if>
+
+          <a href="<tmpl_var url_cgi escape="none">/openwebmail-cal.pl?action=calday&amp;year=<tmpl_var itemyear escape="url">&amp;month=<tmpl_var itemmonth escape="url">&amp;day=<tmpl_var itemday escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="<tmpl_var itemdatetext escape="html"> <tmpl_if itemweekday_0>gettext('Sunday')</tmpl_if><tmpl_if itemweekday_1>gettext('Monday')</tmpl_if><tmpl_if itemweekday_2>gettext('Tuesday')</tmpl_if><tmpl_if itemweekday_3>gettext('Wednesday')</tmpl_if><tmpl_if itemweekday_4>gettext('Thursday')</tmpl_if><tmpl_if itemweekday_5>gettext('Friday')</tmpl_if><tmpl_if itemweekday_6>gettext('Saturday')</tmpl_if>">&nbsp;<span class="smallcolortext"><tmpl_var itemstartendtime escape="html"></span>&nbsp;<span class="smallblacktext"><tmpl_var itemstring escape="html"></span></a>
+        </tmpl_loop>
+      </div>
+    </div>
+
+    <form action="<tmpl_var url_cgi escape="none">/openwebmail-main.pl" method="post" name="pageform">
+    <input type="hidden" name="action" value="listmessages">
+    <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+    <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+    <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+    <input type="hidden" name="msgdatetype" value="<tmpl_var msgdatetype escape="html">">
+    <input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+
+    <tmpl_if controlbartop>
+    <div class="contentbox">
+      <div class="contentboxdata" id="controlbar">
+        <div class="left">
+        <select name="searchtype" accesskey="W">
+          <tmpl_loop searchselectloop>
+            <tmpl_if option_from><option value="from" <tmpl_if selected>selected</tmpl_if>>gettext('From')</option></tmpl_if>
+            <tmpl_if option_to><option value="to" <tmpl_if selected>selected</tmpl_if>>gettext('To')</option></tmpl_if>
+            <tmpl_if option_subject><option value="subject" <tmpl_if selected>selected</tmpl_if>>gettext('Subject')</option></tmpl_if>
+            <tmpl_if option_date><option value="date" <tmpl_if selected>selected</tmpl_if>>gettext('Date')</option></tmpl_if>
+            <tmpl_if option_attfilename><option value="attfilename" <tmpl_if selected>selected</tmpl_if>>gettext('Attachment Filename')</option></tmpl_if>
+            <tmpl_if option_header><option value="header" <tmpl_if selected>selected</tmpl_if>>gettext('Header')</option></tmpl_if>
+            <tmpl_if option_textcontent><option value="textcontent" <tmpl_if selected>selected</tmpl_if>>gettext('Text Content')</option></tmpl_if>
+            <tmpl_if option_all><option value="all" <tmpl_if selected>selected</tmpl_if>>gettext('All')</option></tmpl_if>
+          </tmpl_loop>
+        </select>
+        <input type="text" size="12" name="keyword" value="<tmpl_var keyword escape="html">" accesskey="S">
+        <input type="submit" name="searchbutton" value="gettext('Search')">
+        <input type="submit" name="clearsearchbutton" value="gettext('Clear')" accesskey="Q">
+        </div>
+
+        <div class="center">
+          <label for="page">gettext('Page')</label>
+
+          <select name="page" accesskey="P" onchange="document.pageform.submit();">
+            <tmpl_loop pageselectloop>
+              <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+          </select>
+
+          <tmpl_if longpage>
+            <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&longpage=0&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="<tmpl_var messagesperpagesummary escape="html">">-</a>
+          <tmpl_else>
+            <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&longpage=1&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('1000 messages per page')">+</a>
+          </tmpl_if>
+        </div>
+
+        <div class="right">
+          <select name="destination" accesskey="B">
+            <tmpl_loop destinationselectloop>
+              <tmpl_if is_defaultfolder>
+                <tmpl_if option_INBOX><option value="INBOX" <tmpl_if selected>selected</tmpl_if>>gettext('Inbox')</option></tmpl_if>
+                <tmpl_if option_saved-messages><option value="saved-messages" <tmpl_if selected>selected</tmpl_if>>gettext('Saved')</option></tmpl_if>
+                <tmpl_if option_sent-mail><option value="sent-mail" <tmpl_if selected>selected</tmpl_if>>gettext('Sent')</option></tmpl_if>
+                <tmpl_if option_saved-drafts><option value="saved-drafts" <tmpl_if selected>selected</tmpl_if>>gettext('Draft')</option></tmpl_if>
+                <tmpl_if option_mail-trash><option value="mail-trash" <tmpl_if selected>selected</tmpl_if>>gettext('Trash')</option></tmpl_if>
+                <tmpl_if option_spam-mail><option value="spam-mail" <tmpl_if selected>selected</tmpl_if>>gettext('Spam')</option></tmpl_if>
+                <tmpl_if option_virus-mail><option value="virus-mail" <tmpl_if selected>selected</tmpl_if>>gettext('Virus')</option></tmpl_if>
+                <tmpl_if option_LEARNSPAM><option value="LEARNSPAM" <tmpl_if selected>selected</tmpl_if>>gettext('--LEARN SPAM--')</option></tmpl_if>
+                <tmpl_if option_LEARNHAM><option value="LEARNHAM" <tmpl_if selected>selected</tmpl_if>>gettext('--LEARN HAM--')</option></tmpl_if>
+                <tmpl_if option_MARKASREAD><option value="MARKASREAD" <tmpl_if selected>selected</tmpl_if>>gettext('--MARK AS READ--')</option></tmpl_if>
+                <tmpl_if option_MARKASUNREAD><option value="MARKASUNREAD" <tmpl_if selected>selected</tmpl_if>>gettext('--MARK AS UNREAD--')</option></tmpl_if>
+                <tmpl_if option_FORWARD><option value="FORWARD" <tmpl_if selected>selected</tmpl_if>>gettext('--FORWARD--')</option></tmpl_if>
+                <tmpl_if option_DELETE><option value="DELETE" <tmpl_if selected>selected</tmpl_if>>gettext('--DELETE--')</option></tmpl_if>
+              <tmpl_else>
+                <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+              </tmpl_if>
+            </tmpl_loop>
+          </select>
+
+          <input type="submit" name="movebutton" value="gettext('Move')" onclick="return OpConfirm('jgettext('Are you sure you want to move the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
+          <input type="submit" name="copybutton" value="gettext('Copy')" onclick="return OpConfirm('jgettext('Are you sure you want to copy the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
+        </div>
+      </div>
+    </div>
+    </tmpl_if>
+
+    <tmpl_if middlepluginoutput>
+      <tmpl_var middlepluginoutput escape="none">
+    <tmpl_else>
+      <br>
+    </tmpl_if>
+
+    <table class="contentbox">
+      <tr class="contentboxtitle">
+        <th>
+          <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=status&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=1&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="H" class="icon" title="gettext('sort by status (unread first)')"><tmpl_if use_texticon>gettext('status unread first')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_unread escape="html">" class="iconset_small" alt="gettext('status')"></tmpl_if></a>
+        </th>
+
+        <tmpl_loop headingloop>
+          <tmpl_if date>
+          <th>
+            <tmpl_if active>
+              <tmpl_if headingdatebysent>
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=recvdate&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=1&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('sort by received date')">gettext('Sent Date')</a>&nbsp;
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_if headingreversesort>date<tmpl_else>date_rev</tmpl_if>&amp;msgdatetype=sentdate&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="Y" class="icon" title="<tmpl_if headingreversesort>gettext('sort by oldest first')<tmpl_else>gettext('sort by newest first')</tmpl_if>"><tmpl_if headingreversesort><tmpl_if use_texticon>v<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowdown escape="html">" class="iconset_small" alt="v"></tmpl_if><tmpl_else><tmpl_if use_texticon>^<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowup escape="html">" class="iconset_small" alt="^"></tmpl_if></tmpl_if></a>
+              <tmpl_else>
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=sentdate&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=1&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('sort by sent date')">gettext('Received Date')</a>
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_if headingreversesort>date<tmpl_else>date_rev</tmpl_if>&amp;msgdatetype=recvdate&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="Y" class="icon" title="<tmpl_if headingreversesort>gettext('sort by oldest first')<tmpl_else>gettext('sort by newest first')</tmpl_if>"><tmpl_if headingreversesort><tmpl_if use_texticon>v<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowdown escape="html">" class="iconset_small" alt="v"></tmpl_if><tmpl_else><tmpl_if use_texticon>^<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowup escape="html">" class="iconset_small" alt="^"></tmpl_if></tmpl_if></a>
+              </tmpl_if>
+            <tmpl_else>
+              <tmpl_if headingdatebysent>
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=date_rev&amp;msgdatetype=sentdate&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=1&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('sort by sent date')">gettext('Sent Date')</a>
+              <tmpl_else>
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=date_rev&amp;msgdatetype=recvdate&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;page=1&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('sort by received date')">gettext('Received Date')</a>
+              </tmpl_if>
+            </tmpl_if>
+          </th>
+          </tmpl_if>
+
+          <tmpl_if from>
+          <th>
+            <tmpl_if active>
+              <tmpl_if headingfrombysender>
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_if headingreversesort>recipient_rev<tmpl_else>recipient</tmpl_if>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=1&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('sort by recipient')">gettext('Sender')</a>&nbsp;
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_if headingreversesort>sender<tmpl_else>sender_rev</tmpl_if>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="0" class="icon" title="<tmpl_if headingreversesort>gettext('sort alphanumerically')<tmpl_else>gettext('sort reverse alphanumerically')</tmpl_if>"><tmpl_if headingreversesort><tmpl_if use_texticon>v<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowdown escape="html">" class="iconset_small" alt="v"></tmpl_if><tmpl_else><tmpl_if use_texticon>^<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowup escape="html">" class="iconset_small" alt="^"></tmpl_if></tmpl_if></a>
+              <tmpl_else>
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_if headingreversesort>sender_rev<tmpl_else>sender</tmpl_if>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=1&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('sort by sender')">gettext('Recipient')</a>&nbsp;
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_if headingreversesort>recipient<tmpl_else>recipient_rev</tmpl_if>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" class="icon" title="<tmpl_if headingreversesort>gettext('sort alphanumerically')<tmpl_else>gettext('sort reverse alphanumerically')</tmpl_if>"><tmpl_if headingreversesort><tmpl_if use_texticon>v<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowdown escape="html">" class="iconset_small" alt="v"></tmpl_if><tmpl_else><tmpl_if use_texticon>^<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowup escape="html">" class="iconset_small" alt="^"></tmpl_if></tmpl_if></a>
+              </tmpl_if>
+            <tmpl_else>
+              <tmpl_if headingfrombysender>
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=sender&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=1&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('sort by sender')">gettext('Sender')</a>
+              <tmpl_else>
+                <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=recipient&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=1&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('sort by recipient')">gettext('Recipient')</a>
+              </tmpl_if>
+            </tmpl_if>
+          </th>
+          </tmpl_if>
+
+          <tmpl_if subject>
+          <th>
+            <tmpl_if active>
+              <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_if headingreversesort>subject<tmpl_else>subject_rev</tmpl_if>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="<tmpl_if headingreversesort>gettext('sort by oldest threads first')<tmpl_else>gettext('sort by newest threads first')</tmpl_if>">gettext('Subject')</a>&nbsp;
+              <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_if headingreversesort>subject<tmpl_else>subject_rev</tmpl_if>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" class="icon" title="<tmpl_if headingreversesort>gettext('sort by oldest threads first')<tmpl_else>gettext('sort by newest threads first')</tmpl_if>"><tmpl_if headingreversesort><tmpl_if use_texticon>v<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowdown escape="html">" class="iconset_small" alt="v"></tmpl_if><tmpl_else><tmpl_if use_texticon>^<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowup escape="html">" class="iconset_small" alt="^"></tmpl_if></tmpl_if></a>
+            <tmpl_else>
+              <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=subject_rev&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('sort by subject')">gettext('Subject')</a>
+            </tmpl_if>
+          </th>
+          </tmpl_if>
+
+          <tmpl_if size>
+          <th>
+            <tmpl_if active>
+              <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_if headingreversesort>size<tmpl_else>size_rev</tmpl_if>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="<tmpl_if headingreversesort>gettext('sort by size smallest first')<tmpl_else>gettext('sort by size largest first')</tmpl_if>">gettext('Size')</a>&nbsp;
+              <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=<tmpl_if headingreversesort>size<tmpl_else>size_rev</tmpl_if>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" class="icon" title="<tmpl_if headingreversesort>gettext('sort by size smallest first')<tmpl_else>gettext('sort by size largest first')</tmpl_if>"><tmpl_if headingreversesort><tmpl_if use_texticon>v<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowdown escape="html">" class="iconset_small" alt="v"></tmpl_if><tmpl_else><tmpl_if use_texticon>^<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowup escape="html">" class="iconset_small" alt="^"></tmpl_if></tmpl_if></a>
+            <tmpl_else>
+              <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sort=size_rev&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('sort by size')">gettext('Size')</a>
+            </tmpl_if>
+          </th>
+          </tmpl_if>
+        </tmpl_loop>
+
+        <th>
+          <input type="checkbox" name="allbox" value="1" onclick="CheckAll(<tmpl_var uselightbar escape="js">);">
+        </th>
+      </tr>
+
+      <tmpl_loop messagesloop>
+      <tr id="tr_<tmpl_var messagenumber escape="html">" <tmpl_if uselightbar>class="rowlight" onclick="if (!document.layers) { var cb = document.getElementById('<tmpl_var messagenumber escape="js">'); cb.checked=!cb.checked }" onmouseover="this.className='rowhilite';" onmouseout="this.className=document.getElementById('<tmpl_var messagenumber escape="js">').checked?'rowdark':'rowlight';"</tmpl_if>>
+        <td <tmpl_unless uselightbar>class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless> nowrap>
+          <b><tmpl_var messagenumber escape="html"></b>
+          <tmpl_if status_read>
+            <a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=markasunread&amp;message_id=<tmpl_var messageid escape="url">&amp;status=<tmpl_var messagestatus escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" class="icon" title="gettext('mark as unread')"><tmpl_if use_texticon>gettext('mark as unread')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if status_answered><tmpl_var iconset_small_readreplied escape="html"><tmpl_else><tmpl_var iconset_small_read escape="html"></tmpl_if>" class="iconset_small" alt="gettext('mark as unread')"></tmpl_if></a><tmpl_else><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=markasread&amp;message_id=<tmpl_var messageid escape="url">&amp;status=<tmpl_var messagestatus escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" class="icon" title="gettext('mark as read')"><tmpl_if use_texticon>gettext('mark as read')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if status_answered><tmpl_var iconset_small_unreadreplied escape="html"><tmpl_else><tmpl_var iconset_small_unread escape="html"></tmpl_if>" class="iconset_small" alt="gettext('mark as read')"></tmpl_if></a>
+          </tmpl_if>
+
+          <tmpl_if status_attachments>
+            <a class="icon" title="gettext('this message has attachments')"><tmpl_if use_texticon>gettext('attachments')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_paperclip escape="html">" class="iconset_small" alt="gettext('attachments')"></tmpl_if></a>
+          </tmpl_if>
+
+          <tmpl_if status_important>
+            <a class="icon" title="gettext('important')"><tmpl_if use_texticon>gettext('important')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_important escape="html">" class="iconset_small" alt="gettext('important')"></tmpl_if></a>
+          </tmpl_if>
+        </td>
+
+        <tmpl_loop headingloop>
+          <tmpl_if date>
+          <td <tmpl_unless uselightbar>class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless> nowrap>
+            <a title="<tmpl_if showdatereceived>gettext('sent <tmpl_var messagedatesent escape="html">')<tmpl_else>gettext('received <tmpl_var messagedatereceived escape="html">')</tmpl_if> (gettext('<tmpl_var timeintransitsign escape="html"><tmpl_var timeintransithour escape="html">h <tmpl_var timeintransitmin escape="html">m <tmpl_var timeintransitsec escape="html">s difference'))"><tmpl_if status_read><tmpl_if showdatereceived><tmpl_var messagedatereceived escape="html"><tmpl_else><tmpl_var messagedatesent escape="html"></tmpl_if><tmpl_else><b><tmpl_if showdatereceived><tmpl_var messagedatereceived escape="html"><tmpl_else><tmpl_var messagedatesent escape="html"></tmpl_if></b></tmpl_if></a>
+          </td>
+          </tmpl_if>
+
+          <tmpl_if from>
+          <td <tmpl_unless uselightbar>class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless>>
+            <tmpl_if useminisearchicon>
+              <a class="cellIcon" href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;searchtype=<tmpl_if headingfrombysender>from<tmpl_else>to</tmpl_if>&amp;keyword=<tmpl_if headingfrombysender><tmpl_var from_address escape="url"><tmpl_else><tmpl_var to_keywords escape="url"></tmpl_if>" class="icon" title="<tmpl_if headingfrombysender>gettext('search for messages from <tmpl_var from_address escape="html">')<tmpl_else>gettext('search for messages to same recipients')</tmpl_if>"><tmpl_if use_texticon>gettext('search')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_minisearch escape="html">" class="iconset_small" alt="gettext('search')"></tmpl_if></a>
+            </tmpl_if>
+
+            <tmpl_if contactinaddressbook>
+              <a class="cellIcon" href="javascript:void(0);" onclick="javascript:event.stopPropagation ? event.stopPropagation() : event.cancelBubble=true; popupContact(this, 'popup_contact', 50, -25, '<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrcardview&amp;rootxowmuid=<tmpl_var contactinaddressbook escape="url">&amp;email=<tmpl_var add_email escape="url">&amp;editformcaller=listmessages&amp;abookkeyword=&amp;abooksearchtype=&amp;abookfolder=&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">')" class="icon" title="gettext('contact details')"><tmpl_if use_texticon>gettext('contact details')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_contact escape="html">" class="iconset_small" alt="gettext('contact details')"></tmpl_if></a>
+            <tmpl_else>
+              <tmpl_unless hide_contactadd>
+              <a class="cellIcon" href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addreditform&amp;editformcaller=listmessages&amp;N.0.VALUE.GIVENNAME=<tmpl_var add_givenname escape="url">&amp;N.0.VALUE.FAMILYNAME=<tmpl_var add_familyname escape="url">&amp;FN.0.VALUE=<tmpl_var add_givenname escape="url"><tmpl_if add_familyname>%20<tmpl_var add_familyname escape="url"></tmpl_if>&amp;EMAIL.0.VALUE=<tmpl_var add_email escape="url">&amp;formchange=1&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;message_id=<tmpl_var messageid escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=<tmpl_var attmode escape="url">" accesskey="Z" class="icon" title="gettext('import contact')"><tmpl_if use_texticon>gettext('import contact')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_contactadd escape="html">" class="iconset_small" alt="gettext('import contact')"></tmpl_if></a>
+              </tmpl_unless>
+            </tmpl_if>
+
+            <a <tmpl_unless overlimit>href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=sendto&amp;to=<tmpl_if headingfrombysender><tmpl_var from_nameandaddress escape="url"><tmpl_else><tmpl_var to_namesandaddresses escape="url"></tmpl_if>&amp;compose_caller=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">"</tmpl_unless> title="<tmpl_var from_address escape="html"> -&gt; <tmpl_var to_addresses escape="html">"><tmpl_if status_read><tmpl_if headingfrombysender><tmpl_var from_name escape="html"><tmpl_else><tmpl_if to_names><tmpl_var to_names escape="html"><tmpl_else>gettext('undisclosed-recipients')</tmpl_if></tmpl_if><tmpl_else><b><tmpl_if headingfrombysender><tmpl_var from_name escape="html"><tmpl_else><tmpl_if to_names><tmpl_var to_names escape="html"><tmpl_else>gettext('undisclosed-recipients')</tmpl_if></tmpl_if></b></tmpl_if></a>
+          </td>
+          </tmpl_if>
+
+          <tmpl_if subject>
+          <td <tmpl_unless uselightbar>class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless>>
+            <tmpl_if useminisearchicon>
+              <a class="cellIcon" href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;searchtype=subject&amp;keyword=<tmpl_var subject_keyword escape="url">" class="icon" title="gettext('search for messages with this subject')"><tmpl_if use_texticon>gettext('search')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_minisearch escape="html">" class="iconset_small" alt="gettext('search')"></tmpl_if></a>
+            </tmpl_if>
+
+            <tmpl_if active>
+              <tmpl_if subjectindent>
+                <tmpl_var subjectindent escape="none">
+                <tmpl_if headingreversesort>
+                  <a title="gettext('follow up')"><tmpl_if use_texticon>gettext('follow up')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_followup escape="html">" class="iconset_small" alt="gettext('follow up')"></tmpl_if></a><tmpl_else><a title="gettext('follow down')"><tmpl_if use_texticon>gettext('follow down')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_followdown escape="html">" class="iconset_small" alt="gettext('follow down')"></tmpl_if></a>
+                </tmpl_if>
+              </tmpl_if>
+            </tmpl_if>
+
+            <a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=readmessage&amp;message_id=<tmpl_var messageid escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;attmode=simple&amp;db_chkstatus=<tmpl_if status_read>0<tmpl_else>1</tmpl_if>&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('character set: <tmpl_var messagecharset escape="html">')"><tmpl_if status_read><tmpl_if subjecttext><tmpl_var subjecttext escape="html"><tmpl_else>gettext('(no subject)')</tmpl_if><tmpl_else><b><tmpl_if subjecttext><tmpl_var subjecttext escape="html"><tmpl_else>gettext('(no subject)')</tmpl_if></b></tmpl_if></a>
+          </td>
+          </tmpl_if>
+
+          <tmpl_if size>
+          <td <tmpl_unless uselightbar>class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless> align="right">
+            <tmpl_if status_read><tmpl_var messagesize escape="html"><tmpl_else><b><tmpl_var messagesize escape="html"></b></tmpl_if>
+          </td>
+          </tmpl_if>
+          </tmpl_loop>
+
+          <td <tmpl_unless uselightbar>class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"</tmpl_unless> align="center">
+            <input type="checkbox" id="<tmpl_var messagenumber escape="html">" name="message_ids" value="<tmpl_var messageid escape="html">" <tmpl_if accesskey>accesskey="<tmpl_var accesskey escape="html">"</tmpl_if> <tmpl_if uselightbar>onclick="if (!document.layers) { this.checked =! this.checked }"</tmpl_if> <tmpl_if singlemessage>checked</tmpl_if>>
+          </td>
+        </tr>
+        </tmpl_loop>
+    </table>
+
+    <div class="paginator">
+      <tmpl_if prevpage><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;page=<tmpl_var prevpage escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="U" class="icon" title="gettext('previous page')"><tmpl_if use_texticon><tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowrighton escape="html"><tmpl_else><tmpl_var iconset_small_arrowlefton escape="html"></tmpl_if>" class="iconset_small" alt="<tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if>"></tmpl_if></a><tmpl_else><tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowrightoff escape="html"><tmpl_else><tmpl_var iconset_small_arrowleftoff escape="html"></tmpl_if>" class="iconset_small" title="gettext('no previous page')" alt="<tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if>"></tmpl_if></tmpl_if>
+      <div class="currentPage"><tmpl_var page escape="html">/<tmpl_var totalpage escape="html"></div>
+      <tmpl_if nextpage><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;page=<tmpl_var nextpage escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" accesskey="D" class="icon" title="gettext('next page')"><tmpl_if use_texticon><tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowlefton escape="html"><tmpl_else><tmpl_var iconset_small_arrowrighton escape="html"></tmpl_if>" class="iconset_small" alt="<tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if>"></tmpl_if></a><tmpl_else><tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowleftoff escape="html"><tmpl_else><tmpl_var iconset_small_arrowrightoff escape="html"></tmpl_if>" class="iconset_small" title="gettext('no next page')" alt="<tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if>"></tmpl_if></tmpl_if>
+      
+      <tmpl_if topjumpcontrol>
+      <div class="center"><a href="#" class="icon" title="gettext('jump to the top of the page')"><tmpl_if use_texticon>^<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowup escape="html">" class="iconset_small" alt="^"></tmpl_if></a></div>
+      </tmpl_if>
+    </div>
+    
+    <tmpl_if controlbarbottom>
+    <div class="contentbox">
+      <div class="contentboxdata" id="controlbar">
+        <select name="searchtype" accesskey="W">
+          <tmpl_loop searchselectloop>
+            <tmpl_if option_from><option value="from" <tmpl_if selected>selected</tmpl_if>>gettext('From')</option></tmpl_if>
+            <tmpl_if option_to><option value="to" <tmpl_if selected>selected</tmpl_if>>gettext('To')</option></tmpl_if>
+            <tmpl_if option_subject><option value="subject" <tmpl_if selected>selected</tmpl_if>>gettext('Subject')</option></tmpl_if>
+            <tmpl_if option_date><option value="date" <tmpl_if selected>selected</tmpl_if>>gettext('Date')</option></tmpl_if>
+            <tmpl_if option_attfilename><option value="attfilename" <tmpl_if selected>selected</tmpl_if>>gettext('Attachment Filename')</option></tmpl_if>
+            <tmpl_if option_header><option value="header" <tmpl_if selected>selected</tmpl_if>>gettext('Header')</option></tmpl_if>
+            <tmpl_if option_textcontent><option value="textcontent" <tmpl_if selected>selected</tmpl_if>>gettext('Text Content')</option></tmpl_if>
+            <tmpl_if option_all><option value="all" <tmpl_if selected>selected</tmpl_if>>gettext('All')</option></tmpl_if>
+          </tmpl_loop>
+        </select>
+        
+        <input type="text" size="12" name="keyword" value="<tmpl_var keyword escape="html">" accesskey="S">
+        
+        <input type="submit" name="searchbutton" value="gettext('Search')"><input type="submit" name="clearsearchbutton" value="gettext('Clear')" accesskey="Q">
+        
+        <div class="center">
+          <label for="page">gettext('Page')</label>
+          
+          <select name="page" accesskey="P" onchange="document.pageform.submit();">
+            <tmpl_loop pageselectloop>
+            <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+          </select>
+          
+          <tmpl_if longpage><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&longpage=0&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="<tmpl_var messagesperpagesummary escape="html">">-</a><tmpl_else><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&longpage=1&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('1000 messages per page')">+</a></tmpl_if>
+        </div>
+        
+        <div class="right">
+          <select name="destination" accesskey="B">
+            <tmpl_loop destinationselectloop>
+            
+            <tmpl_if is_defaultfolder>
+            
+            <tmpl_if option_INBOX><option value="INBOX" <tmpl_if selected>selected</tmpl_if>>gettext('Inbox')</option></tmpl_if>
+            <tmpl_if option_saved-messages><option value="saved-messages" <tmpl_if selected>selected</tmpl_if>>gettext('Saved')</option></tmpl_if>
+            <tmpl_if option_sent-mail><option value="sent-mail" <tmpl_if selected>selected</tmpl_if>>gettext('Sent')</option></tmpl_if>
+            <tmpl_if option_saved-drafts><option value="saved-drafts" <tmpl_if selected>selected</tmpl_if>>gettext('Draft')</option></tmpl_if>
+            <tmpl_if option_mail-trash><option value="mail-trash" <tmpl_if selected>selected</tmpl_if>>gettext('Trash')</option></tmpl_if>
+            <tmpl_if option_spam-mail><option value="spam-mail" <tmpl_if selected>selected</tmpl_if>>gettext('Spam')</option></tmpl_if>
+            <tmpl_if option_virus-mail><option value="virus-mail" <tmpl_if selected>selected</tmpl_if>>gettext('Virus')</option></tmpl_if>
+            <tmpl_if option_LEARNSPAM><option value="LEARNSPAM" <tmpl_if selected>selected</tmpl_if>>gettext('--LEARN SPAM--')</option></tmpl_if>
+            <tmpl_if option_LEARNHAM><option value="LEARNHAM" <tmpl_if selected>selected</tmpl_if>>gettext('--LEARN HAM--')</option></tmpl_if>
+            <tmpl_if option_MARKASREAD><option value="MARKASREAD" <tmpl_if selected>selected</tmpl_if>>gettext('--MARK AS READ--')</option></tmpl_if>
+            <tmpl_if option_MARKASUNREAD><option value="MARKASUNREAD" <tmpl_if selected>selected</tmpl_if>>gettext('--MARK AS UNREAD--')</option></tmpl_if>
+            <tmpl_if option_FORWARD><option value="FORWARD" <tmpl_if selected>selected</tmpl_if>>gettext('--FORWARD--')</option></tmpl_if>
+            <tmpl_if option_DELETE><option value="DELETE" <tmpl_if selected>selected</tmpl_if>>gettext('--DELETE--')</option></tmpl_if>
+            <tmpl_else>
+            
+            <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            
+            </tmpl_if>
+            
+            </tmpl_loop>
+          </select>
+          
+          <input type="submit" name="movebutton" value="gettext('Move')" onclick="return OpConfirm('jgettext('Are you sure you want to move the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
+          
+          <input type="submit" name="copybutton" value="gettext('Copy')" onclick="return OpConfirm('jgettext('Are you sure you want to copy the selected message(s)?')',<tmpl_var confirmmsgmovecopy escape="js">)">
+        </div>
+      </div>
+    </div>
+    </tmpl_if>
+  </div> <!-- #content end -->
+  
+  <tmpl_if newmailsound>
+  <embed src="<tmpl_var url_html escape="none">/sounds/<tmpl_var newmailsound escape="html">" autostart="true" hidden="true">
+  </tmpl_if>
+
+<div id="popup_contact"></div>
+
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_base.js"></script>
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_contact.js"></script>
+<script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_message.js"></script>
+<script type="text/javascript">
+<!--
+function CheckAll(setbgcolor) {
+   for (var i=0;i<document.pageform.elements.length;i++) {
+      var e = document.pageform.elements[i];
+      if (e.type == 'checkbox' && e.name != 'allbox') {
+         e.checked = document.pageform.allbox.checked;
+         if (!document.layers && setbgcolor) {
+            var tr = document.getElementById('tr_'+e.id);
+            if (e.checked) {
+               tr.className = 'rowdark';
+            } else {
+               tr.className = 'rowlight';
+            }
+         }
+      }
+   }
+}
+
+function OpConfirm(text, conf) {
+   for (var i=0;i<document.pageform.elements.length;i++) {
+      var e = document.pageform.elements[i];
+      if (e.type == 'checkbox' && e.name != 'allbox' && e.checked == 1 ) {
+         if (conf) {
+            return confirm(text);
+         } else {
+            return 1;
+         }
+      }
+   }
+   return false;
+}
+
+var popup_ok = 1;
+
+<tmpl_if popup_quotahitdelmail>
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('QUOTA HIT')', '<span class="warning">jgettext('Warning: the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit. Oldest messages have been automatically removed.')</span>', 'jgettext('close')', '_quotahit_delmail', 400, 100, 60);
+</tmpl_if>
+
+<tmpl_if popup_quotahitdelfile>
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('QUOTA HIT')', '<span class="warning">jgettext('Warning: the quota limit(<tmpl_var quotalimit escape="js"> kB) was hit. Some files from the webdisk have been automatically removed.')</span>', 'jgettext('close')', '_quotahit_delfile', 400, 100, 60);
+</tmpl_if>
+
+<tmpl_if quotaoverlimit>
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('QUOTA HIT')', '<span class="warning">jgettext('Quota limit exceeded. Please delete some messages or webdisk files to free disk space.')</span>', 'jgettext('close')', '_quotahit_alert', 400, 100, 60);
+</tmpl_if>
+
+<tmpl_if spooloverlimit>
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('QUOTA HIT')', '<span class="warning">jgettext('Your INBOX has exceeded the spool limit (<tmpl_var spoollimit escape="js"> kB). Please move some messages from your INBOX to other folders.')</span>', 'jgettext('close')', '_spool_overlimit', 400, 100, 60);
+</tmpl_if>
+
+<tmpl_if popup_messagesent>
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('Message Sent')', 'jgettext('Message <tmpl_var sentsubject escape="js"> has been sent successfully')', 'jgettext('close')', '_messagesent', 400, 100, <tmpl_var mailsentwindowtime escape="js">);
+</tmpl_if>
+
+<tmpl_if incomingmessagesloop>
+popup_ok = popup_message('<tmpl_var charset escape="js">', 'jgettext('Incoming Messages')', '<tmpl_loop incomingmessagesloop>
+  <tmpl_if is_defaultfolder>
+  <tmpl_if incomingfolder_INBOX>jgettext('Inbox')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_saved-messages>jgettext('Saved')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_sent-mail>jgettext('Sent')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_saved-drafts>jgettext('Draft')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_mail-trash>jgettext('Trash')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_spam-mail>jgettext('Spam')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_virus-mail>jgettext('Virus')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_if incomingfolder_DELETE>jgettext('--DELETE--')&nbsp;<tmpl_var incomingcount escape="js"><br></tmpl_if>
+  <tmpl_else>
+  <tmpl_var incomingfolder escape="js">&nbsp;<tmpl_var incomingcount escape="js"><br>
+  </tmpl_if>
+</tmpl_loop>', 'jgettext('close')', '_incoming', 400, <tmpl_var newmailwindowheight escape="js">, <tmpl_var newmailwindowtime escape="js">);
+</tmpl_if>
+
+if (popup_ok == 0) {
+   alert('jgettext('A popup window has been blocked.\nPlease unblock popups and try again.')');
+}
+
+//-->
+</script>
+
+<tmpl_var footer_template escape="none">

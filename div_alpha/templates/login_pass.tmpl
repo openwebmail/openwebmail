@@ -1,0 +1,41 @@
+<tmpl_var header_template escape="none">
+
+<style type="text/css">
+body { background: #ffffff; }
+</style>
+
+<script type="text/javascript">
+<!--
+   setTimeout("window.location.href='<tmpl_var url_refresh escape="none">'", 50000);
+//-->
+</script>
+
+<div id="wrapper">
+	<div class="logincopyrightnote"><a href="<tmpl_var url_refresh escape="none">" title="gettext('click to continue')" class="loading">&nbsp;gettext('Loading ...')</a></div>
+	
+	<div class="logincopyrightnote">
+		<a href="http://openwebmail.acatysmoof.com" title="<tmpl_var programname escape="html"> homepage" target="_blank" class="copyright">
+			<tmpl_if enable_about>
+			<tmpl_if about_info_software>
+			<p><tmpl_var programname escape="html"> <tmpl_var programversion escape="html">.<tmpl_var programrevision escape="html"> <tmpl_var programreleasedate escape="html"></p>
+			</tmpl_if>
+			</tmpl_if>
+			<p>Copyright (c) 2001-2011, The OpenWebMail Project, All rights reserved</p>
+			<p>gettext('Active Developers')<br>Alex Teslik, Scott Mazur, Joao S Veiga, Marian &#270;urkovi&#269;</p>
+			<p>gettext('Special Thanks to Retired Developers')<br>Chung-Kie Tung, Nai-Jung Kuo, Chao-Chiu Wang, Emir Litric,<br>Dattola Filippo, Bernd Bass, Thomas Chung</p>
+			<p>Portions based on Neomail, Copyright (c) 2000 Ernie Miller</p>
+		</a>
+	</div>
+	
+	<div class="logincopyrightnote">
+		<a href="<tmpl_var url_html escape="none">/doc/LICENSE.txt" title="gettext('click to see the BSD License')" target="_blank" class="copyright">
+			THIS SOFTWARE IS PROVIDED BY The OpenWebMail Project &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL The OpenWebMail Project BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</a></p>
+
+			<tmpl_if session_count_display>
+			<p title="gettext('browser javascript support level')">gettext('Browser javascript support level:') <tmpl_var browserjavascript escape="html"></p>
+			<p title="gettext('number of active sessions in the past 1, 5, 15 minutes')">gettext('Sessions')&nbsp;:&nbsp;<tmpl_var activelastminute escape="html">,&nbsp;<tmpl_var activelastfiveminute escape="html">,&nbsp;<tmpl_var activelastfifteenminute escape="html"></p>
+			</tmpl_if>
+		</a>
+	</div>
+
+<tmpl_var footer_template escape="none">
