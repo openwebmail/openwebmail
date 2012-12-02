@@ -359,13 +359,14 @@ sub markreadfolder {
 
    my @unreadmsgids = sort { $offset{$a} <=> $offset{$b} } keys %offset;
 
-   my $tmpdir  = ow::tool::mktmpdir('markread.tmp');
-   my $tmpfile = ow::tool::untaint("$tmpdir/folder");
-   my $tmpdb   = ow::tool::untaint("$tmpdir/db");
-
-   $ioerr++ if $tmpdir eq '';
-
    while (!$ioerr && $#unreadmsgids >= 0) {
+
+      my $tmpdir  = ow::tool::mktmpdir('markread.tmp');
+      my $tmpfile = ow::tool::untaint("$tmpdir/folder");
+      my $tmpdb   = ow::tool::untaint("$tmpdir/db");
+
+      $ioerr++ if $tmpdir eq '';
+
       my @markids = ();
 
       sysopen(F, $tmpfile, O_WRONLY|O_TRUNC|O_CREAT) or
