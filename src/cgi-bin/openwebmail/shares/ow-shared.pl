@@ -1075,24 +1075,24 @@ sub readprefs {
       }
 
       $prefshash{signature} =~ s/\s+$/\n/;
+
+      # validate email with defaultemails if frombook is limited to change realname only
+      if ($config{frombook_for_realname_only} || (defined $prefshash{email} && $prefshash{email} eq '')) {
+         my @defaultemails = get_defaultemails();
+         my $valid = 0;
+
+         foreach (@defaultemails) {
+            if (defined $prefshash{email} && $prefshash{email} eq $_) {
+               $valid = 1;
+               last;
+            }
+         }
+
+         $prefshash{email} = $defaultemails[0] if !$valid;
+      }
    }
 
    # get default value from config for err/undefined/empty prefs entries
-
-   # validate email with defaultemails if frombook is limited to change realname only
-   if ($config{frombook_for_realname_only} || (defined $prefshash{email} && $prefshash{email} eq '')) {
-      my @defaultemails = get_defaultemails();
-      my $valid = 0;
-
-      foreach (@defaultemails) {
-         if (defined $prefshash{email} && $prefshash{email} eq $_) {
-            $valid = 1;
-            last;
-         }
-      }
-
-      $prefshash{email} = $defaultemails[0] if !$valid;
-   }
 
    # all rc entries are disallowed to be empty
    foreach my $key (@openwebmailrcitem) {
