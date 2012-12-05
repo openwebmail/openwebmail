@@ -107,7 +107,7 @@ sub read_filterbook {
 
             next if (!is_defaultfolder($rule{dest}) && !$config{enable_userfolders});
 
-            my $key = join('@@@', @rule{'type', 'inc', 'text', 'dest'});
+            my $key = (iconv($rule{charset}, $prefs{charset}, join('@@@', @rule{'type', 'inc', 'text', 'dest'})))[0];
             $r_filterrules->{$key} = \%rule;
          }
       }
