@@ -1361,6 +1361,8 @@ sub download_nontext {
 
    my @filelist = ();
 
+   my $tmpdir = ow::tool::mktmpdir("download_nontext.tmp");
+
    for (my $i = 0; $i < scalar @{$messagesloop}; $i++) {
       # update the messageid to this specific message!
       # in the future we need to do this for conversation view
@@ -1388,7 +1390,7 @@ sub download_nontext {
                }
             }
 
-            my $tempfile = ow::tool::untaint("/tmp/$messagesloop->[$i]{attachment}[$n]{filename}");
+            my $tempfile = ow::tool::untaint("$tmpdir/$messagesloop->[$i]{attachment}[$n]{filename}");
 
             sysopen(FILE, $tempfile, O_WRONLY|O_TRUNC|O_CREAT) or
               openwebmailerror(gettext('Cannot open file:') . " $tempfile ($!)");
@@ -1441,7 +1443,7 @@ sub download_nontext {
    }
    print qq|\n|;
 
-   chdir('/tmp') or openwebmailerror(gettext('Cannot change to directory:') . " /tmp ($!)");
+   chdir($tmpdir) or openwebmailerror(gettext('Cannot change to directory:') . " $tmpdir ($!)");
 
    # set environment variables for cmd
    $ENV{USER} = $ENV{LOGNAME} = $user;
