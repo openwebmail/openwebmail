@@ -102,6 +102,7 @@ This file was created by copying the abook_listview.tmpl and changing/removing a
          <select name="abooksearchtype">
            <tmpl_loop searchtypeselectloop>
            <tmpl_if option_fullname><option value="fullname" <tmpl_if selected>selected</tmpl_if>>gettext('Full Name')</option></tmpl_if>
+           <tmpl_if option_nicknames><option value="nicknames" <tmpl_if selected>selected</tmpl_if>>gettext('Nicknames')</option></tmpl_if>
            <tmpl_if option_prefix><option value="prefix" <tmpl_if selected>selected</tmpl_if>>gettext('Name Prefix')</option></tmpl_if>
            <tmpl_if option_first><option value="first" <tmpl_if selected>selected</tmpl_if>>gettext('First Name')</option></tmpl_if>
            <tmpl_if option_middle><option value="middle" <tmpl_if selected>selected</tmpl_if>>gettext('Middle Name')</option></tmpl_if>
@@ -163,6 +164,8 @@ This file was created by copying the abook_listview.tmpl and changing/removing a
   <td class="columnheader">
     <tmpl_if fullname><a href="javascript:sortby('<tmpl_if is_sort_key><tmpl_if is_sort_reverse>fullname<tmpl_else>fullname_rev</tmpl_if><tmpl_else>fullname</tmpl_if>');" title="<tmpl_if is_sort_reverse>gettext('sort by full name ascending')<tmpl_else>gettext('sort by full name descending')</tmpl_if>">gettext('Full Name')<tmpl_if is_sort_key>&nbsp;<tmpl_if use_texticon><tmpl_if is_sort_reverse>v<tmpl_else>^</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_sort_reverse><tmpl_var iconset_small_arrowup escape="html">" class="iconset_small" alt="^"<tmpl_else><tmpl_var iconset_small_arrowdown escape="html">" class="iconset_small" alt="v"</tmpl_if>></tmpl_if></tmpl_if></a></tmpl_if>
 
+    <tmpl_if nicknames><a href="javascript:sortby('<tmpl_if is_sort_key><tmpl_if is_sort_reverse>nicknames<tmpl_else>nicknames_rev</tmpl_if><tmpl_else>nicknames</tmpl_if>');" title="<tmpl_if is_sort_reverse>gettext('sort by nicknames ascending')<tmpl_else>gettext('sort by nicknames descending')</tmpl_if>">gettext('Nicknames')<tmpl_if is_sort_key>&nbsp;<tmpl_if use_texticon><tmpl_if is_sort_reverse>v<tmpl_else>^</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_sort_reverse><tmpl_var iconset_small_arrowup escape="html">" class="iconset_small" alt="^"<tmpl_else><tmpl_var iconset_small_arrowdown escape="html">" class="iconset_small" alt="v"</tmpl_if>></tmpl_if></tmpl_if></a></tmpl_if>
+
     <tmpl_if prefix><a href="javascript:sortby('<tmpl_if is_sort_key><tmpl_if is_sort_reverse>prefix<tmpl_else>prefix_rev</tmpl_if><tmpl_else>prefix</tmpl_if>');" title="<tmpl_if is_sort_reverse>gettext('sort by name prefix ascending')<tmpl_else>gettext('sort by name prefix descending')</tmpl_if>">gettext('Prefix')<tmpl_if is_sort_key>&nbsp;<tmpl_if use_texticon><tmpl_if is_sort_reverse>v<tmpl_else>^</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_sort_reverse><tmpl_var iconset_small_arrowup escape="html">" class="iconset_small" alt="^"<tmpl_else><tmpl_var iconset_small_arrowdown escape="html">" class="iconset_small" alt="v"</tmpl_if>></tmpl_if></tmpl_if></a></tmpl_if>
 
     <tmpl_if first><a href="javascript:sortby('<tmpl_if is_sort_key><tmpl_if is_sort_reverse>first<tmpl_else>first_rev</tmpl_if><tmpl_else>first</tmpl_if>');" title="<tmpl_if is_sort_reverse>gettext('sort by first name ascending')<tmpl_else>gettext('sort by first name descending')</tmpl_if>">gettext('First')<tmpl_if is_sort_key>&nbsp;<tmpl_if use_texticon><tmpl_if is_sort_reverse>v<tmpl_else>^</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_sort_reverse><tmpl_var iconset_small_arrowup escape="html">" class="iconset_small" alt="^"<tmpl_else><tmpl_var iconset_small_arrowdown escape="html">" class="iconset_small" alt="v"</tmpl_if>></tmpl_if></tmpl_if></a></tmpl_if>
@@ -218,6 +221,10 @@ This file was created by copying the abook_listview.tmpl and changing/removing a
 
   <tmpl_unless empty>
   <tmpl_loop fullname>
+  <td <tmpl_unless use_lightbar>class="<tmpl_if odd>rowdark<tmpl_else>rowlight</tmpl_if>"</tmpl_unless> nowrap="1"><tmpl_var VALUE escape="html"></td>
+  </tmpl_loop>
+
+  <tmpl_loop nicknames>
   <td <tmpl_unless use_lightbar>class="<tmpl_if odd>rowdark<tmpl_else>rowlight</tmpl_if>"</tmpl_unless> nowrap="1"><tmpl_var VALUE escape="html"></td>
   </tmpl_loop>
 

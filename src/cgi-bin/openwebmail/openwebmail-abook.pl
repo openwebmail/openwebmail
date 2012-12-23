@@ -405,7 +405,7 @@ sub addrlistview {
 
    if ($mode =~ m/^(?:compose|group)$/) {
       # only show name and email type headers in these modes
-      @fieldorder = grep { m/^(fullname|prefix|first|middle|last|suffix|email)$/ } @fieldorder;
+      @fieldorder = grep { m/^(fullname|nicknames|prefix|first|middle|last|suffix|email)$/ } @fieldorder;
 
       # force an email header if there was not one before
       push(@fieldorder, 'email') unless scalar grep { m/^email$/ } @fieldorder;
@@ -416,6 +416,7 @@ sub addrlistview {
    # vcard data structure to each parsed vcard to determine a match
    my %fieldmap = (
                      'fullname'   => 'FN',
+                     'nicknames'  => 'NICKNAME',
                      'prefix'     => 'NAMEPREFIX',
                      'first'      => 'GIVENNAME',
                      'middle'     => 'ADDITIONALNAMES',
@@ -480,7 +481,7 @@ sub addrlistview {
 
    my $sort_reverse = $abooksort =~ m/_rev$/;
 
-   my @sorted_xowmuids = $abooksort_short =~ m/^(?:fullname|email|phone|note)$/
+   my @sorted_xowmuids = $abooksort_short =~ m/^(?:fullname|nicknames|email|phone|note)$/
                          ? sort {
                                   exists $contacts->{$b}{$fieldmap{$abooksort_short}}
                                   <=> # force contacts that do not have our sort field to the end of the array

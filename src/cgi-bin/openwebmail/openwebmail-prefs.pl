@@ -1541,7 +1541,7 @@ sub editprefs {
                                                               map { {
                                                                        "option_$_" => $_,
                                                                        selected    => $_ eq $defaultabook_defaultsearchtype ? 1 : 0
-                                                                  } } qw(fullname email phone note categories)
+                                                                  } } qw(fullname nicknames email phone note categories)
                                                            ],
                       disableabook_defaultkeyword       => defined $config_raw{DEFAULT_abook_defaultkeyword} ? 1 : 0,
                       abook_defaultkeywordtext          => $prefs{abook_defaultkeyword} || '',
@@ -1560,38 +1560,38 @@ sub editprefs {
                                                               map { {
                                                                        "option_$_" => $_,
                                                                        selected    => $_ eq $prefs{abook_sort} ? 1 : 0
-                                                                  } } map { ($_,"${_}_rev") } qw(fullname prefix first middle last suffix email phone)
+                                                                  } } map { ($_,"${_}_rev") } qw(fullname nicknames prefix first middle last suffix email phone)
                                                            ],
                       disableabook_listviewfieldorderselect => defined $config_raw{DEFAULT_abook_listviewfieldorder} ? 1 : 0,
                       abook_listviewfieldorder0selectloop => [
                                                                 map { {
                                                                          "option_$_" => $_,
                                                                          selected    => $_ eq $defaultabook_listviewfieldorder0 ? 1 : 0
-                                                                    } } qw(fullname prefix first middle last suffix email phone note none)
+                                                                    } } qw(fullname nicknames prefix first middle last suffix email phone note none)
                                                              ],
                       abook_listviewfieldorder1selectloop => [
                                                                 map { {
                                                                          "option_$_" => $_,
                                                                          selected    => $_ eq $defaultabook_listviewfieldorder1 ? 1 : 0
-                                                                    } } qw(fullname prefix first middle last suffix email phone note none)
+                                                                    } } qw(fullname nicknames prefix first middle last suffix email phone note none)
                                                              ],
                       abook_listviewfieldorder2selectloop => [
                                                                 map { {
                                                                          "option_$_" => $_,
                                                                          selected    => $_ eq $defaultabook_listviewfieldorder2 ? 1 : 0
-                                                                    } } qw(fullname prefix first middle last suffix email phone note none)
+                                                                    } } qw(fullname nicknames prefix first middle last suffix email phone note none)
                                                              ],
                       abook_listviewfieldorder3selectloop => [
                                                                 map { {
                                                                          "option_$_" => $_,
                                                                          selected    => $_ eq $defaultabook_listviewfieldorder3 ? 1 : 0
-                                                                    } } qw(fullname prefix first middle last suffix email phone note none)
+                                                                    } } qw(fullname nicknames prefix first middle last suffix email phone note none)
                                                              ],
                       abook_listviewfieldorder4selectloop => [
                                                                 map { {
                                                                          "option_$_" => $_,
                                                                          selected    => $_ eq $defaultabook_listviewfieldorder4 ? 1 : 0
-                                                                    } } qw(fullname prefix first middle last suffix email phone note none)
+                                                                    } } qw(fullname nicknames prefix first middle last suffix email phone note none)
                                                              ],
                       enable_calendar                   => $config{enable_calendar},
                       disablecalendar_defaultviewselect => defined $config_raw{DEFAULT_calendar_defaultview} ? 1 : 0,
