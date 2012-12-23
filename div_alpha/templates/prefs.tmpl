@@ -835,6 +835,7 @@
 					<select name="abook_defaultsearchtype" <tmpl_if disableabook_defaultsearchtypeselect>disabled="1"</tmpl_if>>
 					<tmpl_loop abook_defaultsearchtypeselectloop>
 					  <tmpl_if option_fullname><option value="fullname" <tmpl_if selected>selected</tmpl_if>>gettext('Full Name')</option></tmpl_if>
+					  <tmpl_if option_nicknames><option value="nicknames" <tmpl_if selected>selected</tmpl_if>>gettext('Nicknames')</option></tmpl_if>
 					  <tmpl_if option_email><option value="email" <tmpl_if selected>selected</tmpl_if>>gettext('Email')</option></tmpl_if>
 					  <tmpl_if option_phone><option value="phone" <tmpl_if selected>selected</tmpl_if>>gettext('Phone')</option></tmpl_if>
 					  <tmpl_if option_note><option value="note" <tmpl_if selected>selected</tmpl_if>>gettext('Note')</option></tmpl_if>
@@ -867,6 +868,8 @@
 					<tmpl_loop abook_sortselectloop>
 					  <tmpl_if option_fullname><option value="fullname" <tmpl_if selected>selected</tmpl_if>>gettext('Full Name (A to Z)')</option></tmpl_if>
 					  <tmpl_if option_fullname_rev><option value="fullname_rev" <tmpl_if selected>selected</tmpl_if>>gettext('Full Name (Z to A)')</option></tmpl_if>
+					  <tmpl_if option_nicknames><option value="nicknames" <tmpl_if selected>selected</tmpl_if>>gettext('Nicknames (A to Z)')</option></tmpl_if>
+					  <tmpl_if option_nicknames_rev><option value="nicknames_rev" <tmpl_if selected>selected</tmpl_if>>gettext('Nicknames (Z to A)')</option></tmpl_if>
 					  <tmpl_if option_prefix><option value="prefix" <tmpl_if selected>selected</tmpl_if>>gettext('Name Prefix (A to Z)')</option></tmpl_if>
 					  <tmpl_if option_prefix_rev><option value="prefix_rev" <tmpl_if selected>selected</tmpl_if>>gettext('Name Prefix (Z to A)')</option></tmpl_if>
 					  <tmpl_if option_first><option value="first" <tmpl_if selected>selected</tmpl_if>>gettext('First Name (A to Z)')</option></tmpl_if>
@@ -892,6 +895,7 @@
 					<select name="abook_listviewfieldorder" <tmpl_if disableabook_listviewfieldorderselect>disabled="1"</tmpl_if>>
 					<tmpl_loop abook_listviewfieldorder0selectloop>
 					  <tmpl_if option_fullname><option value="fullname" <tmpl_if selected>selected</tmpl_if>>gettext('Full Name')</option></tmpl_if>
+					  <tmpl_if option_nicknames><option value="nicknames" <tmpl_if selected>selected</tmpl_if>>gettext('Nicknames')</option></tmpl_if>
 					  <tmpl_if option_prefix><option value="prefix" <tmpl_if selected>selected</tmpl_if>>gettext('Prefix')</option></tmpl_if>
 					  <tmpl_if option_first><option value="first" <tmpl_if selected>selected</tmpl_if>>gettext('First')</option></tmpl_if>
 					  <tmpl_if option_middle><option value="middle" <tmpl_if selected>selected</tmpl_if>>gettext('Middle')</option></tmpl_if>
@@ -906,6 +910,7 @@
 					<select name="abook_listviewfieldorder" <tmpl_if disableabook_listviewfieldorderselect>disabled="1"</tmpl_if>>
 					<tmpl_loop abook_listviewfieldorder1selectloop>
 					  <tmpl_if option_fullname><option value="fullname" <tmpl_if selected>selected</tmpl_if>>gettext('Full Name')</option></tmpl_if>
+					  <tmpl_if option_nicknames><option value="nicknames" <tmpl_if selected>selected</tmpl_if>>gettext('Nicknames')</option></tmpl_if>
 					  <tmpl_if option_prefix><option value="prefix" <tmpl_if selected>selected</tmpl_if>>gettext('Prefix')</option></tmpl_if>
 					  <tmpl_if option_first><option value="first" <tmpl_if selected>selected</tmpl_if>>gettext('First')</option></tmpl_if>
 					  <tmpl_if option_middle><option value="middle" <tmpl_if selected>selected</tmpl_if>>gettext('Middle')</option></tmpl_if>
@@ -920,6 +925,7 @@
 					<select name="abook_listviewfieldorder" <tmpl_if disableabook_listviewfieldorderselect>disabled="1"</tmpl_if>>
 					<tmpl_loop abook_listviewfieldorder2selectloop>
 					  <tmpl_if option_fullname><option value="fullname" <tmpl_if selected>selected</tmpl_if>>gettext('Full Name')</option></tmpl_if>
+					  <tmpl_if option_nicknames><option value="nicknames" <tmpl_if selected>selected</tmpl_if>>gettext('Nicknames')</option></tmpl_if>
 					  <tmpl_if option_prefix><option value="prefix" <tmpl_if selected>selected</tmpl_if>>gettext('Prefix')</option></tmpl_if>
 					  <tmpl_if option_first><option value="first" <tmpl_if selected>selected</tmpl_if>>gettext('First')</option></tmpl_if>
 					  <tmpl_if option_middle><option value="middle" <tmpl_if selected>selected</tmpl_if>>gettext('Middle')</option></tmpl_if>
@@ -934,6 +940,7 @@
 					<select name="abook_listviewfieldorder" <tmpl_if disableabook_listviewfieldorderselect>disabled="1"</tmpl_if>>
 					<tmpl_loop abook_listviewfieldorder3selectloop>
 					  <tmpl_if option_fullname><option value="fullname" <tmpl_if selected>selected</tmpl_if>>gettext('Full Name')</option></tmpl_if>
+					  <tmpl_if option_nicknames><option value="nicknames" <tmpl_if selected>selected</tmpl_if>>gettext('Nicknames')</option></tmpl_if>
 					  <tmpl_if option_prefix><option value="prefix" <tmpl_if selected>selected</tmpl_if>>gettext('Prefix')</option></tmpl_if>
 					  <tmpl_if option_first><option value="first" <tmpl_if selected>selected</tmpl_if>>gettext('First')</option></tmpl_if>
 					  <tmpl_if option_middle><option value="middle" <tmpl_if selected>selected</tmpl_if>>gettext('Middle')</option></tmpl_if>
@@ -948,6 +955,7 @@
 					<select name="abook_listviewfieldorder" <tmpl_if disableabook_listviewfieldorderselect>disabled="1"</tmpl_if>>
 					<tmpl_loop abook_listviewfieldorder4selectloop>
 					  <tmpl_if option_fullname><option value="fullname" <tmpl_if selected>selected</tmpl_if>>gettext('Full Name')</option></tmpl_if>
+					  <tmpl_if option_nicknames><option value="nicknames" <tmpl_if selected>selected</tmpl_if>>gettext('Nicknames')</option></tmpl_if>
 					  <tmpl_if option_prefix><option value="prefix" <tmpl_if selected>selected</tmpl_if>>gettext('Prefix')</option></tmpl_if>
 					  <tmpl_if option_first><option value="first" <tmpl_if selected>selected</tmpl_if>>gettext('First')</option></tmpl_if>
 					  <tmpl_if option_middle><option value="middle" <tmpl_if selected>selected</tmpl_if>>gettext('Middle')</option></tmpl_if>
