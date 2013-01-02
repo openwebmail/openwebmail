@@ -460,13 +460,13 @@ sub listmessages {
 
       next unless defined $FDB{$messageid};
 
-      my @attr    = string2msgattr($FDB{$messageid});
-      my $charset = $attr[$_CHARSET] || '';
+      my @attr = string2msgattr($FDB{$messageid});
 
-      # assume msg is from sender using same language as the recipient's browser
-      $charset = $userbrowsercharset if $charset eq '' && $prefs{charset} eq 'utf-8';
+      # assume message is from sender using same charset as the
+      # recipients browser if the charset is not defined by the message
+      my $charset = $attr[$_CHARSET] || $userbrowsercharset || 'utf-8';
 
-      # convert from message charset to current user charset
+      # convert from database stored 'utf-8' charset to current user charset
       my ($from, $to, $subject) = iconv('utf-8', $prefs{charset}, $attr[$_FROM], $attr[$_TO], $attr[$_SUBJECT]);
 
       # status

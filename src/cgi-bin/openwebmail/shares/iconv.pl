@@ -71,7 +71,7 @@ use vars qw(%localname_cache);
                         'koi8-u'        => [ 'KOI8-U' ],
                         'ksc5601'       => [ 'KSC5601', 'KSC_5601', 'CP949' ],
                         'shift_jis'     => [ 'SJIS', 'SHIFT_JIS', 'SHIFT-JIS' ],
-                        'tis-620'       => [ 'TIS-620', 'TIS620' ],
+                        'tis620'        => [ 'TIS-620', 'TIS620', 'WINDOWS-874', 'CP874' ],
                         'utf-8'         => [ 'UTF-8', 'UTF8' ],
                         'windows-1250'  => [ 'WINDOWS-1250', 'CP1250' ],
                         'windows-1251'  => [ 'WINDOWS-1251', 'CP1251' ],
@@ -82,6 +82,7 @@ use vars qw(%localname_cache);
                         'windows-1256'  => [ 'WINDOWS-1256', 'CP1256' ],
                         'windows-1257'  => [ 'WINDOWS-1257', 'CP1257' ],
                         'windows-1258'  => [ 'WINDOWS-1258', 'CP1258' ],
+                        'windows-874'   => [ 'WINDOWS-874', 'CP874', 'TIS-620', 'TIS620' ],
                      );
 
 
@@ -113,7 +114,7 @@ use vars qw(%localname_cache);
                        'koi8-r'        => [ 'utf-8', 'windows-1251', 'iso-8859-5' ],
                        'koi8-u'        => [ 'utf-8' ],
                        'shift_jis'     => [ 'utf-8', 'iso-2022-jp', 'euc-jp' ],
-                       'tis-620'       => [ 'utf-8' ],
+                       'tis620'        => [ 'utf-8', 'windows-874' ],
                        'windows-1250'  => [ 'utf-8', 'iso-8859-2' ],
                        'windows-1251'  => [ 'utf-8', 'koi8-r', 'iso-8859-5' ],
                        'windows-1252'  => [ 'utf-8', 'iso-8859-1' ],
@@ -123,6 +124,7 @@ use vars qw(%localname_cache);
                        'windows-1256'  => [ 'utf-8', 'iso-8859-6' ],
                        'windows-1257'  => [ 'utf-8', 'iso-8859-13' ],
                        'windows-1258'  => [ 'utf-8' ],
+                       'windows-874'   => [ 'utf-8', 'tis620' ],
                        'utf-8'         => [
                                             'big5',
                                             'euc-jp',
@@ -149,7 +151,7 @@ use vars qw(%localname_cache);
                                             'koi8-u',
                                             'ksc5601',
                                             'shift_jis',
-                                            'tis-620',
+                                            'tis620',
                                             'windows-1250',
                                             'windows-1251',
                                             'windows-1252',
@@ -158,7 +160,8 @@ use vars qw(%localname_cache);
                                             'windows-1255',
                                             'windows-1256',
                                             'windows-1257',
-                                            'windows-1258'
+                                            'windows-1258',
+                                            'windows-874'
                                           ]
                                 );
 

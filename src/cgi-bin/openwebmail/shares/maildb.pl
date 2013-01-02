@@ -564,7 +564,13 @@ sub update_folderindex {
       # try to get charset from contenttype header
       $message{charset} = $1 if $message{charset} eq '' && $message{'content-type'} =~ m/charset\s*=\s*"?([^\s"';]*)"?\s?/i;
 
-      # decode mime and convert from/to/subject to message charset with iconv
+      # decode mime and convert from/to/subject to message charset with iconv.
+      # the intention here is to always store from, to, and subject as utf-8 strings
+      # in the database, but if iconv cannot convert the string it ends up getting
+      # stored as whatever charset it was... and then displayed incorrectly when
+      # the user views the message in listview or read.
+      # TODO figure out a fallback method when strings cannot be converted to utf-8
+      # perhaps add a flag to the database
       $message{$_} = decode_mimewords_iconv($message{$_}, 'utf-8') for qw(from to subject);
 
       # in most cases, a message references field should already contain
