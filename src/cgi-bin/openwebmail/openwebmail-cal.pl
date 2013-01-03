@@ -583,7 +583,7 @@ sub viewday {
       push(@{$eventcolorselectloop}, {
                                         option        => $eventcolor,
                                         label         => $eventcolor eq 'none' ? '--' : $eventcolor,
-                                        selected      => 0,
+                                        selected      => 12,
                                         selectedindex => $#{$eventcolorselectloop} + 1,
                                      }
           )
