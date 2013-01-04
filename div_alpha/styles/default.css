@@ -249,8 +249,14 @@ iframe.contact { border: 1px solid black; }
    position: absolute;
    visibility: hidden;
 }
-/*
-.suggest { background-color: #f4f2ef; padding: 0 2px 0 2px; }
-.suggesthilite { background-color: #ffcccc; padding: 0 2px 0 2px; }
-*/
+
+.suggest {
+   background-color: #f4f2ef;
+   padding: 0 2px 0 2px;
+}
+
+.suggesthilite {
+   background-color: #ffcccc;
+   padding: 0 2px 0 2px;
+}
 

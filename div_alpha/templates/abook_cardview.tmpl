@@ -43,12 +43,12 @@
       </tmpl_if>
 
       <tmpl_if FN>
-            <div class="cardview_row">
+      <div class="cardview_row">
         <tmpl_loop FN>
-                <a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addreditform&amp;rootxowmuid=<tmpl_var rootxowmuid escape="url">&amp;editformcaller=<tmpl_var editformcaller escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var messageid escape="url">&amp;abookfolder=<tmpl_var abookfolder escape="url">&amp;abookpage=<tmpl_var abookpage escape="url">&amp;abooklongpage=<tmpl_var abooklongpage escape="url">&amp;abooksort=<tmpl_var abooksort escape="url">&amp;abooksearchtype=<tmpl_var abooksearchtype escape="url">&amp;abookkeyword=<tmpl_var abookkeyword escape="url">&amp;abookcollapse=<tmpl_var abookcollapse escape="url">" title="gettext('edit contact')" target="_parent"><b><tmpl_var VALUE escape="html"></b></a>
-                </tmpl_loop>
+        <a href="<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addreditform&amp;rootxowmuid=<tmpl_var rootxowmuid escape="url">&amp;editformcaller=<tmpl_var editformcaller escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var messageid escape="url">&amp;abookfolder=<tmpl_var abookfolder escape="url">&amp;abookpage=<tmpl_var abookpage escape="url">&amp;abooklongpage=<tmpl_var abooklongpage escape="url">&amp;abooksort=<tmpl_var abooksort escape="url">&amp;abooksearchtype=<tmpl_var abooksearchtype escape="url">&amp;abookkeyword=<tmpl_var abookkeyword escape="url">&amp;abookcollapse=<tmpl_var abookcollapse escape="url">" title="gettext('edit contact')" target="_parent"><b><tmpl_var VALUE escape="html"></b></a>
+        </tmpl_loop>
 
-                <tmpl_loop SOUND>
+        <tmpl_loop SOUND>
         <tmpl_if URI>
         <tmpl_if is_phonetic>
         <span class="smalltext">gettext('phonetic pronunciation:')&nbsp;<tmpl_var VALUE escape="html"></span>
@@ -61,8 +61,8 @@
         </tmpl_if>
         </tmpl_if>
         </tmpl_loop>
-            </div>
-            <tmpl_else>
+      </div>
+      <tmpl_else>
       <div class="cardview_row">
         <tmpl_if N>
         <tmpl_loop N>
@@ -76,49 +76,48 @@
       <div class="cardview_row">
         <div class="birthday">
           <tmpl_loop X-OWM-BDAY>
-          <tmpl_var MONTH escape="html">/<tmpl_var DAY escape="html">/<tmpl_var YEAR escape="html"> (<tmpl_var AGE escape="html">)<br>
+            <tmpl_var MONTH escape="html">/<tmpl_var DAY escape="html">/<tmpl_var YEAR escape="html"> (<tmpl_var AGE escape="html">)<br>
           </tmpl_loop>
         </div>
-
       </div>
       </tmpl_if>
 
-
-            <tmpl_if ORG>
+      <tmpl_if ORG>
       <div class="cardview_row">
         <tmpl_loop ORG>
         <tmpl_if ORGANIZATIONNAME>
         <tmpl_if TITLE><tmpl_var TITLE escape="html">, </tmpl_if><tmpl_var ORGANIZATIONNAME escape="html">
         </tmpl_if>
         </tmpl_loop>
-        </tmpl_if>
       </div>
+      </tmpl_if>
 
-            <tmpl_if EMAIL>
-            <div class="cardview_row">
-        <form name="emailform">
-          <tmpl_unless quotaoverlimit><a href="javascript:void(0);" onclick="javascript:parent.window.location='<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=sendto&amp;to=' + document.forms['emailform'].elements['email'].options[document.forms['emailform'].elements['email'].selectedIndex].value + '&amp;compose_caller=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">';" class="icon" title="gettext('compose message')"><tmpl_if use_texticon><tmpl_var VALUE escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_compose escape="html">" class="iconset_small" alt="gettext('compose message')"></tmpl_if></a></tmpl_unless>
-          <select name="email">
-            <tmpl_loop EMAIL>
-            <option value="<tmpl_var nameaddress escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var VALUE escape="html"><tmpl_if PREF>&nbsp;*</tmpl_if></option>
-            </tmpl_loop>
-          </select>
-        </form>
-            </div>
-            </tmpl_if>
+      <tmpl_if EMAIL>
+      <div class="cardview_row">
+      <form name="emailform">
+        <tmpl_unless quotaoverlimit>
+        <a href="javascript:void(0);" onclick="javascript:parent.window.location='<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=sendto&amp;to=' + document.forms['emailform'].elements['email'].options[document.forms['emailform'].elements['email'].selectedIndex].value + '&amp;compose_caller=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">';" class="icon" title="gettext('compose message')"><tmpl_if use_texticon><tmpl_var VALUE escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_compose escape="html">" class="iconset_small" alt="gettext('compose message')"></tmpl_if></a>
+        </tmpl_unless>
+        <select name="email">
+          <tmpl_loop EMAIL>
+          <option value="<tmpl_var nameaddress escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var VALUE escape="html"><tmpl_if PREF>&nbsp;*</tmpl_if></option>
+          </tmpl_loop>
+        </select>
+      </form>
+      </div>
+      </tmpl_if>
 
       <tmpl_if TEL>
       <div class="cardview_row">
         <tmpl_loop TEL>
-        <tmpl_if HOME>gettext('home') </tmpl_if><tmpl_if WORK>gettext('work') </tmpl_if><tmpl_if CELL>gettext('cell') </tmpl_if><tmpl_if CAR>gettext('car') </tmpl_if><tmpl_if VIDEO>gettext('video') </tmpl_if><tmpl_if PAGER>gettext('pager') </tmpl_if><tmpl_if FAX>gettext('fax') </tmpl_if><tmpl_if ISDN>gettext('ISDN') </tmpl_if><tmpl_if BBS>gettext('BBS') </tmpl_if><tmpl_if MODEM>gettext('modem') </tmpl_if><tmpl_if MSG>gettext('message service') </tmpl_if>
-        :
-        <tmpl_var VALUE escape="html">
+        <tmpl_if HOME>gettext('home') </tmpl_if><tmpl_if WORK>gettext('work') </tmpl_if><tmpl_if CELL>gettext('cell') </tmpl_if><tmpl_if CAR>gettext('car') </tmpl_if><tmpl_if VIDEO>gettext('video') </tmpl_if><tmpl_if PAGER>gettext('pager') </tmpl_if><tmpl_if FAX>gettext('fax') </tmpl_if><tmpl_if ISDN>gettext('ISDN') </tmpl_if><tmpl_if BBS>gettext('BBS') </tmpl_if><tmpl_if MODEM>gettext('modem') </tmpl_if><tmpl_if MSG>gettext('message service') </tmpl_if>:<tmpl_var VALUE escape="html">
         </tmpl_loop>
       </div>
       </tmpl_if>
     </div>
   </div>
   </tmpl_loop>
+</div>
 
 </body>
 </html>
