@@ -81,7 +81,11 @@
   <div id="content">
     <div class="contentbox">
       <div class="contentboxdata">
-        <tmpl_loop contactpath><tmpl_if depth>&nbsp;<tmpl_if use_texticon>=&gt;<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowrighton escape="html">" class="iconset_small" alt="=&gt;"></tmpl_if>&nbsp;</tmpl_if><tmpl_if newagent>gettext('New Agent')<tmpl_else><tmpl_var name escape="html"></tmpl_if></tmpl_loop></b>
+        <div class="left">
+        <tmpl_loop contactpath>
+        <tmpl_if depth>&nbsp;<tmpl_if use_texticon>=&gt;<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowrighton escape="html">" class="iconset_small" alt="=&gt;"></tmpl_if>&nbsp;</tmpl_if><tmpl_if newagent>gettext('New Agent')<tmpl_else><tmpl_var name escape="html"></tmpl_if>
+        </tmpl_loop>
+        </div>
 
         <div class="right">
           <select name="X-OWM-CHARSET.0.VALUE" accesskey="I" onchange="javascript:document.editForm.formchange.value='X-OWM-CHARSET,0,0'; document.editForm.submit();">
@@ -104,23 +108,17 @@
           <tmpl_loop PHOTO>
           <div class="contactphoto">
             <tmpl_if URI>
-
             <tmpl_if show_inline>
             <a name="PHOTO" href="<tmpl_var VALUE escape="html">" target="_new"><img src="<tmpl_var VALUE escape="html">" border="1"></a>
             <tmpl_else>
             <a name="PHOTO" href="<tmpl_var VALUE escape="html">" target="_new" class="icon" title="<tmpl_var VALUE escape="html">"><tmpl_if use_texticon><tmpl_var VALUE escape="html"><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_link escape="html">" class="iconset_small" alt="<tmpl_var VALUE escape="html">"></tmpl_if></a>
             </tmpl_if>
-
             <tmpl_else>
             <tmpl_if BASE64>
-
             <a name="PHOTO" href="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" target="_new"><img src="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" border="1"></a>
-
             <tmpl_else>
-
             gettext('Photo could not be displayed')
             </tmpl_if>
-
             </tmpl_if>
 
             <a href="javascript:document.editForm.formchange.value='PHOTO,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a>
@@ -129,30 +127,33 @@
             <tmpl_loop TYPES>
             <input type="hidden" name="PHOTO.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
             </tmpl_loop>
-            <tmpl_if GROUP><input type="hidden" name="PHOTO.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">"></tmpl_if>
+            <tmpl_if GROUP>
+            <input type="hidden" name="PHOTO.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">">
+            </tmpl_if>
           </div>
           </tmpl_loop>
-                                        </tmpl_if>
+          </tmpl_if>
         </div>
 
         <tmpl_if N>
         <div class="editcontact_row">
-
           <label>gettext('Name Attributes')<span class="required">*</span></label>
 
           <tmpl_loop N>
+          <tmpl_if GROUP>
           <div class="nameattribute">
-            <tmpl_if GROUP><input class="mono" type="text" name="N.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
-            <label><tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if></label>
+            <input class="mono" type="text" name="N.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">
+            <label>gettext('group')</label>
           </div>
+          </tmpl_if>
 
           <div class="nameattribute">
             <input class="mono" type="text" name="N.<tmpl_var count escape="html">.VALUE.NAMEPREFIX" value="<tmpl_var NAMEPREFIX escape="html">" size="4" onblur="updateFN(this);">
-            <label><td class="smalltext">gettext('prefix')</label>
+            <label>gettext('prefix')</label>
           </div>
 
           <div class="nameattribute">
-          <input class="mono" type="text" name="N.<tmpl_var count escape="html">.VALUE.GIVENNAME" value="<tmpl_var GIVENNAME escape="html">" size="10" onblur="updateFN(this);">
+            <input class="mono" type="text" name="N.<tmpl_var count escape="html">.VALUE.GIVENNAME" value="<tmpl_var GIVENNAME escape="html">" size="10" onblur="updateFN(this);">
             <label>gettext('first')</label>
           </div>
 
@@ -194,8 +195,10 @@
           <a name="SOUND" href="<tmpl_var url_cgi escape="html">/openwebmail-abook.pl?action=addrviewatt&amp;sessionid=<tmpl_var sessionid escape="html">&amp;file=<tmpl_var VALUE escape="html">&amp;type=<tmpl_var filetype escape="html">" target="_new" title="gettext('play pronunciation sound')"><tmpl_if use_texticon>gettext('play pronunciation sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_playsound escape="html">" class="iconset_small" alt="gettext('play pronunciation sound')"></tmpl_if></a>
           </tmpl_if>
           </tmpl_if>
-          &nbsp;<a href="javascript:document.editForm.formchange.value='SOUND,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete this sound')"><tmpl_if use_texticon>gettext('delete this sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete this sound')"></tmpl_if></a>&nbsp;&nbsp;
-          <tmpl_if GROUP><input type="hidden" name="SOUND.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">"></tmpl_if>
+          <a href="javascript:document.editForm.formchange.value='SOUND,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete this sound')"><tmpl_if use_texticon>gettext('delete this sound')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete this sound')"></tmpl_if></a>
+          <tmpl_if GROUP>
+          <input type="hidden" name="SOUND.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">">
+          </tmpl_if>
           <input type="hidden" name="SOUND.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">">
           <tmpl_loop TYPES>
           <input type="hidden" name="SOUND.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
@@ -203,39 +206,43 @@
           </tmpl_loop>
 
           <tmpl_loop FN>
+          <tmpl_if GROUP>
+          <input class="mono" type="text" name="FN.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">
+          <label>gettext('group')</label>
+          </tmpl_if>
 
-          <tmpl_if GROUP><input class="mono" type="text" name="FN.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
-          <input class="mono" type="text" name="FN.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='FN,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if><
-
-          <div class="smalltext"><tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if></div>
+          <input class="mono" type="text" name="FN.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='FN,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
 
           <tmpl_loop TYPES>
           <input type="hidden" name="FN.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
           </tmpl_loop>
-
           </tmpl_loop>
         </div>
         </tmpl_if>
 
         <tmpl_if NICKNAME>
         <div class="editcontact_row">
-          <label>gettext('Nicknames')</b>&nbsp;<a href="javascript:document.editForm.formchange.value='NICKNAME,0,1'; document.editForm.submit();" title="gettext('add another nickname')">+</a></label>
+          <label>gettext('Nicknames')</label>
+          <a href="javascript:document.editForm.formchange.value='NICKNAME,0,1'; document.editForm.submit();" title="gettext('add another nickname')">+</a>
 
           <tmpl_loop NICKNAME>
           <div class="nickname">
-            <tmpl_if GROUP><input class="mono" type="text" name="NICKNAME.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
+            <tmpl_if GROUP>
+            <input class="mono" type="text" name="NICKNAME.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">
+            <tmpl_if last>
+            <tmpl_if GROUP>
+            <label>gettext('group')</label>
+            </tmpl_if>
+            </tmpl_if>
+            </tmpl_if>
 
             <input class="mono" type="text" name="NICKNAME.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='NICKNAME,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+
             <tmpl_loop TYPES>
             <input type="hidden" name="NICKNAME.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
             </tmpl_loop>
           </div>
 
-          <tmpl_if last>
-
-          <div class="smalltext"><tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if></div>
-
-          </tmpl_if>
           </tmpl_loop>
         </div>
         </tmpl_if>
@@ -245,14 +252,15 @@
           <label>gettext('Last Name Sort Override')</label>
 
           <tmpl_loop SORT-STRING>
-
           <div class="sortstring">
-            <tmpl_if GROUP><input class="mono" type="text" name="SORT-STRING.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
-            <input class="mono" type="text" name="SORT-STRING.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='SORT-STRING,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
-          </div>
+            <tmpl_if GROUP>
+            <input class="mono" type="text" name="SORT-STRING.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">
+            <label>gettext('group')</label>
+            </tmpl_if>
 
-          <div class="smalltext"><tmpl_if GROUP>gettext('group')<tmpl_else>&nbsp;</tmpl_if></div>
-          <div class="smalltext">gettext('last name:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;sort override:<i>Trapp</i>')</div>
+            <input class="mono" type="text" name="SORT-STRING.<tmpl_var count escape="html">.VALUE" value="<tmpl_var VALUE escape="html">" size="35">&nbsp;<tmpl_if deleteable><a href="javascript:document.editForm.formchange.value='SORT-STRING,<tmpl_var count escape="js">,-1'; document.editForm.submit();" title="gettext('delete')"><tmpl_if use_texticon>gettext('delete')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_trash escape="html">" class="iconset_small" alt="gettext('delete')"></tmpl_if></a></tmpl_if>
+            <label>gettext('last name:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;sort override:<i>Trapp</i>')</label>
+          </div>
 
           <tmpl_loop TYPES>
           <input type="hidden" name="SORT-STRING.<tmpl_var count escape="html">.TYPE" value="<tmpl_var type escape="html">">
@@ -268,8 +276,10 @@
 
           <tmpl_loop X-OWM-BDAY>
           <div class="birthday">
-            <tmpl_if GROUP><input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">&nbsp;&nbsp;<tmpl_else>&nbsp;</tmpl_if>
-            <tmpl_if GROUP><label>gettext('group')<tmpl_else>&nbsp;</label></tmpl_if>
+            <tmpl_if GROUP>
+            <input class="mono" type="text" name="X-OWM-BDAY.<tmpl_var count escape="html">.GROUP" value="<tmpl_var GROUP escape="html">" size="12">
+            <label>gettext('group')</label>
+            </tmpl_if>
           </div>
 
           <div class="birthday">
@@ -305,6 +315,7 @@
       </div>
     </div>
 
+<!--
     <div class="contentbox">
       <div class="contentboxtitle">gettext('Email Addresses')&nbsp;<a name="EMAIL" href="javascript:document.editForm.formchange.value='EMAIL,0,1'; document.editForm.submit();" title="gettext('add another email address')">+</div>
 
@@ -974,7 +985,7 @@
             <input type="submit" name="upload" value="gettext('Add')"></td>
           </div>
 
-          <!--future home of the upload via webdisk link-->
+          --future home of the upload via webdisk link--
         </div>
       </div>
     </div>
@@ -983,6 +994,7 @@
       <tmpl_if targetdepth><input type="submit" name="saveparent" value="gettext('save and return to parent')" accesskey="S" onclick="document.editForm.targetagent.value='-1<tmpl_if has_targetagent>,<tmpl_var targetagentpath escape="html"></tmpl_if>'; return (confirm_agent_action('save') && savecheck());">&nbsp;&nbsp;</tmpl_if><tmpl_if can_save><input type="submit" name="save" value="gettext('save')" accesskey="S" onclick="return savecheck();">&nbsp;&nbsp;</tmpl_if><input type="button" name="cancel" value="gettext('cancel')" onclick="document.cancelform.submit();"><tmpl_if targetdepth>&nbsp;&nbsp;<input type="submit" name="cancelparent" value="gettext('cancel and return to parent')" accesskey="C" onclick="document.editForm.targetagent.value='-1<tmpl_if has_targetagent>,<tmpl_var targetagentpath escape="html"></tmpl_if>'; confirm_agent_action('cancel');"></tmpl_if>
     </div>
 
+-->
     </tmpl_loop>
   </div>
   </form>

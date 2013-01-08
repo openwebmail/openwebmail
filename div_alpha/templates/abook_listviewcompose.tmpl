@@ -170,6 +170,7 @@ This file was created by copying the abook_listview.tmpl and changing/removing a
         <tr <tmpl_if use_lightbar>id="tr_<tmpl_var row escape="html">_<tmpl_var xowmuid escape="html">" class="<tmpl_if row_checked>rowdark<tmpl_else>rowlight</tmpl_if>" onclick="setrow(this);" onmouseover="this.className = 'rowhilite';" onmouseout="this.className = getrowclass(<tmpl_var row escape="js">,'<tmpl_var xowmuid escape="js">');"</tmpl_if>>
           <td <tmpl_unless use_lightbar>class="<tmpl_if odd>rowdark<tmpl_else>rowlight</tmpl_if>"</tmpl_unless>>
             <tmpl_if first_row>
+            <b><tmpl_var contact_number escape="html"></b>
             <tmpl_if show_collapse>
             <input type="hidden" name="collapse_<tmpl_var xowmuid escape="html">" value="<tmpl_var collapse escape="html">">
             <tmpl_if collapse>
@@ -177,8 +178,6 @@ This file was created by copying the abook_listview.tmpl and changing/removing a
             <tmpl_else>
             <a href="javascript:void(0);" onclick="event.stopPropagation ? event.stopPropagation() : event.cancelBubble=true; collapse_contact('<tmpl_var xowmuid escape="js">');" class="icon" title="gettext('collapse this contact')"><tmpl_if use_texticon>v<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_arrowdown escape="html">" class="iconset_small" alt="v"></tmpl_if></a>
             </tmpl_if>
-            <tmpl_else>
-            <b><tmpl_var contact_number escape="html"></b>
             </tmpl_if>
             </tmpl_if>
           </td>
