@@ -20,18 +20,19 @@ while (my $message = $folder->next_message) {
    # Perl: 5.008005
    # WebMail: Open WebMail 2.51 20050627
 
-   my $from = $message->header("From");
+   my $from = $message->header('From');
    $froms->{$from}++;
 
    if ($froms->{$from} == 1) {
-      my $body = $message->body;
+      my $received = $message->header('Date');
+      my $body     = $message->body;
 
       my ($os)          = $body =~ m/OS:\s+?(.*?)[\n\r]+/s;
       my ($perlversion) = $body =~ m/Perl:\s+?(.*?)[\n\r]+/s;
       my ($owmversion)  = $body =~ m/WebMail:\s+?(.*?)[\n\r]+/s;
 
       if (!defined $os || !defined $perlversion || !defined $owmversion) {
-         print "FAILED -------------------\n$body\n\n";
+         print "FAILED TO EXTRACT METRICS FROM MESSAGE\nmessage date:$received\nmessage from:$from\nmessage body:$body\n\n";
       } else {
          $os{$os}++;
          $perlversion{$perlversion}++;
@@ -46,9 +47,10 @@ while (my $message = $folder->next_message) {
 #         sleep 10;
       }
 
-      my $received = $message->header('Date');
-      my $localreceived = localtime UnixDate($received, "%s");
-      my ($year, $month, $day, $hour) = split(" ", UnixDate($localreceived, "%Y %m %d %H"));
+      my $localunixdate = UnixDate($received, '%s') || next; # epoch time
+      next if $localunixdate > time;
+      my $localreceived = localtime($localunixdate);
+      my ($year, $month, $day, $hour) = split(" ", UnixDate($localreceived, '%Y %m %d %H'));
 
       $bydate{"$year$month$day"}++;
    }
