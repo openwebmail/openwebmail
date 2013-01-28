@@ -144,28 +144,42 @@ if ($action eq 'movemessage' || defined param('movebutton') || defined param('co
       my @messageids = param('message_ids');
 
       if (scalar @messageids > 0) {
-         # write the forwarding message-ids to a file for openwebmail-send to read
-         sysopen(FORWARDIDS, "$config{ow_sessionsdir}/$thissession-forwardids", O_WRONLY|O_TRUNC|O_CREAT)
-            or openwebmailerror(gettext('Cannot open file:') . " $config{ow_sessionsdir}/$thissession-forwardids ($!)");
-
-         print FORWARDIDS join("\n", @messageids);
-
-         close(FORWARDIDS)
-            or openwebmailerror(gettext('Cannot close file:') . " $config{ow_sessionsdir}/$thissession-forwardids ($!)");
-
          my %params = (
-                        action         => 'compose',
-                        composetype    => 'forwardids',
-                        compose_caller => 'main',
-                        folder         => $folder,
-                        keyword        => $keyword,
-                        longpage       => $longpage,
-                        msgdatetype    => $msgdatetype,
-                        page           => $page,
-                        searchtype     => $searchtype,
-                        sessionid      => $thissession,
-                        sort           => $sort,
+                        action          => 'compose',
+                        compose_caller  => 'main',
+                        folder          => $folder,
+                        keyword         => $keyword,
+                        longpage        => $longpage,
+                        msgdatetype     => $msgdatetype,
+                        page            => $page,
+                        searchtype      => $searchtype,
+                        sessionid       => $thissession,
+                        sort            => $sort,
                       );
+
+         if (scalar @messageids == 1) {
+            # a single message will be forwarded inline style
+            $params{composetype} = 'forward';
+            $params{message_id}  = $messageids[0];
+         }
+
+         if (scalar @messageids > 1) {
+            # multiple messages will be forwarded as attachments
+            $params{composetype} = 'forwardasatt';
+
+            # write the forwarding message-ids to a file for openwebmail-send to read
+            my $batchid = join('', map { int(rand(10)) }(1..9));
+            sysopen(FORWARDIDS, "$config{ow_sessionsdir}/$thissession-forwardids-$batchid", O_WRONLY|O_TRUNC|O_CREAT)
+              or openwebmailerror(gettext('Cannot open file:') . " $config{ow_sessionsdir}/$thissession-forwardids-$batchid ($!)");
+
+            print FORWARDIDS join("\n", @messageids);
+
+            close(FORWARDIDS)
+              or openwebmailerror(gettext('Cannot close file:') . " $config{ow_sessionsdir}/$thissession-forwardids-$batchid ($!)");
+
+            $params{forward_batchid} = $batchid;
+         }
+
          my $redirect = "$config{ow_cgiurl}/openwebmail-send.pl?" .
                         join('&', map { "$_=" . ow::tool::escapeURL($params{$_}) } sort keys %params);
          print redirect(-location => $redirect);

@@ -148,7 +148,7 @@ sub compose {
    my $messageid        = param('message_id') || '';                         # messageid for the original message being replied/forwarded/edited
    my $mymessageid      = param('mymessageid') ||'';                         # messageid for the message we are composing
 
-   my @forwardids       = param('forwardids');                               # forwards from openwebmail-main and copy or move buttons
+   my $forward_batchid  = param('forward_batchid');                          # batch id of forward file stored from openwebmail-main copy or move buttons
 
    my $from             = param('from') || '';
    my $subject          = param('subject') || '';
@@ -939,9 +939,9 @@ sub compose {
          $body .= "\n";
       }
    } elsif ($composetype eq 'forwardasatt') {
-      # *******************************************************************
-      # user is forwarding the message as an encapsulated rfc822 attachment
-      # *******************************************************************
+      # *****************************************************************************
+      # user is forwarding a message or messages as encapsulated rfc822 attachment(s)
+      # *****************************************************************************
       $msgformat = 'text' if $msgformat eq 'auto';
 
       my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
@@ -954,61 +954,90 @@ sub compose {
          openwebmailerror(gettext('Cannot update db:') . ' ' . f2u($folderdb));
       }
 
-      my @attr = get_message_attributes($messageid, $folderdb);
-      openwebmailerror(f2u($folderdb) . gettext('Message ID does not exist:') . " $messageid") if $#attr < 0;
+      # build the list of message ids that are being forwarded
+      my @forwarded_messageids = ();
+      if (defined $messageid && $messageid) {
+         # user is forwarding a single message from openwebmail-read
+         push(@forwarded_messageids, $messageid);
+      } elsif (defined $forward_batchid && $forward_batchid) {
+         # user is forwarding multiple messages using openwebmail-main copy/move buttons
+         sysopen(FORWARDIDS, "$config{ow_sessionsdir}/$thissession-forwardids-$forward_batchid", O_RDONLY)
+              or openwebmailerror(gettext('Cannot open file:') . " $config{ow_sessionsdir}/$thissession-forwardids-$forward_batchid ($!)");
 
-      # auto set the from to match the userfrom the message was sent to
-      my $fromemail = (grep { $attr[$_TO] =~ m/$_/i } keys %{$userfroms})[0] || $prefs{email};
+         while(defined(my $forward_messageid = <FORWARDIDS>)) {
+            chomp($forward_messageid);
+            push(@forwarded_messageids, $forward_messageid);
+         }
 
-      if (exists $userfroms->{$fromemail} && $userfroms->{$fromemail} ne '') {
-         $from = qq|"$userfroms->{$fromemail}" <$fromemail>|;
-      } else {
-         $from = $fromemail;
+         close(FORWARDIDS)
+            or openwebmailerror(gettext('Cannot close file:') . " $config{ow_sessionsdir}/$thissession-forwardids-$forward_batchid ($!)");
       }
 
-      my $attachment_serial = time();
+      my $forward_subject = gettext('(no subject)');
 
-      my $attachment_tempfile = ow::tool::untaint("$config{ow_sessionsdir}/$thissession-$attachments_uid-att$attachment_serial");
+      # make an attachment file for each message
+      foreach my $forward_messageid (@forwarded_messageids) {
+         my @attr = get_message_attributes($forward_messageid, $folderdb);
+         openwebmailerror(f2u($folderdb) . gettext('Message ID does not exist:') . " $forward_messageid") if $#attr < 0;
 
-      sysopen(ATTFILE, $attachment_tempfile, O_WRONLY|O_TRUNC|O_CREAT) or
-         openwebmailerror(gettext('Cannot open file:') . " $attachment_tempfile ($!)");
+         $forward_subject = $attr[$_SUBJECT] || gettext('(no subject)');
 
-      print ATTFILE qq|Content-Type: message/rfc822;\n|,
-                    qq|Content-Transfer-Encoding: 8bit\n|,
-                    qq|Content-Disposition: attachment; filename="Forward.msg"\n|,
-                    qq|Content-Description: | . ow::mime::encode_mimewords($attr[$_SUBJECT], ('Charset'=>$composecharset)) . qq|\n\n|;
+         # auto set the from to match the userfrom the message was sent to
+         my $fromemail = (grep { $attr[$_TO] =~ m/$_/i } keys %{$userfroms})[0] || $prefs{email};
 
-      # copy message to be forwarded from the FOLDER to the ATTFILE
-      sysopen(FOLDER, $folderfile, O_RDONLY) or
-         openwebmailerror(gettext('Cannot open file:') . " $folderfile ($!)");
-      seek(FOLDER, $attr[$_OFFSET], 0);
+         if (exists $userfroms->{$fromemail} && $userfroms->{$fromemail} ne '') {
+            $from = qq|"$userfroms->{$fromemail}" <$fromemail>|;
+         } else {
+            $from = $fromemail;
+         }
 
-      my $attachment_dataremaining = $attr[$_SIZE];
+         my $attachment_serial = join('', map { int(rand(10)) }(1..9));
 
-      # do not copy 1st line if it is the 'From ' delimiter
-      $_ = <FOLDER>;
-      print ATTFILE $_ if !m/^From /;
-      $attachment_dataremaining -= length($_);
+         my $attachment_tempfile = ow::tool::untaint("$config{ow_sessionsdir}/$thissession-$attachments_uid-att$attachment_serial");
 
-      # copy other lines with the 'From ' delimiter escaped
-      while ($attachment_dataremaining > 0) {
+         sysopen(ATTFILE, $attachment_tempfile, O_WRONLY|O_TRUNC|O_CREAT) or
+            openwebmailerror(gettext('Cannot open file:') . " $attachment_tempfile ($!)");
+
+         my $content_filename = $attr[$_SUBJECT] || gettext('forward');
+         $content_filename = length $content_filename > 64 ? mbsubstr($content_filename, 0, 64, $attr[$_CHARSET]) : $content_filename;
+
+         print ATTFILE qq|Content-Type: message/rfc822;\n|,
+                       qq|Content-Transfer-Encoding: 8bit\n|,
+                       qq|Content-Disposition: attachment; filename="| . ow::mime::encode_mimewords($content_filename, ('Charset'=>$composecharset)) . qq|.msg"\n|,
+                       qq|Content-Description: | . ow::mime::encode_mimewords($content_filename, ('Charset'=>$composecharset)) . qq|\n\n|;
+
+         # copy message to be forwarded from the FOLDER to the ATTFILE
+         sysopen(FOLDER, $folderfile, O_RDONLY) or
+            openwebmailerror(gettext('Cannot open file:') . " $folderfile ($!)");
+         seek(FOLDER, $attr[$_OFFSET], 0);
+
+         my $attachment_dataremaining = $attr[$_SIZE];
+
+         # do not copy 1st line if it is the 'From ' delimiter
          $_ = <FOLDER>;
-         s/^From />From /;
-         print ATTFILE $_;
+         print ATTFILE $_ if !m/^From /;
          $attachment_dataremaining -= length($_);
+
+         # copy other lines with the 'From ' delimiter escaped
+         while ($attachment_dataremaining > 0) {
+            $_ = <FOLDER>;
+            s/^From />From /;
+            print ATTFILE $_;
+            $attachment_dataremaining -= length($_);
+         }
+         close(FOLDER) or
+            openwebmailerror(gettext('Cannot close file:') . " $folderfile ($!)");
+
+         close(ATTFILE) or
+            openwebmailerror(gettext('Cannot close file:') . " $attachment_tempfile ($!)");
+
+         ow::filelock::lock($folderfile, LOCK_UN);
       }
-      close(FOLDER) or
-         openwebmailerror(gettext('Cannot close file:') . " $folderfile ($!)");
-
-      close(ATTFILE) or
-         openwebmailerror(gettext('Cannot close file:') . " $attachment_tempfile ($!)");
-
-      ow::filelock::lock($folderfile, LOCK_UN);
 
       ($attfiles_totalsize, $r_attfiles) = get_attachments($attachments_uid);
 
       my $forwardprefix = gettext('Fw:');
-      $subject = $attr[$_SUBJECT] || gettext('(no subject)');
+      $subject = $forward_subject;
       $subject = "$forwardprefix $subject" unless $subject =~ m#^\Q$forwardprefix\E#i;
       $subject = (iconv('utf-8', $composecharset, $subject))[0];
 
@@ -1292,15 +1321,15 @@ sub compose {
                       attachmentsloop         => [
                                                    map { {
                                                            attachment_namecharset => $_->{namecharset},
-                                                           converted_name   => (iconv($_->{namecharset}, $composecharset, $_->{name}))[0],
-                                                           attachment_name  => $_->{name},
-                                                           attachment_file  => $_->{file},
-                                                           is_referenced    => $_->{referencecount} || 0,
-                                                           attachment_size  => lenstr($_->{size}, 1),
-                                                           show_wordpreview => $_->{name} =~ m/\.(?:doc|dot)$/i ? 1 : 0,
-                                                           save_to_webdisk  => $config{enable_webdisk} && !$config{webdisk_readonly} ? 1 : 0,
-                                                           sessionid        => $thissession,
-                                                           url_cgi          => $config{ow_cgiurl},
+                                                           converted_name         => (iconv($_->{namecharset}, $composecharset, $_->{name}))[0],
+                                                           attachment_name        => $_->{name},
+                                                           attachment_file        => $_->{file},
+                                                           is_referenced          => $_->{referencecount} || 0,
+                                                           attachment_size        => lenstr($_->{size}, 1),
+                                                           show_wordpreview       => $_->{name} =~ m/\.(?:doc|dot)$/i ? 1 : 0,
+                                                           save_to_webdisk        => $config{enable_webdisk} && !$config{webdisk_readonly} ? 1 : 0,
+                                                           sessionid              => $thissession,
+                                                           url_cgi                => $config{ow_cgiurl},
                                                        } } @{$r_attfiles}
                                                  ],
                       attfiles_totalsize_kb   => int($attfiles_totalsize/1024),
