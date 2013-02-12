@@ -1306,7 +1306,7 @@ sub matrix_24h {
       if ($rows == 0) {
          unshift(@{$matrix}, { columns => [$event], time => 'allday' } );
       } else {
-         my $col      = 0;
+         my $col = 0;
          my $allday_rows = $#{$matrix} - $matrix_rows;
          my $startrow = int(duration_minutes('0000', $start) / $prefs{calendar_interval}) + $allday_rows;
          my $endrow   = $startrow + $rows - 1;
@@ -2051,13 +2051,17 @@ sub del {
 sub duration_minutes {
    # returns the duration in minutes between two military times
    my ($start, $end) = @_;
+
    return 0 unless defined $start;
    return 0 unless $start =~ m/\d{4}$/;
-   $end = $start + $prefs{calendar_interval} unless defined $end && $end =~ m/\d{4}$/;
-   return 0 if $start > $end;
    my ($starthour, $startmin) = $start =~ m/(\d+)(\d{2})$/;
+
+   $end = sprintf('%02d', ($starthour + int(($startmin + $prefs{calendar_interval}) / 60))) .
+          sprintf('%02d', (($startmin + $prefs{calendar_interval}) % 60))
+          unless defined $end && $end =~ m/\d{4}$/;
    my ($endhour, $endmin) = $end =~ m/(\d+)(\d{2})$/;
-   return (($endhour * 60 + $endmin) - ($starthour * 60 + $startmin));
+
+   return $start > $end ? 0 : (($endhour * 60 + $endmin) - ($starthour * 60 + $startmin));
 }
 
 sub hourmin2str {
