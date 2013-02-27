@@ -522,13 +522,13 @@ sub get_messageids_sorted {
 
       print CACHE $lstmtime, "\n", $folderdb, "\n", $sort, "\n", $ignore_internal, "\n";
 
-      # message depths are only returned from get_messageids_sorted_by_subject()
+      # message depths are only returned from get_messageids_sorted_by_thread()
       ($r_messageids, $r_messagedepths) = $sort eq 'sentdate'  ? get_messageids_sorted_by_sentdate($folderdb, $ignore_internal) :
                                           $sort eq 'recvdate'  ? get_messageids_sorted_by_recvdate($folderdb, $ignore_internal) :
                                           $sort eq 'sender'    ? get_messageids_sorted_by_from($folderdb, $ignore_internal)     :
                                           $sort eq 'recipient' ? get_messageids_sorted_by_to($folderdb, $ignore_internal)       :
                                           $sort eq 'size'      ? get_messageids_sorted_by_size($folderdb, $ignore_internal)     :
-                                          $sort eq 'subject'   ? get_messageids_sorted_by_subject($folderdb, $ignore_internal)  :
+                                          $sort eq 'subject'   ? get_messageids_sorted_by_thread($folderdb, $ignore_internal)  :
                                           $sort eq 'status'    ? get_messageids_sorted_by_status($folderdb, $ignore_internal)   :
                                           get_messageids_sorted_by_sentdate($folderdb, $ignore_internal);
 
@@ -692,9 +692,13 @@ sub get_messageids_sorted_by_status {
    return \@messageids;
 }
 
-sub get_messageids_sorted_by_subject {
-   # this routine actually sorts messages by thread
-   my ($folderdb, $ignore_internal) = @_;
+sub get_messageids_sorted_by_thread {
+   # this routine sorts messages by thread, not just by subject
+   # if a messageid that is a member of the thread is provided,
+   # only the messageids of that thread will be returned (conversation view)
+   my ($folderdb, $ignore_internal, $member_messageid) = @_;
+
+   $member_messageid = '' unless defined $member_messageid;
 
    my ($total, $r_msgid2attrs) = get_msgid2attrs($folderdb, $ignore_internal, $_DATE, $_REFERENCES, $_SUBJECT);
 
@@ -781,7 +785,31 @@ sub get_messageids_sorted_by_subject {
       _recursively_thread($messageid, 0, \@message_ids, \@message_depths, \%thread_children, \%date);
    }
 
-   return (\@message_ids, \@message_depths);
+   if ($member_messageid) {
+      # return just the thread members
+      for(my $i = 0; $i < scalar @message_ids; $i++) {
+         if ($message_ids[$i] eq $member_messageid) {
+            # store our position in the thread
+            my $member_i = $i;
+
+            # jump to the parent messageid
+            $i++ until $message_depths[$i] == 0;
+
+            my @thread_messageids    = ();
+            my @thread_messagedepths = ();
+            while($i >= $member_i || $message_depths[$i] > 0) {
+               push(@thread_messageids, $message_ids[$i]);
+               push(@thread_messagedepths, $message_depths[$i]);
+               $i--;
+            }
+
+            return (\@thread_messageids, \@thread_messagedepths);
+         }
+      }
+   } else {
+      # return the whole spool collection
+      return (\@message_ids, \@message_depths);
+   }
 }
 
 sub _recursively_thread {

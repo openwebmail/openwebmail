@@ -237,11 +237,23 @@ sub readmessage {
       return;
    }
 
-   # lets put our single message to display in an array we can loop over in the template
-   # In the future this loop will hopefully become a conversation view feature with multiple messages
-   my $messagesloop = [
-                         getmessage($user, $folder, $messageid),
-                      ];
+   # the following two lines enable conversation view by showing all the related messages of a thread inline.
+   # there are problems that need to be resolved before this gets rolled out:
+   # - the messageid of the first message is the only one that gets marked as read
+   # - we do not jump to the message that was clicked, it just displays all messages
+   #   in the thread starting with the first one
+   # - we should hide reply text to make the display shorter and easier to read
+   # - a navigation tree of the conversation would be helpful
+   # - we should indent replies or make them obvious replies in some way
+   # - the related messages algorithm needs adjustment - right now it finds related
+   #   messages based on the references header, but also by subject. Often the matching
+   #   subject technique is incorrect. Subject + body fuzzy match would be better.
+
+   # my ($thread_messageids, $thread_message_depths) = get_messageids_sorted_by_thread((get_folderpath_folderdb($user, $folder))[1], $prefs{hideinternal}, $messageid);
+   # my $messagesloop = [ map { getmessage($user, $folder, $_) } @{$thread_messageids} ];
+
+   # so for now just display only the selected message from the thread
+   my $messagesloop = [ getmessage($user, $folder, $messageid) ];
 
    my $messagecharset = official_charset($messagesloop->[0]{charset});
    my $displaycharset = $prefs{charset};
@@ -272,16 +284,16 @@ sub readmessage {
    }
 
    if ($convfrom =~ m#^none.(.*)#) {
-      my $nativecharset = $1;
-      if ($nativecharset ne $prefs{charset}) {
-         # user is trying to display the message natively in a charset that is not our
+      my $forcecharset = $1;
+      if ($forcecharset ne $prefs{charset}) {
+         # user is trying to display the message in a charset that is not our
          # display charset, with no conversion. Lets see if we have template pack in our
-         # language to match the native charset
-         my $nativelocale = $prefs{language} . "." . ow::lang::charset_for_locale($nativecharset);
+         # language to match the charset request
+         my $nativelocale = $prefs{language} . "." . ow::lang::charset_for_locale($forcecharset);
          if (exists $config{available_locales}->{$nativelocale}) {
             $prefs{locale}  = $nativelocale;
-            $prefs{charset} = $nativecharset;
-            $displaycharset = $nativecharset;
+            $prefs{charset} = $forcecharset;
+            $displaycharset = $forcecharset;
          } else {
             # fallback to the UTF-8 template pack in our language,
             # eventhough it may not display correctly in the native charset.
@@ -289,13 +301,13 @@ sub readmessage {
             my $utf8locale = "$prefs{language}.UTF-8";
             if (exists $config{available_locales}->{$utf8locale}) {
                $prefs{locale}  = $utf8locale;
-               $prefs{charset} = $nativecharset;
-               $displaycharset = $nativecharset;
+               $prefs{charset} = $forcecharset;
+               $displaycharset = $forcecharset;
             } else {
                # No UTF-8 in our language?!? Use the English UTF-8 display.
                $prefs{locale}  = "en_US.UTF-8";
-               $prefs{charset} = $nativecharset;
-               $displaycharset = $nativecharset;
+               $prefs{charset} = $forcecharset;
+               $displaycharset = $forcecharset;
             }
          }
       }
