@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenWebMail\n"
-"POT-Creation-Date: 2012-12-23 15:00+0000\n"
-"PO-Revision-Date: 2012-12-29 23:16+0100\n"
-"Last-Translator: Ralf Vroomen <ervee@moskovic.org>\n"
+"POT-Creation-Date: 2013-01-28 08:44+0000\n"
+"PO-Revision-Date: 2013-03-02 01:11+0100\n"
+"Last-Translator: Sybrand Bekius <sybrand@bekius.net>\n"
 "Language-Team: Sybrand Bekius (bekius@acatysmoof.com) and Ralf Vroomen "
 "(ervee@moskovic.org) <owm-i18n@openwebmail.acatysmoof.com>\n"
 "Language: nl_NL\n"
@@ -12,9 +12,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Poedit-SourceCharset: iso-8859-1\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.5.5\n"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:1019
+#: cgi-bin/openwebmail/openwebmail-send.pl:1048
 msgid "# Message forwarded as attachment"
 msgstr "# Bericht doorgestuurd als bijlage"
 
@@ -46,7 +46,7 @@ msgid_plural "%d addresses per page"
 msgstr[0] "%d adres per pagina"
 msgstr[1] "%d adressen per pagina"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2934
+#: cgi-bin/openwebmail/openwebmail-send.pl:2963
 msgid "%d byte snipped ..."
 msgid_plural "%d bytes snipped ..."
 msgstr[0] "%d byte geknipt ..."
@@ -78,13 +78,13 @@ msgid_plural "%d matches found"
 msgstr[0] "%d overeenkomst gevonden"
 msgstr[1] "%d overeenkomsten gevonden"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:671
+#: cgi-bin/openwebmail/openwebmail-main.pl:685
 msgid "%d message per page"
 msgid_plural "%d messages per page"
 msgstr[0] "%d bericht per pagina"
 msgstr[1] "%d berichten per pagina"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:429
+#: cgi-bin/openwebmail/openwebmail-main.pl:443
 msgid "%d message"
 msgid_plural "%d messages"
 msgstr[0] "%d bericht"
@@ -118,7 +118,7 @@ msgid_plural "%d seconds"
 msgstr[0] "%d seconde"
 msgstr[1] "%d seconden"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:430
+#: cgi-bin/openwebmail/openwebmail-main.pl:444
 msgid "%d unread"
 msgid_plural "%d unread"
 msgstr[0] "%d ongelezen"
@@ -166,7 +166,7 @@ msgstr ""
 "'Resterende tijd voor deze sessie: ' + (remainingseconds - 5) + ' seconden'"
 
 #: data/openwebmail/layouts/classic/templates/prefs_about.tmpl:117
-msgid "(in last 1, 5, 10 minutes)"
+msgid "(in last 1, 5, 15 minutes)"
 msgstr "(in de laatste 1, 5, 15 minuten)"
 
 #: data/openwebmail/layouts/classic/templates/sa_editrules.tmpl:190
@@ -177,13 +177,14 @@ msgstr "(minder dan 0 voor spam, meer dan 0 voor ham)"
 msgid "(letters, digits &amp; underline only)"
 msgstr "(letters, cijfers &amp; alleen onderstrepen)"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:1011,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1077,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1837,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2750,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1106,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1866,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2779,
 #: cgi-bin/openwebmail/openwebmail-send.pl:392,
 #: cgi-bin/openwebmail/openwebmail-send.pl:588,
 #: cgi-bin/openwebmail/openwebmail-send.pl:799,
+#: cgi-bin/openwebmail/openwebmail-send.pl:976,
+#: cgi-bin/openwebmail/openwebmail-send.pl:983,
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:238,
 #: data/openwebmail/layouts/classic/templates/main_listview.tmpl:346,
 #: data/openwebmail/layouts/classic/templates/read_printmessage.tmpl:14,
@@ -290,7 +291,7 @@ msgstr "--MARKEER ALS ONGELEZEN--"
 
 #: data/openwebmail/layouts/classic/templates/abook_importform.tmpl:40
 msgid "1. Browse for the file you are importing:"
-msgstr "1. Blader naar het bestand dat u importeert:"
+msgstr "1. Blader naar het bestand dat u wilt importeren:"
 
 #: data/openwebmail/layouts/classic/templates/abook_listviewexport.tmpl:296
 msgid "1. Select the contacts that you want to download from the list above."
@@ -467,7 +468,7 @@ msgstr "Een contactgroep bevat een ongeldige regelafbreking:"
 msgid "A contact property type contains an invalid carriage return:"
 msgstr "Een contact eigenschap bevat een ongeldige regelafbreking:"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2057
+#: cgi-bin/openwebmail/openwebmail-send.pl:2086
 msgid "A copy of the message has been saved to your drafts folder."
 msgstr "Een kopie van het bericht is opgeslagen in de map Concepten."
 
@@ -584,7 +585,7 @@ msgstr "Toegang tot speciale unix bestandstypes is uitgeschakeld."
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:2139
 msgid "Access to symbolic links has been disabled."
-msgstr "Toegang tot sybolische links is uitgeschakeld."
+msgstr "Toegang tot symbolische links is uitgeschakeld."
 
 #: cgi-bin/openwebmail/shares/ow-shared.pl:2159
 msgid "Access to the log file is not allowed."
@@ -612,7 +613,7 @@ msgstr "Actie Berichten"
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:119,
 #: cgi-bin/openwebmail/openwebmail-cal.pl:121,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:126,
-#: cgi-bin/openwebmail/openwebmail-main.pl:266,
+#: cgi-bin/openwebmail/openwebmail-main.pl:280,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:146,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:147,
 #: cgi-bin/openwebmail/openwebmail-read.pl:130,
@@ -1497,26 +1498,26 @@ msgstr "Kan niet veranderen naar directory:"
 #: cgi-bin/openwebmail/openwebmail-folder.pl:358,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:481,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:549,
-#: cgi-bin/openwebmail/openwebmail-main.pl:295,
-#: cgi-bin/openwebmail/openwebmail-main.pl:363,
-#: cgi-bin/openwebmail/openwebmail-main.pl:581,
+#: cgi-bin/openwebmail/openwebmail-main.pl:309,
+#: cgi-bin/openwebmail/openwebmail-main.pl:377,
+#: cgi-bin/openwebmail/openwebmail-main.pl:595,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2998,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:3131,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:541,
 #: cgi-bin/openwebmail/openwebmail-read.pl:165,
 #: cgi-bin/openwebmail/openwebmail-read.pl:335,
 #: cgi-bin/openwebmail/openwebmail-read.pl:559,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2104,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2679,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2133,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2708,
 #: cgi-bin/openwebmail/shares/getmessage.pl:70,
 #: cgi-bin/openwebmail/shares/maildb.pl:141,
 #: cgi-bin/openwebmail/shares/maildb.pl:213,
 #: cgi-bin/openwebmail/shares/maildb.pl:219,
-#: cgi-bin/openwebmail/shares/maildb.pl:675,
-#: cgi-bin/openwebmail/shares/maildb.pl:680,
-#: cgi-bin/openwebmail/shares/maildb.pl:758,
-#: cgi-bin/openwebmail/shares/maildb.pl:822,
-#: cgi-bin/openwebmail/shares/maildb.pl:841,
+#: cgi-bin/openwebmail/shares/maildb.pl:681,
+#: cgi-bin/openwebmail/shares/maildb.pl:686,
+#: cgi-bin/openwebmail/shares/maildb.pl:764,
+#: cgi-bin/openwebmail/shares/maildb.pl:828,
+#: cgi-bin/openwebmail/shares/maildb.pl:847,
 #: cgi-bin/openwebmail/shares/mailfilter.pl:987,
 #: cgi-bin/openwebmail/shares/ow-shared.pl:1327,
 #: cgi-bin/openwebmail/shares/ow-shared.pl:1330,
@@ -1535,9 +1536,9 @@ msgstr "Kan de db niet sluiten:"
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:445,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:454,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:463,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1611,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1675,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2143,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1640,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1704,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2172,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2192,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:364,
 #: cgi-bin/openwebmail/shares/ow-shared.pl:1026,
@@ -1569,7 +1570,7 @@ msgstr "Kan de directory niet sluiten:"
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:695,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:376,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:540,
-#: cgi-bin/openwebmail/openwebmail-main.pl:154,
+#: cgi-bin/openwebmail/openwebmail-main.pl:178,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1948,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1959,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2018,
@@ -1578,14 +1579,15 @@ msgstr "Kan de directory niet sluiten:"
 #: cgi-bin/openwebmail/openwebmail-read.pl:1402,
 #: cgi-bin/openwebmail/openwebmail-saprefs.pl:395,
 #: cgi-bin/openwebmail/openwebmail-saprefs.pl:557,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1001,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1004,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1593,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1654,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1694,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2863,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2941,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2981,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1029,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1032,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1622,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1683,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1723,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2892,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2970,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3010,
+#: cgi-bin/openwebmail/openwebmail-send.pl:973,
 #: cgi-bin/openwebmail/openwebmail-spell.pl:620,
 #: cgi-bin/openwebmail/openwebmail-spell.pl:629,
 #: cgi-bin/openwebmail/openwebmail-spell.pl:664,
@@ -1608,9 +1610,9 @@ msgstr "Kan de directory niet sluiten:"
 #: cgi-bin/openwebmail/shares/calbook.pl:94,
 #: cgi-bin/openwebmail/shares/filterbook.pl:116,
 #: cgi-bin/openwebmail/shares/filterbook.pl:144,
-#: cgi-bin/openwebmail/shares/maildb.pl:1893,
+#: cgi-bin/openwebmail/shares/maildb.pl:1899,
 #: cgi-bin/openwebmail/shares/maildb.pl:208,
-#: cgi-bin/openwebmail/shares/maildb.pl:662,
+#: cgi-bin/openwebmail/shares/maildb.pl:668,
 #: cgi-bin/openwebmail/shares/ow-shared.pl:1058,
 #: cgi-bin/openwebmail/shares/ow-shared.pl:1322,
 #: cgi-bin/openwebmail/shares/ow-shared.pl:1924,
@@ -1640,9 +1642,9 @@ msgstr "Kan de directory niet maken:"
 #: cgi-bin/openwebmail/openwebmail-folder.pl:383,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:431,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:567,
-#: cgi-bin/openwebmail/shares/maildb.pl:1897,
+#: cgi-bin/openwebmail/shares/maildb.pl:1903,
 #: cgi-bin/openwebmail/shares/maildb.pl:222,
-#: cgi-bin/openwebmail/shares/maildb.pl:683
+#: cgi-bin/openwebmail/shares/maildb.pl:689
 msgid "Cannot delete db:"
 msgstr "Kan de db niet verwijderen:"
 
@@ -1661,7 +1663,7 @@ msgstr "Kan de directory niet verwijderen:"
 msgid "Cannot delete file:"
 msgstr "Kan het bestand niet verwijderen:"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2112
+#: cgi-bin/openwebmail/openwebmail-send.pl:2141
 msgid "Cannot delete message ID from file:"
 msgstr "Kan het bericht ID niet verwijderen van het bestand:"
 
@@ -1691,14 +1693,14 @@ msgstr "Kan vfile parser module niet laden:"
 #: cgi-bin/openwebmail/openwebmail-folder.pl:379,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:462,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:636,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1008,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1023,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1129,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1330,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1333,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1380,
-#: cgi-bin/openwebmail/openwebmail-main.pl:936,
-#: cgi-bin/openwebmail/openwebmail-main.pl:959,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1022,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1037,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1143,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1344,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1347,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1394,
+#: cgi-bin/openwebmail/openwebmail-main.pl:950,
+#: cgi-bin/openwebmail/openwebmail-main.pl:973,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2812,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2843,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:3084,
@@ -1707,7 +1709,7 @@ msgstr "Kan vfile parser module niet laden:"
 #: cgi-bin/openwebmail/openwebmail-read.pl:1530,
 #: cgi-bin/openwebmail/openwebmail-saprefs.pl:378,
 #: cgi-bin/openwebmail/openwebmail-saprefs.pl:479,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2167,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2196,
 #: cgi-bin/openwebmail/openwebmail-send.pl:950,
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:444,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1181,
@@ -1743,8 +1745,8 @@ msgstr "Kan bestand niet vergrendelen of openen:"
 msgid "Cannot make directory:"
 msgstr "Kan directory niet maken:"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2018,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3038
+#: cgi-bin/openwebmail/openwebmail-send.pl:2047,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3067
 msgid "Cannot open any of the following SMTP servers:"
 msgstr "Kan geen van de volgende SMTP servers openen:"
 
@@ -1754,28 +1756,28 @@ msgstr "Kan geen van de volgende SMTP servers openen:"
 #: cgi-bin/openwebmail/openwebmail-folder.pl:346,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:475,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:546,
-#: cgi-bin/openwebmail/openwebmail-main.pl:290,
-#: cgi-bin/openwebmail/openwebmail-main.pl:347,
-#: cgi-bin/openwebmail/openwebmail-main.pl:453,
+#: cgi-bin/openwebmail/openwebmail-main.pl:304,
+#: cgi-bin/openwebmail/openwebmail-main.pl:361,
+#: cgi-bin/openwebmail/openwebmail-main.pl:467,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2903,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:3117,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:518,
 #: cgi-bin/openwebmail/openwebmail-read.pl:160,
 #: cgi-bin/openwebmail/openwebmail-read.pl:316,
 #: cgi-bin/openwebmail/openwebmail-read.pl:549,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2093,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2662,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2716,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2957,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2122,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2691,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2745,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2986,
 #: cgi-bin/openwebmail/shares/getmessage.pl:65,
 #: cgi-bin/openwebmail/shares/maildb.pl:123,
 #: cgi-bin/openwebmail/shares/maildb.pl:245,
 #: cgi-bin/openwebmail/shares/maildb.pl:253,
 #: cgi-bin/openwebmail/shares/maildb.pl:278,
 #: cgi-bin/openwebmail/shares/maildb.pl:281,
-#: cgi-bin/openwebmail/shares/maildb.pl:753,
-#: cgi-bin/openwebmail/shares/maildb.pl:809,
-#: cgi-bin/openwebmail/shares/maildb.pl:836,
+#: cgi-bin/openwebmail/shares/maildb.pl:759,
+#: cgi-bin/openwebmail/shares/maildb.pl:815,
+#: cgi-bin/openwebmail/shares/maildb.pl:842,
 #: cgi-bin/openwebmail/shares/mailfilter.pl:970,
 #: cgi-bin/openwebmail/shares/ow-shared.pl:2410,
 #: cgi-bin/openwebmail/shares/ow-shared.pl:2435,
@@ -1793,9 +1795,9 @@ msgstr "Kan db niet openen:"
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:458,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:995,
 #: cgi-bin/openwebmail/openwebmail-read.pl:498,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1606,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1670,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2132,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1635,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1699,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2161,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:2187,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:359,
 #: cgi-bin/openwebmail/openwebmail.pl:860,
@@ -1831,27 +1833,28 @@ msgstr "Kan directory niet openen:"
 #: cgi-bin/openwebmail/openwebmail-advsearch.pl:568,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:373,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:537,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1016,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1306,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1354,
-#: cgi-bin/openwebmail/openwebmail-main.pl:149,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1030,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1320,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1368,
+#: cgi-bin/openwebmail/openwebmail-main.pl:173,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1944,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1955,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2012,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2426,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2569,
 #: cgi-bin/openwebmail/openwebmail-read.pl:1396,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1520,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1569,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1649,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1691,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2078,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2162,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2841,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2921,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2970,
-#: cgi-bin/openwebmail/openwebmail-send.pl:974,
-#: cgi-bin/openwebmail/openwebmail-send.pl:983,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1011,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1549,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1598,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1678,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1720,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2107,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2191,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2870,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2950,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2999,
+#: cgi-bin/openwebmail/openwebmail-send.pl:965,
+#: cgi-bin/openwebmail/openwebmail-send.pl:999,
 #: cgi-bin/openwebmail/openwebmail-spell.pl:611,
 #: cgi-bin/openwebmail/openwebmail-spell.pl:624,
 #: cgi-bin/openwebmail/openwebmail-spell.pl:642,
@@ -1892,7 +1895,7 @@ msgstr "Kan directory niet openen:"
 #: cgi-bin/openwebmail/shares/getmsgids.pl:494,
 #: cgi-bin/openwebmail/shares/getmsgids.pl:521,
 #: cgi-bin/openwebmail/shares/getmsgids.pl:553,
-#: cgi-bin/openwebmail/shares/maildb.pl:1890,
+#: cgi-bin/openwebmail/shares/maildb.pl:1896,
 #: cgi-bin/openwebmail/shares/maildb.pl:194,
 #: cgi-bin/openwebmail/shares/maildb.pl:237,
 #: cgi-bin/openwebmail/shares/mailfilter.pl:118,
@@ -1945,7 +1948,7 @@ msgstr "Kan bestand niet openen:"
 #: cgi-bin/openwebmail/openwebmail-cal.pl:150,
 #: cgi-bin/openwebmail/openwebmail-cal.pl:1959,
 #: cgi-bin/openwebmail/openwebmail-cal.pl:2025,
-#: cgi-bin/openwebmail/openwebmail-main.pl:825
+#: cgi-bin/openwebmail/openwebmail-main.pl:839
 msgid "Cannot read calendar file:"
 msgstr "Kan kalender bestand niet lezen:"
 
@@ -1960,8 +1963,8 @@ msgstr "Kan directory niet lezen:"
 msgid "Cannot read file:"
 msgstr "Kan bestand niet lezen:"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:1158,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1226
+#: cgi-bin/openwebmail/openwebmail-main.pl:1172,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1240
 msgid "Cannot read pop3 book:"
 msgstr "Kan pop3 lijst niet lezen:"
 
@@ -1983,7 +1986,7 @@ msgstr "Kan directory niet hernoemen:"
 msgid "Cannot rename file:"
 msgstr "Kan bestand niet hernoemen:"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2973
+#: cgi-bin/openwebmail/openwebmail-send.pl:3002
 msgid "Cannot seek in file:"
 msgstr "Kan niet in bestand zoeken:"
 
@@ -2025,8 +2028,8 @@ msgstr "Kan bestand niet ontgrendelen:"
 #: cgi-bin/openwebmail/openwebmail-folder.pl:338,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:394,
 #: cgi-bin/openwebmail/openwebmail-folder.pl:488,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1138,
-#: cgi-bin/openwebmail/openwebmail-send.pl:2087,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1152,
+#: cgi-bin/openwebmail/openwebmail-send.pl:2116,
 #: cgi-bin/openwebmail/openwebmail-send.pl:954,
 #: cgi-bin/openwebmail/shares/getmsgids.pl:134
 msgid "Cannot update db:"
@@ -2045,7 +2048,7 @@ msgstr "Kan tijdstempel-bestand niet bijwerken:"
 msgid "Cannot write calendar file:"
 msgstr "Kan kalenderbestand niet schrijven:"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:1136,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1150,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2704
 msgid "Cannot write file:"
 msgstr "Kan bestand niet schrijven:"
@@ -2660,7 +2663,7 @@ msgstr "Geselecteerd(e) item(s) verwijderen?"
 msgid "Delete this folder and all its contents?"
 msgstr "Weet je zeker dat je deze map inclusief inhoud wilt verwijderen?"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:3097
+#: cgi-bin/openwebmail/openwebmail-send.pl:3126
 msgid "Delivered:"
 msgstr "Bezorgd:"
 
@@ -2737,7 +2740,7 @@ msgstr "Schakel javascript uit in berichten:"
 msgid "Disabled"
 msgstr "Uitgeschakeld"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:1154,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1168,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:2692
 msgid "Disallowed POP3 server:"
 msgstr "Niet toegestane POP3 server:"
@@ -2968,19 +2971,19 @@ msgstr "E-mail adres"
 msgid "Email Program"
 msgstr "E-mail programma"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:709
+#: cgi-bin/openwebmail/openwebmail-main.pl:723
 msgid "Empty Spam folder (%d message)?"
 msgid_plural "Empty Spam folder (%d messages)?"
 msgstr[0] "Leeg Spam map (%d bericht)?"
 msgstr[1] "Leeg Spam map (%d berichten)?"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:707
+#: cgi-bin/openwebmail/openwebmail-main.pl:721
 msgid "Empty Trash folder (%d message)?"
 msgid_plural "Empty Trash folder (%d messages)?"
 msgstr[0] "Leeg Prullenbak map (%d bericht)?"
 msgstr[1] "Leeg Prullenbak map (%d berichten)?"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:711
+#: cgi-bin/openwebmail/openwebmail-main.pl:725
 msgid "Empty Virus folder (%d message)?"
 msgid_plural "Empty Virus folder (%d messages)?"
 msgstr[0] "Leeg Virus map (%d bericht)?"
@@ -3237,8 +3240,8 @@ msgid "File created:"
 msgstr "Bestand aangemaakt:"
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:2599,
-#: cgi-bin/openwebmail/openwebmail-main.pl:1002,
-#: cgi-bin/openwebmail/openwebmail-send.pl:1514,
+#: cgi-bin/openwebmail/openwebmail-main.pl:1016,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1543,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1004,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1065,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:1118,
@@ -3482,7 +3485,7 @@ msgstr "Volledige naam (Z t/m A)"
 msgid "Full Name Pronunciation Sound (aif,wav)"
 msgstr "Uitgesproken volledige naam (aif,wav)"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:1010,
+#: cgi-bin/openwebmail/openwebmail-send.pl:1039,
 #: cgi-bin/openwebmail/openwebmail-send.pl:798
 msgid "Fw:"
 msgstr "Fwd:"
@@ -3941,7 +3944,7 @@ msgstr "Importeer de eerste kolom van bovenstaande testgegevens?"
 msgid "Import to new addressbook..."
 msgstr "Importeer naar nieuw adresboek..."
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:592,
+#: cgi-bin/openwebmail/openwebmail-main.pl:606,
 #: cgi-bin/openwebmail/openwebmail-read.pl:356,
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:225,
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:41,
@@ -3966,7 +3969,7 @@ msgstr "Importeer naar nieuw adresboek..."
 msgid "Inbox"
 msgstr "Postvak IN"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:629,
+#: cgi-bin/openwebmail/openwebmail-main.pl:643,
 #: cgi-bin/openwebmail/openwebmail-read.pl:1148
 msgid "Inbox: %d unread message"
 msgid_plural "Inbox: %d unread messages"
@@ -4063,7 +4066,7 @@ msgstr "Ongeldig formaat breedtegraad."
 msgid "Invalid longitude format."
 msgstr "Ongeldig formaat lengtegraad."
 
-#: cgi-bin/openwebmail/shares/maildb.pl:1113
+#: cgi-bin/openwebmail/shares/maildb.pl:1119
 msgid "Invalid message operation:"
 msgstr "Ongeldige verwerking bericht:"
 
@@ -4773,7 +4776,7 @@ msgstr "Bericht ID"
 msgid "Message ID can no longer be found:"
 msgstr "Bericht ID kan niet meer worden gevonden:"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:958
+#: cgi-bin/openwebmail/openwebmail-send.pl:981
 msgid "Message ID does not exist:"
 msgstr "Bericht ID bestaat niet:"
 
@@ -4809,11 +4812,11 @@ msgstr "Bericht knooppunt kan niet meer worden gevonden:"
 msgid "Message rebuild failed"
 msgstr "Berichtherstel mislukt"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:1943
+#: cgi-bin/openwebmail/openwebmail-send.pl:1972
 msgid "Message save aborted, the quota has been exceeded."
 msgstr "Bericht bewaren afgebroken, het quotum is overschreden."
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2053
+#: cgi-bin/openwebmail/openwebmail-send.pl:2082
 msgid "Message send aborted due to the following bad recipient addresses:"
 msgstr ""
 "Bericht verzenden afgebroken, vanwege de volgende verkeerde geadresseerden:"
@@ -4914,7 +4917,7 @@ msgstr ""
 "dictionary escape=\"js\">&amp;sessionid=<tmpl_var sessionid escape=\"js"
 "\">&#39;,&#39;_personaldict&#39;,&#39;width=300,height=350,resizable=yes,"
 "menubar=no,scrollbars=yes&#39;);\" title=\"edit personal dictionary"
-"\">persoonlijk wordenboek van de gebruiker</a> en wordt niet langer "
+"\">persoonlijk woordenboek van de gebruiker</a> en wordt niet langer "
 "beschouwd als een verkeerd gespeld woord."
 
 #: data/openwebmail/layouts/classic/templates/abook_listview.tmpl:354,
@@ -5049,15 +5052,13 @@ msgstr "Mountain Standard"
 msgid "Move"
 msgstr "Verplaatsen"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:969
+#: cgi-bin/openwebmail/openwebmail-main.pl:983
 msgid "Move aborted: source and destination folder are the same."
 msgstr "Verplaatsen afgebroken: bron en doelmap zijn dezelfde."
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:445
 msgid "Move inbox messages to saved folder at logout:"
-msgstr ""
-"Verplaats Postvak IN berichten naar de map Opgeslagen Berichten bij "
-"uitloggen:"
+msgstr "Verplaats Postvak IN naar map Opgeslagen bij uitloggen:"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:378
 msgid "Move the selected item(s)?"
@@ -5182,8 +5183,8 @@ msgstr "Nepalees"
 msgid "Netherlands"
 msgstr "Nederland"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2035,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3045
+#: cgi-bin/openwebmail/openwebmail-send.pl:2064,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3074
 msgid "Network server error:"
 msgstr "Netwerk serverfout:"
 
@@ -5346,7 +5347,7 @@ msgstr "Geen bestanden zijn verwijderd."
 msgid "No import fields have been defined."
 msgstr "Geen importvelden zijn gedefinieerd."
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2950
+#: cgi-bin/openwebmail/openwebmail-send.pl:2979
 msgid "No message ID provided for replyreceipt"
 msgstr "Geen bericht ID verstrekt voor antwoordbevestiging"
 
@@ -5556,11 +5557,11 @@ msgstr "Bewerking geannuleerd. De bron-en doelnamen zijn hetzelfde:"
 msgid "Orchimens"
 msgstr "Orchimens (Chinese lunisolaire kalender)"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:1420
+#: cgi-bin/openwebmail/openwebmail-send.pl:1449
 msgid "Original"
 msgstr "Origineel"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:1421
+#: cgi-bin/openwebmail/openwebmail-send.pl:1450
 msgid "OriginalMsg"
 msgstr "Origineel bericht"
 
@@ -5814,7 +5815,7 @@ msgstr "Pitcairneilanden"
 msgid "Please Assign Field Names"
 msgstr "Gelieve veldnamen toe te wijzen."
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2590
+#: cgi-bin/openwebmail/openwebmail-send.pl:2619
 msgid "Please check the message saved in the draft folder, and try again."
 msgstr ""
 "Controleer het bericht dat is opgeslagen in de Concepten map, en probeer "
@@ -6077,7 +6078,7 @@ msgid "Quota Usage:"
 msgstr "Quotum gebruik:"
 
 #: cgi-bin/openwebmail/openwebmail-folder.pl:512,
-#: cgi-bin/openwebmail/openwebmail-main.pl:979,
+#: cgi-bin/openwebmail/openwebmail-main.pl:993,
 #: cgi-bin/openwebmail/openwebmail-viewatt.pl:416,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:193,
 #: cgi-bin/openwebmail/openwebmail-webdisk.pl:196,
@@ -6126,7 +6127,7 @@ msgstr "Re:"
 msgid "Read"
 msgstr "Gelezen"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:3082
+#: cgi-bin/openwebmail/openwebmail-send.pl:3111
 msgid "Read receipt:"
 msgstr "Leesbevestiging:"
 
@@ -6452,7 +6453,7 @@ msgstr "Opslaan bestand"
 msgid "Save Stationery"
 msgstr "Opslaan sjabloon"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:1931
+#: cgi-bin/openwebmail/openwebmail-send.pl:1960
 msgid "Save draft aborted, the quota has been exceeded."
 msgstr "Opslaan concept afgebroken, het quotum is overschreden."
 
@@ -6560,7 +6561,7 @@ msgstr "Afzender (aflopend)"
 msgid "Senegal"
 msgstr "Senegal"
 
-#: cgi-bin/openwebmail/openwebmail-main.pl:447,
+#: cgi-bin/openwebmail/openwebmail-main.pl:461,
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:225,
 #: data/openwebmail/layouts/classic/templates/advsearch.tmpl:41,
 #: data/openwebmail/layouts/classic/templates/editfolders.tmpl:189,
@@ -6782,8 +6783,8 @@ msgstr "Somalië"
 msgid "Sorry, root login is disabled for security."
 msgstr "Sorry, root login is uitgeschakeld voor de veiligheid."
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2582,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3124
+#: cgi-bin/openwebmail/openwebmail-send.pl:2611,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3153
 msgid "Sorry, there was an unknown problem sending your message."
 msgstr "Sorry, er was een onbekend probleem bij het verzenden van uw bericht."
 
@@ -6929,7 +6930,7 @@ msgid "Subject (Oldest first)"
 msgstr "Onderwerp (oudste eerst)"
 
 #: cgi-bin/openwebmail/openwebmail-read.pl:1043,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3096,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3125,
 #: cgi-bin/openwebmail/openwebmail-send.pl:459,
 #: cgi-bin/openwebmail/openwebmail-send.pl:674,
 #: cgi-bin/openwebmail/openwebmail-send.pl:806,
@@ -7292,8 +7293,8 @@ msgid ""
 "The export system allows you to download contacts to your local computer. "
 "Follow the steps below to complete the download."
 msgstr ""
-"De export-systeem stelt u in staat om contacten te downloaden naar uw lokale "
-"computer. Volg om te downloaden de onderstaande stappen."
+"Het export-systeem stelt u in staat om contacten te downloaden naar uw "
+"lokale computer. Volg om te downloaden de onderstaande stappen."
 
 #: cgi-bin/openwebmail/openwebmail-abook.pl:3183
 msgid ""
@@ -7368,7 +7369,7 @@ msgid "The program uname is not available to obtain OS information."
 msgstr ""
 "Het programma uname is niet beschikbaar om OS-informatie te verkrijgen."
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:3055
+#: cgi-bin/openwebmail/openwebmail-send.pl:3084
 msgid ""
 "The recipients list could not be validated. Please check the recipients and "
 "try again."
@@ -7400,7 +7401,7 @@ msgstr "Het gevraagde templatebestand bestaat niet:"
 msgid "The same as composing character set"
 msgstr "Dezelfde als de tekencodering voor het opstellen"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:1925
+#: cgi-bin/openwebmail/openwebmail-send.pl:1954
 msgid "The save draft feature is not enabled."
 msgstr "De bewaarfunctie concept is niet ingeschakeld."
 
@@ -7619,7 +7620,7 @@ msgstr ""
 "Aan, CC en BCC zijn leeg. Kies de ontvangers voordat u het bericht verstuurd."
 
 #: cgi-bin/openwebmail/openwebmail-read.pl:1041,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3095,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3124,
 #: cgi-bin/openwebmail/openwebmail-send.pl:456,
 #: cgi-bin/openwebmail/openwebmail-send.pl:671,
 #: cgi-bin/openwebmail/openwebmail-send.pl:803,
@@ -7749,7 +7750,7 @@ msgstr "Tuvalu"
 msgid "Twi"
 msgstr "Twi"
 
-#: cgi-bin/openwebmail/shares/maildb.pl:788
+#: cgi-bin/openwebmail/shares/maildb.pl:794
 msgid "Two messages have the same offset in the spool database:"
 msgstr "Twee berichten hebben dezelfde offset in de spooldatabase:"
 
@@ -8303,7 +8304,7 @@ msgstr "Je mag geen verbinding maken vanaf dit client domein:"
 msgid "You are not allowed to connect from this client ip:"
 msgstr "Je mag geen verbinding maken vanaf dit client ip:"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:1980
+#: cgi-bin/openwebmail/openwebmail-send.pl:2009
 msgid "You are not allowed to send messages to this email address:"
 msgstr "Je mag geen berichten sturen naar dit e-mail adres:"
 
@@ -8330,7 +8331,7 @@ msgstr ""
 "Je POSTVAK IN is groter geworden dan (<tmpl_var spoollimit escape=\"js\"> "
 "kB). Verplaats wat berichten van je POSTVAK IN naar andere mappen."
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:3094
+#: cgi-bin/openwebmail/openwebmail-send.pl:3123
 msgid "Your message:"
 msgstr "Je bericht:"
 
@@ -8520,8 +8521,8 @@ msgstr "en"
 msgid "answered"
 msgstr "beantwoord"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:2020,
-#: cgi-bin/openwebmail/openwebmail-send.pl:3038
+#: cgi-bin/openwebmail/openwebmail-send.pl:2049,
+#: cgi-bin/openwebmail/openwebmail-send.pl:3067
 msgid "at SMTP port:"
 msgstr "op SMTP poort:"
 
@@ -9332,7 +9333,7 @@ msgstr "eindigt op"
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:1364,
 #: data/openwebmail/layouts/classic/templates/abook_editgroupform.tmpl:338
 msgid "enter a url to the file (http://...)"
-msgstr "geef de URL op naar het bestand (http://...)"
+msgstr "geef de URL op naar het bestand (http://...) "
 
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1795,
 #: cgi-bin/openwebmail/openwebmail-prefs.pl:1805
@@ -9417,6 +9418,7 @@ msgstr "antwoord"
 msgid "follow up"
 msgstr "antwoord"
 
+#: cgi-bin/openwebmail/openwebmail-send.pl:1001,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:55,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:70,
 #: data/openwebmail/layouts/classic/templates/read_readmessage.tmpl:70
@@ -9597,7 +9599,7 @@ msgstr "laatste"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:306
 msgid "last name:<i>von Trapp</i>&nbsp;&nbsp;&nbsp;sort override:<i>Trapp</i>"
-msgstr "achternaam:<i>van de Ven</i>&nbsp;&nbsp;&nbsp;sort override:<i>Ven</i>"
+msgstr "achternaam:<i>van de Ven</i>&nbsp;&nbsp;&nbsp;sorteren op:<i>Ven</i>"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:871
 msgid "latitude"
@@ -10653,7 +10655,7 @@ msgid_plural "wait %d seconds after login to fetch"
 msgstr[0] "wacht %d seconde na inloggen om op te halen"
 msgstr[1] "wacht %d seconden na inloggen om op te halen"
 
-#: cgi-bin/openwebmail/openwebmail-send.pl:3101
+#: cgi-bin/openwebmail/openwebmail-send.pl:3130
 msgid "was read on:"
 msgstr "gelezen op:"
 
@@ -10738,7 +10740,7 @@ msgstr "jjjj/mm/dd"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:257
 msgid "zip"
-msgstr "postcode"
+msgstr "zip"
 
 #: data/openwebmail/layouts/classic/templates/abook_editcontactform.tmpl:560
 msgid "zip/postcode"
