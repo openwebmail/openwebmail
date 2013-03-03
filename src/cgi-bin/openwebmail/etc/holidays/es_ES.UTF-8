@@ -1,0 +1,41 @@
+1@@@.*,01,01,.*@@@0@@@0@@@Año Nuevo@@@0@@@0@@@none@@@utf-8@@@1
+2@@@.*,01,06,.*@@@0@@@0@@@Día de Reyes@@@0@@@0@@@none@@@utf-8@@@1
+3@@@.*,01,22,.*@@@0@@@0@@@San Vicente Martir@@@0@@@0@@@none@@@utf-8@@@1
+4@@@.*,02,14,.*@@@0@@@0@@@Día de los enamorados - San Valentín@@@0@@@0@@@none@@@utf-8@@@1
+5@@@.*,02,28,.*@@@0@@@0@@@Día de Andalucía@@@0@@@0@@@none@@@utf-8@@@1
+6@@@.*,03,01,.*@@@0@@@0@@@Día de las Islas Baleares@@@0@@@0@@@none@@@utf-8@@@1
+7@@@.*,03,19,.*@@@0@@@0@@@Día del Padre@@@0@@@0@@@none@@@utf-8@@@1
+8@@@.*,04,23,.*@@@0@@@0@@@San Jorge@@@0@@@0@@@none@@@utf-8@@@1
+9@@@.*,04,28,.*@@@0@@@0@@@San Vicente Ferrer@@@0@@@0@@@none@@@utf-8@@@1
+10@@@.*,05,01,.*@@@0@@@0@@@Día de los Trabajadores@@@0@@@0@@@none@@@utf-8@@@1
+11@@@.*,05,02,.*@@@0@@@0@@@Día de la Comunidad de Madrid@@@0@@@0@@@none@@@utf-8@@@1
+12@@@.*,05,15,.*@@@0@@@0@@@San Isidro@@@0@@@0@@@none@@@utf-8@@@1
+13@@@.*,05,17,.*@@@0@@@0@@@Día de las Letras Gallegas@@@0@@@0@@@none@@@utf-8@@@1
+14@@@.*,05,30,.*@@@0@@@0@@@Día de Canarias@@@0@@@0@@@none@@@utf-8@@@1
+15@@@.*,05,31,.*@@@0@@@0@@@Día de la Región de Castilla la Mancha@@@0@@@0@@@none@@@utf-8@@@1
+16@@@.*,06,09,.*@@@0@@@0@@@Día de la Región de Murcia@@@0@@@0@@@none@@@utf-8@@@1
+17@@@.*,06,09,.*@@@0@@@0@@@Día de La Rioja@@@0@@@0@@@none@@@utf-8@@@1
+18@@@.*,06,24,.*@@@0@@@0@@@Día de San Juan@@@0@@@0@@@none@@@utf-8@@@1
+19@@@.*,07,25,.*@@@0@@@0@@@Santiago Apóstol@@@0@@@0@@@none@@@utf-8@@@1
+20@@@.*,08,15,.*@@@0@@@0@@@La Asunción@@@0@@@0@@@none@@@utf-8@@@1
+21@@@.*,09,02,.*@@@0@@@0@@@Día de la Ciudad Autónoma de Ceuta@@@0@@@0@@@none@@@utf-8@@@1
+22@@@.*,09,08,.*@@@0@@@0@@@Día de Asturias y de Extremadura@@@0@@@0@@@none@@@utf-8@@@1
+23@@@.*,09,11,.*@@@0@@@0@@@Día Nacional de Cataluña@@@0@@@0@@@none@@@utf-8@@@1
+24@@@.*,09,22,.*@@@0@@@0@@@San Mateo@@@0@@@0@@@none@@@utf-8@@@1
+25@@@.*,10,09,.*@@@0@@@0@@@Día de la Comunidad Valenciana@@@0@@@0@@@none@@@utf-8@@@1
+26@@@.*,11,01,.*@@@0@@@0@@@Día de todos Los Santos@@@0@@@0@@@none@@@utf-8@@@1
+27@@@.*,12,06,.*@@@0@@@0@@@Día de la Constitución Española@@@0@@@0@@@none@@@utf-8@@@1
+28@@@.*,12,08,.*@@@0@@@0@@@Día de la Inmaculada Concepción@@@0@@@0@@@none@@@utf-8@@@1
+29@@@.*,12,24,.*@@@0@@@0@@@Noche Buena@@@0@@@0@@@none@@@utf-8@@@1
+30@@@.*,12,25,.*@@@0@@@0@@@Navidad@@@0@@@0@@@none@@@utf-8@@@1
+31@@@.*,12,26,.*@@@0@@@0@@@San Esteban@@@0@@@0@@@none@@@utf-8@@@1
+32@@@.*,12,28,.*@@@0@@@0@@@Día de los Inocentes@@@0@@@0@@@none@@@utf-8@@@1
+33@@@.*,12,31,.*@@@0@@@0@@@Noche Vieja@@@0@@@0@@@none@@@utf-8@@@1
+34@@@.*,easter,easter,.*@@@0@@@0@@@Pascuas@@@0@@@0@@@none@@@utf-8@@@1
+35@@@.*,easter,easter+60,.*@@@0@@@0@@@Corpus Christi@@@0@@@0@@@none@@@utf-8@@@1
+36@@@.*,easter,easter-2,.*@@@0@@@0@@@Viernes Santo@@@0@@@0@@@none@@@utf-8@@@1
+37@@@.*,easter,easter-3,.*@@@0@@@0@@@Jueves Santo@@@0@@@0@@@none@@@utf-8@@@1
+38@@@.*,easter,easter-47,.*@@@0@@@0@@@Carnaval@@@0@@@0@@@none@@@utf-8@@@1
+39@@@.*,easter,easter-7,.*@@@0@@@0@@@Domingo de Ramos@@@0@@@0@@@none@@@utf-8@@@1
+40@@@.*,easter,easter-8,.*@@@0@@@0@@@Sábado de Gloria@@@0@@@0@@@none@@@utf-8@@@1
+41@@@.*,easter,easter-46,.*@@@0@@@0@@@Miércoles de Cenizas@@@0@@@0@@@none@@@utf-8@@@1
