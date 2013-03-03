@@ -422,8 +422,8 @@ msgid ""
 "<tmpl_var hour escape=\"none\">:<tmpl_var min escape=\"none\"><tmpl_var ampm "
 "escape=\"none\">"
 msgstr ""
-"<tmpl_var hour escape=\"καθόλου\">:<tmpl_var min escape=\"καθόλου"
-"\"><tmpl_var ampm escape=\"καθόλου\">"
+"<tmpl_var hour escape=\"none\">:<tmpl_var min escape=\"none\"><tmpl_var ampm "
+"escape=\"none\">"
 
 #: data/openwebmail/layouts/classic/templates/shared_error.tmpl:17,
 #: data/openwebmail/layouts/classic/templates/shared_error.tmpl:7
