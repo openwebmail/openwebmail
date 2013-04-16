@@ -1862,9 +1862,9 @@ available value: 9pt, 10pt, 11pt, 12px, 13px, 14px
 default_dateformat
 -----------------------------------------------------------------------
 default date format,
-available value: mm/dd/yyyy, dd/mm/yyyy, yyyy/mm/dd,
-                 mm-dd-yyyy, dd-mm-yyyy, yyyy-mm-dd,
-                 mm.dd.yyyy, dd.mm.yyyy, yyyy.mm.dd
+available values: mm/dd/yyyy, dd/mm/yyyy, yyyy/mm/dd,
+                  mm-dd-yyyy, dd-mm-yyyy, yyyy-mm-dd,
+                  mm.dd.yyyy, dd.mm.yyyy, yyyy.mm.dd
 
 
 default_hourformat
