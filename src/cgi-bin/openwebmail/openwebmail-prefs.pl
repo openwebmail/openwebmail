@@ -1815,10 +1815,8 @@ sub editprefs {
 }
 
 sub saveprefs {
-   # if any param is not passed from the prefs form that pref is not
-   # written to the openwebmailrc file. When openwebmailrc is read it
-   # will use the default for any undefined pref. So we can use incomplete
-   # prefs form
+   # if any param is not passed from the prefs form, this routine will
+   # use the old value instead, so we can use incomplete prefs form
 
    # create dir under ~/.openwebmail/
    check_and_create_dotdir(dotpath('/'));
@@ -1842,8 +1840,7 @@ sub saveprefs {
          next;
       }
 
-      # if a DEFAULT_ is defined the $value will be undefined
-      my $value = defined param($key) ? param($key) : next;
+      my $value = param($key);
 
       if ($key eq 'bgurl') {
          my $background = param('background');
