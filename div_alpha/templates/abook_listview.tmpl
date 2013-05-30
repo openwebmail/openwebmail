@@ -50,9 +50,15 @@
         <select name="abookfolder" onchange="document.contactsForm.submit();">
           <tmpl_loop abookfolderselectloop>
           <tmpl_if is_defaultabookfolder>
-          <tmpl_if option_ALL><option value="ALL" <tmpl_if selected>selected</tmpl_if>><tmpl_unless is_writable># </tmpl_unless>gettext('All Addressbooks')<tmpl_if is_global> *</tmpl_if></option></tmpl_if>
-          <tmpl_if option_global><option value="global" <tmpl_if selected>selected</tmpl_if>><tmpl_unless is_writable># </tmpl_unless>gettext('Global Addressbook')<tmpl_if is_global> *</tmpl_if></option></tmpl_if>
-          <tmpl_if option_ldapcache><option value="ldapcache" <tmpl_if selected>selected</tmpl_if>><tmpl_unless is_writable># </tmpl_unless>gettext('Global LDAP Addressbook')<tmpl_if is_global> *</tmpl_if></option></tmpl_if>
+          <tmpl_if option_ALL>
+          <option value="ALL" <tmpl_if selected>selected</tmpl_if>><tmpl_unless is_writable># </tmpl_unless>gettext('All Addressbooks')<tmpl_if is_global> *</tmpl_if></option>
+          </tmpl_if>
+          <tmpl_if option_global>
+          <option value="global" <tmpl_if selected>selected</tmpl_if>><tmpl_unless is_writable># </tmpl_unless>gettext('Global Addressbook')<tmpl_if is_global> *</tmpl_if></option>
+          </tmpl_if>
+          <tmpl_if option_ldapcache>
+          <option value="ldapcache" <tmpl_if selected>selected</tmpl_if>><tmpl_unless is_writable># </tmpl_unless>gettext('Global LDAP Addressbook')<tmpl_if is_global> *</tmpl_if></option>
+          </tmpl_if>
           <tmpl_else>
           <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_unless is_writable># </tmpl_unless><tmpl_var label escape="html"><tmpl_if is_global> *</tmpl_if></option>
           </tmpl_if>
@@ -92,35 +98,38 @@
 
   <div id="content">
     <div class="paginator">
-      <tmpl_if prevpage><a href="javascript:document.contactsForm.abookpage.value=<tmpl_var prevpage escape="js">; document.contactsForm.submit();" accesskey="B" class="icon" title="gettext('previous page')"><tmpl_if use_texticon><tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowrighton escape="html"><tmpl_else><tmpl_var iconset_small_arrowlefton escape="html"></tmpl_if>" class="iconset_small" alt="<tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if>"></tmpl_if></a><tmpl_else><tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowrightoff escape="html"><tmpl_else><tmpl_var iconset_small_arrowleftoff escape="html"></tmpl_if>" class="iconset_small" title="gettext('no previous page')" alt="<tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if>"></tmpl_if></tmpl_if>
+      <tmpl_if prevpage>
+      <a href="javascript:document.contactsForm.abookpage.value=<tmpl_var prevpage escape="js">; document.contactsForm.submit();" accesskey="B" class="icon" title="gettext('previous page')"><tmpl_if use_texticon><tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowrighton escape="html"><tmpl_else><tmpl_var iconset_small_arrowlefton escape="html"></tmpl_if>" class="iconset_small" alt="<tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if>"></tmpl_if></a><tmpl_else><tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowrightoff escape="html"><tmpl_else><tmpl_var iconset_small_arrowleftoff escape="html"></tmpl_if>" class="iconset_small" title="gettext('no previous page')" alt="<tmpl_if is_right_to_left>&gt;<tmpl_else>&lt;</tmpl_if>"></tmpl_if>
+      </tmpl_if>
       <div class="currentPage"><tmpl_var abookpage escape="html">/<tmpl_var totalpages escape="html"></div>
-      <tmpl_if nextpage><a href="javascript:document.contactsForm.abookpage.value=<tmpl_var nextpage escape="js">; document.contactsForm.submit();" accesskey="F" class="icon" title="gettext('next page')"><tmpl_if use_texticon><tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowlefton escape="html"><tmpl_else><tmpl_var iconset_small_arrowrighton escape="html"></tmpl_if>" class="iconset_small" alt="<tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if>"></tmpl_if></a><tmpl_else><tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowleftoff escape="html"><tmpl_else><tmpl_var iconset_small_arrowrightoff escape="html"></tmpl_if>" class="iconset_small" title="gettext('no next page')" alt="<tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if>"></tmpl_if></tmpl_if>
+      <tmpl_if nextpage>
+      <a href="javascript:document.contactsForm.abookpage.value=<tmpl_var nextpage escape="js">; document.contactsForm.submit();" accesskey="F" class="icon" title="gettext('next page')"><tmpl_if use_texticon><tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowlefton escape="html"><tmpl_else><tmpl_var iconset_small_arrowrighton escape="html"></tmpl_if>" class="iconset_small" alt="<tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if>"></tmpl_if></a><tmpl_else><tmpl_if use_texticon>-<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_if is_right_to_left><tmpl_var iconset_small_arrowleftoff escape="html"><tmpl_else><tmpl_var iconset_small_arrowrightoff escape="html"></tmpl_if>" class="iconset_small" title="gettext('no next page')" alt="<tmpl_if is_right_to_left>&lt;<tmpl_else>&gt;</tmpl_if>"></tmpl_if>
+      </tmpl_if>
     </div>
 
     <div class="contentbox">
       <div class="contentboxdata" id="searchbar">
-        <select name="abooksearchtype">
-          <tmpl_loop searchtypeselectloop>
-          <tmpl_if option_fullname><option value="fullname" <tmpl_if selected>selected</tmpl_if>>gettext('Full Name')</option></tmpl_if>
-          <tmpl_if option_nicknames><option value="nicknames" <tmpl_if selected>selected</tmpl_if>>gettext('Nicknames')</option></tmpl_if>
-          <tmpl_if option_prefix><option value="prefix" <tmpl_if selected>selected</tmpl_if>>gettext('Name Prefix')</option></tmpl_if>
-          <tmpl_if option_first><option value="first" <tmpl_if selected>selected</tmpl_if>>gettext('First Name')</option></tmpl_if>
-          <tmpl_if option_middle><option value="middle" <tmpl_if selected>selected</tmpl_if>>gettext('Middle Name')</option></tmpl_if>
-          <tmpl_if option_last><option value="last" <tmpl_if selected>selected</tmpl_if>>gettext('Last Name')</option></tmpl_if>
-          <tmpl_if option_suffix><option value="suffix" <tmpl_if selected>selected</tmpl_if>>gettext('Name Suffix')</option></tmpl_if>
-          <tmpl_if option_email><option value="email" <tmpl_if selected>selected</tmpl_if>>gettext('Email')</option></tmpl_if>
-          <tmpl_if option_phone><option value="phone" <tmpl_if selected>selected</tmpl_if>>gettext('Phone')</option></tmpl_if>
-          <tmpl_if option_note><option value="note" <tmpl_if selected>selected</tmpl_if>>gettext('Note')</option></tmpl_if>
-          <tmpl_if option_categories><option value="categories" <tmpl_if selected>selected</tmpl_if>>gettext('Categories')</option></tmpl_if>
-          </tmpl_loop>
-        </select>
+        <div class="left">
+          <select name="abooksearchtype">
+            <tmpl_loop searchtypeselectloop>
+            <tmpl_if option_fullname><option value="fullname" <tmpl_if selected>selected</tmpl_if>>gettext('Full Name')</option></tmpl_if>
+            <tmpl_if option_nicknames><option value="nicknames" <tmpl_if selected>selected</tmpl_if>>gettext('Nicknames')</option></tmpl_if>
+            <tmpl_if option_prefix><option value="prefix" <tmpl_if selected>selected</tmpl_if>>gettext('Name Prefix')</option></tmpl_if>
+            <tmpl_if option_first><option value="first" <tmpl_if selected>selected</tmpl_if>>gettext('First Name')</option></tmpl_if>
+            <tmpl_if option_middle><option value="middle" <tmpl_if selected>selected</tmpl_if>>gettext('Middle Name')</option></tmpl_if>
+            <tmpl_if option_last><option value="last" <tmpl_if selected>selected</tmpl_if>>gettext('Last Name')</option></tmpl_if>
+            <tmpl_if option_suffix><option value="suffix" <tmpl_if selected>selected</tmpl_if>>gettext('Name Suffix')</option></tmpl_if>
+            <tmpl_if option_email><option value="email" <tmpl_if selected>selected</tmpl_if>>gettext('Email')</option></tmpl_if>
+            <tmpl_if option_phone><option value="phone" <tmpl_if selected>selected</tmpl_if>>gettext('Phone')</option></tmpl_if>
+            <tmpl_if option_note><option value="note" <tmpl_if selected>selected</tmpl_if>>gettext('Note')</option></tmpl_if>
+            <tmpl_if option_categories><option value="categories" <tmpl_if selected>selected</tmpl_if>>gettext('Categories')</option></tmpl_if>
+            </tmpl_loop>
+          </select>
 
-        <input type="text" name="abookkeyword" value="<tmpl_var abookkeyword escape="html">" accesskey="S" tabindex="1">
-        <input type="submit" name="Search" value="gettext('Search')"><input type="submit" name="clearsearchbutton" value="gettext('Clear')" accesskey="Q">
-
-        <input type="text" size="12" name="keyword" value="<tmpl_var keyword escape="html">" accesskey="S">
-
-        <input type="submit" name="searchbutton" value="gettext('Search')"><input type="submit" name="clearsearchbutton" value="gettext('Clear')" accesskey="Q">
+          <input type="text" name="abookkeyword" value="<tmpl_var abookkeyword escape="html">" accesskey="S" tabindex="1">
+          <input type="submit" name="Search" value="gettext('Search')">
+          <input type="submit" name="clearsearchbutton" value="gettext('Clear')" accesskey="Q">
+        </div>
 
         <div class="center">
           <label for="page">gettext('Page')</label>
@@ -154,8 +163,12 @@
           </select>
           </tmpl_if>
 
-          <tmpl_if enable_move><input type="submit" name="moveselected" value="gettext('Move')" onclick="return confirm_movecopy(this);"></tmpl_if>
-          <tmpl_if enable_copy><input type="submit" name="copyselected" value="gettext('Copy')" onclick="return confirm_movecopy(this);"></tmpl_if>
+          <tmpl_if enable_move>
+          <input type="submit" name="moveselected" value="gettext('Move')" onclick="return confirm_movecopy(this);">
+          </tmpl_if>
+          <tmpl_if enable_copy>
+          <input type="submit" name="copyselected" value="gettext('Copy')" onclick="return confirm_movecopy(this);">
+          </tmpl_if>
         </div>
       </div>
     </div>

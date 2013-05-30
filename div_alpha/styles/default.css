@@ -3,6 +3,11 @@ font-size is inherited from the body tag in header.tmpl, which is
 set by the user - please do not set the body font-size here
 */
 
+/* testing */
+.contentbox { border: solid 4px red; background-color:rgba(255, 0, 0, 0.15); margin: 0 0 10px 0; }
+.contentboxtitle { border: solid 4px yellow; background-color:rgba(255, 255, 255, 0.35); font: bold 15px "Helvetica Neue",Arial,sans-serif}
+.contentboxdata { border: solid 4px blue; background-color:rgba(0, 0, 255, 0.15)}
+
 /* global */
 html, body {
    height: 100%;
