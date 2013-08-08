@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenWebMail\n"
 "POT-Creation-Date: 2013-01-28 08:44+0000\n"
-"PO-Revision-Date: 2013-03-02 01:11+0100\n"
+"PO-Revision-Date: 2013-08-07 01:37+0100\n"
 "Last-Translator: Sybrand Bekius <sybrand@bekius.net>\n"
 "Language-Team: Sybrand Bekius (bekius@acatysmoof.com) and Ralf Vroomen "
 "(ervee@moskovic.org) <owm-i18n@openwebmail.acatysmoof.com>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Poedit-SourceCharset: iso-8859-1\n"
-"X-Generator: Poedit 1.5.5\n"
+"X-Generator: Poedit 1.5.7\n"
 
 #: cgi-bin/openwebmail/openwebmail-send.pl:1048
 msgid "# Message forwarded as attachment"
@@ -2720,7 +2720,7 @@ msgstr "Schakel alle ingesloten links uit"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:524
 msgid "Disable embed/object/applet tags inside messages:"
-msgstr "Schakel ingesloten/object/applet labels uit in berichten:"
+msgstr "Schakel ingesloten/object/applet labels uit:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:535
 msgid "Disable embedded CGI links only"
@@ -3279,7 +3279,7 @@ msgstr "Filter reeks"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:771
 msgid "Filter messages with bad email address formatting:"
-msgstr "Filter berichten met een verkeerde opmaak e-mailadres:"
+msgstr "Filter berichten met foute opmaak e-mailadres:"
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:789
 msgid "Filter messages with faked From field:"
@@ -5058,7 +5058,7 @@ msgstr "Verplaatsen afgebroken: bron en doelmap zijn dezelfde."
 
 #: data/openwebmail/layouts/classic/templates/prefs.tmpl:445
 msgid "Move inbox messages to saved folder at logout:"
-msgstr "Verplaats Postvak IN naar map Opgeslagen bij uitloggen:"
+msgstr "Verplaats IN naar map Opgeslagen bij uitloggen:"
 
 #: data/openwebmail/layouts/classic/templates/webdisk_showdir.tmpl:378
 msgid "Move the selected item(s)?"
