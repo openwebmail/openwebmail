@@ -1193,34 +1193,42 @@ sub folderindex {
    return 0;
 }
 
-
 sub clean_trash_spamvirus {
-   my %reserveddays=('mail-trash' => $prefs{'trashreserveddays'},
-                     'spam-mail'  => $prefs{'spamvirusreserveddays'},
-                     'virus-mail' => $prefs{'spamvirusreserveddays'} );
-   my (@f, $msg);
-   push(@f, 'virus-mail') if ($config{'has_virusfolder_by_default'});
-   push(@f, 'spam-mail') if ($config{'has_spamfolder_by_default'});
+   my %reserveddays = (
+                         'mail-trash' => $prefs{trashreserveddays},
+                         'spam-mail'  => $prefs{spamvirusreserveddays},
+                         'virus-mail' => $prefs{spamvirusreserveddays}
+                      );
+   my @f   = ();
+   my $msg = '';
+
+   push(@f, 'virus-mail') if $config{has_virusfolder_by_default};
+   push(@f, 'spam-mail')  if $config{has_spamfolder_by_default};
    push(@f, 'mail-trash');
+
    foreach my $folder (@f) {
-      my ($folderfile, $folderdb)=get_folderpath_folderdb($user, $folder);
+      my ($folderfile, $folderdb) = get_folderpath_folderdb($user, $folder);
+
       if (ow::filelock::lock($folderfile, LOCK_EX)) {
-         my $deleted=delete_message_by_age($reserveddays{$folder}, $folderdb, $folderfile);
+         my $deleted = delete_message_by_age($reserveddays{$folder}, $folderdb, $folderfile);
+
          if ($deleted > 0) {
-            $msg.=', ' if ($msg ne '');
-            $msg.="$deleted msg deleted from $folder";
+            $msg .= ', ' if $msg ne '';
+            $msg .= "$deleted msg deleted from $folder";
          }
+
          ow::filelock::lock($folderfile, LOCK_UN);
       }
    }
+
    if ($msg ne '') {
       writelog("clean trash/spam/virus - $msg");
       writehistory("clean trash/spam/virus - $msg");
       print "clean trash/spam/virus - $msg\n" unless $opt{quiet};
    }
+
    return 0;
 }
-
 
 sub checksize {
    return 0 if (!$config{'quota_module'});
