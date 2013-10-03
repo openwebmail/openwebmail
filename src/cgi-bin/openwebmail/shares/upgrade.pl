@@ -766,12 +766,12 @@ sub read_releasedatefile {
 
    my $d = <D>;
 
-   chomp($d);
+   chomp($d) if defined $d;
 
    close(D) or
       openwebmailerror(gettext('Cannot close file:') . " $releasedatefile ($!)");
 
-   return $d;
+   return defined $d ? $d : '';
 }
 
 sub update_releasedatefile {
