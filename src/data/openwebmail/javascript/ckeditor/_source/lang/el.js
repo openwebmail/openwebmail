@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -698,7 +698,7 @@ CKEDITOR.lang['el'] =
 		ignoreAll		: 'Να αγνοηθούν όλα',
 		addWord			: 'Προσθήκη στο λεξικό',
 		emptyDic		: 'Το όνομα του λεξικού δεν πρέπει να είναι κενό.',
-
+		noSuggestions	: 'No suggestions', // MISSING
 		optionsTab		: 'Επιλογές',
 		allCaps			: 'Να αγνοούνται όλες οι λέξεις σε κεφαλαία',
 		ignoreDomainNames : 'Ignore Domain Names', // MISSING

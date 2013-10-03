@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -1585,11 +1585,6 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 				// getNative() returns null if iframe is "display:none" in FF. (#6577)
 				if ( !sel )
 					return;
-
-				// Opera: The above hack work around a *visually wrong* text selection that
-				// happens in certain situation. (#6874)
-				if ( CKEDITOR.env.opera )
-					this.document.$.execCommand( 'SelectAll', false );
 
 				if ( ranges.length )
 				{

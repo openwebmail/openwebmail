@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -698,7 +698,7 @@ CKEDITOR.lang['zh-cn'] =
 		ignoreAll		: '全部忽略',
 		addWord			: '添加单词',
 		emptyDic		: '字典名不应为空.',
-
+		noSuggestions	: '没有建议',
 		optionsTab		: '选项',
 		allCaps			: '忽略所有大写单词',
 		ignoreDomainNames : '忽略域名',

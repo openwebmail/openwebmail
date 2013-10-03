@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 
@@ -698,7 +698,7 @@ CKEDITOR.lang['eo'] =
 		ignoreAll		: 'Ignori ĉion',
 		addWord			: 'Almeti la vorton',
 		emptyDic		: 'La vortaronomo ne devus esti malplena.',
-
+		noSuggestions	: 'No suggestions', // MISSING
 		optionsTab		: 'Opcioj',
 		allCaps			: 'Ignori la vortojn skribitajn nur per ĉefliteroj',
 		ignoreDomainNames : 'Ignori domajnajn nomojn',
