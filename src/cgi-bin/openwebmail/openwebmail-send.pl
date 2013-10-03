@@ -1354,6 +1354,8 @@ sub compose {
                                                  ],
                       spellcheck_dictionary   => $prefs{dictionary},
                       enable_htmlcompose      => $enable_htmlcompose,
+                      htmlcursorstartbottom   => $prefs{replywithorigmsg} eq 'at_beginning' ? 1 : 0,
+                      is_reply                => $composetype =~ m/(?:reply|continue)/ ? 1 : 0,
                       newmsgformatselectloop  => [
                                                    map { {
                                                            "option_$_" => 1,

@@ -403,6 +403,19 @@
    CKEDITOR.replace(
                       'body',
                       {
+                         <tmpl_if is_reply>
+                         // set focus to the editor
+                         on : {
+                                 'instanceReady': function(ev) {
+                                    ev.editor.focus();
+                                    var range = new CKEDITOR.dom.range( ev.editor.document );
+                                    range.collapse(false);
+                                    range.selectNodeContents( ev.editor.document.getBody() );
+                                    range.collapse(<tmpl_if htmlcursorstartbottom>false<tmpl_else>true</tmpl_if>); // false == bottom, true == top
+                                    ev.editor.getSelection().selectRanges( [ range ] );
+                                 }
+                              },
+                         </tmpl_if>
                          height : '<tmpl_var htmledit_height escape="js">px',
                          removePlugins : 'contextmenu,adobeair,filebrowser,flash,newpage,pastefromword,print,preview,save,scayt,smiley,templates,wsc',
                          language : '<tmpl_var language escape="js">',
