@@ -1,4 +1,6 @@
-<tmpl_var footerpluginoutput escape="none">
+  <tmpl_if footerpluginoutput>
+    <tmpl_var footerpluginoutput escape="none">
+  </tmpl_if>
 
   <div id="footer">
     <div id="version">gettext('<a href="http://openwebmail.acatysmoof.com" target="_blank"><tmpl_var programname escape="html"></a> version <tmpl_var programversion escape="html">')</div>
