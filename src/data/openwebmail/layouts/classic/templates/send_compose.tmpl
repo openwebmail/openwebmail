@@ -413,6 +413,9 @@
                                     range.selectNodeContents( ev.editor.document.getBody() );
                                     range.collapse(<tmpl_if htmlcursorstartbottom>false<tmpl_else>true</tmpl_if>); // false == bottom, true == top
                                     ev.editor.getSelection().selectRanges( [ range ] );
+                                    <tmpl_if htmlcursorstartbottom>
+                                    ev.editor.insertText("\n");
+                                    </tmpl_if>
                                  }
                               },
                          </tmpl_if>
