@@ -501,7 +501,7 @@ sub update_folderindex {
                                      )
                                );
 
-               writelog("debug_maildb - detected message block attachments flag T=$flag{T}") if $config{debug_maildb};
+               writelog("debug_maildb - multipart detected message block attachments flag T=$flag{T}") if $config{debug_maildb};
 
                $block = (!$flag{T} || $message{charset} eq '') ? _skip_to_next_text_block() : '';
             }
@@ -517,6 +517,17 @@ sub update_folderindex {
                   $block = _skip_to_next_text_block();
                }
             }
+         } else {
+            $flag{T} = 1 if (  # has_att?
+                               !$flag{T}
+                               && (
+                                     (exists $message{'content-type'} && $message{'content-type'} =~ m/^.*;\s*name\s*\*?=/ims)
+                                     ||
+                                     (exists $message{'content-disposition'} && $message{'content-disposition'} =~ m/^.*;\s*filename\s*\*?=/ims)
+                                  )
+                            );
+
+            writelog("debug_maildb - detected message block attachments flag T=$flag{T}") if $config{debug_maildb};
          }
       }
 
