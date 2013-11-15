@@ -1,8 +1,0 @@
-25@@@header@@@include@@@X\-Spam\-Level: \*\*\*\*\*\*\*\*\*\*\*\*@@@move@@@spam-mail@@@1@@@iso-8859-1
-30@@@subject@@@include@@@virus.*mail|virus.*alert|virus.*found@@@move@@@mail-trash@@@1@@@iso-8859-1
-30@@@subject@@@include@@@Attachments Deleted by MailScan@@@move@@@mail-trash@@@1@@@iso-8859-1
-30@@@subject@@@include@@@viagra|xanax|vicodin|zoloft|citrate|penis@@@move@@@spam-mail@@@1@@@iso-8859-1
-30@@@from@@@include@@@anti.*virus|amavisd|interscan|mailsqr@@@move@@@mail-trash@@@1@@@iso-8859-1
-50@@@attfilename@@@include@@@(readme|instruction|transcript|mail|letter)\.(cmd|bat|com|exe|pif|scr|zip)@@@move@@@virus-mail@@@1@@@iso-8859-1
-50@@@attfilename@@@include@@@(file|text|attachment|document|message)\.(cmd|bat|com|exe|pif|scr|zip)@@@move@@@virus-mail@@@1@@@iso-8859-1
-50@@@attfilename@@@include@@@readme\.(eml|exe|com|wav)@@@move@@@virus-mail@@@1@@@iso-8859-1
