@@ -1,0 +1,22 @@
+<tmpl_var header_template escape="none">
+
+<div id="wrapper">
+	<div id="content">
+		<div class="contentbox">
+			<div class="titlebar">gettext('Word Document Preview')</div>
+  
+			<div class="contentboxdata">
+				<label for="selectitems">gettext('Filename:')</label>
+				<input type="text" name="selectitems" value="<tmpl_var vpath escape="html">" size="50" disabled="1"><br />
+				
+				<label>gettext('File contents:')</label><br />
+				<div id="wordpreview"><pre><tmpl_var filecontent escape="html"></pre></div>
+				
+				<div class="wordpreview_submit center">
+					<input type="button"  name="closebutton" value="gettext('close')" onclick="window.close();">
+				</div>
+			</div>
+		</div>
+	</div> <!-- #content end -->
+	
+<tmpl_var footer_template escape="none">

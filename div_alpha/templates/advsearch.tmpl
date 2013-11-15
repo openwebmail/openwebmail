@@ -1,0 +1,309 @@
+<tmpl_var header_template escape="none">
+
+<div class="wrapper">
+  <form method="post" action="<tmpl_var url_cgi escape="none">/openwebmail-advsearch.pl" name="advsearchform" id="advsearchform">
+  <input type="hidden" name="action" value="advsearch">
+  <input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+  <input type="hidden" name="folder" value="<tmpl_var folder escape="html">">
+  <input type="hidden" name="sort" value="<tmpl_var sort escape="html">">
+  <input type="hidden" name="msgdatetype" value="<tmpl_var msgdatetype escape="html">">
+  <input type="hidden" name="page" value="<tmpl_var page escape="html">">
+  <input type="hidden" name="longpage" value="<tmpl_var longpage escape="html">">
+  <input type="hidden" name="searchtype" value="<tmpl_var searchtype escape="html">">
+  <input type="hidden" name="keyword" value="<tmpl_var keyword escape="html">">
+  <input type="hidden" name="message_id" value="<tmpl_var message_id escape="html">">
+
+  <div id="header">
+    <div id="titlebar">
+      <div id="lefttitle">gettext('Advanced Search')</div>
+    </div>
+
+    <ul id="navigation">
+      <li><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">&amp;message_id=<tmpl_var message_id escape="url">" accesskey="B" class="icon" title="<tmpl_if is_callerfolderdefault><tmpl_if callerfoldername_INBOX>gettext('back to Inbox')</tmpl_if><tmpl_if callerfoldername_saved-messages>gettext('back to Saved folder')</tmpl_if><tmpl_if callerfoldername_sent-mail>gettext('back to Sent folder')</tmpl_if><tmpl_if callerfoldername_saved-drafts>gettext('back to Draft folder')</tmpl_if><tmpl_if callerfoldername_mail-trash>gettext('back to Trash folder')</tmpl_if><tmpl_if callerfoldername_spam-mail>gettext('back to Spam folder')</tmpl_if><tmpl_if callerfoldername_virus-mail>gettext('back to Virus folder')</tmpl_if><tmpl_else>gettext('back to <tmpl_var callerfoldername escape="html"> folder')</tmpl_if>"><tmpl_if use_texticon><tmpl_if is_callerfolderdefault><tmpl_if callerfoldername_INBOX>gettext('back to Inbox')</tmpl_if><tmpl_if callerfoldername_saved-messages>gettext('back to Saved folder')</tmpl_if><tmpl_if callerfoldername_sent-mail>gettext('back to Sent folder')</tmpl_if><tmpl_if callerfoldername_saved-drafts>gettext('back to Draft folder')</tmpl_if><tmpl_if callerfoldername_mail-trash>gettext('back to Trash folder')</tmpl_if><tmpl_if callerfoldername_spam-mail>gettext('back to Spam folder')</tmpl_if><tmpl_if callerfoldername_virus-mail>gettext('back to Virus folder')</tmpl_if><tmpl_else>gettext('back to <tmpl_var callerfoldername escape="html"> folder')</tmpl_if><tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_button_back escape="html">" class="iconset_button" alt="<tmpl_if is_callerfolderdefault><tmpl_if callerfoldername_INBOX>gettext('back to Inbox')</tmpl_if><tmpl_if callerfoldername_saved-messages>gettext('back to Saved folder')</tmpl_if><tmpl_if callerfoldername_sent-mail>gettext('back to Sent folder')</tmpl_if><tmpl_if callerfoldername_saved-drafts>gettext('back to Draft folder')</tmpl_if><tmpl_if callerfoldername_mail-trash>gettext('back to Trash folder')</tmpl_if><tmpl_if callerfoldername_spam-mail>gettext('back to Spam folder')</tmpl_if><tmpl_if callerfoldername_virus-mail>gettext('back to Virus folder')</tmpl_if><tmpl_else>gettext('back to <tmpl_var callerfoldername escape="html"> folder')</tmpl_if>"></tmpl_if></a></li>
+    </ul>
+  </div><!-- #header end -->
+
+  <div id="content">
+    <!-- Select folder -->
+    <div class="contentbox">
+      <div class="contentboxtitle">
+        gettext('Search Folders')
+        <input name="allbox" id="allbox" type="checkbox" value="1" <tmpl_if allbox>checked</tmpl_if> onClick="checkallfolders();">&nbsp;<label for="allbox">gettext('Select All')</label>
+      </div>
+
+      <div class="contentboxdata">
+        <ul id="searchFolders">
+          <tmpl_loop foldersloop>
+          <li>
+            <input type="checkbox" name="folders" value="<tmpl_var foldername escape="html">" id="<tmpl_var foldername escape="html">" <tmpl_if checked>checked</tmpl_if>>
+            <label for="<tmpl_var foldername escape="html">"><tmpl_if is_defaultfolder><tmpl_if foldername_INBOX>gettext('Inbox')</tmpl_if><tmpl_if foldername_saved-messages>gettext('Saved')</tmpl_if><tmpl_if foldername_sent-mail>gettext('Sent')</tmpl_if><tmpl_if foldername_saved-drafts>gettext('Draft')</tmpl_if><tmpl_if foldername_mail-trash>gettext('Trash')</tmpl_if><tmpl_if foldername_spam-mail>gettext('Spam')</tmpl_if><tmpl_if foldername_virus-mail>gettext('Virus')</tmpl_if><tmpl_else><tmpl_var foldername escape="html"></tmpl_if></label>
+          </li>
+          </tmpl_loop>
+        </ul>
+      </div>
+    </div>
+    <!-- /Select folder -->
+
+    <!-- Search range -->
+    <div class="contentbox">
+      <div class="contentboxtitle">gettext('Search Date Range')</div>
+      <div class="contentboxdata">
+        <div class="searchRange">
+          gettext('Start Date:')
+          <tmpl_loop startdateselectloop>
+          <tmpl_if startyearselectloop>
+          <select name="startyear" accesskey="G" onchange="submit()">
+            <tmpl_loop startyearselectloop>
+            <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+          </select>
+          </tmpl_if>
+
+          <tmpl_if startmonthselectloop>
+          <select name="startmonth"  accesskey="G" onchange="submit()">
+            <tmpl_loop startmonthselectloop>
+            <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+          </select>
+          </tmpl_if>
+
+          <tmpl_if startdayselectloop>
+          <select name="startday"  accesskey="G" onchange="submit()">
+            <tmpl_loop startdayselectloop>
+            <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+          </select>
+          </tmpl_if>
+          </tmpl_loop>
+
+          <a href="javascript:void(0);" onclick="calPopup(this,document.forms['advsearchform'].elements['startyear'].options[document.forms['advsearchform'].elements['startyear'].selectedIndex].value,document.forms['advsearchform'].elements['startmonth'].options[document.forms['advsearchform'].elements['startmonth'].selectedIndex].value,document.forms['advsearchform'].elements['startday'].options[document.forms['advsearchform'].elements['startday'].selectedIndex].value,'change_startdate','popup_calendar',-175,20);" title="gettext('calendar')"><tmpl_if use_texticon>gettext('calendar')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_calendar escape="html">" class="iconset_small" alt="gettext('calendar')"></tmpl_if></a>
+        </div>
+
+        <div class="searchRange">
+          gettext('End Date:')
+          <tmpl_loop enddateselectloop>
+          <tmpl_if endyearselectloop>
+          <select name="endyear"  accesskey="G" onchange="submit()">
+            <tmpl_loop endyearselectloop>
+            <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+          </select>
+          </tmpl_if>
+
+          <tmpl_if endmonthselectloop>
+          <select name="endmonth"  accesskey="G" onchange="submit()">
+            <tmpl_loop endmonthselectloop>
+            <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+          </select>
+          </tmpl_if>
+
+          <tmpl_if enddayselectloop>
+          <select name="endday"  accesskey="G" onchange="submit()">
+            <tmpl_loop enddayselectloop>
+            <option value="<tmpl_var option escape="html">" <tmpl_if selected>selected</tmpl_if>><tmpl_var label escape="html"></option>
+            </tmpl_loop>
+          </select>
+          </tmpl_if>
+          </tmpl_loop>
+
+          <a href="javascript:void(0);" onclick="calPopup(this,document.forms['advsearchform'].elements['startyear'].options[document.forms['advsearchform'].elements['startyear'].selectedIndex].value,document.forms['advsearchform'].elements['startmonth'].options[document.forms['advsearchform'].elements['startmonth'].selectedIndex].value,document.forms['advsearchform'].elements['startday'].options[document.forms['advsearchform'].elements['startday'].selectedIndex].value,'change_startdate','popup_calendar',-175,20);" title="gettext('calendar')"><tmpl_if use_texticon>gettext('calendar')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_calendar escape="html">" class="iconset_small" alt="gettext('calendar')"></tmpl_if></a>
+        </div>
+
+        <div class="searchRange">
+          gettext('Quick Range:')
+          <select name="daterange" onchange="setdaterange(this.value)">
+          <tmpl_loop daterange>
+            <tmpl_if option_all><option value="all" <tmpl_if selected>selected</tmpl_if>>gettext('All')</option></tmpl_if>
+              <tmpl_if option_today><option value="today" <tmpl_if selected>selected</tmpl_if>>gettext('Today')</option></tmpl_if>
+              <tmpl_if option_oneweek><option value="oneweek" <tmpl_if selected>selected</tmpl_if>>gettext('Past week')</option></tmpl_if>
+              <tmpl_if option_twoweeks><option value="twoweeks" <tmpl_if selected>selected</tmpl_if>>gettext('Past two weeks')</option></tmpl_if>
+              <tmpl_if option_onemonth><option value="onemonth" <tmpl_if selected>selected</tmpl_if>>gettext('Past month')</option></tmpl_if>
+              <tmpl_if option_threemonths><option value="threemonths" <tmpl_if selected>selected</tmpl_if>>gettext('Past three months')</option></tmpl_if>
+              <tmpl_if option_sixmonths><option value="sixmonths" <tmpl_if selected>selected</tmpl_if>>gettext('Past six months')</option></tmpl_if>
+              <tmpl_if option_oneyear><option value="oneyear" <tmpl_if selected>selected</tmpl_if>>gettext('Past year')</option></tmpl_if>
+          </tmpl_loop>
+          </select>
+        </div>
+      </div>
+    </div>
+    <!-- /Search range -->
+
+    <!-- Search options -->
+    <table class="contentbox">
+      <tr class="contentboxtitle">
+        <th id="advSearch">gettext('Search')</th>
+        <th id="advSearchType">gettext('Search Type')</th>
+        <th id="advSearchString">gettext('Search Text')</th>
+        <th id="advSearchLines">gettext('Result Lines:')</th>
+      </tr>
+      <tr class="contentboxdata">
+        <tmpl_loop filtersloop>
+        <tr>
+          <td class="windowlight">
+            <select name="where_<tmpl_var row escape="html">">
+            <tmpl_loop whereloop>
+              <tmpl_if option_from><option value="from" <tmpl_if selected>selected</tmpl_if>>gettext('From')</option></tmpl_if>
+              <tmpl_if option_to><option value="to" <tmpl_if selected>selected</tmpl_if>>gettext('To')</option></tmpl_if>
+              <tmpl_if option_subject><option value="subject" <tmpl_if selected>selected</tmpl_if>>gettext('Subject')</option></tmpl_if>
+              <tmpl_if option_date><option value="date" <tmpl_if selected>selected</tmpl_if>>gettext('Date')</option></tmpl_if>
+              <tmpl_if option_attfilename><option value="attfilename" <tmpl_if selected>selected</tmpl_if>>gettext('Attachment Filename')</option></tmpl_if>
+              <tmpl_if option_header><option value="header" <tmpl_if selected>selected</tmpl_if>>gettext('Header')</option></tmpl_if>
+              <tmpl_if option_textcontent><option value="textcontent" <tmpl_if selected>selected</tmpl_if>>gettext('Text Content')</option></tmpl_if>
+              <tmpl_if option_all><option value="all" <tmpl_if selected>selected</tmpl_if>>gettext('All')</option></tmpl_if>
+            </tmpl_loop>
+            </select>
+          </td>
+          <td class="windowlight">
+            <select name="type_<tmpl_var row escape="html">">
+            <tmpl_loop typeloop>
+              <tmpl_if option_contains><option value="contains" <tmpl_if selected>selected</tmpl_if>>gettext('contains')</option></tmpl_if>
+              <tmpl_if option_notcontains><option value="notcontains" <tmpl_if selected>selected</tmpl_if>>gettext('does not contain')</option></tmpl_if>
+              <tmpl_if option_is><option value="is" <tmpl_if selected>selected</tmpl_if>>gettext('is')</option></tmpl_if>
+              <tmpl_if option_isnot><option value="isnot" <tmpl_if selected>selected</tmpl_if>>gettext('is not')</option></tmpl_if>
+              <tmpl_if option_startswith><option value="startswith" <tmpl_if selected>selected</tmpl_if>>gettext('starts with')</option></tmpl_if>
+              <tmpl_if option_endswith><option value="endswith" <tmpl_if selected>selected</tmpl_if>>gettext('ends with')</option></tmpl_if>
+              <tmpl_if option_regexp><option value="regexp" <tmpl_if selected>selected</tmpl_if>>gettext('matches regular expression')</option></tmpl_if>
+            </tmpl_loop>
+          </select>
+          </td>
+          <td class="windowlight searchString">
+            <input type="text" name="searchtext_<tmpl_var row escape="html">" size="40" accesskey="<tmpl_var row escape="html">" value="<tmpl_var searchtext escape="html">">
+            <tmpl_unless lastrow>&nbsp;gettext('and')</tmpl_unless>
+          </td>
+        </tr>
+        </tmpl_loop>
+        <tr>
+          <td class="windowlight" colspan="3">&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="windowlight" colspan="3">
+            gettext('Result Lines:')&nbsp;<input type="text" name="resultlines" value="<tmpl_var resultlines escape="html">" size="5" accesskey="L">
+            <input type="submit" name="search" value="gettext('Search')" accesskey="S" class="medtext">
+          </td>
+        </tr>
+      </tr>
+    </table>
+    <!-- /Search options -->
+
+    <!-- Search results -->
+    <tmpl_if resultsloop>
+    <div id="searchResults">
+      gettext('Search Results:') <tmpl_var totalfoundstring escape="html"> (<tmpl_var totalsize escape="html">)
+      <tmpl_if showall><a href="javascript:void(0);" onclick="document.advsearchform.resultlines.value=<tmpl_var totalfound escape="js">; document.advsearchform.search.click();">gettext('Show all results')</a></tmpl_if>
+    </div>
+    </tmpl_if>
+
+    <table class="contentbox">
+      <tr class="contentboxtitle">
+        <th>gettext('Folder')</th>
+        <th>gettext('Date')</th>
+        <th>gettext('Sender')</th>
+        <th>gettext('Recipient')</th>
+        <th>gettext('Subject')</th>
+        <th>gettext('Size')</th>
+      </tr>
+
+      <tr class="contentboxdata">
+        <tmpl_if resultsloop>
+        <tmpl_loop resultsloop>
+        <tr>
+          <td nowrap class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"><tmpl_if is_defaultfolder><tmpl_if foldername_INBOX>gettext('Inbox')</tmpl_if><tmpl_if foldername_saved-messages>gettext('Saved')</tmpl_if><tmpl_if foldername_sent-mail>gettext('Sent')</tmpl_if><tmpl_if foldername_saved-drafts>gettext('Draft')</tmpl_if><tmpl_if foldername_mail-trash>gettext('Trash')</tmpl_if><tmpl_if foldername_spam-mail>gettext('Spam')</tmpl_if><tmpl_if foldername_virus-mail>gettext('Virus')</tmpl_if><tmpl_else><tmpl_var foldername escape="html"></tmpl_if>&nbsp;</td>
+          <td nowrap class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"><tmpl_var date escape="html">&nbsp;</td>
+          <td nowrap class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">
+          <tmpl_if useminisearchicon><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;searchtype=from&amp;keyword=<tmpl_var from_address escape="url">" class="icon" title="gettext('search for messages from <tmpl_var from_address escape="html">')"><tmpl_if use_texticon>gettext('search')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_minisearch escape="html">" class="iconset_small" alt="gettext('search')"></tmpl_if></a></tmpl_if><tmpl_if from_xowmuid><a href="javascript:void(0);" onclick="javascript:event.stopPropagation ? event.stopPropagation() : event.cancelBubble=true; popupContact(this, 'popup_contact', 50, -25, '<tmpl_var url_cgi escape="none">/openwebmail-abook.pl?action=addrcardview&amp;rootxowmuid=<tmpl_var from_xowmuid escape="url">&amp;editformcaller=listmessages&amp;abookkeyword=&amp;abooksearchtype=&amp;abookfolder=&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">')" class="icon" title="gettext('contact details')"><tmpl_if use_texticon>gettext('addressbook search')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_contact escape="html">" class="iconset_small" alt="gettext('contact details')"></tmpl_if></a>
+          </tmpl_if>
+
+          <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=sendto&amp;to=<tmpl_var from escape="url">&amp;abookkeyword=&amp;abooksearchtype=&amp;abookfolder=&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('compose message to <tmpl_var from_address escape="html">')"><tmpl_var from_name escape="html">&nbsp;</a>
+          </td>
+          <td nowrap class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">
+          <a href="<tmpl_var url_cgi escape="none">/openwebmail-send.pl?action=compose&amp;composetype=sendto&amp;to=<tmpl_var to escape="url">&amp;abookkeyword=&amp;abooksearchtype=&amp;abookfolder=&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;page=<tmpl_var page escape="url">&amp;longpage=<tmpl_var longpage escape="url">&amp;searchtype=<tmpl_var searchtype escape="url">&amp;keyword=<tmpl_var keyword escape="url">" title="gettext('compose message to <tmpl_var to_address escape="html">')"><tmpl_var to_name escape="html">&nbsp;</a>
+          </td>
+          <td nowrap class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>">
+          <tmpl_if useminisearchicon><a href="<tmpl_var url_cgi escape="none">/openwebmail-main.pl?action=listmessages&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;sort=<tmpl_var sort escape="url">&amp;msgdatetype=<tmpl_var msgdatetype escape="url">&amp;searchtype=subject&amp;keyword=<tmpl_var subject_keyword escape="url">" class="icon" title="gettext('search for messages with this subject')"><tmpl_if use_texticon>gettext('search')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_minisearch escape="html">" class="iconset_small" alt="gettext('search')"></tmpl_if></a></tmpl_if>
+          <a href="<tmpl_var url_cgi escape="none">/openwebmail-read.pl?action=readmessage&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">&amp;headers=<tmpl_var headers escape="url">&amp;message_id=<tmpl_var message_id escape="url">" title="gettext('character set: <tmpl_var messagecharset escape="html">')"><tmpl_if subject><tmpl_var subject escape="html"><tmpl_else>gettext('(no subject)')</tmpl_if>&nbsp;</a>
+          </td>
+          <td nowrap class="<tmpl_if odd>rowlight<tmpl_else>rowdark</tmpl_if>"><tmpl_var size escape="html">&nbsp;</td>
+        </tr>
+        </tmpl_loop>
+        <tmpl_else>
+        <tr>
+          <div id="noSearchResults"><tmpl_if numberselectedfolders>gettext('No results match your search.')<tmpl_else>gettext('Please select a folder to search from above.')</tmpl_if></div>
+        </tr>
+        </tmpl_if>
+      </tr>
+    </table>
+    <!-- /Search results -->
+  </form>
+  </div> <!-- #content end -->
+
+  <div id="popup_calendar"></div>
+  <div id="popup_contact"></div>
+
+  <script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_base.js"></script>
+  <script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_calendar.js"></script>
+  <script type="text/javascript" src="<tmpl_var url_html escape="none">/javascript/popup_contact.js"></script>
+
+  <script type="text/javascript">
+  <!--
+  // popup_calendar.js language and preferences
+  var wStart     = <tmpl_var weekstart escape="js">;
+  var wDay       = new Array('jgettext('Sunday')','jgettext('Monday')','jgettext('Tuesday')','jgettext('Wednesday')','jgettext('Thursday')','jgettext('Friday')','jgettext('Saturday')');
+  var wDayAbbrev = new Array(gettext(''S','M','T','W','T','F','S''));
+  var wMonth     = new Array('jgettext('January')','jgettext('February')','jgettext('March')','jgettext('April')','jgettext('May')','jgettext('June')','jgettext('July')','jgettext('August')','jgettext('September')','jgettext('October')','jgettext('November')','jgettext('December')');
+  var wOrder     = new Array('jgettext('1st')','jgettext('2nd')','jgettext('3rd')','jgettext('4th')','jgettext('last')');
+
+  function checkallfolders() {
+     for (var i = 0; i < document.advsearchform.folders.length; i++) {
+      var e = document.advsearchform.folders[i];
+      if (e.type == 'checkbox' && e.name != 'allbox') {
+       e.checked = document.advsearchform.allbox.checked;
+      }
+     }
+  }
+
+  function change_startdate(year,month,day) {
+  // called when a date is selected in the startdate calPopup
+  document.forms['advsearchform'].elements['startyear'].selectedIndex  = year - <tmpl_var min_year escape="js">;
+  document.forms['advsearchform'].elements['startmonth'].selectedIndex = month - 1;
+  document.forms['advsearchform'].elements['startday'].selectedIndex   = day - 1;
+  }
+
+  function change_enddate(year,month,day) {
+  // called when a date is selected in the enddate calPopup
+  document.forms['advsearchform'].elements['endyear'].selectedIndex  = year - <tmpl_var min_year escape="js">;
+  document.forms['advsearchform'].elements['endmonth'].selectedIndex = month - 1;
+  document.forms['advsearchform'].elements['endday'].selectedIndex   = day - 1;
+  }
+
+  function setdaterange(range) {
+     var startdate = new Date();
+     var enddate   = new Date();
+
+     // the javascript Date object automatically resolves date math
+     // and outputs the correct year, month, and day
+     if (range == 'today') {
+      // nothing to do
+     } else if (range == 'oneweek') {
+      startdate.setDate(startdate.getDate() - 7);
+     } else if (range == 'twoweeks') {
+      startdate.setDate(startdate.getDate() - 14);
+     } else if (range == 'onemonth') {
+      startdate.setMonth(startdate.getMonth() - 1, startdate.getDate());
+     } else if (range == 'threemonths') {
+      startdate.setMonth(startdate.getMonth() - 3, startdate.getDate());
+     } else if (range == 'sixmonths') {
+      startdate.setMonth(startdate.getMonth() - 6, startdate.getDate());
+     } else if (range == 'oneyear') {
+      startdate.setMonth(startdate.getMonth() - 12, startdate.getDate());
+     } else {
+      startdate.setFullYear(startdate.getFullYear() - 30, startdate.getMonth(), startdate.getDate());
+     }
+
+     change_startdate(startdate.getFullYear(), startdate.getMonth() + 1, startdate.getDate());
+     change_enddate(enddate.getFullYear(), enddate.getMonth() + 1, enddate.getDate());
+  }
+  //-->
+  </script>
+
+<tmpl_var footer_template escape="none">

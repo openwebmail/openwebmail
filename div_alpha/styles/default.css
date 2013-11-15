@@ -1,0 +1,267 @@
+/*
+font-size is inherited from the body tag in header.tmpl, which is
+set by the user - please do not set the body font-size here
+*/
+
+/* testing */
+.contentbox { border: solid 4px red; background-color:rgba(255, 0, 0, 0.15); margin: 0 0 10px 0; }
+.contentboxtitle { border: solid 4px yellow; background-color:rgba(255, 255, 255, 0.35); font: bold 15px "Helvetica Neue",Arial,sans-serif}
+.contentboxdata { border: solid 4px blue; background-color:rgba(0, 0, 255, 0.15)}
+
+/* global */
+html, body {
+   height: 100%;
+}
+
+body {
+   margin: 0;
+   padding: 0;
+   background-color: #6483bd;
+   color: #000;
+   font: 15px "Helvetica Neue",Arial,sans-serif;
+}
+
+div#wrapper {
+   min-height: 100%;
+   background: #6483bd url("../images/bg-radial.jpg") no-repeat center center fixed;
+}
+
+table.contentbox {
+   width: 100%;
+   border-spacing: 0;
+}
+
+input.text, input.password_text, input.password, select {
+   padding: 9px 7px 10px 7px;
+   border: medium none;
+   border-radius: 4px;
+   box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2) inset;
+   font: 15px "Helvetica Neue",Arial,sans-serif;
+}
+
+input.password_text {
+   display: none;
+}
+
+th, th a, th a img {
+   background: #000;
+   color: white;
+   font-weight: bold;
+   font-variant: small-caps;
+   text-decoration: none;
+   line-height: 20px;
+   vertical-align: middle;
+   text-align: left;
+   padding-left: 5px;
+}
+
+th a:hover {
+   color: #ff0;
+}
+
+tr.rowlight, tr.rowlight a {
+   background: #ccc;
+}
+
+tr.rowdark {
+   background: #666;
+}
+
+tr.rowhilite {
+   background: #f99;
+}
+
+div.dropdown select {
+   background: transparent;
+   width: 110%;
+   height: 36px;
+   color: #666;
+   border-radius: 4px;
+   font: 15px "Helvetica Neue",Arial,sans-serif;
+   -webkit-appearance: none;
+}
+
+div.dropdown {
+   width: 90%;
+   height: 36px;
+   margin: 10px auto 0 auto;
+   border-radius: 4px;
+   box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2) inset;
+   background: url(../images/dropdownarrow.png) no-repeat 95% #fff;
+   overflow: hidden;
+}
+
+
+/* login styles */
+div#loginlogo {
+   margin: 0 auto 0 auto;
+   padding: 15px 7px 20px 7px;
+   width: 290px;
+   text-align: center;
+}
+
+div#loginlogo a img {
+   text-align: center;
+}
+
+div#loginbox {
+   margin: 0 auto 0 auto;
+   text-align: center;
+   width: 290px;
+   border-radius: 4px 4px 8px 8px;
+   background: #ccc;
+}
+
+div#loginboxtitle {
+   padding: 2px 0 4px 8px;
+   text-align: left;
+   border-radius: 4px 4px 0 0;
+   background: transparent url("../images/bg-titleblue.gif") repeat top left scroll;
+   color: #fff;
+   font: bold 19px "Helvetica Neue",Arial,sans-serif;
+   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+}
+
+div.loginfield input {
+   margin: 10px 0 0 0;
+   width: 85%;
+}
+
+div#loginoptions {
+   margin: 10px 0px 0px 0px;
+}
+
+div#loginoptions label {
+   font: 11px "Helvetica Neue",Arial,sans-serif;
+   color: #333;
+}
+
+div#loginsubmit input {
+   margin: 12px 0px 14px 0px;
+   padding: 4px 8px 6px 8px;
+   background: transparent url("../images/bg-button.png") repeat-x bottom left scroll;
+   border: medium none;
+   border-radius: 5px 5px 5px 5px;
+   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+   font: bold 16px "Helvetica Neue",Arial,sans-serif;
+   color: #333;
+   text-shadow: 0 1px 0 #fff;
+   cursor: pointer;
+}
+
+/* main styles */
+div.paginator div.left div.previouspage,
+div.paginator div.left div.currentpage,
+div.paginator div.left div.nextpage {
+   float: left;
+   font-weight: bold;
+}
+
+div.contentbox {
+   float: left;
+   width: 100%;
+}
+
+div.contentbox div.left {
+   float: left;
+   width: 40%;
+}
+div.contentbox div.center {
+   float: left;
+   width: 18%;
+   text-align: center;
+}
+
+div.contentbox div.right {
+   float: right;
+   width: 40%;
+   text-align: right;
+}
+
+ul#navigation {
+   margin: 0;
+   padding: 0 0 0 5px;
+   border-radius: 6px;
+   background-color: #99f;
+   width: 40%;
+}
+
+ul#navigation li {
+   display: inline;
+   list-style-type: none;
+   padding: 0;
+   margin: 0;
+}
+
+/* footer styles */
+div#footer {
+   margin: 0 auto 0 auto;
+   padding: 15px;
+   width: 275px;
+   overflow:auto;
+   font: 14px "Helvetica Neue",Arial,sans-serif;
+}
+
+div#footer div#version {
+   float: left;
+   color: #333;
+}
+
+div#footer div#help {
+   float: right;
+   color: #333;
+}
+
+div#footer div#version a, div#footer div#help a {
+   color: #333;
+   text-decoration: none;
+}
+
+div#footer div#version a:hover, div#footer div#help a:hover {
+   color: #fff;
+}
+
+#popup_calendar {
+   position: absolute;
+   visibility: hidden;
+}
+
+/*
+.stylecal { font-size: 90%; color: #000000; }
+td.todayhilite { background-color: #f89090; font-weight: bold; border: solid 1px #da5d5d; }
+a.notmonth:link { font-size: 90%; color: #cccccc; }
+a.notmonth:visited { font-size: 90%; color: #cccccc; }
+a.notmonth:hover { font-size: 90%; color: #ff0000; }
+a.stylecal:link { font-size: 90%; color: #000000; }
+a.stylecal:visited { font-size: 90%; color: #000000; }
+a.stylecal:hover { font-size: 90%; color: #ff0000; }
+*/
+
+#popup_note {
+   position: absolute;
+   visibility: hidden;
+}
+
+#popup_contact {
+   position: absolute;
+   visibility: hidden;
+}
+/*
+iframe.contact { border: 1px solid black; }
+*/
+
+#popup_autosuggest {
+   position: absolute;
+   visibility: hidden;
+}
+
+.suggest {
+   background-color: #f4f2ef;
+   padding: 0 2px 0 2px;
+}
+
+.suggesthilite {
+   background-color: #ffcccc;
+   padding: 0 2px 0 2px;
+}
+

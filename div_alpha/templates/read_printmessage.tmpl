@@ -1,0 +1,98 @@
+<tmpl_var header_template escape="none">
+
+<div id="wrapper">
+	<div id="content">
+		<tmpl_loop messagesloop>		
+		<div class="contentbox">
+			<div class="contentboxdata" id="printmessage">
+				<!-- HEADERS -->
+				<div class="messageheader">
+				    <span class="messageheaderproperty">gettext('Date:')</span>&nbsp;<tmpl_var date escape="html"><br>
+					<span class="messageheaderproperty">gettext('From:')</span>&nbsp;<tmpl_var from escape="html"><br>
+					<tmpl_if reply-to><span class="messageheaderproperty">gettext('Reply-To:')</span>&nbsp;<tmpl_var reply-to escape="html"><br></tmpl_if>
+					<tmpl_if to><span class="messageheaderproperty">gettext('To:')</span>&nbsp;<tmpl_var to escape="html"><br></tmpl_if>
+					<tmpl_if cc><span class="messageheaderproperty">gettext('Cc:')</span>&nbsp;<tmpl_var cc escape="html"><br></tmpl_if>
+					<tmpl_if bcc><span class="messageheaderproperty">gettext('Bcc:')</span>&nbsp;<tmpl_var bcc escape="html"><br></tmpl_if>
+					<span class="messageheaderproperty">gettext('Subject:')</span>&nbsp;<tmpl_if subject><tmpl_var subject escape="html"><tmpl_else>gettext('(no subject)')</tmpl_if>
+
+					<tmpl_if status_important>&nbsp;<a title="gettext('important')"><tmpl_if use_texticon>gettext('important')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_important escape="html">" class="iconset_small" alt="gettext('important')"></tmpl_if></a></tmpl_if><tmpl_if status_answered>&nbsp;<a title="gettext('answered')"><tmpl_if use_texticon>gettext('answered')<tmpl_else><img src="<tmpl_var url_html escape="none">/images/iconsets/<tmpl_var iconset escape="html">/<tmpl_var iconset_small_readreplied escape="html">" class="iconset_small" alt="gettext('answered')"></tmpl_if></a></tmpl_if><br>
+				</div>
+				<!-- END HEADERS -->
+				
+				<!-- BODY -->
+				<tmpl_unless is_multipart>
+				<tmpl_var body escape="none">
+				</tmpl_unless>
+				<!-- END BODY -->
+
+				<!-- ATTACHMENTS -->
+				<tmpl_if attachment>
+				<tmpl_unless simpleattachments>
+				<hr>
+				</tmpl_unless>
+				</tmpl_if>
+
+				<tmpl_loop attachment>
+				<div class="messageattachment">
+					<tmpl_if is_html>
+					<tmpl_var r_content escape="none">
+					</tmpl_if>
+
+					<tmpl_if is_enriched>
+					<tmpl_var r_content escape="none">
+					</tmpl_if>
+
+					<tmpl_if is_text>
+					<tmpl_var r_content escape="none">
+					</tmpl_if>
+
+					<tmpl_if is_message>
+					<tmpl_var r_content escape="none">
+					</tmpl_if>
+
+					<tmpl_if is_image>
+					<div class="imageattachment">
+						<label>
+							gettext('Attachment') <a title="nodeid: <tmpl_var nodeid escape="html"> content-disposition: <tmpl_var content-disposition escape="html">"><tmpl_var attnumber escape="html"></a>: <tmpl_var filename escape="html">&nbsp;(<tmpl_var content-length escape="html">)
+						</label>
+    
+						<img src="<tmpl_var url_cgi escape="none">/openwebmail-viewatt.pl/<tmpl_var filename escape="url">?action=viewattachment&amp;attachment_nodeid=<tmpl_var nodeid escape="url">&amp;message_id=<tmpl_var messageid escape="url">&amp;sessionid=<tmpl_var sessionid escape="url">&amp;folder=<tmpl_var folder escape="url">" <tmpl_if imagewidth>width="<tmpl_var imagewidth escape="html">"</tmpl_if> <tmpl_if content-description>alt="<tmpl_var content-description escape="html">"</tmpl_if> class="attachment">      
+					</div>
+					</tmpl_if>
+
+					<tmpl_if is_misc>
+					<div class="miscattachment">
+						<label>
+							gettext('Attachment') <a title="nodeid: <tmpl_var nodeid escape="html"> content-disposition: <tmpl_var content-disposition escape="html">"><tmpl_var attnumber escape="html"></a>: <tmpl_var filename escape="html">&nbsp;(<tmpl_var content-length escape="html">)
+						</label>
+
+						<label>
+							gettext('Type:') <tmpl_var content-type escape="html"><br>gettext('Encoding:') <tmpl_var content-transfer-encoding escape="html"><tmpl_if content-description><br>gettext('Description:') <tmpl_var content-description escape="html"></tmpl_if></td>
+						<label>
+					</div>
+					</tmpl_if>
+				</div>
+				</tmpl_loop>
+				<!-- END ATTACHMENTS -->
+			</div>
+		</div>
+	</div> <!-- #content end -->
+
+	<script type="text/javascript">
+	<!--
+	/* 5 second delay for images to load or they will not have a width property */
+	setTimeout(autoresizeimages, 5000);
+
+	function autoresizeimages() {
+	   var userwidth = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+	   var ideal = Math.floor(userwidth * .80);
+	   for (var i=0; i<document.images.length; i++) {
+		  if (document.images[i].width > ideal) {
+			 document.images[i].width = ideal;
+		  }
+	   }
+	}
+
+	setTimeout("window.print()", 6000);
+	//-->
+</script>

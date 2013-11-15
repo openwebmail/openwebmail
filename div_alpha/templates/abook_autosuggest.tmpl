@@ -1,0 +1,7 @@
+<tmpl_if matchesloop>
+<div id="suggestions">
+  <tmpl_loop matchesloop>
+  <div class="suggest" onmouseover="highlight_suggestion(this);" onmouseout="this.className='suggest';" onclick="pick_suggestion('composeform', '<tmpl_var fieldname escape="js">', '<tmpl_var option_escaped escape="js">');"><tmpl_var option escape="html"></div>
+  </tmpl_loop>
+</div>
+</tmpl_if>

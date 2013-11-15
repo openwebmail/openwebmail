@@ -1,0 +1,140 @@
+<tmpl_var header_template escape="none">
+
+<form action="<tmpl_var url_cgi escape="none">/openwebmail-spell.pl" method="post" name="spellcheckform" id="spellcheckform">
+<input type="hidden" name="action" value="spellcheck">
+<input type="hidden" name="sessionid" value="<tmpl_var sessionid escape="html">">
+<input type="hidden" name="htmlmode" value="<tmpl_var htmlmode escape="html">">
+<input type="hidden" name="dictionary" value="<tmpl_var dictionary escape="html">">
+<tmpl_loop words>
+<tmpl_if is_subject>
+<input type="hidden" name="subjectwords" value="<tmpl_var word escape="html">">
+<tmpl_else>
+<input type="hidden" name="bodywords" value="<tmpl_var word escape="html">">
+</tmpl_if>
+</tmpl_loop>
+
+<div id="wrapper">
+	<div id="content">
+		<div class="contentbox">
+			<div class="titlebar">gettext('Spellcheck (<tmpl_var dictionary escape="html">)')</div>
+			
+			<div class="contenboxdata">
+				gettext('Misspelled words will appear with a pulldown list of suggested replacements. Choose one to replace the original word.<br><br>The user may also choose the "-- fix manually --" option, followed by clicking the [check again] button. A text field will appear for the user to manually input the correct spelling of the word.<br><br>The user may also choose the "-- add to personal dictionary --" option, followed by clicking the [check again] button. The original word will be added to the <a href="javascript:void(0);" onclick="window.open(&#39;<tmpl_var url_cgi escape="none">/openwebmail-spell.pl?editpdict=yes&amp;dictionary=<tmpl_var dictionary escape="js">&amp;sessionid=<tmpl_var sessionid escape="js">&#39;,&#39;_personaldict&#39;,&#39;width=300,height=350,resizable=yes,menubar=no,scrollbars=yes&#39;);" title="edit personal dictionary">user's personal dictionary</a> and will no longer be considered a misspelled word.')
+				
+				<div id="spellcheck_box">
+					<div id="spellchecksubject">
+						<div class="spellcheck_box_title">gettext('Message Subject')</div>
+						
+						<tmpl_loop words>
+						
+						<tmpl_if is_subject>
+						
+						<tmpl_if ignore>
+						
+						<tmpl_unless is_tag>
+						<tmpl_var displayword escape="none">
+						</tmpl_unless>
+						
+						<tmpl_else>
+						
+						<tmpl_if misspelled>
+						
+						<tmpl_if alreadychecked>
+						
+						<span class="alreadychecked"><tmpl_var displayword escape="none"></span>
+						
+						<tmpl_else>
+						
+						<tmpl_if manualfix>
+						<input class="misspelled" type="text" size="<tmpl_var manualwordlength escape="html">" name="<tmpl_var wordnumber escape="html">" value="<tmpl_var manualword escape="html">">
+						<tmpl_else>
+						
+						<select class="misspelled" size="1" name="<tmpl_var wordnumber escape="html">">
+							<option><tmpl_var word escape="html"></option>
+							<option value="-- add to personal dictionary --">gettext('-- add to personal dictionary --')</option>
+							<option value="-- fix manually --">gettext('-- fix manually --')</option>
+							<tmpl_loop suggestionsloop>
+							<option><tmpl_var suggestion escape="html"></option>
+							</tmpl_loop>
+						</select>
+						</tmpl_if>
+						
+						</tmpl_if>
+						
+						<tmpl_else>
+						<tmpl_var displayword escape="none">
+						</tmpl_if>
+						
+						</tmpl_if>
+						
+						</tmpl_if>
+						
+						</tmpl_loop>
+					</div>
+					
+					<div id="spellcheckbody">
+						<div class="spellcheck_box_title">gettext('Message Body')</div>
+						
+						<tmpl_loop words>
+						
+						<tmpl_unless is_subject>
+						
+						<tmpl_if ignore>
+						
+						<tmpl_unless is_tag>
+						<tmpl_var displayword escape="none">
+						</tmpl_unless>
+						
+						<tmpl_else>
+						
+						<tmpl_if misspelled>
+						
+						<tmpl_if alreadychecked>
+						<span class="alreadychecked"><tmpl_var displayword escape="none"></span>
+						<tmpl_else>
+						
+						<tmpl_if manualfix>
+						<input class="misspelled" type="text" size="<tmpl_var manualwordlength escape="html">" name="<tmpl_var wordnumber escape="html">" value="<tmpl_var manualword escape="html">">
+						<tmpl_else>
+						<select class="misspelled" size="1" name="<tmpl_var wordnumber escape="html">">
+							<option><tmpl_var word escape="html"></option>
+							<option value="-- add to personal dictionary --">gettext('-- add to personal dictionary --')</option>
+							<option value="-- fix manually --">gettext('-- fix manually --')</option>
+							<tmpl_loop suggestionsloop>
+							<option><tmpl_var suggestion escape="html"></option>
+							</tmpl_loop>
+						</select>
+						</tmpl_if>
+						
+						</tmpl_if>
+						
+						<tmpl_else>
+						<tmpl_var displayword escape="none">
+						</tmpl_if>
+						
+						</tmpl_if>
+						
+						</tmpl_unless>
+						
+						</tmpl_loop>
+					</div>
+				</div>		
+
+				<div class="spellcheck_submit">
+					<input type="submit" name="finish" value="gettext('done')">
+					<input type="submit" name="checkagain" value="gettext('check again')">
+					<input type="button" name="cancel" value="gettext('cancel')" onclick="window.close();">
+				</div>
+				
+				</form>
+			</div>
+		</div>
+	</div> <!-- #content end -->
+
+	<script type="text/javascript">
+	<!--
+	   self.focus();
+	//-->
+	</script>
+
+<tmpl_var footer_template escape="none">
