@@ -53,6 +53,7 @@ iconset_button_folder			icons/folder.png
 iconset_button_forward			owm/forward.png
 iconset_button_forwardasatt		owm/forwardasatt.png
 iconset_button_forwardasorig		owm/forwardasorig.png
+iconset_button_help                     icons/help.png
 iconset_button_history			icons/script.png
 iconset_button_home			icons/house.png
 iconset_button_info			icons/information.png
