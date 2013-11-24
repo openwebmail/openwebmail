@@ -5,7 +5,7 @@
 # git clone http://github.com/openwebmail/openwebmail.git openwebmail-current
 
 cd cgi-bin/openwebmail
-foreach DIR (etc/sites.conf etc/users.conf etc/defaults etc/templates etc/styles etc/holidays etc/maps misc)
+foreach DIR (etc/sites.conf etc/users.conf etc/defaults etc/holidays etc/maps misc)
    chown -vR 0:0 $DIR
    chmod -vR 644 $DIR
    find $DIR -type d -exec chmod -v 755 {} \;
