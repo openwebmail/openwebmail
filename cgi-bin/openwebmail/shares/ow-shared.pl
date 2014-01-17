@@ -513,12 +513,6 @@ $htmltemplatefilters = [
                             format => 'scalar' },
                        ];
 
-# preload the configuration for this site and language to support
-# error messages before openwebmail_requestbegin or in openwebmail-tool.pl
-load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
-read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if -f "$SCRIPT_DIR/etc/openwebmail.conf";
-$po = loadlang($config{default_locale});
-
 sub openwebmail_requestbegin {
    # routine used at the beginning of every CGI request
    # init euid/egid to nobody to drop uid www as early as possible
@@ -550,11 +544,14 @@ sub openwebmail_requestbegin {
    $SIG{PIPE} = \&openwebmail_exit;       # for user stop
    $SIG{TERM} = \&openwebmail_exit;       # for user stop
 
+   # load en_US.UTF-8 first so we can output error messages if the config loading fails
+   $po = loadlang();
+
    # load the configuration for this site
    load_owconf(\%config_raw, "$SCRIPT_DIR/etc/defaults/openwebmail.conf");
    read_owconf(\%config, \%config_raw, "$SCRIPT_DIR/etc/openwebmail.conf") if -f "$SCRIPT_DIR/etc/openwebmail.conf";
 
-   # load the default locale language strings
+   # load the configuration default locale language strings
    $po = loadlang($config{default_locale});
 }
 
@@ -875,7 +872,7 @@ sub _load_owconf {
    # load ow conf file into a new hash, return ref of the new hash
    # so the hash can be cached to speedup later access
    my $configfile = shift;
-   openwebmailerror(gettext('Invalid path for configuation file:') . " $configfile") if $configfile =~ m/\.\./;
+   openwebmailerror(gettext('Invalid path for configuration file:') . " $configfile") if $configfile =~ m/\.\./;
 
    my %conf = ();
    my ($ret, $err) = ow::tool::load_configfile($configfile, \%conf);
@@ -1159,7 +1156,7 @@ sub get_template {
             -f $templatefile
             ? $templatefile
             : $templatename eq 'shared_error.tmpl'
-              ? die "$config{ow_layoutsdir}/$layout/templates/$templatename does not exist. No error messages can be displayed."
+              ? die "FATAL: $config{ow_layoutsdir}/$layout/templates/$templatename does not exist. Is the ow_htmldir setting in openwebmail.conf correct?\n"
               : openwebmailerror(gettext('The requested template file does not exist:') . " $templatefile ($!)")
           );
 }
@@ -2713,10 +2710,14 @@ sub mbsubstr {
 sub loadlang {
    my $localename = shift;
 
-   if (-f "$config{ow_langdir}/$localename.po") {
+   if (defined $localename && -f "$config{ow_langdir}/$localename.po") {
       return OWM::PO->new(file => "$config{ow_langdir}/$localename.po");
    } else {
-      return OWM::PO->new(file => "$config{ow_langdir}/en_US.UTF-8.po");
+      if (exists $config{ow_langdir} && defined $config{ow_langdir}) {
+         return OWM::PO->new(file => "$config{ow_langdir}/en_US.UTF-8.po");
+      } else {
+         return OWM::PO->new(file => "$SCRIPT_DIR/etc/lang/en_US.UTF-8.po");
+      }
    }
 }
 
