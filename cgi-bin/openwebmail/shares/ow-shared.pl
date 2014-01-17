@@ -2786,7 +2786,7 @@ sub ngettext { defined $po->msgstr($_[0], $_[-1]) ? $po->msgstr($_[0], $_[-1]) :
 
 sub openwebmail_exit {
    openwebmail_requestend();
-   my $exitcode = shift;
+   my $exitcode = shift || 0;
    $exitcode = 1 if $exitcode !~ m/^\d+$/; # user stop (PIPE or TERM)
    exit $exitcode;
 }

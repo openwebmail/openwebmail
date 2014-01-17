@@ -155,6 +155,8 @@ if (defined $ARGV[0] && $ARGV[0] eq '--') {
    for (my $i=0; $i<=$#ARGV; $i++) {
       if ($ARGV[$i] eq "--init") {
          $opt{'init'}=1;
+      } elsif ($ARGV[$i] eq "--uninit") {
+         $opt{'uninit'}=1;
       } elsif ($ARGV[$i] eq "--test" || $ARGV[$i] eq "-w") {
          $opt{'test'}=1;
       } elsif ($ARGV[$i] eq "--yes" || $ARGV[$i] eq "-y") {
@@ -269,6 +271,8 @@ writelog("debug_request :: request tool begin, argv=" . join(' ', @ARGV)) if $co
 my $retval=0;
 if ($opt{'init'}) {
    $retval=init();
+} elsif ($opt{'uninit'}) {
+   $retval=uninit();
 } elsif ($opt{'test'}) {
    $retval=do_test();
 } elsif ($opt{'thumbnail'}) {
@@ -342,6 +346,7 @@ mail/calendar options:
 
 miscellanous options:
  --init        \t create the initial files and directories needed for openwebmail to operate
+ --uninit      \t remove the initial files and directories needed for openwebmail to operate
  -w, --test    \t run openwebmail-tool but don't write any files or make changes
 
 ps: <folder> can be INBOX, ALL or folder filename
@@ -488,6 +493,55 @@ sub init {
          qq|http://www.ohloh.net/p/openwebmail\n\n| .
          qq|Thank you.\n\n|;
    return 0;
+}
+
+sub uninit {
+   # put openwebmail back to its initial state
+   # this is intended for developers who need to set things
+   # back to default before they commit code back to git
+
+   # put dot files back to non-dot names
+   if ($] gt "5.011005") {
+      opendir(DIR, $SCRIPT_DIR) or die "Cannot open directory: $SCRIPT_DIR";
+      my @dotfiles = grep { -f "$SCRIPT_DIR/$_" && m/^\.openwebmail.*\.pl$/ } readdir(DIR);
+      closedir(DIR) or die "Cannot close directory: $SCRIPT_DIR";
+
+      chdir($SCRIPT_DIR) or die "Cannot change directory to: $SCRIPT_DIR";
+
+      foreach my $dotfile (@dotfiles) {
+         $dotfile = ow::tool::untaint($dotfile);
+
+         my ($file) = $dotfile =~ m/^\.(openwebmail.*\.pl$)/;
+
+         print "moving $dotfile -> $file...";
+         rename($dotfile,$file) or die "Cannot rename $dotfile to $file";
+         print "done\n";
+      }
+
+      print "\n";
+   }
+
+   # remove db files
+   foreach my $table ('b2g', 'g2b', 'lunar') {
+      if ( $config{$table.'_map'} ) {
+         my $tabledb = "$config{ow_mapsdir}/$table";
+         if (ow::dbm::existdb($tabledb)) {
+            ow::dbm::unlinkdb($tabledb);
+            print "delete db $tabledb\n";
+         }
+      }
+   }
+
+   # remove virtusertable maps
+   opendir(DIR, $config{ow_mapsdir}) or die "Cannot open directory: $config{ow_mapsdir}";
+   my @virtdbs = sort grep { -f "$config{ow_mapsdir}/$_" && m/^.*virtusertable.*\.db$/ } readdir(DIR);
+   closedir(DIR) or die "Cannot close directory: $config{ow_mapsdir}";
+
+   foreach my $virtdb (@virtdbs) {
+      $virtdb = ow::tool::untaint("$config{ow_mapsdir}/$virtdb");
+      print "delete db $virtdb\n";
+      unlink($virtdb) or die "Cannot unlink file: $virtdb";
+   }
 }
 
 sub do_test {
