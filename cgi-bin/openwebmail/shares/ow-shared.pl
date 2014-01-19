@@ -1,7 +1,7 @@
 
 #                              The BSD License
 #
-#  Copyright (c) 2009-2013, The OpenWebMail Project
+#  Copyright (c) 2009-2014, The OpenWebMail Project
 #  All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -922,9 +922,6 @@ sub _load_owconf {
                          map  => \%equiv,     # src -> dst
                          list => \%equivlist, # dst <= srclist
                       };
-      } elsif ($key eq 'revision') {
-         # convert the SVN revision to only a number
-         $conf{$key} =~ s#[^\d]+##g;
       } elsif ($is_config_option{list}{$lckey}){
          my $value = $conf{$key};
          $value =~ s/\s//g;
