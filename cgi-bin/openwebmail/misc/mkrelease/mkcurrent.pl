@@ -13,7 +13,6 @@ use vars qw($global $option);
 
 die "Present working directory is undefined.\n" unless defined $ENV{PWD} && -d $ENV{PWD};
 die "This script must be run as root (su -)... quitting.\n" unless defined $ENV{USER} && $ENV{USER} eq 'root';
-die "Please remove the openwebmail-current directory before running this script.\n" if -d 'openwebmail-current';
 
 #===================
 # Set Global Options
@@ -21,8 +20,8 @@ die "Please remove the openwebmail-current directory before running this script.
 $global = {
              programname => File::Basename::basename($0,(qw(.pl .exe))),
              version     => 20101112,
-             svnserver   => 'http://openwebmail.acatysmoof.com/svn/trunk/src',
-             svn         => '/usr/local/bin/svn',
+             gitrepo     => 'http://github.com/openwebmail/openwebmail.git',
+             git         => '/usr/local/bin/git',
              tar         => '/usr/bin/tar',
              msgen       => '/usr/local/bin/msgen',
              msgmerge    => '/usr/local/bin/msgmerge',
@@ -53,7 +52,7 @@ if ($result == 0) {
 }
 
 # sanity check global config and options
-die "The svn command cannot be executed.\n" unless -x $global->{svn};
+die "The git command cannot be executed.\n" unless -x $global->{git};
 die "The tar command cannot be executed.\n" unless -x $global->{tar};
 die "The msgen command cannot be executed.\n" unless -x $global->{msgen};
 die "The msgmerge command cannot be executed.\n" unless -x $global->{msgmerge};
@@ -63,22 +62,23 @@ die "The java command cannot be executed.\n" unless -x $global->{java};
 die "The md5 command cannot be executed.\n" unless -x $global->{md5};
 die "The rm command cannot be executed.\n" unless -x $global->{rm};
 
-# get the revision number currently at the HEAD of SVN
-my $svninfo = `$global->{svn} info $global->{svnserver} --revision HEAD`;
-die "Cannot get SVN info ($!).\n" unless defined $svninfo && $svninfo;
+# get the revision number currently at the HEAD of the repo
+my $gitinfo = `$global->{git} ls-remote --heads $global->{gitrepo}`;
+die "Cannot get git info ($!).\n" unless defined $gitinfo && $gitinfo;
 
-my ($revisionhead) = $svninfo =~ m#Last Changed Rev: (\d+)#igs;
-die "Cannot determine the HEAD revision number from SVN.\n" unless defined $revisionhead;
+my ($revisionhead) = $gitinfo =~ m#(\S{7})\S+?\s+refs/heads/master#igs;
+print "$gitinfo\n\n$revisionhead\n\n";
+die "Cannot determine the HEAD revision SHA1 from repository.\n" unless defined $revisionhead;
 
 # get revision information for an existing -current tarball to determine if we need to update
 my $revisioncurrent = 0;
 if (-f 'openwebmail-current.tar.gz') {
    my $openwebmailconf = `$global->{tar} -xzOf openwebmail-current.tar.gz cgi-bin/openwebmail/etc/defaults/openwebmail.conf`;
-   $revisioncurrent = $1 if $openwebmailconf =~ m#revision\s+(\d+)#igs;
+   $revisioncurrent = $1 if $openwebmailconf =~ m#revision\s+(\S{1,7})#igs;
 }
 
 # do we need to update?
-die "Current revision ($revisioncurrent) == HEAD revision ($revisionhead) :: No update required.\n" if $revisioncurrent >= $revisionhead;
+die "Current revision ($revisioncurrent) == HEAD revision ($revisionhead) :: No update required.\n" if $revisioncurrent eq $revisionhead;
 
 print "Updating current revision ($revisioncurrent) ==> HEAD revision ($revisionhead)\n";
 
@@ -87,15 +87,21 @@ if (-f 'openwebmail-current.tar.gz') {
    unlink('openwebmail-current.tar.gz') or die "Cannot delete file openwebmail-current.tar.gz: ($!)";
 }
 
-# check out the latest code from SVN
-print "Getting the code from SVN...\n";
-system("$global->{svn} export $global->{svnserver} openwebmail-current > /dev/null") == 0
-  or die "Checkout from SVN failed: ($?)\n";
+# prepare to clone
+if (-d 'gittemp') {
+   print "Removing gittemp...\n";
+   system("$global->{rm} -rf gittemp");
+}
+
+# clone the latest code from github
+print "Getting the latest code from $global->{gitrepo}...\n";
+system("$global->{git} clone $global->{gitrepo} gittemp > /dev/null") == 0
+  or die "Respository checkout failed: ($?)\n";
 
 #==========================
 # NOTICE: CHANGE DIRECTORY
 #==========================
-chdir 'openwebmail-current' or die "Cannot change to directory openwebmail-current: ($!)\n";
+chdir 'gittemp' or die "Cannot change to directory gittemp: ($!)\n";
 
 # update the openwebmail.conf release date and rev number with HEAD
 print "Setting revision and release date...\n";
@@ -108,29 +114,29 @@ sysread CONF, my $default_conf, -s CONF; # slurp
 close(CONF) or die "Cannot close ${configfile}: $!\n";
 
 $default_conf =~ s#^(releasedate[^\d]+)\d{8}#$1$releasedate#img;
-$default_conf =~ s#^(revision[^\d]+)\d+#$1$revisionhead#img;
+$default_conf =~ s#^(revision[^\S]+)\S{1,7}#$1$revisionhead#img;
 
 open(CONF, ">$configfile") or die "Cannot open ${configfile}: $!\n";
 print CONF $default_conf;
 close(CONF) or die "Cannot close ${configfile}: $!\n";
 
-# generate changes.txt from SVN logs
+# generate changes.txt from git logs
 print "Generating changes.txt file...\n";
-my $rawlog = `$global->{svn} log -rHEAD:1 $global->{svnserver}`;
+my $rawlog = `$global->{git} log --graph --date=short --pretty=format:'%cd (%h %cn)%n%B'`;
 die "Cannot get raw log: ($!)\n" unless defined $rawlog && $rawlog;
 
-$rawlog =~ s/^ +//gm;                                                   # remove leading spaces
-$rawlog =~ s/ +$//gm;                                                   # remove trailing spaces
-$rawlog =~ s/^[0-9]\.\s/\n/gm;                                          # remove leading commit numbering
-$rawlog =~ s/[\n\r]{2,}$/\n/gm;                                         # remove consecutive blank lines
-$rawlog =~ s/-{72}/----------/gm;                                       # shorten dash lines
-$rawlog =~ s/\s+\d\d:\d\d:\d\d.*lines?$//gm;                            # remove SVN line summary
-$rawlog =~ s/^(r\d+)\s+\|\s+([a-z0-9]+)\s+\|\s+([\d-]+)/$3 ($1 $2)/igm; # swap ordering of SVN commit attribution
+$rawlog =~ s/^ +//gm;                      # remove leading spaces
+$rawlog =~ s/ +$//gm;                      # remove trailing spaces
+$rawlog =~ s/(.*?)git\-svn\-id:.*$/$1/igm; # remove git-svn-id: lines
+$rawlog =~ s/[\n\r]{2,}$/\n/gm;            # remove consecutive blank lines
 
 my $changesfile = './data/openwebmail/doc/changes.txt';
 open(CHANGES, ">$changesfile") or die "Cannot open ${changesfile}: $!\n";
 print CHANGES $rawlog;
 close(CHANGES) or die "Cannot close ${changesfile}: $!\n";
+
+print "Removing .git directory...\n";
+system("$global->{rm} -rf .git");
 
 # generate new owm.pot PO template from sources
 print "Generating POT template from sources...\n";
@@ -195,18 +201,17 @@ my ($build) = $firstline =~ m/^.*\s(\d+)\s.*$/;
 
 print "Building CKEditor (rev$build)...\n";
 
-# Roll Release (This destroys the SVN structure, so only use when you are ready!)
 # run "java -jar _dev/releaser/ckreleaser/ckreleaser.jar -h" for help
 system("$global->{java} -jar ./data/openwebmail/javascript/ckeditor/_dev/releaser/ckreleaser/ckreleaser.jar ./data/openwebmail/javascript/ckeditor/_dev/releaser/openwebmail-ckreleaser.release ./data/openwebmail/javascript/ckeditor ckeditor_build \"for OpenWebMail rev$build\" build_$build --verbose");
 
-system('rm -rf ./data/openwebmail/javascript/ckeditor');
+system("$global->{rm} -rf ./data/openwebmail/javascript/ckeditor");
 
 rename('ckeditor_build/release','./data/openwebmail/javascript/ckeditor')
   or die "Cannot rename directory: ckeditor_build/release -> ./data/openwebmail/javascript/ckeditor ($!)";
 
-system('rm -rf ckeditor_build');
+system("$global->{rm} -rf ckeditor_build");
 
-system('rm -rf ./data/openwebmail/javascript/ckeditor/_source ./data/openwebmail/javascript/ckeditor/ckeditor_basic.js ./data/openwebmail/javascript/ckeditor/openwebmail-*');
+system("$global->{rm} -rf ./data/openwebmail/javascript/ckeditor/_source ./data/openwebmail/javascript/ckeditor/ckeditor_basic.js ./data/openwebmail/javascript/ckeditor/openwebmail-*");
 
 print "done\n"; # ckeditor complete
 
@@ -253,14 +258,14 @@ if ($ENV{HOST} eq 'gouda.acatysmoof.com') {
                    12 => 'December',
                 );
 
-   my $revisionstring = '(' . $months{$mon + 1} . " $mday, " . ($year + 1900) . " Rev $revisionhead)";
+   my $revisionstring = '(' . $months{$mon + 1} . " $mday, " . ($year + 1900) . " Rev <a href=\"http://github.com/openwebmail/openwebmail/commit/$revisionhead\" target=\"_new\">$revisionhead<\a>)";
 
    my $index = '/home/alex/openwebmail.acatysmoof.com/index.html';
    open(INDEX, "<$index") or die "Cannot open file ${index}: ($!)\n";
    sysread INDEX, my $indexhtml, -s INDEX; # slurp
    close(INDEX) or die "Cannot close file ${index}: ($!)\n";
 
-   $indexhtml =~ s/\([a-z]+\s\d+,\s\d+\sRev\s\d+\)/$revisionstring/igs;
+   $indexhtml =~ s/\([a-z]+\s\d+,\s\d+\sRev\s\S+\)/$revisionstring/igs;
 
    open(INDEX, ">$index") or die "Cannot open file ${index}: ($!)\n";
    print INDEX $indexhtml;
@@ -735,7 +740,7 @@ if ($ENV{HOST} eq 'gouda.acatysmoof.com') {
 
       $langstathtml .= qq|
       <tr>
-         <td><a href="http://openwebmail.acatysmoof.com/dev/svnweb/index.pl/openwebmail/checkout/trunk/src/cgi-bin/openwebmail/etc/lang/$filename.po" target="_new">$filename</a></td>
+         <td><a href="http://raw.github.com/openwebmail/openwebmail/master/cgi-bin/openwebmail/etc/lang/$filename.po" target="_new">$filename</a></td>
          <td>$languagecodes{$language}</td>
          <td>$countrycodes{$country}</td>
          <td align="center">
@@ -782,8 +787,8 @@ close(MD5) or die "Cannot close file MD5SUM: ($!)";
 
 # clean up
 print "Cleaning up...\n";
-system("$global->{rm} -rf openwebmail-current") == 0
-   or die "Cannot remove openwebmail-current directory";
+system("$global->{rm} -rf gittemp") == 0
+   or die "Cannot remove gittemp directory";
 
 print "done.\n";
 
@@ -810,7 +815,7 @@ sub help {
 
 =head1 NAME
 
-mkcurrent - collect, permission, and package a tarball of OpenWebMail from the SVN repository
+mkcurrent - collect, permission, and package a tarball of OpenWebMail from a git repository
 
 =head1 DESCRIPTION
 
@@ -818,9 +823,9 @@ This script creates an openwebmail-current tarball by performing the following:
 
 =over 4
 
-=item - check out the latest version from SVN
+=item - check out the latest version from a git repository
 
-=item - generate a changes.txt file from the SVN logs
+=item - generate a changes.txt file from the git logs
 
 =item - update the release date and revision number in openwebmail.conf
 
