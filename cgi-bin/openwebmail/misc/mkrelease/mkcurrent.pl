@@ -258,7 +258,7 @@ if ($ENV{HOST} eq 'gouda.acatysmoof.com') {
                    12 => 'December',
                 );
 
-   my $revisionstring = '(' . $months{$mon + 1} . " $mday, " . ($year + 1900) . " Rev <a href=\"http://github.com/openwebmail/openwebmail/commit/$revisionhead\" target=\"_new\">$revisionhead<\a>)";
+   my $revisionstring = '(' . $months{$mon + 1} . " $mday, " . ($year + 1900) . " Rev $revisionhead)";
 
    my $index = '/home/alex/openwebmail.acatysmoof.com/index.html';
    open(INDEX, "<$index") or die "Cannot open file ${index}: ($!)\n";
