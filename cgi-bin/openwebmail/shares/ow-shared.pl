@@ -2392,6 +2392,8 @@ sub autologin_add {
    # we store ip and browsername in autologin db,
    # so a user may have different autologin settings on different computer
    # or even different browsers on same computer
+   return 0 unless exists $ENV{HTTP_USER_AGENT} && defined $ENV{HTTP_USER_AGENT};
+
    my $agentip = $ENV{HTTP_USER_AGENT} . ow::tool::clientip();
 
    my $autologindb = dotpath('autologin.check');
@@ -2417,6 +2419,8 @@ sub autologin_add {
 }
 
 sub autologin_rm {
+   return 0 unless exists $ENV{HTTP_USER_AGENT} && defined $ENV{HTTP_USER_AGENT};
+
    my $agentip = $ENV{HTTP_USER_AGENT} . ow::tool::clientip();
 
    my $autologindb = dotpath('autologin.check');
@@ -2437,6 +2441,8 @@ sub autologin_rm {
 }
 
 sub autologin_check {
+   return 0 unless exists $ENV{HTTP_USER_AGENT} && defined $ENV{HTTP_USER_AGENT};
+
    my $agentip = $ENV{HTTP_USER_AGENT} . ow::tool::clientip();
 
    my $autologindb = dotpath('autologin.check');
